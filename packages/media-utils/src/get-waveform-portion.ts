@@ -23,16 +23,16 @@ export const getWaveformPortion = ({
 }): Bar[] => {
 	const startSample = Math.floor(
 		(startTimeInSeconds / audioData.durationInSeconds) *
-			audioData.channelWaveforms[0].length
+			audioData.channelWaveforms[0].length,
 	);
 	const endSample = Math.floor(
 		((startTimeInSeconds + durationInSeconds) / audioData.durationInSeconds) *
-			audioData.channelWaveforms[0].length
+			audioData.channelWaveforms[0].length,
 	);
 
 	return getWaveformSamples(
 		audioData.channelWaveforms[0].slice(startSample, endSample),
-		numberOfSamples
+		numberOfSamples,
 	).map((w, i) => {
 		return {
 			index: i,

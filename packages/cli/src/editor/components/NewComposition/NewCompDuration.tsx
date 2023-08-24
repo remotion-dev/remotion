@@ -14,14 +14,14 @@ export const NewCompDuration: React.FC<{
 		(newValue: string) => {
 			setDurationInFrames(String(Number(newValue)));
 		},
-		[setDurationInFrames]
+		[setDurationInFrames],
 	);
 
 	const onDurationChangedDirectly = useCallback(
 		(newVal: number) => {
 			setDurationInFrames(String(newVal));
 		},
-		[setDurationInFrames]
+		[setDurationInFrames],
 	);
 
 	const compDurationErrMessage = validateCompositionDuration(durationInFrames);

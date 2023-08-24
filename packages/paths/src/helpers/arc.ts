@@ -205,7 +205,7 @@ const pointOnEllipticalArc = ({
 			x: 1,
 			y: 0,
 		},
-		startVector
+		startVector,
 	);
 
 	const endVector = {
@@ -250,7 +250,7 @@ const pointOnEllipticalArc = ({
 
 const approximateArcLengthOfCurve = (
 	resolution: number,
-	pointOnCurveFunc: (t: number) => Point
+	pointOnCurveFunc: (t: number) => Point,
 ) => {
 	// Resolution is the number of segments we use
 	resolution = resolution ? resolution : 500;

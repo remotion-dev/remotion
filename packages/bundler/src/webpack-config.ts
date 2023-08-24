@@ -13,7 +13,7 @@ import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
+	currentConfiguration: WebpackConfiguration,
 ) => WebpackConfiguration;
 
 if (!ReactDOM?.version) {
@@ -23,7 +23,7 @@ if (!ReactDOM?.version) {
 const reactDomVersion = ReactDOM.version.split('.')[0];
 if (reactDomVersion === '0') {
 	throw new Error(
-		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`,
 	);
 }
 

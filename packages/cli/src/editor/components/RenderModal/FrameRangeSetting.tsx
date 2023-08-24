@@ -25,14 +25,14 @@ export const FrameRangeSetting: React.FC<{
 		(newStartFrame: number) => {
 			setStartFrame(newStartFrame);
 		},
-		[setStartFrame]
+		[setStartFrame],
 	);
 
 	const onEndFrameChangedDirectly = useCallback(
 		(newEndFrame: number) => {
 			setEndFrame(newEndFrame);
 		},
-		[setEndFrame]
+		[setEndFrame],
 	);
 
 	return (

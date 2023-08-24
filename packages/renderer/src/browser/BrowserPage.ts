@@ -225,7 +225,7 @@ export class Page extends EventEmitter {
 							tag,
 							indent,
 						},
-						log.previewString
+						log.previewString,
 					);
 				} else {
 					Log.verboseAdvanced(
@@ -234,18 +234,22 @@ export class Page extends EventEmitter {
 							tag,
 							indent,
 						},
-						log.previewString
+						log.previewString,
 					);
 				}
 			} else if (log.type === 'error') {
-				Log.errorAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent},
-					log.text
-				);
+				if (log.text.includes('Failed to load resource:')) {
+					Log.errorAdvanced({logLevel, tag: url, indent}, log.text);
+				} else {
+					Log.errorAdvanced(
+						{logLevel, tag: `console.${log.type}`, indent},
+						log.text,
+					);
+				}
 			} else {
 				Log.verboseAdvanced(
 					{logLevel, tag: `console.${log.type}`, indent},
-					log.text
+					log.text,
 				);
 			}
 		});
@@ -272,14 +276,14 @@ export class Page extends EventEmitter {
 	// dispatching is delegated to EventEmitter.
 	public override on<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		return super.on(eventName, handler);
 	}
 
 	public override once<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		// Note: this method only exists to define the types; we delegate the impl
 		// to EventEmitter.
@@ -288,7 +292,7 @@ export class Page extends EventEmitter {
 
 	override off<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		return super.off(eventName, handler);
 	}
@@ -333,7 +337,7 @@ export class Page extends EventEmitter {
 					args: [],
 					stackTraceLocations: [{url, lineNumber}],
 					previewString,
-				})
+				}),
 			);
 		}
 	}
@@ -359,7 +363,7 @@ export class Page extends EventEmitter {
 					angle: 0,
 					type: 'portraitPrimary',
 				},
-			}
+			},
 		);
 		return value;
 	}
@@ -387,7 +391,7 @@ export class Page extends EventEmitter {
 
 		const context = this.#frameManager.executionContextById(
 			event.executionContextId,
-			this.#client
+			this.#client,
 		);
 		const values = event.args.map((arg) => {
 			return _createJSHandle(context, arg);
@@ -422,7 +426,7 @@ export class Page extends EventEmitter {
 					name,
 					seq,
 					_error.message,
-					_error.stack
+					_error.stack,
 				);
 			} else {
 				expression = pageBindingDeliverErrorValueString(name, seq, _error);
@@ -438,7 +442,7 @@ export class Page extends EventEmitter {
 	#addConsoleMessage(
 		eventType: ConsoleMessageType,
 		args: JSHandle[],
-		stackTrace?: StackTrace
+		stackTrace?: StackTrace,
 	): void {
 		if (!this.listenerCount(PageEmittedEvents.Console)) {
 			args.forEach((arg) => {
@@ -521,7 +525,7 @@ export class Page extends EventEmitter {
 	}
 
 	async close(
-		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined}
+		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined},
 	): Promise<void> {
 		const connection = this.#client.connection();
 		if (!connection) {

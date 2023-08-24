@@ -103,10 +103,10 @@ const Inner: React.FC = () => {
 			return getXPositionOfItemInTimelineImperatively(
 				frame,
 				videoConfig.durationInFrames,
-				timelineWidth
+				timelineWidth,
 			);
 		},
-		[timelineWidth, videoConfig.durationInFrames]
+		[timelineWidth, videoConfig.durationInFrames],
 	);
 
 	const width = scrollableRef.current?.scrollWidth ?? 0;
@@ -189,7 +189,7 @@ const Inner: React.FC = () => {
 			});
 			pause();
 		},
-		[videoConfig, left, width, seek, playing, pause, outFrame, get, inFrame]
+		[videoConfig, left, width, seek, playing, pause, outFrame, get, inFrame],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -286,7 +286,7 @@ const Inner: React.FC = () => {
 				seek(frame);
 			}
 		},
-		[videoConfig, dragging.dragging, left, width, seek]
+		[videoConfig, dragging.dragging, left, width, seek],
 	);
 
 	const onPointerMoveInOut = useCallback(
@@ -303,8 +303,8 @@ const Inner: React.FC = () => {
 				inOutDragging.boundaries[0],
 				Math.min(
 					inOutDragging.boundaries[1],
-					getClientXWithScroll(e.clientX) - inOutDragging.initialOffset
-				)
+					getClientXWithScroll(e.clientX) - inOutDragging.initialOffset,
+				),
 			);
 			if (inOutDragging.dragging === 'in') {
 				if (!inPointerHandle.current) {
@@ -348,7 +348,7 @@ const Inner: React.FC = () => {
 					String(width - get(outFrame) - offset) + 'px';
 			}
 		},
-		[get, inFrame, inOutDragging, outFrame, videoConfig, width]
+		[get, inFrame, inOutDragging, outFrame, videoConfig, width],
 	);
 
 	const onPointerUpScrubbing = useCallback(
@@ -381,7 +381,7 @@ const Inner: React.FC = () => {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, setFrame, width]
+		[dragging, left, play, videoConfig, setFrame, width],
 	);
 
 	const onPointerUpInOut = useCallback(
@@ -452,7 +452,7 @@ const Inner: React.FC = () => {
 			setInAndOutFrames,
 			videoConfig,
 			width,
-		]
+		],
 	);
 
 	useEffect(() => {

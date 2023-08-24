@@ -53,7 +53,7 @@ export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
 			}
 
 			const found = assets.find(
-				(a) => a.duration === null && areEqual(a, asset)
+				(a) => a.duration === null && areEqual(a, asset),
 			);
 			if (!found) throw new Error('something wrong');
 			if (!findFrom(next, asset)) {

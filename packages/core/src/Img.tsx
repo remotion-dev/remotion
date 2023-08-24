@@ -38,7 +38,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		() => {
 			return imageRef.current as HTMLImageElement;
 		},
-		[]
+		[],
 	);
 
 	const actualSrc = usePreload(src as string);
@@ -86,12 +86,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
 			) {
 				const backoff = exponentialBackoff(
-					errors.current[imageRef.current?.src as string] ?? 0
+					errors.current[imageRef.current?.src as string] ?? 0,
 				);
 				console.warn(
 					`Could not load image with source ${
 						imageRef.current?.src as string
-					}, retrying again in ${backoff}ms`
+					}, retrying again in ${backoff}ms`,
 				);
 
 				retryIn(backoff);
@@ -99,10 +99,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			}
 
 			cancelRender(
-				'Error loading image with src: ' + (imageRef.current?.src as string)
+				'Error loading image with src: ' + (imageRef.current?.src as string),
 			);
 		},
-		[maxRetries, onError, retryIn]
+		[maxRetries, onError, retryIn],
 	);
 
 	if (typeof window !== 'undefined') {
@@ -121,7 +121,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					console.info(
 						`Retry successful - ${
 							imageRef.current?.src as string
-						} is now loaded`
+						} is now loaded`,
 					);
 				}
 

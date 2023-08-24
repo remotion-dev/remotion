@@ -20,6 +20,8 @@ import {crfOption} from './options/crf';
 import {enforceAudioOption} from './options/enforce-audio';
 import {jpegQualityOption} from './options/jpeg-quality';
 import {muteOption} from './options/mute';
+import {offthreadVideoCacheSizeInBytesOption} from './options/offthreadvideo-cache-size';
+import {optionsMap} from './options/options-map';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
@@ -53,7 +55,9 @@ export const BrowserSafeApis = {
 		enforceAudioOption,
 		muteOption,
 		videoCodecOption,
+		offthreadVideoCacheSizeInBytesOption,
 	},
+	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
 };

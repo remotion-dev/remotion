@@ -28,18 +28,18 @@ const Scale = ({width, height}: {width: number; height: number}) => {
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const {children, width, height, style, onCreated, ...rest} = props;
 	const [waitForCreated] = useState(() =>
-		delayRender('Waiting for <ThreeCanvas/> to be created')
+		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
 
 	Internals.validateDimension(
 		width,
 		'width',
-		'of the <ThreeCanvas /> component'
+		'of the <ThreeCanvas /> component',
 	);
 	Internals.validateDimension(
 		height,
 		'height',
-		'of the <ThreeCanvas /> component'
+		'of the <ThreeCanvas /> component',
 	);
 	const contexts = Internals.useRemotionContexts();
 	const actualStyle = {
@@ -53,7 +53,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			continueRender(waitForCreated);
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated]
+		[onCreated, waitForCreated],
 	);
 
 	return (

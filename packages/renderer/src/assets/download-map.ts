@@ -65,7 +65,7 @@ export const makeDownloadMap = (): DownloadMap => {
 	const dir = tmpDir(
 		packageJson
 			? `remotion-v${packageJson.version.replace(/\./g, '-')}-assets`
-			: 'remotion-assets'
+			: 'remotion-assets',
 	);
 
 	return {

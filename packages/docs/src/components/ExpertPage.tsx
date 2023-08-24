@@ -118,7 +118,7 @@ export default () => {
       <Head>
         {Seo.renderTitle(`${expert.name} | Remotion Experts`)}
         {Seo.renderDescription(
-          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`
+          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`,
         )}
         {Seo.renderImage(imgSrc, context.siteConfig.url)}
       </Head>
@@ -180,10 +180,10 @@ export default () => {
             </div>
           </a>
         ) : null}
-        {expert.twitter ? (
+        {expert.x ? (
           <a
             style={socialLink}
-            href={`https://twitter.com/${expert.twitter}`}
+            href={`https://x.com/${expert.x}`}
             target={"_blank"}
           >
             <div style={socialRow}>
@@ -199,7 +199,7 @@ export default () => {
                   />
                 </svg>
               </div>
-              @{expert.twitter}
+              @{expert.x}
             </div>
           </a>
         ) : null}

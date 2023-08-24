@@ -39,7 +39,7 @@ type RenderJobDynamicStatus =
 	  };
 
 export type JobProgressCallback = (
-	options: BaseRenderProgress & AggregateRenderProgress
+	options: BaseRenderProgress & AggregateRenderProgress,
 ) => void;
 
 type RenderJobDynamicFields =
@@ -49,6 +49,7 @@ type RenderJobDynamicFields =
 			jpegQuality: number;
 			frame: number;
 			scale: number;
+			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
@@ -71,6 +72,7 @@ type RenderJobDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
+			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
@@ -136,6 +138,7 @@ export type AddRenderRequest = {
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
+	offthreadVideoCacheSizeInBytes: number | null;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

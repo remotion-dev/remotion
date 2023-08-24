@@ -1,6 +1,6 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const audioBitrateOption: RemotionOption = {
+export const audioBitrateOption = {
 	name: 'Audio Bitrate',
 	cliFlag: '--audio-bitrate',
 	description: (
@@ -14,4 +14,5 @@ export const audioBitrateOption: RemotionOption = {
 	),
 	ssrName: 'audioBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#audiobitrate-',
-};
+	type: '0' as string,
+} satisfies AnyRemotionOption;

@@ -13,7 +13,7 @@ const makeProperty = (
 	key: string,
 	val: number | string,
 	type: 'const' | 'string',
-	raw: boolean
+	raw: boolean,
 ) => {
 	if (raw) {
 		return makePropertyRaw(key, val, type);
@@ -55,7 +55,7 @@ const makeProperty = (
 const makePropertyRaw = (
 	key: string,
 	val: number | string,
-	type: 'const' | 'string'
+	type: 'const' | 'string',
 ) => {
 	return [
 		`  `,

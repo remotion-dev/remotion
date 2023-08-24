@@ -18,16 +18,16 @@ export const screenshot = (options: {
 		assert.ok(
 			typeof options.jpegQuality === 'number',
 			'Expected options.quality to be a number but found ' +
-				typeof options.jpegQuality
+				typeof options.jpegQuality,
 		);
 		assert.ok(
 			Number.isInteger(options.jpegQuality),
-			'Expected options.quality to be an integer'
+			'Expected options.quality to be an integer',
 		);
 		assert.ok(
 			options.jpegQuality >= 0 && options.jpegQuality <= 100,
 			'Expected options.quality to be between 0 and 100 (inclusive), got ' +
-				options.jpegQuality
+				options.jpegQuality,
 		);
 	}
 
@@ -41,6 +41,6 @@ export const screenshot = (options: {
 			path: options.path,
 			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			clipRegion: options.clipRegion,
-		})
+		}),
 	);
 };

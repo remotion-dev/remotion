@@ -5,12 +5,12 @@ export const validOpenGlRenderers = [
 	'swiftshader',
 ] as const;
 
-export type OpenGlRenderer = typeof validOpenGlRenderers[number];
+export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
 export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
 
 export const validateOpenGlRenderer = (
-	option: OpenGlRenderer | null
+	option: OpenGlRenderer | null,
 ): OpenGlRenderer | null => {
 	if (option === null) {
 		return null;
@@ -19,8 +19,8 @@ export const validateOpenGlRenderer = (
 	if (!validOpenGlRenderers.includes(option)) {
 		throw new TypeError(
 			`${option} is not a valid GL backend. Accepted values: ${validOpenGlRenderers.join(
-				', '
-			)}`
+				', ',
+			)}`,
 		);
 	}
 

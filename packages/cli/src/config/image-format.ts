@@ -19,7 +19,7 @@ export const setStillImageFormat = (format: StillImageFormat) => {
 				format === 'jpg' ? 'Did you mean "jpeg"?' : null,
 			]
 				.filter(truthy)
-				.join(' ')
+				.join(' '),
 		);
 	}
 
@@ -40,7 +40,7 @@ export const setVideoImageFormat = (format: VideoImageFormat) => {
 				format === 'jpg' ? 'Did you mean "jpeg"?' : null,
 			]
 				.filter(truthy)
-				.join(' ')
+				.join(' '),
 		);
 	}
 

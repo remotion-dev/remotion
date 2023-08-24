@@ -12,7 +12,7 @@ const assertClose = (a: number, b: number, precision = 3) => {
 const allEquals = (
 	be1: (x: number) => number,
 	be2: (x: number) => number,
-	samples: number
+	samples: number,
 ) => {
 	for (let i = 0; i <= samples; ++i) {
 		const x = i / samples;

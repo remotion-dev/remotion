@@ -9,7 +9,7 @@ export const ControlButton = (
 		HTMLButtonElement
 	> & {
 		title: string;
-	}
+	},
 ) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {

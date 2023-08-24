@@ -6,7 +6,7 @@ type Section = 'general' | 'picture' | 'advanced' | 'data' | 'gif' | 'audio';
 
 export const useRenderModalSections = (
 	renderMode: RenderType,
-	codec: Codec
+	codec: Codec,
 ) => {
 	const [selectedTab, setTab] = useState<Section>('general');
 

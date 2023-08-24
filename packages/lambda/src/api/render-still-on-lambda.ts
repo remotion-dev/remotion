@@ -2,7 +2,9 @@ import type {
 	ChromiumOptions,
 	LogLevel,
 	StillImageFormat,
+	ToOptions,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -46,7 +48,7 @@ export type RenderStillOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
@@ -98,10 +100,11 @@ export const renderStillOnLambda = async ({
 	forceBucketName,
 	dumpBrowserLogs,
 	onInit,
+	offthreadVideoCacheSizeInBytes,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+			'The `quality` option is deprecated. Use `jpegQuality` instead.',
 		);
 	}
 
@@ -140,6 +143,7 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
+				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 			},
 			region,
 			receivedStreamingPayload: (payload) => {
@@ -177,7 +181,7 @@ export const renderStillOnLambda = async ({
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 

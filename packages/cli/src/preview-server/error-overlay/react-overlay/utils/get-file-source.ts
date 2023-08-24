@@ -6,7 +6,7 @@ const allowedFileExtensions = ['js', 'ts', 'tsx', 'jsx', 'map', 'mjs'];
 // Must be async function for proper error handling
 export const getFileSource = (
 	remotionRoot: string,
-	p: string
+	p: string,
 ): Promise<string> => {
 	if (!allowedFileExtensions.find((extension) => p.endsWith(extension))) {
 		return Promise.reject(new Error(`Not allowed to open ${p}`));
@@ -16,7 +16,7 @@ export const getFileSource = (
 	const relativeToProcessCwd = path.relative(remotionRoot, resolved);
 	if (relativeToProcessCwd.startsWith('..')) {
 		return Promise.reject(
-			new Error(`Not allowed to open ${relativeToProcessCwd}`)
+			new Error(`Not allowed to open ${relativeToProcessCwd}`),
 		);
 	}
 

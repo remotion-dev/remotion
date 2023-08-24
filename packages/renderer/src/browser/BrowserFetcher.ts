@@ -110,7 +110,7 @@ export const downloadBrowser = async (): Promise<
 			'The chromium binary is not available for arm64.' +
 				'\nIf you are on Ubuntu, you can install with: ' +
 				'\n\n sudo apt install chromium\n' +
-				'\n\n sudo apt install chromium-browser\n'
+				'\n\n sudo apt install chromium-browser\n',
 		);
 	}
 
@@ -125,8 +125,8 @@ export const downloadBrowser = async (): Promise<
 
 					Log.info(
 						`Downloading Thorium - ${toMegabytes(
-							progress.downloaded
-						)}/${toMegabytes(progress.totalSize as number)}`
+							progress.downloaded,
+						)}/${toMegabytes(progress.totalSize as number)}`,
 					);
 				}
 			},

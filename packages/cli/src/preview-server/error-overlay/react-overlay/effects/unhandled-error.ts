@@ -37,7 +37,7 @@ function registerUnhandledError(target: EventTarget, callback: ErrorCallback) {
 
 	boundErrorHandler = errorHandler.bind(
 		undefined,
-		callback
+		callback,
 	) as unknown as EventListenerObject;
 	target.addEventListener('error', boundErrorHandler);
 }

@@ -21,7 +21,7 @@ import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
 
 const qualityControlModes = ['crf', 'bitrate'] as const;
-export type QualityControl = typeof qualityControlModes[number];
+export type QualityControl = (typeof qualityControlModes)[number];
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -103,7 +103,7 @@ export const RenderModalPicture: React.FC<{
 			(e) => {
 				setCustomTargetVideoBitrateValue(e.target.value);
 			},
-			[setCustomTargetVideoBitrateValue]
+			[setCustomTargetVideoBitrateValue],
 		);
 
 	return (

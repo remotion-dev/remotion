@@ -38,7 +38,7 @@ for (const packageManager of packageManagers) {
 				setPackageJson: (_: string, content: string) => {
 					newPackageJson = JSON.parse(content);
 				},
-			}
+			},
 		);
 		expect(newPackageJson).to.deep.equal({
 			...packageJson,

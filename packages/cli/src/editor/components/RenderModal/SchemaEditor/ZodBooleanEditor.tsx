@@ -47,7 +47,7 @@ export const ZodBooleanEditor: React.FC<{
 		(e) => {
 			onChange(() => e.target.checked, false, false);
 		},
-		[onChange]
+		[onChange],
 	);
 
 	const save = useCallback(() => {

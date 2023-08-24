@@ -86,28 +86,28 @@ export class PlayerEmitter {
 
 	addEventListener<Q extends PlayerEventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
 	}
 
 	removeEventListener<Q extends PlayerEventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		this.listeners[name] = this.listeners[name].filter(
-			(l) => l !== callback
+			(l) => l !== callback,
 		) as PlayerListeners[Q];
 	}
 
 	private dispatchEvent<T extends PlayerEventTypes>(
 		dispatchName: T,
-		context: PlayerStateEventMap[T]
+		context: PlayerStateEventMap[T],
 	) {
 		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
 			(callback) => {
 				callback({detail: context});
-			}
+			},
 		);
 	}
 
@@ -177,14 +177,14 @@ export class ThumbnailEmitter {
 
 	addEventListener<Q extends ThumbnailEventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
 	}
 
 	removeEventListener<Q extends ThumbnailEventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		this.listeners[name] = (
 			this.listeners[name] as CallbackListener<ThumbnailEventTypes>[]
@@ -193,12 +193,12 @@ export class ThumbnailEmitter {
 
 	private dispatchEvent<T extends ThumbnailEventTypes>(
 		dispatchName: T,
-		context: PlayerStateEventMap[T]
+		context: PlayerStateEventMap[T],
 	) {
 		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
 			(callback) => {
 				callback({detail: context});
-			}
+			},
 		);
 	}
 

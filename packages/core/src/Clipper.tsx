@@ -14,7 +14,7 @@ export const Clipper: React.FC<{
 		setClipRegion((c) => {
 			if (c === 'hide') {
 				throw new Error(
-					'Cannot render <Clipper>, because another <Null> is already rendered'
+					'Cannot render <Clipper>, because another <Null> is already rendered',
 				);
 			}
 
@@ -23,7 +23,7 @@ export const Clipper: React.FC<{
 			}
 
 			throw new Error(
-				'Cannot render <Clipper>, because another component clipping the region was already rendered (most likely <Clipper>)'
+				'Cannot render <Clipper>, because another component clipping the region was already rendered (most likely <Clipper>)',
 			);
 		});
 

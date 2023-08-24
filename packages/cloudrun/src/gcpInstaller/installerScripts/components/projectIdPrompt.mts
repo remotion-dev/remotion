@@ -32,7 +32,7 @@ export function projectIdPrompt() {
 				}
 
 				resolve(projectID);
-			}
+			},
 		);
 	});
 }

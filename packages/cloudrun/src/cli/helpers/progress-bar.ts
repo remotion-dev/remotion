@@ -97,7 +97,7 @@ const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 			stats.removedFiles ? `-${stats.removedFiles}` : null,
 		]
 			.filter(Internals.truthy)
-			.join(',')} ${total === 1 ? 'file' : 'files'})`
+			.join(',')} ${total === 1 ? 'file' : 'files'})`,
 	);
 };
 
@@ -115,7 +115,7 @@ export const makeDeployProgressBar = ({
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
-						totalSize
+						totalSize,
 				  )}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),

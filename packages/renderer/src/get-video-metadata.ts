@@ -1,16 +1,16 @@
 import {
-	getIdealMaximumFrameCacheItems,
+	getIdealMaximumFrameCacheSizeInBytes,
 	startLongRunningCompositor,
 } from './compositor/compositor';
 import type {VideoMetadata} from './compositor/payloads';
 
 export const getVideoMetadata = async (
-	videoSource: string
+	videoSource: string,
 ): Promise<VideoMetadata> => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
+		getIdealMaximumFrameCacheSizeInBytes(),
 		'info',
-		false
+		false,
 	);
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
 		src: videoSource,

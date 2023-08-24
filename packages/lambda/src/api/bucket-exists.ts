@@ -16,7 +16,7 @@ export const bucketExistsInRegion = async ({
 			new GetBucketLocationCommand({
 				Bucket: bucketName,
 				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
-			})
+			}),
 		);
 
 		return (bucket.LocationConstraint ?? 'us-east-1') === region;

@@ -8,7 +8,9 @@
 /* You can override the default Infima variables here. */
 
 * {
-  font-feature-settings: "kern" 1, "ss02" 1;
+  font-feature-settings:
+    "kern" 1,
+    "ss02" 1;
   font-kerning: normal;
   -webkit-font-smoothing: antialiased; /* Chrome, Safari */
   -moz-osx-font-smoothing: grayscale; /* Firefox */

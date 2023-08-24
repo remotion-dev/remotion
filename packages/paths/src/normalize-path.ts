@@ -14,7 +14,7 @@ export const normalizePath = (path: string): string => {
 };
 
 export const normalizeInstructions = (
-	instructions: Instruction[]
+	instructions: Instruction[],
 ): AbsoluteInstruction[] => {
 	// Extended properties must already be normalized
 	const normalized: AbsoluteInstruction[] = [];

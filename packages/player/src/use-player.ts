@@ -53,7 +53,7 @@ export const usePlayer = (): UsePlayerMethods => {
 
 			emitter.dispatchSeek(newFrame);
 		},
-		[emitter, setTimelinePosition, video?.id]
+		[emitter, setTimelinePosition, video?.id],
 	);
 
 	const play = useCallback(
@@ -94,7 +94,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			emitter,
 			seek,
 			audioAndVideoTags,
-		]
+		],
 	);
 
 	const pause = useCallback(() => {
@@ -140,7 +140,7 @@ export const usePlayer = (): UsePlayerMethods => {
 				};
 			});
 		},
-		[imperativePlaying, setFrame, videoId]
+		[imperativePlaying, setFrame, videoId],
 	);
 
 	const frameForward = useCallback(
@@ -161,7 +161,7 @@ export const usePlayer = (): UsePlayerMethods => {
 				};
 			});
 		},
-		[videoId, imperativePlaying, lastFrame, setFrame]
+		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
 
 	const returnValue: UsePlayerMethods = useMemo(() => {

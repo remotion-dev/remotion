@@ -30,9 +30,9 @@ describe('Test invalid setQuality inputs ', () => {
 				// @ts-expect-error
 				() => setJpegQuality(entry),
 				new RegExp(
-					`Quality option must be a number or undefined. Got ${typeof entry}`
-				)
-			)
+					`Quality option must be a number or undefined. Got ${typeof entry}`,
+				),
+			),
 		);
 	});
 
@@ -41,8 +41,8 @@ describe('Test invalid setQuality inputs ', () => {
 		outOfRangeInput.forEach((entry) =>
 			expectToThrow(
 				() => setJpegQuality(entry),
-				/Quality option must be between 0 and 100./
-			)
+				/Quality option must be between 0 and 100./,
+			),
 		);
 	});
 });

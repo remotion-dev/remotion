@@ -52,22 +52,22 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 
 const remotionCacheLocationForEnv = (
 	remotionRoot: string,
-	environment: Environment
+	environment: Environment,
 ) => {
 	return path.join(
 		getWebpackCacheDir(remotionRoot),
-		getWebpackCacheEnvDir(environment)
+		getWebpackCacheEnvDir(environment),
 	);
 };
 
 const remotionCacheLocation = (
 	remotionRoot: string,
 	environment: Environment,
-	hash: string
+	hash: string,
 ) => {
 	return path.join(
 		getWebpackCacheDir(remotionRoot),
-		getWebpackCacheName(environment, hash)
+		getWebpackCacheName(environment, hash),
 	);
 };
 
@@ -111,7 +111,7 @@ const hasOtherCache = ({
 export const cacheExists = (
 	remotionRoot: string,
 	environment: Environment,
-	hash: string
+	hash: string,
 ): CacheState => {
 	if (fs.existsSync(remotionCacheLocation(remotionRoot, environment, hash))) {
 		return 'exists';

@@ -7,7 +7,7 @@ import {useCancellablePromises} from './use-cancellable-promises.js';
 const useClickPreventionOnDoubleClick = (
 	onClick: (e: SyntheticEvent) => void,
 	onDoubleClick: () => void,
-	doubleClickToFullscreen: boolean
+	doubleClickToFullscreen: boolean,
 ): [(e: SyntheticEvent) => void, () => void] => {
 	const api = useCancellablePromises();
 
@@ -30,7 +30,7 @@ const useClickPreventionOnDoubleClick = (
 				}
 			}
 		},
-		[api, onClick]
+		[api, onClick],
 	);
 
 	const handleDoubleClick = useCallback(() => {

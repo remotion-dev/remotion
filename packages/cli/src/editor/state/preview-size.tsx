@@ -60,7 +60,7 @@ export const PreviewSizeProvider: React.FC<{
 				return newVal;
 			});
 		},
-		[]
+		[],
 	);
 
 	const previewSizeCtx: PreviewSizeCtx = useMemo(() => {

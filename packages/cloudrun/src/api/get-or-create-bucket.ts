@@ -11,7 +11,7 @@ export type GetOrCreateBucketInput = {
 			| 'Checking for existing bucket'
 			| 'Creating new bucket'
 			| 'Created bucket'
-			| 'Using existing bucket'
+			| 'Using existing bucket',
 	) => void;
 };
 
@@ -27,7 +27,7 @@ export type GetOrCreateBucketOutput = {
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	params: GetOrCreateBucketInput
+	params: GetOrCreateBucketInput,
 ): Promise<GetOrCreateBucketOutput> => {
 	const {remotionBuckets} = await getRemotionStorageBuckets(params.region);
 
@@ -37,7 +37,7 @@ export const getOrCreateBucket = async (
 				.map((b) => b.name)
 				.join(', ')}) in your Cloud Storage region (${
 				params.region
-			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
+			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`,
 		);
 	}
 
@@ -64,6 +64,6 @@ export const getOrCreateBucket = async (
 	}
 
 	throw new Error(
-		'Bucket creation is required, but no region has been passed.'
+		'Bucket creation is required, but no region has been passed.',
 	);
 };

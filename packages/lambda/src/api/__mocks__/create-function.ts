@@ -16,7 +16,7 @@ export const createFunction: typeof original = (input) => {
 				version: VERSION,
 				diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			},
-			input.region
+			input.region,
 		);
 	}
 

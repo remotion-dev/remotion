@@ -17,7 +17,7 @@ function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
-	options: Required<InterpolateOptions>
+	options: Required<InterpolateOptions>,
 ): number {
 	const {extrapolateLeft, extrapolateRight, easing} = options;
 
@@ -81,8 +81,8 @@ function checkValidInputRange(arr: readonly number[]) {
 		if (!(arr[i] > arr[i - 1])) {
 			throw new Error(
 				`inputRange must be strictly monotonically non-decreasing but got [${arr.join(
-					','
-				)}]`
+					',',
+				)}]`,
 			);
 		}
 	}
@@ -100,7 +100,7 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 
 		if (arr[index] === -Infinity || arr[index] === Infinity) {
 			throw new Error(
-				`${name} must contain only finite numbers, but got [${arr.join(',')}]`
+				`${name} must contain only finite numbers, but got [${arr.join(',')}]`,
 			);
 		}
 	}
@@ -121,7 +121,7 @@ export function interpolate(
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly number[],
-	options?: InterpolateOptions
+	options?: InterpolateOptions,
 ): number {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
@@ -141,7 +141,7 @@ export function interpolate(
 				inputRange.length +
 				') and outputRange (' +
 				outputRange.length +
-				') must have the same length'
+				') must have the same length',
 		);
 	}
 
@@ -175,6 +175,6 @@ export function interpolate(
 			easing,
 			extrapolateLeft,
 			extrapolateRight,
-		}
+		},
 	);
 }

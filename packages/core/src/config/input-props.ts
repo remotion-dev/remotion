@@ -10,7 +10,7 @@ const warnOnceSSRImport = () => {
 
 	didWarnSSRImport = true;
 	console.warn(
-		'Called `getInputProps()` on the server. This function is not available server-side and has returned an empty object.'
+		'Called `getInputProps()` on the server. This function is not available server-side and has returned an empty object.',
 	);
 	console.warn("To hide this warning, don't call this function on the server:");
 	console.warn("  typeof window === 'undefined' ? {} : getInputProps()");
@@ -27,7 +27,7 @@ export const getInputProps = () => {
 		getRemotionEnvironment() === 'player-production'
 	) {
 		throw new Error(
-			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
+			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.',
 		);
 	}
 

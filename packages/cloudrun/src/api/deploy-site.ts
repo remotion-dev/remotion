@@ -101,7 +101,7 @@ export const deploySite = async ({
 					bucketName,
 					key: d.name as string,
 				});
-			})
+			}),
 		),
 	]);
 

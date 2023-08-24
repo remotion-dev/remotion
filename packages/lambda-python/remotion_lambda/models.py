@@ -43,6 +43,7 @@ class RenderParams:
     video_bitrate: Optional[int] = None
     webhook: Optional[str] = None
     force_height: Optional[int] = None
+    offthreadvideo_cache_size_in_bytes: Optional[int] = None
     force_width: Optional[int] = None
     audio_codec: Optional[str] = None
     renderer_function_name: Optional[str] = None
@@ -81,6 +82,7 @@ class RenderParams:
             'videoBitrate': self.video_bitrate,
             'webhook': self.webhook,
             'forceHeight': self.force_height,
+            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
             'forceWidth': self.force_width,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,

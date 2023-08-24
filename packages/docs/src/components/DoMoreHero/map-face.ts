@@ -20,7 +20,7 @@ export const translateSvgInstruction = (
   instruction: ThreeDReducedInstruction,
   x: number,
   y: number,
-  z: number
+  z: number,
 ): ThreeDReducedInstruction => {
   if (instruction.type === "M") {
     return {
@@ -105,7 +105,7 @@ export const translateSvgInstruction = (
 
 export const transformFace = (
   face: FaceType,
-  transformations: MatrixTransform4D[]
+  transformations: MatrixTransform4D[],
 ): FaceType => {
   return {
     ...face,
@@ -135,7 +135,7 @@ export const transformFaces = ({
 
 export const transformElements = (
   elements: ThreeDElement[],
-  transformations: MatrixTransform4D[]
+  transformations: MatrixTransform4D[],
 ) => {
   return elements.map((element) => {
     return transformElement(element, transformations);

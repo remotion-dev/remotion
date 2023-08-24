@@ -16,5 +16,5 @@ export const Gif = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		}
 
 		return <GifForDevelopment {...props} ref={ref} />;
-	}
+	},
 );

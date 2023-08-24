@@ -8,6 +8,6 @@ export const regionsCommand = () => {
 	CliInternals.Log.info(
 		getRegions({
 			enabledByDefaultOnly: parsedLambdaCli['default-only'] ?? false,
-		}).join(' ')
+		}).join(' '),
 	);
 };

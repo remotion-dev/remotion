@@ -35,7 +35,7 @@ const containerStyle = (options: {
 			getCheckerboardBackgroundSize(checkerboardSize) /* Must be a square */,
 		backgroundPosition:
 			getCheckerboardBackgroundPos(
-				checkerboardSize
+				checkerboardSize,
 			) /* Must be half of one side of the square */,
 	};
 };

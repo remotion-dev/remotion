@@ -26,11 +26,11 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
-			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
+			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
 		Log.info();
 		Log.info(
-			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`
+			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
 		quit(1);
 	}
@@ -48,6 +48,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		width,
 		browserExecutable,
 		port,
+		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -63,7 +64,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
 
@@ -74,6 +75,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -97,6 +99,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				height,
 				width,
 				server,
+				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -125,8 +128,8 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
-		)
+			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
+		),
 	);
 
 	const res = await renderStillOnLambda({

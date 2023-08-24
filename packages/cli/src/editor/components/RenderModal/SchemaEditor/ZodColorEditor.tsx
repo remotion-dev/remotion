@@ -75,11 +75,11 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				e.target.value,
 				Math.round(a),
-				zodTypes
+				zodTypes,
 			);
 			onValueChange(() => newColor, false, false);
 		},
-		[a, onValueChange, zodTypes]
+		[a, onValueChange, zodTypes],
 	);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -87,7 +87,7 @@ export const ZodColorEditor: React.FC<{
 			const newValue = e.target.value;
 			onValueChange(() => newValue, false, false);
 		},
-		[onValueChange]
+		[onValueChange],
 	);
 
 	const save = useCallback(() => {
@@ -113,11 +113,11 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				localValue.value,
 				Math.round((Number(newValue) / 100) * 255),
-				zodTypes
+				zodTypes,
 			);
 			onValueChange(() => newColor, false, false);
 		},
-		[localValue.value, onValueChange, zodTypes]
+		[localValue.value, onValueChange, zodTypes],
 	);
 
 	const onOpacityValueChange = useCallback(
@@ -125,11 +125,11 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				localValue.value,
 				Math.round((Number(newValue) / 100) * 255),
-				zodTypes
+				zodTypes,
 			);
 			onValueChange(() => newColor, false, false);
 		},
-		[localValue.value, onValueChange, zodTypes]
+		[localValue.value, onValueChange, zodTypes],
 	);
 
 	return (

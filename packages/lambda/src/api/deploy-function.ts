@@ -45,7 +45,7 @@ export type DeployFunctionOutput = {
  * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
  */
 export const deployFunction = async (
-	params: DeployFunctionInput
+	params: DeployFunctionInput,
 ): Promise<DeployFunctionOutput> => {
 	const diskSizeInMb = params.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 
@@ -74,7 +74,7 @@ export const deployFunction = async (
 			f.version === VERSION &&
 			f.memorySizeInMb === params.memorySizeInMb &&
 			f.timeoutInSeconds === params.timeoutInSeconds &&
-			f.diskSizeInMb === diskSizeInMb
+			f.diskSizeInMb === diskSizeInMb,
 	);
 
 	const created = await createFunction({

@@ -13,6 +13,6 @@ test('Call function locally', async () => {
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
-		})
+		}),
 	).toEqual({type: 'success', version: VERSION});
 });

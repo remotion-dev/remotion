@@ -10,6 +10,7 @@ import {
   EmailLogo,
   GitHubLogo,
   LinkedInLogo,
+  PersonalWebsite,
   TwitterLogo,
   VideoCallLogo,
 } from "../../components/icons";
@@ -47,7 +48,7 @@ const Experts: React.FC = () => {
 
     // Have a different order every day.
     return experts.sort(
-      (a, b) => random(a.name + todayHash) - random(b.name + todayHash)
+      (a, b) => random(a.name + todayHash) - random(b.name + todayHash),
     );
   }, []);
 
@@ -58,11 +59,11 @@ const Experts: React.FC = () => {
       <Head>
         {Seo.renderTitle("Remotion Experts | Hire Remotion freelancers")}
         {Seo.renderDescription(
-          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
+          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project.",
         )}
         {Seo.renderImage(
           "/img/remotion-experts-og-image.png",
-          context.siteConfig.url
+          context.siteConfig.url,
         )}
       </Head>
       <div className={styles.container}>
@@ -84,7 +85,11 @@ const Experts: React.FC = () => {
           {expertsInRandomOrder.map((e) => {
             return (
               <div key={e.name} className={styles.card}>
-                <Link style={link} href={`/experts/${e.slug}`}>
+                <Link
+                  style={link}
+                  className={styles.cardContent}
+                  href={`/experts/${e.slug}`}
+                >
                   <img className={styles.profile} src={e.image} />
                   <div className={styles.spacer} />
                   <div className={styles.right}>
@@ -102,23 +107,48 @@ const Experts: React.FC = () => {
                     flexDirection: "row",
                     width: "100%",
                   }}
+                  className={`${styles.buttonsInColumn}`}
                 >
-                  {e.twitter ? (
+                  {e.website ? (
                     <div style={flex} className={styles.docsButton}>
                       <a
+                        style={docsButton}
                         target={"_blank"}
-                        href={`https://twitter.com/${e.twitter}`}
+                        href={`${e.website}`}
                       >
                         <BlueButton loading={false} fullWidth size="sm">
-                          <TwitterLogo /> Twitter
+                          <PersonalWebsite /> Website
                         </BlueButton>
                       </a>
                     </div>
                   ) : null}
 
+                  {e.x ? (
+                    <>
+                      {e.website ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://x.com/${e.x}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <TwitterLogo /> X
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
+                  ) : null}
+
                   {e.github ? (
                     <>
-                      {e.twitter ? (
+                      {e.x ? (
                         <>
                           <Spacer />
                           <Spacer />
@@ -147,6 +177,7 @@ const Experts: React.FC = () => {
                     flexDirection: "row",
                     width: "100%",
                   }}
+                  className={`${styles.buttonsInColumn}`}
                 >
                   {e.linkedin ? (
                     <div style={flex} className={styles.docsButton}>
@@ -161,24 +192,27 @@ const Experts: React.FC = () => {
                       </a>
                     </div>
                   ) : null}
-                  {e.linkedin && e.email ? (
-                    <>
-                      <Spacer />
-                      <Spacer />
-                    </>
-                  ) : null}
+
                   {e.email ? (
-                    <div style={flex} className={styles.docsButton}>
-                      <a
-                        style={docsButton}
-                        target={"_blank"}
-                        href={`mailto:${e.email}`}
-                      >
-                        <BlueButton loading={false} fullWidth size="sm">
-                          <EmailLogo /> Email
-                        </BlueButton>
-                      </a>
-                    </div>
+                    <>
+                      {e.linkedin ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`mailto:${e.email}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <EmailLogo /> Email
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
 
                   {e.videocall ? (
@@ -192,7 +226,7 @@ const Experts: React.FC = () => {
                           href={`https://cal.com/${e.videocall}`}
                         >
                           <BlueButton loading={false} fullWidth size="sm">
-                            <VideoCallLogo /> Video call
+                            <VideoCallLogo /> Call
                           </BlueButton>
                         </a>
                       </div>
