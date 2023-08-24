@@ -4,7 +4,7 @@ export type RemotionOption<SsrName extends string, Type> = {
 	name: string;
 	cliFlag: string;
 	ssrName: SsrName;
-	description: React.ReactNode;
+	description: (mode: 'ssr' | 'cli') => React.ReactNode;
 	docLink: string;
 	type: Type;
 };
