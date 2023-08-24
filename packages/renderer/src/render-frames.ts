@@ -51,6 +51,11 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate';
 import {validateScale} from './validate-scale';
 
 const MAX_RETRIES_PER_FRAME = 1;
@@ -599,22 +604,22 @@ export const internalRenderFrames = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
-	Internals.validateDimension(
+	validateDimension(
 		composition.height,
 		'height',
 		'in the `config` object passed to `renderFrames()`',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		composition.width,
 		'width',
 		'in the `config` object passed to `renderFrames()`',
 	);
-	Internals.validateFps(
+	validateFps(
 		composition.fps,
 		'in the `config` object of `renderFrames()`',
 		false,
 	);
-	Internals.validateDurationInFrames(composition.durationInFrames, {
+	validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});

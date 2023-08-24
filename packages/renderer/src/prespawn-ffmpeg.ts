@@ -1,4 +1,3 @@
-import {Internals} from 'remotion';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -17,6 +16,7 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
+import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
 type RunningStatus =
@@ -52,22 +52,18 @@ type PreStitcherOptions = {
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
-	Internals.validateDimension(
+	validateDimension(
 		options.height,
 		'height',
 		'passed to `stitchFramesToVideo()`',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		options.width,
 		'width',
 		'passed to `stitchFramesToVideo()`',
 	);
 	const codec = options.codec ?? DEFAULT_CODEC;
-	Internals.validateFps(
-		options.fps,
-		'in `stitchFramesToVideo()`',
-		codec === 'gif',
-	);
+	validateFps(options.fps, 'in `stitchFramesToVideo()`', codec === 'gif');
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
