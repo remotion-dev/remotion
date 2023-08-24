@@ -24,5 +24,6 @@
   ],
   "[go]": {
     "editor.defaultFormatter": "golang.go"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
