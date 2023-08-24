@@ -4,6 +4,7 @@ import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {BrowserSafeApis} from './client';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -132,10 +133,10 @@ const innerGetCompositions = async ({
 			fps,
 			durationInFrames,
 			props: Internals.deserializeJSONWithCustomFields(
-				r.serializedResolvedPropsWithCustomSchema,
+				r.serializedResolvedPropsWithCustomSchema
 			),
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				r.serializedDefaultPropsWithCustomSchema,
+				r.serializedDefaultPropsWithCustomSchema
 			),
 		};
 	});
@@ -143,7 +144,7 @@ const innerGetCompositions = async ({
 
 type CleanupFn = () => void;
 
-export const internalGetCompositions = async ({
+const internalGetCompositionsRaw = async ({
 	browserExecutable,
 	chromiumOptions,
 	envVariables,
@@ -178,7 +179,7 @@ export const internalGetCompositions = async ({
 				page,
 				frame: null,
 				onError,
-			}),
+			})
 		);
 
 		makeOrReuseServer(
@@ -195,7 +196,7 @@ export const internalGetCompositions = async ({
 			{
 				onDownload: () => undefined,
 				onError,
-			},
+			}
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
@@ -229,13 +230,17 @@ export const internalGetCompositions = async ({
 	});
 };
 
+const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
+	internalGetCompositionsRaw
+);
+
 /**
  * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions,
+	config?: GetCompositionsOptions
 ): Promise<VideoConfig[]> => {
 	const {
 		browserExecutable,

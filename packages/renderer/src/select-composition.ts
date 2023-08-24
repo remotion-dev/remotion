@@ -18,6 +18,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalSelectCompositionsConfig = {
 	serializedInputPropsWithCustomSchema: string;
@@ -118,7 +119,7 @@ const innerSelectComposition = async ({
 			tag: 'selectComposition()',
 			logLevel,
 		},
-		'Running calculateMetadata()...',
+		'Running calculateMetadata()...'
 	);
 	const time = Date.now();
 	const {value: result, size} = await puppeteerEvaluateWithCatch({
@@ -135,7 +136,7 @@ const innerSelectComposition = async ({
 			tag: 'selectComposition()',
 			logLevel,
 		},
-		`calculateMetadata() took ${Date.now() - time}ms`,
+		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
 	const res = result as Awaited<
@@ -151,10 +152,10 @@ const innerSelectComposition = async ({
 			fps,
 			durationInFrames,
 			props: Internals.deserializeJSONWithCustomFields(
-				res.serializedResolvedPropsWithCustomSchema,
+				res.serializedResolvedPropsWithCustomSchema
 			),
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				res.serializedDefaultPropsWithCustomSchema,
+				res.serializedDefaultPropsWithCustomSchema
 			),
 		},
 		propsSize: size,
@@ -166,8 +167,8 @@ type InternalReturnType = {
 	propsSize: number;
 };
 
-export const internalSelectComposition = async (
-	options: InternalSelectCompositionsConfig,
+const internalSelectCompositionRaw = async (
+	options: InternalSelectCompositionsConfig
 ): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
 	const {
@@ -206,7 +207,7 @@ export const internalSelectComposition = async (
 				page,
 				frame: null,
 				onError,
-			}),
+			})
 		);
 
 		makeOrReuseServer(
@@ -223,7 +224,7 @@ export const internalSelectComposition = async (
 			{
 				onDownload: () => undefined,
 				onError,
-			},
+			}
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
@@ -262,12 +263,16 @@ export const internalSelectComposition = async (
 	});
 };
 
+const internalSelectComposition = wrapWithErrorHandling(
+	internalSelectCompositionRaw
+);
+
 /**
  * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
 export const selectComposition = async (
-	options: SelectCompositionOptions,
+	options: SelectCompositionOptions
 ): Promise<VideoConfig> => {
 	const {
 		id,

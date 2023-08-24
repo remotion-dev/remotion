@@ -14,7 +14,6 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
-import {getUsefulErrorMessage} from './get-useful-error-message';
 import {isAudioCodec} from './is-audio-codec';
 import {audioBitrateOption} from './options/audio-bitrate';
 import {crfOption} from './options/crf';
@@ -27,6 +26,7 @@ import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {printUsefulErrorMessage} from './print-useful-error-message';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
@@ -62,6 +62,6 @@ export const BrowserSafeApis = {
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
-	getUsefulErrorMessage,
+	getUsefulErrorMessage: printUsefulErrorMessage,
 	wrapWithErrorHandling,
 };
