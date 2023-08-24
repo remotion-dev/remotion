@@ -119,7 +119,7 @@ const innerSelectComposition = async ({
 			tag: 'selectComposition()',
 			logLevel,
 		},
-		'Running calculateMetadata()...'
+		'Running calculateMetadata()...',
 	);
 	const time = Date.now();
 	const {value: result, size} = await puppeteerEvaluateWithCatch({
@@ -136,7 +136,7 @@ const innerSelectComposition = async ({
 			tag: 'selectComposition()',
 			logLevel,
 		},
-		`calculateMetadata() took ${Date.now() - time}ms`
+		`calculateMetadata() took ${Date.now() - time}ms`,
 	);
 
 	const res = result as Awaited<
@@ -152,10 +152,10 @@ const innerSelectComposition = async ({
 			fps,
 			durationInFrames,
 			props: Internals.deserializeJSONWithCustomFields(
-				res.serializedResolvedPropsWithCustomSchema
+				res.serializedResolvedPropsWithCustomSchema,
 			),
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				res.serializedDefaultPropsWithCustomSchema
+				res.serializedDefaultPropsWithCustomSchema,
 			),
 		},
 		propsSize: size,
@@ -168,7 +168,7 @@ type InternalReturnType = {
 };
 
 export const internalSelectCompositionRaw = async (
-	options: InternalSelectCompositionsConfig
+	options: InternalSelectCompositionsConfig,
 ): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
 	const {
@@ -207,7 +207,7 @@ export const internalSelectCompositionRaw = async (
 				page,
 				frame: null,
 				onError,
-			})
+			}),
 		);
 
 		makeOrReuseServer(
@@ -224,7 +224,7 @@ export const internalSelectCompositionRaw = async (
 			{
 				onDownload: () => undefined,
 				onError,
-			}
+			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
@@ -264,7 +264,7 @@ export const internalSelectCompositionRaw = async (
 };
 
 export const internalSelectComposition = wrapWithErrorHandling(
-	internalSelectCompositionRaw
+	internalSelectCompositionRaw,
 );
 
 /**
@@ -272,7 +272,7 @@ export const internalSelectComposition = wrapWithErrorHandling(
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
 export const selectComposition = async (
-	options: SelectCompositionOptions
+	options: SelectCompositionOptions,
 ): Promise<VideoConfig> => {
 	const {
 		id,

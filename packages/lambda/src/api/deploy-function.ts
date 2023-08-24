@@ -34,7 +34,7 @@ export type DeployFunctionOutput = {
 };
 
 const deployFunctionRaw = async (
-	params: DeployFunctionInput
+	params: DeployFunctionInput,
 ): Promise<DeployFunctionOutput> => {
 	const diskSizeInMb = params.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 
@@ -63,7 +63,7 @@ const deployFunctionRaw = async (
 			f.version === VERSION &&
 			f.memorySizeInMb === params.memorySizeInMb &&
 			f.timeoutInSeconds === params.timeoutInSeconds &&
-			f.diskSizeInMb === diskSizeInMb
+			f.diskSizeInMb === diskSizeInMb,
 	);
 
 	const created = await createFunction({
@@ -106,5 +106,5 @@ const deployFunctionRaw = async (
  */
 
 export const deployFunction = BrowserSafeApis.wrapWithErrorHandling(
-	deployFunctionRaw
+	deployFunctionRaw,
 ) as typeof deployFunctionRaw;

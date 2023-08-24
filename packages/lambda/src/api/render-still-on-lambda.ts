@@ -87,7 +87,7 @@ const renderStillOnLambdaRaw = async ({
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+			'The `quality` option is deprecated. Use `jpegQuality` instead.',
 		);
 	}
 
@@ -164,7 +164,7 @@ const renderStillOnLambdaRaw = async ({
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 
@@ -189,5 +189,5 @@ const renderStillOnLambdaRaw = async ({
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
 export const renderStillOnLambda = BrowserSafeApis.wrapWithErrorHandling(
-	renderStillOnLambdaRaw
+	renderStillOnLambdaRaw,
 ) as typeof renderStillOnLambdaRaw;

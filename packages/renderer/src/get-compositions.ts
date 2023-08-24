@@ -133,10 +133,10 @@ const innerGetCompositions = async ({
 			fps,
 			durationInFrames,
 			props: Internals.deserializeJSONWithCustomFields(
-				r.serializedResolvedPropsWithCustomSchema
+				r.serializedResolvedPropsWithCustomSchema,
 			),
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				r.serializedDefaultPropsWithCustomSchema
+				r.serializedDefaultPropsWithCustomSchema,
 			),
 		};
 	});
@@ -179,7 +179,7 @@ const internalGetCompositionsRaw = async ({
 				page,
 				frame: null,
 				onError,
-			})
+			}),
 		);
 
 		makeOrReuseServer(
@@ -196,7 +196,7 @@ const internalGetCompositionsRaw = async ({
 			{
 				onDownload: () => undefined,
 				onError,
-			}
+			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
@@ -231,7 +231,7 @@ const internalGetCompositionsRaw = async ({
 };
 
 export const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
-	internalGetCompositionsRaw
+	internalGetCompositionsRaw,
 );
 
 /**
@@ -240,7 +240,7 @@ export const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions
+	config?: GetCompositionsOptions,
 ): Promise<VideoConfig[]> => {
 	const {
 		browserExecutable,

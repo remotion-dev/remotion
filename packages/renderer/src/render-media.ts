@@ -297,7 +297,7 @@ const internalRenderMediaRaw = ({
 		'Free memory:',
 		freeMemory,
 		'Estimated usage parallel encoding',
-		estimatedUsage
+		estimatedUsage,
 	);
 	Log.verboseAdvanced(
 		{
@@ -306,7 +306,7 @@ const internalRenderMediaRaw = ({
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
-		canUseParallelEncoding(codec)
+		canUseParallelEncoding(codec),
 	);
 	if (disallowParallelEncoding) {
 		Log.verboseAdvanced(
@@ -315,7 +315,7 @@ const internalRenderMediaRaw = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'User disallowed parallel encoding.'
+			'User disallowed parallel encoding.',
 		);
 	}
 
@@ -326,7 +326,7 @@ const internalRenderMediaRaw = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is enabled.'
+			'Parallel encoding is enabled.',
 		);
 	} else {
 		Log.verboseAdvanced(
@@ -335,7 +335,7 @@ const internalRenderMediaRaw = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is disabled.'
+			'Parallel encoding is disabled.',
 		);
 	}
 
@@ -345,17 +345,17 @@ const internalRenderMediaRaw = ({
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
-		imageFormat
+		imageFormat,
 	);
 
 	const workingDir = fs.mkdtempSync(
-		path.join(os.tmpdir(), 'react-motion-render')
+		path.join(os.tmpdir(), 'react-motion-render'),
 	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
 		  )
 		: null;
 
@@ -372,7 +372,7 @@ const internalRenderMediaRaw = ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange
+		frameRange,
 	);
 
 	const callUpdate = () => {
@@ -385,7 +385,7 @@ const internalRenderMediaRaw = ({
 			progress:
 				Math.round(
 					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						totalFramesToRender
+						totalFramesToRender,
 				) / 100,
 		});
 	};
@@ -463,7 +463,7 @@ const internalRenderMediaRaw = ({
 		} else {
 			// add frame at appropriate position
 			const index = slowestFrames.findIndex(
-				({time: indexTime}) => indexTime < time
+				({time: indexTime}) => indexTime < time,
 			);
 			slowestFrames.splice(index, 0, frameTime);
 		}
@@ -496,7 +496,7 @@ const internalRenderMediaRaw = ({
 					{
 						onDownload,
 						onError: (err) => reject(err),
-					}
+					},
 				);
 			})
 			.then(({server, cleanupServer}) => {
@@ -506,7 +506,7 @@ const internalRenderMediaRaw = ({
 					onFrameUpdate: (
 						frame: number,
 						frameIndex: number,
-						timeToRenderInMilliseconds
+						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
 						callUpdate();
@@ -538,13 +538,13 @@ const internalRenderMediaRaw = ({
 								const exitStatus = preStitcher?.getExitStatus();
 								if (exitStatus?.type === 'quit-successfully') {
 									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
 								if (exitStatus?.type === 'quit-with-error') {
 									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
@@ -552,7 +552,7 @@ const internalRenderMediaRaw = ({
 								stopPerfMeasure(id);
 
 								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
+									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
 								);
 						  }
 						: null,
@@ -695,7 +695,7 @@ const internalRenderMediaRaw = ({
 };
 
 export const internalRenderMedia = wrapWithErrorHandling(
-	internalRenderMediaRaw
+	internalRenderMediaRaw,
 );
 
 /**
@@ -748,7 +748,7 @@ export const renderMedia = ({
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
 
