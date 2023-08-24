@@ -79,7 +79,7 @@ export const cli = async () => {
 			await upgrade(
 				remotionRoot,
 				parsedCli['package-manager'],
-				parsedCli.version
+				parsedCli.version,
 			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);

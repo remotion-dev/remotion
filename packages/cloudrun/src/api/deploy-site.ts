@@ -94,7 +94,7 @@ const deploySiteRaw = async ({
 					bucketName,
 					key: d.name as string,
 				});
-			})
+			}),
 		),
 	]);
 

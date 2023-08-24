@@ -63,7 +63,7 @@ export type InternalRenderFramesOptions = {
 		| ((
 				framesRendered: number,
 				frameIndex: number,
-				timeToRenderInMilliseconds: number
+				timeToRenderInMilliseconds: number,
 		  ) => void);
 	outputDir: string | null;
 	envVariables: Record<string, string>;
@@ -99,7 +99,7 @@ type InnerRenderFramesOptions = {
 		| ((
 				framesRendered: number,
 				frameIndex: number,
-				timeToRenderInMilliseconds: number
+				timeToRenderInMilliseconds: number,
 		  ) => void);
 	outputDir: string | null;
 	envVariables: Record<string, string>;
@@ -136,7 +136,7 @@ export type RenderFramesOptions = {
 	onFrameUpdate: (
 		framesRendered: number,
 		frameIndex: number,
-		timeToRenderInMilliseconds: number
+		timeToRenderInMilliseconds: number,
 	) => void;
 	outputDir: string | null;
 	inputProps: Record<string, unknown>;
@@ -219,7 +219,7 @@ const innerRenderFrames = async ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange
+		frameRange,
 	);
 
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
@@ -273,7 +273,7 @@ const innerRenderFrames = async ({
 				durationInFrames: number,
 				fps: number,
 				height: number,
-				width: number
+				width: number,
 			) => {
 				window.remotion_setBundleMode({
 					type: 'composition',
@@ -330,7 +330,7 @@ const innerRenderFrames = async ({
 	});
 
 	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
-		undefined
+		undefined,
 	);
 	let stopped = false;
 	cancelSignal?.(() => {
@@ -388,13 +388,13 @@ const innerRenderFrames = async ({
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
-				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
+				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`',
 			);
 		}
 
 		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
-				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
+				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.',
 			);
 		}
 
@@ -416,7 +416,7 @@ const innerRenderFrames = async ({
 					countType,
 					lastFrame,
 					totalFrames: framesToRender.length,
-				})
+				}),
 			),
 			jpegQuality,
 			width,
@@ -436,7 +436,7 @@ const innerRenderFrames = async ({
 		stopPerfMeasure(id);
 
 		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(assets.filter(truthy).flat(1), asset)
+			compressAsset(assets.filter(truthy).flat(1), asset),
 		);
 		assets[index] = compressedAssets;
 		compressedAssets.forEach((renderAsset) => {
@@ -446,7 +446,7 @@ const innerRenderFrames = async ({
 				downloadMap,
 			}).catch((err) => {
 				onError(
-					new Error(`Error while downloading asset: ${(err as Error).stack}`)
+					new Error(`Error while downloading asset: ${(err as Error).stack}`),
 				);
 			});
 		});
@@ -511,13 +511,13 @@ const innerRenderFrames = async ({
 
 			if (retriesLeft === 0) {
 				console.warn(
-					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`
+					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 				);
 				throw err;
 			}
 
 			console.warn(
-				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
+				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 			);
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
@@ -545,8 +545,8 @@ const innerRenderFrames = async ({
 				index,
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
-			})
-		)
+			}),
+		),
 	);
 
 	const happyPath = progress.then(() => {
@@ -603,17 +603,17 @@ const internalRenderFramesRaw = ({
 	Internals.validateDimension(
 		composition.height,
 		'height',
-		'in the `config` object passed to `renderFrames()`'
+		'in the `config` object passed to `renderFrames()`',
 	);
 	Internals.validateDimension(
 		composition.width,
 		'width',
-		'in the `config` object passed to `renderFrames()`'
+		'in the `config` object passed to `renderFrames()`',
 	);
 	Internals.validateFps(
 		composition.fps,
 		'in the `config` object of `renderFrames()`',
-		false
+		false,
 	);
 	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
@@ -668,7 +668,7 @@ const internalRenderFramesRaw = ({
 					{
 						onDownload,
 						onError,
-					}
+					},
 				),
 				browserInstance,
 			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
@@ -679,7 +679,7 @@ const internalRenderFramesRaw = ({
 
 				cleanup.push(
 					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
-						.stopCycling
+						.stopCycling,
 				);
 				cleanup.push(() => cleanupServer(false));
 
@@ -757,7 +757,7 @@ const internalRenderFramesRaw = ({
 };
 
 export const internalRenderFrames = wrapWithErrorHandling(
-	internalRenderFramesRaw
+	internalRenderFramesRaw,
 );
 
 /**
@@ -765,7 +765,7 @@ export const internalRenderFrames = wrapWithErrorHandling(
  * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
  */
 export const renderFrames = (
-	options: RenderFramesOptions
+	options: RenderFramesOptions,
 ): Promise<RenderFramesOutput> => {
 	const {
 		composition,
@@ -800,19 +800,19 @@ export const renderFrames = (
 
 	if (!composition) {
 		throw new Error(
-			'No `composition` option has been specified for renderFrames()'
+			'No `composition` option has been specified for renderFrames()',
 		);
 	}
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
 		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'.",
 		);
 	}
 
 	if (quality) {
 		console.warn(
-			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.'
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
 		);
 	}
 

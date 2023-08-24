@@ -205,5 +205,5 @@ const renderStillOnCloudrunRaw = async ({
 };
 
 export const renderStillOnCloudrun = BrowserSafeApis.wrapWithErrorHandling(
-	renderStillOnCloudrunRaw
+	renderStillOnCloudrunRaw,
 ) as typeof renderStillOnCloudrunRaw;

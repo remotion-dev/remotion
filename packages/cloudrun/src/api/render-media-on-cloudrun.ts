@@ -277,5 +277,5 @@ const renderMediaOnCloudrunRaw = async ({
  */
 
 export const renderMediaOnCloudrun = BrowserSafeApis.wrapWithErrorHandling(
-	renderMediaOnCloudrunRaw
+	renderMediaOnCloudrunRaw,
 ) as typeof renderMediaOnCloudrunRaw;

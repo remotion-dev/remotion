@@ -120,7 +120,7 @@ const deploySiteRaw = async ({
 					key: d.Key as string,
 					region,
 				});
-			})
+			}),
 		),
 	]);
 
@@ -151,5 +151,5 @@ const deploySiteRaw = async ({
  * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deploySite = BrowserSafeApis.wrapWithErrorHandling(
-	deploySiteRaw
+	deploySiteRaw,
 ) as typeof deploySiteRaw;
