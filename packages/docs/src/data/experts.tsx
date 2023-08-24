@@ -215,7 +215,7 @@ export const experts: Expert[] = [
     name: "Matt McGillivray",
     image: "/img/freelancers/umungo.png",
     website: "https://mattm9y.com",
-    x: "ProThatwas",
+    x: null,
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
     email: "m.mcgillivray@outlook.com",
