@@ -1,8 +1,8 @@
-import type {LambdaWebhookOption} from '../api/render-media-on-lambda';
+import type {WebhookOption} from './constants';
 
 export const MAX_WEBHOOK_CUSTOM_DATA_SIZE = 1024;
 
-export const validateWebhook = (webhook?: LambdaWebhookOption | null) => {
+export const validateWebhook = (webhook?: WebhookOption | null) => {
 	if (typeof webhook === 'undefined' || webhook === null) {
 		return;
 	}
