@@ -145,6 +145,9 @@ importers:
       '@types/react-dom':
         specifier: 18.0.10
         version: 18.0.10
+      bun-types:
+        specifier: 0.8.0
+        version: 0.8.0
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -242,6 +245,9 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.3.8
+      bun-types:
+        specifier: 0.8.0
+        version: 0.8.0
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -10966,6 +10972,10 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
     dev: false
+
+  /bun-types@0.8.0:
+    resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
+    dev: true
 
   /busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
