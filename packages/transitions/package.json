@@ -1,6 +1,6 @@
 {
   "name": "@remotion/transitions",
-  "version": "4.0.20",
+  "version": "4.0.25",
   "description": "Transition presets for Remotion",
   "sideEffects": false,
   "type": "module",

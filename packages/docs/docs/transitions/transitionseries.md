@@ -4,15 +4,15 @@ sidebar_label: "<TransitionSeries>"
 title: "<TransitionSeries>"
 ---
 
-_available from v4.0.21_
+_available from v4.0.26_
 
 The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for `<TransitionSeries.Transition>` components to be rendered between `<TransitionSeries.Sequence>` components.
 
 Each transition consists of two parts:
 
-<Step>1</Step> <code>presentation</code>: The effect that is being used, for example <code>fade()</code> or <code>wipe()</code>.<br/>
+<Step>1</Step> <code>presentation</code>: The effect that is being used, for example <a href="/docs/transitions/presentations/fade"><code>fade()</code></a> or <a href="/docs/transitions/presentations/wipe"><code>wipe()</code></a>.<br/>
 
-<Step>2</Step> <code>timing</code>: The duration and the progress curve, for example <code>springTiming()</code> or <code>linearTiming()</code>
+<Step>2</Step> <code>timing</code>: The duration and the progress curve, for example <a href="/docs/transitions/timings/springtiming"><code>springTiming()</code></a> or <a href="/docs/transitions/timings/lineartiming"><code>linearTiming()</code></a>
 
 <br/>
 <br/>
