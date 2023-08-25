@@ -3,6 +3,7 @@ import { Player } from "@remotion/player";
 import type { TransitionPresentation } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
+import type { SlideDirection } from "@remotion/transitions/slide";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
@@ -118,8 +119,10 @@ export const FadeDemo: React.FC = () => {
   return <SampleTransition effect={fade()} />;
 };
 
-export const SlideDemo: React.FC = () => {
-  return <SampleTransition effect={slide()} />;
+export const SlideDemo: React.FC<{
+  direction: SlideDirection;
+}> = ({ direction }) => {
+  return <SampleTransition effect={slide({ direction })} />;
 };
 
 export const WipeDemo: React.FC = () => {

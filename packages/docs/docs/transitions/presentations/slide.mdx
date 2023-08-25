@@ -3,7 +3,7 @@ crumb: "@remotion/transitions - Presentations"
 title: "slide()"
 ---
 
-A simple slide animation.
+A presentation which where the entering slide pushes out the exiting slide.
 
 <Demo type="slide" />
 
@@ -55,7 +55,17 @@ const BasicTransition = () => {
 
 ## API
 
-This API has no options.
+Takes an object with the following properties:
+
+### `direction`
+
+One of `from-left`, `from-right`, `from-top`, `from-bottom`. TypeScript type:
+
+```tsx twoslash
+import { SlideDirection } from "@remotion/transitions/slide";
+
+const slideDirection: SlideDirection = "from-left";
+```
 
 ## See also
 
