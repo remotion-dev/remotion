@@ -39,7 +39,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
-		EditorZoomGesturesContext
+		EditorZoomGesturesContext,
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {type} = useContext(StudioServerConnectionCtx);
@@ -113,7 +113,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						onClick: () => {
 							closeMenu();
 							openExternal(
-								'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md'
+								'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
 							);
 						},
 						type: 'item' as const,
@@ -180,7 +180,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							}
 
 							const renderButton = document.getElementById(
-								'render-modal-button'
+								'render-modal-button',
 							) as HTMLDivElement;
 
 							renderButton.click();
@@ -214,14 +214,14 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										.then(({success}) => {
 											if (!success) {
 												sendErrorNotification(
-													`Could not open ${window.remotion_editorName}`
+													`Could not open ${window.remotion_editorName}`,
 												);
 											}
 										})
 										.catch((err) => {
 											console.error(err);
 											sendErrorNotification(
-												`Could not open ${window.remotion_editorName}`
+												`Could not open ${window.remotion_editorName}`,
 											);
 										});
 								},
@@ -251,7 +251,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: {
 							leaveLeftSpace: true,
 							preselectIndex: sizes.findIndex(
-								(s) => String(size.size) === String(s.size)
+								(s) => String(size.size) === String(s.size),
 							),
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
@@ -629,7 +629,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						onClick: () => {
 							closeMenu();
 							openExternal(
-								'https://github.com/remotion-dev/remotion/issues/new/choose'
+								'https://github.com/remotion-dev/remotion/issues/new/choose',
 							);
 						},
 						type: 'item' as const,
@@ -752,7 +752,7 @@ const getItemLabel = (item: SelectionItem) => {
 const itemToSearchResult = (
 	item: SelectionItem,
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
-	prefixes: string[]
+	prefixes: string[],
 ): TQuickSwitcherResult[] => {
 	if (item.subMenu) {
 		return item.subMenu.items
@@ -785,7 +785,7 @@ const itemToSearchResult = (
 
 export const makeSearchResults = (
 	actions: Structure,
-	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void
+	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
 ) => {
 	const items: TQuickSwitcherResult[] = actions
 		.map((menu) => {

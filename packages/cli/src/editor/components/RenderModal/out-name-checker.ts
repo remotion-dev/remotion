@@ -6,7 +6,7 @@ const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
-	stillImageFormat: StillImageFormat
+	stillImageFormat: StillImageFormat,
 ): boolean => {
 	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
 		return true;
@@ -65,7 +65,7 @@ const isValidOutName = ({
 		!(audioCodec in map.forAudioCodec)
 	) {
 		throw new Error(
-			`Audio codec ${audioCodec} is not supported for codec ${codec}`
+			`Audio codec ${audioCodec} is not supported for codec ${codec}`,
 		);
 	}
 
@@ -103,7 +103,7 @@ const isValidOutName = ({
 
 	if (hasInvalidChar()) {
 		throw new Error(
-			"Filename can't contain the following characters:  ?, *, +, %, :"
+			"Filename can't contain the following characters:  ?, *, +, %, :",
 		);
 	}
 
@@ -113,7 +113,7 @@ const isValidOutName = ({
 		!isValidStillExtension(extension, stillImageFormat)
 	) {
 		throw new Error(
-			`The extension ${extension} is not supported for still image format ${stillImageFormat}`
+			`The extension ${extension} is not supported for still image format ${stillImageFormat}`,
 		);
 	}
 };

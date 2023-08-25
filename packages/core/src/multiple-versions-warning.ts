@@ -26,8 +26,8 @@ export const checkMultipleRemotionVersions = () => {
 			]
 				.filter(truthy)
 				.join(
-					' and '
-				)}. This will cause things to break in an unexpected way.\nCheck that all your Remotion packages are on the same version. If your dependencies depend on Remotion, make them peer dependencies. You can also run \`npx remotion versions\` from your terminal to see which versions are mismatching.`
+					' and ',
+				)}. This will cause things to break in an unexpected way.\nCheck that all your Remotion packages are on the same version. If your dependencies depend on Remotion, make them peer dependencies. You can also run \`npx remotion versions\` from your terminal to see which versions are mismatching.`,
 		);
 	}
 

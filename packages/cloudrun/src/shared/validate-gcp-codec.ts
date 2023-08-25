@@ -21,13 +21,13 @@ export const validateCloudrunCodec = (codec: unknown): CloudrunCodec => {
 			"'" +
 				codec +
 				"' is not a valid codec for GCP Cloud Run. The following values are supported: " +
-				cloudrunCodecs.join(', ')
+				cloudrunCodecs.join(', '),
 		);
 	}
 
 	if (codec === 'h264-mkv') {
 		throw new Error(
-			'The "h264-mkv" codec for renderMediaOnCloudrun() is deprecated - it\'s now just "h264".'
+			'The "h264-mkv" codec for renderMediaOnCloudrun() is deprecated - it\'s now just "h264".',
 		);
 	}
 

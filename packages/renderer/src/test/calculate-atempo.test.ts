@@ -10,12 +10,12 @@ describe('Calculate atempo', () => {
 	});
 	test('Above 2', () => {
 		expect(calculateATempo(6)).toBe(
-			'atempo=1.56508,atempo=1.56508,atempo=1.56508,atempo=1.56508'
+			'atempo=1.56508,atempo=1.56508,atempo=1.56508,atempo=1.56508',
 		);
 	});
 	test('Extreme value', () => {
 		expect(calculateATempo(0.0000001)).toBe(
-			'atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430'
+			'atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430,atempo=0.60430',
 		);
 	});
 });

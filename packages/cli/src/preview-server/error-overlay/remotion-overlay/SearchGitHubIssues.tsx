@@ -10,9 +10,9 @@ export const SearchGithubIssues: React.FC<{
 	const openInBrowser = useCallback(() => {
 		window.open(
 			`https://github.com/remotion-dev/remotion/issues?q=${encodeURIComponent(
-				message
+				message,
 			)}`,
-			'_blank'
+			'_blank',
 		);
 	}, [message]);
 	const {registerKeybinding} = useKeybinding();

@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {Privacy} from '../shared/constants';
@@ -28,6 +29,7 @@ type LambdaCommandLineOptions = {
 	privacy: Privacy;
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
+	[BrowserSafeApis.options.webhookCustomDataOption.cliFlag]: string | undefined;
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
@@ -37,7 +39,7 @@ export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
 		boolean: CliInternals.BooleanFlags,
-	}
+	},
 );
 
 export const forceFlagProvided =

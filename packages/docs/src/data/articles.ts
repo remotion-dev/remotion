@@ -658,6 +658,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "get-remotion-environment",
+    title: "getRemotionEnvironment()",
+    relativePath: "docs/get-remotion-environment.md",
+    compId: "articles-docs-get-remotion-environment",
+    crumb: "API",
+  },
+  {
     id: "getstaticfiles",
     title: "getStaticFiles()",
     relativePath: "docs/get-static-files.md",

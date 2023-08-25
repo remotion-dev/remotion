@@ -33,9 +33,9 @@ export const convertAssetsToFileUrls = async ({
 							onDownload,
 							downloadMap,
 						});
-					})
+					}),
 				);
-			})
+			}),
 		);
 		results.push(result);
 	}

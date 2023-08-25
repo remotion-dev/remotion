@@ -6,6 +6,7 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
@@ -33,6 +34,7 @@ export type RenderModalState = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialx264Preset: X264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -44,6 +46,7 @@ export type RenderModalState = {
 	initialOpenGlRenderer: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
+	initialOffthreadVideoCacheSizeInBytes: number | null;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

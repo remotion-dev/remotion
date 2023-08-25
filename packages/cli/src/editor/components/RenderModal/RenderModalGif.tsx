@@ -28,7 +28,7 @@ export const RenderModalGif: React.FC<{
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setLimitNumberOfGifLoops(e.target.checked);
 		},
-		[setLimitNumberOfGifLoops]
+		[setLimitNumberOfGifLoops],
 	);
 
 	return (

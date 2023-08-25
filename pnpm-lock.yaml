@@ -103,11 +103,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -145,6 +145,9 @@ importers:
       '@types/react-dom':
         specifier: 18.0.10
         version: 18.0.10
+      bun-types:
+        specifier: 0.8.0
+        version: 0.8.0
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -158,11 +161,11 @@ importers:
         specifier: 4.4.0
         version: 4.4.0(eslint@8.42.0)
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.0.0
         version: 18.0.0
@@ -242,6 +245,9 @@ importers:
       '@types/semver':
         specifier: ^7.3.4
         version: 7.3.8
+      bun-types:
+        specifier: 0.8.0
+        version: 0.8.0
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -255,11 +261,11 @@ importers:
         specifier: 4.4.0
         version: 4.4.0(eslint@8.42.0)
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.0.0
         version: 18.0.0
@@ -294,8 +300,8 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       ts-node:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
@@ -355,11 +361,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       ts-node:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
@@ -420,11 +426,11 @@ importers:
         specifier: 21.1.0
         version: 21.1.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.0.0
         version: 18.0.0
@@ -493,11 +499,11 @@ importers:
         specifier: ^11
         version: 11.8.5
       prettier:
-        specifier: 2.6.2
-        version: 2.6.2
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.6.2)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -698,11 +704,11 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       url-loader:
         specifier: ^4.1.1
         version: 4.1.1(file-loader@6.2.0)(webpack@5.83.1)
@@ -856,8 +862,8 @@ importers:
         specifier: ^4.0.5
         version: 4.1.3
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -949,11 +955,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: 2.6.2
-        version: 2.6.2
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.6.2)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -992,8 +998,8 @@ importers:
         specifier: ^8.4.18
         version: 8.4.18
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       rollup:
         specifier: ^2.70.1
         version: 2.76.0
@@ -1113,11 +1119,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.4.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       ts-node:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
@@ -1180,11 +1186,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.0.0
         version: 18.0.0
@@ -1223,11 +1229,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
 
   packages/motion-blur:
     dependencies:
@@ -1248,11 +1254,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -1285,11 +1291,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       rollup:
         specifier: ^2.70.1
         version: 2.76.0
@@ -1309,11 +1315,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -1358,11 +1364,11 @@ importers:
         specifier: 20.0.1
         version: 20.0.1
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.0.0
         version: 18.0.0
@@ -1428,11 +1434,11 @@ importers:
         version: link:../core
     devDependencies:
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
 
   packages/preload:
     devDependencies:
@@ -1443,11 +1449,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
 
   packages/renderer:
     dependencies:
@@ -1514,11 +1520,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -1528,9 +1534,6 @@ importers:
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
-      zod:
-        specifier: ^3.21.4
-        version: 3.21.4
 
   packages/rive:
     dependencies:
@@ -1560,8 +1563,8 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.8.4
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1597,11 +1600,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -1640,11 +1643,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -1695,11 +1698,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       rollup:
         specifier: ^2.70.1
         version: 2.76.0
@@ -1771,11 +1774,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.7.1)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -11039,6 +11042,10 @@ packages:
       ieee754: 1.2.1
     dev: false
 
+  /bun-types@0.8.0:
+    resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
+    dev: true
+
   /busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
     engines: {node: '>=10.16.0'}
@@ -18705,57 +18712,6 @@ packages:
       synckit: 0.8.5
     dev: false
 
-  /prettier-plugin-organize-imports@3.2.2(prettier@2.4.1)(typescript@4.9.5):
-    resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
-    peerDependencies:
-      '@volar/vue-language-plugin-pug': ^1.0.4
-      '@volar/vue-typescript': ^1.0.4
-      prettier: '>=2.0'
-      typescript: '>=2.9'
-    peerDependenciesMeta:
-      '@volar/vue-language-plugin-pug':
-        optional: true
-      '@volar/vue-typescript':
-        optional: true
-    dependencies:
-      prettier: 2.4.1
-      typescript: 4.9.5
-    dev: true
-
-  /prettier-plugin-organize-imports@3.2.2(prettier@2.6.2)(typescript@4.9.5):
-    resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
-    peerDependencies:
-      '@volar/vue-language-plugin-pug': ^1.0.4
-      '@volar/vue-typescript': ^1.0.4
-      prettier: '>=2.0'
-      typescript: '>=2.9'
-    peerDependenciesMeta:
-      '@volar/vue-language-plugin-pug':
-        optional: true
-      '@volar/vue-typescript':
-        optional: true
-    dependencies:
-      prettier: 2.6.2
-      typescript: 4.9.5
-    dev: true
-
-  /prettier-plugin-organize-imports@3.2.2(prettier@2.7.1)(typescript@4.9.5):
-    resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
-    peerDependencies:
-      '@volar/vue-language-plugin-pug': ^1.0.4
-      '@volar/vue-typescript': ^1.0.4
-      prettier: '>=2.0'
-      typescript: '>=2.9'
-    peerDependenciesMeta:
-      '@volar/vue-language-plugin-pug':
-        optional: true
-      '@volar/vue-typescript':
-        optional: true
-    dependencies:
-      prettier: 2.7.1
-      typescript: 4.9.5
-    dev: true
-
   /prettier-plugin-organize-imports@3.2.2(prettier@2.8.4)(typescript@4.9.5):
     resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
     peerDependencies:
@@ -18773,26 +18729,31 @@ packages:
       typescript: 4.9.5
     dev: true
 
-  /prettier@2.4.1:
-    resolution: {integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
+  /prettier-plugin-organize-imports@3.2.2(prettier@3.0.2)(typescript@4.9.5):
+    resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
+    peerDependencies:
+      '@volar/vue-language-plugin-pug': ^1.0.4
+      '@volar/vue-typescript': ^1.0.4
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    peerDependenciesMeta:
+      '@volar/vue-language-plugin-pug':
+        optional: true
+      '@volar/vue-typescript':
+        optional: true
+    dependencies:
+      prettier: 3.0.2
+      typescript: 4.9.5
     dev: true
-
-  /prettier@2.6.2:
-    resolution: {integrity: sha512-PkUpF+qoXTqhOeWL9fu7As8LXsIUZ1WYaJiY/a7McAQzxjk82OF0tibkFXVCDImZtWxbvojFjerkiLb0/q8mew==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    dev: true
-
-  /prettier@2.7.1:
-    resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
 
   /prettier@2.8.4:
     resolution: {integrity: sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  /prettier@3.0.2:
+    resolution: {integrity: sha512-o2YR9qtniXvwEZlOKbveKfDQVyqxbEIWn48Z8m3ZJjBjcCmUy3xZGIv+7AkaeuaTr6yPXJjwv07ZWlsWbEy1rQ==}
+    engines: {node: '>=14'}
     hasBin: true
 
   /pretty-error@4.0.0:

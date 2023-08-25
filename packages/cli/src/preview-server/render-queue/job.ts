@@ -6,6 +6,7 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
@@ -38,7 +39,7 @@ type RenderJobDynamicStatus =
 	  };
 
 export type JobProgressCallback = (
-	options: BaseRenderProgress & AggregateRenderProgress
+	options: BaseRenderProgress & AggregateRenderProgress,
 ) => void;
 
 type RenderJobDynamicFields =
@@ -48,6 +49,7 @@ type RenderJobDynamicFields =
 			jpegQuality: number;
 			frame: number;
 			scale: number;
+			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
@@ -63,12 +65,14 @@ type RenderJobDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
+			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
@@ -113,6 +117,7 @@ type AddRenderRequestDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
@@ -133,6 +138,7 @@ export type AddRenderRequest = {
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
+	offthreadVideoCacheSizeInBytes: number | null;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
@@ -141,6 +147,10 @@ export type RemoveRenderRequest = {
 
 export type OpenInFileExplorerRequest = {
 	directory: string;
+};
+
+export type CopyStillToClipboardRequest = {
+	outName: string;
 };
 
 export type SubscribeToFileExistenceRequest = {

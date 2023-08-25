@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {
@@ -24,7 +24,7 @@ export const delayRender = (label?: string): number => {
 	if (typeof label !== 'string' && typeof label !== 'undefined') {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
-				JSON.stringify(label)
+				JSON.stringify(label),
 		);
 	}
 
@@ -32,7 +32,7 @@ export const delayRender = (label?: string): number => {
 	handles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		const timeoutToUse =
 			typeof window === 'undefined'
 				? defaultTimeout
@@ -73,20 +73,20 @@ export const delayRender = (label?: string): number => {
 export const continueRender = (handle: number): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
-			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.'
+			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
 		);
 	}
 
 	if (typeof handle !== 'number') {
 		throw new TypeError(
 			'The parameter passed into continueRender() must be the return value of delayRender() which is a number. Got: ' +
-				JSON.stringify(handle)
+				JSON.stringify(handle),
 		);
 	}
 
 	handles = handles.filter((h) => {
 		if (h === handle) {
-			if (getRemotionEnvironment() === 'rendering') {
+			if (getRemotionEnvironment().isRendering) {
 				clearTimeout(window.remotion_delayRenderTimeouts[handle].timeout);
 				delete window.remotion_delayRenderTimeouts[handle];
 			}

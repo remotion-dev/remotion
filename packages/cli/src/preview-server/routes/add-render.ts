@@ -37,6 +37,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				muted: input.muted,
 				enforceAudioTrack: input.enforceAudioTrack,
 				proResProfile: input.proResProfile,
+				x264Preset: input.x264Preset,
 				pixelFormat: input.pixelFormat,
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,
@@ -48,6 +49,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
+				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 			},
 		});
 	}
@@ -74,6 +76,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
+				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 			},
 			entryPoint,
 			remotionRoot,

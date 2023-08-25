@@ -12,7 +12,7 @@ import type {Template} from './templates';
 export const patchReadmeMd = (
 	projectRoot: string,
 	packageManager: PackageManager,
-	template: Template
+	template: Template,
 ) => {
 	const fileName = path.join(projectRoot, 'README.md');
 

@@ -21,7 +21,7 @@ ${colorCode.redText}.env file exists in this directory. Delete and create new .e
 				if (['yes', 'y'].indexOf(answer.trim().toLowerCase()) >= 0) {
 					execSync('rm .env');
 					execSync(
-						`echo "${colorCode.redText}Deleted .env file.${colorCode.resetText}"`
+						`echo "${colorCode.redText}Deleted .env file.${colorCode.resetText}"`,
 					);
 					return resolve(true);
 				}
@@ -37,7 +37,7 @@ ${colorCode.redText}.env file exists in this directory. Delete and create new .e
 				const result = await deleteEnvPrompt();
 
 				resolve(result);
-			}
+			},
 		);
 	});
 }

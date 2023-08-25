@@ -18,11 +18,11 @@ test('Parse service names', () => {
 	});
 
 	expect(shortServiceName).toBe(
-		`remotion-${VERSION.replace(/\./g, '-')}-mem100000k-cpu8-0-t3600`
+		`remotion-${VERSION.replace(/\./g, '-')}-mem100000k-cpu8-0-t3600`,
 	);
 
 	const fullServiceName = `${getGcpParent(
-		region
+		region,
 	)}/services/${shortServiceName}`;
 
 	const parsed = parseServiceName(fullServiceName, region);

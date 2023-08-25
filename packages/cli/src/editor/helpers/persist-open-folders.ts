@@ -1,6 +1,6 @@
 export const openFolderKey = (
 	folderName: string,
-	parentName: string | null
+	parentName: string | null,
 ) => {
 	return [parentName ?? 'no-parent', folderName].join('/');
 };

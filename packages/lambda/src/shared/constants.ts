@@ -7,8 +7,11 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	ToOptions,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
@@ -71,7 +74,7 @@ export const lambdaChunkInitializedKey = ({
 	chunk: number;
 }) =>
 	`${lambdaChunkInitializedPrefix(
-		renderId
+		renderId,
 	)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
@@ -83,11 +86,11 @@ export const lambdaLogsPrefix = (
 	renderId: string,
 	chunk: number,
 	startFrame: number,
-	endFrame: number
+	endFrame: number,
 ) =>
 	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
 		8,
-		'0'
+		'0',
 	)}:frames:${startFrame}-${endFrame}.json`;
 
 export const lambdaTimingsKey = ({
@@ -103,7 +106,7 @@ export const lambdaTimingsKey = ({
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
-		chunk
+		chunk,
 	)}-start:${start}-rendered:${rendered}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
@@ -158,7 +161,7 @@ export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput
+	name: OutNameInput,
 ): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {
@@ -206,10 +209,19 @@ export enum LambdaRoutines {
 	compositions = 'compositions',
 }
 
-type WebhookOption = null | {
-	url: string;
-	secret: string | null;
-};
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type WebhookOption = Prettify<
+	| null
+	| ({
+			url: string;
+			secret: string | null;
+	  } & Partial<
+			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+	  >)
+>;
 
 export type SerializedInputProps =
 	| {
@@ -235,6 +247,7 @@ export type LambdaStartPayload = {
 	envVariables: Record<string, string> | undefined;
 	pixelFormat: PixelFormat | undefined;
 	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | null;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -257,6 +270,7 @@ export type LambdaStartPayload = {
 	forceHeight: number | null;
 	forceWidth: number | null;
 	bucketName: string | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 };
 
 export type LambdaStatusPayload = {
@@ -288,6 +302,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
+		x264Preset: X264Preset | null;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -308,6 +323,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -329,6 +345,7 @@ export type LambdaPayloads = {
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
+		x264Preset: X264Preset | null;
 		pixelFormat: PixelFormat | undefined;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
@@ -346,6 +363,7 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -369,6 +387,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -380,6 +399,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 };
 

@@ -2,7 +2,6 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
-import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
@@ -33,6 +32,11 @@ import {
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -78,7 +82,7 @@ const callFunctionWithRetry = async ({
 				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
-			})
+			}),
 		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
@@ -102,7 +106,7 @@ const callFunctionWithRetry = async ({
 
 const innerLaunchHandler = async (
 	params: LambdaPayload,
-	options: Options
+	options: Options,
 ): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -116,13 +120,13 @@ const innerLaunchHandler = async (
 
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(
 		params.logLevel,
-		'verbose'
+		'verbose',
 	);
 
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
-		params.chromiumOptions
+		params.chromiumOptions,
 	);
 
 	const inputPropsPromise = decompressInputProps({
@@ -136,7 +140,7 @@ const innerLaunchHandler = async (
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 	RenderInternals.Log.info(
 		'Validating composition, input props:',
-		serializedInputPropsWithCustomSchema
+		serializedInputPropsWithCustomSchema,
 	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
@@ -151,37 +155,34 @@ const innerLaunchHandler = async (
 		forceWidth: params.forceWidth,
 		logLevel: params.logLevel,
 		server: undefined,
+		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 	});
 	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
 
-	Internals.validateDurationInFrames(comp.durationInFrames, {
+	validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
 	});
-	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
-	Internals.validateDimension(
-		comp.height,
-		'height',
-		'passed to a Lambda render'
-	);
-	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
+	validateFps(comp.fps, 'passed to a Lambda render', false);
+	validateDimension(comp.height, 'height', 'passed to a Lambda render');
+	validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
 	RenderInternals.validateConcurrency(
 		params.concurrencyPerLambda,
-		'concurrencyPerLambda'
+		'concurrencyPerLambda',
 	);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
-		params.frameRange
+		params.frameRange,
 	);
 
 	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
-		params.everyNthFrame
+		params.everyNthFrame,
 	);
 
 	const framesPerLambda =
@@ -196,7 +197,7 @@ const innerLaunchHandler = async (
 
 	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
-			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`
+			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
 		);
 	}
 
@@ -252,6 +253,7 @@ const innerLaunchHandler = async (
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
+			x264Preset: params.x264Preset,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
@@ -268,13 +270,14 @@ const innerLaunchHandler = async (
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		};
 		return payload;
 	});
 
 	RenderInternals.Log.info(
 		'Render plan: ',
-		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
 	const renderMetadata: RenderMetadata = {
@@ -311,7 +314,7 @@ const innerLaunchHandler = async (
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.s3OutputProvider ?? null
+			: params.outName?.s3OutputProvider ?? null,
 	);
 
 	const output = await findOutputFileInBucket({
@@ -326,7 +329,7 @@ const innerLaunchHandler = async (
 			console.info(
 				'Deleting',
 				{bucketName: renderBucketName, key},
-				'because it already existed and will be overwritten'
+				'because it already existed and will be overwritten',
 			);
 			await lambdaDeleteFile({
 				bucketName: renderBucketName,
@@ -336,7 +339,7 @@ const innerLaunchHandler = async (
 			});
 		} else {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`,
 			);
 		}
 	}
@@ -355,7 +358,7 @@ const innerLaunchHandler = async (
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await callFunctionWithRetry({payload, retries: 0, functionName});
-		})
+		}),
 	);
 
 	reqSend.end();
@@ -417,12 +420,12 @@ const innerLaunchHandler = async (
 				}:\n${errors[0].stack
 					.split('\n')
 					.map((s) => `   ${s}`)
-					.join('\n')}`
+					.join('\n')}`,
 			);
 		}
 
 		throw new Error(
-			`Stopping Lambda function because error occurred: ${errors[0].stack}`
+			`Stopping Lambda function because error occurred: ${errors[0].stack}`,
 		);
 	};
 
@@ -524,7 +527,7 @@ const innerLaunchHandler = async (
 	const outputUrl = getOutputUrlFromMetadata(
 		renderMetadata,
 		params.bucketName,
-		customCredentials
+		customCredentials,
 	);
 	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -569,7 +572,7 @@ const innerLaunchHandler = async (
 
 export const launchHandler = async (
 	params: LambdaPayload,
-	options: Options
+	options: Options,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -578,54 +581,58 @@ export const launchHandler = async (
 	}
 
 	let webhookInvoked = false;
-	const webhookDueToTimeout = setTimeout(async () => {
-		if (params.webhook && !webhookInvoked) {
-			try {
-				await invokeWebhook({
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'timeout',
+	const webhookDueToTimeout = setTimeout(
+		async () => {
+			if (params.webhook && !webhookInvoked) {
+				try {
+					await invokeWebhook({
+						url: params.webhook.url,
+						secret: params.webhook.secret,
+						payload: {
+							type: 'timeout',
+							renderId: params.renderId,
+							expectedBucketOwner: options.expectedBucketOwner,
+							bucketName: params.bucketName,
+							customData: params.webhook.customData ?? null,
+						},
+					});
+					webhookInvoked = true;
+				} catch (err) {
+					if (process.env.NODE_ENV === 'test') {
+						throw err;
+					}
+
+					await writeLambdaError({
+						bucketName: params.bucketName,
+						errorInfo: {
+							type: 'webhook',
+							message: (err as Error).message,
+							name: (err as Error).name as string,
+							stack: (err as Error).stack as string,
+							tmpDir: null,
+							frame: 0,
+							chunk: 0,
+							isFatal: false,
+							attempt: 1,
+							willRetry: false,
+							totalAttempts: 1,
+						},
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-					},
-				});
-				webhookInvoked = true;
-			} catch (err) {
-				if (process.env.NODE_ENV === 'test') {
-					throw err;
+					});
+					RenderInternals.Log.error('Failed to invoke webhook:');
+					RenderInternals.Log.error(err);
 				}
-
-				await writeLambdaError({
-					bucketName: params.bucketName,
-					errorInfo: {
-						type: 'webhook',
-						message: (err as Error).message,
-						name: (err as Error).name as string,
-						stack: (err as Error).stack as string,
-						tmpDir: null,
-						frame: 0,
-						chunk: 0,
-						isFatal: false,
-						attempt: 1,
-						willRetry: false,
-						totalAttempts: 1,
-					},
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-				});
-				RenderInternals.Log.error('Failed to invoke webhook:');
-				RenderInternals.Log.error(err);
 			}
-		}
-	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
+		},
+		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
+	);
 
 	RenderInternals.Log.info(
 		`Function has ${Math.max(
 			options.getRemainingTimeInMillis() - 1000,
-			1000
-		)} before it times out`
+			1000,
+		)} before it times out`,
 	);
 
 	try {
@@ -641,6 +648,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 						outputUrl: postRenderData.outputFile,
 						lambdaErrors: postRenderData.errors,
 						outputFile: postRenderData.outputFile,
@@ -715,6 +723,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 						errors: [err as Error].map((e) => ({
 							message: e.message,
 							name: e.name as string,

@@ -8,7 +8,7 @@ export const TemplateComp: React.FC<{
   templateId: string;
 }> = ({ templateId }) => {
   const template = CreateVideoInternals.FEATURED_TEMPLATES.find(
-    (t) => t.cliId === templateId
+    (t) => t.cliId === templateId,
   );
   return (
     <AbsoluteFill

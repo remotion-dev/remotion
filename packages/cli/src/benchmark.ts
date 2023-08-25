@@ -35,7 +35,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 const runBenchmark = async (
 	runs: number,
 	options: Omit<InternalRenderMediaOptions, 'onProgress'>,
-	onProgress?: (run: number, progress: number) => void
+	onProgress?: (run: number, progress: number) => void,
 ) => {
 	const timeTaken: number[] = [];
 	for (let run = 0; run < runs; ++run) {
@@ -82,7 +82,7 @@ const avg = (time: number[]) =>
 const stdDev = (time: number[]) => {
 	const mean = avg(time);
 	return Math.sqrt(
-		time.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / time.length
+		time.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / time.length,
 	);
 };
 
@@ -93,13 +93,13 @@ const getResults = (results: number[], runs: number) => {
 	const min = Math.min(...results);
 
 	return `    Time (${chalk.green('mean')} ± ${chalk.green(
-		'σ'
+		'σ',
 	)}):         ${chalk.green(formatTime(mean))} ± ${chalk.green(
-		formatTime(dev)
+		formatTime(dev),
 	)}\n    Range (${chalk.blue('min')} ... ${chalk.red(
-		'max'
+		'max',
 	)}):     ${chalk.blue(formatTime(min))} ... ${chalk.red(
-		formatTime(max)
+		formatTime(max),
 	)} \t ${chalk.gray(`${runs} runs`)}
 	`;
 };
@@ -130,7 +130,7 @@ const makeBenchmarkProgressBar = ({
 
 export const benchmarkCommand = async (
 	remotionRoot: string,
-	args: string[]
+	args: string[],
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
@@ -157,6 +157,7 @@ export const benchmarkCommand = async (
 		scale,
 		publicDir,
 		proResProfile,
+		x264Preset,
 		frameRange: defaultFrameRange,
 		overwrite,
 		jpegQuality,
@@ -174,6 +175,7 @@ export const benchmarkCommand = async (
 		width,
 		concurrency: unparsedConcurrency,
 		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -232,6 +234,7 @@ export const benchmarkCommand = async (
 		//  Intentionally disabling server to not cache results
 		server: undefined,
 		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	const ids = (
@@ -255,7 +258,7 @@ export const benchmarkCommand = async (
 
 	if (compositions.length === 0) {
 		Log.error(
-			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.'
+			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.',
 		);
 	}
 
@@ -285,8 +288,8 @@ export const benchmarkCommand = async (
 			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`
-				)}`
+					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
+				)}`,
 			);
 
 			const timeTaken = await runBenchmark(
@@ -309,6 +312,7 @@ export const benchmarkCommand = async (
 					overwrite,
 					pixelFormat,
 					proResProfile,
+					x264Preset,
 					jpegQuality,
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
@@ -343,6 +347,7 @@ export const benchmarkCommand = async (
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
+					offthreadVideoCacheSizeInBytes,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -352,9 +357,9 @@ export const benchmarkCommand = async (
 							doneIn: null,
 							progress,
 						}),
-						false
+						false,
 					);
-				}
+				},
 			);
 
 			benchmarkProgress.update('', false);

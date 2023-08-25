@@ -44,7 +44,7 @@ export const StackElement: React.FC<{
 		() =>
 			(!s.originalFileName?.includes('node_modules') &&
 				!s.originalFileName?.startsWith('webpack/')) ||
-			isFirst
+			isFirst,
 	);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);

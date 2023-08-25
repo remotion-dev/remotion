@@ -10,7 +10,7 @@
 export const lzw = (
 	minCodeSize: number,
 	data: number[],
-	pixelCount: number
+	pixelCount: number,
 ) => {
 	const MAX_STACK_SIZE = 4096;
 	const nullCode = -1;

@@ -30,7 +30,7 @@ const result = await renderMediaOnCloudrun({
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
   codec: "h264",
 });
-if (result.status === "success") {
+if (result.type === "success") {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
@@ -136,6 +136,12 @@ See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
 _optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
+
+_optional_
+
+### `x264Preset?`
+
+See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
 
 ### `crf?`
 
@@ -269,22 +275,26 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
 ## Return value
 
 Returns a promise resolving to an object.
 
-### `status`
+### `type`
 
 Use this to determine the structure of the response. It can either be:
 
 - 'success' - render has been performed successfully.
 - 'crash - Cloud Run service has crashed.
 
-## Return when status === 'success'
+## Return when type === 'success'
 
 The resulting object contains the following:
 
-### `status`
+### `type`
 
 'success' - render has been performed successfully.
 
@@ -321,11 +331,11 @@ Google Storage path, beginning with `gs://{bucket-name}`. Can be used with the [
 
 Size of the rendered media in KB.
 
-## Return when status === 'crash'
+## Return when type === 'crash'
 
 The resulting object contains the following:
 
-### `status`
+### `type`
 
 'crash' - Cloud Run service has crashed without a response.
 

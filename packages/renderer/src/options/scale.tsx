@@ -1,9 +1,9 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const scaleOption: RemotionOption = {
+export const scaleOption = {
 	name: 'Scale',
 	cliFlag: '--scale',
-	description: (
+	description: () => (
 		<>
 			Scales the output by a factor. For example, a 1280x720px frame will become
 			a 1920x1080px frame with a scale factor of <code>1.5</code>. Vector
@@ -12,4 +12,5 @@ export const scaleOption: RemotionOption = {
 	),
 	ssrName: 'scale',
 	docLink: 'https://www.remotion.dev/docs/scaling',
-};
+	type: 0 as number,
+} satisfies AnyRemotionOption;

@@ -15,10 +15,10 @@ export const servicesRmCommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error('No service name passed.');
 		Log.error(
-			'Pass another argument which is the name of the service you would like to remove.'
+			'Pass another argument which is the name of the service you would like to remove.',
 		);
 		Log.info(
-			`You can run \`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}\` to see a list of deployed Cloud Run services.`
+			`You can run \`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}\` to see a list of deployed Cloud Run services.`,
 		);
 		quit(1);
 	}

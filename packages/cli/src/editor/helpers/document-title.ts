@@ -12,6 +12,8 @@ export const setCurrentVideoId = (id: string | null) => {
 };
 
 export const setUnsavedProps = (unsaved: boolean) => {
+	window.remotion_unsavedProps = unsaved;
+
 	unsavedProps = unsaved;
 };
 
@@ -47,7 +49,7 @@ const updateTitle = () => {
 
 const getProgressInBrackets = (
 	selectedCompositionId: string,
-	jobs: RenderJob[]
+	jobs: RenderJob[],
 ): string | null => {
 	const currentRender = jobs.find((job) => job.status === 'running');
 	if (!currentRender) {

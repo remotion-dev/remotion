@@ -6,7 +6,7 @@ export type EnumPath = (string | number)[];
 export const extractEnumJsonPaths = (
 	schema: Zod.ZodTypeAny,
 	zodRuntime: ZodType,
-	currentPath: (string | number)[]
+	currentPath: (string | number)[],
 ): (string | number)[][] => {
 	const def = schema._def;
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
@@ -56,7 +56,7 @@ export const extractEnumJsonPaths = (
 			return extractEnumJsonPaths(
 				(def as z.ZodEffectsDef).schema,
 				zodRuntime,
-				currentPath
+				currentPath,
 			);
 		}
 
@@ -72,7 +72,7 @@ export const extractEnumJsonPaths = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodTuple: {
 			return (def as z.ZodTupleDef).items
 				.map((item, i) =>
-					extractEnumJsonPaths(item, zodRuntime, [...currentPath, i])
+					extractEnumJsonPaths(item, zodRuntime, [...currentPath, i]),
 				)
 				.flat(1);
 		}
@@ -81,7 +81,7 @@ export const extractEnumJsonPaths = (
 			const values = extractEnumJsonPaths(
 				(def as z.ZodRecordDef).valueType,
 				zodRuntime,
-				[...currentPath, '{}']
+				[...currentPath, '{}'],
 			);
 			return values;
 		}
@@ -103,7 +103,7 @@ export const extractEnumJsonPaths = (
 			const value = extractEnumJsonPaths(
 				defType.innerType,
 				zodRuntime,
-				currentPath
+				currentPath,
 			);
 			return value;
 		}
@@ -113,7 +113,7 @@ export const extractEnumJsonPaths = (
 			const value = extractEnumJsonPaths(
 				defType.innerType,
 				zodRuntime,
-				currentPath
+				currentPath,
 			);
 			return value;
 		}

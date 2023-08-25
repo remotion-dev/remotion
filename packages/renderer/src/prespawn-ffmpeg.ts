@@ -1,4 +1,3 @@
-import {Internals} from 'remotion';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -17,6 +16,7 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
+import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
 type RunningStatus =
@@ -52,22 +52,18 @@ type PreStitcherOptions = {
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
-	Internals.validateDimension(
+	validateDimension(
 		options.height,
 		'height',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		options.width,
 		'width',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
 	const codec = options.codec ?? DEFAULT_CODEC;
-	Internals.validateFps(
-		options.fps,
-		'in `stitchFramesToVideo()`',
-		codec === 'gif'
-	);
+	validateFps(options.fps, 'in `stitchFramesToVideo()`', codec === 'gif');
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
@@ -120,7 +116,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
-		'Generated FFMPEG command:'
+		'Generated FFMPEG command:',
 	);
 	Log.verboseAdvanced(
 		{
@@ -128,7 +124,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
-		ffmpegArgs.join(' ')
+		ffmpegArgs.join(' '),
 	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];

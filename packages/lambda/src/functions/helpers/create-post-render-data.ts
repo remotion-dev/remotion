@@ -40,12 +40,12 @@ export const createPostRenderData = ({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 }): PostRenderData => {
-	const initializedKeys = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
+	const initializedKeys = contents.filter(
+		(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
 	);
 
 	const parsedTimings = initializedKeys.map(({Key}) =>
-		parseLambdaTimingsKey(Key as string)
+		parseLambdaTimingsKey(Key as string),
 	);
 
 	const times = parsedTimings
@@ -53,7 +53,7 @@ export const createPostRenderData = ({
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
-		durationInMiliseconds: times,
+		durationInMilliseconds: times,
 		memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
@@ -117,7 +117,8 @@ export const createPostRenderData = ({
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
 			parsedTimings,
 			renderMetadata.framesPerLambda,
-			renderMetadata.frameRange[1]
+			renderMetadata.frameRange[0],
+			renderMetadata.frameRange[1],
 		),
 	};
 };

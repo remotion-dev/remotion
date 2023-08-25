@@ -165,6 +165,12 @@ _optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
+### `x264Preset?`
+
+_optional_
+
+See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+
 ### `jpegQuality`
 
 See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
@@ -309,6 +315,10 @@ import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 const webhook: RenderMediaOnLambdaInput["webhook"] = {
   url: "https://mapsnap.app/api/webhook",
   secret: process.env.WEBHOOK_SECRET as string,
+  // Optionally pass up to 1024 bytes of custom data
+  customData: {
+    id: 42,
+  },
 };
 ```
 
@@ -338,6 +348,10 @@ _optional_
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`dumpBrowserLogs?`~~
 

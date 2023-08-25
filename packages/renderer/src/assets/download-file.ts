@@ -53,8 +53,8 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 				rejectAndFlag(
 					new Error(
-						`Tried to download file ${url}, but the server sent no data for 20 seconds`
-					)
+						`Tried to download file ${url}, but the server sent no data for 20 seconds`,
+					),
 				);
 			}, 20000);
 		};
@@ -108,8 +108,8 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					if (totalSize !== null && downloaded !== totalSize) {
 						rejectAndFlag(
 							new Error(
-								`${incorrectContentLengthToken} ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
-							)
+								`${incorrectContentLengthToken} ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`,
+							),
 						);
 					}
 
@@ -125,7 +125,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 export const downloadFile = async (
 	options: Options,
 	retries = 2,
-	attempt = 1
+	attempt = 1,
 ): Promise<Response> => {
 	try {
 		const res = await downloadFileWithoutRetries(options);

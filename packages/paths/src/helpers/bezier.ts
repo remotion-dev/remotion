@@ -73,7 +73,7 @@ export const makeBezier = ({
 
 		const derivative = getDerivative(xs, xy, t);
 		const mdl = Math.sqrt(
-			derivative.x * derivative.x + derivative.y * derivative.y
+			derivative.x * derivative.x + derivative.y * derivative.y,
 		);
 		let tangent: Point;
 		if (mdl > 0) {
@@ -92,7 +92,7 @@ export const makeBezier = ({
 
 		const derivative = getDerivative(xs, xy, t);
 		const mdl = Math.sqrt(
-			derivative.x * derivative.x + derivative.y * derivative.y
+			derivative.x * derivative.x + derivative.y * derivative.y,
 		);
 		let tangent: Point;
 		if (mdl > 0) {

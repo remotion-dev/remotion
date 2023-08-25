@@ -36,11 +36,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	AudioForDevelopmentProps
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
-		props.shouldPreMountAudioTags
+		props.shouldPreMountAudioTags,
 	);
 	if (props.shouldPreMountAudioTags !== initialShouldPreMountAudioElements) {
 		throw new Error(
-			'Cannot change the behavior for pre-mounting audio tags dynamically.'
+			'Cannot change the behavior for pre-mounting audio tags dynamically.',
 		);
 	}
 
@@ -57,6 +57,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src,
 		onDuration,
 		acceptableTimeShiftInSeconds,
+		_remotionInternalNeedsDurationCalculation,
+		allowAmplificationDuringRender,
 		...nativeProps
 	} = props;
 
@@ -80,11 +82,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	// but at the same time deterministic. We use it to combat strict mode issues.
 	const id = useMemo(
 		() =>
-			`audio-${random(src ?? '')}-${sequenceContext?.relativeFrom}-${
-				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}-loop:${
-				props.loop
-			}`,
+			`audio-${random(
+				src ?? '',
+			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}-muted:${
+				props.muted
+			}-loop:${props.loop}`,
 		[
 			src,
 			sequenceContext?.relativeFrom,
@@ -92,7 +94,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			sequenceContext?.durationInFrames,
 			props.muted,
 			props.loop,
-		]
+		],
 	);
 
 	const audioRef = useSharedAudio(propsToPass, id).el;
@@ -131,7 +133,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		() => {
 			return audioRef.current as HTMLAudioElement;
 		},
-		[audioRef]
+		[audioRef],
 	);
 
 	const currentOnDurationCallback =
@@ -167,7 +169,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 };
 
 export const AudioForDevelopment = forwardRef(
-	AudioForDevelopmentForwardRefFunction
+	AudioForDevelopmentForwardRefFunction,
 ) as ForwardRefExoticComponent<
 	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
 >;

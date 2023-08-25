@@ -5,7 +5,7 @@ export type Expert = {
   image: string;
   website: string | null;
   description: React.ReactNode;
-  twitter: React.ReactNode;
+  x: React.ReactNode;
   github: React.ReactNode;
   linkedin: React.ReactNode;
   email: React.ReactNode;
@@ -19,7 +19,7 @@ export const experts: Expert[] = [
     slug: "marcus-stenbeck",
     name: "Marcus Stenbeck",
     image: "/img/freelancers/marcus.jpeg",
-    twitter: "marcusstenbeck",
+    x: "marcusstenbeck",
     github: "marcusstenbeck",
     linkedin: "in/mstenbeck/",
     email: "marcus.stenbeck+remotionexpert@gmail.com",
@@ -50,7 +50,7 @@ export const experts: Expert[] = [
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
     website: null,
-    twitter: "florentpergoud",
+    x: "florentpergoud",
     github: "florentpergoud",
     linkedin: "in/florent-pergoud/",
     email: "florentpergoud@gmail.com",
@@ -75,7 +75,7 @@ export const experts: Expert[] = [
     name: "Stephen Sullivan",
     image: "/img/freelancers/stephen.png",
     website: null,
-    twitter: null,
+    x: null,
     github: null,
     linkedin: "in/sterv/",
     email: "stephen@middy.com",
@@ -96,7 +96,7 @@ export const experts: Expert[] = [
     name: "Mohit Yadav",
     image: "/img/freelancers/mohit.jpeg",
     website: null,
-    twitter: "Just_Moh_it",
+    x: "Just_Moh_it",
     github: "Just-Moh-it",
     linkedin: "in/just-moh-it/",
     email: "yo@mohitya.dev",
@@ -121,7 +121,7 @@ export const experts: Expert[] = [
     name: "Yehor Misiats",
     image: "/img/freelancers/yehor.jpeg",
     website: null,
-    twitter: "isatelllte",
+    x: "isatelllte",
     github: "satelllte",
     linkedin: "in/satelllte/",
     email: "lunaerxs@gmail.com",
@@ -133,17 +133,16 @@ export const experts: Expert[] = [
         I made:{" "}
         <a
           target={"_blank"}
-          href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8#4f76cb43a15342bda167e0e9a0553895"
+          href="https://github.com/satelllte/remotion-audio-visualizer"
         >
-          Music visualizations
+          Minimalistic audio visualizations
         </a>
-        !<br />
-        Check out my{" "}
+        {" and "}
         <a
           target={"_blank"}
-          href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8"
+          href="https://github.com/satelllte/remotion-template"
         >
-          Remotion portfolio
+          Template for crafting programmatic videos
         </a>
         .
       </div>
@@ -153,7 +152,7 @@ export const experts: Expert[] = [
     slug: "benjamin-jameson",
     name: "Benjamin Jameson",
     image: "/img/freelancers/benjamin.jpeg",
-    twitter: null,
+    x: null,
     github: "BenjaminJameson",
     linkedin: null,
     email: "ben@captok.ai",
@@ -176,7 +175,7 @@ export const experts: Expert[] = [
     name: "Karel Nagel",
     image: "/img/freelancers/karel.jpeg",
     website: "https://asius.ee/",
-    twitter: "KarelETH",
+    x: "KarelETH",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
     since: new Date("2022-08-22").getTime(),
@@ -197,7 +196,7 @@ export const experts: Expert[] = [
     name: "Alex Fernandez",
     image: "/img/freelancers/alex.jpeg",
     website: null,
-    twitter: null,
+    x: null,
     github: "alexfernandez803",
     linkedin: "in/alex-f-17a5bb56/",
     email: "alex.frndz@gmail.com",
@@ -214,8 +213,8 @@ export const experts: Expert[] = [
     slug: "matthew-mcgillivray",
     name: "Matt McGillivray",
     image: "/img/freelancers/umungo.png",
-    website: null,
-    twitter: "ProThatwas",
+    website: "https://mattm9y.com",
+    x: null,
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
     email: "m.mcgillivray@outlook.com",
@@ -224,15 +223,49 @@ export const experts: Expert[] = [
     description: (
       <div>
         <p>
-          I made:{" "}
-          <a target={"_blank"} href="https://thatwas.pro">
-            ThatWas.pro
+          I&apos;m a full stack web dev, strongest in cloud architecture and
+          front-end web development, which has been perfect for building editors
+          with the Remotion player as well as rendering videos on the cloud. I
+          have helped out some forward-thinking businesses in the Remotion
+          community, like{" "}
+          <a target={"_blank"} href="https://studio.momento.fm/">
+            Momento.fm
+          </a>
+          {", "}
+          <a target={"_blank"} href="https://viddyoze.com/">
+            Viddyoze
           </a>
           {" and "}
-          <a target={"_blank"} href="https://splitscreen.video">
-            splitscreen.video
+          <a target={"_blank"} href="https://djema.ai/">
+            Djema
           </a>
-          !
+          {". "}
+          <br />
+          <br />I am also the creator of the official{" "}
+          <a
+            target={"_blank"}
+            href="https://www.npmjs.com/package/@remotion/cloudrun"
+          >
+            @remotion/cloudrun package
+          </a>
+          , which I built in collaboration with Jonny and the team. This package
+          allows users to easily render videos on Google Cloud Platform, as an
+          alternative to using Lambda with AWS. I have also built my own
+          products, like{" "}
+          <a target={"_blank"} href="https://thatwas.pro/">
+            ThatWas.Pro
+          </a>
+          {", "}
+          <a target={"_blank"} href="https://splitscreen.video/">
+            SplitScreen.Video
+          </a>{" "}
+          and a neat audio player for{" "}
+          <a target={"_blank"} href="https://sub50k.com/">
+            Sub50k
+          </a>
+          {". "}
+          Feel free to send me an email, book some time, or shoot me a DM on
+          Discord!
         </p>
       </div>
     ),
@@ -242,7 +275,7 @@ export const experts: Expert[] = [
     name: "Ray Lotmar",
     image: "/img/freelancers/ray.jpeg",
     website: null,
-    twitter: "romrif",
+    x: "romrif",
     github: "rayBlock",
     linkedin: "in/raymond-lotmar/",
     email: "ray@blocklab.ch",
@@ -265,7 +298,7 @@ export const experts: Expert[] = [
     name: "Lorenzo Bertolini",
     image: "/img/freelancers/lorenzo.jpeg",
     website: "https://www.lorenzobertolini.com/",
-    twitter: "MagoDiSegrate",
+    x: "MagoDiSegrate",
     github: "encho",
     linkedin: "in/lorenzobertolini/",
     email: "ciao@lorenzobertolini.com",
@@ -296,7 +329,7 @@ export const experts: Expert[] = [
     name: "Antoine Caron",
     image: "/img/freelancers/antoine.jpeg",
     website: "https://blog.slashgear.dev/",
-    twitter: "Slashgear_",
+    x: "Slashgear_",
     github: "Slashgear",
     linkedin: "in/antoine-caron-slash/",
     email: "antoine395.caron+remotion@gmail.com",
@@ -314,11 +347,6 @@ export const experts: Expert[] = [
           </a>
           , with Mickaël Alves
         </p>
-        <p>
-          <a href="https://blog.slashgear.dev/" target={"_blank"}>
-            Personal website
-          </a>
-        </p>
       </div>
     ),
   },
@@ -327,7 +355,7 @@ export const experts: Expert[] = [
     name: "Mickaël Alves",
     image: "/img/freelancers/mickael.jpeg",
     website: "https://cruuzazul.dev/",
-    twitter: "CruuzAzul",
+    x: "CruuzAzul",
     github: "CruuzAzul",
     linkedin: "in/mickaelalves/",
     email: "alves.mckl@gmail.com",
@@ -345,11 +373,6 @@ export const experts: Expert[] = [
           </a>
           , with Antoine Caron
         </p>
-        <p>
-          <a href="https://cruuzazul.dev/" target={"_blank"}>
-            Personal website
-          </a>
-        </p>
       </div>
     ),
   },
@@ -358,7 +381,7 @@ export const experts: Expert[] = [
     name: "Pranav Kulkarni",
     image: "/img/freelancers/pranav.jpg",
     website: "https://pranava.dev/",
-    twitter: "thecmdrunner",
+    x: "thecmdrunner",
     github: "thecmdrunner",
     linkedin: "in/pranavk7/",
     email: "hey@pranava.dev",
@@ -382,7 +405,7 @@ export const experts: Expert[] = [
     name: "Rahul Bansal",
     image: "/img/freelancers/rahul.png",
     website: "https://bansalrahul.com/",
-    twitter: "BansalRahul14",
+    x: "BansalRahul14",
     github: "rahulbansal16",
     linkedin: "in/rahulbansalrb/",
     email: "bansalrahul14@gmail.com",

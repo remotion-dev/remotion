@@ -25,13 +25,13 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 
 	Log.info();
 	const longestLineNumber = Math.max(
-		...frame.originalScriptCode.map((script) => script.lineNumber)
+		...frame.originalScriptCode.map((script) => script.lineNumber),
 	).toString().length;
 	Log.info('at', chalk.underline(makeFileName(frame)));
 	const alignLeftAmount = Math.min(
 		...frame.originalScriptCode.map(
-			(c) => c.content.length - c.content.trimStart().length
-		)
+			(c) => c.content.length - c.content.trimStart().length,
+		),
 	);
 
 	Log.info(
@@ -45,7 +45,7 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 
 				return `${chalk.gray(left)} │ ${chalk.gray(right)}`;
 			})
-			.join('\n')}`
+			.join('\n')}`,
 	);
 };
 
@@ -59,8 +59,8 @@ const logLine = (frame: SymbolicatedStackFrame) => {
 		chalk.gray(
 			['at', frame.originalFunctionName, `${chalk.blueBright(`(${fileName})`)}`]
 				.filter(truthy)
-				.join(' ')
-		)
+				.join(' '),
+		),
 	);
 };
 

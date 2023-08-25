@@ -110,6 +110,11 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
 
+### `--x264-preset`<AvailableFrom v="4.2.2" />
+
+[Set the x264 preset](/docs/config#x264Preset). This option is only valid if the [`codec`](#--codec) has been set to `h264`. Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
 ### `--crf`<AvailableFrom v="1.4.0" />
 
 [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set.
@@ -197,6 +202,10 @@ Accepted values:
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`--ffmpeg-executable`~~
 

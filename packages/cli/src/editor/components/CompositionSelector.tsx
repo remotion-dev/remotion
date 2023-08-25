@@ -1,4 +1,11 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {
@@ -32,7 +39,7 @@ const list: React.CSSProperties = {
 export const getKeysToExpand = (
 	initialFolderName: string,
 	parentFolderName: string | null,
-	initial: string[] = []
+	initial: string[] = [],
 ): string[] => {
 	initial.push(openFolderKey(initialFolderName, parentFolderName));
 
@@ -44,12 +51,16 @@ export const getKeysToExpand = (
 	return getKeysToExpand(name, parent, initial);
 };
 
+export const compositionSelectorRef = createRef<{
+	expandComposition: (compName: string) => void;
+}>();
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, currentComposition, folders} = useContext(
-		Internals.CompositionManager
+		Internals.CompositionManager,
 	);
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders()
+		loadExpandedFolders(),
 	);
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -67,7 +78,58 @@ export const CompositionSelector: React.FC = () => {
 				return foldersExpandedState;
 			});
 		},
-		[]
+		[],
+	);
+
+	useImperativeHandle(
+		compositionSelectorRef,
+		() => {
+			return {
+				expandComposition: (compName) => {
+					const compositionToExpand = compositions.find(
+						(c) => c.id === compName,
+					);
+					if (!compositionToExpand) {
+						return;
+					}
+
+					const {folderName, parentFolderName} = compositionToExpand;
+					if (folderName === null) {
+						return;
+					}
+
+					setFoldersExpanded((previousState) => {
+						const foldersExpandedState: ExpandedFoldersState = {
+							...previousState,
+						};
+
+						let currentFolder: string | null = folderName;
+						let currentParentName: string | null = parentFolderName;
+
+						while (currentFolder) {
+							if (currentParentName?.includes('/')) {
+								const splittedParentName = currentParentName.split('/');
+								currentParentName = splittedParentName.pop() ?? null;
+							}
+
+							const key = openFolderKey(currentFolder, currentParentName);
+							foldersExpandedState[key] = true;
+
+							const parentFolder = folders.find((f) => {
+								return f.name === currentParentName && currentParentName;
+							});
+							currentFolder = parentFolder?.name ?? null;
+							currentParentName = parentFolder?.parent ?? null;
+						}
+
+						persistExpandedFolders(foldersExpandedState);
+
+						return foldersExpandedState;
+					});
+				},
+			};
+		},
+		[compositions, folders],
 	);
 
 	const items = useMemo(() => {

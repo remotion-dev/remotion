@@ -60,12 +60,12 @@ const innerStillHandler = async ({
 	if (lambdaParams.version !== VERSION) {
 		if (!lambdaParams.version) {
 			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 		);
 	}
 
@@ -83,7 +83,7 @@ const innerStillHandler = async ({
 		getBrowserInstance(
 			lambdaParams.logLevel,
 			false,
-			lambdaParams.chromiumOptions ?? {}
+			lambdaParams.chromiumOptions ?? {},
 		),
 	]);
 
@@ -113,6 +113,7 @@ const innerStillHandler = async ({
 		remotionRoot: process.cwd(),
 		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const composition = await validateComposition({
@@ -128,6 +129,7 @@ const innerStillHandler = async ({
 		forceWidth: lambdaParams.forceWidth,
 		logLevel: lambdaParams.logLevel,
 		server,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -195,12 +197,13 @@ const innerStillHandler = async ({
 			staticBase: null,
 			data: composition.props,
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName)
+		getCredentialsFromOutName(lambdaParams.outName),
 	);
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -227,7 +230,7 @@ const innerStillHandler = async ({
 	]);
 
 	const estimatedPrice = estimatePrice({
-		durationInMiliseconds: Date.now() - start + 100,
+		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
@@ -241,7 +244,7 @@ const innerStillHandler = async ({
 		output: getOutputUrlFromMetadata(
 			renderMetadata,
 			bucketName,
-			customCredentials
+			customCredentials,
 		),
 		size,
 		bucketName,
@@ -260,7 +263,7 @@ type RenderStillLambdaResponsePayload = {
 };
 
 export const stillHandler = async (
-	options: Options
+	options: Options,
 ): Promise<RenderStillLambdaResponsePayload> => {
 	const {params} = options;
 

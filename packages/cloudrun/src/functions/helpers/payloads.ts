@@ -8,6 +8,7 @@ const pixelFormat = z.enum(RenderInternals.validPixelFormats);
 const videoImageFormat = z.enum(RenderInternals.validVideoImageFormats);
 const stillImageFormat = z.enum(RenderInternals.validStillImageFormats);
 const proResProfile = z.enum(BrowserSafeApis.proResProfileOptions).nullable();
+const x264Preset = z.enum(BrowserSafeApis.x264PresetOptions).nullable();
 const chromiumOptions = z.object({
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
@@ -35,6 +36,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		imageFormat: videoImageFormat,
 		scale: z.number(),
 		proResProfile,
+		x264Preset,
 		everyNthFrame: z.number(),
 		numberOfGifLoops: z.number().nullable(),
 		frameRange: z.tuple([z.number(), z.number()]).or(z.number()).nullable(),
@@ -49,6 +51,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		concurrency: z.number().or(z.string()).nullable(),
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
+		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -68,17 +71,19 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		frame: z.number(),
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
+		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 	}),
 ]);
 
 const renderFailResponsePayload = z.object({
-	status: z.literal('error'),
-	error: z.string(),
+	type: z.literal('error'),
+	message: z.string(),
+	name: z.string(),
 	stack: z.string(),
 });
 
 const renderStillOnCloudrunResponsePayload = z.object({
-	status: z.literal('success'),
+	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
@@ -88,7 +93,7 @@ const renderStillOnCloudrunResponsePayload = z.object({
 });
 
 const renderMediaOnCloudrunResponsePayload = z.object({
-	status: z.literal('success'),
+	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
@@ -98,10 +103,10 @@ const renderMediaOnCloudrunResponsePayload = z.object({
 });
 
 const cloudRunCrashResponse = z.object({
-	status: z.literal('crash'),
+	type: z.literal('crash'),
 	cloudRunEndpoint: z.string(),
 	message: z.literal(
-		'Service crashed without sending a response. Check the logs in GCP console.'
+		'Service crashed without sending a response. Check the logs in GCP console.',
 	),
 	requestStartTime: z.string().datetime(),
 	requestCrashTime: z.string().datetime(),

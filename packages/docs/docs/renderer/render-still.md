@@ -201,6 +201,10 @@ Default: `null`.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_

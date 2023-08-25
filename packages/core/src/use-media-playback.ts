@@ -10,9 +10,27 @@ import {
 import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
+import {isIosSafari} from './video/video-fragment.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 
 export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
+
+const seek = (
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
+	time: number,
+) => {
+	if (!mediaRef.current) {
+		return;
+	}
+
+	// iOS seeking does not support multiple decimals
+	if (isIosSafari()) {
+		mediaRef.current.currentTime = Number(time.toFixed(1));
+		return;
+	}
+
+	mediaRef.current.currentTime = time;
+};
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -52,7 +70,7 @@ export const useMediaPlayback = ({
 
 		if (!src) {
 			throw new Error(
-				`No 'src' attribute was passed to the ${tagName} element.`
+				`No 'src' attribute was passed to the ${tagName} element.`,
 			);
 		}
 
@@ -82,11 +100,11 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
-			mediaRef.current.currentTime = shouldBeTime;
+			seek(mediaRef, shouldBeTime);
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
 					mediaRef.current,
-					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
+					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error',
 				);
 			}
 
@@ -103,13 +121,13 @@ export const useMediaPlayback = ({
 
 		if (!playing || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
+				seek(mediaRef, shouldBeTime);
 			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
 			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
+				seek(mediaRef, shouldBeTime);
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);

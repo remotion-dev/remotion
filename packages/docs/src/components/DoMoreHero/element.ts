@@ -14,7 +14,7 @@ export type ThreeDElement = {
 export const makeElement = (
   face: FaceType | FaceType[],
   centerPoint: Vector4D,
-  description: string
+  description: string,
 ): ThreeDElement => {
   return {
     faces: Array.isArray(face) ? face : [face],
@@ -26,7 +26,7 @@ export const makeElement = (
 
 export const transformElement = (
   element: ThreeDElement,
-  transformations: MatrixTransform4D[]
+  transformations: MatrixTransform4D[],
 ): ThreeDElement => {
   return {
     ...element,
@@ -36,7 +36,7 @@ export const transformElement = (
     id: makeId(),
     centerPoint: transformations.reduce(
       (point, transformation) => multiplyMatrix(transformation, point),
-      element.centerPoint
+      element.centerPoint,
     ),
   };
 };

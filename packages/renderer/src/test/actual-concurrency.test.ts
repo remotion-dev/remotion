@@ -4,13 +4,13 @@ import {getActualConcurrency} from '../get-concurrency';
 
 test('Actual concurrency null should choose a good result', () => {
 	expect(getActualConcurrency(null)).toBe(
-		Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)))
+		Math.round(Math.min(8, Math.max(1, os.cpus().length / 2))),
 	);
 });
 
 test('50% should yield half the cores', () => {
 	expect(getActualConcurrency('50%')).toBe(
-		Math.floor(Math.min(8, Math.max(1, os.cpus().length / 2)))
+		Math.floor(Math.min(8, Math.max(1, os.cpus().length / 2))),
 	);
 });
 

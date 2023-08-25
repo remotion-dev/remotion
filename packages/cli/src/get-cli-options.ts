@@ -16,7 +16,7 @@ const getAndValidateFrameRange = () => {
 	if (typeof frameRange === 'number') {
 		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
-			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
 		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
 	}
@@ -29,15 +29,15 @@ const getBrowser = () =>
 
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
-	overwrite: boolean
+	overwrite: boolean,
 ) => {
 	const absoluteOutputFile = path.resolve(
 		process.cwd(),
-		relativeOutputLocation
+		relativeOutputLocation,
 	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		Log.error(
-			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
+			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`,
 		);
 		process.exit(1);
 	}
@@ -68,6 +68,12 @@ const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
 
 	return proResProfile;
+};
+
+const getx264Preset = () => {
+	const x264Preset = ConfigInternals.getPresetProfile();
+
+	return x264Preset;
 };
 
 const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
@@ -105,6 +111,7 @@ export const getCliOptions = async (options: {
 
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
+	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
 	const port = ConfigInternals.getServerPort();
@@ -140,6 +147,7 @@ export const getCliOptions = async (options: {
 		crf,
 		pixelFormat,
 		proResProfile,
+		x264Preset,
 		everyNthFrame,
 		numberOfGifLoops,
 		stillFrame: ConfigInternals.getStillFrame(),
@@ -158,5 +166,7 @@ export const getCliOptions = async (options: {
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
+		offthreadVideoCacheSizeInBytes:
+			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 	};
 };

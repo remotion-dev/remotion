@@ -1,7 +1,7 @@
 import type {StillImageFormat, VideoImageFormat} from '@remotion/renderer';
 
 const deriveExtensionFromFilename = (
-	filename: string | null
+	filename: string | null,
 ): StillImageFormat | null => {
 	if (filename?.endsWith('.png')) {
 		return 'png';
@@ -56,14 +56,14 @@ export const determineFinalStillImageFormat = ({
 		outNameExtension !== downloadNameExtension
 	) {
 		throw new TypeError(
-			`Image format mismatch: ${outName} was given as the ${outNameDescription} and ${downloadName} was given as the download name, but the extensions don't match.`
+			`Image format mismatch: ${outName} was given as the ${outNameDescription} and ${downloadName} was given as the download name, but the extensions don't match.`,
 		);
 	}
 
 	if (downloadNameExtension) {
 		if (cliFlag && downloadNameExtension !== cliFlag) {
 			throw new TypeError(
-				`Image format mismatch: ${downloadName} was given as the download name, but --image-format=${cliFlag} was passed. The image formats must match.`
+				`Image format mismatch: ${downloadName} was given as the download name, but --image-format=${cliFlag} was passed. The image formats must match.`,
 			);
 		}
 
@@ -73,7 +73,7 @@ export const determineFinalStillImageFormat = ({
 	if (outNameExtension) {
 		if (cliFlag && outNameExtension !== cliFlag) {
 			throw new TypeError(
-				`Image format mismatch: ${outName} was given as the ${outNameDescription}, but --image-format=${cliFlag} was passed. The image formats must match.`
+				`Image format mismatch: ${outName} was given as the ${outNameDescription}, but --image-format=${cliFlag} was passed. The image formats must match.`,
 			);
 		}
 
@@ -82,7 +82,7 @@ export const determineFinalStillImageFormat = ({
 
 	if (cliFlag === 'none') {
 		throw new TypeError(
-			'The --image-format flag must not be "none" for stills.'
+			'The --image-format flag must not be "none" for stills.',
 		);
 	}
 
@@ -94,7 +94,7 @@ export const determineFinalStillImageFormat = ({
 		// @ts-expect-error
 		if (configImageFormat === 'none') {
 			throw new Error(
-				'The still simage format in the config file must not be "none"'
+				'The still simage format in the config file must not be "none"',
 			);
 		}
 

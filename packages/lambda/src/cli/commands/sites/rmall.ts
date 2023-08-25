@@ -20,12 +20,16 @@ export const sitesRmallSubcommand = async () => {
 		(await getOrCreateBucket({region})).bucketName;
 
 	for (const site of deployedSites.sites) {
-		await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${
-				site.bucketName
-			} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
-			allowForceFlag: true,
-		});
+		if (
+			!(await confirmCli({
+				delMessage: `Site ${site.id} in bucket ${
+					site.bucketName
+				} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
+				allowForceFlag: true,
+			}))
+		) {
+			continue;
+		}
 
 		const {totalSizeInBytes: totalSize} = await deleteSite({
 			bucketName,
@@ -38,8 +42,8 @@ export const sitesRmallSubcommand = async () => {
 
 		Log.info(
 			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
-				totalSize
-			)}.`
+				totalSize,
+			)}.`,
 		);
 	}
 };

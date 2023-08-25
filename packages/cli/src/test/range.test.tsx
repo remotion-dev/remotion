@@ -42,7 +42,7 @@ describe('Frame range should throw exception with invalid inputs', () => {
 
 	testValues.forEach((entry) =>
 		test(`test with input ${JSON.stringify(entry[0])}`, () =>
-			expectToThrow(() => setFrameRange(entry[0]), entry[1]))
+			expectToThrow(() => setFrameRange(entry[0]), entry[1])),
 	);
 });
 describe('Frame range tests with valid inputs', () => {
@@ -57,7 +57,7 @@ describe('Frame range tests with valid inputs', () => {
 		test(`test with input ${entry}`, () => {
 			setFrameRange(entry);
 			expect(getRange()).toEqual(entry);
-		})
+		}),
 	);
 });
 
@@ -80,7 +80,7 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${entry[0]}`, () =>
-			expectToThrow(() => setFrameRangeFromCli(entry[0]), entry[1]))
+			expectToThrow(() => setFrameRangeFromCli(entry[0]), entry[1])),
 	);
 });
 describe('Frame range CLI tests with valid inputs', () => {
@@ -97,6 +97,6 @@ describe('Frame range CLI tests with valid inputs', () => {
 		test(`test with input ${entry[0]}`, () => {
 			setFrameRangeFromCli(entry[0]);
 			expect(getRange()).toEqual(entry[1]);
-		})
+		}),
 	);
 });

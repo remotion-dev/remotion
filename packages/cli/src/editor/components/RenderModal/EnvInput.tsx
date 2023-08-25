@@ -39,12 +39,12 @@ export const EnvInput: React.FC<{
 	const [initialWarningKeyMissing, setKeyWarningEligible] = React.useState(
 		() => {
 			return envKey.trim() === '' && envVal.trim() !== '';
-		}
+		},
 	);
 	const [initialWarningValMissing, setValueWarningEligible] = React.useState(
 		() => {
 			return envKey.trim() !== '' && envVal.trim() === '';
-		}
+		},
 	);
 
 	const isKeyMissing =
@@ -64,14 +64,14 @@ export const EnvInput: React.FC<{
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			onEnvKeyChange(index, e.target.value);
 		},
-		[index, onEnvKeyChange]
+		[index, onEnvKeyChange],
 	);
 
 	const handleValueChange: React.ChangeEventHandler = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			onEnvValChange(index, e.target.value);
 		},
-		[index, onEnvValChange]
+		[index, onEnvValChange],
 	);
 
 	const makeKeyWarningEligible = useCallback(() => {

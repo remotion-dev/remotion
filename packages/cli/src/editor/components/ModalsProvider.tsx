@@ -6,7 +6,7 @@ export const ModalsProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
-		null
+		null,
 	);
 
 	const modalsContext = useMemo((): ModalContextType => {

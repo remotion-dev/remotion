@@ -5,6 +5,7 @@ import type {
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
@@ -68,7 +69,7 @@ export const SidebarRenderButton: React.FC<{
 					defaultExtension: isVideo
 						? BrowserSafeApis.getFileExtensionFromCodec(
 								initialVideoCodec,
-								defaults.audioCodec as AudioCodec
+								defaults.audioCodec as AudioCodec,
 						  )
 						: defaults.stillImageFormat,
 					type: 'asset',
@@ -82,6 +83,7 @@ export const SidebarRenderButton: React.FC<{
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 				initialProResProfile: defaults.proResProfile as ProResProfile,
+				initialx264Preset: defaults.x264Preset as X264Preset,
 				initialPixelFormat: defaults.pixelFormat as PixelFormat,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,
@@ -93,20 +95,28 @@ export const SidebarRenderButton: React.FC<{
 				initialDisableWebSecurity: defaults.disableWebSecurity,
 				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 				initialHeadless: defaults.headless,
+				initialOffthreadVideoCacheSizeInBytes:
+					defaults.offthreadVideoCacheSizeInBytes,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 				defaultProps: props[composition.id] ?? composition.defaultProps,
 				inFrameMark: null,
 				outFrameMark: null,
 			});
 		},
-		[composition.defaultProps, composition.id, isVideo, props, setSelectedModal]
+		[
+			composition.defaultProps,
+			composition.id,
+			isVideo,
+			props,
+			setSelectedModal,
+		],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(
 		(color) => {
 			return <ThinRenderIcon fill={color} svgProps={iconStyle} />;
 		},
-		[iconStyle]
+		[iconStyle],
 	);
 
 	if (!visible || connectionStatus !== 'connected') {

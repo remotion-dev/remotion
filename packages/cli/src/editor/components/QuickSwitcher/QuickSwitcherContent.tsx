@@ -15,6 +15,7 @@ import {
 	useMenuStructure,
 } from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
+import {compositionSelectorRef} from '../CompositionSelector';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
@@ -190,10 +191,20 @@ export const QuickSwitcherContent: React.FC<{
 					onSelected: () => {
 						selectComposition(c, true);
 						setSelectedModal(null);
+
+						const selector = `.__remotion-composition[data-compname=${c.id}`;
+
+						compositionSelectorRef.current?.expandComposition(c.id);
+						waitForElm(selector).then(() => {
+							document
+								.querySelector(selector)
+
+								?.scrollIntoView({block: 'center'});
+						});
 					},
 					compositionType: isCompositionStill(c) ? 'still' : 'composition',
 				};
-			})
+			}),
 		);
 	}, [
 		mode,
@@ -294,12 +305,12 @@ export const QuickSwitcherContent: React.FC<{
 		(e) => {
 			setState({query: e.target.value, selectedIndex: 0});
 		},
-		[]
+		[],
 	);
 
 	const selectedIndexRounded = loopIndex(
 		state.selectedIndex,
-		resultsArray.length
+		resultsArray.length,
 	);
 
 	const onActionsSelected = useCallback(() => {
@@ -416,3 +427,24 @@ export const QuickSwitcherContent: React.FC<{
 		</div>
 	);
 };
+
+function waitForElm(selector: string) {
+	return new Promise((resolve) => {
+		if (document.querySelector(selector)) {
+			resolve(document.querySelector(selector));
+			return;
+		}
+
+		const observer = new MutationObserver(() => {
+			if (document.querySelector(selector)) {
+				resolve(document.querySelector(selector));
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	});
+}

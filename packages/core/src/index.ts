@@ -26,7 +26,7 @@ declare global {
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
 		remotion_calculateComposition: (
-			compId: string
+			compId: string,
 		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -53,6 +53,7 @@ declare global {
 		siteVersion: '10';
 		remotion_version: string;
 		remotion_imported: string | boolean;
+		remotion_unsavedProps: boolean | undefined;
 	}
 }
 
@@ -96,6 +97,7 @@ export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
+export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export * from './Img.js';
@@ -158,7 +160,7 @@ export const Config = new Proxy(proxyObj, {
 
 		return () => {
 			console.warn(
-				'⚠️  The CLI configuration has been extracted from Remotion Core.'
+				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
 			console.warn('Update the import from the config file:');
 			console.warn();
@@ -168,7 +170,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn('import {Config} from "@remotion/cli/config";');
 			console.warn();
 			console.warn(
-				'For more information, see https://www.remotion.dev/docs/4-0-migration.'
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
 
 			process.exit(1);

@@ -136,6 +136,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getInputProps()</strong>
           <div>Receive the user-defined input data</div>
         </TOCItem>
+        <TOCItem link="/docs/get-remotion-environment">
+          <strong>getRemotionEnvironment()</strong>
+          <div>Determine if you are currently previewing or rendering</div>
+        </TOCItem>
       </Grid>
       <h2>Assets</h2>
       <Grid>

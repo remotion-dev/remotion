@@ -5,11 +5,14 @@ import type {
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	ToOptions,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
@@ -28,6 +31,7 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -50,10 +54,7 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	webhook?: {
-		url: string;
-		secret: string | null;
-	};
+	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
@@ -63,7 +64,7 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
@@ -93,7 +94,7 @@ export type RenderMediaOnLambdaOutput = {
  */
 
 export const renderMediaOnLambda = async (
-	input: RenderMediaOnLambdaInput
+	input: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
 	const {functionName, region, rendererFunctionName} = input;
 
@@ -107,6 +108,7 @@ export const renderMediaOnLambda = async (
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});
+
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,
@@ -126,7 +128,7 @@ export const renderMediaOnLambda = async (
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 

@@ -13,12 +13,12 @@ export declare class WS {
 			perMessageDeflate: false;
 			maxPayload: number;
 			headers: Record<string, string>;
-		}
+		},
 	);
 
 	addEventListener(
 		_type: 'open' | 'error' | 'message' | 'close',
-		_cb: (evt: {data: string}) => void
+		_cb: (evt: {data: string}) => void,
 	): void;
 
 	send(msg: string): void;

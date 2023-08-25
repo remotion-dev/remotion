@@ -67,7 +67,7 @@ export const PlayPause: React.FC<{
 
 			e.preventDefault();
 		},
-		[pause, play, playing]
+		[pause, play, playing],
 	);
 
 	const onEnter = useCallback(
@@ -78,7 +78,7 @@ export const PlayPause: React.FC<{
 				pauseAndReturnToPlayStart();
 			}
 		},
-		[pauseAndReturnToPlayStart, playing]
+		[pauseAndReturnToPlayStart, playing],
 	);
 
 	const onArrowLeft = useCallback(
@@ -108,7 +108,7 @@ export const PlayPause: React.FC<{
 				});
 			}
 		},
-		[frameBack, seek]
+		[frameBack, seek],
 	);
 
 	const onArrowRight = useCallback(
@@ -127,7 +127,7 @@ export const PlayPause: React.FC<{
 					durationInFrames: getCurrentDuration(),
 					frame: Math.min(
 						getCurrentDuration() - 1,
-						getCurrentFrame() + getCurrentFps()
+						getCurrentFrame() + getCurrentFps(),
 					),
 				});
 			} else {
@@ -141,7 +141,7 @@ export const PlayPause: React.FC<{
 
 			e.preventDefault();
 		},
-		[frameForward, seek]
+		[frameForward, seek],
 	);
 
 	const oneFrameBack = useCallback(() => {

@@ -1,6 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
@@ -18,7 +18,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
-	const environment = useRemotionEnvironment();
+	const environment = getRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
@@ -29,8 +29,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
-				props.src
-			)} instead.`
+				props.src,
+			)} instead.`,
 		);
 	}
 
@@ -38,7 +38,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
 		},
-		[setDurations]
+		[setDurations],
 	);
 
 	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
@@ -72,7 +72,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		return (
 			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
 		);
@@ -91,8 +91,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 const forward = forwardRef as <T, P = {}>(
 	render: (
 		props: P,
-		ref: React.MutableRefObject<T>
-	) => React.ReactElement | null
+		ref: React.MutableRefObject<T>,
+	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**

@@ -46,7 +46,7 @@ export const readUnsigned = (littleEndian: boolean) => (stream: Stream) => {
 export const readArray =
 	<T>(
 		byteSize: number,
-		totalOrFunc: number | ((st: Stream, r: T, p: T) => number)
+		totalOrFunc: number | ((st: Stream, r: T, p: T) => number),
 	) =>
 	(stream: Stream, result: T, parent: T) => {
 		const total =
@@ -66,7 +66,7 @@ export const readArray =
 const subBitsTotal = (
 	bits: boolean[],
 	startIndex: number,
-	length: number
+	length: number,
 ): number => {
 	let result = 0;
 	for (let i = 0; i < length; i++) {
@@ -88,18 +88,18 @@ export const readBits =
 
 		// convert the bit array to values based on the schema
 		// @ts-expect-error
-		return Object.keys(schema).reduce((res, key) => {
-			// @ts-expect-error
-			const def = schema[key];
-			if (def.length) {
-				res[key] = subBitsTotal(bits, def.index, def.length);
-			} else {
-				res[key] = bits[def.index];
-			}
+		return Object.keys(schema).reduce(
+			(res, key) => {
+				// @ts-expect-error
+				const def = schema[key];
+				if (def.length) {
+					res[key] = subBitsTotal(bits, def.index, def.length);
+				} else {
+					res[key] = bits[def.index];
+				}
 
-			return res;
-		}, {} as Record<string, number | boolean>) as Record<
-			string,
-			number | boolean
-		>;
+				return res;
+			},
+			{} as Record<string, number | boolean>,
+		) as Record<string, number | boolean>;
 	};

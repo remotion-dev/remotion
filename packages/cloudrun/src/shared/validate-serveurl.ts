@@ -4,8 +4,8 @@ export const validateServeUrl = async (serveUrl: unknown) => {
 	if (typeof serveUrl !== 'string') {
 		throw new TypeError(
 			`"serveURL" parameter must be a string, but is ${JSON.stringify(
-				serveUrl
-			)}`
+				serveUrl,
+			)}`,
 		);
 	}
 
@@ -24,7 +24,7 @@ export const validateServeUrl = async (serveUrl: unknown) => {
 
 		if (!exists) {
 			throw new Error(
-				`serveURL ERROR. File "${fileName}" not found in bucket "${bucketName}". Is your site name correct - "${siteName}"?`
+				`serveURL ERROR. File "${fileName}" not found in bucket "${bucketName}". Is your site name correct - "${siteName}"?`,
 			);
 		}
 	}

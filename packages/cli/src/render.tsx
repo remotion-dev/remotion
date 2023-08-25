@@ -20,7 +20,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
-			'   npx remotion render [entry-point] [composition-name] [out-name]'
+			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
@@ -30,7 +30,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	if (parsedCli.frame) {
 		Log.error(
-			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
 	}
@@ -59,9 +59,11 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		x264Preset,
 		pixelFormat,
 		videoBitrate,
 		numberOfGifLoops,
+		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -114,10 +116,12 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		x264Preset,
 		pixelFormat,
 		videoBitrate,
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding: false,
+		offthreadVideoCacheSizeInBytes,
 	});
 };

@@ -16,19 +16,19 @@ export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
 
 export const deleteMockFunction = (name: string, region: string) => {
 	mockFunctionsStore = mockFunctionsStore.filter(
-		(fn) => fn.functionName !== name && fn.region !== region
+		(fn) => fn.functionName !== name && fn.region !== region,
 	);
 };
 
 export const findFunction = (name: string, region: string) => {
 	return mockFunctionsStore.find(
-		(n) => n.functionName === name && region === n.region
+		(n) => n.functionName === name && region === n.region,
 	);
 };
 
 export const getAllMockFunctions = (region: string, version: string | null) => {
 	return mockFunctionsStore.filter(
-		(f) => f.region === region && (version ? f.version === version : true)
+		(f) => f.region === region && (version ? f.version === version : true),
 	);
 };
 

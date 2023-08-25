@@ -13,7 +13,7 @@ export type DeleteServiceInput = {
  * @returns {Promise<void>} Nothing. Throws if the service failed to delete.
  */
 export const deleteService = async (
-	params: DeleteServiceInput
+	params: DeleteServiceInput,
 ): Promise<void> => {
 	const cloudRunClient = getCloudRunClient();
 

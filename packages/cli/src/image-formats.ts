@@ -17,7 +17,7 @@ export const getVideoImageFormat = ({
 	if (typeof parsedCli['image-format'] !== 'undefined') {
 		if (
 			!(RenderInternals.validVideoImageFormats as readonly string[]).includes(
-				parsedCli['image-format'] as string
+				parsedCli['image-format'] as string,
 			)
 		) {
 			throw new Error(`Invalid image format: ${parsedCli['image-format']}`);

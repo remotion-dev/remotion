@@ -27,7 +27,7 @@ export type GetSitesOutput = {
  * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
  */
 export const getSites = async (
-	region: GcpRegion | 'all regions'
+	region: GcpRegion | 'all regions',
 ): Promise<GetSitesOutput> => {
 	const cloudStorageClient = getCloudStorageClient();
 	const buckets: BucketWithLocation[] = [];

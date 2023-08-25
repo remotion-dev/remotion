@@ -2,7 +2,8 @@ import {execSync} from 'child_process';
 
 const functionName = execSync(`pnpm exec remotion lambda functions ls -q`)
 	.toString('utf8')
-	.trim();
+	.trim()
+	.split(' ')[0];
 
 console.log('=== PHP ===');
 execSync(`php src/render.php`, {

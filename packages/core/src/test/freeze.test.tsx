@@ -21,9 +21,9 @@ describe('Prop validation', () => {
 						{/**
 							// @ts-expect-error */}
 						<Freeze frame={'0'} />
-					</WrapSequenceContext>
+					</WrapSequenceContext>,
 				),
-			/The 'frame' prop of <Freeze \/> must be a number, but is of type string/
+			/The 'frame' prop of <Freeze \/> must be a number, but is of type string/,
 		);
 	});
 	test('It should throw if Freeze has undefined as frame prop value', () => {
@@ -34,9 +34,9 @@ describe('Prop validation', () => {
 						{/**
 							// @ts-expect-error */}
 						<Freeze />
-					</WrapSequenceContext>
+					</WrapSequenceContext>,
 				),
-			/The <Freeze \/> component requires a 'frame' prop, but none was passed./
+			/The <Freeze \/> component requires a 'frame' prop, but none was passed./,
 		);
 	});
 });
@@ -63,7 +63,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			<TimelineContext.Provider value={timelineCtxValue(frame)}>
 				{markup}
 			</TimelineContext.Provider>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 };
 

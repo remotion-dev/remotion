@@ -39,7 +39,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		}
 
 		const renderButton = document.getElementById(
-			'render-modal-button'
+			'render-modal-button',
 		) as HTMLDivElement;
 
 		renderButton.click();
