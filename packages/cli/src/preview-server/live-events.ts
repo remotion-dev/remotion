@@ -28,12 +28,13 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 
 	const router = (request: IncomingMessage, response: ServerResponse) => {
 		const headers: OutgoingHttpHeaders = {
-			'content-type': 'text/event-stream',
+			'content-type': 'text/event-stream;charset=utf-8',
 			connection: 'keep-alive',
 			'cache-control': 'no-cache',
 		};
 
 		response.writeHead(200, headers);
+		response.write('\n');
 		if (request.method === 'OPTIONS') {
 			response.end();
 			return;
