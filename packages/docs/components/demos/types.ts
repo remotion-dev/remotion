@@ -490,7 +490,15 @@ export const slidePresentationDemo: DemoType = {
   fps: 30,
   id: "slide",
   autoPlay: true,
-  options: [],
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: ["from-left", "from-bottom", "from-right", "from-top"],
+    },
+  ],
 };
 
 export const wipePresentationDemo: DemoType = {

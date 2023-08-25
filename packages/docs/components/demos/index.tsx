@@ -64,7 +64,7 @@ export const Demo: React.FC<{
           [
             o.name,
             o.optional === "default-disabled" ? null : o.default,
-          ] as const
+          ] as const,
       )
       .reduce((a, b) => {
         a[b[0]] = b[1];
@@ -95,7 +95,10 @@ export const Demo: React.FC<{
         style={{
           width: "100%",
           aspectRatio: demo.compWidth / demo.compHeight,
-          borderBottom: "1px solid var(--ifm-color-emphasis-300)",
+          borderBottom:
+            demo.options.length > 0
+              ? "1px solid var(--ifm-color-emphasis-300)"
+              : 0,
         }}
         errorFallback={({ error }) => {
           return (
