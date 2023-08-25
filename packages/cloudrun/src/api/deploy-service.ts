@@ -1,3 +1,4 @@
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -29,18 +30,7 @@ export type DeployServiceOutput = {
 	alreadyExists: boolean;
 };
 
-/**
- * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
- * @link https://remotion.dev/docs/cloudrun/deployservice
- * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
- * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
- * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
- * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
- * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
- * @param params.region GCP region to deploy the Cloud Run service to.
- * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
- */
-export const deployService = async ({
+const deployServiceRaw = async ({
 	performImageVersionValidation = true,
 	memoryLimit,
 	cpuLimit,
@@ -129,3 +119,16 @@ export const deployService = async ({
 		alreadyExists: false,
 	};
 };
+
+/**
+ * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
+ * @link https://remotion.dev/docs/cloudrun/deployservice
+ * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
+ * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
+ * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
+ * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
+ * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
+ * @param params.region GCP region to deploy the Cloud Run service to.
+ * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
+ */
+export const deployService = PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);

@@ -18,6 +18,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalGetCompositionsOptions = {
 	serializedInputPropsWithCustomSchema: string;
@@ -143,7 +144,7 @@ const innerGetCompositions = async ({
 
 type CleanupFn = () => void;
 
-export const internalGetCompositions = async ({
+const internalGetCompositionsRaw = async ({
 	browserExecutable,
 	chromiumOptions,
 	envVariables,
@@ -228,6 +229,10 @@ export const internalGetCompositions = async ({
 			});
 	});
 };
+
+export const internalGetCompositions = wrapWithErrorHandling(
+	internalGetCompositionsRaw,
+);
 
 /**
  * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.

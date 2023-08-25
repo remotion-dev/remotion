@@ -181,7 +181,7 @@ AWS returned an error message "The security token included in the request is inv
 		}
 
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				error,
 				ConfigInternals.Logging.getLogLevel(),
 			);
@@ -195,7 +195,7 @@ AWS returned an error message "The security token included in the request is inv
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				errorWithStackFrame,
 				ConfigInternals.Logging.getLogLevel(),
 			);
