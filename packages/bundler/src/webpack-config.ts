@@ -69,17 +69,24 @@ export const webpackConfig = ({
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
 	let lastProgress = 0;
+
+	const isBun = typeof Bun !== 'undefined';
+	if (isBun) {
+		console.warn('Unsupported feature in Bun: lazyComponent is not supported');
+	}
+
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
 			minimize: false,
 		},
 		experiments: {
-			lazyCompilation:
-				environment === 'production'
-					? false
-					: {
-							entries: false,
-					  },
+			lazyCompilation: isBun
+				? false
+				: environment === 'production'
+				? false
+				: {
+						entries: false,
+				  },
 		},
 		watchOptions: {
 			poll: poll ?? undefined,
