@@ -100,7 +100,7 @@ export const SampleTransition: React.FC<{
 }> = ({ durationRestThreshold, effect }) => {
   return (
     <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={75}>
+      <TransitionSeries.Sequence durationInFrames={60}>
         <SceneA />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition
