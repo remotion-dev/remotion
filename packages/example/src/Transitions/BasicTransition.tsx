@@ -3,13 +3,13 @@ import {
 	springTiming,
 	TransitionSeries,
 } from '@remotion/transitions';
+import {fade} from '@remotion/transitions/fade';
+import {slide} from '@remotion/transitions/slide';
+import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
 import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
-import {slide} from '@remotion/transitions/slide';
-import {fade} from '@remotion/transitions/fade';
-import {wipe} from '@remotion/transitions/wipe';
 
-const Letter: React.FC<{
+export const Letter: React.FC<{
 	children: React.ReactNode;
 	color: string;
 }> = ({children, color}) => {
@@ -17,7 +17,6 @@ const Letter: React.FC<{
 		<AbsoluteFill
 			style={{
 				backgroundColor: color,
-				opacity: 0.9,
 				justifyContent: 'center',
 				alignItems: 'center',
 				fontSize: 200,
