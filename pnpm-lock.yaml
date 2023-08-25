@@ -1548,7 +1548,7 @@ importers:
         version: link:../core
     devDependencies:
       '@jonny/eslint-config':
-        specifier: ^3.0.273
+        specifier: 3.0.273
         version: 3.0.273(eslint@8.42.0)(typescript@4.9.5)
       '@rollup/plugin-typescript':
         specifier: ^8.2.0
@@ -1728,11 +1728,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
@@ -1820,11 +1820,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.7.1
-        version: 2.8.4
+        specifier: 3.0.2
+        version: 3.0.2
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: 18.0.0
         version: 18.0.0
