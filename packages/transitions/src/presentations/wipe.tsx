@@ -164,12 +164,12 @@ const WipePresentation: React.FC<
   const [clipId] = useState(() => String(random(null)));
 
   const progressInDirection =
-    presentationDirection === "in"
+    presentationDirection === "entering"
       ? presentationProgress
       : 1 - presentationProgress;
 
   const path =
-    presentationDirection === "in"
+    presentationDirection === "entering"
       ? makePathIn(progressInDirection, direction)
       : makePathOut(progressInDirection, direction);
 

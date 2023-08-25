@@ -1,10 +1,11 @@
 import type { FC, PropsWithChildren } from "react";
 import { Children, useMemo } from "react";
 import type { LayoutAndStyle, SequencePropsWithoutDuration } from "remotion";
-import { Internals, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import { Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { slide } from "./presentations/slide.js";
 import type { TransitionSeriesTransitionProps } from "./types.js";
 import { flattenChildren } from "./flatten-children.js";
+import { validateDurationInFrames } from "./validate.js";
 
 // eslint-disable-next-line react/function-component-definition
 const TransitionSeriesTransition = function <
@@ -129,7 +130,7 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
         children: _children,
         ...passedProps
       } = castedChildAgain.props;
-      Internals.validateDurationInFrames(durationInFramesProp, {
+      validateDurationInFrames(durationInFramesProp, {
         component: `of a <TransitionSeries.Sequence /> component`,
         allowFloats: true,
       });
@@ -228,14 +229,14 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
           // @ts-expect-error
           <UppercaseNextPresentation
             passedProps={nextPresentation.props ?? {}}
-            presentationDirection="out"
+            presentationDirection="exiting"
             presentationProgress={nextProgress}
           >
             {/**
 						// @ts-expect-error	*/}
             <UppercasePrevPresentation
               passedProps={prevPresentation.props ?? {}}
-              presentationDirection="in"
+              presentationDirection="entering"
               presentationProgress={prevProgress}
             >
               {inner}
@@ -253,7 +254,7 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
           // @ts-expect-error
           <UppercasePrevPresentation
             passedProps={prevPresentation.props ?? {}}
-            presentationDirection="in"
+            presentationDirection="entering"
             presentationProgress={prevProgress}
           >
             {inner}
@@ -270,7 +271,7 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
           // @ts-expect-error
           <UppercaseNextPresentation
             passedProps={nextPresentation.props ?? {}}
-            presentationDirection="out"
+            presentationDirection="exiting"
             presentationProgress={nextProgress}
           >
             {inner}

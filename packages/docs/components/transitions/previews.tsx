@@ -8,7 +8,8 @@ import { slide } from "@remotion/transitions/slide";
 import type { WipeDirection } from "@remotion/transitions/wipe";
 import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
+import { customPresentation } from "./custom-transition";
 
 export const PresentationPreview: React.FC<{
   effect: TransitionPresentation<Record<string, unknown>>;
@@ -96,7 +97,7 @@ export const SampleTransition: React.FC<{
 }> = ({ effect }) => {
   return (
     <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={45}>
+      <TransitionSeries.Sequence durationInFrames={75}>
         <SceneA />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition
@@ -105,7 +106,7 @@ export const SampleTransition: React.FC<{
           config: {
             damping: 200,
           },
-          durationInFrames: 45,
+          durationInFrames: 60,
           durationRestThreshold: 0.001,
         })}
       />
@@ -130,4 +131,10 @@ export const WipeDemo: React.FC<{
   direction: WipeDirection;
 }> = ({ direction }) => {
   return <SampleTransition effect={wipe({ direction })} />;
+};
+
+export const CustomTransitionDemo: React.FC<{}> = () => {
+  const { width, height } = useVideoConfig();
+
+  return <SampleTransition effect={customPresentation({ height, width })} />;
 };

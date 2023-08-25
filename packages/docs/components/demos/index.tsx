@@ -7,6 +7,7 @@ import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import {
   circleDemo,
+  customPresentationDemo,
   ellipseDemo,
   fadePresentationDemo,
   noiseDemo,
@@ -47,6 +48,7 @@ const demos: DemoType[] = [
   fadePresentationDemo,
   wipePresentationDemo,
   slidePresentationDemo,
+  customPresentationDemo,
 ];
 
 export const Demo: React.FC<{

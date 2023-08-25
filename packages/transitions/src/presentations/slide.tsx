@@ -24,7 +24,7 @@ const SlidePresentation: React.FC<
   passedProps: { direction = "from-left" },
 }) => {
   const directionStyle = useMemo((): React.CSSProperties => {
-    if (presentationDirection === "out") {
+    if (presentationDirection === "exiting") {
       switch (direction) {
         case "from-left":
           return {
