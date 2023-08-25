@@ -104,6 +104,7 @@ export const SampleTransition: React.FC<{
             damping: 200,
           },
           durationInFrames: 45,
+          durationRestThreshold: 0.001,
         })}
       />
       <TransitionSeries.Sequence durationInFrames={60}>
