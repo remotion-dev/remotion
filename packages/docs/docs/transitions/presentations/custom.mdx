@@ -186,3 +186,72 @@ const SlidePresentation: React.FC<
   );
 };
 ```
+
+Example usage:
+
+```tsx twoslash title="MyComp.tsx"
+import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { AbsoluteFill, useVideoConfig } from "remotion";
+
+import type {
+  TransitionPresentation,
+  TransitionPresentationComponentProps,
+} from "@remotion/transitions";
+
+type CustomPresentationProps = {
+  width: number;
+  height: number;
+};
+
+export const customPresentation = (
+  props: CustomPresentationProps,
+): TransitionPresentation<CustomPresentationProps> => {
+  return { component: SlidePresentation, props };
+};
+
+const SlidePresentation: React.FC<
+  TransitionPresentationComponentProps<CustomPresentationProps>
+> = ({ children, presentationDirection, presentationProgress, passedProps }) =>
+  null;
+
+export const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return <AbsoluteFill style={{}}>{children}</AbsoluteFill>;
+};
+
+// ---cut---
+export const MyComp: React.FC = () => {
+  const { width, height } = useVideoConfig();
+
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={70}>
+        <Letter color="orange">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={customPresentation({ width, height })}
+        timing={springTiming({
+          durationInFrames: 45,
+          config: {
+            damping: 200,
+          },
+          durationRestThreshold: 0.0001,
+        })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## References
+
+See the source code for [already implemented presentations](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations) for a useful reference.
+
+## See also
+
+- [Custom timings](/docs/transitions/timings/custom)
