@@ -9,7 +9,8 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
@@ -137,7 +138,7 @@ const renderMediaOnLambdaRaw = async (
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
-export const renderMediaOnLambda = BrowserSafeApis.wrapWithErrorHandling(
+export const renderMediaOnLambda = PureJSAPIs.wrapWithErrorHandling(
 	renderMediaOnLambdaRaw,
 ) as typeof renderMediaOnLambdaRaw;
 

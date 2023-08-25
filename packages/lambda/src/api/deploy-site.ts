@@ -1,5 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -150,6 +150,6 @@ const deploySiteRaw = async ({
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = BrowserSafeApis.wrapWithErrorHandling(
+export const deploySite = PureJSAPIs.wrapWithErrorHandling(
 	deploySiteRaw,
 ) as typeof deploySiteRaw;

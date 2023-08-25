@@ -1,4 +1,4 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -131,5 +131,4 @@ const deployServiceRaw = async ({
  * @param params.region GCP region to deploy the Cloud Run service to.
  * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
  */
-export const deployService =
-	BrowserSafeApis.wrapWithErrorHandling(deployServiceRaw);
+export const deployService = PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);

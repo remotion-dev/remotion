@@ -4,7 +4,6 @@ import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {BrowserSafeApis} from './client';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -19,6 +18,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalGetCompositionsOptions = {
 	serializedInputPropsWithCustomSchema: string;
@@ -230,7 +230,7 @@ const internalGetCompositionsRaw = async ({
 	});
 };
 
-export const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
+export const internalGetCompositions = wrapWithErrorHandling(
 	internalGetCompositionsRaw,
 );
 
