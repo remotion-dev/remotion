@@ -45,8 +45,6 @@ const SlidePresentation: React.FC<
     return {
       width: "100%",
       height: "100%",
-      justifyContent: "center",
-      alignItems: "center",
       clipPath:
         presentationDirection === "exiting" ? undefined : `url(#${clipId})`,
     };
@@ -55,15 +53,17 @@ const SlidePresentation: React.FC<
   return (
     <AbsoluteFill>
       <AbsoluteFill style={style}>{children}</AbsoluteFill>
-      <AbsoluteFill>
-        <svg>
-          <defs>
-            <clipPath id={clipId}>
-              <path d={translatedPath} fill="black" />
-            </clipPath>
-          </defs>
-        </svg>
-      </AbsoluteFill>
+      {presentationDirection === "exiting" ? null : (
+        <AbsoluteFill>
+          <svg>
+            <defs>
+              <clipPath id={clipId}>
+                <path d={translatedPath} fill="black" />
+              </clipPath>
+            </defs>
+          </svg>
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
