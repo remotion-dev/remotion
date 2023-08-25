@@ -28,7 +28,6 @@ import {videoCodecOption} from './options/video-codec';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import {x264PresetOptions} from './x264-preset';
 
 export const BrowserSafeApis = {
@@ -61,5 +60,4 @@ export const BrowserSafeApis = {
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
-	wrapWithErrorHandling,
 };

@@ -10,7 +10,8 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -276,6 +277,6 @@ const renderMediaOnCloudrunRaw = async ({
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
  */
 
-export const renderMediaOnCloudrun = BrowserSafeApis.wrapWithErrorHandling(
+export const renderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
 	renderMediaOnCloudrunRaw,
 ) as typeof renderMediaOnCloudrunRaw;
