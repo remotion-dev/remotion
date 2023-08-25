@@ -6,7 +6,7 @@ import { renderToString } from "react-dom/server";
 import { TransitionSeries } from "../TransitionSeries.js";
 import { AbsoluteFill, Internals } from "remotion";
 import { fade } from "../presentations/fade.js";
-import { linearTiming } from "../timings/linear.js";
+import { linearTiming } from "../timings/linear-timing.js";
 import {
   makeMockCompositionManagerContext,
   makeTimelineContext,
