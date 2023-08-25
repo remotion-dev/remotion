@@ -8,7 +8,7 @@ const isSubsetOfDuration = (
 	prevStartFrom: number,
 	newStartFrom: number,
 	prevDuration: number,
-	newDuration: number,
+	newDuration: number
 ) => {
 	return (
 		prevStartFrom <= newStartFrom &&
@@ -48,10 +48,10 @@ export const useAppendVideoFragment = ({
 };
 
 export const isIosSafari = () => {
-	return (
-		/iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-		Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/))
-	);
+	return typeof window === 'undefined'
+		? false
+		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
+				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655
@@ -86,8 +86,8 @@ export const appendVideoFragment = ({
 		new URL(
 			actualSrc,
 			(typeof window === 'undefined' ? null : window.location.href) ??
-				'http://localhost:3000',
-		).hash,
+				'http://localhost:3000'
+		).hash
 	);
 
 	if (existingHash) {
