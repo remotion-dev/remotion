@@ -2,6 +2,7 @@ import {
   CustomTransitionDemo,
   FadeDemo,
   SlideDemo,
+  SlideDemoLongDurationRest,
   WipeDemo,
 } from "../transitions/previews";
 import { CircleDemo } from "./Circle";
@@ -504,6 +505,17 @@ export const slidePresentationDemo: DemoType = {
       values: ["from-left", "from-bottom", "from-right", "from-top"],
     },
   ],
+};
+
+export const slidePresentationDemoLongThreshold: DemoType = {
+  comp: SlideDemoLongDurationRest,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 90,
+  fps: 30,
+  id: "slide-long-duration-rest",
+  autoPlay: true,
+  options: [],
 };
 
 export const wipePresentationDemo: DemoType = {

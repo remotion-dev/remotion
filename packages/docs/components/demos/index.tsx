@@ -18,6 +18,7 @@ import {
   scaleDemo,
   skewDemo,
   slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
   starDemo,
   translateDemo,
   triangleDemo,
@@ -48,6 +49,7 @@ const demos: DemoType[] = [
   fadePresentationDemo,
   wipePresentationDemo,
   slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
   customPresentationDemo,
 ];
 
