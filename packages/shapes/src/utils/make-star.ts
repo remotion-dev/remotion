@@ -1,7 +1,7 @@
 // Copied from https://stackblitz.com/edit/svg-star-generator?file=index.js
 
 import type {Instruction} from '@remotion/paths';
-import {serializeInstructions} from '@remotion/paths';
+import {resetPath, serializeInstructions} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -87,7 +87,7 @@ export const makeStar = ({
 	});
 
 	return {
-		path: serializeInstructions(starPathInstructions),
+		path: resetPath(serializeInstructions(starPathInstructions)),
 		width,
 		height,
 		transformOrigin: `${centerX} ${centerY}`,

@@ -904,6 +904,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: 4.4.0
         version: 4.4.0(eslint@8.42.0)
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.2
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
 
   packages/example-without-zod:
     dependencies:

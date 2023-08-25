@@ -187,6 +187,7 @@ const WipePresentation: React.FC<
     return {
       width: "100%",
       height: "100%",
+      pointerEvents: "none",
     };
   }, []);
 
