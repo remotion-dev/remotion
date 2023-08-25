@@ -396,6 +396,7 @@ module.exports = {
         id: "transitions/index",
       },
       items: [
+        "transitions/transitionseries",
         {
           type: "category",
           label: "Timings",
@@ -423,7 +424,6 @@ module.exports = {
             "transitions/presentations/custom",
           ],
         },
-        "transitions/transitionseries",
       ],
     },
     {
