@@ -80,7 +80,7 @@ export const webpackConfig = ({
 			minimize: false,
 		},
 		experiments: {
-			lazyCompilation: Bun
+			lazyCompilation: isBun
 				? false
 				: environment === 'production'
 				? false
