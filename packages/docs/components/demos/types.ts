@@ -509,5 +509,22 @@ export const wipePresentationDemo: DemoType = {
   fps: 30,
   id: "wipe",
   autoPlay: true,
-  options: [],
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: [
+        "from-left",
+        "from-top-left",
+        "from-top",
+        "from-top-right",
+        "from-right",
+        "from-bottom-right",
+        "from-bottom",
+        "from-bottom-left",
+      ],
+    },
+  ],
 };

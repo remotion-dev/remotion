@@ -5,6 +5,7 @@ import { springTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import type { SlideDirection } from "@remotion/transitions/slide";
 import { slide } from "@remotion/transitions/slide";
+import type { WipeDirection } from "@remotion/transitions/wipe";
 import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import { AbsoluteFill } from "remotion";
@@ -125,6 +126,8 @@ export const SlideDemo: React.FC<{
   return <SampleTransition effect={slide({ direction })} />;
 };
 
-export const WipeDemo: React.FC = () => {
-  return <SampleTransition effect={wipe()} />;
+export const WipeDemo: React.FC<{
+  direction: WipeDirection;
+}> = ({ direction }) => {
+  return <SampleTransition effect={wipe({ direction })} />;
 };
