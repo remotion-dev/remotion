@@ -57,7 +57,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 					<Child />
 				</Sequence>
 			</TimelineContext.Provider>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(queryByText(/^frame9$/i)).not.toBe(null);
 });
@@ -97,7 +97,7 @@ test('Negative offset test', () => {
 					</Sequence>
 				</Sequence>
 			</TimelineContext.Provider>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	const result = queryByText(/^frame220/i);
 	expect(result).not.toBe(null);
@@ -144,7 +144,7 @@ test('Nested negative offset test', () => {
 				>
 					{content}
 				</TimelineContext.Provider>
-			</WrapSequenceContext>
+			</WrapSequenceContext>,
 		);
 		return queryByText;
 	};
@@ -200,7 +200,7 @@ test.skip('Negative offset edge case', () => {
 				>
 					{content}
 				</TimelineContext.Provider>
-			</CanUseRemotionHooksProvider>
+			</CanUseRemotionHooksProvider>,
 		);
 		return queryByText;
 	};

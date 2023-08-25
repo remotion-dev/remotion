@@ -167,7 +167,7 @@ export const chalk = (() => {
 
 		if (typeof fn !== 'function') {
 			throw new TypeError(
-				'Expected alias to be the name of an existing color (string) or a function'
+				'Expected alias to be the name of an existing color (string) or a function',
 			);
 		}
 

@@ -2,6 +2,7 @@
 export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/cli',
+	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
 	'@remotion/renderer',

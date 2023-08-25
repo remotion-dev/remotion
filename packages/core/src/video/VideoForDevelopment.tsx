@@ -22,7 +22,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import type {RemotionVideoProps} from './props.js';
-import {useAppendVideoFragment} from './video-fragment.js';
+import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -53,7 +53,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
 		throw new Error(
-			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.'
+			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.',
 		);
 	}
 
@@ -108,7 +108,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		() => {
 			return videoRef.current as HTMLVideoElement;
 		},
-		[]
+		[],
 	);
 
 	useEffect(() => {
@@ -126,7 +126,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 				}
 
 				throw new Error(
-					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`
+					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -167,6 +167,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return (
 		<video
 			ref={videoRef}
+			// Without this, on iOS Safari, the video cannot be seeked.
+			// if a seek is triggered before `loadedmetadata` is fired,
+			// the video will not seek, even if `loadedmetadata` is fired afterwards.
+			preload={isIosSafari() ? 'metadata' : 'auto'}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
@@ -177,7 +181,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 // Copy types from forwardRef but not necessary to remove ref
 export const VideoForDevelopment = forwardRef(
-	VideoForDevelopmentRefForwardingFunction
+	VideoForDevelopmentRefForwardingFunction,
 ) as ForwardRefExoticComponent<
 	VideoForDevelopmentProps & RefAttributes<HTMLVideoElement>
 >;

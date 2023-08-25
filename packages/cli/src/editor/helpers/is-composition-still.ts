@@ -1,5 +1,5 @@
 export const isCompositionStill = (
-	comp: {durationInFrames: number | undefined} | null
+	comp: {durationInFrames: number | undefined} | null,
 ) => {
 	if (!comp) {
 		return false;

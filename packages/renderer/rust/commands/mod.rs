@@ -1,4 +1,5 @@
 use crate::compositor::draw_layer;
+use crate::copy_clipboard::copy_to_clipboard;
 use crate::errors::ErrorWithBacktrace;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::opened_video_manager::OpenedVideoManager;
@@ -29,7 +30,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(vec![])
         }
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::free_up_memory(payload.percent_of_memory)?;
+            ffmpeg::free_up_memory(payload.remaining_bytes)?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
@@ -88,5 +89,6 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
 
             Ok("".as_bytes().to_vec())
         }
+        CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
     }
 }

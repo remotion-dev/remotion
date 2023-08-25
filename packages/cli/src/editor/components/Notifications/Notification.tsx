@@ -23,9 +23,12 @@ export const Notification: React.FC<{
 	onRemove: (id: string) => void;
 }> = ({children, id, duration, created, onRemove}) => {
 	useEffect(() => {
-		const timeout = setTimeout(() => {
-			onRemove(id);
-		}, duration - (Date.now() - created));
+		const timeout = setTimeout(
+			() => {
+				onRemove(id);
+			},
+			duration - (Date.now() - created),
+		);
 
 		return () => {
 			clearTimeout(timeout);

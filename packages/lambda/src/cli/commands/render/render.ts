@@ -21,6 +21,7 @@ import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
@@ -32,11 +33,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
-			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
+			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
 		Log.info();
 		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`,
 		);
 		quit(1);
 	}
@@ -65,6 +66,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		width,
 		browserExecutable,
 		port,
+		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -79,7 +81,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
 
@@ -90,6 +92,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -113,6 +116,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				logLevel,
 				width,
 				server,
+				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -142,6 +146,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
+
+	const webhookCustomData = getWebhookCustomData();
 
 	const res = await renderMediaOnLambda({
 		functionName,
@@ -178,6 +184,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			? {
 					url: parsedLambdaCli.webhook,
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
+					customData: webhookCustomData,
 			  }
 			: undefined,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
@@ -197,17 +204,17 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			`bucket = ${res.bucketName}, function = ${functionName}`
-		)
+			`bucket = ${res.bucketName}, function = ${functionName}`,
+		),
 	);
 	Log.info(
 		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, codec = ${codec} (${reason})`
-		)
+			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
+		),
 	);
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(
 		ConfigInternals.Logging.getLogLevel(),
-		'verbose'
+		'verbose',
 	);
 
 	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
@@ -229,7 +236,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
 		}),
-		false
+		false,
 	);
 
 	// eslint-disable-next-line no-constant-condition
@@ -252,7 +259,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
 			}),
-			false
+			false,
 		);
 
 		if (newStatus.done) {
@@ -266,7 +273,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
 				}),
-				false
+				false,
 			);
 			if (downloadName) {
 				const downloadStart = Date.now();
@@ -290,7 +297,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
 							}),
-							false
+							false,
 						);
 					},
 				});
@@ -308,7 +315,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
 					}),
-					false
+					false,
 				);
 				Log.info();
 				Log.info();
@@ -330,7 +337,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					`Estimated cost $${newStatus.costs.displayCost}`,
 				]
 					.filter(Boolean)
-					.join(', ')
+					.join(', '),
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
 				Log.verbose('Most expensive frame ranges:');
@@ -339,7 +346,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						.map((f) => {
 							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
 						})
-						.join(', ')
+						.join(', '),
 				);
 			}
 
@@ -371,6 +378,13 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
+			Log.info();
+			Log.info(
+				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
+			);
+			Log.info(
+				'This is an estimate and continuing Lambda functions may incur additional costs.',
+			);
 			quit(1);
 		}
 	}
@@ -380,7 +394,7 @@ function getTotalFrames(status: RenderProgress): number | null {
 	return status.renderMetadata
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame
+				status.renderMetadata.everyNthFrame,
 		  ).length
 		: null;
 }

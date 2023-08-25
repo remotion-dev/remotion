@@ -37,11 +37,11 @@ describe('Should update state when volume changes', () => {
 		expect(setState).toHaveBeenCalledWith(0.75);
 		expect(addEventListener).toHaveBeenCalledWith(
 			'volumechange',
-			expect.anything()
+			expect.anything(),
 		);
 		expect(removeEventListener).toHaveBeenCalledWith(
 			'volumechange',
-			expect.anything()
+			expect.anything(),
 		);
 	});
 });

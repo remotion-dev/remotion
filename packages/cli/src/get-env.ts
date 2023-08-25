@@ -12,7 +12,7 @@ function getProcessEnv(): Record<string, string> {
 	const env: Record<string, string> = {};
 
 	const validKeys = Object.keys(process.env).filter((key) =>
-		key.startsWith('REMOTION_')
+		key.startsWith('REMOTION_'),
 	);
 
 	for (const key of validKeys) {
@@ -54,7 +54,7 @@ const watchEnvFile = ({
 				}
 			} catch (err) {
 				Log.error(
-					`${envFile} update failed with error ${(err as Error).stack}`
+					`${envFile} update failed with error ${(err as Error).stack}`,
 				);
 			}
 		},
@@ -65,12 +65,18 @@ const watchEnvFile = ({
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
 	envFile: string,
-	onUpdate: null | ((newProps: Record<string, string>) => void)
+	onUpdate: null | ((newProps: Record<string, string>) => void),
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
 		if (onUpdate) {
-			watchEnvFile({processEnv, envFile, onUpdate});
+			if (typeof fs.watchFile === 'undefined') {
+				Log.warn(
+					'Unsupported feature (fs.watchFile): .env file will not hot reload.',
+				);
+			} else {
+				watchEnvFile({processEnv, envFile, onUpdate});
+			}
 		}
 
 		return {
@@ -85,7 +91,7 @@ const getEnvForEnvFile = async (
 };
 
 export const getEnvironmentVariables = (
-	onUpdate: null | ((newProps: Record<string, string>) => void)
+	onUpdate: null | ((newProps: Record<string, string>) => void),
 ): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
@@ -108,7 +114,7 @@ export const getEnvironmentVariables = (
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
-				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found'
+				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found',
 			);
 			Log.error('We looked for the file at:', envFile);
 			Log.error('Check that your path is correct and try again.');
@@ -121,11 +127,15 @@ export const getEnvironmentVariables = (
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
 		if (onUpdate) {
-			watchEnvFile({
-				processEnv,
-				envFile: defaultEnvFile,
-				onUpdate,
-			});
+			if (typeof fs.watchFile === 'undefined') {
+				Log.warn('Unsupported Bun feature: .env file will not hot reload.');
+			} else {
+				watchEnvFile({
+					processEnv,
+					envFile: defaultEnvFile,
+					onUpdate,
+				});
+			}
 		}
 
 		return Promise.resolve(processEnv);

@@ -61,7 +61,7 @@ const startBrowserProcess = async ({
 		});
 
 		const browsersToTry = supportedChromiumBrowsers.filter((b) =>
-			processes.includes(b)
+			processes.includes(b),
 		);
 
 		for (const chromiumBrowser of browsersToTry) {

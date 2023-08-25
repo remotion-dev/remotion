@@ -1,11 +1,12 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const enforceAudioOption: RemotionOption = {
+export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
 	cliFlag: '--enforce-audio-track',
-	description: (
+	description: () => (
 		<>Render a silent audio track if there would be none otherwise.</>
 	),
 	ssrName: 'enforceAudioTrack',
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
-};
+	type: false as boolean,
+} satisfies AnyRemotionOption;

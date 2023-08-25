@@ -14,6 +14,7 @@ import {
 	continueRender,
 	delayRender,
 	getInputProps,
+	getRemotionEnvironment,
 	Internals,
 	VERSION,
 } from 'remotion';
@@ -42,7 +43,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
-		delayRender('Wait for Composition' + JSON.stringify(state))
+		delayRender('Wait for Composition' + JSON.stringify(state)),
 	);
 
 	useEffect(() => {
@@ -56,7 +57,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 		if (!video && compositions.compositions.length > 0) {
 			const foundComposition = compositions.compositions.find(
-				(c) => c.id === state.compositionName
+				(c) => c.id === state.compositionName,
 			) as AnyComposition;
 			if (!foundComposition) {
 				throw new Error(
@@ -65,15 +66,15 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 					}. The following compositions were found instead: ${compositions.compositions
 						.map((c) => c.id)
 						.join(
-							', '
-						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`
+							', ',
+						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`,
 				);
 			}
 
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
 			compositions.setCurrentCompositionMetadata({
 				props: Internals.deserializeJSONWithCustomFields(
-					state.serializedResolvedPropsWithSchema
+					state.serializedResolvedPropsWithSchema,
 				),
 				durationInFrames: state.compositionDurationInFrames,
 				fps: state.compositionFps,
@@ -126,11 +127,11 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 };
 
 const videoContainer = document.getElementById(
-	'video-container'
+	'video-container',
 ) as HTMLElement;
 
 const explainerContainer = document.getElementById(
-	'explainer-container'
+	'explainer-container',
 ) as HTMLElement;
 
 let cleanupVideoContainer = () => {
@@ -142,7 +143,7 @@ let cleanupExplainerContainer = () => {
 };
 
 const waitForRootHandle = delayRender(
-	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout'
+	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 );
 
 const WaitForRoot: React.FC = () => {
@@ -188,7 +189,7 @@ const renderContent = () => {
 		} else {
 			(ReactDOM as unknown as {render: typeof render}).render(
 				markup,
-				videoContainer
+				videoContainer,
 			);
 			cleanupVideoContainer = () => {
 				(
@@ -241,7 +242,7 @@ if (typeof window !== 'undefined') {
 	const getUnevaluatedComps = () => {
 		if (!Internals.getRoot()) {
 			throw new Error(
-				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
+				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.',
 			);
 		}
 
@@ -254,22 +255,22 @@ if (typeof window !== 'undefined') {
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
 			console.warn(
-				'defaultProps are too big to serialize - trying to find the problematic composition...'
+				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			for (const comp of compositions) {
 				if (!getCanSerializeDefaultProps(comp)) {
 					throw new Error(
-						`defaultProps too big - could not serialize - the defaultProps of composition with ID ${comp.id} - the object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops`
+						`defaultProps too big - could not serialize - the defaultProps of composition with ID ${comp.id} - the object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops`,
 					);
 				}
 			}
 
 			console.warn(
-				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.'
+				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 
 			throw new Error(
-				'defaultProps too big - Could not serialize - an object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops'
+				'defaultProps too big - Could not serialize - an object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops',
 			);
 		}
 
@@ -282,16 +283,14 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 
 		const inputProps =
-			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment() === 'player-development' ||
-			Internals.getRemotionEnvironment() === 'player-production'
+			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
 				const handle = delayRender(
-					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
+					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`,
 				);
 
 				const comp = Internals.resolveVideoConfig({
@@ -320,7 +319,7 @@ if (typeof window !== 'undefined') {
 							staticBase: null,
 						}).serializedString,
 				};
-			})
+			}),
 		);
 	};
 
@@ -337,13 +336,11 @@ if (typeof window !== 'undefined') {
 
 		const abortController = new AbortController();
 		const handle = delayRender(
-			`Running the calculateMetadata() function for composition ${compId}`
+			`Running the calculateMetadata() function for composition ${compId}`,
 		);
 
 		const inputProps =
-			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment() === 'player-development' ||
-			Internals.getRemotionEnvironment() === 'player-production'
+			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 
@@ -353,7 +350,7 @@ if (typeof window !== 'undefined') {
 				editorProps: {},
 				signal: abortController.signal,
 				inputProps,
-			})
+			}),
 		);
 		continueRender(handle);
 

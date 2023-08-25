@@ -11,7 +11,7 @@ test('Parse error stack', () => {
 			stack,
 			message,
 			name: 'Error',
-		})
+		}),
 	).toEqual({
 		fileName: './src/Video.tsx',
 		lineNumber: 1,

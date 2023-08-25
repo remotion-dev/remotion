@@ -17,13 +17,13 @@ export const validateWebhookSignature = ({
 }) => {
 	if (!secret) {
 		throw new TypeError(
-			"No 'secret' was provided to validateWebhookSignature()."
+			"No 'secret' was provided to validateWebhookSignature().",
 		);
 	}
 
 	if (!body) {
 		throw new TypeError(
-			"No 'body' was provided to validateWebhookSignature()."
+			"No 'body' was provided to validateWebhookSignature().",
 		);
 	}
 

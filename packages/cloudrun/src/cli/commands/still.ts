@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
+import {displayCrashLogs} from '../helpers/cloudrun-crash-logs';
 import {Log} from '../log';
 import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
@@ -34,6 +35,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -48,7 +50,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
 
@@ -59,6 +61,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -82,6 +85,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				height,
 				width,
 				server: await server,
+				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -109,8 +113,8 @@ Output Bucket = ${forceBucketName}
 Output File = ${outName ?? 'out.png'}
 Output File Privacy = ${privacy}
 ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
-			`.trim()
-		)
+			`.trim(),
+		),
 	);
 	Log.info();
 
@@ -132,7 +136,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 				`Rendering on Cloud Run:`,
 				`${doneIn === null ? '...' : `Rendered in ${doneIn}ms`}`,
 			].join(' '),
-			newline
+			newline,
 		);
 	};
 
@@ -156,34 +160,38 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
-	doneIn = Date.now() - renderStart;
-	updateProgress(true);
-
-	Log.info(
-		CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
-	);
-	Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
-	Log.info(
-		CliInternals.chalk.gray(
-			`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
-				res.privacy
-			}, Bucket: ${res.bucketName}`
-		)
-	);
-	Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
-
-	if (downloadName) {
-		Log.info('');
-		Log.info('downloading file...');
-
-		const {outputPath: destination} = await downloadFile({
-			bucketName: res.bucketName,
-			gsutilURI: res.cloudStorageUri,
-			downloadName,
-		});
+	if (res.type === 'crash') {
+		displayCrashLogs(res);
+	} else if (res.type === 'success') {
+		doneIn = Date.now() - renderStart;
+		updateProgress(true);
 
 		Log.info(
-			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
+		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
+		Log.info(
+			CliInternals.chalk.gray(
+				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
+					res.privacy
+				}, Bucket: ${res.bucketName}`,
+			),
+		);
+		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+
+		if (downloadName) {
+			Log.info('');
+			Log.info('downloading file...');
+
+			const {outputPath: destination} = await downloadFile({
+				bucketName: res.bucketName,
+				gsutilURI: res.cloudStorageUri,
+				downloadName,
+			});
+
+			Log.info(
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
+			);
+		}
 	}
 };

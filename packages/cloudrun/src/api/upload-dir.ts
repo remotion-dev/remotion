@@ -23,7 +23,7 @@ export type MockFile = {
 
 export const getDirFiles = (entry: string): MockFile[] => {
 	throw new TypeError(
-		'should only be executed in test ' + JSON.stringify(entry)
+		'should only be executed in test ' + JSON.stringify(entry),
 	);
 };
 
@@ -49,7 +49,7 @@ export const uploadDir = async ({
 	async function getFiles(
 		directory: string,
 		originalDirectory: string,
-		filesToUpload: string[]
+		filesToUpload: string[],
 	): Promise<FileInfo[]> {
 		const dirents = await fs.readdir(directory, {withFileTypes: true});
 		const _files = await Promise.all(
@@ -80,7 +80,7 @@ export const uploadDir = async ({
 									size,
 								},
 						  ];
-				})
+				}),
 		);
 		return _files.flat(1);
 	}
@@ -96,7 +96,7 @@ export const uploadDir = async ({
 					cloudStorageClient
 						.bucket(bucket)
 						.file(destination)
-						.createWriteStream({public: true})
+						.createWriteStream({public: true}),
 				)
 				.on('error', (error) => reject(error))
 				.on('progress', (p) => {

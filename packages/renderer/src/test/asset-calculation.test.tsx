@@ -152,7 +152,7 @@ test('Should calculate volumes correctly', async () => {
 		volume: new Array(60)
 			.fill(true)
 			.map((_, i) =>
-				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'})
+				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
 			)
 			.filter((f) => f > 0),
 		allowAmplificationDuringRender: false,
@@ -193,7 +193,7 @@ test('Should calculate startFrom correctly', async () => {
 				interpolate(i, [0, 50, 100], [0, 1, 0], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
-				})
+				}),
 			)
 			.filter((i) => i > 0),
 		allowAmplificationDuringRender: false,

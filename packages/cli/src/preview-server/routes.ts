@@ -30,7 +30,7 @@ const editorGuess = guessEditor();
 const static404 = (response: ServerResponse) => {
 	response.writeHead(404);
 	response.end(
-		'The static/ prefix has been changed, this URL is no longer valid.'
+		'The static/ prefix has been changed, this URL is no longer valid.',
 	);
 };
 
@@ -57,12 +57,13 @@ const handleFallback = async ({
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(
-		ConfigInternals.getConcurrency()
+		ConfigInternals.getConcurrency(),
 	);
 	const muted = ConfigInternals.getMuted();
 	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
+	const x264Preset = ConfigInternals.getPresetProfile() ?? 'medium';
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
@@ -75,6 +76,8 @@ const handleFallback = async ({
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
+	const offthreadVideoCacheSizeInBytes =
+		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -115,6 +118,7 @@ const handleFallback = async ({
 				muted,
 				enforceAudioTrack,
 				proResProfile,
+				x264Preset,
 				pixelFormat,
 				audioBitrate,
 				videoBitrate,
@@ -126,16 +130,17 @@ const handleFallback = async ({
 				headless,
 				ignoreCertificateErrors,
 				openGlRenderer,
+				offthreadVideoCacheSizeInBytes,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
-		})
+		}),
 	);
 };
 
 const handleProjectInfo = async (
 	remotionRoot: string,
 	_: IncomingMessage,
-	response: ServerResponse
+	response: ServerResponse,
 ) => {
 	const data = await getProjectInfo(remotionRoot);
 	response.setHeader('content-type', 'application/json');
@@ -179,7 +184,7 @@ const handleFileSource = async ({
 const handleOpenInEditor = async (
 	remotionRoot: string,
 	req: IncomingMessage,
-	res: ServerResponse
+	res: ServerResponse,
 ) => {
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
@@ -210,7 +215,7 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: didOpen,
-			})
+			}),
 		);
 	} catch (err) {
 		res.setHeader('content-type', 'application/json');
@@ -219,7 +224,7 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: false,
-			})
+			}),
 		);
 	}
 };

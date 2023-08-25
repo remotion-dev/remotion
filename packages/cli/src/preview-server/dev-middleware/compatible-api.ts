@@ -4,7 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 export function setHeaderForResponse(
 	res: ServerResponse,
 	name: string,
-	value: string | number
+	value: string | number,
 ) {
 	res.setHeader(name, typeof value === 'number' ? String(value) : value);
 }
@@ -13,7 +13,7 @@ export function send(
 	req: IncomingMessage,
 	res: ServerResponse,
 	bufferOtStream: ReadStream | string | Buffer,
-	byteLength: number
+	byteLength: number,
 ) {
 	if (typeof bufferOtStream === 'string' || Buffer.isBuffer(bufferOtStream)) {
 		res.end(bufferOtStream);

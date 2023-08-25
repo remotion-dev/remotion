@@ -6,7 +6,7 @@ import {
 
 test('parse console.log message', () => {
 	const parsed = parseBrowserLogMessage(
-		'[0607/114013.146404:INFO:CONSOLE(83116)] "hi thereyo!", source: http://localhost:3000/bundle.js (83116)'
+		'[0607/114013.146404:INFO:CONSOLE(83116)] "hi thereyo!", source: http://localhost:3000/bundle.js (83116)',
 	);
 	expect(parsed).toEqual({
 		day: 6,
@@ -30,7 +30,7 @@ test('parse console.log message', () => {
 
 test('Parse warning from chrome', () => {
 	const parsed = parseBrowserLogMessage(
-		`[0607/113133.950095:ERROR:command_buffer_proxy_impl.cc(128)] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.`
+		`[0607/113133.950095:ERROR:command_buffer_proxy_impl.cc(128)] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.`,
 	);
 
 	expect(parsed).toEqual({

@@ -24,7 +24,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 				nonce: 16,
 			},
 			windowWidth: 1414.203125,
-		})
+		}),
 	).toEqual({
 		marginLeft: 1154,
 		width: 226,
@@ -53,7 +53,7 @@ test('Should test timeline sequence layout with max media duration', () => {
 				nonce: 16,
 			},
 			windowWidth: 1414.203125,
-		})
+		}),
 	).toEqual({
 		marginLeft: 1154,
 		width: 221,

@@ -10,8 +10,8 @@ test('Extract Zod enums', () => {
 				enums: z.enum(['a', 'b', 'c']),
 			}),
 			z,
-			[]
-		)
+			[],
+		),
 	).toStrictEqual([['enums']]);
 });
 
@@ -33,7 +33,7 @@ test('Extract Zod enums #2', () => {
 					.refine((x) => x.status === 'success', {path: ['status']}),
 				intersection: z.intersection(
 					z.object({a: z.enum(['a'])}),
-					z.object({b: z.enum(['b'])})
+					z.object({b: z.enum(['b'])}),
 				),
 				tuples: z.tuple([z.enum(['a']), z.enum(['b'])]).optional(),
 				abc: z
@@ -43,8 +43,8 @@ test('Extract Zod enums #2', () => {
 				branded: z.object({a: z.enum(['a'])}).brand('branded'),
 			}),
 			z,
-			[]
-		)
+			[],
+		),
 	).toStrictEqual([
 		['enums'],
 		['nested', 'second'],

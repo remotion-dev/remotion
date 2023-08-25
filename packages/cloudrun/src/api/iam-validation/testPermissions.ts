@@ -27,19 +27,19 @@ type TestPermissionsOutput = {
  * @returns {Promise<TestPermissionsOutput>} Returns array of TestResult objects
  */
 export const testPermissions = async (
-	params?: TestPermissionsInput
+	params?: TestPermissionsInput,
 ): Promise<TestPermissionsOutput> => {
 	const resourceManagerClient = getResourceManagerClient();
 
 	const saPermissions = JSON.parse(
 		fs.readFileSync(
 			path.join(__dirname, '../../shared/sa-permissions.json'),
-			'utf-8'
-		)
+			'utf-8',
+		),
 	);
 
 	const permissionList: string[] = saPermissions.list.map(
-		(permission: {name: string; reason: string}) => permission.name
+		(permission: {name: string; reason: string}) => permission.name,
 	);
 
 	const response = await resourceManagerClient.testIamPermissions({
@@ -51,7 +51,7 @@ export const testPermissions = async (
 
 	if (!returnedPermissions) {
 		throw new Error(
-			'No permissions returned from the testIamPermissions call.'
+			'No permissions returned from the testIamPermissions call.',
 		);
 	}
 

@@ -11,6 +11,6 @@ test('Should be able to parse path', () => {
 
 test('Should catch invalid paths', () => {
 	expect(() => parsePath('M 100 100L 200 200L')).toThrow(
-		/Malformed path data: L was expected to have numbers afterwards/
+		/Malformed path data: L was expected to have numbers afterwards/,
 	);
 });

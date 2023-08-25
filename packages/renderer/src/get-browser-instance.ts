@@ -31,7 +31,7 @@ export const getPageAndCleanupFn = async ({
 		const page = await passedInInstance.newPage(
 			Promise.resolve(context),
 			logLevel,
-			indent
+			indent,
 		);
 		return {
 			page,
@@ -57,7 +57,7 @@ export const getPageAndCleanupFn = async ({
 	const browserPage = await browserInstance.newPage(
 		Promise.resolve(context),
 		logLevel,
-		indent
+		indent,
 	);
 
 	return {

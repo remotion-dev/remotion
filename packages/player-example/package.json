@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "4.0.20",
+	"version": "4.0.25",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -23,7 +23,7 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"prettier": "^2.7.1",
+		"prettier": "3.0.2",
 		"prettier-plugin-organize-imports": "^3.2.2"
 	},
 	"scripts": {

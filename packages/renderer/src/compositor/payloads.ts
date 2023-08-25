@@ -83,14 +83,17 @@ export type CompositorCommand = {
 	};
 	StartLongRunningProcess: {
 		concurrency: number;
-		maximum_frame_cache_items: number;
+		maximum_frame_cache_size_in_bytes: number;
 		verbose: boolean;
+	};
+	CopyImageToClipboard: {
+		src: string;
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
 	CloseAllVideos: {};
 	FreeUpMemory: {
-		percent_of_memory: number;
+		remaining_bytes: number;
 	};
 	GetVideoMetadata: {src: string};
 	VideoMetadata: VideoMetadata;

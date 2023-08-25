@@ -68,13 +68,13 @@ export const takeFrameAndCompose = async ({
 			: {
 					tmpFile: path.join(
 						downloadMap.compositingDir,
-						`${frame}.${imageFormat}`
+						`${frame}.${imageFormat}`,
 					),
 					finalOutFile:
 						output ??
 						path.join(
 							downloadMap.compositingDir,
-							`${frame}-final.${imageFormat}`
+							`${frame}-final.${imageFormat}`,
 						),
 					clipRegion: clipRegion as ClipRegion,
 			  };
@@ -102,13 +102,13 @@ export const takeFrameAndCompose = async ({
 	if (needsComposing) {
 		if (imageFormat === 'pdf') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'."
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'.",
 			);
 		}
 
 		if (imageFormat === 'webp') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'."
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'.",
 			);
 		}
 

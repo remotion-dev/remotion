@@ -10,7 +10,7 @@ export const ColorInterpolation: React.FC = () => {
 				backgroundColor: interpolateColors(
 					frame,
 					[0, 50, 100],
-					['red', 'yellow', 'blue']
+					['red', 'yellow', 'blue'],
 				),
 			}}
 		/>

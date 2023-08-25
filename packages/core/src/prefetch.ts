@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
@@ -38,11 +38,11 @@ export const prefetch = (
 	src: string,
 	options?: {
 		method?: 'blob-url' | 'base64';
-	}
+	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		return {
 			free: () => undefined,
 			waitUntilDone: () => Promise.resolve(src),

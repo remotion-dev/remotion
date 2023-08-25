@@ -17,7 +17,7 @@ const GifTest: React.FC = () => {
 			ref1.current?.tagName ?? 'Not rendered',
 			ref2.current?.tagName ?? 'Not rendered',
 			ref3.current?.tagName ?? 'Not rendered',
-			ref4.current?.tagName ?? 'Not rendered'
+			ref4.current?.tagName ?? 'Not rendered',
 		);
 	}, [frame]);
 

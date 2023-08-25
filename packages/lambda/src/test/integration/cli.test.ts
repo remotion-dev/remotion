@@ -15,7 +15,7 @@ const remotionRoot = process.cwd();
 test('Deploy function', async () => {
 	await LambdaInternals.executeCommand(['functions', 'deploy'], remotionRoot);
 	expect(getProcessWriteOutput()).toContain(
-		`Deployed as remotion-render-${LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`
+		`Deployed as remotion-render-${LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`,
 	);
 });
 

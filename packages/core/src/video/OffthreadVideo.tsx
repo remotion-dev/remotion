@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Sequence} from '../Sequence.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
@@ -17,21 +17,21 @@ export const OffthreadVideo: React.FC<
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {startFrom, endAt, ...otherProps} = props;
-	const environment = useRemotionEnvironment();
+	const environment = getRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
-				props.src
-			)} instead.`
+				props.src,
+			)} instead.`,
 		);
 	}
 
 	if (props.imageFormat) {
 		throw new TypeError(
-			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
 		);
 	}
 
@@ -54,7 +54,7 @@ export const OffthreadVideo: React.FC<
 
 	validateMediaProps(props, 'Video');
 
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 

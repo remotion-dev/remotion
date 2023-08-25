@@ -14,7 +14,7 @@ const warnAboutRequestVideoFrameCallback = () => {
 
 	warned = true;
 	console.warn(
-		'Browser does not support requestVideoFrameCallback. Cannot display video.'
+		'Browser does not support requestVideoFrameCallback. Cannot display video.',
 	);
 };
 
@@ -23,7 +23,7 @@ const warnAboutRequestVideoFrameCallback = () => {
  * @see [Documentation](https://www.remotion.dev/docs/use-video-texture)
  */
 export const useVideoTexture = (
-	videoRef: React.RefObject<HTMLVideoElement>
+	videoRef: React.RefObject<HTMLVideoElement>,
 ): VideoTexture | null => {
 	const [loaded] = useState(() => {
 		if (typeof document === 'undefined') {
@@ -34,7 +34,7 @@ export const useVideoTexture = (
 	});
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
-		() => import('three/src/textures/VideoTexture.js')
+		() => import('three/src/textures/VideoTexture.js'),
 	);
 	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
@@ -76,7 +76,7 @@ export const useVideoTexture = (
 			() => {
 				onReady();
 			},
-			{once: true}
+			{once: true},
 		);
 	}, [loaded, onReady, videoRef]);
 

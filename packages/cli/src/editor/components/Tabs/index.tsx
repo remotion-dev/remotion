@@ -69,7 +69,7 @@ export const Tab: React.FC<{
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),
-		[hovered, selected, style]
+		[hovered, selected, style],
 	);
 
 	return (

@@ -21,5 +21,9 @@
   "python.formatting.provider": "none",
   "typescript.preferences.autoImportFileExcludePatterns": [
     "@types/node/test.d.ts"
-  ]
+  ],
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

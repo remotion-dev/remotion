@@ -18,7 +18,7 @@ export const getCloudrunEndpoint = async ({
 		throw new Error('Either cloudRunUrl or serviceName must be provided');
 	if (cloudRunUrl && serviceName)
 		throw new Error(
-			'Either cloudRunUrl or serviceName must be provided, not both'
+			'Either cloudRunUrl or serviceName must be provided, not both',
 		);
 
 	let cloudRunEndpoint = '';
@@ -30,7 +30,7 @@ export const getCloudrunEndpoint = async ({
 	if (serviceName) {
 		if (!region)
 			throw new Error(
-				'If determining Cloudrun Url from serviceName, region must be provided'
+				'If determining Cloudrun Url from serviceName, region must be provided',
 			);
 		validateServiceName(serviceName);
 		const validatedRegion = validateRegion(region);

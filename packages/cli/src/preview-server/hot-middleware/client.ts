@@ -1,3 +1,6 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+
 /* eslint-disable no-console */
 /**
  * Source code is adapted from
@@ -13,7 +16,7 @@ if (typeof window === 'undefined') {
 	// do nothing
 } else if (typeof window.EventSource === 'undefined') {
 	console.warn(
-		'Unsupported browser: You need a browser that supports EventSource '
+		'Unsupported browser: You need a browser that supports EventSource ',
 	);
 } else {
 	connect();
@@ -158,7 +161,7 @@ function createReporter() {
 			console.log(
 				'%c' + title + '\n\t%c' + newProblems.replace(/\n/g, '\n\t'),
 				style + 'font-weight: bold;',
-				style + 'font-weight: normal;'
+				style + 'font-weight: normal;',
 			);
 		}
 	}

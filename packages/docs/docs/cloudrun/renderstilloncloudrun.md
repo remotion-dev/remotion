@@ -31,8 +31,10 @@ const result = await renderStillOnCloudrun({
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
 });
 
-console.log(result.bucketName);
-console.log(result.renderId);
+if (result.type === "success") {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
 ```
 
 ## Arguments
@@ -179,6 +181,10 @@ It can either be:
 _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ## Return value
 

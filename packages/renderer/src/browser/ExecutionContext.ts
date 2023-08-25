@@ -41,7 +41,7 @@ export class ExecutionContext {
 	constructor(
 		client: CDPSession,
 		contextPayload: ExecutionContextDescription,
-		world: DOMWorld
+		world: DOMWorld,
 	) {
 		this._client = client;
 		this._world = world;
@@ -104,7 +104,7 @@ export class ExecutionContext {
 
 		if (typeof pageFunction !== 'function') {
 			throw new Error(
-				`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`
+				`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`,
 			);
 		}
 
@@ -155,7 +155,7 @@ export class ExecutionContext {
 		} = await callFunctionOnPromise.catch(rewriteError);
 		if (exceptionDetails) {
 			throw new Error(
-				'Evaluation failed: ' + getExceptionMessage(exceptionDetails)
+				'Evaluation failed: ' + getExceptionMessage(exceptionDetails),
 			);
 		}
 
@@ -165,7 +165,7 @@ export class ExecutionContext {
 
 		function convertArgument(
 			this: ExecutionContext,
-			arg: unknown
+			arg: unknown,
 		): CallArgument {
 			if (typeof arg === 'bigint') {
 				// eslint-disable-line valid-typeof
@@ -192,7 +192,7 @@ export class ExecutionContext {
 			if (objectHandle) {
 				if (objectHandle._context !== this) {
 					throw new Error(
-						'JSHandles can be evaluated only in the context they were created!'
+						'JSHandles can be evaluated only in the context they were created!',
 					);
 				}
 
@@ -230,7 +230,7 @@ export class ExecutionContext {
 				error.message.endsWith('Inspected target navigated or closed')
 			) {
 				throw new Error(
-					'Execution context was destroyed, most likely because of a navigation.'
+					'Execution context was destroyed, most likely because of a navigation.',
 				);
 			}
 

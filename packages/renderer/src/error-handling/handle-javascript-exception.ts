@@ -60,7 +60,7 @@ const removeDelayRenderStack = (message: string) => {
 };
 
 const callFrameToStackFrame = (
-	callFrame: CallFrame
+	callFrame: CallFrame,
 ): UnsymbolicatedStackFrame => {
 	return {
 		columnNumber: callFrame.columnNumber,

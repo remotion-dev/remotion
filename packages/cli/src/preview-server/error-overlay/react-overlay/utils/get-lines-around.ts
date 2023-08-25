@@ -20,7 +20,7 @@ import type {ScriptLine} from './stack-frame';
 export function getLinesAround(
 	line: number,
 	count: number,
-	lines: string[]
+	lines: string[],
 ): ScriptLine[] {
 	const result: ScriptLine[] = [];
 	for (

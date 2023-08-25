@@ -11,7 +11,8 @@ export type ExpensiveChunk = {
 export const getMostExpensiveChunks = (
 	parsedTimings: ParsedTiming[],
 	framesPerLambda: number,
-	lastFrame: number
+	firstFrame: number,
+	lastFrame: number,
 ): ExpensiveChunk[] => {
 	const mostExpensiveChunks = parsedTimings
 		.slice(0)
@@ -30,8 +31,10 @@ export const getMostExpensiveChunks = (
 			timeInMilliseconds: c.rendered - c.start,
 			chunk: c.chunk,
 			frameRange: [
-				framesPerLambda * c.chunk,
-				isLastChunk ? lastFrame : framesPerLambda * (c.chunk + 1) - 1,
+				framesPerLambda * c.chunk + firstFrame,
+				isLastChunk
+					? lastFrame
+					: framesPerLambda * (c.chunk + 1) - 1 + firstFrame,
 			],
 		};
 	});

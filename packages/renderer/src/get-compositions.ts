@@ -10,6 +10,8 @@ import {getPageAndCleanupFn} from './get-browser-instance';
 import {type LogLevel} from './log-level';
 import {getLogLevel} from './logger';
 import type {ChromiumOptions} from './open-browser';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -30,7 +32,7 @@ type InternalGetCompositionsOptions = {
 	indent: boolean;
 	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
-};
+} & ToOptions<typeof optionsMap.getCompositions>;
 
 export type GetCompositionsOptions = {
 	inputProps?: Record<string, unknown> | null;
@@ -42,6 +44,7 @@ export type GetCompositionsOptions = {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	logLevel?: LogLevel;
+	offthreadVideoCacheSizeInBytes?: number | null;
 };
 
 type InnerGetCompositionsParams = {
@@ -129,10 +132,10 @@ const innerGetCompositions = async ({
 			fps,
 			durationInFrames,
 			props: Internals.deserializeJSONWithCustomFields(
-				r.serializedResolvedPropsWithCustomSchema
+				r.serializedResolvedPropsWithCustomSchema,
 			),
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				r.serializedDefaultPropsWithCustomSchema
+				r.serializedDefaultPropsWithCustomSchema,
 			),
 		};
 	});
@@ -153,6 +156,7 @@ export const internalGetCompositions = async ({
 	server,
 	timeoutInMilliseconds,
 	logLevel,
+	offthreadVideoCacheSizeInBytes,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -174,7 +178,7 @@ export const internalGetCompositions = async ({
 				page,
 				frame: null,
 				onError,
-			})
+			}),
 		);
 
 		makeOrReuseServer(
@@ -186,11 +190,12 @@ export const internalGetCompositions = async ({
 				concurrency: 1,
 				logLevel,
 				indent,
+				offthreadVideoCacheSizeInBytes,
 			},
 			{
 				onDownload: () => undefined,
 				onError,
-			}
+			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
@@ -230,7 +235,7 @@ export const internalGetCompositions = async ({
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions
+	config?: GetCompositionsOptions,
 ): Promise<VideoConfig[]> => {
 	const {
 		browserExecutable,
@@ -260,5 +265,7 @@ export const getCompositions = (
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: logLevel ?? getLogLevel(),
+		offthreadVideoCacheSizeInBytes:
+			config?.offthreadVideoCacheSizeInBytes ?? null,
 	});
 };

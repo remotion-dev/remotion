@@ -1,6 +1,7 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
+import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {ConfigInternals} from '../config';
 import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
@@ -56,13 +57,13 @@ export const startServer = async (options: {
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
-			wdmMiddleware(request, response, () => {
+			wdmMiddleware(request as IncomingMessage, response, () => {
 				resolve();
 			});
 		})
 			.then(() => {
 				return new Promise<void>((resolve) => {
-					whm(request, response, () => {
+					whm(request as IncomingMessage, response, () => {
 						resolve();
 					});
 				});
@@ -71,7 +72,7 @@ export const startServer = async (options: {
 				handleRoutes({
 					hash: options.hash,
 					hashPrefix: options.hashPrefix,
-					request,
+					request: request as IncomingMessage,
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
@@ -92,7 +93,7 @@ export const startServer = async (options: {
 					response.end(
 						JSON.stringify({
 							err: (err as Error).message,
-						})
+						}),
 					);
 				}
 			});
@@ -127,7 +128,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				Log.error(
-					`Port ${codedError.port} is already in use. Trying another port...`
+					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {
 				throw err;

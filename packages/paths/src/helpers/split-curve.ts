@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 function decasteljau(
 	points: number[][],
-	t: number
+	t: number,
 ): {left: number[][]; right: number[][]} {
 	const left: number[][] = [];
 	const right: number[][] = [];
@@ -168,7 +168,7 @@ function pointsToCommand(points: number[][]): Command {
  */
 function splitCurveAsPoints(
 	points: number[][],
-	segmentCount: number
+	segmentCount: number,
 ): number[][][] {
 	segmentCount = segmentCount || 2;
 
@@ -217,7 +217,7 @@ function splitCurveAsPoints(
 export const splitCurve = (
 	commandStart: Command,
 	commandEnd: Command,
-	segmentCount: number
+	segmentCount: number,
 ): Command[] => {
 	const points = [[commandStart.x, commandStart.y]] as number[][];
 	if (commandEnd.x1 !== null && commandEnd.x1 !== undefined) {

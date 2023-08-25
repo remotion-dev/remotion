@@ -11,7 +11,7 @@ const loadTimelineFlex = (id: string): number | null => {
 };
 
 export const useTimelineFlex = (
-	id: string
+	id: string,
 ): [number | null, (value: number) => void] => {
 	return [
 		loadTimelineFlex(id),

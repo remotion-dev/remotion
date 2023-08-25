@@ -9,7 +9,7 @@ test('Should catch dot after slash', () => {
 			audioCodec: 'aac',
 			renderMode: 'video',
 			stillImageFormat: 'png',
-		}).valid
+		}).valid,
 	).toBe(false);
 });
 
@@ -21,6 +21,6 @@ test('Should catch dot in front ', () => {
 			audioCodec: 'aac',
 			renderMode: 'video',
 			stillImageFormat: 'png',
-		}).valid
+		}).valid,
 	).toBe(false);
 });

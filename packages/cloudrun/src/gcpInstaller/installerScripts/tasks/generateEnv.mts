@@ -40,7 +40,7 @@ export async function generateEnv(projectID: string) {
 				${gloudSAKeyCmd}
 				} | column -t`,
 
-			{stdio: 'inherit'}
+			{stdio: 'inherit'},
 		);
 	}
 
@@ -59,7 +59,7 @@ export async function generateEnv(projectID: string) {
 
 					if (answer.trim() === '') {
 						rl.write(
-							`${colorCode.blueText}<enter pressed>\n${colorCode.resetText}`
+							`${colorCode.blueText}<enter pressed>\n${colorCode.resetText}`,
 						);
 						rl.close();
 						return resolve(true);
@@ -68,7 +68,7 @@ export async function generateEnv(projectID: string) {
 					rl.close();
 					execSync(
 						`gcloud iam service-accounts keys delete ${answer.trim()} --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
-						{stdio: 'inherit'}
+						{stdio: 'inherit'},
 					);
 
 					listKeys();
@@ -76,7 +76,7 @@ export async function generateEnv(projectID: string) {
 					const result = await deleteKeyPrompt();
 
 					resolve(result);
-				}
+				},
 			);
 		});
 	}
@@ -89,14 +89,14 @@ export async function generateEnv(projectID: string) {
 			`echo "\nThere is a limit of 10 keys per Service Account in GCP (not including the one managed by GCP itself).\n"`,
 			{
 				stdio: 'inherit',
-			}
+			},
 		);
 
 		execSync(
 			`echo "You should delete any of these keys that are no longer in use for ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}:"`,
 			{
 				stdio: 'inherit',
-			}
+			},
 		);
 
 		listKeys();
@@ -114,12 +114,12 @@ export async function generateEnv(projectID: string) {
 	try {
 		execSync(
 			`gcloud iam service-accounts keys create key.json --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
-			{stdio: 'inherit'}
+			{stdio: 'inherit'},
 		);
 	} catch (e) {
 		execSync(
 			`echo "\n${colorCode.redBackground}Creation of new key failed, check if you have more than 10 keys already.${colorCode.resetText}\n\n"`,
-			{stdio: 'inherit'}
+			{stdio: 'inherit'},
 		);
 		throw e;
 	}
@@ -127,7 +127,7 @@ export async function generateEnv(projectID: string) {
 	// generate .env file
 	execSync(
 		`echo "REMOTION_GCP_PRIVATE_KEY=$(jq '.private_key' key.json)" >> .env && echo "REMOTION_GCP_CLIENT_EMAIL=$(jq '.client_email' key.json)" >> .env && echo "REMOTION_GCP_PROJECT_ID=${projectID}" >> .env`,
-		{stdio: 'inherit'}
+		{stdio: 'inherit'},
 	);
 
 	// delete key.json file
@@ -135,15 +135,15 @@ export async function generateEnv(projectID: string) {
 
 	execSync(
 		`echo "\n${colorCode.greenText}key.json has been deleted from this virtual machine.${colorCode.resetText}"`,
-		{stdio: 'inherit'}
+		{stdio: 'inherit'},
 	);
 
 	execSync(
 		`echo "\n${colorCode.redText}To delete .env from this virtual machine after downloading, run${colorCode.resetText} rm .env"`,
-		{stdio: 'inherit'}
+		{stdio: 'inherit'},
 	);
 
 	console.log(
-		`\n${colorCode.blueBackground}        .env file is ready for download.        ${colorCode.resetText}`
+		`\n${colorCode.blueBackground}        .env file is ready for download.        ${colorCode.resetText}`,
 	);
 }

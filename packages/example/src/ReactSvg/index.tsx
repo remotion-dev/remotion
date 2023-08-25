@@ -26,7 +26,7 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.12, 1, 1, 1),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const rotateStart = developDuration + 5;
@@ -39,7 +39,7 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.12, 1, 1, 1),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const electronStart = 0;
@@ -47,7 +47,7 @@ const ReactSvg: React.FC<{
 	const electronDevelopment = interpolate(
 		frame,
 		[electronStart, electronStart + electronDuration],
-		[0, 10]
+		[0, 10],
 	);
 
 	const electronOpacity = interpolate(
@@ -57,7 +57,7 @@ const ReactSvg: React.FC<{
 		{
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const scaleOutStart = 220;
@@ -83,7 +83,7 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const scale = frame < 70 ? scaleIn : scaleOut;

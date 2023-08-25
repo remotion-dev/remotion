@@ -18,12 +18,13 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			puppeteerInstance: undefined,
 			server: undefined,
 			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
-		}
+			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+		},
 	);
 
 	if (propsSize > 10_000_000) {
 		RenderInternals.Log.warn(
-			`The props of your composition are large (${propsSize} bytes). This may cause slowdown.`
+			`The props of your composition are large (${propsSize} bytes). This may cause slowdown.`,
 		);
 	}
 

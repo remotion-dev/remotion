@@ -14,14 +14,14 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 
 // Expected, it can be any component props
 export const useLazyComponent = <Props>(
-	compProps: CompProps<Props>
+	compProps: CompProps<Props>,
 ): LazyExoticComponent<ComponentType<Props>> => {
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
 			return React.lazy(
 				compProps.lazyComponent as () => Promise<{
 					default: ComponentType<Props>;
-				}>
+				}>,
 			);
 		}
 
@@ -34,7 +34,7 @@ export const useLazyComponent = <Props>(
 			}
 
 			return React.lazy(() =>
-				Promise.resolve({default: compProps.component as ComponentType<Props>})
+				Promise.resolve({default: compProps.component as ComponentType<Props>}),
 			);
 		}
 

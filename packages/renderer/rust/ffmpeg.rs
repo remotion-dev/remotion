@@ -19,18 +19,20 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     })
 }
 
-pub fn free_up_memory(ratio: f64) -> Result<(), ErrorWithBacktrace> {
+pub fn free_up_memory(maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
 
-    manager.prune_oldest(ratio)?;
+    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }
 
-pub fn keep_only_latest_frames(frames: usize) -> Result<(), ErrorWithBacktrace> {
+pub fn keep_only_latest_frames(
+    maximum_frame_cache_size_in_bytes: u128,
+) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
 
-    manager.only_keep_n_frames(frames)?;
+    manager.only_keep_n_frames(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }

@@ -14,7 +14,7 @@ export const printHelp = () => {
 	Log.info(
 		`@remotion/cli ${
 			packagejson.version
-		} © ${new Date().getFullYear()} The Remotion developers`
+		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
 	Log.info();
 	Log.info('Available commands:');
@@ -68,13 +68,13 @@ export const printHelp = () => {
 	Log.info('remotion benchmark <index-file.ts> <list-of-compositions>');
 	Log.info(
 		chalk.gray(
-			'Benchmarks rendering a composition. Same options as for render.'
-		)
+			'Benchmarks rendering a composition. Same options as for render.',
+		),
 	);
 	Log.info();
 	Log.info('remotion ' + VERSIONS_COMMAND);
 	Log.info(
-		chalk.gray('Prints and validates versions of all Remotion packages.')
+		chalk.gray('Prints and validates versions of all Remotion packages.'),
 	);
 	Log.info();
 	Log.info('remotion upgrade');
@@ -87,6 +87,6 @@ export const printHelp = () => {
 	]);
 	Log.info();
 	Log.info(
-		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.'
+		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.',
 	);
 };

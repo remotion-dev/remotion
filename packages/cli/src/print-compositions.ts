@@ -51,6 +51,6 @@ export const printCompositions = (compositions: VideoConfig[]) => {
 					formattedDuration,
 				].join('');
 			})
-			.join('\n')
+			.join('\n'),
 	);
 };

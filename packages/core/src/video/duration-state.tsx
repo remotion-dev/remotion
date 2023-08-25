@@ -10,7 +10,7 @@ type DurationAction = {
 
 export const durationReducer = (
 	state: DurationState,
-	action: DurationAction
+	action: DurationAction,
 ) => {
 	switch (action.type) {
 		case 'got-duration':

@@ -40,7 +40,7 @@ const V4: React.FC = () => {
     (e) => {
       setEmail(e.target.value);
     },
-    []
+    [],
   );
 
   const onSubmit: React.FormEventHandler = useCallback(
@@ -58,7 +58,7 @@ const V4: React.FC = () => {
               method: "POST",
               body: JSON.stringify({ email }),
               headers: { "content-type": "application/json" },
-            }
+            },
           );
           const json = await res.json();
           if (json.success) {
@@ -76,7 +76,7 @@ const V4: React.FC = () => {
         console.error(err);
       }
     },
-    [email]
+    [email],
   );
 
   return (

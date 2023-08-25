@@ -69,7 +69,7 @@ export const calculateTimeline = ({
 			sequence,
 			sequences,
 			hashesUsedInRoot,
-			cache
+			cache,
 		);
 
 		if (!sameHashes[actualHash]) {

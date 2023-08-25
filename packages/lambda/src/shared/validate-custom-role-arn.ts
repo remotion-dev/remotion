@@ -5,7 +5,7 @@ export const validateCustomRoleArn = (customRoleArn: unknown) => {
 	) {
 		throw new TypeError(
 			'A custom role ARN must either be "undefined" or a string, but instead got: ' +
-				JSON.stringify(customRoleArn)
+				JSON.stringify(customRoleArn),
 		);
 	}
 };

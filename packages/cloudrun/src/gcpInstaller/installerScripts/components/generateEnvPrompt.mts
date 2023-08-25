@@ -25,7 +25,7 @@ export function generateEnvPrompt() {
 				const result = await generateEnvPrompt();
 
 				resolve(result);
-			}
+			},
 		);
 	});
 }

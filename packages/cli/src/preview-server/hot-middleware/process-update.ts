@@ -11,6 +11,7 @@
  * Original copyright Tobias Koppers @sokra (MIT license)
  */
 
+import {notificationCenter} from '../../editor/components/Notifications/NotificationCenter';
 import type {HotMiddlewareOptions, ModuleMap} from './types';
 
 if (!__webpack_module__.hot) {
@@ -28,12 +29,12 @@ const applyOptions: AcceptOptions = {
 	onUnaccepted(data) {
 		console.warn(
 			'Ignored an update to unaccepted module ' +
-				(data.chain ?? []).join(' -> ')
+				(data.chain ?? []).join(' -> '),
 		);
 	},
 	onDeclined(data) {
 		console.warn(
-			'Ignored an update to declined module ' + (data.chain ?? []).join(' -> ')
+			'Ignored an update to declined module ' + (data.chain ?? []).join(' -> '),
 		);
 	},
 	onErrored(data) {
@@ -43,7 +44,7 @@ const applyOptions: AcceptOptions = {
 				data.moduleId +
 				' (' +
 				data.type +
-				')'
+				')',
 		);
 	},
 };
@@ -56,7 +57,7 @@ function upToDate(hash?: string) {
 export const processUpdate = function (
 	hash: string | undefined,
 	moduleMap: ModuleMap,
-	options: HotMiddlewareOptions
+	options: HotMiddlewareOptions,
 ) {
 	const {reload} = options;
 	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
@@ -70,10 +71,10 @@ export const processUpdate = function (
 			if (!updatedModules) {
 				if (options.warn) {
 					console.warn(
-						'[Fast refresh] Cannot find update (Full reload needed)'
+						'[Fast refresh] Cannot find update (Full reload needed)',
 					);
 					console.warn(
-						'[Fast refresh] (Probably because of restarting the server)'
+						'[Fast refresh] (Probably because of restarting the server)',
 					);
 				}
 
@@ -83,7 +84,7 @@ export const processUpdate = function (
 
 			const applyCallback = function (
 				applyErr: Error | null,
-				renewedModules: ModuleId[]
+				renewedModules: ModuleId[],
 			) {
 				if (applyErr) return handleError(applyErr);
 
@@ -128,11 +129,11 @@ export const processUpdate = function (
 						'(and their parents) do not know how to hot reload themselves. ' +
 						'See ' +
 						hmrDocsUrl +
-						' for more details.'
+						' for more details.',
 				);
 				unacceptedModules.forEach((moduleId) => {
 					console.warn(
-						'[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId)
+						'[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId),
 					);
 				});
 			}
@@ -146,7 +147,7 @@ export const processUpdate = function (
 		} else {
 			renewedModules.forEach((moduleId) => {
 				console.log(
-					`[Fast refresh] ${moduleMap[moduleId] || moduleId} fast refreshed.`
+					`[Fast refresh] ${moduleMap[moduleId] || moduleId} fast refreshed.`,
 				);
 			});
 		}
@@ -156,7 +157,7 @@ export const processUpdate = function (
 		if ((__webpack_module__.hot?.status() ?? 'nope') in failureStatuses) {
 			if (options.warn) {
 				console.warn(
-					'[Fast refresh] Cannot check for update (Full reload needed)'
+					'[Fast refresh] Cannot check for update (Full reload needed)',
 				);
 				console.warn('[Fast refresh] ' + (err.stack || err.message));
 			}
@@ -167,9 +168,11 @@ export const processUpdate = function (
 
 		if (options.warn) {
 			console.warn(
-				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
+				'[Fast refresh] Update check failed: ' + (err.stack || err.message),
 			);
-			window.location.reload();
+			if (!window.remotion_unsavedProps) {
+				window.location.reload();
+			}
 		}
 	}
 
@@ -179,6 +182,16 @@ export const processUpdate = function (
 		}
 
 		if (options.warn) console.warn('[Fast refresh] Reloading page');
-		window.location.reload();
+		if (window.remotion_unsavedProps) {
+			notificationCenter.current?.addNotification({
+				id: 'random',
+				content:
+					'Fast refresh needs to reload the page, but you have unsaved props. Save then reload the page to apply changes.',
+				created: new Date().getMilliseconds(),
+				duration: 1,
+			});
+		} else {
+			window.location.reload();
+		}
 	}
 };

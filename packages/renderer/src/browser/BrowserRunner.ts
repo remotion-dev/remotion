@@ -19,6 +19,7 @@ import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {Log} from '../logger';
+import {truthy} from '../truthy';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
@@ -84,7 +85,7 @@ export class BrowserRunner {
 				detached: process.platform !== 'win32',
 				env,
 				stdio,
-			}
+			},
 		);
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
@@ -98,7 +99,7 @@ export class BrowserRunner {
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: options.logLevel, tag},
-						output
+						output,
 					);
 				}
 			});
@@ -113,7 +114,7 @@ export class BrowserRunner {
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: options.logLevel, tag},
-						output
+						output,
 					);
 				}
 			});
@@ -140,15 +141,15 @@ export class BrowserRunner {
 			addEventListener(process, 'SIGINT', () => {
 				this.kill();
 				process.exit(130);
-			})
+			}),
 		);
 
 		this.#listeners.push(
-			addEventListener(process, 'SIGTERM', this.close.bind(this))
+			addEventListener(process, 'SIGTERM', this.close.bind(this)),
 		);
 
 		this.#listeners.push(
-			addEventListener(process, 'SIGHUP', this.close.bind(this))
+			addEventListener(process, 'SIGHUP', this.close.bind(this)),
 		);
 	}
 
@@ -199,7 +200,7 @@ export class BrowserRunner {
 				throw new Error(
 					`${PROCESS_ERROR_EXPLANATION}\nError cause: ${
 						isErrorLike(error) ? error.stack : error
-					}`
+					}`,
 				);
 			}
 		}
@@ -228,7 +229,7 @@ export class BrowserRunner {
 
 function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
-	timeout: number
+	timeout: number,
 ): Promise<string> {
 	assert(browserProcess.stderr, '`browserProcess` does not have stderr.');
 	const rl = readline.createInterface(browserProcess.stderr);
@@ -249,32 +250,34 @@ function waitForWSEndpoint(
 		];
 		const timeoutId = timeout ? setTimeout(onTimeout, timeout) : 0;
 
-		function onClose(error?: Error): void {
+		function onClose(error?: Error) {
 			cleanup();
 			reject(
 				new Error(
 					[
-						'Failed to launch the browser process!' +
-							(error ? ' ' + error.message : ''),
+						'Failed to launch the browser process!',
+						error ? error.message : null,
 						stderr,
 						'',
 						'TROUBLESHOOTING: https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md',
 						'',
-					].join('\n')
-				)
+					]
+						.filter(truthy)
+						.join('\n'),
+				),
 			);
 		}
 
-		function onTimeout(): void {
+		function onTimeout() {
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser!`
-				)
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderr}`,
+				),
 			);
 		}
 
-		function onLine(line: string): void {
+		function onLine(line: string) {
 			stderr += line + '\n';
 			const match = line.match(/^DevTools listening on (ws:\/\/.*)$/);
 			if (!match) {

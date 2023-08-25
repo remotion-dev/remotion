@@ -95,7 +95,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				});
 			}
 		},
-		[schema, setValue]
+		[schema, setValue],
 	);
 
 	const hasChanged = useMemo(() => {

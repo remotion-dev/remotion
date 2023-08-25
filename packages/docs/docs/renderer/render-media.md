@@ -275,6 +275,14 @@ _string - optional_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
+### `x264Preset?`
+
+_string - optional_
+
+Sets a Preset profile. Only applies to videos rendered with `h264` codec.
+Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
@@ -392,6 +400,10 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 ### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`parallelism?`~~
 

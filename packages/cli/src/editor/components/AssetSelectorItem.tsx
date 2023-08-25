@@ -154,7 +154,7 @@ export const FolderTree: React.FC<{
 						key={file.src}
 						item={file}
 						tabIndex={tabIndex}
-						level={level + 1}
+						level={level}
 						parentFolder={combinedParents}
 					/>
 				);

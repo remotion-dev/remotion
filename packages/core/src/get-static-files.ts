@@ -8,7 +8,7 @@ const warnServerOnce = () => {
 
 	warnedServer = true;
 	console.warn(
-		'Called getStaticFiles() on the server. The API is only available in the browser. An empty array was returned.'
+		'Called getStaticFiles() on the server. The API is only available in the browser. An empty array was returned.',
 	);
 };
 
@@ -19,7 +19,7 @@ const warnPlayerOnce = () => {
 
 	warnedPlayer = true;
 	console.warn(
-		'Called getStaticFiles() while using the Remotion Player. The API is only available while using the Remotion Studio. An empty array was returned.'
+		'Called getStaticFiles() while using the Remotion Player. The API is only available while using the Remotion Studio. An empty array was returned.',
 	);
 };
 
