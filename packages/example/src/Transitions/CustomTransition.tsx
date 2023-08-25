@@ -46,7 +46,8 @@ const SlidePresentation: React.FC<
 			height: '100%',
 			justifyContent: 'center',
 			alignItems: 'center',
-			clipPath: presentationDirection === 'out' ? undefined : `url(#${clipId})`,
+			clipPath:
+				presentationDirection === 'exiting' ? undefined : `url(#${clipId})`,
 		};
 	}, [clipId, presentationDirection]);
 

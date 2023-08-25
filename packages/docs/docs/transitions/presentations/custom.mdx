@@ -2,3 +2,20 @@
 crumb: "@remotion/transitions"
 title: "Custom presentations"
 ---
+
+This page describes how to create your own custom effect for [`<TransitionSeries>`](/docs/transitions/transitionseries).
+
+<Demo type="custom-presentation" />
+
+## Concept
+
+A presentation is a higher order component which wraps around the entering slide as well as the exiting slide and which implements an effect based on three parameters:
+
+<Step>1</Step> The current <code>presentationProgress</code>, influenced by the
+timing of the transition
+<br />
+<Step>2</Step> The <code>presentationDirection</code>, either <code>
+  entering
+</code> or <code>exiting</code>
+<br />
+<Step>3</Step> Additional developer-defined <code>passedProps</code>

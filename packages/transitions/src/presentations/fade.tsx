@@ -13,7 +13,7 @@ const FadePresentation: React.FC<
 > = ({ children, presentationDirection, presentationProgress }) => {
   const style: React.CSSProperties = useMemo(() => {
     return {
-      opacity: presentationDirection === "in" ? presentationProgress : 1,
+      opacity: presentationDirection === "entering" ? presentationProgress : 1,
     };
   }, [presentationDirection, presentationProgress]);
 

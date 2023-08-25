@@ -1,4 +1,9 @@
-import { FadeDemo, SlideDemo, WipeDemo } from "../transitions/previews";
+import {
+  CustomTransitionDemo,
+  FadeDemo,
+  SlideDemo,
+  WipeDemo,
+} from "../transitions/previews";
 import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
@@ -527,4 +532,15 @@ export const wipePresentationDemo: DemoType = {
       ],
     },
   ],
+};
+
+export const customPresentationDemo: DemoType = {
+  comp: CustomTransitionDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "custom-presentation",
+  autoPlay: true,
+  options: [],
 };
