@@ -1,4 +1,4 @@
-import { TimelineContextValue } from "remotion";
+import type { TimelineContextValue } from "remotion";
 
 export const makeTimelineContext = (frame: number): TimelineContextValue => {
   return {

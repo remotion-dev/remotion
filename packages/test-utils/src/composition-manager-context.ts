@@ -1,5 +1,6 @@
-import React, { ComponentType } from "react";
-import { CompositionManagerContext } from "remotion";
+import type { ComponentType } from "react";
+import React from "react";
+import type { CompositionManagerContext } from "remotion";
 
 const Mock: React.FC = () => null;
 
@@ -14,12 +15,12 @@ export const makeMockCompositionManagerContext =
         props: {},
       },
       folders: [],
-      setCurrentComposition: () => {},
-      registerComposition: () => {},
-      registerFolder: () => {},
-      unregisterComposition: () => {},
-      unregisterFolder: () => {},
-      setCurrentCompositionMetadata: () => {},
+      setCurrentComposition: () => undefined,
+      registerComposition: () => undefined,
+      registerFolder: () => undefined,
+      unregisterComposition: () => undefined,
+      unregisterFolder: () => undefined,
+      setCurrentCompositionMetadata: () => undefined,
       compositions: [
         {
           id: "markup",
