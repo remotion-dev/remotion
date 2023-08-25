@@ -1,3 +1,6 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+
 /* eslint-disable no-console */
 /**
  * Source code is adapted from
