@@ -13,7 +13,8 @@ import { customPresentation } from "./custom-transition";
 
 export const PresentationPreview: React.FC<{
   effect: TransitionPresentation<Record<string, unknown>>;
-}> = ({ effect }) => {
+  durationRestThreshold: number;
+}> = ({ effect, durationRestThreshold }) => {
   const ref = useRef<PlayerRef>(null);
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export const PresentationPreview: React.FC<{
       }}
       inputProps={{
         effect,
+        durationRestThreshold,
       }}
     />
   );
@@ -94,7 +96,8 @@ const SceneB: React.FC = () => {
 
 export const SampleTransition: React.FC<{
   effect: TransitionPresentation<Record<string, unknown>>;
-}> = ({ effect }) => {
+  durationRestThreshold: number;
+}> = ({ durationRestThreshold, effect }) => {
   return (
     <TransitionSeries>
       <TransitionSeries.Sequence durationInFrames={75}>
@@ -107,10 +110,10 @@ export const SampleTransition: React.FC<{
             damping: 200,
           },
           durationInFrames: 60,
-          durationRestThreshold: 0.001,
+          durationRestThreshold,
         })}
       />
-      <TransitionSeries.Sequence durationInFrames={60}>
+      <TransitionSeries.Sequence durationInFrames={90}>
         <SceneB />
       </TransitionSeries.Sequence>
     </TransitionSeries>
@@ -118,23 +121,49 @@ export const SampleTransition: React.FC<{
 };
 
 export const FadeDemo: React.FC = () => {
-  return <SampleTransition effect={fade()} />;
+  return <SampleTransition effect={fade()} durationRestThreshold={0.001} />;
 };
 
 export const SlideDemo: React.FC<{
   direction: SlideDirection;
 }> = ({ direction }) => {
-  return <SampleTransition effect={slide({ direction })} />;
+  return (
+    <SampleTransition
+      effect={slide({ direction })}
+      durationRestThreshold={0.001}
+    />
+  );
+};
+
+export const SlideDemoLongDurationRest: React.FC<{
+  direction: SlideDirection;
+}> = ({ direction }) => {
+  return (
+    <SampleTransition
+      effect={slide({ direction })}
+      durationRestThreshold={0.005}
+    />
+  );
 };
 
 export const WipeDemo: React.FC<{
   direction: WipeDirection;
 }> = ({ direction }) => {
-  return <SampleTransition effect={wipe({ direction })} />;
+  return (
+    <SampleTransition
+      effect={wipe({ direction })}
+      durationRestThreshold={0.001}
+    />
+  );
 };
 
 export const CustomTransitionDemo: React.FC<{}> = () => {
   const { width, height } = useVideoConfig();
 
-  return <SampleTransition effect={customPresentation({ height, width })} />;
+  return (
+    <SampleTransition
+      effect={customPresentation({ height, width })}
+      durationRestThreshold={0.001}
+    />
+  );
 };

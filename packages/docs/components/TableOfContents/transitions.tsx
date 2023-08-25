@@ -64,7 +64,10 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/fade">
           <div style={row}>
-            <PresentationPreview effect={fade()} />
+            <PresentationPreview
+              durationRestThreshold={0.001}
+              effect={fade()}
+            />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"fade()"}</code>
@@ -75,7 +78,10 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/slide">
           <div style={row}>
-            <PresentationPreview effect={slide()} />
+            <PresentationPreview
+              durationRestThreshold={0.001}
+              effect={slide()}
+            />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"slide()"}</code>
@@ -86,7 +92,10 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/wipe">
           <div style={row}>
-            <PresentationPreview effect={wipe()} />
+            <PresentationPreview
+              durationRestThreshold={0.001}
+              effect={wipe()}
+            />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"wipe()"}</code>
