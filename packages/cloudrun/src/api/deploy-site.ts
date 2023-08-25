@@ -1,4 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
@@ -37,15 +38,7 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-/**
- * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
- * @link https://remotion.dev/docs/cloudrun/deploysite
- * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
- * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.siteName The name of the folder in which the project gets deployed to.
- * @param {object} params.options Further options, see documentation page for this function.
- */
-export const deploySite = async ({
+const deploySiteRaw = async ({
 	entryPoint,
 	bucketName,
 	siteName,
@@ -115,3 +108,13 @@ export const deploySite = async ({
 		},
 	};
 };
+
+/**
+ * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
+ * @link https://remotion.dev/docs/cloudrun/deploysite
+ * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
+ * @param {string} params.bucketName The name of the bucket to deploy your project into.
+ * @param {string} params.siteName The name of the folder in which the project gets deployed to.
+ * @param {object} params.options Further options, see documentation page for this function.
+ */
+export const deploySite = PureJSAPIs.wrapWithErrorHandling(deploySiteRaw);

@@ -18,6 +18,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalSelectCompositionsConfig = {
 	serializedInputPropsWithCustomSchema: string;
@@ -166,7 +167,7 @@ type InternalReturnType = {
 	propsSize: number;
 };
 
-export const internalSelectComposition = async (
+export const internalSelectCompositionRaw = async (
 	options: InternalSelectCompositionsConfig,
 ): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
@@ -261,6 +262,10 @@ export const internalSelectComposition = async (
 			});
 	});
 };
+
+export const internalSelectComposition = wrapWithErrorHandling(
+	internalSelectCompositionRaw,
+);
 
 /**
  * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
