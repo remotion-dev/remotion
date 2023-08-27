@@ -50,18 +50,22 @@
   },
   "exports": {
     ".": {
+      "module": "./dist/index.js",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./fade": {
+      "module": "./dist/presentations/fade.js",
       "import": "./dist/presentations/fade.js",
       "types": "./dist/presentations/fade.d.ts"
     },
     "./slide": {
+      "module": "./dist/presentations/slide.js",
       "import": "./dist/presentations/slide.js",
       "types": "./dist/presentations/slide.d.ts"
     },
     "./wipe": {
+      "module": "./dist/presentations/wipe.js",
       "import": "./dist/presentations/wipe.js",
       "types": "./dist/presentations/wipe.d.ts"
     },
