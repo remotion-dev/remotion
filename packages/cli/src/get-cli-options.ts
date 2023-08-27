@@ -133,7 +133,11 @@ export const getCliOptions = async (options: {
 	const height = ConfigInternals.getHeight();
 	const width = ConfigInternals.getWidth();
 
-	RenderInternals.validateConcurrency(concurrency, 'concurrency');
+	RenderInternals.validateConcurrency({
+		value: concurrency,
+		setting: 'concurrency',
+		checkIfValidForCurrentMachine: false,
+	});
 
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
