@@ -170,10 +170,11 @@ const innerLaunchHandler = async (
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
-	RenderInternals.validateConcurrency(
-		params.concurrencyPerLambda,
-		'concurrencyPerLambda',
-	);
+	RenderInternals.validateConcurrency({
+		value: params.concurrencyPerLambda,
+		setting: 'concurrencyPerLambda',
+		checkIfValidForCurrentMachine: true,
+	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
