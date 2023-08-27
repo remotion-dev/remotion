@@ -170,7 +170,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		environment,
+		environment.isStudio,
 	]);
 
 	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
