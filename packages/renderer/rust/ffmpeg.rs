@@ -1,4 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::{_print_debug, _print_verbose};
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::{KnownCodecs, OpenVideoStats, VideoMetadata};
@@ -156,7 +157,12 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             "No video stream found",
         ))?,
     };
+
     let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
+    let color_space = unsafe { (*(*(stream).as_ptr()).codecpar).color_space };
+
+    _print_verbose(&format!("color_space {:?}", color_space));
+
     let codec_name = match codec_id {
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => KnownCodecs::H264,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => KnownCodecs::H265,
