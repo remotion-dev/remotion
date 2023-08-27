@@ -49,8 +49,8 @@ test('setConcurrency should throw if concurrency is too high', () => {
 	expect(
 		validateConcurrency({
 			checkIfValidForCurrentMachine: false,
-			setting: '50%',
-			value: 'concurrency',
+			value: '50%',
+			setting: 'concurrency',
 		}),
 	).toBe(undefined);
 });
