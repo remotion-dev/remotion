@@ -71,7 +71,7 @@ export const PricingTable: React.FC<{}> = () => {
                   <strong>Developer seat</strong>
                   <div
                     className={[styles.tableprice, styles.gradientprice].join(
-                      " "
+                      " ",
                     )}
                   >
                     {Date.now() < DEV_SEAT_PRICE_INCREASE
@@ -128,7 +128,7 @@ export const PricingTable: React.FC<{}> = () => {
                   <strong>Cloud rendering seat</strong>
                   <div
                     className={[styles.tableprice, styles.orangeprice].join(
-                      " "
+                      " ",
                     )}
                   >
                     {period === Period.Monthly ? "$10" : "$100"}
@@ -164,8 +164,6 @@ export const PricingTable: React.FC<{}> = () => {
                 className={styles.pricinga}
                 href="https://companies.remotion.dev"
                 target="_blank"
-                data-splitbee-event="License-Buy"
-                data-splitbee-event-target={`license-${period}`}
               >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
