@@ -375,7 +375,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					stack: err.stack,
 					stackFrame: frames,
 				});
-				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
+				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}
 
 			Log.info();

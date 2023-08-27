@@ -6,6 +6,7 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -67,7 +68,7 @@ export type RenderStillOnCloudrunInput = {
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 
-export const renderStillOnCloudrun = async ({
+const renderStillOnCloudrunRaw = async ({
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -203,3 +204,7 @@ export const renderStillOnCloudrun = async ({
 
 	return renderResponse;
 };
+
+export const renderStillOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+	renderStillOnCloudrunRaw,
+) as typeof renderStillOnCloudrunRaw;
