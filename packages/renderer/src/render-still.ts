@@ -44,6 +44,7 @@ import {
 } from './validate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
@@ -333,7 +334,7 @@ const innerRenderStill = async ({
 	return {buffer: output ? null : buffer};
 };
 
-export const internalRenderStill = (
+const internalRenderStillRaw = (
 	options: InternalRenderStillOptions,
 ): Promise<RenderStillReturnValue> => {
 	const cleanup: CleanupFn[] = [];
@@ -391,6 +392,10 @@ export const internalRenderStill = (
 		}),
 	]);
 };
+
+export const internalRenderStill = wrapWithErrorHandling(
+	internalRenderStillRaw,
+);
 
 /**
  *

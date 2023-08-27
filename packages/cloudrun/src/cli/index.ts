@@ -58,7 +58,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 	} catch (err) {
 		const error = err as Error;
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				error,
 				ConfigInternals.Logging.getLogLevel(),
 			);
@@ -72,7 +72,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				errorWithStackFrame,
 				ConfigInternals.Logging.getLogLevel(),
 			);

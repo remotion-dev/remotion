@@ -57,6 +57,7 @@ import {
 	validateFps,
 } from './validate';
 import {validateScale} from './validate-scale';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -574,7 +575,7 @@ const innerRenderFrames = async ({
 
 type CleanupFn = () => void;
 
-export const internalRenderFrames = ({
+const internalRenderFramesRaw = ({
 	browserExecutable,
 	cancelSignal,
 	chromiumOptions,
@@ -759,6 +760,10 @@ export const internalRenderFrames = ({
 			});
 	});
 };
+
+export const internalRenderFrames = wrapWithErrorHandling(
+	internalRenderFramesRaw,
+);
 
 /**
  * @description Renders a series of images using Puppeteer and computes information for mixing audio.

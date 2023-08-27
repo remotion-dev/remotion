@@ -15,7 +15,6 @@ import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
-import {handleCommonError} from './handle-common-errors';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
@@ -24,6 +23,7 @@ import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
+import {printError} from './print-error';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
@@ -98,10 +98,7 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(
-			err as Error,
-			ConfigInternals.Logging.getLogLevel(),
-		);
+		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
 		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
@@ -123,7 +120,7 @@ export const CliInternals = {
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
-	handleCommonError,
+	printError,
 	formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,

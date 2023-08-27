@@ -63,6 +63,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
@@ -185,7 +186,7 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-export const internalRenderMedia = ({
+const internalRenderMediaRaw = ({
 	proResProfile,
 	x264Preset,
 	crf,
@@ -694,6 +695,10 @@ export const internalRenderMedia = ({
 		}),
 	]);
 };
+
+export const internalRenderMedia = wrapWithErrorHandling(
+	internalRenderMediaRaw,
+);
 
 /**
  *
