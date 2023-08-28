@@ -353,6 +353,10 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_

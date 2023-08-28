@@ -264,3 +264,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--webhook-custom-data`<AvailableFrom v="4.0.25"/>
 
 <Options id="webhook-custom-data" cli/>
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
