@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
@@ -19,6 +13,11 @@ import type {Bug, UpdateInfo} from '../UpdateCheck';
 const container: React.CSSProperties = {
 	padding: 20,
 	paddingTop: 0,
+};
+
+const title: React.CSSProperties = {
+	paddingTop: 12,
+	paddingBottom: 8,
 };
 
 const code: React.CSSProperties = {
@@ -44,9 +43,9 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 
 export const UpdateModal: React.FC<{
 	info: UpdateInfo;
-}> = ({info}) => {
+	knownBugs: Bug[];
+}> = ({info, knownBugs}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
@@ -55,14 +54,6 @@ export const UpdateModal: React.FC<{
 		return knownBugs && knownBugs?.length > 0;
 	}, [knownBugs]);
 	const command = commands[info.packageManager];
-	useEffect(() => {
-		fetch(
-			`https://latest-stable-release.vercel.app/api/version?query=${info.currentVersion}`,
-		).then(async (res) => {
-			const {body} = await res.json();
-			setKnownBugs(body);
-		});
-	}, [info.currentVersion]);
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
@@ -70,8 +61,10 @@ export const UpdateModal: React.FC<{
 			<div style={container}>
 				{hasKnownBugs ? (
 					<>
-						<p>Known bugs in {info.currentVersion}</p>
+						<div style={title}>Known bugs in {info.currentVersion}:</div>
 						<KnownBugs bugs={knownBugs as Bug[]} />
+						<div style={{height: '20px'}} />
+						Run the followin command:
 					</>
 				) : (
 					<p>
