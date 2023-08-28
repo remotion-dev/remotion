@@ -41,6 +41,22 @@ export type VideoMetadata = {
 	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
 	canPlayInVideoTag: boolean;
 	supportsSeeking: boolean;
+	colorSpace:
+		| 'rgb'
+		| 'bt601'
+		| 'bt709'
+		| 'bt2020-ncl'
+		| 'bt2020-cl'
+		| 'fcc'
+		| 'bt470bg'
+		| 'smpte170m'
+		| 'smpte240m'
+		| 'ycgco'
+		| 'smpte2085'
+		| 'chroma-derived-ncl'
+		| 'chroma-derived-cl'
+		| 'ictcp'
+		| 'unknown';
 };
 
 type SilentPart = {
