@@ -221,10 +221,10 @@ type RenderModalProps = {
 	initialIgnoreCertificateErrors: boolean;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialHeadless: boolean;
+	initialColorSpace: ColorSpace;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
-	colorSpace: ColorSpace;
 };
 
 const RenderModal: React.FC<
@@ -270,7 +270,7 @@ const RenderModal: React.FC<
 	onClose,
 	resolvedComposition,
 	unresolvedComposition,
-	colorSpace,
+	initialColorSpace,
 }) => {
 	const isMounted = useRef(true);
 
@@ -322,6 +322,7 @@ const RenderModal: React.FC<
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
 		() => initialGl ?? 'default',
 	);
+	const [colorSpace, setColorSpace] = useState(() => initialColorSpace);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
@@ -1055,6 +1056,8 @@ const RenderModal: React.FC<
 							jpegQuality={jpegQuality}
 							qualityControlType={qualityControlType}
 							setJpegQuality={setJpegQuality}
+							setColorSpace={setColorSpace}
+							colorSpace={colorSpace}
 							setCustomTargetVideoBitrateValue={
 								setCustomTargetVideoBitrateValue
 							}
