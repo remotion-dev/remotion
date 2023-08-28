@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
@@ -223,6 +224,7 @@ type RenderModalProps = {
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	colorSpace: ColorSpace;
 };
 
 const RenderModal: React.FC<
@@ -268,6 +270,7 @@ const RenderModal: React.FC<
 	onClose,
 	resolvedComposition,
 	unresolvedComposition,
+	colorSpace,
 }) => {
 	const isMounted = useRef(true);
 
@@ -700,6 +703,7 @@ const RenderModal: React.FC<
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
+			colorSpace,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -740,6 +744,7 @@ const RenderModal: React.FC<
 		envVariables,
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 		onClose,
 	]);
 

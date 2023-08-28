@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	PixelFormat,
 	ProResProfile,
 	X264Preset,
@@ -61,6 +62,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			inFrameMark: null,
 			outFrameMark: null,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialColorSpace: defaults.colorSpace as ColorSpace,
 		};
 	}
 
@@ -110,6 +112,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialColorSpace: job.colorSpace,
 		};
 	}
 

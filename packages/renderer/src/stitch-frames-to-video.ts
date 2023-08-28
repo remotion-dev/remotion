@@ -31,6 +31,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
+import type {ColorSpace} from './options/color-space';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
 import {
@@ -79,6 +80,7 @@ type InternalStitchFramesToVideoOptions = {
 	x264Preset: X264Preset | null;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
+	colorSpace: ColorSpace;
 };
 
 export type StitchFramesToVideoOptions = {
@@ -105,6 +107,7 @@ export type StitchFramesToVideoOptions = {
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
 	x264Preset?: X264Preset | null;
+	colorSpace?: ColorSpace;
 };
 
 type ReturnType = {
@@ -222,6 +225,7 @@ const innerStitchFramesToVideo = async (
 		numberOfGifLoops,
 		onProgress,
 		x264Preset,
+		colorSpace,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -420,6 +424,7 @@ const innerStitchFramesToVideo = async (
 			proResProfileName,
 			pixelFormat,
 			x264Preset,
+			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		resolvedAudioCodec
@@ -565,6 +570,7 @@ export const stitchFramesToVideo = ({
 	verbose,
 	videoBitrate,
 	x264Preset,
+	colorSpace,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -593,5 +599,6 @@ export const stitchFramesToVideo = ({
 		preEncodedFileLocation: null,
 		preferLossless: false,
 		x264Preset: x264Preset ?? null,
+		colorSpace: colorSpace ?? 'default',
 	});
 };

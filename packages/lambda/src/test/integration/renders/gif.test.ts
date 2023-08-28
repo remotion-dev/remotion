@@ -64,6 +64,7 @@ test('Should make a distributed GIF', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
+			colorSpace: 'default',
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,

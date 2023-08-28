@@ -8,6 +8,7 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import type {ColorSpace} from './options/color-space';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
 import {
@@ -50,6 +51,7 @@ type PreStitcherOptions = {
 	signal: CancelSignal;
 	videoBitrate: string | null;
 	indent: boolean;
+	colorSpace: ColorSpace;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -95,6 +97,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			codec,
 			crf: options.crf,
 			videoBitrate: options.videoBitrate,
+			colorSpace: options.colorSpace,
 		}),
 
 		'-y',

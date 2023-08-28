@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	makeCancelSignal,
 	PixelFormat,
 	ProResProfile,
@@ -73,6 +74,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			colorSpace: ColorSpace;
 	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
@@ -124,6 +126,7 @@ type AddRenderRequestDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
+			colorSpace: ColorSpace;
 	  };
 
 export type CancelRenderRequest = {

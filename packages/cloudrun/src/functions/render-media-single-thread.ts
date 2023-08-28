@@ -97,6 +97,7 @@ export const renderMediaSingleThread = async (
 			puppeteerInstance: undefined,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			colorSpace: body.colorSpace,
 		});
 
 		const storage = new Storage();
