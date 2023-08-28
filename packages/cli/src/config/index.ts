@@ -39,6 +39,7 @@ import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	CodecOrUndefined,
+	ColorSpace,
 	Crf,
 	FrameRange,
 	StillImageFormat,
@@ -59,6 +60,7 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import {setCodec} from './codec';
+import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -393,6 +395,11 @@ declare global {
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Opt into bt709 rendering.
+		 */
+		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 	}
 }
 
@@ -516,6 +523,7 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
+	setColorSpace,
 };
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
@@ -571,4 +579,5 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
+	getColorSpace,
 };

@@ -50,6 +50,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
+				colorSpace: input.colorSpace,
 			},
 		});
 	}

@@ -1,6 +1,7 @@
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
+import type {ColorSpace} from './options/color-space';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
 import type {X264Preset} from './x264-preset';
@@ -50,6 +51,7 @@ export const generateFfmpegArgs = ({
 	codec,
 	crf,
 	videoBitrate,
+	colorSpace,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -58,6 +60,7 @@ export const generateFfmpegArgs = ({
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null | undefined;
+	colorSpace: ColorSpace;
 }): string[][] => {
 	const encoderName = getCodecName(codec);
 
@@ -65,14 +68,21 @@ export const generateFfmpegArgs = ({
 		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));
 	}
 
+	const colorSpaceOptions: string[][] =
+		colorSpace === 'bt709'
+			? [
+					['-colorspace:v', 'bt709'],
+					['-color_primaries:v', 'bt709'],
+					['-color_trc:v', 'bt709'],
+					['-color_range:v', 'tv'],
+			  ]
+			: [];
+
 	return [
+		['-c:v', encoderName],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
-		['-c:v', encoderName],
-		['-colorspace:v', 'bt709'],
-		['-color_primaries:v', 'bt709'],
-		['-color_trc:v', 'bt709'],
-		['-color_range:v', 'tv'],
+		...colorSpaceOptions,
 		...firstEncodingStepOnly({
 			codec,
 			crf,

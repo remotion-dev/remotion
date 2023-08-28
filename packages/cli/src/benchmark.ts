@@ -176,6 +176,7 @@ export const benchmarkCommand = async (
 		concurrency: unparsedConcurrency,
 		logLevel,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -348,6 +349,7 @@ export const benchmarkCommand = async (
 							staticBase: null,
 						}).serializedString,
 					offthreadVideoCacheSizeInBytes,
+					colorSpace,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -16,6 +16,7 @@ import {
 } from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import {audioBitrateOption} from './options/audio-bitrate';
+import {validColorSpaces} from './options/color-space';
 import {crfOption} from './options/crf';
 import {enforceAudioOption} from './options/enforce-audio';
 import {jpegQualityOption} from './options/jpeg-quality';
@@ -59,6 +60,7 @@ export const BrowserSafeApis = {
 		offthreadVideoCacheSizeInBytesOption,
 		webhookCustomDataOption,
 	},
+	validColorSpaces,
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
