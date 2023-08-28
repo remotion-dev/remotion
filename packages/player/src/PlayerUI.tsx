@@ -280,7 +280,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		() => {
 			const methods: PlayerMethods = {
 				play: player.play,
-				pause: player.pause,
+				pause: () => {
+					// If, after .seek()-ing, the player was explicitly paused, we don't resume
+					setHasPausedToResume(false);
+					player.pause();
+				},
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
@@ -288,6 +292,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+
+					// continue playing after seeking if the player was playing before
 					if (player.isPlaying()) {
 						const pauseToResume = frameToSeekTo !== lastFrame || loop;
 						setHasPausedToResume(pauseToResume);
