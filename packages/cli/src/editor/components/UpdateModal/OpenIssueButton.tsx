@@ -7,8 +7,8 @@ const svgStyle: React.CSSProperties = {
 };
 const buttonStyle: React.CSSProperties = {
 	border: 'none',
-	width: '20px',
-	height: '20px',
+	width: '24px',
+	height: '24px',
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
@@ -16,7 +16,7 @@ const buttonStyle: React.CSSProperties = {
 
 export const OpenIssueButton: React.FC<{link: string}> = ({link}) => {
 	const [hovered, setHovered] = useState<boolean>(false);
-	const buttonTooltip = `Open in ${window.remotion_editorName}`;
+	const buttonTooltip = `Open GitHub issue in new Tab`;
 	const handleClick = useCallback(() => {
 		window.open(link, '_blank');
 	}, [link]);

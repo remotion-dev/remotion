@@ -87,8 +87,9 @@ export const UpdateCheck = () => {
 		setSelectedModal({
 			type: 'update',
 			info: info as UpdateInfo,
+			knownBugs: knownBugs as Bug[],
 		});
-	}, [info, setSelectedModal]);
+	}, [info, knownBugs, setSelectedModal]);
 
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
