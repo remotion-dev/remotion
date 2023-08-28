@@ -10,7 +10,13 @@ export const colorSpaceOption = {
 	description: () => (
 		<>
 			Color space to use for the video. Acceptable values:{' '}
-			<code>&lt;default&gt;</code>, <code>&lt;bt709&gt;</code>
+			<code>
+				{'"'}default{'"'}
+			</code>
+			,{' '}
+			<code>
+				{'"'}bt709{'"'}
+			</code>
 		</>
 	),
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',
