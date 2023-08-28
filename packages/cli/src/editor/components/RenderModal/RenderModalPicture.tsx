@@ -1,4 +1,5 @@
 import type {
+	ColorSpace,
 	PixelFormat,
 	StillImageFormat,
 	VideoImageFormat,
@@ -33,6 +34,8 @@ export const RenderModalPicture: React.FC<{
 	setScale: React.Dispatch<React.SetStateAction<number>>;
 	pixelFormat: PixelFormat;
 	setPixelFormat: React.Dispatch<React.SetStateAction<PixelFormat>>;
+	colorSpace: ColorSpace;
+	setColorSpace: React.Dispatch<React.SetStateAction<ColorSpace>>;
 	imageFormatOptions: SegmentedControlItem[];
 	setQualityControl: React.Dispatch<React.SetStateAction<QualityControl>>;
 	qualityControlType: QualityControl | null;
@@ -69,6 +72,8 @@ export const RenderModalPicture: React.FC<{
 	crf,
 	customTargetVideoBitrate,
 	stillImageFormat,
+	colorSpace,
+	setColorSpace,
 }) => {
 	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validPixelFormats.map((option) => {
@@ -86,6 +91,23 @@ export const RenderModalPicture: React.FC<{
 			};
 		});
 	}, [pixelFormat, setPixelFormat]);
+
+	const colorSpaceOptions = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.validColorSpaces.map((option) => {
+			return {
+				label: option,
+				onClick: () => setColorSpace(option),
+				key: option,
+				id: option,
+				keyHint: null,
+				leftItem: colorSpace === option ? <Checkmark /> : null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
+			};
+		});
+	}, [colorSpace, setColorSpace]);
 
 	const qualityControlOptions = useMemo((): SegmentedControlItem[] => {
 		return qualityControlModes.map((option) => {
@@ -185,6 +207,18 @@ export const RenderModalPicture: React.FC<{
 							values={pixelFormatOptions}
 							selectedId={pixelFormat}
 							title="Pixel Format"
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' ? (
+				<div style={optionRow}>
+					<div style={label}>Color space</div>
+					<div style={rightRow}>
+						<Combobox
+							values={colorSpaceOptions}
+							selectedId={colorSpace}
+							title="Color Space"
 						/>
 					</div>
 				</div>

@@ -61,7 +61,7 @@ export const Modals: React.FC = () => {
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
-					colorSpace={modalContextType.initialColorSpace}
+					initialColorSpace={modalContextType.initialColorSpace}
 				/>
 			)}
 
