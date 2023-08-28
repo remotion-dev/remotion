@@ -1,3 +1,4 @@
+import {writeFileSync} from 'fs';
 import {interpolate} from 'remotion';
 import {expect, test} from 'vitest';
 import {
@@ -515,6 +516,8 @@ test('Two different starting times should not result in big seeking', async () =
 			time,
 			transparent: false,
 		});
+
+		writeFileSync('data' + i + '.bmp', data);
 
 		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
 		const centerLeftPixelR =
