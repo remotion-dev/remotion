@@ -316,7 +316,7 @@ impl OpenedStream {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {} (original source = {})",
+                    "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/issue or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
                     position, self.src, self.original_src
                 ),
             ))?;
