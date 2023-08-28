@@ -7,6 +7,7 @@ import type {
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -213,7 +214,15 @@ export const RenderModalPicture: React.FC<{
 			) : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
-					<div style={label}>Color space</div>
+					<div style={label}>
+						Color space
+						<Spacing x={0.25} />{' '}
+						<InfoBubble title="Learn more about this option">
+							<OptionExplainer
+								option={BrowserSafeApis.options.colorSpaceOption}
+							/>
+						</InfoBubble>
+					</div>
 					<div style={rightRow}>
 						<Combobox
 							values={colorSpaceOptions}
