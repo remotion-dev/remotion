@@ -1,4 +1,10 @@
-import React, {useCallback, useContext} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
@@ -7,7 +13,7 @@ import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
-import type {UpdateInfo} from '../UpdateCheck';
+import type {Bug, UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
 	padding: 20,
@@ -39,20 +45,35 @@ export const UpdateModal: React.FC<{
 	info: UpdateInfo;
 }> = ({info}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-
+	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
+	const hasKnownBugs = useMemo(() => {
+		return knownBugs && knownBugs?.length > 0;
+	}, [knownBugs]);
 	const command = commands[info.packageManager];
+	useEffect(() => {
+		fetch(
+			`https://latest-stable-release.vercel.app/api/version?query=${info.currentVersion}`,
+		).then(async (res) => {
+			const {body} = await res.json();
+			setKnownBugs(body);
+		});
+	}, [info.currentVersion]);
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="Update available" />
 			<div style={container}>
-				<p>
-					A new update for Remotion is available! Run the following command:
-				</p>
+				{hasKnownBugs ? (
+					<p>There are known bugs in {info.currentVersion}. Upgrade now</p>
+				) : (
+					<p>
+						A new update for Remotion is availale! Run the following command:
+					</p>
+				)}
 				<Row align="center">
 					<Flex>
 						<pre
