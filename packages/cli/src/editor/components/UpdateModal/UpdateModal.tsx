@@ -9,6 +9,7 @@ import {SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
+import {KnownBugs} from '../KnownBugs';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
@@ -68,7 +69,10 @@ export const UpdateModal: React.FC<{
 			<NewCompHeader title="Update available" />
 			<div style={container}>
 				{hasKnownBugs ? (
-					<p>There are known bugs in {info.currentVersion}. Upgrade now</p>
+					<>
+						<p>Known bugs in {info.currentVersion}</p>
+						<KnownBugs bugs={knownBugs as Bug[]} />
+					</>
 				) : (
 					<p>
 						A new update for Remotion is availale! Run the following command:
