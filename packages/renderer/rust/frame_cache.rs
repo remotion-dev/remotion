@@ -253,20 +253,6 @@ impl FrameCache {
                     ))?;
                     // Fall through to success
                 } else {
-                    if best_item.is_some() {
-                        _print_verbose(&format!(
-                            "none found current: {} previous: {:?}",
-                            self.items[best_item.unwrap()].resolved_pts,
-                            self.items[best_item.unwrap()].previous_pts
-                        ))?;
-                    }
-                    if closest_item_after_this.is_some() {
-                        _print_verbose(&format!(
-                            "also next one: {} previous: {:?}",
-                            closest_item_after_this.unwrap().resolved_pts,
-                            closest_item_after_this.unwrap().previous_pts
-                        ))?;
-                    }
                     return Ok(None);
                 }
             }
