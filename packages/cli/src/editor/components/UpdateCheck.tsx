@@ -98,13 +98,13 @@ export const UpdateCheck = () => {
 		};
 	}, [hasKnownBugs]);
 
-	// if (!info) {
-	// 	return null;
-	// }
+	if (!info) {
+		return null;
+	}
 
-	// if (!info.updateAvailable) {
-	// 	return null;
-	// }
+	if (!info.updateAvailable) {
+		return null;
+	}
 
 	return (
 		<button

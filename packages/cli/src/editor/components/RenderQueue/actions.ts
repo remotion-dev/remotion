@@ -243,7 +243,6 @@ export const cancelRenderJob = (job: RenderJob) => {
 };
 
 export const updateAvailable = (signal: AbortSignal) => {
-	console.log('calling updateAvailable');
 	return callApi('/api/update-available', {}, signal);
 };
 
