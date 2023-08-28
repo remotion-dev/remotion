@@ -22,6 +22,7 @@ test("Should be able to render video with custom port", async () => {
       "ten-frame-tester",
       "--codec",
       "h264",
+      "--color-space=bt709",
       "--port=3536",
       outputPath,
     ],
@@ -39,6 +40,7 @@ test("Should be able to render video with custom port", async () => {
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
   expect(data).toContain("1080x1080");
+  expect(data).toContain("bt709");
   expect(data).toContain("30 fps");
   expect(data).toContain("Audio: aac");
 });
@@ -254,7 +256,7 @@ test("Should render a video with GIFs", async () => {
   const info = await RenderInternals.callFf("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-
+  expect(data).not.toContain("bt709");
   expect(data).toContain("Duration: 00:00:01.60");
 
   fs.unlinkSync(outputPath);
