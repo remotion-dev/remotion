@@ -82,9 +82,7 @@ const innerSetPropsAndEnv = async ({
 
 	const status = pageRes.status();
 
-	// S3 in rare occasions returns a 500 or 503 error code for GET operations.
-	// Usually it is fixed by retrying.
-	if (status >= 500 && status <= 504 && retriesRemaining > 0) {
+	const retry = async () => {
 		await new Promise<void>((resolve) => {
 			setTimeout(() => {
 				resolve();
@@ -105,6 +103,12 @@ const innerSetPropsAndEnv = async ({
 			indent,
 			logLevel,
 		});
+	};
+
+	// S3 in rare occasions returns a 500 or 503 error code for GET operations.
+	// Usually it is fixed by retrying.
+	if (status >= 500 && status <= 504 && retriesRemaining > 0) {
+		return retry();
 	}
 
 	if (!redirectStatusCodes.every((code) => code !== status)) {
@@ -135,6 +139,11 @@ const innerSetPropsAndEnv = async ({
 			frame: null,
 			page,
 		});
+
+		// AWS shakyness
+		if (body.includes('We encountered an internal error.')) {
+			return retry();
+		}
 
 		const errorMessage = [
 			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined.`,
