@@ -4,7 +4,8 @@
   "description": "Transition presets for Remotion",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist-cjs/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint src --ext ts,tsx",
