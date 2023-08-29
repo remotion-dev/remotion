@@ -141,14 +141,15 @@ jobs:
           - os: ubuntu-latest
             node_version: 20
     steps:
+      - name: Uninstall Chrome on Windows because it does not include proprietary codecs
+        run: |
+          Remove-Item "C:\Program Files\Google\Chrome\Application\chrome.exe"
+          winget install -e --id Google.Chrome
+        if: matrix.os == 'windows-latest'
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - name: Uninstall Chrome on Windows because it does not include proprietary codecs
-        run: |
-          Remove-Item "C:\Program Files\Google\Chrome\Application\chrome.exe"
-        if: matrix.os == 'windows-latest'
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:
