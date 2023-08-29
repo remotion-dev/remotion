@@ -10,10 +10,12 @@ export type RemotionEnvironment = {
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	if (process.env.NODE_ENV === 'production') {
-		// Check if inside a Remotion bundle
+		// Check if inside a Remotion bundle.
+		// Must be a variable in index-html.ts and be defined before setupEnvVariables()
 		if (
 			typeof window !== 'undefined' &&
-			typeof window.remotion_editorName !== 'undefined'
+			typeof window.remotion_editorName !== 'undefined' &&
+			typeof window.remotion_projectName !== 'undefined'
 		) {
 			return {
 				isStudio: false,
