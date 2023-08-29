@@ -25,6 +25,11 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	// S3 in rare occasions
+	if (message.includes('We encountered an internal error.')) {
+		return true;
+	}
+
 	if (message.includes('Compositor exited') && !message.includes('SIGSEGV')) {
 		return true;
 	}
