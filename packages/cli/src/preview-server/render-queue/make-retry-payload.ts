@@ -20,7 +20,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
 				defaultCodec: defaults.codec as Codec,
-				isStill: true,
+				renderType: 'still',
 			});
 		return {
 			type: 'render',
@@ -64,11 +64,59 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		};
 	}
 
+	if (job.type === 'sequence') {
+		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
+			getDefaultCodecs({
+				defaultCodec: defaults.codec as Codec,
+				renderType: 'sequence',
+			});
+		return {
+			type: 'render',
+			initialFrame: 0,
+			compositionId: job.compositionId,
+			initialVideoImageFormat: defaults.videoImageFormat,
+			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
+			initialOutName: job.outName,
+			initialScale: job.scale,
+			initialVerbose: job.verbose,
+			initialVideoCodecForAudioTab: initialAudioCodec,
+			initialRenderType,
+			initialVideoCodecForVideoTab: initialVideoCodec,
+			initialConcurrency: defaults.concurrency,
+			maxConcurrency: defaults.maxConcurrency,
+			minConcurrency: defaults.minConcurrency,
+			initialMuted: defaults.muted,
+			initialEnforceAudioTrack: defaults.enforceAudioTrack,
+			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialx264Preset: defaults.x264Preset as X264Preset,
+			initialPixelFormat: defaults.pixelFormat as PixelFormat,
+			initialAudioBitrate: defaults.audioBitrate,
+			initialVideoBitrate: defaults.videoBitrate,
+			initialEveryNthFrame: defaults.everyNthFrame,
+			initialNumberOfGifLoops: defaults.numberOfGifLoops,
+			initialDelayRenderTimeout: job.delayRenderTimeout,
+			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
+			initialEnvVariables: job.envVariables,
+			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
+			initialOpenGlRenderer: job.chromiumOptions.gl,
+			initialHeadless: job.chromiumOptions.headless,
+			initialIgnoreCertificateErrors:
+				job.chromiumOptions.ignoreCertificateErrors,
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				job.serializedInputPropsWithCustomSchema,
+			),
+			initialStillImageFormat: defaults.stillImageFormat,
+			inFrameMark: job.startFrame,
+			outFrameMark: job.endFrame,
+			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		};
+	}
+
 	if (job.type === 'video') {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
 				defaultCodec: job.codec,
-				isStill: false,
+				renderType: 'video',
 			});
 		return {
 			type: 'render',
