@@ -25,7 +25,7 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		return {
 			isStudio: false,
 			isRendering: false,
-			isPlayer: true,
+			isPlayer: typeof window !== 'undefined' && window.remotion_isPlayer,
 		};
 	}
 
