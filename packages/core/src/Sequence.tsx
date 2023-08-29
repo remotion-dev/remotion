@@ -70,7 +70,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const nonce = useNonce();
-	const environment = getRemotionEnvironment();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -140,7 +139,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [children, name]);
 
 	useEffect(() => {
-		if (!environment.isStudio) {
+		if (!getRemotionEnvironment().isStudio) {
 			return;
 		}
 
@@ -173,7 +172,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		environment,
 	]);
 
 	const endThreshold = cumulatedFrom + from + durationInFrames - 1;

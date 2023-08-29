@@ -257,8 +257,14 @@ const ControlsOnly: React.FC<{
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				⏯️ Toggle
 			</button>
-			<button type="button" onClick={() => ref.current?.seekTo(10)}>
-				seekTo 10
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(10);
+					ref.current?.pause();
+				}}
+			>
+				seekTo 10 and pause
 			</button>
 			<button type="button" onClick={() => ref.current?.seekTo(50)}>
 				seekTo 50
