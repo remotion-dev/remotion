@@ -205,6 +205,7 @@ export const RenderModalBasic: React.FC<{
 				outName={outName}
 				onValueChange={onValueChange}
 				validationMessage={validationMessage}
+				renderType={renderMode}
 			/>
 		</div>
 	);

@@ -515,6 +515,10 @@ const RenderModal: React.FC<
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
+		if (dotPos === -1) {
+			return fileName;
+		}
+
 		const bitBeforeDot = fileName.substring(0, dotPos);
 		return bitBeforeDot;
 	}, []);
@@ -557,7 +561,8 @@ const RenderModal: React.FC<
 				});
 			} else if (options.type === 'sequence') {
 				setOutName((prev) => {
-					return prev;
+					const folderName = getStringBeforeSuffix(prev);
+					return folderName;
 				});
 			} else {
 				setOutName((prev) => {
