@@ -1,7 +1,4 @@
-use remotionffmpeg::software::scaling::color_space;
-
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata};

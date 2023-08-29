@@ -111,6 +111,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialColorSpace: defaults.colorSpace as ColorSpace,
 		};
 	}
 
