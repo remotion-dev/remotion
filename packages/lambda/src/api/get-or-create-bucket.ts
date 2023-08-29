@@ -6,7 +6,7 @@ import {getRemotionS3Buckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
-	applyRenderFolderExpiry?: boolean
+	applyRenderFolderExpiry?: boolean;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -42,7 +42,7 @@ export const getOrCreateBucket = async (
 	await createBucket({
 		bucketName,
 		region: params.region,
-		applyRenderFolderExpiry: params.applyRenderFolderExpiry
+		applyRenderFolderExpiry: params.applyRenderFolderExpiry,
 	});
 
 	return {bucketName, alreadyExisted: false};

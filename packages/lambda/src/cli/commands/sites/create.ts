@@ -89,16 +89,11 @@ export const sitesCreateSubcommand = async (
 	const bucketStart = Date.now();
 
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
-
-
-	// TODO: 
-	// applyRenderFolderExpiry,
 	const bucketName =
 		cliBucketName ??
 		(
 			await getOrCreateBucket({
 				region: getAwsRegion(),
-				
 			})
 		).bucketName;
 
