@@ -245,7 +245,6 @@ test("Should render a video with GIFs", async () => {
     ["exec", "remotion", "render", "gif", "--frames=0-47", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
   expect(task.exitCode).toBe(0);
@@ -268,7 +267,6 @@ test("Should render a video with Offline Audio-context", async () => {
     ["exec", "remotion", "render", "offline-audio-buffer", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
   expect(task.exitCode).toBe(0);
@@ -288,7 +286,6 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
     ["exec", "remotion", "render", "ten-frame-tester", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
   expect(task.exitCode).toBe(0);
@@ -314,7 +311,6 @@ test("Should render a still that uses the staticFile() API and should apply prop
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
   expect(task.exitCode).toBe(0);
@@ -342,7 +338,6 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
 
@@ -369,7 +364,6 @@ test("Should be able to render if remotion.config.js is not provided", async () 
       outputPath,
     ],
     {
-      reject: false,
       cwd: path.join(process.cwd(), "..", ".."),
     }
   );
@@ -390,7 +384,6 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
     ],
     {
       cwd: path.join(process.cwd(), "..", ".."),
-      reject: false,
     }
   );
 
@@ -410,7 +403,6 @@ test("Should be able to render a huge payload that gets serialized", async () =>
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
 
