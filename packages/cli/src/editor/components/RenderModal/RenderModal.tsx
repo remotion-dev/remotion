@@ -942,7 +942,7 @@ const RenderModal: React.FC<
 				selected: renderMode === 'audio',
 			},
 			{
-				label: 'Sequence',
+				label: 'Image sequence',
 				onClick: () => {
 					setRenderMode('sequence');
 				},
