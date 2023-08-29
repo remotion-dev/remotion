@@ -209,6 +209,10 @@ Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _optional, removed in v4.0_

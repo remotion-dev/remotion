@@ -31,6 +31,8 @@ type CommandLineOptions = {
 	['number-of-shared-audio-tags']: number;
 	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
 		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.colorSpaceOption
+		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -262,6 +264,10 @@ export const parseCommandLine = () => {
 		Config.setOffthreadVideoCacheSizeInBytes(
 			parsedCli['offthreadvideo-cache-size-in-bytes'],
 		);
+	}
+
+	if (typeof parsedCli['color-space'] !== 'undefined') {
+		Config.setColorSpace(parsedCli['color-space']);
 	}
 };
 

@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
@@ -184,6 +185,7 @@ export const addVideoRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: {
 	compositionId: string;
 	outName: string;
@@ -212,6 +214,7 @@ export const addVideoRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -246,6 +249,7 @@ export const addVideoRenderJob = ({
 			indent: undefined,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 };
 

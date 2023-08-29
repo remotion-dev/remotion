@@ -69,6 +69,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.Privacy = options.Privacy
 	}
+	if options.ColorSpace == "" {
+		internalParams.ColorSpace = "default"
+	} else {
+		internalParams.ColorSpace = options.ColorSpace
+	}
 	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"
 	} else {

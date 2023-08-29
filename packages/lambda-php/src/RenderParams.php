@@ -48,6 +48,7 @@ class RenderParams
     private $quality = null;
     private $maxRetries = 1;
     private $privacy = 'private';
+    private $colorSpace = 'default';
     private $logLevel = 'info';
     private $frameRange = null;
     private $timeoutInMilliseconds = 30000;
@@ -84,6 +85,7 @@ class RenderParams
         ?int $quality = null,
         int $maxRetries = 1,
         string $privacy = 'public',
+        string $colorSpace = 'default',
         string $logLevel = 'info',
         ?string $frameRange = null,
         ?string $outName = null,
@@ -120,6 +122,7 @@ class RenderParams
         $this->quality = $quality;
         $this->maxRetries = $maxRetries;
         $this->privacy = $privacy;
+        $this->colorSpace = $colorSpace;
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
@@ -159,6 +162,7 @@ class RenderParams
             'imageFormat' => $this->getImageFormat(),
             'maxRetries' => $this->getMaxRetries(),
             'privacy' => $this->getPrivacy(),
+            'colorSpace' => $this->getColorSpace(),
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
@@ -479,6 +483,26 @@ class RenderParams
     public function setPrivacy($privacy)
     {
         $this->privacy = $privacy;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of colorspace
+     */
+    public function getColorSpace()
+    {
+        return $this->colorSpace;
+    }
+
+    /**
+     * Set the value of colorSpace
+     *
+     * @return  self
+     */
+    public function setColorSpace($colorSpace)
+    {
+        $this->colorSpace = $colorSpace;
 
         return $this;
     }
