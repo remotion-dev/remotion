@@ -67,6 +67,7 @@ export const indexHtml = ({
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
 }) =>
+	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
 <!DOCTYPE html>
 <html lang="en">
