@@ -4,20 +4,19 @@ import type {RenderType} from '../../editor/components/RenderModal/RenderModalAd
 
 export const getDefaultCodecs = ({
 	defaultCodec,
-	isStill,
+	renderType,
 }: {
 	defaultCodec: Codec;
-	isStill: boolean;
+	renderType: RenderType;
 }): {
 	initialAudioCodec: Codec;
 	initialVideoCodec: Codec;
 	initialRenderType: RenderType;
 } => {
 	const isAudioCodec = BrowserSafeApis.isAudioCodec(defaultCodec);
-
 	return {
 		initialAudioCodec: isAudioCodec ? defaultCodec : 'mp3',
 		initialVideoCodec: isAudioCodec ? 'h264' : defaultCodec,
-		initialRenderType: isStill ? 'still' : isAudioCodec ? 'audio' : 'video',
+		initialRenderType: isAudioCodec ? 'audio' : renderType,
 	};
 };
