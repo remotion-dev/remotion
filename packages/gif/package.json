@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "4.0.26",
+	"version": "4.0.27",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {

@@ -57,8 +57,6 @@ export const useMediaInTimeline = ({
 		: videoConfig.durationInFrames;
 	const doesVolumeChange = typeof volume === 'function';
 
-	const environment = getRemotionEnvironment();
-
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
 			return volume;
@@ -94,7 +92,7 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (!environment.isStudio && process.env.NODE_ENV !== 'test') {
+		if (!getRemotionEnvironment().isStudio && process.env.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -135,7 +133,6 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 		playbackRate,
-		environment,
 	]);
 
 	useEffect(() => {
