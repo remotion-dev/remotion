@@ -12,7 +12,7 @@ export const validateOutputFilename = <T extends Codec>({
 }: {
 	codec: T;
 	audioCodec: AudioCodec | null;
-	extension: string;
+	extension: string | null;
 	preferLossless: boolean;
 }) => {
 	if (!defaultFileExtensionMap[codec]) {
