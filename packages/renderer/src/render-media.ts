@@ -37,6 +37,7 @@ import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import type {ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
@@ -124,6 +125,7 @@ export type InternalRenderMediaOptions = {
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
+	colorSpace: ColorSpace;
 } & ToOptions<typeof optionsMap.renderMedia>;
 
 export type RenderMediaOptions = {
@@ -177,6 +179,7 @@ export type RenderMediaOptions = {
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
+	colorSpace?: ColorSpace;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -229,6 +232,7 @@ const internalRenderMediaRaw = ({
 	logLevel,
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -427,6 +431,8 @@ const internalRenderMediaRaw = ({
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
 				indent,
+				x264Preset: x264Preset ?? null,
+				colorSpace,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -630,6 +636,7 @@ const internalRenderMediaRaw = ({
 						videoBitrate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
+						colorSpace,
 					}),
 					stitchStart,
 				]);
@@ -747,6 +754,7 @@ export const renderMedia = ({
 	quality,
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -806,5 +814,6 @@ export const renderMedia = ({
 			data: composition.props ?? {},
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		colorSpace: colorSpace ?? 'default',
 	});
 };

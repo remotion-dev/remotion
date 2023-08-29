@@ -5,6 +5,7 @@ import type {
 	CancelSignal,
 	ChromiumOptions,
 	Codec,
+	ColorSpace,
 	Crf,
 	FfmpegOverrideFn,
 	FrameRange,
@@ -94,6 +95,7 @@ export const renderVideoFlow = async ({
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -139,6 +141,7 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	if (browserExecutable) {
@@ -482,6 +485,7 @@ export const renderVideoFlow = async ({
 			staticBase: null,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 
 	updateRenderProgress({newline: true, printToConsole: true});
