@@ -34,6 +34,7 @@ pub struct OpenedStream {
     pub rotation: Rotate,
 }
 
+#[derive(Clone, Copy)]
 pub struct LastFrameInfo {
     index: usize,
     pts: i64,
@@ -76,10 +77,12 @@ impl OpenedStream {
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
         one_frame_in_time_base: i64,
+        previous_pts: Option<i64>,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<LastFrameInfo> = None;
+        let mut looped_pts = previous_pts;
         let mut offset = 0;
 
         loop {
@@ -117,7 +120,10 @@ impl OpenedStream {
                         id: frame_cache_id,
                         asked_time: position,
                         last_used: get_time(),
+                        previous_pts: looped_pts,
                     };
+
+                    looped_pts = video.pts();
 
                     frame_cache.lock()?.add_item(item);
                     latest_frame = Some(LastFrameInfo {
@@ -183,7 +189,15 @@ impl OpenedStream {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
+                    let data = self.handle_eof(
+                        position,
+                        frame_cache,
+                        one_frame_in_time_base,
+                        match freshly_seeked || self.last_position == 0 {
+                            true => None,
+                            false => Some(self.last_position),
+                        },
+                    )?;
                     if data.is_some() {
                         last_frame_received = data;
 
@@ -233,76 +247,74 @@ impl OpenedStream {
                 }
             }
 
-            loop {
-                self.video.send_packet(&packet)?;
-                let result = self.receive_frame();
+            self.video.send_packet(&packet)?;
+            let result = self.receive_frame();
 
-                match result {
-                    Ok(Some(video)) => unsafe {
-                        let linesize = (*video.as_ptr()).linesize;
-                        let frame_cache_id = get_frame_cache_id();
+            match result {
+                Ok(Some(video)) => unsafe {
+                    let linesize = (*video.as_ptr()).linesize;
+                    let frame_cache_id = get_frame_cache_id();
 
-                        let amount_of_planes = video.planes();
-                        let mut planes = Vec::with_capacity(amount_of_planes);
-                        for i in 0..amount_of_planes {
-                            planes.push(video.data(i).to_vec());
-                        }
+                    let amount_of_planes = video.planes();
+                    let mut planes = Vec::with_capacity(amount_of_planes);
+                    for i in 0..amount_of_planes {
+                        planes.push(video.data(i).to_vec());
+                    }
 
-                        let frame = NotRgbFrame {
-                            linesizes: linesize,
-                            planes,
-                            format: video.format(),
-                            original_height: self.original_height,
-                            original_width: self.original_width,
-                            scaled_height: self.scaled_height,
-                            scaled_width: self.scaled_width,
-                            rotate: self.rotation,
-                            original_src: self.original_src.clone(),
-                        };
+                    let frame = NotRgbFrame {
+                        linesizes: linesize,
+                        planes,
+                        format: video.format(),
+                        original_height: self.original_height,
+                        original_width: self.original_width,
+                        scaled_height: self.scaled_height,
+                        scaled_width: self.scaled_width,
+                        rotate: self.rotation,
+                        original_src: self.original_src.clone(),
+                    };
 
-                        self.last_position = video.pts().expect("expected pts");
+                    let item = FrameCacheItem {
+                        resolved_pts: video.pts().expect("expected pts"),
+                        frame: ScalableFrame::new(frame, self.transparent),
+                        id: frame_cache_id,
+                        asked_time: position,
+                        last_used: get_time(),
+                        previous_pts: match freshly_seeked || self.last_position == 0 {
+                            true => None,
+                            false => Some(self.last_position),
+                        },
+                    };
 
-                        let item = FrameCacheItem {
-                            resolved_pts: video.pts().expect("expected pts"),
-                            frame: ScalableFrame::new(frame, self.transparent),
-                            id: frame_cache_id,
-                            asked_time: position,
-                            last_used: get_time(),
-                        };
+                    self.last_position = video.pts().expect("expected pts");
+                    freshly_seeked = false;
 
-                        frame_cache.lock().unwrap().add_item(item);
+                    frame_cache.lock().unwrap().add_item(item);
 
-                        _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
+                    _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
 
-                        match stop_after_n_diverging_pts {
-                            Some(stop) => match last_frame_received {
-                                Some(last_frame) => {
-                                    let prev_difference = (last_frame.pts - position).abs();
-                                    let new_difference =
-                                        (video.pts().expect("pts") - position).abs();
+                    match stop_after_n_diverging_pts {
+                        Some(stop) => match last_frame_received {
+                            Some(last_frame) => {
+                                let prev_difference = (last_frame.pts - position).abs();
+                                let new_difference = (video.pts().expect("pts") - position).abs();
 
-                                    if new_difference > prev_difference {
-                                        stop_after_n_diverging_pts = Some(stop - 1);
-                                    }
+                                if new_difference > prev_difference {
+                                    stop_after_n_diverging_pts = Some(stop - 1);
                                 }
-                                None => {}
-                            },
+                            }
                             None => {}
-                        }
-
-                        last_frame_received = Some(LastFrameInfo {
-                            index: frame_cache_id,
-                            pts: video.pts().expect("pts"),
-                        });
-
-                        break;
-                    },
-                    Ok(None) => {
-                        break;
+                        },
+                        None => {}
                     }
-                    Err(err) => {
-                        return Err(err);
-                    }
+
+                    last_frame_received = Some(LastFrameInfo {
+                        index: frame_cache_id,
+                        pts: video.pts().expect("pts"),
+                    });
+                },
+                Ok(None) => {}
+                Err(err) => {
+                    return Err(err);
                 }
             }
         }
@@ -316,7 +328,7 @@ impl OpenedStream {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {} (original source = {})",
+                    "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/issue or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
                     position, self.src, self.original_src
                 ),
             ))?;
