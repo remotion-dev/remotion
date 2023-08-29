@@ -107,6 +107,7 @@ const Inner: React.FC<{
 
 	return (
 		<div style={outer}>
+			{/* might me worth it to render in here */}
 			<div ref={portalContainer} style={style} />
 		</div>
 	);

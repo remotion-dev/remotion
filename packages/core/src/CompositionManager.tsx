@@ -153,7 +153,10 @@ export const CompositionManagerProvider: React.FC<{
 		null,
 	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
-
+	const [currentAsset, setCurrentAsset] = useState<string | null>(null);
+	const [mediaType, setMediaType] = useState<'composition' | 'asset'>(
+		'composition',
+	);
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
@@ -162,6 +165,7 @@ export const CompositionManagerProvider: React.FC<{
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			updateComps: (comp: AnyComposition[]) => AnyComposition[],
 		) => {
+			setMediaType('composition');
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
 				currentcompositionsRef.current = updated;
@@ -245,6 +249,7 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
+			currentAsset,
 		};
 	}, [
 		compositions,
@@ -255,6 +260,7 @@ export const CompositionManagerProvider: React.FC<{
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
+		currentAsset,
 	]);
 
 	return (
