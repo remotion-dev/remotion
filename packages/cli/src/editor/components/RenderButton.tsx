@@ -75,7 +75,7 @@ export const RenderButton: React.FC = () => {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
 				defaultCodec: defaults.codec as Codec,
-				isStill: !isVideo,
+				renderType: isVideo ? 'video' : 'still',
 			});
 
 		setSelectedModal({

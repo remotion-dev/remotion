@@ -15,7 +15,7 @@ import {NumberSetting} from './NumberSetting';
 import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalHr} from './RenderModalHr';
 
-export type RenderType = 'still' | 'video' | 'audio';
+export type RenderType = 'still' | 'video' | 'audio' | 'sequence';
 
 const container: React.CSSProperties = {
 	flex: 1,
