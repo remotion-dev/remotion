@@ -134,7 +134,7 @@ jobs:
         include:
           - os: ubuntu-latest
             node_version: 16
-          - os: windows-latest
+          - os: windows-20230730.1.0
             node_version: 16
           - os: macos-latest
             node_version: 16
