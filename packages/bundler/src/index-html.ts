@@ -28,6 +28,7 @@ export type RenderDefaults = {
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	headless: boolean;
+	colorSpace: string;
 };
 
 declare global {

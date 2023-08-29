@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
+	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -63,6 +64,7 @@ export type RenderMediaOnCloudrunInput = {
 	concurrency?: number | string | null;
 	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
+	colorSpace?: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 const renderMediaOnCloudrunRaw = async ({
@@ -101,6 +103,7 @@ const renderMediaOnCloudrunRaw = async ({
 	enforceAudioTrack,
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -155,6 +158,7 @@ const renderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		colorSpace: colorSpace ?? 'default',
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

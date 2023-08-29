@@ -14,6 +14,7 @@ type RemotionOptions struct {
 	Quality                        int                    `json:"quality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
+	ColorSpace                     string                 `json:"colorSpace"`
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
@@ -53,6 +54,7 @@ type renderInternalOptions struct {
 	Quality                        int                    `json:"quality,omitempty"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
+	ColorSpace                     string                 `json:"colorSpace"`
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
