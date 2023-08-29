@@ -10,18 +10,22 @@ export type RemotionEnvironment = {
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	if (process.env.NODE_ENV === 'production') {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		// Check if inside a Remotion bundle
+		if (
+			typeof window !== 'undefined' &&
+			typeof window.remotion_setBundleMode !== 'undefined'
+		) {
 			return {
 				isStudio: false,
-				isRendering: false,
-				isPlayer: true,
+				isRendering: true,
+				isPlayer: false,
 			};
 		}
 
 		return {
 			isStudio: false,
-			isRendering: true,
-			isPlayer: false,
+			isRendering: false,
+			isPlayer: true,
 		};
 	}
 
