@@ -13,7 +13,7 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		// Check if inside a Remotion bundle
 		if (
 			typeof window !== 'undefined' &&
-			typeof window.remotion_setBundleMode !== 'undefined'
+			typeof window.remotion_editorName !== 'undefined'
 		) {
 			return {
 				isStudio: false,
