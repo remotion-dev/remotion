@@ -246,16 +246,6 @@ const internalRenderMediaRaw = ({
 	});
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
-	console.log('before validateOutputFilename in render media');
-	console.log(
-		'codec: ',
-		codec,
-		'audioCodec: ',
-		audioCodec,
-		'outputLocation: ',
-		outputLocation,
-	);
-	// doens't enter here when rendering sequence through cli
 	if (outputLocation) {
 		validateOutputFilename({
 			codec,

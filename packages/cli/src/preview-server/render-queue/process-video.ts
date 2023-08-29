@@ -26,9 +26,7 @@ export const processVideoJob = async ({
 			type: 'still',
 			remotionRoot,
 		});
-	console.log('after getCliOptions');
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
-	console.log('Job type: ', job.type);
 	await renderVideoFlow({
 		remotionRoot,
 		browser,
@@ -56,7 +54,7 @@ export const processVideoJob = async ({
 		everyNthFrame: job.type === 'video' ? job.everyNthFrame : 1,
 		frameRange: [job.startFrame, job.endFrame],
 		quiet: false,
-		shouldOutputImageSequence: false,
+		shouldOutputImageSequence: job.type === 'sequence',
 		addCleanupCallback,
 		outputLocationFromUI: job.outName,
 		uiCodec: job.type === 'video' ? job.codec : null,
