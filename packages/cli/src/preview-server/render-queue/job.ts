@@ -52,6 +52,18 @@ type RenderJobDynamicFields =
 			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			pixelFormat: PixelFormat;
+			disallowParallelEncoding: boolean;
+			offthreadVideoCacheSizeInBytes: number | null;
+	  } & RenderJobDynamicStatus)
+	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
 			jpegQuality: number | null;
@@ -101,6 +113,17 @@ type AddRenderRequestDynamicFields =
 			frame: number;
 			scale: number;
 			verbose: boolean;
+	  }
+	| {
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			verbose: boolean;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			disallowParallelEncoding: boolean;
 	  }
 	| {
 			type: 'video';

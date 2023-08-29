@@ -55,7 +55,11 @@ import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
 } from '../OptionsPanel';
-import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
+import {
+	addSequenceRenderJob,
+	addStillRenderJob,
+	addVideoRenderJob,
+} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';
@@ -748,6 +752,56 @@ const RenderModal: React.FC<
 		onClose,
 	]);
 
+	const onClickSequence = useCallback(() => {
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
+		dispatchIfMounted({type: 'start'});
+		addSequenceRenderJob({
+			compositionId: resolvedComposition.id,
+			outName,
+			imageFormat: videoImageFormat,
+			scale,
+			verbose,
+			concurrency,
+			endFrame,
+			jpegQuality,
+			startFrame,
+			delayRenderTimeout,
+			chromiumOptions,
+			envVariables: envVariablesArrayToObject(envVariables),
+			inputProps,
+			offthreadVideoCacheSizeInBytes,
+			disallowParallelEncoding,
+		})
+			.then(() => {
+				dispatchIfMounted({type: 'succeed'});
+				onClose();
+			})
+			.catch(() => {
+				dispatchIfMounted({type: 'fail'});
+			});
+	}, [
+		setSidebarCollapsedState,
+		dispatchIfMounted,
+		resolvedComposition.id,
+		outName,
+		videoImageFormat,
+		scale,
+		verbose,
+		concurrency,
+		endFrame,
+		jpegQuality,
+		startFrame,
+		delayRenderTimeout,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		offthreadVideoCacheSizeInBytes,
+		disallowParallelEncoding,
+		onClose,
+	]);
+
 	useEffect(() => {
 		return () => {
 			isMounted.current = false;
@@ -914,10 +968,12 @@ const RenderModal: React.FC<
 
 		if (renderMode === 'still') {
 			onClickStill();
+		} else if (renderMode === 'sequence') {
+			onClickSequence();
 		} else {
 			onClickVideo();
 		}
-	}, [onClickStill, onClickVideo, renderDisabled, renderMode]);
+	}, [onClickSequence, onClickStill, onClickVideo, renderDisabled, renderMode]);
 
 	useEffect(() => {
 		const enter = registerKeybinding({

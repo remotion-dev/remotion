@@ -16,7 +16,7 @@ export const processVideoJob = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
 }) => {
-	if (job.type !== 'video') {
+	if (job.type !== 'video' && job.type !== 'sequence') {
 		throw new Error('Expected video job');
 	}
 
@@ -26,8 +26,9 @@ export const processVideoJob = async ({
 			type: 'still',
 			remotionRoot,
 		});
-
+	console.log('after getCliOptions');
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
+	console.log('Job type: ', job.type);
 	await renderVideoFlow({
 		remotionRoot,
 		browser,
@@ -52,26 +53,27 @@ export const processVideoJob = async ({
 		onProgress,
 		indent: true,
 		concurrency: job.concurrency,
-		everyNthFrame: job.everyNthFrame,
+		everyNthFrame: job.type === 'video' ? job.everyNthFrame : 1,
 		frameRange: [job.startFrame, job.endFrame],
 		quiet: false,
 		shouldOutputImageSequence: false,
 		addCleanupCallback,
 		outputLocationFromUI: job.outName,
-		uiCodec: job.codec,
+		uiCodec: job.type === 'video' ? job.codec : null,
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
-		crf: job.crf,
+		crf: job.type === 'video' ? job.crf : null,
 		ffmpegOverride,
-		audioBitrate: job.audioBitrate,
-		muted: job.muted,
-		enforceAudioTrack: job.enforceAudioTrack,
-		proResProfile: job.proResProfile ?? undefined,
-		x264Preset: job.x264Preset ?? undefined,
+		audioBitrate: job.type === 'video' ? job.audioBitrate : null,
+		muted: job.type === 'video' ? job.muted : true, // or should we use false?
+		enforceAudioTrack: job.type === 'video' ? job.enforceAudioTrack : false,
+		proResProfile:
+			job.type === 'video' ? job.proResProfile ?? undefined : undefined,
+		x264Preset: job.type === 'video' ? job.x264Preset ?? undefined : undefined,
 		pixelFormat: job.pixelFormat,
-		videoBitrate: job.videoBitrate,
-		numberOfGifLoops: job.numberOfGifLoops,
-		audioCodec: job.audioCodec,
+		videoBitrate: job.type === 'video' ? job.videoBitrate : null,
+		numberOfGifLoops: job.type === 'video' ? job.numberOfGifLoops : null,
+		audioCodec: job.type === 'video' ? job.audioCodec : null,
 		disallowParallelEncoding: job.disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 	});

@@ -141,7 +141,6 @@ export const renderVideoFlow = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
-
 	if (browserExecutable) {
 		Log.verboseAdvanced(
 			{indent, logLevel},
