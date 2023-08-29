@@ -37,7 +37,6 @@ const getMissedFramesforCodec = async (
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
 
