@@ -147,7 +147,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - name: Uninstall Windows
         run: |
-          del C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
+          Remove-Item C:\Program Files\Google\Chrome\Application\chrome.exe
         if: matrix.os == 'windows-latest'
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
