@@ -537,6 +537,7 @@ const RenderModal: React.FC<
 	const setDefaultOutName = useCallback(
 		(
 			options:
+				| {type: 'sequence'}
 				| {type: 'still'; imageFormat: StillImageFormat}
 				| {
 						type: 'render';
@@ -549,6 +550,10 @@ const RenderModal: React.FC<
 					const newFileName =
 						getStringBeforeSuffix(prev) + '.' + options.imageFormat;
 					return newFileName;
+				});
+			} else if (options.type === 'sequence') {
+				setOutName((prev) => {
+					return prev;
 				});
 			} else {
 				setOutName((prev) => {
@@ -823,6 +828,10 @@ const RenderModal: React.FC<
 			if (newRenderMode === 'still') {
 				setDefaultOutName({type: 'still', imageFormat: stillImageFormat});
 			}
+
+			if (newRenderMode === 'sequence') {
+				setDefaultOutName({type: 'sequence'});
+			}
 		},
 		[
 			videoCodecForAudioTab,
@@ -872,6 +881,14 @@ const RenderModal: React.FC<
 				},
 				key: 'audio',
 				selected: renderMode === 'audio',
+			},
+			{
+				label: 'Sequence',
+				onClick: () => {
+					setRenderMode('sequence');
+				},
+				key: 'sequence',
+				selected: renderMode === 'sequence',
 			},
 		];
 	}, [resolvedComposition?.durationInFrames, renderMode, setRenderMode]);

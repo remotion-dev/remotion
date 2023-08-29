@@ -93,7 +93,7 @@ const isValidOutName = ({
 		});
 	}
 
-	if (prefix.length < 1) {
+	if (prefix.length < 1 && renderMode !== 'sequence') {
 		throw new Error('The prefix must be at least 1 character long');
 	}
 
@@ -115,5 +115,11 @@ const isValidOutName = ({
 		throw new Error(
 			`The extension ${extension} is not supported for still image format ${stillImageFormat}`,
 		);
+	}
+
+	if (renderMode === 'sequence') {
+		if (outName.includes('.')) {
+			throw new Error('Folder names must not contain a dot');
+		}
 	}
 };
