@@ -163,8 +163,6 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
     let color_space = unsafe { (*(*(stream).as_ptr()).codecpar).color_space };
 
-    _print_verbose(&format!("color_space {:?}", color_space));
-
     let codec_name = match codec_id {
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => KnownCodecs::H264,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => KnownCodecs::H265,
