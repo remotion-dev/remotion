@@ -272,6 +272,7 @@ const innerLaunchHandler = async (
 			},
 			resolvedProps: serializedResolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace,
 		};
 		return payload;
 	});

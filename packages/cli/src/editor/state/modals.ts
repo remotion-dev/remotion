@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
@@ -47,6 +48,7 @@ export type RenderModalState = {
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
+	initialColorSpace: ColorSpace;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

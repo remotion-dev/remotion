@@ -156,3 +156,7 @@ For example only every second frame, every third frame and so on. Only works for
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />

@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
@@ -101,6 +102,7 @@ export const SidebarRenderButton: React.FC<{
 				defaultProps: props[composition.id] ?? composition.defaultProps,
 				inFrameMark: null,
 				outFrameMark: null,
+				initialColorSpace: defaults.colorSpace as ColorSpace,
 			});
 		},
 		[

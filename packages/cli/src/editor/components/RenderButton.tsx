@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
@@ -123,6 +124,7 @@ export const RenderButton: React.FC = () => {
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
+			initialColorSpace: defaults.colorSpace as ColorSpace,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

@@ -74,5 +74,6 @@ export const processVideoJob = async ({
 		audioCodec: job.audioCodec,
 		disallowParallelEncoding: job.disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		colorSpace: job.colorSpace,
 	});
 };

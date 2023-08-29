@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	Codec,
+	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -271,6 +272,7 @@ export type LambdaStartPayload = {
 	forceWidth: number | null;
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
 };
 
 export type LambdaStatusPayload = {
@@ -324,6 +326,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+		colorSpace: ColorSpace;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -364,6 +367,7 @@ export type LambdaPayloads = {
 			version: string;
 		};
 		offthreadVideoCacheSizeInBytes: number | null;
+		colorSpace: ColorSpace;
 	};
 	still: {
 		type: LambdaRoutines.still;
