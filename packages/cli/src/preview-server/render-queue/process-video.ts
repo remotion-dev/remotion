@@ -63,16 +63,17 @@ export const processVideoJob = async ({
 		crf: job.type === 'video' ? job.crf : null,
 		ffmpegOverride,
 		audioBitrate: job.type === 'video' ? job.audioBitrate : null,
-		muted: job.type === 'video' ? job.muted : true, // or should we use false?
+		muted: job.type === 'video' ? job.muted : true,
 		enforceAudioTrack: job.type === 'video' ? job.enforceAudioTrack : false,
 		proResProfile:
 			job.type === 'video' ? job.proResProfile ?? undefined : undefined,
 		x264Preset: job.type === 'video' ? job.x264Preset ?? undefined : undefined,
-		pixelFormat: job.pixelFormat,
+		pixelFormat: job.type === 'video' ? job.pixelFormat : 'yuv420p',
 		videoBitrate: job.type === 'video' ? job.videoBitrate : null,
 		numberOfGifLoops: job.type === 'video' ? job.numberOfGifLoops : null,
 		audioCodec: job.type === 'video' ? job.audioCodec : null,
-		disallowParallelEncoding: job.disallowParallelEncoding,
+		disallowParallelEncoding:
+			job.type === 'video' ? job.disallowParallelEncoding : false,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 	});
 };

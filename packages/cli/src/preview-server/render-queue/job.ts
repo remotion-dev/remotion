@@ -59,8 +59,6 @@ type RenderJobDynamicFields =
 			concurrency: number;
 			startFrame: number;
 			endFrame: number;
-			pixelFormat: PixelFormat;
-			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
