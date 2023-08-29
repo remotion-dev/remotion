@@ -66,7 +66,6 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				id,
 				imageFormat: input.imageFormat,
 				outName: input.outName,
-				pixelFormat: 'yuv420p',
 				jpegQuality: input.jpegQuality,
 				scale: input.scale,
 				startedAt: Date.now(),
@@ -76,7 +75,6 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				endFrame: input.endFrame,
 				startFrame: input.startFrame,
 				delayRenderTimeout: input.delayRenderTimeout,
-				disallowParallelEncoding: input.disallowParallelEncoding,
 				chromiumOptions: input.chromiumOptions,
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
