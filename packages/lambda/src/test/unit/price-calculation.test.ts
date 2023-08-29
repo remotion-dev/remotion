@@ -30,6 +30,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			memorySizeInMb: 1024,
 			region: 'eu-central-1',
 			renderId: '123',
+			renderFolderExpiry: null,
 			siteId: 'my-site',
 			startedDate: aDate + 1000,
 			totalChunks: 20,
@@ -56,6 +57,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
+
 	});
 	expect(price).toBeGreaterThanOrEqual(0);
 });

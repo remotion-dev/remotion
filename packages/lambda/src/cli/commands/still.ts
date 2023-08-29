@@ -17,6 +17,7 @@ import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
+import { stringToEnum } from '../../functions/helpers/lifecycle';
 
 export const STILL_COMMAND = 'still';
 
@@ -49,6 +50,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		offthreadVideoCacheSizeInBytes,
+		
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -132,6 +134,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		),
 	);
 
+	const renderFolderExpiry = stringToEnum({
+		value: parsedLambdaCli['render-folder-expiry-in-days']
+	})
+
 	const res = await renderStillOnLambda({
 		functionName,
 		serveUrl,
@@ -155,6 +161,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
 			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
 		},
+		renderFolderExpiry,
 	});
 
 	if (downloadName) {
@@ -164,6 +171,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
+			renderFolderExpiry
 		});
 		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 	} else {

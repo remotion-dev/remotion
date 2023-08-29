@@ -54,6 +54,7 @@ export const getCompositionsOnLambda = async ({
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
+	
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 

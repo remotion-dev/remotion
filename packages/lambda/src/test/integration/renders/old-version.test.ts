@@ -62,6 +62,7 @@ test('Should fail when using an incompatible version', async () => {
 				audioCodec: null,
 				renderId: 'test',
 				offthreadVideoCacheSizeInBytes: null,
+				renderFolderExpiry: null
 			},
 			functionName: 'remotion-dev-render',
 			receivedStreamingPayload: () => undefined,

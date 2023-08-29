@@ -7,6 +7,7 @@ import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-pro
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
+import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
 
 export type DownloadMediaInput = {
 	region: AwsRegion;
@@ -15,6 +16,7 @@ export type DownloadMediaInput = {
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
 	customCredentials?: CustomCredentials;
+	renderFolderExpiry: RenderExpiryDays | null ;
 };
 
 export type DownloadMediaOutput = {
@@ -45,6 +47,7 @@ export const downloadMedia = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
+		renderFolderExpiry: input.renderFolderExpiry
 	});
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);

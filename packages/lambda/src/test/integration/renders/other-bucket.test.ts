@@ -67,6 +67,7 @@ test('Should be able to render to another bucket', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
+			renderFolderExpiry: null
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -81,6 +82,7 @@ test('Should be able to render to another bucket', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
+			renderFolderExpiry: null
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,

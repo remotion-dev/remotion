@@ -37,6 +37,7 @@ const testRenderMetadata: RenderMetadata = {
 	everyNthFrame: 1,
 	frameRange: [0, 199],
 	audioCodec: null,
+	renderFolderExpiry: null
 };
 
 test('Should get a custom outname', () => {

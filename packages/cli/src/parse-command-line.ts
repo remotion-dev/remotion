@@ -72,6 +72,8 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	['audio-codec']: AudioCodec;
+	['render-folder-expiry-in-days']: string | undefined;
 };
 
 export const BooleanFlags = [
@@ -261,6 +263,13 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {
 		Config.setOffthreadVideoCacheSizeInBytes(
 			parsedCli['offthreadvideo-cache-size-in-bytes'],
+		);
+	}
+
+
+	if (typeof parsedCli['render-folder-expiry-in-days'] !== 'undefined') {
+		Config.setRenderFolderExpiryInDays(
+			parsedCli['render-folder-expiry-in-days'],
 		);
 	}
 };

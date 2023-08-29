@@ -33,6 +33,7 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
+	['render-folder-expiry-in-days']: string | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

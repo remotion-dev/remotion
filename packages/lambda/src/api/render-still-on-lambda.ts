@@ -18,6 +18,7 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
+import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -49,6 +50,8 @@ export type RenderStillOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
+	// TODO 
+	renderFolderExpiry: RenderExpiryDays | null 
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
@@ -85,6 +88,7 @@ const renderStillOnLambdaRaw = async ({
 	dumpBrowserLogs,
 	onInit,
 	offthreadVideoCacheSizeInBytes,
+	renderFolderExpiry
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -128,6 +132,7 @@ const renderStillOnLambdaRaw = async ({
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				renderFolderExpiry
 			},
 			region,
 			receivedStreamingPayload: (payload) => {

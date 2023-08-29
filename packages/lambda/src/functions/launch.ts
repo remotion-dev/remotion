@@ -272,6 +272,7 @@ const innerLaunchHandler = async (
 			},
 			resolvedProps: serializedResolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			renderFolderExpiry: params.renderFolderExpiry
 		};
 		return payload;
 	});
@@ -308,6 +309,7 @@ const innerLaunchHandler = async (
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
 		audioCodec: params.audioCodec,
+		renderFolderExpiry: params.renderFolderExpiry
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -347,7 +349,7 @@ const innerLaunchHandler = async (
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: renderMetadataKey(params.renderId),
+		key: renderMetadataKey(params.renderId, params.renderFolderExpiry),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
@@ -379,7 +381,7 @@ const innerLaunchHandler = async (
 
 		lambdaWriteFile({
 			bucketName: params.bucketName,
-			key: encodingProgressKey(params.renderId),
+			key: encodingProgressKey(params.renderId, params.renderFolderExpiry),
 			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
@@ -406,6 +408,7 @@ const innerLaunchHandler = async (
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
+				renderFolderExpiry: params.renderFolderExpiry
 			});
 		});
 	};
@@ -445,6 +448,7 @@ const innerLaunchHandler = async (
 		expectedFiles: chunkCount,
 		outdir,
 		renderId: params.renderId,
+		renderFolderExpiry: params.renderFolderExpiry,
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
@@ -477,13 +481,13 @@ const innerLaunchHandler = async (
 
 	const contents = await lambdaLs({
 		bucketName: params.bucketName,
-		prefix: rendersPrefix(params.renderId),
+		prefix: rendersPrefix(params.renderId, params.renderFolderExpiry),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 	});
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: encodingProgressKey(params.renderId),
+		key: encodingProgressKey(params.renderId, params.renderFolderExpiry),
 		body: String(Math.ceil(frameCount.length / ENCODING_PROGRESS_STEP_SIZE)),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
@@ -498,11 +502,13 @@ const innerLaunchHandler = async (
 		bucket: params.bucketName,
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
+		renderFolderExpiry: params.renderFolderExpiry
 	});
 
 	const jobs = getFilesToDelete({
 		chunkCount,
 		renderId: params.renderId,
+		renderFolderExpiry: params.renderFolderExpiry,
 	});
 
 	const deletProm = verbose
@@ -534,6 +540,7 @@ const innerLaunchHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
+		renderFolderExpiry: params.renderFolderExpiry,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
@@ -559,10 +566,11 @@ const innerLaunchHandler = async (
 		postRenderData,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
+		renderFolderExpiry: params.renderFolderExpiry
 	});
 	await lambdaDeleteFile({
 		bucketName: params.bucketName,
-		key: initalizedMetadataKey(params.renderId),
+		key: initalizedMetadataKey(params.renderId, params.renderFolderExpiry),
 		region: getCurrentRegionInFunction(),
 		customCredentials: null,
 	});
@@ -620,6 +628,7 @@ export const launchHandler = async (
 						},
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
+						renderFolderExpiry: params.renderFolderExpiry
 					});
 					RenderInternals.Log.error('Failed to invoke webhook:');
 					RenderInternals.Log.error(err);
@@ -680,6 +689,7 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
+					renderFolderExpiry: params.renderFolderExpiry
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(err);
@@ -712,6 +722,7 @@ export const launchHandler = async (
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
+			renderFolderExpiry: params.renderFolderExpiry
 		});
 		clearTimeout(webhookDueToTimeout);
 		if (params.webhook && !webhookInvoked) {
@@ -755,6 +766,7 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
+					renderFolderExpiry: params.renderFolderExpiry
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(error);

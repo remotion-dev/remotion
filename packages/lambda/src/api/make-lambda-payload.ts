@@ -53,6 +53,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	jpegQuality,
 	quality,
 	offthreadVideoCacheSizeInBytes,
+	renderFolderExpiry
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
 		throw new Error(
@@ -121,6 +122,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		renderFolderExpiry: renderFolderExpiry ?? null
 	};
 };
 
@@ -128,6 +130,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
+	renderFolderExpiry
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
@@ -135,5 +138,6 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
+		renderFolderExpiry
 	};
 };

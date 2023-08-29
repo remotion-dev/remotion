@@ -15,6 +15,7 @@ import {inspectErrors} from './inspect-errors';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 import type {EnhancedErrorInfo} from './write-lambda-error';
+import type { RenderExpiryDays } from './lifecycle';
 
 const getChunkDownloadOutputLocation = ({
 	outdir,
@@ -65,6 +66,7 @@ export const getAllFilesS3 = ({
 	region,
 	expectedBucketOwner,
 	onErrors,
+	renderFolderExpiry
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -73,12 +75,13 @@ export const getAllFilesS3 = ({
 	region: AwsRegion;
 	expectedBucketOwner: string;
 	onErrors: (errors: EnhancedErrorInfo[]) => void;
+	renderFolderExpiry: RenderExpiryDays | null;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
 
 	const getFiles = async () => {
-		const prefix = rendersPrefix(renderId);
+		const prefix = rendersPrefix(renderId, renderFolderExpiry);
 		const lsTimer = timer('Listing files');
 		const contents = await lambdaLs({
 			bucketName: bucket,
@@ -89,10 +92,10 @@ export const getAllFilesS3 = ({
 		lsTimer.end();
 		return {
 			filesInBucket: contents
-				.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
+				.filter((c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiry)))
 				.map((_) => _.Key as string),
 			errorContents: contents.filter(
-				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)),
+				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId, renderFolderExpiry)),
 			),
 		};
 	};
@@ -128,6 +131,7 @@ export const getAllFilesS3 = ({
 					expectedBucketOwner,
 					region,
 					renderId,
+					renderFolderExpiry
 				})
 			).filter((e) => e.isFatal);
 
