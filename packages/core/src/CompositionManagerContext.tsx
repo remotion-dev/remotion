@@ -25,6 +25,7 @@ export type CompositionManagerContext = {
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
+	currentAsset: string | null;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -38,4 +39,5 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	setCurrentCompositionMetadata: () => undefined,
 	folders: [],
 	currentCompositionMetadata: null,
+	currentAsset: null,
 });
