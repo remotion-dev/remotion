@@ -1,3 +1,4 @@
+import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
@@ -11,6 +12,7 @@ export type GetRenderProgressInput = {
 	renderId: string;
 	region: AwsRegion;
 	s3OutputProvider?: CustomCredentials;
+	renderFolderExpiry: RenderExpiryDays | null;
 };
 
 /**

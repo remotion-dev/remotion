@@ -3,6 +3,7 @@ import {lambdaTimingsPrefix} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
+import type { RenderExpiryDays } from './lifecycle';
 
 const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
 	if (parsedTimings.length === 0) {
@@ -22,13 +23,15 @@ export const calculateChunkTimes = ({
 	contents,
 	renderId,
 	type,
+	renderFolderExpiry
 }: {
 	contents: _Object[];
 	renderId: string;
 	type: 'combined-time-for-cost-calculation' | 'absolute-time';
+	renderFolderExpiry: RenderExpiryDays | null
 }) => {
 	const parsedTimings = contents
-		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)))
+		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId, renderFolderExpiry)))
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
 	const absoluteTime = getAbsoluteTime(parsedTimings);

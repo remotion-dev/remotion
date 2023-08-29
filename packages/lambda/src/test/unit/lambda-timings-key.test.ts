@@ -7,6 +7,7 @@ test('Lambda timinings key', () => {
 		attempt: 1,
 		chunk: 1,
 		renderId: 'abcdef',
+		renderFolderExpiry: null
 	});
 	expect(parseLambdaInitializedKey(key)).toEqual({
 		attempt: 1,

@@ -154,11 +154,12 @@ const innerStillHandler = async ({
 		everyNthFrame: 1,
 		frameRange: [lambdaParams.frame, lambdaParams.frame],
 		audioCodec: null,
+		renderFolderExpiry: lambdaParams.renderFolderExpiry
 	};
 
 	await lambdaWriteFile({
 		bucketName,
-		key: renderMetadataKey(renderId),
+		key: renderMetadataKey(renderId, lambdaParams.renderFolderExpiry),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
@@ -325,6 +326,7 @@ export const stillHandler = async (
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: options.renderId,
+			renderFolderExpiry: params.renderFolderExpiry
 		});
 
 		return res;

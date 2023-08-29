@@ -34,6 +34,7 @@ import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 import {getX264Preset} from './x264-preset';
+import { getRenderFolderExpiryInDays, setRenderFolderExpiryInDays } from './render-folder-expiry';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
@@ -404,6 +405,8 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
+
+	  setRenderFolderExpiryInDays: (day: string | null) => void
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -516,6 +519,7 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
+	setRenderFolderExpiryInDays
 };
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
@@ -571,4 +575,6 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
+	getRenderFolderExpiryInDays
+
 };

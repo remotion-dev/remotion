@@ -177,6 +177,7 @@ export type RenderMediaOptions = {
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
+	renderFolderExpiry?: string | null;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -229,6 +230,7 @@ const internalRenderMediaRaw = ({
 	logLevel,
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
+
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});

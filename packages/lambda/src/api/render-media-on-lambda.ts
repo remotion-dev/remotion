@@ -19,6 +19,8 @@ import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
+import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
+
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -65,6 +67,9 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+
+	renderFolderExpiry: RenderExpiryDays | null 
+
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -101,8 +106,11 @@ const renderMediaOnLambdaRaw = async (
 				chunk: null,
 			}),
 			folderInS3Console: getS3RenderUrl({
+			
 				bucketName: res.bucketName,
+					// append the new path 
 				renderId: res.renderId,
+
 				region,
 			}),
 		};
