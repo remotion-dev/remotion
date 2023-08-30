@@ -182,10 +182,12 @@ export const AssetSelectorItem: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
-		// const relativePath = parentFolder + item.name;
+		const relativePath = parentFolder
+			? parentFolder + '/' + item.name
+			: item.name;
 		setMediaType('asset');
-		setCurrentAsset(item.name);
-	}, [item.name, setCurrentAsset, setMediaType]);
+		setCurrentAsset(relativePath);
+	}, [item.name, parentFolder, setCurrentAsset, setMediaType]);
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
