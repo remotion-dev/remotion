@@ -159,12 +159,8 @@ impl OpenedStream {
             _ => self.duration_or_zero.min(position),
         };
 
-        let should_seek = match self.last_position {
-            Some(last_position) => {
-                position < last_position || last_position < calc_position(time - 3.0, time_base)
-            }
-            None => true,
-        };
+        let should_seek = position < self.last_position.unwrap_or(0)
+            || self.last_position.unwrap_or(0) < calc_position(time - 3.0, time_base);
 
         if should_seek {
             _print_verbose(&format!(
