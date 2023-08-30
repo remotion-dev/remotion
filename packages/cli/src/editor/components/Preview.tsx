@@ -1,14 +1,9 @@
+import type {VideoMetadata} from '@remotion/media-utils';
+import {getVideoMetadata} from '@remotion/media-utils';
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {
-	Audio,
-	Img,
-	Internals,
-	staticFile,
-	useVideoConfig,
-	Video,
-} from 'remotion';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {Internals, staticFile, useVideoConfig} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -20,16 +15,14 @@ import {PreviewSizeContext} from '../state/preview-size';
 
 const getFileType = (fileName: string | null) => {
 	if (!fileName) {
-		throw new Error('File name is null');
+		return 'other';
 	}
 
-	console.log('Filename: ', fileName);
 	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
 	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov'];
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
-	console.log('fileextension; ', fileExtension);
 	if (fileExtension === undefined) {
 		throw new Error('File extension is undefined');
 	}
@@ -78,27 +71,31 @@ const containerStyle = (options: {
 	};
 };
 
-const AssetComponent: React.FC = () => {
-	const {currentAsset} = useContext(Internals.CompositionManager);
+const AssetComponent: React.FC<{currentAsset: string | null}> = ({
+	currentAsset,
+}) => {
 	const fileType = getFileType(currentAsset);
+
 	if (!currentAsset) {
 		return <div />;
 	}
 
+	const staticFileSrc = staticFile(currentAsset);
+
 	if (fileType === 'audio') {
 		return (
 			<div>
-				<Audio src={staticFile(currentAsset)} />
+				<audio src={staticFileSrc} controls />
 			</div>
 		);
 	}
 
 	if (fileType === 'video') {
-		return <Video src={staticFile(currentAsset)} />;
+		return <video src={staticFileSrc} controls />;
 	}
 
 	if (fileType === 'image') {
-		return <Img src={staticFile(currentAsset)} />;
+		return <img src={staticFileSrc} />;
 	}
 
 	return <div> No file found</div>;
@@ -108,24 +105,64 @@ const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
-
+	const {currentAsset} = useContext(Internals.CompositionManager);
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const {mediaType} = useContext(Internals.CompositionManager);
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
+	const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
+	console.log('mediatype: ', mediaType, 'metadata: ', metadata);
+	useEffect(() => {
+		const fetchMetadata = async () => {
+			const fileType = getFileType(currentAsset);
+			if (fileType !== 'video' || !currentAsset) {
+				return;
+			}
 
-	const {centerX, centerY, yCorrection, xCorrection, scale} =
-		PlayerInternals.calculateCanvasTransformation({
+			const assetSrc = staticFile(currentAsset);
+			await getVideoMetadata(assetSrc).then((data) => {
+				setMetadata(data);
+			});
+		};
+
+		fetchMetadata();
+	}, [currentAsset]);
+
+	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
+		if (metadata && mediaType === 'asset') {
+			return PlayerInternals.calculateCanvasTransformation({
+				canvasSize,
+				compositionHeight: metadata.height,
+				compositionWidth: metadata.width,
+				previewSize: previewSize.size,
+			});
+		}
+
+		return PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
 			previewSize: previewSize.size,
 		});
+	}, [
+		canvasSize,
+		config.height,
+		config.width,
+		mediaType,
+		metadata,
+		previewSize.size,
+	]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
-			width: config.width * scale,
-			height: config.height * scale,
+			width:
+				metadata && mediaType === 'asset'
+					? metadata.width * scale
+					: config.width * scale,
+			height:
+				metadata && mediaType === 'asset'
+					? metadata.height * scale
+					: config.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
@@ -138,6 +175,8 @@ const Inner: React.FC<{
 		centerY,
 		config.height,
 		config.width,
+		mediaType,
+		metadata,
 		previewSize.translation.x,
 		previewSize.translation.y,
 		scale,
@@ -172,7 +211,7 @@ const Inner: React.FC<{
 	return (
 		<div style={outer}>
 			{mediaType === 'asset' ? (
-				<AssetComponent />
+				<AssetComponent currentAsset={currentAsset} />
 			) : (
 				<div ref={portalContainer} style={style} />
 			)}
