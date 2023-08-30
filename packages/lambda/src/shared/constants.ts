@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	Codec,
+	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -14,6 +15,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
+import type {RenderExpiryDays} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -23,7 +25,6 @@ import type {
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaCodec} from './validate-lambda-codec';
-import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -56,93 +57,120 @@ export const ENCODING_PROGRESS_STEP_SIZE = 100;
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
-export const rendersPrefix = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) => `renders/${renderFolderExpiry}days/${renderId}`;
-export const encodingProgressKey = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/encoding-progress.json`;
-export const renderMetadataKey = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/pre-render-metadata.json`;
-export const initalizedMetadataKey = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/initialized.txt`;
-export const lambdaChunkInitializedPrefix = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/lambda-initialized`;
+export const rendersPrefix = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `renders/${renderFolderExpiry}days/${renderId}`;
+export const encodingProgressKey = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/encoding-progress.json`;
+export const renderMetadataKey = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/pre-render-metadata.json`;
+export const initalizedMetadataKey = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/initialized.txt`;
+export const lambdaChunkInitializedPrefix = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/lambda-initialized`;
 export const lambdaChunkInitializedKey = ({
 	renderId,
 	chunk,
 	attempt,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	attempt: number;
 	renderId: string;
 	chunk: number;
-	renderFolderExpiry: RenderExpiryDays | null
+	renderFolderExpiry: RenderExpiryDays | null;
 }) =>
 	`${lambdaChunkInitializedPrefix(
 		renderId,
-		renderFolderExpiry
+		renderFolderExpiry,
 	)}-chunk:${chunk}-attempt:${attempt}.txt`;
-export const lambdaTimingsPrefix = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/lambda-timings/chunk:`;
+export const lambdaTimingsPrefix = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/lambda-timings/chunk:`;
 
-export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number, renderFolderExpiry: RenderExpiryDays | null) =>
-	lambdaTimingsPrefix(renderId, renderFolderExpiry) + String(chunk).padStart(8, '0');
+export const lambdaTimingsPrefixForChunk = (
+	renderId: string,
+	chunk: number,
+	renderFolderExpiry: RenderExpiryDays | null,
+) =>
+	lambdaTimingsPrefix(renderId, renderFolderExpiry) +
+	String(chunk).padStart(8, '0');
 
 export const lambdaLogsPrefix = (
 	renderId: string,
 	chunk: number,
 	startFrame: number,
 	endFrame: number,
-	renderFolderExpiry: RenderExpiryDays | null
-// eslint-disable-next-line max-params
+	renderFolderExpiry: RenderExpiryDays | null,
+	// eslint-disable-next-line max-params
 ) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/logs/chunk:${String(chunk).padStart(
-		8,
-		'0',
-	)}:frames:${startFrame}-${endFrame}.json`;
+	`${rendersPrefix(renderId, renderFolderExpiry)}/logs/chunk:${String(
+		chunk,
+	).padStart(8, '0')}:frames:${startFrame}-${endFrame}.json`;
 
 export const lambdaTimingsKey = ({
 	renderId,
 	chunk,
 	start,
 	rendered,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	renderId: string;
 	chunk: number;
 	start: number;
 	rendered: number;
-	renderFolderExpiry: RenderExpiryDays | null
+	renderFolderExpiry: RenderExpiryDays | null;
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
 		chunk,
-		renderFolderExpiry
+		renderFolderExpiry,
 	)}-start:${start}-rendered:${rendered}.txt`;
-export const chunkKey = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/chunks/chunk`;
+export const chunkKey = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
 	renderId,
 	index,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	renderId: string;
 	index: number;
-	renderFolderExpiry: RenderExpiryDays | null
-}) => `${chunkKey(renderId, renderFolderExpiry)}:${String(index).padStart(8, '0')}`;
+	renderFolderExpiry: RenderExpiryDays | null;
+}) =>
+	`${chunkKey(renderId, renderFolderExpiry)}:${String(index).padStart(8, '0')}`;
 
-export const getErrorKeyPrefix = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/errors/`;
+export const getErrorKeyPrefix = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/errors/`;
 
 export const getErrorFileName = ({
 	renderId,
 	chunk,
 	attempt,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	renderId: string;
 	chunk: number | null;
 	attempt: number;
-	renderFolderExpiry: RenderExpiryDays | null
-}) => getErrorKeyPrefix(renderId, renderFolderExpiry) + ':chunk-' + chunk + ':attempt-' + attempt;
+	renderFolderExpiry: RenderExpiryDays | null;
+}) =>
+	getErrorKeyPrefix(renderId, renderFolderExpiry) +
+	':chunk-' +
+	chunk +
+	':attempt-' +
+	attempt;
 
 export type OutNameInput =
 	| string
@@ -167,15 +195,21 @@ export type OutNameOutput = {
 };
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const outName = (renderId: string, extension: string, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/out.${extension}`;
-export const outStillName = (renderId: string, imageFormat: StillImageFormat, renderFolderExpiry: RenderExpiryDays | null) =>
-	`${rendersPrefix(renderId, renderFolderExpiry)}/out.${imageFormat}`;
+export const outName = (
+	renderId: string,
+	extension: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/out.${extension}`;
+export const outStillName = (
+	renderId: string,
+	imageFormat: StillImageFormat,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => `${rendersPrefix(renderId, renderFolderExpiry)}/out.${imageFormat}`;
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
 	name: OutNameInput,
-	renderFolderExpiry: RenderExpiryDays | null
+	renderFolderExpiry: RenderExpiryDays | null,
 ): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {
@@ -192,8 +226,14 @@ export const customOutName = (
 	};
 };
 
-export const postRenderDataKey = (renderId: string, renderFolderExpiry: RenderExpiryDays | null) => {
-	return `${rendersPrefix(renderId, renderFolderExpiry)}/post-render-metadata.json`;
+export const postRenderDataKey = (
+	renderId: string,
+	renderFolderExpiry: RenderExpiryDays | null,
+) => {
+	return `${rendersPrefix(
+		renderId,
+		renderFolderExpiry,
+	)}/post-render-metadata.json`;
 };
 
 export const defaultPropsKey = (hash: string) => {
@@ -285,8 +325,9 @@ export type LambdaStartPayload = {
 	forceWidth: number | null;
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
-	renderFolderExpiry: RenderExpiryDays | null ;
-	
+	renderFolderExpiry: RenderExpiryDays | null;
+
+	colorSpace: ColorSpace;
 };
 
 export type LambdaStatusPayload = {
@@ -295,7 +336,7 @@ export type LambdaStatusPayload = {
 	renderId: string;
 	version: string;
 	s3OutputProvider?: CustomCredentials;
-	renderFolderExpiry: RenderExpiryDays | null ;
+	renderFolderExpiry: RenderExpiryDays | null;
 };
 
 export type LambdaPayloads = {
@@ -342,6 +383,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		renderFolderExpiry: RenderExpiryDays | null;
+		colorSpace: ColorSpace;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -383,6 +425,7 @@ export type LambdaPayloads = {
 		};
 		offthreadVideoCacheSizeInBytes: number | null;
 		renderFolderExpiry: RenderExpiryDays | null;
+		colorSpace: ColorSpace;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -420,7 +463,6 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
-		
 	};
 };
 

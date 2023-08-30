@@ -27,6 +27,7 @@ class RenderParams:
     quality: Optional[int] = None
     max_retries: int = 1
     privacy: str = 'public'
+    color_space: str = 'default'
     log_level: str = 'info'
     frame_range: Optional[str] = None
     timeout_in_milliseconds: Optional[int] = 30000
@@ -65,6 +66,7 @@ class RenderParams:
             'imageFormat': self.image_format,
             'maxRetries': self.max_retries,
             'privacy': self.privacy,
+            'colorSpace': self.color_space,
             'logLevel': self.log_level,
             'frameRange': self.frame_range,
             'outName': self.out_name,

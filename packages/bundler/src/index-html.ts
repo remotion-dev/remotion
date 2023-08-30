@@ -28,6 +28,7 @@ export type RenderDefaults = {
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	headless: boolean;
+	colorSpace: string;
 };
 
 declare global {
@@ -67,6 +68,7 @@ export const indexHtml = ({
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
 }) =>
+	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
 <!DOCTYPE html>
 <html lang="en">

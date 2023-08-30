@@ -44,7 +44,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const {renderFolderExpiry} = params
+	const {renderFolderExpiry} = params;
 	const renderId = randomHash({randomInTests: true});
 
 	const initialFile = lambdaWriteFile({
@@ -96,7 +96,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
-		renderFolderExpiry: params.renderFolderExpiry
+		renderFolderExpiry: params.renderFolderExpiry,
+		colorSpace: params.colorSpace,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone

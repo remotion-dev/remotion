@@ -64,6 +64,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		videoBitrate,
 		numberOfGifLoops,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -123,5 +124,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		audioCodec,
 		disallowParallelEncoding: false,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 };

@@ -36,6 +36,7 @@ test('Should return video metadata', async () => {
 		canPlayInVideoTag: true,
 		codec: 'h264',
 		supportsSeeking: true,
+		colorSpace: 'bt601',
 	});
 });
 

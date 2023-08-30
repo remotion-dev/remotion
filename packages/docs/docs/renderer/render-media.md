@@ -405,6 +405,10 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
+
 ### ~~`parallelism?`~~
 
 Renamed to `concurrency` in v3.2.17.

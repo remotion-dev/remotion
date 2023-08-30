@@ -9,7 +9,6 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	remotionRoot,
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
-
 	if (input.type === 'video') {
 		addJob({
 			entryPoint,
@@ -45,6 +44,38 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				numberOfGifLoops: input.numberOfGifLoops,
 				delayRenderTimeout: input.delayRenderTimeout,
 				disallowParallelEncoding: input.disallowParallelEncoding,
+				chromiumOptions: input.chromiumOptions,
+				envVariables: input.envVariables,
+				serializedInputPropsWithCustomSchema:
+					input.serializedInputPropsWithCustomSchema,
+				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
+				colorSpace: input.colorSpace,
+			},
+		});
+	}
+
+	if (input.type === 'sequence') {
+		addJob({
+			entryPoint,
+			remotionRoot,
+			job: {
+				cleanup: [],
+				compositionId: input.compositionId,
+				deletedOutputLocation: false,
+				type: 'sequence',
+				status: 'idle',
+				id,
+				imageFormat: input.imageFormat,
+				outName: input.outName,
+				jpegQuality: input.jpegQuality,
+				scale: input.scale,
+				startedAt: Date.now(),
+				verbose: input.verbose,
+				cancelToken: makeCancelSignal(),
+				concurrency: input.concurrency,
+				endFrame: input.endFrame,
+				startFrame: input.startFrame,
+				delayRenderTimeout: input.delayRenderTimeout,
 				chromiumOptions: input.chromiumOptions,
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:

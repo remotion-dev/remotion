@@ -63,7 +63,8 @@ test('Should add silent audio if there is no audio', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
-			renderFolderExpiry: null
+			renderFolderExpiry: null,
+			colorSpace: 'default',
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -78,7 +79,7 @@ test('Should add silent audio if there is no audio', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
-			renderFolderExpiry: null
+			renderFolderExpiry: null,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
