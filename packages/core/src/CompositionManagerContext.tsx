@@ -26,6 +26,9 @@ export type CompositionManagerContext = {
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
 	currentAsset: string | null;
+	setCurrentAsset: (asset: string) => void;
+	mediaType: 'composition' | 'asset';
+	setMediaType: (mediaType: 'composition' | 'asset') => void;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -40,4 +43,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	folders: [],
 	currentCompositionMetadata: null,
 	currentAsset: null,
+	mediaType: 'composition',
+	setCurrentAsset: () => undefined,
+	setMediaType: () => undefined,
 });

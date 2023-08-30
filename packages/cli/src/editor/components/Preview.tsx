@@ -1,7 +1,7 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals, staticFile, useVideoConfig, Video} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -40,13 +40,25 @@ const containerStyle = (options: {
 	};
 };
 
+const AssetComponent: React.FC<{style: React.CSSProperties}> = ({style}) => {
+	console.log(style);
+	const {currentAsset} = useContext(Internals.CompositionManager);
+	if (!currentAsset) {
+		return <div />;
+	}
+
+	// const src =
+	// 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+	return <Video src={staticFile(currentAsset)} />;
+};
+
 const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
-
+	const {mediaType} = useContext(Internals.CompositionManager);
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
 
@@ -107,8 +119,11 @@ const Inner: React.FC<{
 
 	return (
 		<div style={outer}>
-			{/* might me worth it to render in here */}
-			<div ref={portalContainer} style={style} />
+			{mediaType === 'asset' ? (
+				<AssetComponent style={style} />
+			) : (
+				<div ref={portalContainer} style={style} />
+			)}
 		</div>
 	);
 };

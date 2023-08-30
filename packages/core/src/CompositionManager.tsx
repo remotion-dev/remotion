@@ -250,6 +250,9 @@ export const CompositionManagerProvider: React.FC<{
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
 			currentAsset,
+			setCurrentAsset,
+			mediaType,
+			setMediaType,
 		};
 	}, [
 		compositions,
@@ -261,6 +264,9 @@ export const CompositionManagerProvider: React.FC<{
 		unregisterFolder,
 		currentCompositionMetadata,
 		currentAsset,
+		setCurrentAsset,
+		mediaType,
+		setMediaType,
 	]);
 
 	return (

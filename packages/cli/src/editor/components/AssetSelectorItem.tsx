@@ -1,5 +1,5 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import type {StaticFile} from 'remotion';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {Internals, type StaticFile} from 'remotion';
 import {truthy} from '../../truthy';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
@@ -174,10 +174,18 @@ export const AssetSelectorItem: React.FC<{
 		setHovered(true);
 	}, []);
 
+	const {setCurrentAsset, setMediaType} = useContext(
+		Internals.CompositionManager,
+	);
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
 
+	const onClick = useCallback(() => {
+		// const relativePath = parentFolder + item.name;
+		setMediaType('asset');
+		setCurrentAsset(item.name);
+	}, [item.name, setCurrentAsset, setMediaType]);
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
@@ -203,6 +211,7 @@ export const AssetSelectorItem: React.FC<{
 	}, []);
 
 	const revealInExplorer = React.useCallback(() => {
+		console.log('parentFolder: ', parentFolder);
 		openInFileExplorer({
 			directory:
 				window.remotion_publicFolderExists +
@@ -235,6 +244,7 @@ export const AssetSelectorItem: React.FC<{
 				style={style}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
+				onClick={onClick}
 				tabIndex={tabIndex}
 				title={item.name}
 			>
