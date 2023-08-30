@@ -1,4 +1,3 @@
-import type {VideoMetadata} from '@remotion/media-utils';
 import {getVideoMetadata} from '@remotion/media-utils';
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
@@ -13,13 +12,17 @@ import {
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
+type AssetResolution = {
+	width: number;
+	height: number;
+};
 const getFileType = (fileName: string | null) => {
 	if (!fileName) {
 		return 'other';
 	}
 
 	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
-	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov'];
+	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'webm'];
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
@@ -110,30 +113,41 @@ const Inner: React.FC<{
 	const {mediaType} = useContext(Internals.CompositionManager);
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
-	const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
-	console.log('mediatype: ', mediaType, 'metadata: ', metadata);
+	const [assetResolution, setAssetResolution] =
+		useState<AssetResolution | null>(null);
 	useEffect(() => {
 		const fetchMetadata = async () => {
 			const fileType = getFileType(currentAsset);
-			if (fileType !== 'video' || !currentAsset) {
+			if (!currentAsset) {
 				return;
 			}
 
-			const assetSrc = staticFile(currentAsset);
-			await getVideoMetadata(assetSrc).then((data) => {
-				setMetadata(data);
-			});
+			if (fileType === 'video') {
+				const assetSrc = staticFile(currentAsset);
+				await getVideoMetadata(assetSrc).then((data) => {
+					setAssetResolution({width: data.width, height: data.height});
+				});
+			}
+
+			if (fileType === 'image') {
+				const img = new Image();
+				img.onload = () => {
+					setAssetResolution({width: img.width, height: img.height});
+				};
+			}
+
+			return null;
 		};
 
 		fetchMetadata();
 	}, [currentAsset]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
-		if (metadata && mediaType === 'asset') {
+		if (assetResolution && mediaType === 'asset') {
 			return PlayerInternals.calculateCanvasTransformation({
 				canvasSize,
-				compositionHeight: metadata.height,
-				compositionWidth: metadata.width,
+				compositionHeight: assetResolution.height,
+				compositionWidth: assetResolution.width,
 				previewSize: previewSize.size,
 			});
 		}
@@ -145,23 +159,23 @@ const Inner: React.FC<{
 			previewSize: previewSize.size,
 		});
 	}, [
+		assetResolution,
 		canvasSize,
 		config.height,
 		config.width,
 		mediaType,
-		metadata,
 		previewSize.size,
 	]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
 			width:
-				metadata && mediaType === 'asset'
-					? metadata.width * scale
+				assetResolution && mediaType === 'asset'
+					? assetResolution.width * scale
 					: config.width * scale,
 			height:
-				metadata && mediaType === 'asset'
-					? metadata.height * scale
+				assetResolution && mediaType === 'asset'
+					? assetResolution.height * scale
 					: config.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
@@ -171,12 +185,12 @@ const Inner: React.FC<{
 			overflow: 'hidden',
 		};
 	}, [
+		assetResolution,
 		centerX,
 		centerY,
 		config.height,
 		config.width,
 		mediaType,
-		metadata,
 		previewSize.translation.x,
 		previewSize.translation.y,
 		scale,
