@@ -116,22 +116,24 @@ const Inner: React.FC<{
 	const {checkerboard} = useContext(CheckerboardContext);
 	const [assetResolution, setAssetResolution] =
 		useState<AssetResolution | null>(null);
-	console.log({assetResolution});
+
+	const currentAssetType = useMemo(() => {
+		return getFileType(currentAsset);
+	}, [currentAsset]);
 	useEffect(() => {
 		const fetchMetadata = async () => {
-			const fileType = getFileType(currentAsset);
 			if (!currentAsset) {
 				return;
 			}
 
 			const assetSrc = staticFile(currentAsset);
-			if (fileType === 'video') {
+			if (currentAssetType === 'video') {
 				await getVideoMetadata(assetSrc).then((data) => {
 					setAssetResolution({width: data.width, height: data.height});
 				});
 			}
 
-			if (fileType === 'image') {
+			if (currentAssetType === 'image') {
 				const img = new Image();
 				img.onload = () => {
 					setAssetResolution({width: img.width, height: img.height});
@@ -144,7 +146,7 @@ const Inner: React.FC<{
 		};
 
 		fetchMetadata();
-	}, [currentAsset]);
+	}, [currentAsset, currentAssetType]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
 		if (assetResolution && mediaType === 'asset') {
@@ -187,6 +189,8 @@ const Inner: React.FC<{
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
+			justifyContent: currentAssetType === 'audio' ? 'flex-end' : 'flex-start',
+			alignItems: currentAssetType === 'audio' ? 'center' : 'normal',
 		};
 	}, [
 		assetResolution,
@@ -194,6 +198,7 @@ const Inner: React.FC<{
 		centerY,
 		config.height,
 		config.width,
+		currentAssetType,
 		mediaType,
 		previewSize.translation.x,
 		previewSize.translation.y,
