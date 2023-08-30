@@ -39,6 +39,7 @@ const getFileType = (fileName: string | null) => {
 	}
 
 	if (imageExtensions.includes(fileExtension)) {
+		console.log('inside image');
 		return 'image';
 	}
 
@@ -115,6 +116,7 @@ const Inner: React.FC<{
 	const {checkerboard} = useContext(CheckerboardContext);
 	const [assetResolution, setAssetResolution] =
 		useState<AssetResolution | null>(null);
+	console.log({assetResolution});
 	useEffect(() => {
 		const fetchMetadata = async () => {
 			const fileType = getFileType(currentAsset);
@@ -122,8 +124,8 @@ const Inner: React.FC<{
 				return;
 			}
 
+			const assetSrc = staticFile(currentAsset);
 			if (fileType === 'video') {
-				const assetSrc = staticFile(currentAsset);
 				await getVideoMetadata(assetSrc).then((data) => {
 					setAssetResolution({width: data.width, height: data.height});
 				});
@@ -134,6 +136,8 @@ const Inner: React.FC<{
 				img.onload = () => {
 					setAssetResolution({width: img.width, height: img.height});
 				};
+
+				img.src = assetSrc;
 			}
 
 			return null;
