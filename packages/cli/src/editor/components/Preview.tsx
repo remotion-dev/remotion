@@ -1,7 +1,7 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {Internals, staticFile, useVideoConfig, Video} from 'remotion';
+import {Audio, Internals, staticFile, useVideoConfig, Video} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -10,6 +10,30 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+
+const getFileType = (fileName: string | null) => {
+	if (!fileName) {
+		throw new Error('File name is null');
+	}
+
+	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
+	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov'];
+
+	const fileExtension = fileName.split('.').pop()?.toLowerCase();
+	if (fileExtension === undefined) {
+		throw new Error('File extension is undefined');
+	}
+
+	if (audioExtensions.includes(fileExtension)) {
+		return 'audio';
+	}
+
+	if (videoExtensions.includes(fileExtension)) {
+		return 'video';
+	}
+
+	return 'other';
+};
 
 const checkerboardSize = 49;
 
@@ -40,16 +64,26 @@ const containerStyle = (options: {
 	};
 };
 
-const AssetComponent: React.FC<{style: React.CSSProperties}> = ({style}) => {
-	console.log(style);
+const AssetComponent: React.FC = () => {
 	const {currentAsset} = useContext(Internals.CompositionManager);
+	const fileType = getFileType(currentAsset);
 	if (!currentAsset) {
 		return <div />;
 	}
 
-	// const src =
-	// 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-	return <Video src={staticFile(currentAsset)} />;
+	if (fileType === 'audio') {
+		return (
+			<div>
+				<Audio src={staticFile(currentAsset)} />
+			</div>
+		);
+	}
+
+	if (fileType === 'video') {
+		return <Video src={staticFile(currentAsset)} />;
+	}
+
+	return <div> No file found</div>;
 };
 
 const Inner: React.FC<{
@@ -120,7 +154,7 @@ const Inner: React.FC<{
 	return (
 		<div style={outer}>
 			{mediaType === 'asset' ? (
-				<AssetComponent style={style} />
+				<AssetComponent />
 			) : (
 				<div ref={portalContainer} style={style} />
 			)}
