@@ -1,7 +1,14 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {Audio, Internals, staticFile, useVideoConfig, Video} from 'remotion';
+import {
+	Audio,
+	Img,
+	Internals,
+	staticFile,
+	useVideoConfig,
+	Video,
+} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -16,10 +23,13 @@ const getFileType = (fileName: string | null) => {
 		throw new Error('File name is null');
 	}
 
+	console.log('Filename: ', fileName);
 	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
 	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov'];
+	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
+	console.log('fileextension; ', fileExtension);
 	if (fileExtension === undefined) {
 		throw new Error('File extension is undefined');
 	}
@@ -30,6 +40,10 @@ const getFileType = (fileName: string | null) => {
 
 	if (videoExtensions.includes(fileExtension)) {
 		return 'video';
+	}
+
+	if (imageExtensions.includes(fileExtension)) {
+		return 'image';
 	}
 
 	return 'other';
@@ -81,6 +95,10 @@ const AssetComponent: React.FC = () => {
 
 	if (fileType === 'video') {
 		return <Video src={staticFile(currentAsset)} />;
+	}
+
+	if (fileType === 'image') {
+		return <Img src={staticFile(currentAsset)} />;
 	}
 
 	return <div> No file found</div>;
