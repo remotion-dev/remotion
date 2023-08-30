@@ -83,7 +83,7 @@ This means that the video might fail to render if embedded in a `<Video>` tag an
 
 You may consider re-encoding the video using FFmpeg to make it seekable.
 
-### `colorSpace`<AvailableFrom v="4.0.28">
+### `colorSpace`<AvailableFrom v="4.0.28"/>
 
 One of `rgb`, `bt601`, `bt709`, `bt2020-ncl`, `bt2020-cl`, `fcc`, `bt470bg`, `smpte170m`, `smpte240m`, `ycgco`, `smpte2085`, `chroma-derived-ncl`, `chroma-derived-cl`, `ictcp` or `unknown`.
 
