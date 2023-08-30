@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	makeCancelSignal,
 	PixelFormat,
 	ProResProfile,
@@ -52,6 +53,16 @@ type RenderJobDynamicFields =
 			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			offthreadVideoCacheSizeInBytes: number | null;
+	  } & RenderJobDynamicStatus)
+	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
 			jpegQuality: number | null;
@@ -73,6 +84,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			colorSpace: ColorSpace;
 	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
@@ -103,6 +115,17 @@ type AddRenderRequestDynamicFields =
 			verbose: boolean;
 	  }
 	| {
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			verbose: boolean;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			disallowParallelEncoding: boolean;
+	  }
+	| {
 			type: 'video';
 			codec: Codec;
 			audioCodec: AudioCodec;
@@ -124,6 +147,7 @@ type AddRenderRequestDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
+			colorSpace: ColorSpace;
 	  };
 
 export type CancelRenderRequest = {

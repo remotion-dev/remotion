@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
@@ -74,7 +75,7 @@ export const RenderButton: React.FC = () => {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
 				defaultCodec: defaults.codec as Codec,
-				isStill: !isVideo,
+				renderType: isVideo ? 'video' : 'still',
 			});
 
 		setSelectedModal({
@@ -123,6 +124,7 @@ export const RenderButton: React.FC = () => {
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
+			initialColorSpace: defaults.colorSpace as ColorSpace,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

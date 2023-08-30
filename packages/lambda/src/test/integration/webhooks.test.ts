@@ -106,7 +106,8 @@ describe('Webhooks', () => {
 				bucketName: null,
 				audioCodec: null,
 				offthreadVideoCacheSizeInBytes: null,
-				renderFolderExpiry: null
+				renderFolderExpiry: null,
+				colorSpace: 'default',
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
@@ -122,7 +123,7 @@ describe('Webhooks', () => {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
-				renderFolderExpiry: null
+				renderFolderExpiry: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
@@ -204,7 +205,8 @@ describe('Webhooks', () => {
 				forceWidth: null,
 				rendererFunctionName: null,
 				audioCodec: null,
-				renderFolderExpiry: null
+				renderFolderExpiry: null,
+				colorSpace: 'default',
 			},
 			timeoutInTest: 1000,
 			retriesRemaining: 0,

@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
@@ -99,6 +100,63 @@ export const addStillRenderJob = ({
 	});
 };
 
+export const addSequenceRenderJob = ({
+	compositionId,
+	outName,
+	imageFormat,
+	startFrame,
+	endFrame,
+	scale,
+	verbose,
+	chromiumOptions,
+	delayRenderTimeout,
+	envVariables,
+	inputProps,
+	concurrency,
+	offthreadVideoCacheSizeInBytes,
+	jpegQuality,
+	disallowParallelEncoding,
+}: {
+	compositionId: string;
+	outName: string;
+	imageFormat: VideoImageFormat;
+	jpegQuality: number;
+	startFrame: number;
+	endFrame: number;
+	scale: number;
+	verbose: boolean;
+	chromiumOptions: RequiredChromiumOptions;
+	concurrency: number;
+	delayRenderTimeout: number;
+	envVariables: Record<string, string>;
+	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSizeInBytes: number | null;
+	disallowParallelEncoding: boolean;
+}) => {
+	return callApi('/api/render', {
+		compositionId,
+		type: 'sequence',
+		outName,
+		imageFormat,
+		jpegQuality,
+		scale,
+		startFrame,
+		endFrame,
+		verbose,
+		chromiumOptions,
+		delayRenderTimeout,
+		envVariables,
+		concurrency,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
+		offthreadVideoCacheSizeInBytes,
+		disallowParallelEncoding,
+	});
+};
+
 export const addVideoRenderJob = ({
 	compositionId,
 	outName,
@@ -127,6 +185,7 @@ export const addVideoRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: {
 	compositionId: string;
 	outName: string;
@@ -155,6 +214,7 @@ export const addVideoRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -189,6 +249,7 @@ export const addVideoRenderJob = ({
 			indent: undefined,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 };
 

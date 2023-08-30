@@ -29,17 +29,18 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
+import {setRenderFolderExpiryInDays} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 import {getX264Preset} from './x264-preset';
-import { getRenderFolderExpiryInDays, setRenderFolderExpiryInDays } from './render-folder-expiry';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	CodecOrUndefined,
+	ColorSpace,
 	Crf,
 	FrameRange,
 	StillImageFormat,
@@ -60,6 +61,7 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import {setCodec} from './codec';
+import {setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -394,6 +396,11 @@ declare global {
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Opt into bt709 rendering.
+		 */
+		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 	}
 }
 
@@ -406,7 +413,7 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-	  setRenderFolderExpiryInDays: (day: string | null) => void
+		setRenderFolderExpiryInDays: (day: string | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -519,7 +526,8 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
-	setRenderFolderExpiryInDays
+	setRenderFolderExpiryInDays,
+	setColorSpace,
 };
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
@@ -575,6 +583,6 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
-	getRenderFolderExpiryInDays
-
+	getRenderFolderExpiryInDays,
+	getColorSpace,
 };

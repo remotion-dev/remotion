@@ -31,6 +31,8 @@ type CommandLineOptions = {
 	['number-of-shared-audio-tags']: number;
 	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
 		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.colorSpaceOption
+		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -266,11 +268,14 @@ export const parseCommandLine = () => {
 		);
 	}
 
-
 	if (typeof parsedCli['render-folder-expiry-in-days'] !== 'undefined') {
 		Config.setRenderFolderExpiryInDays(
 			parsedCli['render-folder-expiry-in-days'],
 		);
+	}
+
+	if (typeof parsedCli['color-space'] !== 'undefined') {
+		Config.setColorSpace(parsedCli['color-space']);
 	}
 };
 

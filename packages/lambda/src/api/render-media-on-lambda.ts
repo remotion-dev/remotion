@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
+	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -11,6 +12,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
+import type {RenderExpiryDays} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
@@ -19,8 +21,6 @@ import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
-import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
-
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -68,8 +68,9 @@ export type RenderMediaOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 
-	renderFolderExpiry: RenderExpiryDays | null 
+	renderFolderExpiry: RenderExpiryDays | null;
 
+	colorSpace?: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -106,9 +107,8 @@ const renderMediaOnLambdaRaw = async (
 				chunk: null,
 			}),
 			folderInS3Console: getS3RenderUrl({
-			
 				bucketName: res.bucketName,
-					// append the new path 
+				// append the new path
 				renderId: res.renderId,
 
 				region,
