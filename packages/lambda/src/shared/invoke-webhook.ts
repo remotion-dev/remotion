@@ -108,13 +108,17 @@ function invokeWebhookRaw({
 			},
 		);
 
-		req.write(jsonPayload);
+		req.write(jsonPayload, (err) => {
+			if (err) {
+				reject(err);
+			} else {
+				req.end();
+			}
+		});
 
 		req.on('error', (err) => {
 			reject(err);
 		});
-
-		req.end();
 	});
 }
 
