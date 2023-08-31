@@ -27,7 +27,7 @@ pub struct OpenedStream {
     pub src: String,
     pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
-    pub last_position: i64,
+    pub last_position: Option<i64>,
     pub duration_or_zero: i64,
     pub reached_eof: bool,
     pub transparent: bool,
@@ -159,11 +159,12 @@ impl OpenedStream {
             _ => self.duration_or_zero.min(position),
         };
 
-        if position < self.last_position
-            || self.last_position < calc_position(time - 3.0, time_base)
-        {
+        let should_seek = position < self.last_position.unwrap_or(0)
+            || self.last_position.unwrap_or(0) < calc_position(time - 3.0, time_base);
+
+        if should_seek {
             _print_verbose(&format!(
-                "Seeking to {} from dts = {}, duration = {}",
+                "Seeking to {} from dts = {:?}, duration = {}",
                 position, self.last_position, self.duration_or_zero
             ))?;
             self.input
@@ -193,9 +194,9 @@ impl OpenedStream {
                         position,
                         frame_cache,
                         one_frame_in_time_base,
-                        match freshly_seeked || self.last_position == 0 {
+                        match freshly_seeked || self.last_position.is_none() {
                             true => None,
-                            false => Some(self.last_position),
+                            false => Some(self.last_position.unwrap()),
                         },
                     )?;
                     if data.is_some() {
@@ -279,13 +280,13 @@ impl OpenedStream {
                         id: frame_cache_id,
                         asked_time: position,
                         last_used: get_time(),
-                        previous_pts: match freshly_seeked || self.last_position == 0 {
+                        previous_pts: match freshly_seeked || self.last_position.is_none() {
                             true => None,
-                            false => Some(self.last_position),
+                            false => Some(self.last_position.unwrap()),
                         },
                     };
 
-                    self.last_position = video.pts().expect("expected pts");
+                    self.last_position = Some(video.pts().expect("expected pts"));
                     freshly_seeked = false;
 
                     frame_cache.lock().unwrap().add_item(item);
@@ -457,7 +458,7 @@ pub fn open_stream(
         video: decoder,
         src: src.to_string(),
         input,
-        last_position: 0,
+        last_position: None,
         duration_or_zero,
         reached_eof: false,
         transparent,
