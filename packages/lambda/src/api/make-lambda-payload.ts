@@ -124,6 +124,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		renderFolderExpiry,
+		colorSpace,
 	};
 };
 

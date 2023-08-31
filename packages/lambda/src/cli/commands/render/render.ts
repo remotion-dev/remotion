@@ -8,6 +8,7 @@ import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
 
+import {stringToEnum} from '../../../functions/helpers/lifecycle';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -26,7 +27,6 @@ import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
-import { stringToEnum } from '../../../functions/helpers/lifecycle';
 
 export const RENDER_COMMAND = 'render';
 
@@ -196,7 +196,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
-		renderFolderExpiry
+		renderFolderExpiry,
+		colorSpace: 'default',
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
@@ -231,7 +232,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
-		renderFolderExpiry
+		renderFolderExpiry,
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
@@ -255,7 +256,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
-			renderFolderExpiry
+			renderFolderExpiry,
 		});
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
