@@ -272,7 +272,7 @@ const innerLaunchHandler = async (
 			},
 			resolvedProps: serializedResolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
-			renderFolderExpiry: params.renderFolderExpiry
+			renderFolderExpiry: params.renderFolderExpiry,
 			colorSpace: params.colorSpace,
 		};
 		return payload;
@@ -310,7 +310,7 @@ const innerLaunchHandler = async (
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
 		audioCodec: params.audioCodec,
-		renderFolderExpiry: params.renderFolderExpiry
+		renderFolderExpiry: params.renderFolderExpiry,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -409,7 +409,7 @@ const innerLaunchHandler = async (
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
-				renderFolderExpiry: params.renderFolderExpiry
+				renderFolderExpiry: params.renderFolderExpiry,
 			});
 		});
 	};
@@ -503,7 +503,7 @@ const innerLaunchHandler = async (
 		bucket: params.bucketName,
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
-		renderFolderExpiry: params.renderFolderExpiry
+		renderFolderExpiry: params.renderFolderExpiry,
 	});
 
 	const jobs = getFilesToDelete({
@@ -567,7 +567,7 @@ const innerLaunchHandler = async (
 		postRenderData,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		renderFolderExpiry: params.renderFolderExpiry
+		renderFolderExpiry: params.renderFolderExpiry,
 	});
 	await lambdaDeleteFile({
 		bucketName: params.bucketName,
@@ -629,7 +629,7 @@ export const launchHandler = async (
 						},
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
-						renderFolderExpiry: params.renderFolderExpiry
+						renderFolderExpiry: params.renderFolderExpiry,
 					});
 					RenderInternals.Log.error('Failed to invoke webhook:');
 					RenderInternals.Log.error(err);
@@ -690,7 +690,7 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
-					renderFolderExpiry: params.renderFolderExpiry
+					renderFolderExpiry: params.renderFolderExpiry,
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(err);
@@ -723,7 +723,7 @@ export const launchHandler = async (
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
-			renderFolderExpiry: params.renderFolderExpiry
+			renderFolderExpiry: params.renderFolderExpiry,
 		});
 		clearTimeout(webhookDueToTimeout);
 		if (params.webhook && !webhookInvoked) {
@@ -767,7 +767,7 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
-					renderFolderExpiry: params.renderFolderExpiry
+					renderFolderExpiry: params.renderFolderExpiry,
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(error);

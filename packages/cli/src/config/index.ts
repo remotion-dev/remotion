@@ -29,7 +29,10 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
-import {setRenderFolderExpiryInDays} from './render-folder-expiry';
+import {
+	getRenderFolderExpiryInDays,
+	setRenderFolderExpiryInDays,
+} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -61,7 +64,7 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import {setCodec} from './codec';
-import {setColorSpace} from './color-space';
+import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';

@@ -1,4 +1,14 @@
+import {
+	DeleteBucketLifecycleCommand,
+	PutBucketLifecycleConfigurationCommand,
+} from '@aws-sdk/client-s3';
+import {
+	createLifeCycleInput,
+	deleteLifeCycleInput,
+} from '../functions/helpers/apply-lifecyle';
+import {getLifeCycleRules} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
+import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {makeBucketName} from '../shared/validate-bucketname';
 import {createBucket} from './create-bucket';
@@ -33,7 +43,15 @@ export const getOrCreateBucket = async (
 		);
 	}
 
+	const {applyRenderFolderExpiry, region} = params;
 	if (remotionBuckets.length === 1) {
+		const existingBucketName = remotionBuckets[0].name;
+
+		// apply to existing s3 bucket
+		if (applyRenderFolderExpiry) {
+			await createLCRules(existingBucketName, region);
+		}
+
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
@@ -45,5 +63,33 @@ export const getOrCreateBucket = async (
 		applyRenderFolderExpiry: params.applyRenderFolderExpiry,
 	});
 
+	// apply to newly created bucket
+	if (applyRenderFolderExpiry) {
+		await createLCRules(bucketName, region);
+	}
+
 	return {bucketName, alreadyExisted: false};
+};
+
+const createLCRules = async (bucketName: string, region: AwsRegion) => {
+	const lcRules = getLifeCycleRules();
+
+	// assume that we have an existing lifecyle rule so we delete previous ones
+	const deleteCommandInput = deleteLifeCycleInput({
+		bucketName,
+		lcRules,
+	});
+	const deleteCommand = new DeleteBucketLifecycleCommand(deleteCommandInput);
+
+	await getS3Client(region, null).send(deleteCommand);
+
+	// create the lifecyle rules
+	const createCommandInput = createLifeCycleInput({
+		bucketName,
+		lcRules,
+	});
+	const createCommand = new PutBucketLifecycleConfigurationCommand(
+		createCommandInput,
+	);
+	await getS3Client(region, null).send(createCommand);
 };

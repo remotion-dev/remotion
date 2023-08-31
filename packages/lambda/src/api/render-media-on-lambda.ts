@@ -70,7 +70,7 @@ export type RenderMediaOnLambdaInput = {
 
 	renderFolderExpiry: RenderExpiryDays | null;
 
-	colorSpace?: ColorSpace;
+	colorSpace: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
