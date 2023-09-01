@@ -78,10 +78,10 @@ type renderInternalOptions struct {
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 
-	ForceBucketName    string      `json:"forceBucketName,omitempty"`
-	Gl                 *string     `json:"gl,omitempty"`
-	X264Preset         interface{} `json:"x264Preset"`
-	RenderFolderExpiry *string     `json:"renderFolderExpiry"`
+	ForceBucketName          string      `json:"forceBucketName,omitempty"`
+	Gl                       *string     `json:"gl,omitempty"`
+	X264Preset               interface{} `json:"x264Preset"`
+	RenderFolderExpiryInDays *string     `json:"renderFolderExpiryInDays"`
 }
 
 type RawInvokeResponse struct {
@@ -98,17 +98,19 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId     string `json:"renderId" validate:"required"`
-	BucketName   string `json:"bucketName" validate:"required"`
-	FunctionName string `json:"functionName" validate:"required"`
-	Region       string `json:"region" validate:"required"`
+	RenderId                 string  `json:"renderId" validate:"required"`
+	BucketName               string  `json:"bucketName" validate:"required"`
+	FunctionName             string  `json:"functionName" validate:"required"`
+	Region                   string  `json:"region" validate:"required"`
+	RenderFolderExpiryInDays *string `json:"renderFolderExpiryInDays"`
 }
 
 type renderProgressInternalConfig struct {
-	RenderId   string `json:"renderId" validate:"required"`
-	BucketName string `json:"bucketName" validate:"required"`
-	Type       string `json:"type" validate:"required"`
-	Version    string `json:"version" validate:"required"`
+	RenderId                 string  `json:"renderId" validate:"required"`
+	BucketName               string  `json:"bucketName" validate:"required"`
+	Type                     string  `json:"type" validate:"required"`
+	Version                  string  `json:"version" validate:"required"`
+	RenderFolderExpiryInDays *string `json:"renderFolderExpiryInDays"`
 }
 
 type RenderProgress struct {
