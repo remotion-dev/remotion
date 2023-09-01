@@ -1,14 +1,14 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import type {CleanupInfo} from '../../shared/constants';
 import {getFilesToDelete} from './get-files-to-delete';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export const getCleanupProgress = ({
 	contents,
 	output,
 	chunkCount,
 	renderId,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	contents: _Object[];
 	output: string | null;
@@ -20,7 +20,11 @@ export const getCleanupProgress = ({
 		return null;
 	}
 
-	const filesToDelete = getFilesToDelete({chunkCount, renderId, renderFolderExpiry});
+	const filesToDelete = getFilesToDelete({
+		chunkCount,
+		renderId,
+		renderFolderExpiry,
+	});
 	const filesStillThere = contents.filter((c) => {
 		return filesToDelete.find((f) => {
 			if (f.type === 'exact') {

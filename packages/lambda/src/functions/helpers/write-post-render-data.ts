@@ -2,7 +2,7 @@ import type {AwsRegion} from '../../pricing/aws-regions';
 import type {PostRenderData} from '../../shared/constants';
 import {postRenderDataKey} from '../../shared/constants';
 import {lambdaWriteFile} from './io';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export const writePostRenderData = async ({
 	bucketName,
@@ -10,7 +10,7 @@ export const writePostRenderData = async ({
 	postRenderData,
 	expectedBucketOwner,
 	region,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucketName: string;
 	renderId: string;

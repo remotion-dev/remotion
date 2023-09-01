@@ -4,7 +4,13 @@ import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 
 test('Should be able to parse Lambda key', () => {
 	expect(
-		parseLambdaChunkKey(chunkKeyForIndex({index: 1111, renderId: 'abcdef', renderFolderExpiry: null})),
+		parseLambdaChunkKey(
+			chunkKeyForIndex({
+				index: 1111,
+				renderId: 'abcdef',
+				renderFolderExpiry: null,
+			}),
+		),
 	).toEqual({
 		chunk: 1111,
 		renderId: 'abcdef',

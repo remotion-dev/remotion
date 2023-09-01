@@ -4,7 +4,7 @@ import {chunkKey, lambdaChunkInitializedPrefix} from '../../shared/constants';
 import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export const getRenderedFramesProgress = ({
 	contents,
@@ -12,7 +12,7 @@ export const getRenderedFramesProgress = ({
 	framesPerLambda,
 	everyNthFrame,
 	frameRange,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	contents: _Object[];
 	renderId: string;

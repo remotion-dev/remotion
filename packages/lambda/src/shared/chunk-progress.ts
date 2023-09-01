@@ -6,7 +6,7 @@
 
 import {getCurrentRegionInFunction} from '../functions/helpers/get-current-region';
 import {lambdaWriteFile} from '../functions/helpers/io';
-import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
+import type {RenderExpiryDays} from '../functions/helpers/lifecycle';
 import {lambdaChunkInitializedKey} from './constants';
 
 const etags = [
@@ -2019,7 +2019,7 @@ export const writeLambdaInitializedFile = ({
 	chunk,
 	renderId,
 	framesRendered,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucketName: string;
 	expectedBucketOwner: string;
@@ -2027,7 +2027,7 @@ export const writeLambdaInitializedFile = ({
 	chunk: number;
 	attempt: number;
 	framesRendered: number;
-	renderFolderExpiry: RenderExpiryDays | null
+	renderFolderExpiry: RenderExpiryDays | null;
 }) => {
 	return lambdaWriteFile({
 		privacy: 'private',
@@ -2037,7 +2037,7 @@ export const writeLambdaInitializedFile = ({
 			renderId,
 			chunk,
 			attempt,
-			renderFolderExpiry
+			renderFolderExpiry,
 		}),
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,

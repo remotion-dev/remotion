@@ -3,14 +3,14 @@ import type {PostRenderData} from '../../shared/constants';
 import {postRenderDataKey} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export const getPostRenderData = async ({
 	bucketName,
 	renderId,
 	region,
 	expectedBucketOwner,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucketName: string;
 	renderId: string;

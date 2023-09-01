@@ -3,7 +3,7 @@ import {rendersPrefix} from '../defaults';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
-import type { RenderExpiryDays } from '../functions/helpers/lifecycle';
+import type {RenderExpiryDays} from '../functions/helpers/lifecycle';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
@@ -13,7 +13,7 @@ export type DeleteRenderInput = {
 	bucketName: string;
 	renderId: string;
 	customCredentials?: CustomCredentials;
-	renderFolderExpiry: RenderExpiryDays | null ;
+	renderFolderExpiry: RenderExpiryDays | null;
 };
 
 /**
@@ -33,7 +33,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
-		renderFolderExpiry: input.renderFolderExpiry
+		renderFolderExpiry: input.renderFolderExpiry,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

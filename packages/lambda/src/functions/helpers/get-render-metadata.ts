@@ -3,14 +3,14 @@ import type {RenderMetadata} from '../../shared/constants';
 import {renderMetadataKey} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export const getRenderMetadata = async ({
 	bucketName,
 	renderId,
 	region,
 	expectedBucketOwner,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucketName: string;
 	renderId: string;
