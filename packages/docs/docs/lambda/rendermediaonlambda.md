@@ -387,6 +387,12 @@ _available from v3.2.43_
 
 A link to the folder in the AWS console where each chunk and render is located.
 
+### `renderFolderExpiry`
+
+_available from v4.0.29_
+
+A value in days the render folder will be deleted.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
