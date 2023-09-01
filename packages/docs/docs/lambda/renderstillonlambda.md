@@ -290,6 +290,12 @@ _Available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
+### `renderFolderExpiry`
+
+_available from v4.0.29_
+
+A value in days the render folder will be deleted.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-still-on-lambda.ts)

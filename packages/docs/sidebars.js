@@ -510,6 +510,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/auto-delete-renderfiles",
         {
           type: "category",
           label: "Troubleshooting",

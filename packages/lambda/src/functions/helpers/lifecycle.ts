@@ -7,17 +7,13 @@ export enum RenderExpiryDays {
 	AFTER_30_DAYS = '30',
 }
 
-export const enumToString= (v: RenderExpiryDays): string => {
-	return v
-}
+export const renderEnumToStr = (v: RenderExpiryDays): string => {
+	return v;
+};
 
-export const stringToEnum = ({
-	value
-}: {
-	value?: string 
-}) => {
-	return value ? value as RenderExpiryDays : null
-}
+export const strToRenderEnum = ({value}: {value?: string}) => {
+	return value ? (value as RenderExpiryDays) : null;
+};
 
 export const getLifeCycleRule = ({
 	key,
@@ -42,6 +38,6 @@ export const getLifeCycleRule = ({
 
 export const getLifeCycleRules = (): LifecycleRule[] => {
 	return Object.entries(RenderExpiryDays).map(([key, value]) =>
-		getLifeCycleRule({key, value, isEnabled: true})
+		getLifeCycleRule({key, value, isEnabled: true}),
 	);
 };

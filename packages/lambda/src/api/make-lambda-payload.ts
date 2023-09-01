@@ -123,7 +123,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		renderFolderExpiry,
+		renderFolderExpiry: renderFolderExpiry ?? null,
 		colorSpace,
 	};
 };
