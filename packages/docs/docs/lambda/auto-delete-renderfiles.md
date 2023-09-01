@@ -118,7 +118,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
   colorSpace: "default",
-  renderFolderExpiryInDaysInDays: RenderExpiryDays.AFTER_1_DAYS, // the generated file will be deleted after 1 day.
+  renderFolderExpiryInDays: RenderExpiryDays.AFTER_1_DAYS, // the generated file will be deleted after 1 day.
 });
 ```
 
@@ -204,7 +204,7 @@ const progress = await getRenderProgress({
   bucketName: "remotionlambda-d9mafgx",
   functionName: "remotion-render-la8ffw",
   region: "us-east-1",
-  renderFolderExpiryInDaysInDays: RenderExpiryDays.AFTER_1_DAYS,
+  renderFolderExpiryInDays: RenderExpiryDays.AFTER_1_DAYS,
 });
 ```
 
