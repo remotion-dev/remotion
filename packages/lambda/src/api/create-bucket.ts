@@ -13,7 +13,6 @@ export const createBucket = async ({
 }: {
 	region: AwsRegion;
 	bucketName: string;
-	applyRenderFolderExpiry?: boolean;
 }) => {
 	await getS3Client(region, null).send(
 		new CreateBucketCommand({

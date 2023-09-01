@@ -34,6 +34,7 @@ type LambdaCommandLineOptions = {
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
 	['render-folder-expiry-in-days']: string | undefined;
+	['enable-folder-expiry']: boolean | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
