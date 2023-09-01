@@ -339,7 +339,7 @@ export type LambdaStatusPayload = {
 	renderId: string;
 	version: string;
 	s3OutputProvider?: CustomCredentials;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiry?: RenderExpiryDays | null;
 };
 
 export type LambdaPayloads = {

@@ -73,7 +73,8 @@ class RenderParams
     private $proResProfile = null;
     private $pixelFormat = null;
     private $x264Preset = null;
-
+    private $renderFolderExpiry = null;
+    
     public function __construct(
         ?array $data = null,
         ?string $composition = 'main',
@@ -110,6 +111,7 @@ class RenderParams
         ?string $proResProfile = null, 
         ?string $pixelFormat = null,
         ?string $x264Preset = null,
+        ?string $renderFolderExpiry = null
         )
     {
         $this->data = $data;
@@ -147,6 +149,7 @@ class RenderParams
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
         $this->x264Preset = $x264Preset;
+        $this->renderFolderExpiry = $renderFolderExpiry;
     }
 
     private array $inputProps = array();
@@ -185,6 +188,7 @@ class RenderParams
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
+            'renderFolderExpiry' => $this->getRenderFolderExpiry(),
             'type' => 'start'
         ];
 
@@ -827,6 +831,17 @@ class RenderParams
     public function setX264Preset($x264Preset)
     {
          $this->x264Preset = $x264Preset;
+         return $this;
+    }
+
+    public function getRenderFolderExpiry()
+    {
+        return $this->renderFolderExpiry;
+    }
+
+    public function setRenderFolderExpiry($renderFolderExpiry)
+    {
+         $this->renderFolderExpiry = $renderFolderExpiry;
          return $this;
     }
 }

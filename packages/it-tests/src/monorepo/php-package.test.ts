@@ -65,6 +65,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     inputProps: {
       hi: "there",
     },
+    colorSpace: "default",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

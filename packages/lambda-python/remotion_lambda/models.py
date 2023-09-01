@@ -51,6 +51,7 @@ class RenderParams:
     pro_res_profile: Optional[str] = None
     x264_preset: Optional[str] = None
     pixel_format: Optional[str] = None
+    render_folder_expiry: Optional[str] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -89,6 +90,8 @@ class RenderParams:
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
+            'renderFolderExpiry': self.render_folder_expiry,
+
             'type': 'start'
         }
 
@@ -144,7 +147,8 @@ class RenderProgressParams:
             'bucketName': self.bucket_name,
             'type': 'status',
             "version": VERSION,
-            "s3OutputProvider": None
+            "s3OutputProvider": None,
+            "renderFolderExpiry": None
         }
         return parameters
 
