@@ -4,7 +4,7 @@ import type {FileNameAndSize} from './get-files-in-folder';
 import {getFolderFiles} from './get-files-in-folder';
 import {lambdaWriteFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher' | 'webhook';
@@ -48,7 +48,7 @@ export const writeLambdaError = async ({
 	renderId,
 	errorInfo,
 	expectedBucketOwner,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -62,7 +62,7 @@ export const writeLambdaError = async ({
 			renderId,
 			chunk: errorInfo.chunk,
 			attempt: errorInfo.attempt,
-			renderFolderExpiry
+			renderFolderExpiry,
 		})}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegionInFunction(),

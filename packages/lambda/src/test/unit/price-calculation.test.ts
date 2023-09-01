@@ -57,7 +57,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		},
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
-
 	});
 	expect(price).toBeGreaterThanOrEqual(0);
 });

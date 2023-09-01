@@ -140,7 +140,7 @@ const renderHandler = async (
 						expectedBucketOwner: options.expectedBucketOwner,
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
-						renderFolderExpiry: params.renderFolderExpiry
+						renderFolderExpiry: params.renderFolderExpiry,
 					}).catch((err) => {
 						console.log('Could not write progress', err);
 						return reject(err);
@@ -171,7 +171,7 @@ const renderHandler = async (
 					expectedBucketOwner: options.expectedBucketOwner,
 					framesRendered: 0,
 					renderId: params.renderId,
-					renderFolderExpiry: params.renderFolderExpiry
+					renderFolderExpiry: params.renderFolderExpiry,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -240,7 +240,7 @@ const renderHandler = async (
 		key: chunkKeyForIndex({
 			renderId: params.renderId,
 			index: params.chunk,
-			renderFolderExpiry: params.renderFolderExpiry
+			renderFolderExpiry: params.renderFolderExpiry,
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),
@@ -264,7 +264,7 @@ const renderHandler = async (
 				chunk: params.chunk,
 				rendered: endRendered,
 				start,
-				renderFolderExpiry: params.renderFolderExpiry
+				renderFolderExpiry: params.renderFolderExpiry,
 			}),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
@@ -328,7 +328,7 @@ export const rendererHandler = async (
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			renderFolderExpiry: params.renderFolderExpiry
+			renderFolderExpiry: params.renderFolderExpiry,
 		});
 		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {

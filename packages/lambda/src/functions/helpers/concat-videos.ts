@@ -13,9 +13,9 @@ import {
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs, lambdaReadFile} from './io';
+import type {RenderExpiryDays} from './lifecycle';
 import {timer} from './timer';
 import type {EnhancedErrorInfo} from './write-lambda-error';
-import type { RenderExpiryDays } from './lifecycle';
 
 const getChunkDownloadOutputLocation = ({
 	outdir,
@@ -66,7 +66,7 @@ export const getAllFilesS3 = ({
 	region,
 	expectedBucketOwner,
 	onErrors,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -92,10 +92,13 @@ export const getAllFilesS3 = ({
 		lsTimer.end();
 		return {
 			filesInBucket: contents
-				.filter((c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiry)))
+				.filter(
+					(c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiry)),
+				)
 				.map((_) => _.Key as string),
 			errorContents: contents.filter(
-				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId, renderFolderExpiry)),
+				(c) =>
+					c.Key?.startsWith(getErrorKeyPrefix(renderId, renderFolderExpiry)),
 			),
 		};
 	};
@@ -131,7 +134,7 @@ export const getAllFilesS3 = ({
 					expectedBucketOwner,
 					region,
 					renderId,
-					renderFolderExpiry
+					renderFolderExpiry,
 				})
 			).filter((e) => e.isFatal);
 

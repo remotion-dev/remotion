@@ -4,7 +4,7 @@ import {
 	lambdaChunkInitializedPrefix,
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
-import type { RenderExpiryDays } from './lifecycle';
+import type {RenderExpiryDays} from './lifecycle';
 
 export type CleanupJob = {
 	name: string;
@@ -14,7 +14,7 @@ export type CleanupJob = {
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
-	renderFolderExpiry
+	renderFolderExpiry,
 }: {
 	chunkCount: number;
 	renderId: string;
@@ -24,12 +24,14 @@ export const getFilesToDelete = ({
 		chunkKeyForIndex({
 			index: i,
 			renderId,
-			renderFolderExpiry
+			renderFolderExpiry,
 		}),
 	);
 	const lambdaTimings = new Array(chunkCount)
 		.fill(true)
-		.map((_x, i) => lambdaTimingsPrefixForChunk(renderId, i, renderFolderExpiry));
+		.map((_x, i) =>
+			lambdaTimingsPrefixForChunk(renderId, i, renderFolderExpiry),
+		);
 	return [
 		{
 			name: lambdaChunkInitializedPrefix(renderId, renderFolderExpiry),

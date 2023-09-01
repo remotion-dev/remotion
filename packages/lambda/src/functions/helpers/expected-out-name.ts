@@ -39,13 +39,22 @@ export const getExpectedOutName = (
 			renderMetadata.codec,
 			renderMetadata.audioCodec,
 		);
-		return customOutName(renderMetadata.renderId, bucketName, outNameValue, renderMetadata.renderFolderExpiry);
+		return customOutName(
+			renderMetadata.renderId,
+			bucketName,
+			outNameValue,
+			renderMetadata.renderFolderExpiry,
+		);
 	}
 
 	if (renderMetadata.type === 'still') {
 		return {
 			renderBucketName: bucketName,
-			key: outStillName(renderMetadata.renderId, renderMetadata.imageFormat, renderMetadata.renderFolderExpiry),
+			key: outStillName(
+				renderMetadata.renderId,
+				renderMetadata.imageFormat,
+				renderMetadata.renderFolderExpiry,
+			),
 			customCredentials: null,
 		};
 	}
@@ -58,9 +67,8 @@ export const getExpectedOutName = (
 				RenderInternals.getFileExtensionFromCodec(
 					renderMetadata.codec as Codec,
 					renderMetadata.audioCodec,
-					
 				),
-				renderMetadata.renderFolderExpiry
+				renderMetadata.renderFolderExpiry,
 			),
 			customCredentials: null,
 		};
