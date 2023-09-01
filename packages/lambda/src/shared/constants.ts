@@ -60,7 +60,10 @@ export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const rendersPrefix = (
 	renderId: string,
 	renderFolderExpiry: RenderExpiryDays | null,
-) => `renders/${renderFolderExpiry}days/${renderId}`;
+) =>
+	renderFolderExpiry
+		? `renders/${renderFolderExpiry}days/${renderId}`
+		: `renders/${renderId}`;
 export const encodingProgressKey = (
 	renderId: string,
 	renderFolderExpiry: RenderExpiryDays | null,

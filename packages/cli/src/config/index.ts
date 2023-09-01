@@ -33,6 +33,11 @@ import {
 	getRenderFolderExpiryInDays,
 	setRenderFolderExpiryInDays,
 } from './render-folder-expiry';
+
+import {
+	getEnableFolderExpiry,
+	setEnableFolderExpiry,
+} from './enable-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -417,6 +422,8 @@ type FlatConfig = RemotionConfigObject &
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
 		setRenderFolderExpiryInDays: (day: string | null) => void;
+
+		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -531,6 +538,7 @@ export const Config: FlatConfig = {
 	setOffthreadVideoCacheSizeInBytes,
 	setRenderFolderExpiryInDays,
 	setColorSpace,
+	setEnableFolderExpiry,
 };
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
@@ -588,4 +596,5 @@ export const ConfigInternals = {
 	getOffthreadVideoCacheSizeInBytes,
 	getRenderFolderExpiryInDays,
 	getColorSpace,
+	getEnableFolderExpiry,
 };

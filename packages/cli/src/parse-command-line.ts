@@ -76,6 +76,7 @@ type CommandLineOptions = {
 	['user-agent']: string;
 	['audio-codec']: AudioCodec;
 	['render-folder-expiry-in-days']: string | undefined;
+	['enable-folder-expiry']: boolean | undefined;
 };
 
 export const BooleanFlags = [
@@ -276,6 +277,10 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['color-space'] !== 'undefined') {
 		Config.setColorSpace(parsedCli['color-space']);
+	}
+
+	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
+		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
 	}
 };
 

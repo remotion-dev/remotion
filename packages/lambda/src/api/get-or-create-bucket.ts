@@ -2,6 +2,7 @@ import {
 	DeleteBucketLifecycleCommand,
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
+
 import {
 	createLifeCycleInput,
 	deleteLifeCycleInput,
@@ -16,7 +17,7 @@ import {getRemotionS3Buckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
-	applyRenderFolderExpiry?: boolean;
+	enableFolderExpiry?: boolean;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -43,14 +44,15 @@ export const getOrCreateBucket = async (
 		);
 	}
 
-	const {applyRenderFolderExpiry, region} = params;
+	const {enableFolderExpiry, region} = params;
 	if (remotionBuckets.length === 1) {
 		const existingBucketName = remotionBuckets[0].name;
-
-		// apply to existing s3 bucket
-		if (applyRenderFolderExpiry) {
-			await createLCRules(existingBucketName, region);
-		}
+		// apply to existing bucket
+		await applyLifeCyleOperation(
+			enableFolderExpiry,
+			existingBucketName,
+			region,
+		);
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
@@ -60,29 +62,16 @@ export const getOrCreateBucket = async (
 	await createBucket({
 		bucketName,
 		region: params.region,
-		applyRenderFolderExpiry: params.applyRenderFolderExpiry,
 	});
 
 	// apply to newly created bucket
-	if (applyRenderFolderExpiry) {
-		await createLCRules(bucketName, region);
-	}
+	await applyLifeCyleOperation(enableFolderExpiry, bucketName, region);
 
 	return {bucketName, alreadyExisted: false};
 };
 
 const createLCRules = async (bucketName: string, region: AwsRegion) => {
 	const lcRules = getLifeCycleRules();
-
-	// assume that we have an existing lifecyle rule so we delete previous ones
-	const deleteCommandInput = deleteLifeCycleInput({
-		bucketName,
-		lcRules,
-	});
-	const deleteCommand = new DeleteBucketLifecycleCommand(deleteCommandInput);
-
-	await getS3Client(region, null).send(deleteCommand);
-
 	// create the lifecyle rules
 	const createCommandInput = createLifeCycleInput({
 		bucketName,
@@ -93,3 +82,29 @@ const createLCRules = async (bucketName: string, region: AwsRegion) => {
 	);
 	await getS3Client(region, null).send(createCommand);
 };
+
+async function applyLifeCyleOperation(
+	enableFolderExpiry: boolean | undefined,
+	bucketName: string,
+	region: AwsRegion,
+) {
+	if (enableFolderExpiry !== undefined) {
+		if (enableFolderExpiry) {
+			console.log('Creating lifecycle rules!');
+			await createLCRules(bucketName, region);
+		} else {
+			console.log('Deleting existing lifecycle rules!');
+			await deleteLCRules(bucketName, region);
+		}
+	}
+}
+
+async function deleteLCRules(bucketName: string, region: AwsRegion) {
+	const lcRules = getLifeCycleRules();
+	const deleteCommandInput = deleteLifeCycleInput({
+		bucketName,
+		lcRules,
+	});
+	const deleteCommand = new DeleteBucketLifecycleCommand(deleteCommandInput);
+	await getS3Client(region, null).send(deleteCommand);
+}

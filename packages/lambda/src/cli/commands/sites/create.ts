@@ -88,12 +88,14 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
+	const enableFolderExpiry = parsedLambdaCli['enable-folder-expiry'];
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
 		(
 			await getOrCreateBucket({
 				region: getAwsRegion(),
+				enableFolderExpiry,
 			})
 		).bucketName;
 
