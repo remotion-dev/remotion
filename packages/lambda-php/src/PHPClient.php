@@ -62,7 +62,8 @@ class PHPClient
             'bucketName' => $bucketName,
             'type' => 'status',
             "version" => VERSION,
-            "s3OutputProvider" => null
+            "s3OutputProvider" => null,
+            "renderFolderExpiry" => null
         );
         $result = json_encode($params);
         return $result;

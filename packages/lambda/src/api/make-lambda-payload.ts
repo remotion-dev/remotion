@@ -140,6 +140,6 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
-		renderFolderExpiry,
+		renderFolderExpiry: renderFolderExpiry ?? null,
 	};
 };

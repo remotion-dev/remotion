@@ -38,6 +38,7 @@ type RemotionOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
+	RenderFolderExpiry             *string                `json:"renderFolderExpiry"`
 }
 
 type renderInternalOptions struct {
@@ -77,9 +78,10 @@ type renderInternalOptions struct {
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 
-	ForceBucketName string      `json:"forceBucketName,omitempty"`
-	Gl              *string     `json:"gl,omitempty"`
-	X264Preset      interface{} `json:"x264Preset"`
+	ForceBucketName    string      `json:"forceBucketName,omitempty"`
+	Gl                 *string     `json:"gl,omitempty"`
+	X264Preset         interface{} `json:"x264Preset"`
+	RenderFolderExpiry *string     `json:"renderFolderExpiry"`
 }
 
 type RawInvokeResponse struct {
