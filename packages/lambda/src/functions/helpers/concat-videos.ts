@@ -66,7 +66,7 @@ export const getAllFilesS3 = ({
 	region,
 	expectedBucketOwner,
 	onErrors,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -75,13 +75,13 @@ export const getAllFilesS3 = ({
 	region: AwsRegion;
 	expectedBucketOwner: string;
 	onErrors: (errors: EnhancedErrorInfo[]) => void;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
 
 	const getFiles = async () => {
-		const prefix = rendersPrefix(renderId, renderFolderExpiry);
+		const prefix = rendersPrefix(renderId, renderFolderExpiryInDays);
 		const lsTimer = timer('Listing files');
 		const contents = await lambdaLs({
 			bucketName: bucket,
@@ -93,12 +93,15 @@ export const getAllFilesS3 = ({
 		return {
 			filesInBucket: contents
 				.filter(
-					(c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiry)),
+					(c) =>
+						c.Key?.startsWith(chunkKey(renderId, renderFolderExpiryInDays)),
 				)
 				.map((_) => _.Key as string),
 			errorContents: contents.filter(
 				(c) =>
-					c.Key?.startsWith(getErrorKeyPrefix(renderId, renderFolderExpiry)),
+					c.Key?.startsWith(
+						getErrorKeyPrefix(renderId, renderFolderExpiryInDays),
+					),
 			),
 		};
 	};
@@ -134,7 +137,7 @@ export const getAllFilesS3 = ({
 					expectedBucketOwner,
 					region,
 					renderId,
-					renderFolderExpiry,
+					renderFolderExpiryInDays,
 				})
 			).filter((e) => e.isFatal);
 

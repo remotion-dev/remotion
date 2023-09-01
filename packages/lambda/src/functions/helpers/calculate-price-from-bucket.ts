@@ -33,7 +33,7 @@ export const estimatePriceFromBucket = ({
 				c.Key?.startsWith(
 					lambdaTimingsPrefix(
 						renderMetadata.renderId,
-						renderMetadata.renderFolderExpiry,
+						renderMetadata.renderFolderExpiryInDays,
 					),
 				),
 		)
@@ -66,7 +66,7 @@ export const estimatePriceFromBucket = ({
 					contents,
 					renderId: renderMetadata.renderId,
 					type: 'combined-time-for-cost-calculation',
-					renderFolderExpiry: renderMetadata.renderFolderExpiry,
+					renderFolderExpiryInDays: renderMetadata.renderFolderExpiryInDays,
 				}) + timeElapsedOfUnfinished,
 			memorySizeInMb,
 			diskSizeInMb,

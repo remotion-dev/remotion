@@ -118,18 +118,18 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
   colorSpace: "default",
-  renderFolderExpiry: RenderExpiryDays.AFTER_1_DAYS, // the generated file will be deleted after 1 day.
+  renderFolderExpiryInDaysInDays: RenderExpiryDays.AFTER_1_DAYS, // the generated file will be deleted after 1 day.
 });
 ```
 
 ## How it works
 
-By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiry` is defined with a value of `RenderExpiryDays.AFTER_1_DAYS`, the render files will be placed into the `render/1days/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
+By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiryInDays` is defined with a value of `RenderExpiryDays.AFTER_1_DAYS`, the render files will be placed into the `render/1days/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
 
 <table>
   <tr>
     <th>
-      renderFolderExpiry value
+      renderFolderExpiryInDays value
     </th>
     <th>
       Render Prefix
@@ -186,6 +186,27 @@ By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files b
 :::note
 AWS does not delete the file on exact time, but it will delete it!
 :::
+
+## Getting the progress of render
+
+Due to AWS limitation on postfix search, we need to provide the `renderFolderExpiryInDays` values that we have defined during the render to get the progress of the render.
+
+### From Node.js
+
+```tsx twoslash
+// @module: esnext
+// @target: es2017
+// ---cut---
+import { getRenderProgress, RenderExpiryDays } from "@remotion/lambda/client";
+
+const progress = await getRenderProgress({
+  renderId: "d7nlc2y",
+  bucketName: "remotionlambda-d9mafgx",
+  functionName: "remotion-render-la8ffw",
+  region: "us-east-1",
+  renderFolderExpiryInDaysInDays: RenderExpiryDays.AFTER_1_DAYS,
+});
+```
 
 ## See also
 

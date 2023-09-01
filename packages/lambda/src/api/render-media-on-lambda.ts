@@ -68,7 +68,7 @@ export type RenderMediaOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 
-	renderFolderExpiry?: RenderExpiryDays | null;
+	renderFolderExpiryInDays?: RenderExpiryDays | null;
 
 	colorSpace: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;

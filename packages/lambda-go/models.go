@@ -38,7 +38,7 @@ type RemotionOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
-	RenderFolderExpiry             *string                `json:"renderFolderExpiry"`
+	RenderFolderExpiryInDays       *string                `json:"renderFolderExpiryInDays"`
 }
 
 type renderInternalOptions struct {

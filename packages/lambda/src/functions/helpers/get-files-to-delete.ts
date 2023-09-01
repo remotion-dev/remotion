@@ -14,27 +14,27 @@ export type CleanupJob = {
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	chunkCount: number;
 	renderId: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): CleanupJob[] => {
 	const chunks = new Array(chunkCount).fill(true).map((_x, i) =>
 		chunkKeyForIndex({
 			index: i,
 			renderId,
-			renderFolderExpiry,
+			renderFolderExpiryInDays,
 		}),
 	);
 	const lambdaTimings = new Array(chunkCount)
 		.fill(true)
 		.map((_x, i) =>
-			lambdaTimingsPrefixForChunk(renderId, i, renderFolderExpiry),
+			lambdaTimingsPrefixForChunk(renderId, i, renderFolderExpiryInDays),
 		);
 	return [
 		{
-			name: lambdaChunkInitializedPrefix(renderId, renderFolderExpiry),
+			name: lambdaChunkInitializedPrefix(renderId, renderFolderExpiryInDays),
 			type: 'prefix' as const,
 		},
 		...chunks.map((i) => {
@@ -50,7 +50,7 @@ export const getFilesToDelete = ({
 			};
 		}),
 		{
-			name: encodingProgressKey(renderId, renderFolderExpiry),
+			name: encodingProgressKey(renderId, renderFolderExpiryInDays),
 			type: 'exact',
 		},
 	];

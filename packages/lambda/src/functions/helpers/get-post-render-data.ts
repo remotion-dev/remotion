@@ -10,18 +10,18 @@ export const getPostRenderData = async ({
 	renderId,
 	region,
 	expectedBucketOwner,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): Promise<PostRenderData | null> => {
 	try {
 		const data = await lambdaReadFile({
 			bucketName,
-			key: postRenderDataKey(renderId, renderFolderExpiry),
+			key: postRenderDataKey(renderId, renderFolderExpiryInDays),
 			region,
 			expectedBucketOwner,
 		});

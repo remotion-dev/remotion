@@ -43,7 +43,7 @@ export const getExpectedOutName = (
 			renderMetadata.renderId,
 			bucketName,
 			outNameValue,
-			renderMetadata.renderFolderExpiry,
+			renderMetadata.renderFolderExpiryInDays,
 		);
 	}
 
@@ -53,7 +53,7 @@ export const getExpectedOutName = (
 			key: outStillName(
 				renderMetadata.renderId,
 				renderMetadata.imageFormat,
-				renderMetadata.renderFolderExpiry,
+				renderMetadata.renderFolderExpiryInDays,
 			),
 			customCredentials: null,
 		};
@@ -68,7 +68,7 @@ export const getExpectedOutName = (
 					renderMetadata.codec as Codec,
 					renderMetadata.audioCodec,
 				),
-				renderMetadata.renderFolderExpiry,
+				renderMetadata.renderFolderExpiryInDays,
 			),
 			customCredentials: null,
 		};

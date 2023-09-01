@@ -55,18 +55,21 @@ export const inspectErrors = async ({
 	region,
 	renderId,
 	expectedBucketOwner,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	bucket: string;
 	region: AwsRegion;
 	renderId: string;
 	expectedBucketOwner: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): Promise<EnhancedErrorInfo[]> => {
 	const errs = contents
 		.filter(
-			(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId, renderFolderExpiry)),
+			(c) =>
+				c.Key?.startsWith(
+					getErrorKeyPrefix(renderId, renderFolderExpiryInDays),
+				),
 		)
 		.map((c) => c.Key)
 		.filter(Internals.truthy);

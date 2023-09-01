@@ -8,13 +8,13 @@ export const checkIfRenderExists = (
 	renderId: string,
 	bucketName: string,
 	region: AwsRegion,
-	renderFolderExpiry: RenderExpiryDays | null,
+	renderFolderExpiryInDays: RenderExpiryDays | null,
 	// eslint-disable-next-line max-params
 ) => {
 	const initializedExists = Boolean(
 		contents.find((c) => {
 			return c.Key?.startsWith(
-				initalizedMetadataKey(renderId, renderFolderExpiry),
+				initalizedMetadataKey(renderId, renderFolderExpiryInDays),
 			);
 		}),
 	);

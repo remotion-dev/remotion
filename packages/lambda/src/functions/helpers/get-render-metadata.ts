@@ -10,17 +10,17 @@ export const getRenderMetadata = async ({
 	renderId,
 	region,
 	expectedBucketOwner,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	const Body = await lambdaReadFile({
 		bucketName,
-		key: renderMetadataKey(renderId, renderFolderExpiry),
+		key: renderMetadataKey(renderId, renderFolderExpiryInDays),
 		region,
 		expectedBucketOwner,
 	});
