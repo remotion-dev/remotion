@@ -44,7 +44,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const {renderFolderExpiry} = params;
+	const {renderFolderExpiryInDays} = params;
 	const renderId = randomHash({randomInTests: true});
 
 	const initialFile = lambdaWriteFile({
@@ -53,7 +53,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		region,
 		body: 'Render was initialized',
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: initalizedMetadataKey(renderId, renderFolderExpiry),
+		key: initalizedMetadataKey(renderId, renderFolderExpiryInDays),
 		privacy: 'private',
 		customCredentials: null,
 	});
@@ -96,7 +96,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
-		renderFolderExpiry: params.renderFolderExpiry,
+		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 		colorSpace: params.colorSpace,
 	};
 

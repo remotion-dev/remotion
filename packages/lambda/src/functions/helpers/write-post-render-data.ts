@@ -10,18 +10,18 @@ export const writePostRenderData = async ({
 	postRenderData,
 	expectedBucketOwner,
 	region,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	renderId: string;
 	postRenderData: PostRenderData;
 	expectedBucketOwner: string;
 	region: AwsRegion;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
-		key: postRenderDataKey(renderId, renderFolderExpiry),
+		key: postRenderDataKey(renderId, renderFolderExpiryInDays),
 		privacy: 'private',
 		body: JSON.stringify(postRenderData),
 		expectedBucketOwner,

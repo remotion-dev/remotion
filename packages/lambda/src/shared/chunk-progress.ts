@@ -2019,7 +2019,7 @@ export const writeLambdaInitializedFile = ({
 	chunk,
 	renderId,
 	framesRendered,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	expectedBucketOwner: string;
@@ -2027,7 +2027,7 @@ export const writeLambdaInitializedFile = ({
 	chunk: number;
 	attempt: number;
 	framesRendered: number;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	return lambdaWriteFile({
 		privacy: 'private',
@@ -2037,7 +2037,7 @@ export const writeLambdaInitializedFile = ({
 			renderId,
 			chunk,
 			attempt,
-			renderFolderExpiry,
+			renderFolderExpiryInDays,
 		}),
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,

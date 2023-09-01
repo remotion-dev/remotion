@@ -34,6 +34,7 @@ test("Go package should create the same payload as normal Lambda package", async
     functionName: "remotion-render",
     serveUrl: "testbed",
     codec: "h264",
+    colorSpace: "default",
   });
 
   expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

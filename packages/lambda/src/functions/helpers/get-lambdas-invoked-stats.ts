@@ -10,17 +10,17 @@ export type LambdaInvokeStats = {
 export const getLambdasInvokedStats = ({
 	contents,
 	renderId,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	renderId: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): LambdaInvokeStats => {
 	const lambdasInvoked = contents
 		.filter(
 			(c) =>
 				c.Key?.startsWith(
-					lambdaChunkInitializedPrefix(renderId, renderFolderExpiry),
+					lambdaChunkInitializedPrefix(renderId, renderFolderExpiryInDays),
 				),
 		)
 		.filter((c) => parseLambdaInitializedKey(c.Key as string).attempt === 1);

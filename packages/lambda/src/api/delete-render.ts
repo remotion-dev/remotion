@@ -13,7 +13,7 @@ export type DeleteRenderInput = {
 	bucketName: string;
 	renderId: string;
 	customCredentials?: CustomCredentials;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 };
 
 /**
@@ -33,7 +33,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
-		renderFolderExpiry: input.renderFolderExpiry,
+		renderFolderExpiryInDays: input.renderFolderExpiryInDays,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -51,7 +51,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 
 	let files = await lambdaLs({
 		bucketName: input.bucketName,
-		prefix: rendersPrefix(input.renderId, input.renderFolderExpiry),
+		prefix: rendersPrefix(input.renderId, input.renderFolderExpiryInDays),
 		region: input.region,
 		expectedBucketOwner,
 	});
@@ -71,7 +71,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 		});
 		files = await lambdaLs({
 			bucketName: input.bucketName,
-			prefix: rendersPrefix(input.renderId, input.renderFolderExpiry),
+			prefix: rendersPrefix(input.renderId, input.renderFolderExpiryInDays),
 			region: input.region,
 			expectedBucketOwner,
 		});

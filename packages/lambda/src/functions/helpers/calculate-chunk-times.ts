@@ -23,17 +23,19 @@ export const calculateChunkTimes = ({
 	contents,
 	renderId,
 	type,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	renderId: string;
 	type: 'combined-time-for-cost-calculation' | 'absolute-time';
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	const parsedTimings = contents
 		.filter(
 			(c) =>
-				c.Key?.startsWith(lambdaTimingsPrefix(renderId, renderFolderExpiry)),
+				c.Key?.startsWith(
+					lambdaTimingsPrefix(renderId, renderFolderExpiryInDays),
+				),
 		)
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 

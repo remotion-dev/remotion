@@ -53,7 +53,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	jpegQuality,
 	quality,
 	offthreadVideoCacheSizeInBytes,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 	colorSpace,
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
@@ -123,7 +123,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		renderFolderExpiry: renderFolderExpiry ?? null,
+		renderFolderExpiryInDays: renderFolderExpiryInDays ?? null,
 		colorSpace,
 	};
 };
@@ -132,7 +132,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
@@ -140,6 +140,6 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
-		renderFolderExpiry: renderFolderExpiry ?? null,
+		renderFolderExpiryInDays: renderFolderExpiryInDays ?? null,
 	};
 };

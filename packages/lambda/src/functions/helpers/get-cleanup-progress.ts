@@ -8,13 +8,13 @@ export const getCleanupProgress = ({
 	output,
 	chunkCount,
 	renderId,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	output: string | null;
 	chunkCount: number;
 	renderId: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): null | CleanupInfo => {
 	if (output === null) {
 		return null;
@@ -23,7 +23,7 @@ export const getCleanupProgress = ({
 	const filesToDelete = getFilesToDelete({
 		chunkCount,
 		renderId,
-		renderFolderExpiry,
+		renderFolderExpiryInDays,
 	});
 	const filesStillThere = contents.filter((c) => {
 		return filesToDelete.find((f) => {

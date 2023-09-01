@@ -151,7 +151,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
-	const renderFolderExpiry = strToRenderEnum({
+	const renderFolderExpiryInDays = strToRenderEnum({
 		value: parsedLambdaCli['render-folder-expiry-in-days'],
 	});
 
@@ -196,7 +196,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
-		renderFolderExpiry,
+		renderFolderExpiryInDays,
 		colorSpace: 'default',
 	});
 
@@ -232,7 +232,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
-		renderFolderExpiry,
+		renderFolderExpiryInDays,
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
@@ -256,7 +256,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
-			renderFolderExpiry,
+			renderFolderExpiryInDays,
 		});
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
@@ -292,7 +292,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
-					renderFolderExpiry,
+					renderFolderExpiryInDays,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({

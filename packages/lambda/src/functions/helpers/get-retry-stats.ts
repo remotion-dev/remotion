@@ -12,17 +12,17 @@ export type ChunkRetry = {
 export const getRetryStats = ({
 	contents,
 	renderId,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	renderId: string;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): ChunkRetry[] => {
 	const retries = contents
 		.filter(
 			(c) =>
 				c.Key?.startsWith(
-					lambdaChunkInitializedPrefix(renderId, renderFolderExpiry),
+					lambdaChunkInitializedPrefix(renderId, renderFolderExpiryInDays),
 				),
 		)
 		.filter((c) => parseLambdaInitializedKey(c.Key as string).attempt !== 1);

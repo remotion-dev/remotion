@@ -48,13 +48,13 @@ export const writeLambdaError = async ({
 	renderId,
 	errorInfo,
 	expectedBucketOwner,
-	renderFolderExpiry,
+	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
 	errorInfo: LambdaErrorInfo;
-	renderFolderExpiry: RenderExpiryDays | null;
+	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
@@ -62,7 +62,7 @@ export const writeLambdaError = async ({
 			renderId,
 			chunk: errorInfo.chunk,
 			attempt: errorInfo.attempt,
-			renderFolderExpiry,
+			renderFolderExpiryInDays,
 		})}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegionInFunction(),

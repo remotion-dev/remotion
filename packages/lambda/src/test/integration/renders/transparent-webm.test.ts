@@ -67,7 +67,7 @@ test('Should make a transparent video', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
-			renderFolderExpiry: null,
+			renderFolderExpiryInDays: null,
 			colorSpace: 'default',
 		},
 		functionName: 'remotion-dev-render',
@@ -83,7 +83,7 @@ test('Should make a transparent video', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
-			renderFolderExpiry: null,
+			renderFolderExpiryInDays: null,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -126,7 +126,7 @@ test('Should make a transparent video', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId: res.renderId,
-		renderFolderExpiry: null,
+		renderFolderExpiryInDays: null,
 	});
 
 	const expectFiles = await lambdaLs({
