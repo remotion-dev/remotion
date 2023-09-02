@@ -16,7 +16,7 @@ export type DownloadMediaInput = {
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
 	customCredentials?: CustomCredentials;
-	renderFolderExpiryInDays: RenderExpiryDays | null;
+	renderFolderExpiryInDays?: RenderExpiryDays | null;
 };
 
 export type DownloadMediaOutput = {
@@ -47,7 +47,7 @@ export const downloadMedia = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
-		renderFolderExpiryInDays: input.renderFolderExpiryInDays,
+		renderFolderExpiryInDays: input.renderFolderExpiryInDays ?? null,
 	});
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);

@@ -91,6 +91,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     key: "my-output",
     bucketName: "output-bucket",
   },
+  colorSpace: "default",
 });
 ```
 
