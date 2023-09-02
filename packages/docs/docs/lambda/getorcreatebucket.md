@@ -47,6 +47,10 @@ The name of your bucket that was found or created.
 
 A boolean indicating whether the bucket already existed or was newly created.
 
+### `enableFolderExpiry`<AvailableFrom v="4.0.29" />
+
+A boolean indicating whether to create lifecyle rules, to automatically delete render folders.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-or-create-bucket.ts)
