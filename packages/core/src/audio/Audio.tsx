@@ -38,7 +38,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			console.log(e.currentTarget.error);
 
 			// If there is no `loop` property, we don't need to get the duration
-			// and thsi does not need to be a fatal error
+			// and this does not need to be a fatal error
 			const errMessage = `Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
 
 			if (loop) {
@@ -58,7 +58,18 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
+		let duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
+
+		// Account for endAt
+		if (typeof endAt !== 'undefined') {
+			duration = endAt;
+		}
+		
+		// Account for startFrom
+		if (typeof startFrom !== 'undefined') {
+			duration -= startFrom;
+		}
+
 		const playbackRate = props.playbackRate ?? 1;
 		const actualDuration = duration / playbackRate;
 
