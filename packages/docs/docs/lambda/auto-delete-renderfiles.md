@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 Automatically delete older render files created by Remotion.
 
 <ExperimentalBadge>
-<p>This feature is still new and there is a risk that you cannot recover your files. Please report any issues you encounter.</p>
+<p>This feature is still new, and there is a risk that you may not be able to recover your files. Existing render files will not be deleted by this action. Please report any issues you encounter.</p>
 </ExperimentalBadge>
 
 Do the following to set the automatic delete of older render files.
