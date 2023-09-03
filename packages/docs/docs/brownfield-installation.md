@@ -50,15 +50,15 @@ yarn add @remotion/cli remotion
 
 ## Setting up the folder structure
 
-Create a new folder for the Remotion files. It can be anywhere and assume any name, in this example we name it `video` and put it in the root of our project. Inside the folder you created, create 3 files:
+Create a new folder for the Remotion files. It can be anywhere and assume any name, in this example we name it `remotion` and put it in the root of our project. Inside the folder you created, create 3 files:
 
-```tsx twoslash title="video/Composition.tsx"
+```tsx twoslash title="remotion/Composition.tsx"
 export const MyComposition = () => {
   return null;
 };
 ```
 
-```tsx twoslash title="video/Root.tsx"
+```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
   return null;
@@ -85,7 +85,7 @@ export const RemotionRoot: React.FC = () => {
 };
 ```
 
-```ts twoslash title="video/index.ts"
+```ts twoslash title="remotion/index.ts"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
   return null;
@@ -124,17 +124,17 @@ The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion
 Start the Remotion Studio using the following command:
 
 ```
-npx remotion studio video/index.ts
+npx remotion studio remotion/index.ts
 ```
 
-Replace `video/index.ts` with your entrypoint if necessary.
+Replace `remotion/index.ts` with your entrypoint if necessary.
 
 ## Render a video
 
 Render our a video using
 
 ```
-npx remotion render video/index.ts MyComp out.mp4
+npx remotion render remotion/index.ts MyComp out.mp4
 ```
 
 Replace the entrypoint, composition name and output filename with the values that correspond to your usecase.
