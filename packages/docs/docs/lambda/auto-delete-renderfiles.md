@@ -118,18 +118,18 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
   colorSpace: "default",
-  renderFolderExpiryInDays: "1-day", // the generated file will be deleted after 1 day.
+  renderFolderExpiry: "1-day", // the generated file will be deleted after 1 day.
 });
 ```
 
 ## How it works
 
-By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiryInDays` is defined with a value of `"1-day"`, the render files will be placed into the `render/1-day/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
+By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiry` is defined with a value of `"1-day"`, the render files will be placed into the `render/1-day/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
 
 <table>
   <tr>
     <th>
-      renderFolderExpiryInDays value
+      renderFolderExpiry value
     </th>
     <th>
       Render Prefix
@@ -189,7 +189,7 @@ AWS does not delete the file at the exact time, but the deletion will happen.
 
 ## Getting the progress of render
 
-Due to AWS limitation on postfix search, we need to provide the `renderFolderExpiryInDays` values that we have defined during the render to get the progress of the render.
+Due to AWS limitation on postfix search, we need to provide the `renderFolderExpiry` values that we have defined during the render to get the progress of the render.
 
 ### From Node.js
 
@@ -204,7 +204,7 @@ const progress = await getRenderProgress({
   bucketName: "remotionlambda-d9mafgx",
   functionName: "remotion-render-la8ffw",
   region: "us-east-1",
-  renderFolderExpiryInDays: "7-days",
+  renderFolderExpiry: "7-days",
 });
 ```
 

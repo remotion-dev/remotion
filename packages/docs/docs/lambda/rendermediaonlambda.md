@@ -387,7 +387,7 @@ _available from v3.2.43_
 
 A link to the folder in the AWS console where each chunk and render is located.
 
-### `renderFolderExpiryInDays`
+### `renderFolderExpiry`
 
 _available from v4.0.29_
 

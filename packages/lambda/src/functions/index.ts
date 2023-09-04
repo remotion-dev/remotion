@@ -42,7 +42,7 @@ const innerHandler = async (
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
 		const renderId = generateRandomHashWithLifeCycleRule(
-			params.renderFolderExpiryInDays,
+			params.renderFolderExpiry,
 		);
 		printCloudwatchHelper(LambdaRoutines.still, {
 			renderId,

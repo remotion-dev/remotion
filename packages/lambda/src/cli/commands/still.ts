@@ -133,7 +133,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		),
 	);
 
-	const renderFolderExpiryInDays = strToRenderEnum({
+	const renderFolderExpiry = strToRenderEnum({
 		value: parsedLambdaCli['render-folder-expiry'],
 	});
 
@@ -160,7 +160,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
 			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
 		},
-		renderFolderExpiryInDays,
+		renderFolderExpiry,
 	});
 
 	if (downloadName) {
