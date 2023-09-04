@@ -220,9 +220,9 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {} pts = {} key = {}",
-                packet.dts().unwrap(),
-                packet.pts().unwrap(),
+                "Got packet dts = {:?} pts = {:?} key = {}",
+                packet.dts(),
+                packet.pts(),
                 packet.is_key()
             ))?;
             if freshly_seeked {
@@ -248,7 +248,11 @@ impl OpenedStream {
                 }
             }
 
-            self.video.send_packet(&packet)?;
+            if packet.dts().is_some() {
+                self.video.send_packet(&packet)?;
+            } else {
+                _print_verbose("Found packet with no DTS. Skipping")?;
+            }
             let result = self.receive_frame();
 
             match result {
