@@ -270,7 +270,6 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   imageFormat: "none",
   maxRetries: 1,
   privacy: "public",
-  colorSpace: "default",
 });
 ```
 
