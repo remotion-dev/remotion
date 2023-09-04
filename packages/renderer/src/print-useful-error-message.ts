@@ -41,6 +41,15 @@ export const printUsefulErrorMessage = (err: Error) => {
 		);
 	}
 
+	if (
+		err.message.includes('Member must have value less than or equal to 3008')
+	) {
+		console.log();
+		console.log(
+			'💡 This error indicates that you have a AWS account on the free tier or have been limited by your organization. Often times this can be solved by adding a credit card.',
+		);
+	}
+
 	if (err.message.includes('Error creating WebGL context')) {
 		console.log();
 		console.warn(
