@@ -37,6 +37,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 			await internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
+				customCredentials: null,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({

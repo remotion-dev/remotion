@@ -1,4 +1,5 @@
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {makeBucketName} from '../shared/validate-bucketname';
@@ -8,11 +9,13 @@ import {getRemotionS3Buckets} from './get-buckets';
 type GetOrCreateBucketInputInner = {
 	region: AwsRegion;
 	enableFolderExpiry: boolean | null;
+	customCredentials: CustomCredentials | null;
 };
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
 	enableFolderExpiry?: boolean;
+	customCredentials?: CustomCredentials;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -42,6 +45,7 @@ export const internalGetOrCreateBucket = async (
 			enableFolderExpiry: enableFolderExpiry ?? null,
 			bucketName: existingBucketName,
 			region,
+			customCredentials: params.customCredentials,
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
@@ -59,6 +63,7 @@ export const internalGetOrCreateBucket = async (
 		enableFolderExpiry: enableFolderExpiry ?? null,
 		bucketName,
 		region,
+		customCredentials: params.customCredentials,
 	});
 
 	return {bucketName, alreadyExisted: false};
@@ -74,5 +79,6 @@ export const getOrCreateBucket = (options: GetOrCreateBucketInput) => {
 	return internalGetOrCreateBucket({
 		region: options.region,
 		enableFolderExpiry: options.enableFolderExpiry ?? null,
+		customCredentials: options.customCredentials ?? null,
 	});
 };

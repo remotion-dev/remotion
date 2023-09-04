@@ -34,6 +34,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 			await internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: parsedLambdaCli['enable-folder-expiry'] ?? null,
+				customCredentials: null,
 			})
 		).bucketName;
 

@@ -39,6 +39,7 @@ export const compositionsHandler = async (
 			internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: null,
+				customCredentials: null,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			lambdaParams.logLevel,

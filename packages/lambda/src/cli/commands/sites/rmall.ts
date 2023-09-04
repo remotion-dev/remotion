@@ -21,6 +21,7 @@ export const sitesRmallSubcommand = async () => {
 			await internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: parsedLambdaCli['enable-folder-expiry'] ?? null,
+				customCredentials: null,
 			})
 		).bucketName;
 
