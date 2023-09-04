@@ -44,7 +44,6 @@ const getFileType = (fileName: string | null): AssetFileType => {
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
-	console.log('file extension: ', fileExtension);
 	if (fileExtension === undefined) {
 		throw new Error('File extension is undefined');
 	}
