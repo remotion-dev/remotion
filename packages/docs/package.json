@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.30",
+  "version": "4.0.31",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
