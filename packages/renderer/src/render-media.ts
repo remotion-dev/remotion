@@ -179,7 +179,6 @@ export type RenderMediaOptions = {
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
-	renderFolderExpiry?: string | null;
 	colorSpace?: ColorSpace;
 };
 

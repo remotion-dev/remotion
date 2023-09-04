@@ -124,7 +124,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		renderFolderExpiryInDays: renderFolderExpiryInDays ?? null,
-		colorSpace,
+		colorSpace: colorSpace ?? 'default',
 	};
 };
 
