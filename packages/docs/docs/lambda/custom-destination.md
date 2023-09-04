@@ -43,7 +43,6 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     key: "my-output",
     bucketName: "output-bucket",
   },
-  colorSpace: "default",
 });
 ```
 
@@ -94,7 +93,6 @@ const { bucketName, renderId } = await renderMediaOnLambda({
       secretAccessKey: "<DIGITAL_OCEAN_SECRET_ACCESS_KEY>",
     },
   },
-  colorSpace: "default",
 });
 ```
 
