@@ -16,7 +16,7 @@ export const dynamicLibraryPathOptions = () => {
 				  }
 				: process.platform === 'win32'
 				? {
-						PATH: `${process.env.PATH};${lib}`,
+						PATH: `${lib};${process.env.PATH}`,
 				  }
 				: {
 						LD_LIBRARY_PATH: lib,

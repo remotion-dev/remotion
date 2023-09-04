@@ -1,6 +1,5 @@
 import {spawn} from 'node:child_process';
 import {chmodSync} from 'node:fs';
-import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
@@ -30,24 +29,15 @@ type Waiter = {
 	reject: (err: Error) => void;
 };
 
-export const getIdealMaximumFrameCacheSizeInBytes = () => {
-	const freeMemory = os.freemem();
-
-	// Assuming only half the available memory should be used
-	const max = freeMemory / 2;
-
-	// Never store more than 2000 MB
-	// But 240MB is needed even if it's going to swap
-	return Math.max(mbToBytes(240), Math.min(max, mbToBytes(2000)));
-};
-
-const mbToBytes = (mb: number) => mb * 1024 * 1024;
-
-export const startLongRunningCompositor = (
-	maximumFrameCacheItemsInBytes: number,
-	logLevel: LogLevel,
-	indent: boolean,
-) => {
+export const startLongRunningCompositor = ({
+	maximumFrameCacheItemsInBytes,
+	logLevel,
+	indent,
+}: {
+	maximumFrameCacheItemsInBytes: number | null;
+	logLevel: LogLevel;
+	indent: boolean;
+}) => {
 	return startCompositor(
 		'StartLongRunningProcess',
 		{
@@ -256,7 +246,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			resolve?.();
 			for (const waiter of waitersToKill) {
 				waiter.reject(
-					new Error(`Compositor quit${signal ? ` with signal ${signal}` : ''}`)
+					new Error(`Compositor quit${signal ? ` with signal ${signal}` : ''}`),
 				);
 			}
 
@@ -291,8 +281,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 								runningStatus.signal
 									? ` with signal ${runningStatus.signal}`
 									: ''
-							}`
-						)
+							}`,
+						),
 					);
 					return;
 				}
@@ -304,8 +294,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 								runningStatus.signal
 									? ` with signal ${runningStatus.signal}`
 									: ''
-							}: ${runningStatus.error}`
-						)
+							}: ${runningStatus.error}`,
+						),
 					);
 					return;
 				}
@@ -319,7 +309,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				throw new Error(
 					`Compositor quit${
 						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}: ${runningStatus.error}`
+					}: ${runningStatus.error}`,
 				);
 			}
 
@@ -327,7 +317,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				throw new Error(
 					`Compositor quit${
 						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`
+					}`,
 				);
 			}
 
@@ -342,7 +332,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				throw new Error(
 					`Compositor quit${
 						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`
+					}`,
 				);
 			}
 
