@@ -198,6 +198,7 @@ export const AssetSelectorItem: React.FC<{
 			: item.name;
 		setMediaType('asset');
 		setCurrentAsset(relativePath);
+		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
 	}, [item.name, parentFolder, setCurrentAsset, setMediaType]);
 	const style: React.CSSProperties = useMemo(() => {
 		return {
