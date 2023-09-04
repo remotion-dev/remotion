@@ -42,7 +42,7 @@ export const applyLifeCyleOperation = async ({
 		return;
 	}
 
-	if (enableFolderExpiry) {
+	if (enableFolderExpiry === true) {
 		await createLCRules({bucketName, region});
 	} else {
 		await deleteLCRules({bucketName, region});
