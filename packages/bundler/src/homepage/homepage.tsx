@@ -52,12 +52,14 @@ const AvailableCompositions: React.FC = () => {
 		const check = () => {
 			if (window.remotion_renderReady === true) {
 				setComps({type: 'loading'});
-				try {
-					const newComps = window.remotion_getCompositionNames();
-					setComps({type: 'loaded', comps: newComps});
-				} catch (err) {
-					setComps({type: 'error', error: err as Error});
-				}
+				setTimeout(() => {
+					try {
+						const newComps = window.remotion_getCompositionNames();
+						setComps({type: 'loaded', comps: newComps});
+					} catch (err) {
+						setComps({type: 'error', error: err as Error});
+					}
+				}, 250);
 			} else {
 				timeout = setTimeout(check, 250);
 			}
