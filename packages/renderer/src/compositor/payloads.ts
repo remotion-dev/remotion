@@ -99,7 +99,7 @@ export type CompositorCommand = {
 	};
 	StartLongRunningProcess: {
 		concurrency: number;
-		maximum_frame_cache_size_in_bytes: number;
+		maximum_frame_cache_size_in_bytes: number | null;
 		verbose: boolean;
 	};
 	CopyImageToClipboard: {

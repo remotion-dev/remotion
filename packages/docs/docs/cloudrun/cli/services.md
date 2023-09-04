@@ -59,7 +59,7 @@ The [GCP region](/docs/cloudrun/region-selection) to select. The site that the s
 
 ### `--memoryLimit`
 
-The upper bound on the amount of RAM that the Cloud Run service can consume. Default: 512 MB.
+The upper bound on the amount of RAM that the Cloud Run service can consume. Default: 2 GB.
 
 ### `--cpuLimit`
 
