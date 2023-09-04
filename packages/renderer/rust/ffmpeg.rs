@@ -1,4 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata};
@@ -32,7 +33,18 @@ pub fn keep_only_latest_frames(
 ) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
 
-    manager.only_keep_n_frames(maximum_frame_cache_size_in_bytes)?;
+    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+
+    Ok(())
+}
+
+pub fn emergency_memory_free_up(
+    maximum_frame_cache_size_in_bytes: u128,
+) -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    _print_verbose("System is about to run out of memory, freeing up memory.")?;
+    manager.halfen_cache_size(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }
