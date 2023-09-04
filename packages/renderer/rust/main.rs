@@ -8,6 +8,7 @@ mod get_silent_parts;
 mod global_printer;
 mod image;
 mod logger;
+mod memory;
 mod opened_stream;
 mod opened_video;
 mod opened_video_manager;
@@ -17,6 +18,7 @@ mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
+use memory::is_about_to_run_out_of_memory;
 use std::env;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
@@ -39,6 +41,11 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
             set_verbose_logging(payload.verbose);
+
+            let memory = memory::get_available_memory();
+
+            _print_verbose(&format!("available memory {}", memory))?;
+
             _print_verbose(&format!(
                 "Starting Rust process. Max video cache size: {}MB, max concurrency = {}",
                 payload.maximum_frame_cache_size_in_bytes / 1024 / 1024,
@@ -96,6 +103,9 @@ fn start_long_running_process(
                 )
                 .unwrap(),
             };
+            if is_about_to_run_out_of_memory() {
+                ffmpeg::emergency_memory_free_up(maximum_frame_cache_size_in_bytes).unwrap();
+            }
             ffmpeg::keep_only_latest_frames(maximum_frame_cache_size_in_bytes).unwrap();
         });
     }
