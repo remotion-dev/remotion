@@ -32,13 +32,11 @@ const createLCRules = async ({
 	try {
 		await getS3Client(region, customCredentials).send(createCommand);
 	} catch (err) {
-		if ((err as Error).message.includes('AccessDenied')) {
+		if ((err as Error).stack?.includes('AccessDenied')) {
 			throw new Error(
-				`You don't have the required permissions to create lifecycle rules on the bucket "${bucketName}". Ensure that your user has the "s3:PutLifecycleConfiguration" permission.`,
+				`You don't have the required permissions to create lifecycle rules on the bucket "${bucketName}", but the "enableFolderExpiry" was set to true. Ensure that your user has the "s3:PutLifecycleConfiguration" permission.`,
 			);
 		}
-
-		console.log({err});
 	}
 };
 
@@ -59,13 +57,11 @@ const deleteLCRules = async ({
 			new DeleteBucketLifecycleCommand(deleteCommandInput),
 		);
 	} catch (err) {
-		if ((err as Error).message.includes('AccessDenied')) {
+		if ((err as Error).stack?.includes('AccessDenied')) {
 			throw new Error(
-				`You don't have the required permissions to delete lifecycle rules on the bucket "${bucketName}". Ensure that your user has the "s3:PutLifecycleConfiguration" permission.`,
+				`You don't have the required permissions to delete lifecycle rules on the bucket "${bucketName}", but the "enableFolderExpiry" option was set to "false". Ensure that your user has the "s3:PutLifecycleConfiguration" permission. Set "enableFolderExpiry" to "null" to not overwrite any existing lifecycle rules.`,
 			);
 		}
-
-		console.log({err});
 	}
 };
 
