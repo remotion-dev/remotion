@@ -45,9 +45,9 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 };
 
 export const generateRandomHashWithLifeCycleRule = (
-	renderFolderExpiryInDays: RenderExpiryDays | null,
+	renderFolderExpiry: RenderExpiryDays | null,
 ) => {
-	return [renderFolderExpiryInDays, randomHash({randomInTests: true})]
+	return [renderFolderExpiry, randomHash({randomInTests: true})]
 		.filter(truthy)
 		.join('-');
 };

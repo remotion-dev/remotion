@@ -73,7 +73,7 @@ class RenderParams
     private $proResProfile = null;
     private $pixelFormat = null;
     private $x264Preset = null;
-    private $renderFolderExpiryInDays = null;
+    private $renderFolderExpiry = null;
     
     public function __construct(
         ?array $data = null,
@@ -111,7 +111,7 @@ class RenderParams
         ?string $proResProfile = null, 
         ?string $pixelFormat = null,
         ?string $x264Preset = null,
-        ?string $renderFolderExpiryInDays = null
+        ?string $renderFolderExpiry = null
         )
     {
         $this->data = $data;
@@ -149,7 +149,7 @@ class RenderParams
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
         $this->x264Preset = $x264Preset;
-        $this->renderFolderExpiryInDays = $renderFolderExpiryInDays;
+        $this->renderFolderExpiry = $renderFolderExpiry;
     }
 
     private array $inputProps = array();
@@ -188,7 +188,7 @@ class RenderParams
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
-            'renderFolderExpiryInDays' => $this->getRenderFolderExpiry(),
+            'renderFolderExpiry' => $this->getRenderFolderExpiry(),
             'type' => 'start'
         ];
 
@@ -836,12 +836,12 @@ class RenderParams
 
     public function getRenderFolderExpiry()
     {
-        return $this->renderFolderExpiryInDays;
+        return $this->renderFolderExpiry;
     }
 
-    public function setRenderFolderExpiry($renderFolderExpiryInDays)
+    public function setRenderFolderExpiry($renderFolderExpiry)
     {
-         $this->renderFolderExpiryInDays = $renderFolderExpiryInDays;
+         $this->renderFolderExpiry = $renderFolderExpiry;
          return $this;
     }
 }

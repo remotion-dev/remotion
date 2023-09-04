@@ -47,7 +47,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	const renderId = generateRandomHashWithLifeCycleRule(
-		params.renderFolderExpiryInDays,
+		params.renderFolderExpiry,
 	);
 
 	const initialFile = lambdaWriteFile({
@@ -99,7 +99,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
+		renderFolderExpiry: params.renderFolderExpiry,
 		colorSpace: params.colorSpace,
 	};
 

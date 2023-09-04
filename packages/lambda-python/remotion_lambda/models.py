@@ -51,7 +51,7 @@ class RenderParams:
     pro_res_profile: Optional[str] = None
     x264_preset: Optional[str] = None
     pixel_format: Optional[str] = None
-    render_folder_expiry_in_days: Optional[str] = None
+    render_folder_expiry: Optional[str] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -90,7 +90,7 @@ class RenderParams:
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
-            'renderFolderExpiryInDays': self.render_folder_expiry_in_days,
+            'renderFolderExpiry': self.render_folder_expiry,
             'type': 'start'
         }
 
@@ -136,7 +136,7 @@ class RenderProgressParams:
     bucket_name: str
     function_name: str
     region: str
-    render_folder_expiry_in_days: Optional[str] = None
+    render_folder_expiry: Optional[str] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -148,7 +148,7 @@ class RenderProgressParams:
             'type': 'status',
             "version": VERSION,
             "s3OutputProvider": None,
-            "renderFolderExpiryInDays": self.render_folder_expiry_in_days
+            "renderFolderExpiry": self.render_folder_expiry
         }
         return parameters
 

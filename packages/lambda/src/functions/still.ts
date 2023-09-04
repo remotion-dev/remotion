@@ -156,7 +156,7 @@ const innerStillHandler = async ({
 		everyNthFrame: 1,
 		frameRange: [lambdaParams.frame, lambdaParams.frame],
 		audioCodec: null,
-		renderFolderExpiryInDays: lambdaParams.renderFolderExpiryInDays,
+		renderFolderExpiry: lambdaParams.renderFolderExpiry,
 	};
 
 	await lambdaWriteFile({

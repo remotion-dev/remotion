@@ -123,6 +123,6 @@ export const createPostRenderData = ({
 			renderMetadata.frameRange[0],
 			renderMetadata.frameRange[1],
 		),
-		renderFolderExpiryInDays: renderMetadata.renderFolderExpiryInDays,
+		renderFolderExpiry: renderMetadata.renderFolderExpiry,
 	};
 };

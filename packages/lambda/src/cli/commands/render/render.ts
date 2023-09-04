@@ -152,7 +152,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
-	const renderFolderExpiryInDays = strToRenderEnum({
+	const renderFolderExpiry = strToRenderEnum({
 		value: parsedLambdaCli['render-folder-expiry'],
 	});
 
@@ -197,7 +197,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
-		renderFolderExpiryInDays,
+		renderFolderExpiry,
 		colorSpace,
 	});
 

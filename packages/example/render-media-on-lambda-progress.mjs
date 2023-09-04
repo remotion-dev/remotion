@@ -7,7 +7,7 @@ const {overallProgress} = await getRenderProgress({
 	bucketName: process.env.BUCKET_NAME ?? '',
 	functionName: process.env.FUNCTION_NAME ?? '',
 	region: 'us-east-1',
-	renderFolderExpiryInDays: RenderExpiryDays.AFTER_1_DAYS,
+	renderFolderExpiry: RenderExpiryDays.AFTER_1_DAYS,
 });
 
 console.log(`Render progress ${overallProgress}`);

@@ -63,7 +63,7 @@ class PHPClient
             'type' => 'status',
             "version" => VERSION,
             "s3OutputProvider" => null,
-            "renderFolderExpiryInDays" => null
+            "renderFolderExpiry" => null
         );
         $result = json_encode($params);
         return $result;

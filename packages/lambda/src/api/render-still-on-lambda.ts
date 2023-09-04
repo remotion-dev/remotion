@@ -50,7 +50,7 @@ export type RenderStillOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
-	renderFolderExpiryInDays?: RenderExpiryDays | null;
+	renderFolderExpiry?: RenderExpiryDays | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
@@ -87,7 +87,7 @@ const renderStillOnLambdaRaw = async ({
 	dumpBrowserLogs,
 	onInit,
 	offthreadVideoCacheSizeInBytes,
-	renderFolderExpiryInDays,
+	renderFolderExpiry,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -131,7 +131,7 @@ const renderStillOnLambdaRaw = async ({
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-				renderFolderExpiryInDays: renderFolderExpiryInDays ?? null,
+				renderFolderExpiry: renderFolderExpiry ?? null,
 			},
 			region,
 			receivedStreamingPayload: (payload) => {
