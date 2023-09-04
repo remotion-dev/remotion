@@ -74,6 +74,7 @@ export const compressInputProps = async ({
 				await internalGetOrCreateBucket({
 					region,
 					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 

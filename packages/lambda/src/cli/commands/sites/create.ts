@@ -96,6 +96,7 @@ export const sitesCreateSubcommand = async (
 			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
 				enableFolderExpiry: enableFolderExpiry ?? null,
+				customCredentials: null,
 			})
 		).bucketName;
 

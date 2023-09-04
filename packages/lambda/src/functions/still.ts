@@ -80,6 +80,7 @@ const innerStillHandler = async ({
 			internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
+				customCredentials: null,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			lambdaParams.logLevel,
@@ -306,6 +307,7 @@ export const stillHandler = async (
 				await internalGetOrCreateBucket({
 					region: getCurrentRegionInFunction(),
 					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 
