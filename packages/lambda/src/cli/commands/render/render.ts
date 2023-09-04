@@ -69,6 +69,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -197,7 +198,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
 		renderFolderExpiryInDays,
-		colorSpace: 'default',
+		colorSpace,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
