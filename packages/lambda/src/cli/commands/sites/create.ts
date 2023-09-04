@@ -3,7 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -93,9 +93,9 @@ export const sitesCreateSubcommand = async (
 	const bucketName =
 		cliBucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
-				enableFolderExpiry,
+				enableFolderExpiry: enableFolderExpiry ?? null,
 			})
 		).bucketName;
 

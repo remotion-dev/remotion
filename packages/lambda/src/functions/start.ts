@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
@@ -34,8 +34,9 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const bucketName =
 		params.bucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({

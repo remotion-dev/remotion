@@ -5,7 +5,7 @@ import path from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
@@ -77,8 +77,9 @@ const innerStillHandler = async ({
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
-			getOrCreateBucket({
+			internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			lambdaParams.logLevel,
@@ -302,8 +303,9 @@ export const stillHandler = async (
 		const bucketName =
 			params.bucketName ??
 			(
-				await getOrCreateBucket({
+				await internalGetOrCreateBucket({
 					region: getCurrentRegionInFunction(),
+					enableFolderExpiry: null,
 				})
 			).bucketName;
 
