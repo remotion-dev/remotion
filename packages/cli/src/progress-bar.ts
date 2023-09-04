@@ -288,9 +288,5 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		return `Rendering ${progress.rendering.frames}/${progress.rendering.totalFrames}`;
 	}
 
-	if (!progress.stitching.doneIn) {
-		return `Stitching ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
-	}
-
-	return ' ';
+	return `Stitching ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };
