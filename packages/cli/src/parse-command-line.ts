@@ -269,7 +269,7 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli['render-folder-expiry'] !== 'undefined') {
-		Config.setRenderFolderExpiryInDays(parsedCli['render-folder-expiry']);
+		Config.setRenderFolderExpiry(parsedCli['render-folder-expiry']);
 	}
 
 	if (typeof parsedCli['color-space'] !== 'undefined') {
