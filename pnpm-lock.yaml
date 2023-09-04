@@ -1532,8 +1532,8 @@ importers:
   packages/rive:
     dependencies:
       '@rive-app/canvas-advanced':
-        specifier: 1.0.98
-        version: 1.0.98
+        specifier: 2.3.0
+        version: 2.3.0
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1559,6 +1559,9 @@ importers:
       prettier:
         specifier: 3.0.2
         version: 3.0.2
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.2
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -7948,8 +7951,8 @@ packages:
       three: 0.154.0
       zustand: 3.7.2(react@18.2.0)
 
-  /@rive-app/canvas-advanced@1.0.98:
-    resolution: {integrity: sha512-Pf2uE1Q9nHbupqlZ/XoaaLGoc3HMkZE7c5heE5qyKVgGeYc08Bf6k5m91vg/pNu8w7VC3xITmdG2Ef5lsH2T6A==}
+  /@rive-app/canvas-advanced@2.3.0:
+    resolution: {integrity: sha512-JzgY8aSvWbuigoJ+8x1lHW8or0syQz8hxpRdPijkCCp/GJYRPvBstYdJPbHk2nbv5+BV+8Rv4zRw96wKFVsvKQ==}
     dev: false
 
   /@rollup/plugin-typescript@8.5.0(rollup@2.76.0)(typescript@4.9.5):
