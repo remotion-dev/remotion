@@ -1,4 +1,5 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext} from 'react';
+import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {persistLoopOption} from '../state/loop';
@@ -10,6 +11,7 @@ export const LoopToggle: React.FC<{
 	loop: boolean;
 	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({loop, setLoop}) => {
+	const {mediaType} = useContext(Internals.CompositionManager);
 	const onClick = useCallback(() => {
 		setLoop((c) => {
 			persistLoopOption(!c);
@@ -19,7 +21,7 @@ export const LoopToggle: React.FC<{
 
 	const isStill = useIsStill();
 
-	if (isStill) {
+	if (isStill || mediaType === 'asset') {
 		return null;
 	}
 

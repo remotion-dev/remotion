@@ -1,6 +1,7 @@
 import React, {
 	createRef,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 } from 'react';
@@ -48,7 +49,7 @@ export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-
+	const {mediaType} = useContext(Internals.CompositionManager);
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -297,7 +298,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		[confId, onInMark, onInOutClear, onOutMark],
 	);
 
-	if (isStill) {
+	if (isStill || mediaType === 'asset') {
 		return null;
 	}
 
