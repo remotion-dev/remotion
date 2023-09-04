@@ -11,12 +11,15 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+import {RemTextarea} from './NewComposition/RemTextarea';
 
 type AssetResolution = {
 	width: number;
 	height: number;
 };
-const getFileType = (fileName: string | null) => {
+
+type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'other';
+const getFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
 		return 'other';
 	}
@@ -39,8 +42,11 @@ const getFileType = (fileName: string | null) => {
 	}
 
 	if (imageExtensions.includes(fileExtension)) {
-		console.log('inside image');
 		return 'image';
+	}
+
+	if (fileExtension === 'json') {
+		return 'json';
 	}
 
 	return 'other';
@@ -79,7 +85,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 	currentAsset,
 }) => {
 	const fileType = getFileType(currentAsset);
-
+	const [json, setJson] = useState<string | null>(null);
 	if (!currentAsset) {
 		return <div />;
 	}
@@ -102,7 +108,27 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 		return <img src={staticFileSrc} />;
 	}
 
-	return <div> No file found</div>;
+	if (fileType === 'json') {
+		fetch(staticFileSrc)
+			.then((res) => res.json())
+			.then((jsonRes) => {
+				console.log('json: ', jsonRes);
+				setJson(JSON.stringify(jsonRes, null, 2));
+			});
+		return (
+			<RemTextarea
+				value={json ?? undefined}
+				status="ok"
+				onChange={() => {
+					return null;
+				}}
+			/>
+		);
+	}
+
+	return (
+		<div style={{color: 'white'}}> Not possible to display this file type</div>
+	);
 };
 
 const Inner: React.FC<{
