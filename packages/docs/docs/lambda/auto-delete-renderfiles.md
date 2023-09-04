@@ -87,7 +87,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npx remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry-in-days=1
+npx remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry=1
 ```
 
   </TabItem>
@@ -95,7 +95,7 @@ npx remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-ex
   <TabItem value="pnpm">
 
 ```bash
-pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry-in-days=1
+pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry=1
 ```
 
   </TabItem>

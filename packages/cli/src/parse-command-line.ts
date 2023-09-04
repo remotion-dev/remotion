@@ -75,7 +75,7 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['audio-codec']: AudioCodec;
-	['render-folder-expiry-in-days']: string | undefined;
+	['render-folder-expiry']: string | undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
 
@@ -269,10 +269,8 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['render-folder-expiry-in-days'] !== 'undefined') {
-		Config.setRenderFolderExpiryInDays(
-			parsedCli['render-folder-expiry-in-days'],
-		);
+	if (typeof parsedCli['render-folder-expiry'] !== 'undefined') {
+		Config.setRenderFolderExpiryInDays(parsedCli['render-folder-expiry']);
 	}
 
 	if (typeof parsedCli['color-space'] !== 'undefined') {
