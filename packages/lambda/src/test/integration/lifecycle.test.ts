@@ -10,7 +10,7 @@ test('Lifecycle', () => {
 			Filter: {
 				Prefix: 'renders/1days/',
 			},
-			ID: 'DELETE_AFTER_1_DAYS',
+			ID: 'delete-after-1-day',
 			Status: 'Enabled',
 		},
 		{
@@ -20,7 +20,7 @@ test('Lifecycle', () => {
 			Filter: {
 				Prefix: 'renders/3days/',
 			},
-			ID: 'DELETE_AFTER_3_DAYS',
+			ID: 'delete-after-3-days',
 			Status: 'Enabled',
 		},
 		{
@@ -30,7 +30,7 @@ test('Lifecycle', () => {
 			Filter: {
 				Prefix: 'renders/7days/',
 			},
-			ID: 'DELETE_AFTER_7_DAYS',
+			ID: 'delete-after-7-days',
 			Status: 'Enabled',
 		},
 		{
@@ -40,7 +40,7 @@ test('Lifecycle', () => {
 			Filter: {
 				Prefix: 'renders/30days/',
 			},
-			ID: 'DELETE_AFTER_30_DAYS',
+			ID: 'delete-after-30-days',
 			Status: 'Enabled',
 		},
 	]);

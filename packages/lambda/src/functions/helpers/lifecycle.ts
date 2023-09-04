@@ -1,11 +1,13 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
 
-export enum RenderExpiryDays {
-	AFTER_1_DAYS = '1',
-	AFTER_3_DAYS = '3',
-	AFTER_7_DAYS = '7',
-	AFTER_30_DAYS = '30',
-}
+const expiryDays = {
+	'1-day': 1,
+	'3-days': 3,
+	'7-days': 7,
+	'30-days': 30,
+} as const;
+
+export type RenderExpiryDays = keyof typeof expiryDays;
 
 export const renderEnumToStr = (v: RenderExpiryDays): string => {
 	return v;
@@ -15,29 +17,27 @@ export const strToRenderEnum = ({value}: {value?: string}) => {
 	return value ? (value as RenderExpiryDays) : null;
 };
 
-export const getLifeCycleRule = ({
+export const getEnabledLifeCycleRule = ({
 	key,
 	value,
-	isEnabled = false,
 }: {
 	key: string;
-	value: string;
-	isEnabled: Boolean;
+	value: number;
 }): LifecycleRule => {
 	return {
 		Expiration: {
-			Days: parseInt(value, 10),
+			Days: value,
 		},
 		Filter: {
 			Prefix: `renders/${value}days/`,
 		},
-		ID: `DELETE_${key}`,
-		Status: isEnabled ? 'Enabled' : 'Disabled',
-	} as LifecycleRule;
+		ID: `delete-after-${key}`,
+		Status: 'Enabled',
+	};
 };
 
 export const getLifeCycleRules = (): LifecycleRule[] => {
-	return Object.entries(RenderExpiryDays).map(([key, value]) =>
-		getLifeCycleRule({key, value, isEnabled: true}),
+	return Object.entries(expiryDays).map(([key, value]) =>
+		getEnabledLifeCycleRule({key, value}),
 	);
 };
