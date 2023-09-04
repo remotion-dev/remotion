@@ -50,6 +50,13 @@ export const printUsefulErrorMessage = (err: Error) => {
 		);
 	}
 
+	if (err.stack?.includes('TooManyRequestsException: Rate Exceeded.')) {
+		console.log();
+		console.log(
+			'💡 This error indicates that your Lambda concurrency limit is too low. See: https://www.remotion.dev/docs/lambda/troubleshooting/rate-limit',
+		);
+	}
+
 	if (err.message.includes('Error creating WebGL context')) {
 		console.log();
 		console.warn(
