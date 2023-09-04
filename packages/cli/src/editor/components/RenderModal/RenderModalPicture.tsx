@@ -166,7 +166,9 @@ export const RenderModalPicture: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{qualityControlType === 'crf' && renderMode !== 'still' ? (
+			{qualityControlType === 'crf' &&
+			renderMode !== 'still' &&
+			renderMode !== 'sequence' ? (
 				<CrfSetting
 					crf={crf}
 					min={minCrf}

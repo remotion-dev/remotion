@@ -1,7 +1,4 @@
-use remotionffmpeg::software::scaling::color_space;
-
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata};
@@ -94,10 +91,10 @@ pub fn extract_frame(
         if transparent != stream.transparent {
             continue;
         }
-        if stream.last_position > max_stream_position {
+        if stream.last_position.unwrap_or(0) > max_stream_position {
             continue;
         }
-        if stream.last_position < min_stream_position {
+        if stream.last_position.unwrap_or(0) < min_stream_position {
             continue;
         }
         suitable_open_stream = Some(i);

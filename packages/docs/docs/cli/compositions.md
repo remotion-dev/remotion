@@ -105,7 +105,6 @@ _removed in v4.0_
 
 ## See also
 
-- [`getCompositions()`](/docs/cli/compositions)
-- [`npx remotion compositions`](/docs/cli/compositions)
+- [`getCompositions()`](/docs/renderer/get-compositions)
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
 - [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

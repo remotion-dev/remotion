@@ -79,7 +79,7 @@ export const generateFfmpegArgs = ({
 			: [];
 
 	return [
-		['-c:v', encoderName],
+		['-c:v', hasPreencoded ? 'copy' : encoderName],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		...colorSpaceOptions,
