@@ -13,7 +13,7 @@ const container: React.CSSProperties = {
 	overflow: 'hidden',
 	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
 	flexWrap: 'wrap',
-	maxWidth: '295px',
+	maxWidth: 350,
 	justifyContent: 'flex-end',
 };
 
@@ -26,6 +26,7 @@ const item: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	justifyContent: 'center',
+	whiteSpace: 'nowrap',
 };
 
 export type SegmentedControlItem = {

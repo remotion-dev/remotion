@@ -129,7 +129,7 @@ export const RenderModalBasic: React.FC<{
 
 	return (
 		<div style={container}>
-			{renderMode === 'still' ? (
+			{renderMode === 'still' || renderMode === 'sequence' ? (
 				<div style={optionRow}>
 					<div style={label}>Format</div>
 					<div style={rightRow}>
@@ -190,7 +190,6 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : null}
-
 			{renderMode === 'still' ? null : (
 				<FrameRangeSetting
 					durationInFrames={resolvedComposition.durationInFrames}
@@ -206,6 +205,7 @@ export const RenderModalBasic: React.FC<{
 				outName={outName}
 				onValueChange={onValueChange}
 				validationMessage={validationMessage}
+				renderType={renderMode}
 			/>
 		</div>
 	);

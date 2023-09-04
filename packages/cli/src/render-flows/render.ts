@@ -144,7 +144,6 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace;
 }) => {
 	const downloads: DownloadProgress[] = [];
-
 	if (browserExecutable) {
 		Log.verboseAdvanced(
 			{indent, logLevel},
@@ -352,7 +351,6 @@ export const renderVideoFlow = async ({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
 	});
-
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
