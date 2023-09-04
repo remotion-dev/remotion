@@ -153,7 +153,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const webhookCustomData = getWebhookCustomData();
 
 	const renderFolderExpiryInDays = strToRenderEnum({
-		value: parsedLambdaCli['render-folder-expiry-in-days'],
+		value: parsedLambdaCli['render-folder-expiry'],
 	});
 
 	const res = await renderMediaOnLambda({

@@ -134,7 +134,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	);
 
 	const renderFolderExpiryInDays = strToRenderEnum({
-		value: parsedLambdaCli['render-folder-expiry-in-days'],
+		value: parsedLambdaCli['render-folder-expiry'],
 	});
 
 	const res = await renderStillOnLambda({

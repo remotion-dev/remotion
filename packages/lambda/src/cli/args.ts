@@ -33,7 +33,7 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
-	['render-folder-expiry-in-days']: string | undefined;
+	['render-folder-expiry']: string | undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
 
