@@ -20,7 +20,7 @@ export type GetOrCreateBucketOutput = {
 	alreadyExisted: boolean;
 };
 
-const getOrCreateBucketInner = async (
+export const internalGetOrCreateBucket = async (
 	params: GetOrCreateBucketInputInner,
 ): Promise<GetOrCreateBucketOutput> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(params.region);
@@ -71,7 +71,7 @@ const getOrCreateBucketInner = async (
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = (options: GetOrCreateBucketInput) => {
-	return getOrCreateBucketInner({
+	return internalGetOrCreateBucket({
 		region: options.region,
 		enableFolderExpiry: options.enableFolderExpiry ?? null,
 	});

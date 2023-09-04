@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {decompressInputProps} from '../shared/compress-props';
@@ -36,8 +36,9 @@ export const compositionsHandler = async (
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
-			getOrCreateBucket({
+			internalGetOrCreateBucket({
 				region,
+				enableFolderExpiry: null,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			lambdaParams.logLevel,
