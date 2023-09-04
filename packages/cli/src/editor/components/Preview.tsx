@@ -25,6 +25,14 @@ const jsonStyle: React.CSSProperties = {
 	flex: 1,
 };
 
+const msgStyle: React.CSSProperties = {
+	fontSize: 13,
+	color: 'white',
+	fontFamily: 'sans-serif',
+	display: 'flex',
+	justifyContent: 'center',
+};
+
 type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'other';
 const getFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
@@ -36,6 +44,7 @@ const getFileType = (fileName: string | null): AssetFileType => {
 	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
+	console.log('file extension: ', fileExtension);
 	if (fileExtension === undefined) {
 		throw new Error('File extension is undefined');
 	}
@@ -94,7 +103,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 	const fileType = getFileType(currentAsset);
 	const [json, setJson] = useState<string | null>(null);
 	if (!currentAsset) {
-		return <div />;
+		return null;
 	}
 
 	const staticFileSrc = staticFile(currentAsset);
@@ -119,7 +128,6 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 		fetch(staticFileSrc)
 			.then((res) => res.json())
 			.then((jsonRes) => {
-				console.log('json: ', jsonRes);
 				setJson(JSON.stringify(jsonRes, null, 2));
 			});
 		return (
@@ -134,9 +142,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 		);
 	}
 
-	return (
-		<div style={{color: 'white'}}> Not possible to display this file type</div>
-	);
+	return <div style={msgStyle}> Unsupported file type</div>;
 };
 
 const Inner: React.FC<{
@@ -154,6 +160,7 @@ const Inner: React.FC<{
 	const currentAssetType = useMemo(() => {
 		return getFileType(currentAsset);
 	}, [currentAsset]);
+
 	useEffect(() => {
 		const fetchMetadata = async () => {
 			if (!currentAsset) {
@@ -165,6 +172,7 @@ const Inner: React.FC<{
 				await getVideoMetadata(assetSrc).then((data) => {
 					setAssetResolution({width: data.width, height: data.height});
 				});
+				return;
 			}
 
 			if (currentAssetType === 'image') {
@@ -174,12 +182,10 @@ const Inner: React.FC<{
 				};
 
 				img.src = assetSrc;
+				return;
 			}
 
-			// TODO: Better calculation for json
-			if (currentAssetType === 'json') {
-				setAssetResolution({width: 600, height: 600});
-			}
+			setAssetResolution({width: 600, height: 600});
 
 			return null;
 		};
@@ -228,7 +234,12 @@ const Inner: React.FC<{
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
-			justifyContent: currentAssetType === 'audio' ? 'flex-end' : 'flex-start',
+			justifyContent:
+				currentAssetType === 'audio'
+					? 'flex-end'
+					: mediaType === 'asset'
+					? 'center'
+					: 'flex-start',
 			alignItems: currentAssetType === 'audio' ? 'center' : 'normal',
 		};
 	}, [
