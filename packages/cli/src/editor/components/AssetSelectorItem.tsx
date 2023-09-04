@@ -1,7 +1,12 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {truthy} from '../../truthy';
-import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
+import {
+	BACKGROUND,
+	CLEAR_HOVER,
+	LIGHT_TEXT,
+	SELECTED_BACKGROUND,
+} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, Structure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
@@ -174,9 +179,15 @@ export const AssetSelectorItem: React.FC<{
 		setHovered(true);
 	}, []);
 
-	const {setCurrentAsset, setMediaType} = useContext(
+	const {setCurrentAsset, setMediaType, currentAsset} = useContext(
 		Internals.CompositionManager,
 	);
+
+	const selected = useMemo(() => {
+		const nameWOParent = currentAsset?.split('/').pop();
+
+		return nameWOParent === item.name;
+	}, [currentAsset, item.name]);
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
@@ -192,10 +203,16 @@ export const AssetSelectorItem: React.FC<{
 		return {
 			...itemStyle,
 			color: LIGHT_TEXT,
-			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
+			backgroundColor: hovered
+				? selected
+					? SELECTED_BACKGROUND
+					: CLEAR_HOVER
+				: selected
+				? SELECTED_BACKGROUND
+				: 'transparent',
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level]);
+	}, [hovered, level, selected]);
 
 	const label = useMemo(() => {
 		return {
