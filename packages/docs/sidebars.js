@@ -663,6 +663,7 @@ module.exports = {
         "miscellaneous/thorium-browser",
         "compare/motion-canvas",
         "gl-options",
+        "miscellaneous/electron-app-guidelines",
       ],
     },
     {
