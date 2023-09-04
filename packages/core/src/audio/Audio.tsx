@@ -1,5 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
+import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
@@ -58,23 +59,18 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		let duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
-
-		// Account for endAt
-		if (typeof endAt !== 'undefined') {
-			duration = endAt;
-		}
-		
-		// Account for startFrom
-		if (typeof startFrom !== 'undefined') {
-			duration -= startFrom;
-		}
-
-		const playbackRate = props.playbackRate ?? 1;
-		const actualDuration = duration / playbackRate;
+		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
 
 		return (
-			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
+			<Loop
+				layout="none"
+				durationInFrames={calculateLoopDuration({
+					endAt,
+					mediaDuration: duration,
+					playbackRate: props.playbackRate ?? 1,
+					startFrom,
+				})}
+			>
 				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
