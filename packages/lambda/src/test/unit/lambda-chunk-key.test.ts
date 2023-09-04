@@ -8,7 +8,6 @@ test('Should be able to parse Lambda key', () => {
 			chunkKeyForIndex({
 				index: 1111,
 				renderId: 'abcdef',
-				renderFolderExpiryInDays: null,
 			}),
 		),
 	).toEqual({

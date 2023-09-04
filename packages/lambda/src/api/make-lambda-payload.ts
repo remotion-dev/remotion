@@ -132,7 +132,6 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
-	renderFolderExpiryInDays,
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
@@ -140,6 +139,5 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
-		renderFolderExpiryInDays: renderFolderExpiryInDays ?? null,
 	};
 };

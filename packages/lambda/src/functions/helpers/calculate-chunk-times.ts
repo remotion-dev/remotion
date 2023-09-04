@@ -2,7 +2,6 @@ import type {_Object} from '@aws-sdk/client-s3';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
-import type {RenderExpiryDays} from './lifecycle';
 import {max, min} from './min-max';
 
 const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
@@ -23,20 +22,13 @@ export const calculateChunkTimes = ({
 	contents,
 	renderId,
 	type,
-	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	renderId: string;
 	type: 'combined-time-for-cost-calculation' | 'absolute-time';
-	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	const parsedTimings = contents
-		.filter(
-			(c) =>
-				c.Key?.startsWith(
-					lambdaTimingsPrefix(renderId, renderFolderExpiryInDays),
-				),
-		)
+		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)))
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
 	const absoluteTime = getAbsoluteTime(parsedTimings);

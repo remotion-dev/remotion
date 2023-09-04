@@ -29,7 +29,6 @@ import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
-import type {RenderExpiryDays} from './lifecycle';
 import {makeTimeoutError} from './make-timeout-error';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
@@ -41,7 +40,6 @@ export const getProgress = async ({
 	memorySizeInMb,
 	timeoutInMilliseconds,
 	customCredentials,
-	renderFolderExpiryInDays,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -50,14 +48,12 @@ export const getProgress = async ({
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials | null;
-	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
 		bucketName,
 		region,
 		renderId,
 		expectedBucketOwner,
-		renderFolderExpiryInDays,
 	});
 
 	if (postRenderData) {
@@ -114,15 +110,13 @@ export const getProgress = async ({
 
 	const contents = await lambdaLs({
 		bucketName,
-		prefix: rendersPrefix(renderId, renderFolderExpiryInDays),
+		prefix: rendersPrefix(renderId),
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,
 	});
 
 	const renderMetadataExists = Boolean(
-		contents.find(
-			(c) => c.Key === renderMetadataKey(renderId, renderFolderExpiryInDays),
-		),
+		contents.find((c) => c.Key === renderMetadataKey(renderId)),
 	);
 
 	const [renderMetadata, errorExplanations] = await Promise.all([
@@ -132,7 +126,6 @@ export const getProgress = async ({
 					renderId,
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner,
-					renderFolderExpiryInDays,
 			  })
 			: null,
 		inspectErrors({
@@ -141,7 +134,6 @@ export const getProgress = async ({
 			bucket: bucketName,
 			region: getCurrentRegionInFunction(),
 			expectedBucketOwner,
-			renderFolderExpiryInDays,
 		}),
 	]);
 
@@ -156,7 +148,6 @@ export const getProgress = async ({
 		renderId,
 		bucketName,
 		getCurrentRegionInFunction(),
-		renderFolderExpiryInDays,
 	);
 
 	const outputFile = renderMetadata
@@ -186,7 +177,6 @@ export const getProgress = async ({
 		contents,
 		output: outputFile?.url ?? null,
 		renderId,
-		renderFolderExpiryInDays,
 	});
 
 	const timeToFinish = getTimeToFinish({
@@ -194,9 +184,7 @@ export const getProgress = async ({
 		renderMetadata,
 	});
 
-	const chunks = contents.filter(
-		(c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiryInDays)),
-	);
+	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const framesRendered = renderMetadata
 		? getRenderedFramesProgress({
 				contents,
@@ -204,7 +192,6 @@ export const getProgress = async ({
 				frameRange: renderMetadata.frameRange,
 				framesPerLambda: renderMetadata.framesPerLambda,
 				renderId,
-				renderFolderExpiryInDays,
 		  })
 		: 0;
 
@@ -216,13 +203,11 @@ export const getProgress = async ({
 	const lambdasInvokedStats = getLambdasInvokedStats({
 		contents,
 		renderId,
-		renderFolderExpiryInDays,
 	});
 
 	const retriesInfo = getRetryStats({
 		contents,
 		renderId,
-		renderFolderExpiryInDays,
 	});
 
 	const frameCount = renderMetadata
@@ -233,9 +218,7 @@ export const getProgress = async ({
 		: null;
 
 	const encodingStatus = getEncodingMetadata({
-		exists: contents.find(
-			(c) => c.Key === encodingProgressKey(renderId, renderFolderExpiryInDays),
-		),
+		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
 		frameCount: frameCount === null ? 0 : frameCount,
 	});
 
@@ -288,7 +271,6 @@ export const getProgress = async ({
 					contents,
 					renderId,
 					type: 'absolute-time',
-					renderFolderExpiryInDays,
 			  })
 			: null,
 		overallProgress: getOverallProgress({

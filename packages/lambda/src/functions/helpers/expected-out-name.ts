@@ -39,22 +39,13 @@ export const getExpectedOutName = (
 			renderMetadata.codec,
 			renderMetadata.audioCodec,
 		);
-		return customOutName(
-			renderMetadata.renderId,
-			bucketName,
-			outNameValue,
-			renderMetadata.renderFolderExpiryInDays,
-		);
+		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
 	}
 
 	if (renderMetadata.type === 'still') {
 		return {
 			renderBucketName: bucketName,
-			key: outStillName(
-				renderMetadata.renderId,
-				renderMetadata.imageFormat,
-				renderMetadata.renderFolderExpiryInDays,
-			),
+			key: outStillName(renderMetadata.renderId, renderMetadata.imageFormat),
 			customCredentials: null,
 		};
 	}
@@ -68,7 +59,6 @@ export const getExpectedOutName = (
 					renderMetadata.codec as Codec,
 					renderMetadata.audioCodec,
 				),
-				renderMetadata.renderFolderExpiryInDays,
 			),
 			customCredentials: null,
 		};

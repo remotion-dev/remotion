@@ -350,7 +350,7 @@ const innerLaunchHandler = async (
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: renderMetadataKey(params.renderId, params.renderFolderExpiryInDays),
+		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
@@ -382,10 +382,7 @@ const innerLaunchHandler = async (
 
 		lambdaWriteFile({
 			bucketName: params.bucketName,
-			key: encodingProgressKey(
-				params.renderId,
-				params.renderFolderExpiryInDays,
-			),
+			key: encodingProgressKey(params.renderId),
 			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
@@ -412,7 +409,6 @@ const innerLaunchHandler = async (
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
-				renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 			});
 		});
 	};
@@ -452,7 +448,6 @@ const innerLaunchHandler = async (
 		expectedFiles: chunkCount,
 		outdir,
 		renderId: params.renderId,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
@@ -485,13 +480,13 @@ const innerLaunchHandler = async (
 
 	const contents = await lambdaLs({
 		bucketName: params.bucketName,
-		prefix: rendersPrefix(params.renderId, params.renderFolderExpiryInDays),
+		prefix: rendersPrefix(params.renderId),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 	});
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: encodingProgressKey(params.renderId, params.renderFolderExpiryInDays),
+		key: encodingProgressKey(params.renderId),
 		body: String(Math.ceil(frameCount.length / ENCODING_PROGRESS_STEP_SIZE)),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
@@ -506,13 +501,11 @@ const innerLaunchHandler = async (
 		bucket: params.bucketName,
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 	});
 
 	const jobs = getFilesToDelete({
 		chunkCount,
 		renderId: params.renderId,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 	});
 
 	const deletProm = verbose
@@ -544,7 +537,6 @@ const innerLaunchHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
@@ -570,14 +562,10 @@ const innerLaunchHandler = async (
 		postRenderData,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 	});
 	await lambdaDeleteFile({
 		bucketName: params.bucketName,
-		key: initalizedMetadataKey(
-			params.renderId,
-			params.renderFolderExpiryInDays,
-		),
+		key: initalizedMetadataKey(params.renderId),
 		region: getCurrentRegionInFunction(),
 		customCredentials: null,
 	});
@@ -635,7 +623,6 @@ export const launchHandler = async (
 						},
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
-						renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 					});
 					RenderInternals.Log.error('Failed to invoke webhook:');
 					RenderInternals.Log.error(err);
@@ -696,7 +683,6 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
-					renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(err);
@@ -729,7 +715,6 @@ export const launchHandler = async (
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
-			renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 		});
 		clearTimeout(webhookDueToTimeout);
 		if (params.webhook && !webhookInvoked) {
@@ -773,7 +758,6 @@ export const launchHandler = async (
 					},
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
-					renderFolderExpiryInDays: params.renderFolderExpiryInDays,
 				});
 				RenderInternals.Log.error('Failed to invoke webhook:');
 				RenderInternals.Log.error(error);

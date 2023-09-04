@@ -170,7 +170,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
-			renderFolderExpiryInDays,
 		});
 		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 	} else {

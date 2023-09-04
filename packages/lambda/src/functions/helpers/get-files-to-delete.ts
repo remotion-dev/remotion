@@ -4,7 +4,6 @@ import {
 	lambdaChunkInitializedPrefix,
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
-import type {RenderExpiryDays} from './lifecycle';
 
 export type CleanupJob = {
 	name: string;
@@ -14,27 +13,22 @@ export type CleanupJob = {
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
-	renderFolderExpiryInDays,
 }: {
 	chunkCount: number;
 	renderId: string;
-	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): CleanupJob[] => {
 	const chunks = new Array(chunkCount).fill(true).map((_x, i) =>
 		chunkKeyForIndex({
 			index: i,
 			renderId,
-			renderFolderExpiryInDays,
 		}),
 	);
 	const lambdaTimings = new Array(chunkCount)
 		.fill(true)
-		.map((_x, i) =>
-			lambdaTimingsPrefixForChunk(renderId, i, renderFolderExpiryInDays),
-		);
+		.map((_x, i) => lambdaTimingsPrefixForChunk(renderId, i));
 	return [
 		{
-			name: lambdaChunkInitializedPrefix(renderId, renderFolderExpiryInDays),
+			name: lambdaChunkInitializedPrefix(renderId),
 			type: 'prefix' as const,
 		},
 		...chunks.map((i) => {
@@ -50,7 +44,7 @@ export const getFilesToDelete = ({
 			};
 		}),
 		{
-			name: encodingProgressKey(renderId, renderFolderExpiryInDays),
+			name: encodingProgressKey(renderId),
 			type: 'exact',
 		},
 	];

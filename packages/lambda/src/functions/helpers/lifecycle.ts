@@ -1,4 +1,6 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
+import {randomHash} from '../../shared/random-hash';
+import {truthy} from '../../shared/truthy';
 
 const expiryDays = {
 	'1-day': 1,
@@ -29,7 +31,7 @@ export const getEnabledLifeCycleRule = ({
 			Days: value,
 		},
 		Filter: {
-			Prefix: `renders/${value}days/`,
+			Prefix: `renders/${key}`,
 		},
 		ID: `delete-after-${key}`,
 		Status: 'Enabled',
@@ -40,4 +42,12 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 	return Object.entries(expiryDays).map(([key, value]) =>
 		getEnabledLifeCycleRule({key, value}),
 	);
+};
+
+export const generateRandomHashWithLifeCycleRule = (
+	renderFolderExpiryInDays: RenderExpiryDays | null,
+) => {
+	return [renderFolderExpiryInDays, randomHash({randomInTests: true})]
+		.filter(truthy)
+		.join('-');
 };
