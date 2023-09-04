@@ -231,7 +231,6 @@ export const AssetSelectorItem: React.FC<{
 	}, []);
 
 	const revealInExplorer = React.useCallback(() => {
-		console.log('parentFolder: ', parentFolder);
 		openInFileExplorer({
 			directory:
 				window.remotion_publicFolderExists +
