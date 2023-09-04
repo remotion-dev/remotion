@@ -207,6 +207,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		enforceAudioTrack,
 		preferLossless: false,
+		offthreadVideoCacheSizeInBytes
 	});
 
 	if (res.type === 'crash') {
