@@ -59,7 +59,7 @@ const AvailableCompositions: React.FC = () => {
 					} catch (err) {
 						setComps({type: 'error', error: err as Error});
 					}
-				}, 250); // Add a short delay here (e.g., 100 milliseconds)
+				}, 250);
 			} else {
 				timeout = setTimeout(check, 250);
 			}
