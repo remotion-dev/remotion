@@ -6,17 +6,12 @@ import type {
 
 export const deleteLifeCycleInput = ({
 	bucketName,
-	lcRules,
 }: {
 	bucketName: string;
-	lcRules: LifecycleRule[];
 }): DeleteBucketLifecycleCommandInput => {
 	return {
 		Bucket: bucketName,
-		LifecycleConfiguration: {
-			Rules: lcRules,
-		},
-	} as DeleteBucketLifecycleCommandInput;
+	};
 };
 
 export const createLifeCycleInput = ({
@@ -31,5 +26,5 @@ export const createLifeCycleInput = ({
 		LifecycleConfiguration: {
 			Rules: lcRules,
 		},
-	} as PutBucketLifecycleConfigurationCommandInput;
+	};
 };

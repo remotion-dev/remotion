@@ -10,7 +10,7 @@ import {
 import {getLifeCycleRules} from '../functions/helpers/lifecycle';
 import {getS3Client} from './aws-clients';
 
-export const createLCRules = async ({
+const createLCRules = async ({
 	bucketName,
 	region,
 }: {
@@ -27,6 +27,21 @@ export const createLCRules = async ({
 		createCommandInput,
 	);
 	await getS3Client(region, null).send(createCommand);
+};
+
+const deleteLCRules = async ({
+	bucketName,
+	region,
+}: {
+	bucketName: string;
+	region: AwsRegion;
+}) => {
+	const deleteCommandInput = deleteLifeCycleInput({
+		bucketName,
+	});
+	await getS3Client(region, null).send(
+		new DeleteBucketLifecycleCommand(deleteCommandInput),
+	);
 };
 
 export const applyLifeCyleOperation = async ({
@@ -47,20 +62,4 @@ export const applyLifeCyleOperation = async ({
 	} else {
 		await deleteLCRules({bucketName, region});
 	}
-};
-
-export const deleteLCRules = async ({
-	bucketName,
-	region,
-}: {
-	bucketName: string;
-	region: AwsRegion;
-}) => {
-	const lcRules = getLifeCycleRules();
-	const deleteCommandInput = deleteLifeCycleInput({
-		bucketName,
-		lcRules,
-	});
-	const deleteCommand = new DeleteBucketLifecycleCommand(deleteCommandInput);
-	await getS3Client(region, null).send(deleteCommand);
 };
