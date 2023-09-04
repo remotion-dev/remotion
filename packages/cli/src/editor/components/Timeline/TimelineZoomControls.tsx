@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
@@ -28,6 +29,7 @@ const iconStyle: React.CSSProperties = {
 };
 
 export const TimelineZoomControls: React.FC = () => {
+	const {mediaType} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
 
@@ -48,7 +50,7 @@ export const TimelineZoomControls: React.FC = () => {
 
 	const isStill = useIsStill();
 
-	if (isStill) {
+	if (isStill || mediaType === 'asset') {
 		return null;
 	}
 
