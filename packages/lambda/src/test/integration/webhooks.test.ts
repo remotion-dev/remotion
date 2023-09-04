@@ -123,7 +123,6 @@ describe('Webhooks', () => {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
-				renderFolderExpiryInDays: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,

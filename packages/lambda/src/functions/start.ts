@@ -5,9 +5,9 @@ import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -45,8 +45,9 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const {renderFolderExpiryInDays} = params;
-	const renderId = randomHash({randomInTests: true});
+	const renderId = generateRandomHashWithLifeCycleRule(
+		params.renderFolderExpiryInDays,
+	);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,
@@ -54,7 +55,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		region,
 		body: 'Render was initialized',
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: initalizedMetadataKey(renderId, renderFolderExpiryInDays),
+		key: initalizedMetadataKey(renderId),
 		privacy: 'private',
 		customCredentials: null,
 	});

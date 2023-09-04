@@ -4,7 +4,6 @@ import {chunkKey, lambdaChunkInitializedPrefix} from '../../shared/constants';
 import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
-import type {RenderExpiryDays} from './lifecycle';
 
 export const getRenderedFramesProgress = ({
 	contents,
@@ -12,14 +11,12 @@ export const getRenderedFramesProgress = ({
 	framesPerLambda,
 	everyNthFrame,
 	frameRange,
-	renderFolderExpiryInDays,
 }: {
 	contents: _Object[];
 	renderId: string;
 	framesPerLambda: number;
 	frameRange: [number, number];
 	everyNthFrame: number;
-	renderFolderExpiryInDays: RenderExpiryDays | null;
 }) => {
 	const chunkProgress: Record<number, number> = {};
 
@@ -33,7 +30,7 @@ export const getRenderedFramesProgress = ({
 	const sortedChunks = contents
 		.filter((c) => {
 			return (c.Key as string).startsWith(
-				lambdaChunkInitializedPrefix(renderId, renderFolderExpiryInDays),
+				lambdaChunkInitializedPrefix(renderId),
 			);
 		})
 		.sort((a, b) => {
@@ -46,7 +43,7 @@ export const getRenderedFramesProgress = ({
 	}
 
 	for (const chunk of contents.filter(
-		(c) => c.Key?.startsWith(chunkKey(renderId, renderFolderExpiryInDays)),
+		(c) => c.Key?.startsWith(chunkKey(renderId)),
 	)) {
 		const parsed = parseLambdaChunkKey(chunk.Key as string);
 		const frameRangeInChunk = chunks[parsed.chunk];

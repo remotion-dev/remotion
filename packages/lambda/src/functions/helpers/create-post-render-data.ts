@@ -16,7 +16,6 @@ import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
-import type {RenderExpiryDays} from './lifecycle';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = ({
@@ -29,7 +28,6 @@ export const createPostRenderData = ({
 	errorExplanations,
 	timeToDelete,
 	outputFile,
-	renderFolderExpiryInDays,
 }: {
 	renderId: string;
 	expectedBucketOwner: string;
@@ -41,13 +39,9 @@ export const createPostRenderData = ({
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
-	renderFolderExpiryInDays: RenderExpiryDays | null;
 }): PostRenderData => {
 	const initializedKeys = contents.filter(
-		(c) =>
-			c.Key?.startsWith(
-				lambdaTimingsPrefix(renderId, renderFolderExpiryInDays),
-			),
+		(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
 	);
 
 	const parsedTimings = initializedKeys.map(({Key}) =>
@@ -90,7 +84,6 @@ export const createPostRenderData = ({
 	const retriesInfo = getRetryStats({
 		contents,
 		renderId,
-		renderFolderExpiryInDays,
 	});
 
 	return {
@@ -115,7 +108,6 @@ export const createPostRenderData = ({
 		filesCleanedUp: getFilesToDelete({
 			chunkCount: renderMetadata.totalChunks,
 			renderId,
-			renderFolderExpiryInDays,
 		}).length,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,
@@ -123,7 +115,6 @@ export const createPostRenderData = ({
 			contents,
 			renderId,
 			type: 'absolute-time',
-			renderFolderExpiryInDays: renderMetadata.renderFolderExpiryInDays,
 		}),
 		retriesInfo,
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
@@ -132,6 +123,6 @@ export const createPostRenderData = ({
 			renderMetadata.frameRange[0],
 			renderMetadata.frameRange[1],
 		),
-		renderFolderExpiryInDays,
+		renderFolderExpiryInDays: renderMetadata.renderFolderExpiryInDays,
 	};
 };

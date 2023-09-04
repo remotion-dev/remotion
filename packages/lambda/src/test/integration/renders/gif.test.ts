@@ -80,7 +80,6 @@ test('Should make a distributed GIF', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
-			renderFolderExpiryInDays: null,
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,

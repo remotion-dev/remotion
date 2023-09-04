@@ -79,7 +79,6 @@ test('Should add silent audio if there is no audio', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
-			renderFolderExpiryInDays: null,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,

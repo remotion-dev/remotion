@@ -233,7 +233,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
-		renderFolderExpiryInDays,
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
@@ -257,7 +256,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
-			renderFolderExpiryInDays,
 		});
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
@@ -293,7 +291,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
-					renderFolderExpiryInDays,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({

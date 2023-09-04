@@ -37,6 +37,5 @@ export const progressHandler = (
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		timeoutInMilliseconds: options.timeoutInMilliseconds,
 		customCredentials: lambdaParams.s3OutputProvider ?? null,
-		renderFolderExpiryInDays: lambdaParams.renderFolderExpiryInDays ?? null,
 	});
 };
