@@ -108,7 +108,7 @@ pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --render-fol
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { RenderExpiryDays, renderMediaOnLambda } from "@remotion/lambda/client";
+import { renderMediaOnLambda } from "@remotion/lambda/client";
 
 const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
@@ -118,13 +118,13 @@ const { bucketName, renderId } = await renderMediaOnLambda({
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
   colorSpace: "default",
-  renderFolderExpiryInDays: RenderExpiryDays.AFTER_1_DAYS, // the generated file will be deleted after 1 day.
+  renderFolderExpiryInDays: "1-day", // the generated file will be deleted after 1 day.
 });
 ```
 
 ## How it works
 
-By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiryInDays` is defined with a value of `RenderExpiryDays.AFTER_1_DAYS`, the render files will be placed into the `render/1days/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
+By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiryInDays` is defined with a value of `"1-day"`, the render files will be placed into the `render/1-day/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
 
 <table>
   <tr>
@@ -184,7 +184,7 @@ By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files b
 <br/>
 
 :::note
-AWS does not delete the file on exact time, but it will delete it!
+AWS does not delete the file at the exact time, but the deletion will happen.
 :::
 
 ## Getting the progress of render
@@ -197,14 +197,14 @@ Due to AWS limitation on postfix search, we need to provide the `renderFolderExp
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { getRenderProgress, RenderExpiryDays } from "@remotion/lambda/client";
+import { getRenderProgress } from "@remotion/lambda/client";
 
 const progress = await getRenderProgress({
   renderId: "d7nlc2y",
   bucketName: "remotionlambda-d9mafgx",
   functionName: "remotion-render-la8ffw",
   region: "us-east-1",
-  renderFolderExpiryInDays: RenderExpiryDays.AFTER_1_DAYS,
+  renderFolderExpiryInDays: "7-days",
 });
 ```
 
