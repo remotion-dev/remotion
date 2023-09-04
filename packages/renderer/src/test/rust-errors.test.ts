@@ -1,17 +1,14 @@
 import path from 'node:path';
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test('Should get Rust errors in a good way', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('ExtractFrame', {
@@ -31,11 +28,11 @@ test('Should get Rust errors in a good way', async () => {
 });
 
 test('Handle panics', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('DeliberatePanic', {});

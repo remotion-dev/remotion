@@ -1,17 +1,14 @@
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test(
 	'Compositor should process messages in the right order',
 	async () => {
-		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheSizeInBytes(),
-			'verbose',
-			false,
-		);
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'verbose',
+			indent: false,
+		});
 
 		const matching = await Promise.all(
 			new Array(100).fill(true).map(async (_, i) => {
