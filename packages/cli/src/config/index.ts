@@ -30,8 +30,8 @@ import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {
-	getRenderFolderExpiryInDays,
-	setRenderFolderExpiryInDays,
+	getRenderFolderExpiry,
+	setRenderFolderExpiry,
 } from './render-folder-expiry';
 
 import {
@@ -421,7 +421,7 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-		setRenderFolderExpiryInDays: (day: string | null) => void;
+		setRenderFolderExpiry: (day: string | null) => void;
 
 		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
@@ -536,7 +536,7 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
-	setRenderFolderExpiryInDays,
+	setRenderFolderExpiry,
 	setColorSpace,
 	setEnableFolderExpiry,
 };
@@ -594,7 +594,7 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
-	getRenderFolderExpiryInDays,
+	getRenderFolderExpiry,
 	getColorSpace,
 	getEnableFolderExpiry,
 };

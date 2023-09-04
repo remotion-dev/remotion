@@ -1,9 +1,9 @@
-let renderFolderExpiryInDays: string | null = null;
+let renderFolderExpiry: string | null = null;
 
-export const getRenderFolderExpiryInDays = () => {
-	return renderFolderExpiryInDays;
+export const getRenderFolderExpiry = () => {
+	return renderFolderExpiry;
 };
 
-export const setRenderFolderExpiryInDays = (day: string | null) => {
-	renderFolderExpiryInDays = day;
+export const setRenderFolderExpiry = (day: string | null) => {
+	renderFolderExpiry = day;
 };
