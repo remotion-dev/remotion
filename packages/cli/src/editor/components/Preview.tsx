@@ -18,7 +18,7 @@ type AssetResolution = {
 	height: number;
 };
 
-const style: React.CSSProperties = {
+const jsonStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	flex: 1,
 };
@@ -127,7 +127,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 				onChange={() => {
 					return null;
 				}}
-				style={style}
+				style={jsonStyle}
 			/>
 		);
 	}
