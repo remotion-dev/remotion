@@ -65,7 +65,11 @@ const config = (mode) => ({
               sidebarId: "apiSidebar",
             }
           : null,
-        { to: "/docs/license", label: "Pricing", position: "left" },
+        {
+          href: "https://companies.remotion.dev/",
+          label: "Pricing",
+          position: "left",
+        },
         {
           type: "dropdown",
           label: "More",
