@@ -19,6 +19,8 @@ type AssetResolution = {
 };
 
 const jsonStyle: React.CSSProperties = {
+	marginTop: 14,
+	marginBottom: 14,
 	fontFamily: 'monospace',
 	flex: 1,
 };
