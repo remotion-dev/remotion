@@ -18,6 +18,11 @@ type AssetResolution = {
 	height: number;
 };
 
+const style: React.CSSProperties = {
+	fontFamily: 'monospace',
+	flex: 1,
+};
+
 type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'other';
 const getFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
@@ -122,6 +127,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 				onChange={() => {
 					return null;
 				}}
+				style={style}
 			/>
 		);
 	}
@@ -166,6 +172,11 @@ const Inner: React.FC<{
 				};
 
 				img.src = assetSrc;
+			}
+
+			// TODO: Better calculation for json
+			if (currentAssetType === 'json') {
+				setAssetResolution({width: 600, height: 600});
 			}
 
 			return null;
