@@ -74,7 +74,6 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
-	['audio-codec']: AudioCodec;
 	['render-folder-expiry']: string | undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
