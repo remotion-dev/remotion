@@ -64,7 +64,6 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		}
 
 		const {current} = inputRef;
-
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
 		const onMouseEnter = () => setIsHovered(true);
