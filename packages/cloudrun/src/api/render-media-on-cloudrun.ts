@@ -68,7 +68,7 @@ type InternalRenderMediaOnCloudrun = {
 	enforceAudioTrack: boolean | undefined;
 	preferLossless: boolean | undefined;
 	colorSpace: ColorSpace | undefined;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
@@ -106,7 +106,7 @@ export type RenderMediaOnCloudrunInput = {
 	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
 	colorSpace?: ColorSpace;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
 	cloudRunUrl,
