@@ -125,7 +125,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--codec`
 
-[`h264` or `h265` (available from v4.0.32) or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
+[`h264` or `h265` (supported since v4.0.32) or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
