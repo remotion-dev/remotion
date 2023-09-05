@@ -37,7 +37,7 @@ type LambdaCommandLineOptions = {
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]:
 		| RenderExpiryDays
 		| undefined;
-	['enable-folder-expiry']: boolean | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

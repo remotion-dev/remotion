@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {deleteSite} from '../../../api/delete-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
@@ -20,7 +21,9 @@ export const sitesRmallSubcommand = async () => {
 		(
 			await internalGetOrCreateBucket({
 				region,
-				enableFolderExpiry: parsedLambdaCli['enable-folder-expiry'] ?? null,
+				enableFolderExpiry:
+					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
+					null,
 				customCredentials: null,
 			})
 		).bucketName;

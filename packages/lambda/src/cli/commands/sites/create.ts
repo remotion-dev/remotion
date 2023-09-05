@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
@@ -88,7 +89,8 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
-	const enableFolderExpiry = parsedLambdaCli['enable-folder-expiry'];
+	const enableFolderExpiry =
+		parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag];
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
