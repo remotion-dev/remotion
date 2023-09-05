@@ -8,7 +8,6 @@ import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
 
-import {strToRenderEnum} from '../../../functions/helpers/lifecycle';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -152,9 +151,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
-	const renderFolderExpiry = strToRenderEnum({
-		value: parsedLambdaCli['render-folder-expiry'],
-	});
+	const renderFolderExpiry = parsedLambdaCli['render-folder-expiry'];
 
 	const res = await renderMediaOnLambda({
 		functionName,

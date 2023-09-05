@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {RenderExpiryDays} from '../client';
 
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {Privacy} from '../shared/constants';
@@ -33,7 +34,7 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
-	['render-folder-expiry']: string | undefined;
+	['render-folder-expiry']: RenderExpiryDays | undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
 

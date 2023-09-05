@@ -9,48 +9,52 @@ crumb: "Lambda API"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Automatically delete older render files created by Remotion.
+_available from v4.0.32_
 
-<ExperimentalBadge>
-<p>This feature is still new, and there is a risk that you may not be able to recover your files. Existing render files will not be deleted by this action. Please report any issues you encounter.</p>
-</ExperimentalBadge>
+To automatically delete renders and associated files after some time, you need to:
 
-Do the following to set the automatic delete of older render files.
+<Step>1</Step> Enable the lifecycle rules on the AWS bucket. <br/>
+<Step>2</Step> Render a video with the <code>renderFolderExpiry</code> option.
 
 ## Apply the lifecycle rules
 
-This operation will modify the S3 bucket to apply [AWS Lifecycle Rules](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html). The lifecycle rules will automatically delete files under folder names or prefixes. The predefined expiration or deletion periods for files/folders are `1`, `3`, `7`, and `30` days.
+<Step>1</Step> <strong>Ensure the right permission</strong>
 
-### From Remotion CLI
+To put a lifecycle rule on the bucket, you need to have the `s3:PutLifecycleConfiguration` permission for your user.
+
+- If you set up Remotion Lambda after 4.0.32, you have it automatically.
+- If you set up Remotion Lambda previously, execute the following:
+  1. Upgrade to at least Remotion 4.0.32.
+  2. [Click here](https://us-east-1.console.aws.amazon.com/iamv2/home) to go to the users section in the AWS console.
+  3. Select your user.
+  4. Under "Permissions policies", click your policy (underlined in blue)
+  5. Choose the "JSON" mode for editing.
+  6. Under the `"Sid": "Storage"` section, add `"s3:PutLifecycleConfiguration"` to the `"Action"` array.
+  7. Save.
+
+<br/>
+<Step>2</Step> <strong>Enable the lifecycle rules</strong>
+
+Redeploy the site with the `--enable-folder-expiry` option. This operation will modify the S3 bucket to apply [AWS Lifecycle Rules](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html).
 
 <Tabs
-defaultValue="npm"
+defaultValue="cli"
 values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'pnpm', value: 'pnpm', },
+{ label: 'CLI', value: 'cli', },
+{ label: 'Node.JS', value: 'bucket', },
 ]
 }>
-<TabItem value="npm">
+<TabItem value="cli">
 
-```bash
-npx remotion lambda sites create --site-name=testbed-v6 --enable-folder-expiry=true
+```bash title="In the command line"
+npx remotion lambda sites create --site-name=my-site-name --enable-folder-expiry
 ```
 
   </TabItem>
 
-  <TabItem value="pnpm">
+  <TabItem value="bucket">
 
-```bash
-pnpm exec remotion lambda sites create --site-name=testbed-v6 --enable-folder-expiry=true
-```
-
-  </TabItem>
-
-</Tabs>
-
-### From Node.js
-
-```ts twoslash
+```ts twoslash title="deploy.mjs" {6}
 // @module: esnext
 // @target: es2017
 import { deploySite, getOrCreateBucket } from "@remotion/lambda";
@@ -59,7 +63,7 @@ import path from "path";
 const { bucketName } = await getOrCreateBucket({
   region: "us-east-1",
   enableFolderExpiry: true,
-}); // tells function to create the lifecycle rules
+});
 
 const { serveUrl } = await deploySite({
   entryPoint: path.resolve(process.cwd(), "src/index.ts"),
@@ -69,42 +73,42 @@ const { serveUrl } = await deploySite({
 console.log(serveUrl);
 ```
 
-### Applied Life Cycle Rules
-
-<img src="/img/lambda/applied-lc-rules.png" />
-
-## Make renders auto-delete
-
-### Using it in Remotion CLI
-
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npx remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry=1
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --render-folder-expiry=1
-```
-
   </TabItem>
 
 </Tabs>
 
-### Using it in Node.JS
+<details>
+<summary>
+Verify that it worked
+</summary>
+<p>In your S3 bucket, under "Management", you should see 4 lifecycle rules.</p>
+<img src="/img/lambda/applied-lc-rules.png" />
+</details>
 
-```tsx twoslash
+<br/>
+<Step>3</Step> <strong>Trigger a render with expiration</strong>
+
+Valid values are `"1-day"`, `"3-days"`, `"7-days"` and `"30-days"`.
+
+<Tabs
+defaultValue="cli"
+values={[
+{ label: 'CLI', value: 'cli', },
+{ label: 'renderMediaOnLambda()', value: 'rendermedia', },
+{ label: 'renderStillOnLambda()', value: 'renderstill', },
+]
+}>
+<TabItem value="cli">
+
+```bash
+npx remotion lambda render testbed-v6 react-svg --render-folder-expiry="1-day"
+```
+
+  </TabItem>
+
+  <TabItem value="rendermedia">
+
+```tsx twoslash title="render.ts" {10}
 // @module: esnext
 // @target: es2017
 // ---cut---
@@ -117,65 +121,44 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
-  colorSpace: "default",
-  renderFolderExpiry: "1-day", // the generated file will be deleted after 1 day.
+  renderFolderExpiry: "1-day",
 });
 ```
 
-## How it works
+  </TabItem>
+  <TabItem value="renderstill">
 
-By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiry` is defined with a value of `"1-day"`, the render files will be placed into the `render/1-day/` folder in S3, to which the deletion rule will be applied. The basis of the deletion is based on the `Last modified date` of the file/folder.
+```tsx twoslash title="render.ts" {12}
+// @module: esnext
+// @target: es2017
+// ---cut---
+import { renderStillOnLambda } from "@remotion/lambda/client";
 
-<table>
-  <tr>
-    <th>
-      renderFolderExpiry value
-    </th>
-    <th>
-      Render Prefix
-    </th>
-  </tr>
-  <tr>
-    <td>
-      <code>AFTER_1_DAYS</code>
-    </td>
-    <td>
-      <code>render/1days/</code>
-    </td>
-   
-  </tr>
-  
-  <tr>
-    <td>
-      <code>AFTER_3_DAYS</code>
-    </td>
-    <td>
-      <code>render/3days/</code>
-    </td>
-   
-  </tr>
-  <tr>
-    <td>
-      <code>AFTER_7_DAYS</code>
-    </td>
-    <td>
-      <code>render/7days/</code>
-    </td>
-   
-  </tr>
-  <tr>
-    <td>
-      <code>AFTER_30_DAYS</code>
-    </td>
-    <td>
-      <code>render/30days/</code>
-    </td>
-   
-  </tr>
+const { bucketName, renderId } = await renderStillOnLambda({
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  composition: "MyVideo",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  inputProps: {},
+  privacy: "public",
+  imageFormat: "png",
+  renderFolderExpiry: "1-day",
+});
+```
 
-</table>
+  </TabItem>
+</Tabs>
 
-### Example expiry applied
+<details>
+<summary>
+Verify that it worked
+
+</summary>
+
+<p>
+All files should have an expiration rule and expiration date set when viewing the object properties.
+</p>
 
 <img src="/img/lambda/rendered-file-path.png" />
 <img src="/img/lambda/rendered-file-management.png" />
@@ -183,9 +166,63 @@ By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files b
 <br/>
 <br/>
 
-:::note
 AWS does not delete the file at the exact time, but the deletion will happen.
-:::
+
+</details>
+
+## How it works
+
+By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiry` is defined with a value of `"1-day"`, the `renderId` will be prefixed with `1-day`, and the S3 key will start with `renders/1-day-*`, to which the deletion rule will be applied.  
+The basis of the deletion is based on the `Last modified date` of the file/folder.
+
+<table>
+  <tr>
+    <th>
+      <code>renderFolderExpiry</code> value
+    </th>
+    <th>
+      Render Prefix
+    </th>
+  </tr>
+  <tr>
+    <td>
+      <code>1-day</code>
+    </td>
+    <td>
+      <code>renders/1-day</code>
+    </td>
+   
+  </tr>
+  
+  <tr>
+    <td>
+      <code>3-days</code>
+    </td>
+    <td>
+      <code>renders/3-days</code>
+    </td>
+   
+  </tr>
+  <tr>
+    <td>
+      <code>7-days</code>
+    </td>
+    <td>
+      <code>renders/7-days</code>
+    </td>
+   
+  </tr>
+  <tr>
+    <td>
+      <code>30-days</code>
+    </td>
+    <td>
+      <code>renders/30-days</code>
+    </td>
+   
+  </tr>
+
+</table>
 
 ## See also
 
