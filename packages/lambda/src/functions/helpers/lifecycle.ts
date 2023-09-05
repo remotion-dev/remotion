@@ -64,9 +64,9 @@ export const validateRenderFolderExpiry = (lifeCycleValue: unknown) => {
 
 	if (!(lifeCycleValue in expiryDays)) {
 		throw new TypeError(
-			`Expected life cycle value to be one of ${Object.keys(expiryDays).join(
-				', ',
-			)}, got ${lifeCycleValue}`,
+			`Expected renderFolderExpiry value to be one of ${Object.keys(
+				expiryDays,
+			).join(', ')}, got ${lifeCycleValue}`,
 		);
 	}
 };
