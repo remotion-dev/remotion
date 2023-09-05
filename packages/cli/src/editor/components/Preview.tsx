@@ -231,12 +231,7 @@ const Inner: React.FC<{
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
-			justifyContent:
-				currentAssetType === 'audio'
-					? 'flex-end'
-					: mediaType === 'asset'
-					? 'center'
-					: 'flex-start',
+			justifyContent: mediaType === 'asset' ? 'center' : 'flex-start',
 			alignItems: currentAssetType === 'audio' ? 'center' : 'normal',
 		};
 	}, [
