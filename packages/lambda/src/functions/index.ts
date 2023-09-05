@@ -7,7 +7,7 @@ import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {
 	generateRandomHashWithLifeCycleRule,
-	validateRenderFolderExpiry,
+	validateDeleteAfter,
 } from './helpers/lifecycle';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {ResponseStream} from './helpers/streamify-response';
@@ -44,10 +44,8 @@ const innerHandler = async (
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
-		validateRenderFolderExpiry(params.renderFolderExpiry);
-		const renderId = generateRandomHashWithLifeCycleRule(
-			params.renderFolderExpiry,
-		);
+		validateDeleteAfter(params.deleteAfter);
+		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 		printCloudwatchHelper(LambdaRoutines.still, {
 			renderId,
 			inputProps: JSON.stringify(params.inputProps),

@@ -1,8 +1,8 @@
 ---
-image: /generated/articles-docs-lambda-auto-delete-renderfiles.png
-title: Auto-delete render files
-id: auto-delete-renderfiles
-slug: /lambda/auto-delete-renderfiles
+image: /generated/articles-docs-lambda-autodelete.png
+title: Auto-delete renders
+id: autodelete
+slug: /lambda/autodelete
 crumb: "Lambda API"
 ---
 
@@ -14,7 +14,7 @@ _available from v4.0.32_
 To automatically delete renders and associated files after some time, you need to:
 
 <Step>1</Step> Enable the lifecycle rules on the AWS bucket. <br/>
-<Step>2</Step> Render a video with the <code>renderFolderExpiry</code> option.
+<Step>2</Step> Render a video with the <code>deleteAfter</code> option.
 
 ## Apply the lifecycle rules
 
@@ -101,7 +101,7 @@ values={[
 <TabItem value="cli">
 
 ```bash
-npx remotion lambda render testbed-v6 react-svg --render-folder-expiry="1-day"
+npx remotion lambda render testbed-v6 react-svg --delete-after="1-day"
 ```
 
   </TabItem>
@@ -121,7 +121,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   codec: "h264",
-  renderFolderExpiry: "1-day",
+  deleteAfter: "1-day",
 });
 ```
 
@@ -143,7 +143,7 @@ const { bucketName, renderId } = await renderStillOnLambda({
   inputProps: {},
   privacy: "public",
   imageFormat: "png",
-  renderFolderExpiry: "1-day",
+  deleteAfter: "1-day",
 });
 ```
 
@@ -172,13 +172,13 @@ AWS does not delete the file at the exact time, but the deletion will happen.
 
 ## How it works
 
-By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `renderFolderExpiry` is defined with a value of `"1-day"`, the `renderId` will be prefixed with `1-day`, and the S3 key will start with `renders/1-day-*`, to which the deletion rule will be applied.  
+By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files based on their prefixes. When `deleteAfter` is defined with a value of `"1-day"`, the `renderId` will be prefixed with `1-day`, and the S3 key will start with `renders/1-day-*`, to which the deletion rule will be applied.  
 The basis of the deletion is based on the `Last modified date` of the file/folder.
 
 <table>
   <tr>
     <th>
-      <code>renderFolderExpiry</code> value
+      <code>deleteAfter</code> value
     </th>
     <th>
       Render Prefix

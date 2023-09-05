@@ -172,7 +172,7 @@ export const getCliOptions = async (options: {
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 		offthreadVideoCacheSizeInBytes:
 			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
-		renderFolderExpiry: ConfigInternals.getRenderFolderExpiry(),
+		deleteAfter: ConfigInternals.getDeleteAfter(),
 		colorSpace: ConfigInternals.getColorSpace(),
 	};
 };

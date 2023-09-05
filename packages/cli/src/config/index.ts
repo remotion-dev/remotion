@@ -33,10 +33,7 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
-import {
-	getRenderFolderExpiry,
-	setRenderFolderExpiry,
-} from './render-folder-expiry';
+import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -422,7 +419,7 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-		setRenderFolderExpiry: (
+		setDeleteAfter: (
 			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
 		) => void;
 		/**
@@ -541,7 +538,7 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
-	setRenderFolderExpiry,
+	setDeleteAfter,
 	setColorSpace,
 	setEnableFolderExpiry,
 };
@@ -597,7 +594,7 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
-	getRenderFolderExpiry,
+	getDeleteAfter,
 	getColorSpace,
 	getEnableFolderExpiry,
 };

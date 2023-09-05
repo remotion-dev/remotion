@@ -34,7 +34,9 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
-	['render-folder-expiry']: RenderExpiryDays | undefined;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]:
+		| RenderExpiryDays
+		| undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
 

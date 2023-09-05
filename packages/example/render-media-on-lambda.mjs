@@ -11,7 +11,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 	region: 'us-east-1',
 	colorSpace: 'default',
 	codec: 'h264',
-	renderFolderExpiry: RenderExpiryDays.AFTER_1_DAYS,
+	deleteAfter: '1-day',
 });
 
 console.log(

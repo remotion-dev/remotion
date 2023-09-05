@@ -74,7 +74,7 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
-	['render-folder-expiry']: string | undefined;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
 	['enable-folder-expiry']: boolean | undefined;
 };
 
@@ -268,13 +268,9 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['render-folder-expiry'] !== 'undefined') {
-		Config.setRenderFolderExpiry(
-			parsedCli['render-folder-expiry'] as
-				| '1-day'
-				| '3-days'
-				| '7-days'
-				| '30-days',
+	if (typeof parsedCli['delete-after'] !== 'undefined') {
+		Config.setDeleteAfter(
+			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
 		);
 	}
 

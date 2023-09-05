@@ -54,9 +54,9 @@ _optional, available from v3.2.23_
 
 If the render is going to be saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 
-### `renderFolderExpiry`
+### `deleteAfter`
 
-_available from v4.0.29_
+_available from v4.0.32_
 
 A value in days the render folder will be deleted.
 

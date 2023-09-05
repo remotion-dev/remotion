@@ -290,9 +290,9 @@ _Available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `renderFolderExpiry`
+### `deleteAfter`
 
-_available from v4.0.29_
+_available from v4.0.32_
 
 A value in days the render folder will be deleted.
 
