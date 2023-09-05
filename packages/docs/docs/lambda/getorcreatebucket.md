@@ -47,7 +47,7 @@ The name of your bucket that was found or created.
 
 A boolean indicating whether the bucket already existed or was newly created.
 
-### `enableFolderExpiry`<AvailableFrom v="4.0.29" />
+### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
 
 A boolean indicating whether to create lifecyle rules, to automatically delete render folders.
 

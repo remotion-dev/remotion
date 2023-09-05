@@ -4,7 +4,6 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import {strToRenderEnum} from '../../functions/helpers/lifecycle';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -133,9 +132,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		),
 	);
 
-	const renderFolderExpiry = strToRenderEnum({
-		value: parsedLambdaCli['render-folder-expiry'],
-	});
+	const renderFolderExpiry = parsedLambdaCli['render-folder-expiry'];
 
 	const res = await renderStillOnLambda({
 		functionName,

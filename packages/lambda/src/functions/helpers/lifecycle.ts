@@ -12,14 +12,6 @@ const expiryDays = {
 
 export type RenderExpiryDays = keyof typeof expiryDays;
 
-export const renderEnumToStr = (v: RenderExpiryDays): string => {
-	return v;
-};
-
-export const strToRenderEnum = ({value}: {value?: string}) => {
-	return value ? (value as RenderExpiryDays) : null;
-};
-
 export const getEnabledLifeCycleRule = ({
 	key,
 	value,
