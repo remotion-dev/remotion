@@ -25,12 +25,12 @@ export type CompositionManagerContext = {
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
 	currentComposition: string | null;
-	setCurrentComposition: (curr: string) => void;
+	setCurrentComposition: (curr: string | null) => void;
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
 	currentAsset: string | null;
-	setCurrentAsset: (asset: string) => void;
+	setCurrentAsset: (asset: string | null) => void;
 	mediaType: MediaType;
 	setMediaType: (mediaType: 'composition' | 'asset') => void;
 };

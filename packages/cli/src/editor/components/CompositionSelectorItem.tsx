@@ -87,7 +87,9 @@ export const CompositionSelectorItem: React.FC<{
 
 		return false;
 	}, [item, currentComposition]);
-	const {setMediaType} = useContext(Internals.CompositionManager);
+	const {setMediaType, setCurrentAsset} = useContext(
+		Internals.CompositionManager,
+	);
 	const [hovered, setHovered] = useState(false);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -124,6 +126,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (item.type === 'composition') {
 				setMediaType('composition');
 				selectComposition(item.composition, true);
+				setCurrentAsset(null);
 			} else {
 				toggleFolder(item.folderName, item.parentName);
 			}

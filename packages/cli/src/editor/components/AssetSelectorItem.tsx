@@ -179,9 +179,8 @@ export const AssetSelectorItem: React.FC<{
 		setHovered(true);
 	}, []);
 
-	const {setCurrentAsset, setMediaType, currentAsset} = useContext(
-		Internals.CompositionManager,
-	);
+	const {setCurrentAsset, currentAsset, setCurrentComposition, setMediaType} =
+		useContext(Internals.CompositionManager);
 
 	const selected = useMemo(() => {
 		const nameWOParent = currentAsset?.split('/').pop();
@@ -198,8 +197,15 @@ export const AssetSelectorItem: React.FC<{
 			: item.name;
 		setMediaType('asset');
 		setCurrentAsset(relativePath);
+		setCurrentComposition(null);
 		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
-	}, [item.name, parentFolder, setCurrentAsset, setMediaType]);
+	}, [
+		item.name,
+		parentFolder,
+		setCurrentAsset,
+		setCurrentComposition,
+		setMediaType,
+	]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
