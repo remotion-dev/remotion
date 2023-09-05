@@ -9,6 +9,7 @@ import type {
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
+	Crf
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
@@ -28,6 +29,44 @@ import {validateServeUrl} from '../shared/validate-serveurl';
 import {getOrCreateBucket} from './get-or-create-bucket';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
+
+type InternalRenderMediaOnCloudrun = {
+	cloudRunUrl: string | undefined;
+	serviceName: string | undefined;
+	region: GcpRegion;
+	serveUrl: string;
+	composition: string;
+	inputProps: Record<string, unknown>;
+	privacy: 'public' | 'private' | undefined;
+	forceBucketName: string | undefined;
+	outName: string | undefined;
+	updateRenderProgress: ((progress: number, error?: boolean) => void) | undefined;
+	codec: CloudrunCodec;
+	audioCodec: AudioCodec | undefined;
+	jpegQuality: number | undefined;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | undefined;
+	crf: Crf | null;
+	pixelFormat: PixelFormat | undefined;
+	imageFormat: VideoImageFormat | undefined;
+	scale: number | undefined;
+	everyNthFrame: number | undefined;
+	numberOfGifLoops: number | null;
+	frameRange: FrameRange | undefined;
+	envVariables: Record<string, string> | undefined;
+	chromiumOptions: ChromiumOptions | undefined;
+	muted: boolean | undefined;
+	forceWidth: number | null;
+	forceHeight?: number | null;
+	logLevel: LogLevel | undefined;
+	delayRenderTimeoutInMilliseconds: number | undefined;
+	concurrency: number | string | null;
+	enforceAudioTrack: boolean | undefined;
+	preferLossless: boolean | undefined;
+	colorSpace: ColorSpace | undefined;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
@@ -67,7 +106,7 @@ export type RenderMediaOnCloudrunInput = {
 	colorSpace?: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
-const renderMediaOnCloudrunRaw = async ({
+const internalRenderMediaOnCloudrunRaw = async ({
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -104,7 +143,7 @@ const renderMediaOnCloudrunRaw = async ({
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
-}: RenderMediaOnCloudrunInput): Promise<
+}: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
 	const actualCodec = validateCloudrunCodec(codec);
@@ -241,6 +280,11 @@ const renderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
+export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+	internalRenderMediaOnCloudrunRaw,
+) as typeof internalRenderMediaOnCloudrunRaw;
+
+
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/renderMediaOnGcp)
@@ -280,7 +324,82 @@ const renderMediaOnCloudrunRaw = async ({
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
  */
-
-export const renderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
-	renderMediaOnCloudrunRaw,
-) as typeof renderMediaOnCloudrunRaw;
+export const renderMediaOnCloudrun  = ({
+	cloudRunUrl,
+	serviceName,
+	region,
+	serveUrl,
+	composition,
+	inputProps,
+	codec,
+	forceBucketName,
+	privacy,
+	outName,
+	updateRenderProgress,
+	jpegQuality,
+	audioCodec,
+	audioBitrate,
+	videoBitrate,
+	proResProfile,
+	x264Preset,
+	crf,
+	pixelFormat,
+	imageFormat,
+	scale,
+	everyNthFrame,
+	numberOfGifLoops,
+	frameRange,
+	envVariables,
+	chromiumOptions,
+	muted,
+	forceWidth,
+	forceHeight,
+	logLevel,
+	delayRenderTimeoutInMilliseconds,
+	concurrency,
+	enforceAudioTrack,
+	preferLossless,
+	offthreadVideoCacheSizeInBytes,
+	colorSpace,
+}: RenderMediaOnCloudrunInput): Promise<
+RenderMediaOnCloudrunOutput | CloudRunCrashResponse
+> => {
+	return internalRenderMediaOnCloudrun({
+		cloudRunUrl: cloudRunUrl ?? undefined,
+		serviceName: serviceName ?? undefined,
+		region,
+		serveUrl,
+		composition,
+		inputProps: inputProps ?? {},
+		codec,
+		forceBucketName: forceBucketName ?? undefined,
+		privacy: privacy ?? undefined,
+		outName: outName ?? undefined,
+		updateRenderProgress: updateRenderProgress ?? undefined,
+		jpegQuality: jpegQuality ?? undefined,
+		audioCodec: audioCodec ?? undefined,
+		audioBitrate: audioBitrate ?? null,
+		videoBitrate: videoBitrate ?? null,
+		proResProfile: proResProfile ?? undefined,
+		x264Preset: x264Preset ?? undefined,
+		crf: crf ?? null,
+		pixelFormat: pixelFormat ?? undefined,
+		imageFormat: imageFormat ?? undefined,
+		scale: scale ?? undefined,
+		everyNthFrame: everyNthFrame ?? undefined,
+		numberOfGifLoops: numberOfGifLoops ?? null,
+		frameRange: frameRange ?? undefined,
+		envVariables: envVariables ?? undefined,
+		chromiumOptions: chromiumOptions ?? undefined,
+		muted: muted ?? undefined,
+		forceWidth: forceWidth ?? null,
+		forceHeight: forceHeight ?? null,
+		logLevel: logLevel ?? undefined,
+		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		concurrency: concurrency ?? null,
+		enforceAudioTrack: enforceAudioTrack ?? undefined,
+		preferLossless: preferLossless ?? undefined,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
+		colorSpace: colorSpace ?? undefined,
+	})
+}
