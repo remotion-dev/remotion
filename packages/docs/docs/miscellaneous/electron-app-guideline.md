@@ -6,8 +6,8 @@ id: electron-app-guidelines
 
 # Embedding Remotion in an Electron App
 
-:::note
-Embedding Remotion in an Electron app using the following method is an unofficial approach and not officially supported by Remotion at this time. While it is possible to make it work, it may require customization and adjustments based on your specific use case and platform requirements. Use this guide at your own discretion.
+:::info
+Embedding Remotion in an Electron app using the following method is an **unofficial approach** and not officially supported by Remotion at this time. While it is possible to make it work, it may require customization and adjustments based on your specific use case and platform requirements.
 :::
 
 ## Prerequisites
@@ -48,7 +48,6 @@ esbuild
     outfile: "main.js",
     plugins: [
       // Add your custom esbuild plugin for @remotion/compositor-* imports
-      // ...
     ],
   })
   .catch(() => process.exit(1));
@@ -62,33 +61,22 @@ Configure your Electron app to package the `@remotion/compositor-\*` packages co
 
 Example electron-forge packagerConfig (`forge.config.js`):
 
-```ts
+```js
 module.exports = {
   packagerConfig: {
     // Specify how to unpack @remotion/compositor-* packages
-    // ...
   },
-  // ...
 };
 ```
 
-## Disable chmod Behavior (MacOS)
+## Disable chmod behavior (MacOS)
 
-If you face issues related to chmod on MacOS, you can disable it by setting the `READ_ONLY_FS` environment variable.
-
-In your Electron code, before importing `@remotion/renderer`, add the following code:
-
-```js
-if (!process.env.READ_ONLY_FS) {
-  chmodSync(bin, 0o755);
-}
-```
+Chmod is not allowed inside a packaged MacOS app, as it's a read-only file system. This leads to problems since `@remotion/renderer` per default tries to chmod the `compositor`.
+You can fix this by setting the `READ_ONLY_FS` environment variable as true, which will disable the chmod behavior.
 
 ### Entitlements (MacOS)
 
 If you encounter issues with executing external libraries like ffmpeg on MacOS, make sure to set the necessary entitlements in your Electron app configuration to allow them to run.
-
-Please be aware that embedding Remotion in an Electron app using this unofficial approach may require ongoing maintenance and monitoring for compatibility with future updates to Remotion and Electron. Use this guide as a starting point and be prepared to make adjustments as necessary.
 
 ## See also
 
