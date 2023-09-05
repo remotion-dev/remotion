@@ -37,7 +37,7 @@ export {
 	presignUrl,
 	getSites,
 	speculateFunctionName,
-	DeleteAfter as RenderExpiryDays,
+	DeleteAfter,
 };
 export type {
 	AwsRegion,

@@ -106,9 +106,7 @@ const renderMediaOnLambdaRaw = async (
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
-				// append the new path
 				renderId: res.renderId,
-
 				region,
 			}),
 		};

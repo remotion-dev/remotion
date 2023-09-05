@@ -145,11 +145,10 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 	}
 
 	internalParams := renderProgressInternalConfig{
-		RenderId:    options.RenderId,
-		BucketName:  options.BucketName,
-		Type:        "status",
-		Version:     VERSION,
-		DeleteAfter: options.DeleteAfter,
+		RenderId:   options.RenderId,
+		BucketName: options.BucketName,
+		Type:       "status",
+		Version:    VERSION,
 	}
 
 	return &internalParams, nil
