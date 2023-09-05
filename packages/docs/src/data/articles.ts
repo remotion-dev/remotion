@@ -819,6 +819,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "autodelete",
+    title: "Auto-delete renders",
+    relativePath: "docs/lambda/autodelete.md",
+    compId: "articles-docs-lambda-autodelete",
+    crumb: "Lambda API",
+  },
+  {
     id: "lambda/bucket-naming",
     title: "Bucket names in Remotion Lambda",
     relativePath: "docs/lambda/bucket-naming.md",

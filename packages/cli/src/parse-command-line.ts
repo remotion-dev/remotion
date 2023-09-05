@@ -74,6 +74,8 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };
 
 export const BooleanFlags = [
@@ -266,8 +268,18 @@ export const parseCommandLine = () => {
 		);
 	}
 
+	if (typeof parsedCli['delete-after'] !== 'undefined') {
+		Config.setDeleteAfter(
+			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
+		);
+	}
+
 	if (typeof parsedCli['color-space'] !== 'undefined') {
 		Config.setColorSpace(parsedCli['color-space']);
+	}
+
+	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
+		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
 	}
 };
 

@@ -53,6 +53,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	jpegQuality,
 	quality,
 	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
 	colorSpace,
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
@@ -122,6 +123,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? 'default',
 	};
 };

@@ -12,6 +12,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
@@ -67,6 +68,7 @@ export type RenderMediaOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	colorSpace?: ColorSpace;
+	deleteAfter?: DeleteAfter | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {

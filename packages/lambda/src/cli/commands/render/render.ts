@@ -1,12 +1,14 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
+
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -67,6 +69,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -149,6 +152,9 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
+	const deleteAfter =
+		parsedLambdaCli[BrowserSafeApis.options.deleteAfterOption.cliFlag];
+
 	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
@@ -190,6 +196,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
+		deleteAfter,
+		colorSpace,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

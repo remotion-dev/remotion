@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {deleteSite} from '../../../api/delete-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -17,7 +18,15 @@ export const sitesRmallSubcommand = async () => {
 
 	const bucketName =
 		parsedLambdaCli['force-bucket-name'] ??
-		(await getOrCreateBucket({region})).bucketName;
+		(
+			await internalGetOrCreateBucket({
+				region,
+				enableFolderExpiry:
+					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
+					null,
+				customCredentials: null,
+			})
+		).bucketName;
 
 	for (const site of deployedSites.sites) {
 		if (

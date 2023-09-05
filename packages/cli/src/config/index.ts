@@ -8,6 +8,10 @@ import {
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
+import {
+	getEnableFolderExpiry,
+	setEnableFolderExpiry,
+} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -29,6 +33,7 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
+import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -112,6 +117,8 @@ import {
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 import {setX264Preset} from './x264-preset';
+
+export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -411,6 +418,14 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
+
+		setDeleteAfter: (
+			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
+		) => void;
+		/**
+		 *
+		 */
+		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -523,10 +538,10 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
+	setDeleteAfter,
 	setColorSpace,
+	setEnableFolderExpiry,
 };
-
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 export const ConfigInternals = {
 	getRange,
@@ -579,5 +594,7 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
+	getDeleteAfter,
 	getColorSpace,
+	getEnableFolderExpiry,
 };

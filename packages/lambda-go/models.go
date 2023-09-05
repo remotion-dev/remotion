@@ -38,6 +38,7 @@ type RemotionOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
 }
 
 type renderInternalOptions struct {
@@ -80,6 +81,7 @@ type renderInternalOptions struct {
 	ForceBucketName string      `json:"forceBucketName,omitempty"`
 	Gl              *string     `json:"gl,omitempty"`
 	X264Preset      interface{} `json:"x264Preset"`
+	DeleteAfter     *string     `json:"deleteAfter"`
 }
 
 type RawInvokeResponse struct {
@@ -96,10 +98,11 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId     string `json:"renderId" validate:"required"`
-	BucketName   string `json:"bucketName" validate:"required"`
-	FunctionName string `json:"functionName" validate:"required"`
-	Region       string `json:"region" validate:"required"`
+	RenderId     string  `json:"renderId" validate:"required"`
+	BucketName   string  `json:"bucketName" validate:"required"`
+	FunctionName string  `json:"functionName" validate:"required"`
+	Region       string  `json:"region" validate:"required"`
+	DeleteAfter  *string `json:"deleteAfter"`
 }
 
 type renderProgressInternalConfig struct {
