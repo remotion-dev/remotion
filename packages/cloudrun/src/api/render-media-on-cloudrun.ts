@@ -211,12 +211,6 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		responseType: 'stream',
 	});
 
-	console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2');
-	console.log({jpegQuality});
-	console.log({crf});
-	console.log({x264Preset});
-	console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2');
-
 	const renderResponse = await new Promise<
 		RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 	>((resolve, reject) => {
