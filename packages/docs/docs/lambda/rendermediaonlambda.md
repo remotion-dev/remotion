@@ -357,6 +357,10 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 <Options id="color-space" />
 
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_
@@ -386,12 +390,6 @@ A link to CloudWatch (if you haven't disabled it) that you can visit to see the 
 _available from v3.2.43_
 
 A link to the folder in the AWS console where each chunk and render is located.
-
-### `deleteAfter`
-
-_available from v4.0.32_
-
-A value in days the render folder will be deleted.
 
 ## See also
 

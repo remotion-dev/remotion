@@ -199,15 +199,19 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
+
 ### `chromiumOptions?`
 
 _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
-
-### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
-
-<Options id="offthreadvideo-cache-size-in-bytes" />
 
 #### `disableWebSecurity`
 
@@ -289,12 +293,6 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 _Available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
-
-### `deleteAfter`
-
-_available from v4.0.32_
-
-A value in days the render folder will be deleted.
 
 ## See also
 
