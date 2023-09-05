@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {RenderExpiryDays} from '../client';
+import type {DeleteAfter} from '../client';
 
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {Privacy} from '../shared/constants';
@@ -34,9 +34,7 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
-	[BrowserSafeApis.options.deleteAfterOption.cliFlag]:
-		| RenderExpiryDays
-		| undefined;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };
 

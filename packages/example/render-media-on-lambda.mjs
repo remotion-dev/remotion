@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import {RenderExpiryDays, renderMediaOnLambda} from '@remotion/lambda/client';
+import {renderMediaOnLambda} from '@remotion/lambda/client';
 import dotenv from 'dotenv';
 dotenv.config();
 
