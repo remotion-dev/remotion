@@ -89,9 +89,9 @@ export const AssetFolderItem: React.FC<{
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: LIGHT_TEXT,
+			color: hovered ? 'white' : LIGHT_TEXT,
 		};
-	}, []);
+	}, [hovered]);
 
 	const onClick = useCallback(() => {
 		setExpanded((e) => !e);
@@ -110,7 +110,7 @@ export const AssetFolderItem: React.FC<{
 				onClick={onClick}
 			>
 				<Row>
-					<Icon style={iconStyle} color={LIGHT_TEXT} />
+					<Icon style={iconStyle} color={hovered ? 'white' : LIGHT_TEXT} />
 					<Spacing x={1} />
 					<div style={label}>{item.name}</div>
 				</Row>
