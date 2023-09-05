@@ -65,7 +65,11 @@ const config = (mode) => ({
               sidebarId: "apiSidebar",
             }
           : null,
-        { to: "/docs/license", label: "Pricing", position: "left" },
+        {
+          to: "https://companies.remotion.dev/",
+          label: "Pricing",
+          position: "left",
+        },
         {
           type: "dropdown",
           label: "More",
@@ -85,21 +89,21 @@ const config = (mode) => ({
           ],
         },
         {
-          href: "https://github.com/remotion-dev/remotion",
+          to: "https://github.com/remotion-dev/remotion",
           label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
           "data-splitbee-event-target": "GitHub",
         },
         {
-          href: "https://remotion.dev/discord",
+          to: "https://remotion.dev/discord",
           label: "Discord",
           position: "right",
           "data-splitbee-event": "External Link",
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://x.com/remotion",
+          to: "https://x.com/remotion",
           label: "X",
           position: "right",
           "data-splitbee-event": "External Link",
