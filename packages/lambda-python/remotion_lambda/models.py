@@ -23,9 +23,9 @@ class RenderParams:
     version: str = ""
     image_format: str = 'jpeg'
     crf: Optional[int] = None
-    env_variables: Optional[List] = None
-    quality: Optional[int] = None
+    env_variables: Optional[Dict] = None
     max_retries: int = 1
+    jpeg_quality: int = 80
     privacy: str = 'public'
     color_space: str = 'default'
     log_level: str = 'info'
@@ -66,6 +66,8 @@ class RenderParams:
             'codec': self.codec,
             'imageFormat': self.image_format,
             'maxRetries': self.max_retries,
+            'jpegQuality': self.jpeg_quality,
+            'envVariables': self.env_variables,
             'privacy': self.privacy,
             'colorSpace': self.color_space,
             'logLevel': self.log_level,
@@ -97,8 +99,8 @@ class RenderParams:
         if self.crf is not None:
             parameters['crf'] = self.crf
 
-        if self.env_variables is not None:
-            parameters['envVariables'] = self.env_variables
+        if self.env_variables is None:
+            parameters['envVariables'] = {}
 
         if self.pixel_format is not None:
             parameters['pixelFormat'] = self.pixel_format
@@ -108,9 +110,6 @@ class RenderParams:
 
         if self.x264_preset is not None:
             parameters['x264Preset'] = self.x264_preset
-
-        if self.quality is not None:
-            parameters['quality'] = self.quality
 
         return parameters
 
