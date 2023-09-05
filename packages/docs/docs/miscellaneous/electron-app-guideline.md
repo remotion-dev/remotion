@@ -1,6 +1,6 @@
 ---
 title: "Embedding Remotion in an Electron App (Unofficial Guide)"
-crumb: "Snippets"
+crumb: "miscellaneous"
 id: electron-app-guidelines
 ---
 
