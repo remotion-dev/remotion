@@ -20,6 +20,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		return nil, validationErrors
 	}
 
+	jpegQuality := 80
+	if options.JpegQuality != 0 {
+		jpegQuality = options.JpegQuality
+	}
+
 	internalParams := renderInternalOptions{
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,
@@ -40,6 +45,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		RendererFunctionName:           &options.RendererFunctionName,
 		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
+		JpegQuality:                    jpegQuality,
 	}
 
 	internalParams.Muted = options.Muted
@@ -130,7 +136,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
-	internalParams.EnvVariables = options.EnvVariables
+	if options.EnvVariables == nil {
+		internalParams.EnvVariables = map[string]interface{}{}
+	} else {
+		internalParams.EnvVariables = options.EnvVariables
+	}
 
 	return &internalParams, nil
 }

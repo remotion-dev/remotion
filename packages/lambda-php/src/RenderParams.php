@@ -45,8 +45,8 @@ class RenderParams
     private $imageFormat = 'jpeg';
     private $crf = null;
     private $envVariables = [];
-    private $quality = null;
     private $maxRetries = 1;
+    private $jpegQuality = 80;
     private $privacy = 'private';
     private $colorSpace = 'default';
     private $logLevel = 'info';
@@ -83,8 +83,8 @@ class RenderParams
         string $imageFormat = 'jpeg',
         ?int $crf = null,
         ?array $envVariables = null,
-        ?int $quality = null,
         int $maxRetries = 1,
+        int $jpegQuality = 80,
         string $privacy = 'public',
         string $colorSpace = 'default',
         string $logLevel = 'info',
@@ -121,8 +121,8 @@ class RenderParams
         $this->imageFormat = $imageFormat;
         $this->crf = $crf;
         $this->envVariables = $envVariables;
-        $this->quality = $quality;
         $this->maxRetries = $maxRetries;
+        $this->jpegQuality = $jpegQuality;
         $this->privacy = $privacy;
         $this->colorSpace = $colorSpace;
         $this->logLevel = $logLevel;
@@ -164,6 +164,7 @@ class RenderParams
             'codec' => $this->getCodec(),
             'imageFormat' => $this->getImageFormat(),
             'maxRetries' => $this->getMaxRetries(),
+            'jpegQuality' => $this->getJpegQuality(),
             'privacy' => $this->getPrivacy(),
             'colorSpace' => $this->getColorSpace(),
             'logLevel' => $this->getLogLevel(),
@@ -198,6 +199,8 @@ class RenderParams
 
         if ($this->getEnvVariables() !== null) {
             $parameters['envVariables'] = $this->getEnvVariables();
+        } else {
+            $parameters['envVariables'] = new stdClass();
         }
 
         if ($this->getPixelFormat() !== null) {
@@ -210,10 +213,6 @@ class RenderParams
 
         if ($this->getProResProfile() !== null) {
             $parameters['proResProfile'] = $this->getProResProfile();
-        }
-
-        if ($this->getQuality() !== null) {
-            $parameters['quality'] = $this->getQuality();
         }
 
         return $parameters;
@@ -431,25 +430,6 @@ class RenderParams
         return $this;
     }
 
-    /**
-     * Get the value of quality
-     */
-    public function getQuality()
-    {
-        return $this->quality;
-    }
-
-    /**
-     * Set the value of quality
-     *
-     * @return  self
-     */
-    public function setQuality($quality)
-    {
-        $this->quality = $quality;
-
-        return $this;
-    }
 
     /**
      * Get the value of maxRetries
@@ -467,6 +447,26 @@ class RenderParams
     public function setMaxRetries($maxRetries)
     {
         $this->maxRetries = $maxRetries;
+
+        return $this;
+    }
+
+      /**
+     * Get the value of jpegQuality
+     */
+    public function getJpegQuality()
+    {
+        return $this->jpegQuality;
+    }
+
+    /**
+     * Set the value of jpegQuality
+     *
+     * @return  self
+     */
+    public function setJpegQuality($jpegQuality)
+    {
+        $this->jpegQuality = $jpegQuality;
 
         return $this;
     }
