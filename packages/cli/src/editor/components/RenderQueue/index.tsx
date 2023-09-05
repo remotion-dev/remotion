@@ -38,7 +38,6 @@ export const RenderQueue: React.FC = () => {
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {jobs} = useContext(RenderQueueContext);
 	const jobCount = jobs.length;
-
 	if (connectionStatus === 'disconnected') {
 		return (
 			<div style={explainer}>
