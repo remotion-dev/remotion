@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	ColorSpace,
+	Crf,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -9,7 +10,6 @@ import type {
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
-	Crf
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
@@ -40,7 +40,9 @@ type InternalRenderMediaOnCloudrun = {
 	privacy: 'public' | 'private' | undefined;
 	forceBucketName: string | undefined;
 	outName: string | undefined;
-	updateRenderProgress: ((progress: number, error?: boolean) => void) | undefined;
+	updateRenderProgress:
+		| ((progress: number, error?: boolean) => void)
+		| undefined;
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
@@ -209,6 +211,12 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		responseType: 'stream',
 	});
 
+	console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2');
+	console.log({jpegQuality});
+	console.log({crf});
+	console.log({x264Preset});
+	console.log('2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2');
+
 	const renderResponse = await new Promise<
 		RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 	>((resolve, reject) => {
@@ -284,7 +292,6 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 
-
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/renderMediaOnGcp)
@@ -324,7 +331,7 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
  */
-export const renderMediaOnCloudrun  = ({
+export const renderMediaOnCloudrun = ({
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -362,7 +369,7 @@ export const renderMediaOnCloudrun  = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 }: RenderMediaOnCloudrunInput): Promise<
-RenderMediaOnCloudrunOutput | CloudRunCrashResponse
+	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
 	return internalRenderMediaOnCloudrun({
 		cloudRunUrl: cloudRunUrl ?? undefined,
@@ -395,11 +402,12 @@ RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
 		logLevel: logLevel ?? undefined,
-		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		delayRenderTimeoutInMilliseconds:
+			delayRenderTimeoutInMilliseconds ?? undefined,
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? undefined,
 		preferLossless: preferLossless ?? undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
 		colorSpace: colorSpace ?? undefined,
-	})
-}
+	});
+};
