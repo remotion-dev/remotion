@@ -23,6 +23,7 @@ import {jpegQualityOption} from './options/jpeg-quality';
 import {muteOption} from './options/mute';
 import {offthreadVideoCacheSizeInBytesOption} from './options/offthreadvideo-cache-size';
 import {optionsMap} from './options/options-map';
+import {deleteAfterOption} from './options/render-expiry-days';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
@@ -60,6 +61,7 @@ export const BrowserSafeApis = {
 		offthreadVideoCacheSizeInBytesOption,
 		webhookCustomDataOption,
 		colorSpaceOption,
+		deleteAfterOption,
 	},
 	validColorSpaces,
 	optionsMap,

@@ -10,7 +10,7 @@ const expiryDays = {
 	'30-days': 30,
 } as const;
 
-export type RenderExpiryDays = keyof typeof expiryDays;
+export type DeleteAfter = keyof typeof expiryDays;
 
 export const getEnabledLifeCycleRule = ({
 	key,
@@ -38,14 +38,14 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 };
 
 export const generateRandomHashWithLifeCycleRule = (
-	renderFolderExpiry: RenderExpiryDays | null,
+	deleteAfter: DeleteAfter | null,
 ) => {
-	return [renderFolderExpiry, randomHash({randomInTests: true})]
+	return [deleteAfter, randomHash({randomInTests: true})]
 		.filter(truthy)
 		.join('-');
 };
 
-export const validateRenderFolderExpiry = (lifeCycleValue: unknown) => {
+export const validateDeleteAfter = (lifeCycleValue: unknown) => {
 	if (lifeCycleValue === null) {
 		return;
 	}
@@ -64,9 +64,9 @@ export const validateRenderFolderExpiry = (lifeCycleValue: unknown) => {
 
 	if (!(lifeCycleValue in expiryDays)) {
 		throw new TypeError(
-			`Expected renderFolderExpiry value to be one of ${Object.keys(
-				expiryDays,
-			).join(', ')}, got ${lifeCycleValue}`,
+			`Expected deleteAfter value to be one of ${Object.keys(expiryDays).join(
+				', ',
+			)}, got ${lifeCycleValue}`,
 		);
 	}
 };

@@ -387,9 +387,9 @@ _available from v3.2.43_
 
 A link to the folder in the AWS console where each chunk and render is located.
 
-### `renderFolderExpiry`
+### `deleteAfter`
 
-_available from v4.0.29_
+_available from v4.0.32_
 
 A value in days the render folder will be deleted.
 

@@ -73,7 +73,7 @@ class RenderParams
     private $proResProfile = null;
     private $pixelFormat = null;
     private $x264Preset = null;
-    private $renderFolderExpiry = null;
+    private $deleteAfter = null;
     
     public function __construct(
         ?array $data = null,
@@ -111,7 +111,7 @@ class RenderParams
         ?string $proResProfile = null, 
         ?string $pixelFormat = null,
         ?string $x264Preset = null,
-        ?string $renderFolderExpiry = null
+        ?string $deleteAfter = null
         )
     {
         $this->data = $data;
@@ -149,7 +149,7 @@ class RenderParams
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
         $this->x264Preset = $x264Preset;
-        $this->renderFolderExpiry = $renderFolderExpiry;
+        $this->deleteAfter = $deleteAfter;
     }
 
     private array $inputProps = array();
@@ -188,7 +188,7 @@ class RenderParams
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
-            'renderFolderExpiry' => $this->getRenderFolderExpiry(),
+            'deleteAfter' => $this->getDeleteAfter(),
             'type' => 'start'
         ];
 
@@ -834,14 +834,14 @@ class RenderParams
          return $this;
     }
 
-    public function getRenderFolderExpiry()
+    public function getDeleteAfter()
     {
-        return $this->renderFolderExpiry;
+        return $this->deleteAfter;
     }
 
-    public function setRenderFolderExpiry($renderFolderExpiry)
+    public function setDeleteAfter($deleteAfter)
     {
-         $this->renderFolderExpiry = $renderFolderExpiry;
+         $this->$deleteAfter = $deleteAfter;
          return $this;
     }
 }

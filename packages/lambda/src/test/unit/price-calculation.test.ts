@@ -30,7 +30,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			memorySizeInMb: 1024,
 			region: 'eu-central-1',
 			renderId: '123',
-			renderFolderExpiry: null,
+			deleteAfter: null,
 			siteId: 'my-site',
 			startedDate: aDate + 1000,
 			totalChunks: 20,

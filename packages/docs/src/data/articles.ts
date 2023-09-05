@@ -819,10 +819,10 @@ export const articles = [
     crumb: "Lambda",
   },
   {
-    id: "auto-delete-renderfiles",
-    title: "Auto-delete render files",
-    relativePath: "docs/lambda/auto-delete-renderfiles.md",
-    compId: "articles-docs-lambda-auto-delete-renderfiles",
+    id: "autodelete",
+    title: "Auto-delete renders",
+    relativePath: "docs/lambda/autodelete.md",
+    compId: "articles-docs-lambda-autodelete",
     crumb: "Lambda API",
   },
   {

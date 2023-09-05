@@ -15,7 +15,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
-import type {RenderExpiryDays} from '../functions/helpers/lifecycle';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -273,7 +273,7 @@ export type LambdaStartPayload = {
 	forceWidth: number | null;
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
-	renderFolderExpiry: RenderExpiryDays | null;
+	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace;
 };
 
@@ -328,7 +328,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
-		renderFolderExpiry: RenderExpiryDays | null;
+		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
 	};
 	status: LambdaStatusPayload;
@@ -370,7 +370,7 @@ export type LambdaPayloads = {
 			version: string;
 		};
 		offthreadVideoCacheSizeInBytes: number | null;
-		renderFolderExpiry: RenderExpiryDays | null;
+		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
 	};
 	still: {
@@ -396,7 +396,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
-		renderFolderExpiry: RenderExpiryDays | null;
+		deleteAfter: DeleteAfter | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -448,7 +448,7 @@ export type RenderMetadata = Discriminated & {
 	privacy: Privacy;
 	frameRange: [number, number];
 	everyNthFrame: number;
-	renderFolderExpiry: RenderExpiryDays | null;
+	deleteAfter: DeleteAfter | null;
 };
 
 export type AfterRenderCost = {
@@ -474,7 +474,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
-	renderFolderExpiry: RenderExpiryDays | null;
+	deleteAfter: DeleteAfter | null;
 };
 
 export type CostsInfo = {

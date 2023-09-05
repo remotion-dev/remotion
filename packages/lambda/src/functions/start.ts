@@ -9,7 +9,7 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {
 	generateRandomHashWithLifeCycleRule,
-	validateRenderFolderExpiry,
+	validateDeleteAfter,
 } from './helpers/lifecycle';
 
 type Options = {
@@ -49,10 +49,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	validateRenderFolderExpiry(params.renderFolderExpiry);
-	const renderId = generateRandomHashWithLifeCycleRule(
-		params.renderFolderExpiry,
-	);
+	validateDeleteAfter(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,
@@ -103,7 +101,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
-		renderFolderExpiry: params.renderFolderExpiry,
+		deleteAfter: params.deleteAfter,
 		colorSpace: params.colorSpace,
 	};
 

@@ -38,7 +38,7 @@ type RemotionOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
-	RenderFolderExpiry             *string                `json:"renderFolderExpiry"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
 }
 
 type renderInternalOptions struct {
@@ -78,10 +78,10 @@ type renderInternalOptions struct {
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 
-	ForceBucketName    string      `json:"forceBucketName,omitempty"`
-	Gl                 *string     `json:"gl,omitempty"`
-	X264Preset         interface{} `json:"x264Preset"`
-	RenderFolderExpiry *string     `json:"renderFolderExpiry"`
+	ForceBucketName string      `json:"forceBucketName,omitempty"`
+	Gl              *string     `json:"gl,omitempty"`
+	X264Preset      interface{} `json:"x264Preset"`
+	DeleteAfter     *string     `json:"deleteAfter"`
 }
 
 type RawInvokeResponse struct {
@@ -98,19 +98,18 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId           string  `json:"renderId" validate:"required"`
-	BucketName         string  `json:"bucketName" validate:"required"`
-	FunctionName       string  `json:"functionName" validate:"required"`
-	Region             string  `json:"region" validate:"required"`
-	RenderFolderExpiry *string `json:"renderFolderExpiry"`
+	RenderId     string  `json:"renderId" validate:"required"`
+	BucketName   string  `json:"bucketName" validate:"required"`
+	FunctionName string  `json:"functionName" validate:"required"`
+	Region       string  `json:"region" validate:"required"`
+	DeleteAfter  *string `json:"deleteAfter"`
 }
 
 type renderProgressInternalConfig struct {
-	RenderId           string  `json:"renderId" validate:"required"`
-	BucketName         string  `json:"bucketName" validate:"required"`
-	Type               string  `json:"type" validate:"required"`
-	Version            string  `json:"version" validate:"required"`
-	RenderFolderExpiry *string `json:"renderFolderExpiry"`
+	RenderId   string `json:"renderId" validate:"required"`
+	BucketName string `json:"bucketName" validate:"required"`
+	Type       string `json:"type" validate:"required"`
+	Version    string `json:"version" validate:"required"`
 }
 
 type RenderProgress struct {

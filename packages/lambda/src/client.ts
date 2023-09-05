@@ -21,7 +21,7 @@ import {renderStillOnLambda} from './api/render-still-on-lambda';
 import type {SpeculateFunctionNameInput} from './api/speculate-function-name';
 import {speculateFunctionName} from './api/speculate-function-name';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
-import {RenderExpiryDays} from './functions/helpers/lifecycle';
+import {DeleteAfter} from './functions/helpers/lifecycle';
 import type {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
@@ -37,7 +37,7 @@ export {
 	presignUrl,
 	getSites,
 	speculateFunctionName,
-	RenderExpiryDays,
+	DeleteAfter as RenderExpiryDays,
 };
 export type {
 	AwsRegion,

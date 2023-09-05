@@ -38,7 +38,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		AudioCodec:                     options.AudioCodec,
 		ForceBucketName:                options.ForceBucketName,
 		RendererFunctionName:           &options.RendererFunctionName,
-		RenderFolderExpiry:             options.RenderFolderExpiry,
+		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
 	}
 
@@ -145,11 +145,11 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 	}
 
 	internalParams := renderProgressInternalConfig{
-		RenderId:           options.RenderId,
-		BucketName:         options.BucketName,
-		Type:               "status",
-		Version:            VERSION,
-		RenderFolderExpiry: options.RenderFolderExpiry,
+		RenderId:    options.RenderId,
+		BucketName:  options.BucketName,
+		Type:        "status",
+		Version:     VERSION,
+		DeleteAfter: options.DeleteAfter,
 	}
 
 	return &internalParams, nil
