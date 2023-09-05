@@ -10,11 +10,6 @@ id: electron-app-guidelines
 Embedding Remotion in an Electron app using the following method is an **unofficial approach** and not officially supported by Remotion at this time. While it is possible to make it work, it may require customization and adjustments based on your specific use case and platform requirements.
 :::
 
-## Prerequisites
-
-1. Node.js and npm installed on your system.
-2. A basic understanding of Electron and Remotion.
-
 ## Create an Electron App
 
 If you don't already have an Electron app, you can create one using Electron Forge or any other method of your choice. See [electronjs.org/quickstart](https://www.electronjs.org/docs/latest/tutorial/quick-start).
