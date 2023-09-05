@@ -20,6 +20,7 @@ import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
+import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
@@ -79,7 +80,7 @@ export type RenderMediaOnLambdaOutput = {
 };
 
 const renderMediaOnLambdaRaw = async (
-	input: RenderMediaOnLambdaInput,
+	input: InnerRenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
 	const {functionName, region, rendererFunctionName} = input;
 
@@ -140,9 +141,58 @@ const renderMediaOnLambdaRaw = async (
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
-export const renderMediaOnLambda = PureJSAPIs.wrapWithErrorHandling(
-	renderMediaOnLambdaRaw,
-) as typeof renderMediaOnLambdaRaw;
+export const renderMediaOnLambda = (
+	options: RenderMediaOnLambdaInput,
+): Promise<RenderMediaOnLambdaOutput> => {
+	const wrapped = PureJSAPIs.wrapWithErrorHandling(renderMediaOnLambdaRaw);
+	if (options.quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.',
+		);
+	}
+
+	return wrapped({
+		audioBitrate: options.audioBitrate ?? null,
+		audioCodec: options.audioCodec ?? null,
+		chromiumOptions: options.chromiumOptions ?? {},
+		codec: options.codec,
+		colorSpace: options.colorSpace ?? 'default',
+		composition: options.composition,
+		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
+		crf: options.crf,
+		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		envVariables: options.envVariables ?? {},
+		everyNthFrame: options.everyNthFrame ?? 1,
+		forceBucketName: options.forceBucketName ?? null,
+		forceHeight: options.forceHeight ?? null,
+		forceWidth: options.forceWidth ?? null,
+		frameRange: options.frameRange ?? null,
+		framesPerLambda: options.framesPerLambda ?? null,
+		functionName: options.functionName,
+		imageFormat: options.imageFormat ?? 'jpeg',
+		inputProps: options.inputProps ?? {},
+		jpegQuality: options.jpegQuality ?? 80,
+		logLevel: options.logLevel ?? 'info',
+		maxRetries: options.maxRetries ?? 1,
+		muted: options.muted ?? false,
+		numberOfGifLoops: options.numberOfGifLoops ?? 0,
+		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes ?? 0,
+		outName: options.outName ?? null,
+		overwrite: options.overwrite ?? false,
+		pixelFormat: options.pixelFormat ?? undefined,
+		privacy: options.privacy ?? 'public',
+		proResProfile: options.proResProfile ?? undefined,
+		region: options.region,
+		rendererFunctionName: options.rendererFunctionName ?? null,
+		scale: options.scale ?? 1,
+		serveUrl: options.serveUrl,
+		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
+		videoBitrate: options.videoBitrate ?? null,
+		webhook: options.webhook ?? null,
+		x264Preset: options.x264Preset ?? null,
+		deleteAfter: options.deleteAfter ?? null,
+	});
+};
 
 /**
  * @deprecated Renamed to renderMediaOnLambda()
