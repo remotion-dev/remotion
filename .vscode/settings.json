@@ -25,5 +25,6 @@
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "python.terminal.activateEnvironment": false
 }

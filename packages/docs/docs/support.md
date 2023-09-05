@@ -26,7 +26,7 @@ Ask your question directly and provide relevant information such as which versio
 Company license customers can get a <span style={{
   fontWeight: "bold",
   color: "#0B84F3"
-}}><img style={{height: 20, verticalAlign: "middle"}} src="/img/blue-heart.png"/> Company License</span> badge on Discord for each developer seat they subscribe to. The badge can be activated on [companies.remotion.dev](https://companies.remotion.dev).
+}}><img style={{height: 20, verticalAlign: "middle"}} src="/img/blue-heart.png"/> Company License</span> badge on Discord for each Developer Seat they subscribe to. The badge can be activated on [companies.remotion.dev](https://companies.remotion.dev).
 
 If posted in a public channel, the Remotion team will try to prioritize your question, albeit no guarantee of support is given.
 
@@ -34,7 +34,8 @@ We still expect company license subscribers to follow the best practices for ask
 
 ## Paid consulting
 
-You can request a consultation session [here](https://cal.com/remotion). Remotion's creator Jonny Burger will help you with answers and code to technical questions. This is the only way to receive support via video call.
+You can request a consultation session [here](https://cal.com/remotion/consulting). Remotion's creator Jonny Burger will help you with answers and code to technical questions. This is the only way to receive support via video call. <br/><br/>
+We recommend also checking services of our Remotion Experts for technical advice and guidance [here](https://www.remotion.dev/experts). With their extensive experience in creating Remotion projects, they will surely be of great help.
 
 ## When we can't help
 
