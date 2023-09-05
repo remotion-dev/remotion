@@ -8,6 +8,10 @@ import {
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
+import {
+	getEnableFolderExpiry,
+	setEnableFolderExpiry,
+} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -33,11 +37,6 @@ import {
 	getRenderFolderExpiry,
 	setRenderFolderExpiry,
 } from './render-folder-expiry';
-
-import {
-	getEnableFolderExpiry,
-	setEnableFolderExpiry,
-} from './enable-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -121,6 +120,8 @@ import {
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 import {setX264Preset} from './x264-preset';
+
+export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -421,8 +422,12 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-		setRenderFolderExpiry: (day: string | null) => void;
-
+		setRenderFolderExpiry: (
+			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
+		) => void;
+		/**
+		 *
+		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
@@ -540,8 +545,6 @@ export const Config: FlatConfig = {
 	setColorSpace,
 	setEnableFolderExpiry,
 };
-
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 export const ConfigInternals = {
 	getRange,
