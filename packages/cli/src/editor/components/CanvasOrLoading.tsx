@@ -26,6 +26,7 @@ export const CanvasOrLoading: React.FC = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
 	const {setZoom} = useContext(TimelineZoomCtx);
+	const {mediaType} = useContext(Internals.CompositionManager);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
@@ -60,11 +61,21 @@ export const CanvasOrLoading: React.FC = () => {
 		};
 	}, [takesALongTime]);
 
+	const content = (
+		<>
+			<ZoomPersistor />
+			<Canvas />
+		</>
+	);
+	if (mediaType === 'asset') {
+		return content;
+	}
+
 	if (!resolved) {
 		return null;
 	}
 
-	if (resolved.type === 'loading') {
+	if (resolved?.type === 'loading') {
 		return (
 			<div style={container} className="css-reset">
 				<Spinner size={30} duration={1} />
@@ -82,9 +93,7 @@ export const CanvasOrLoading: React.FC = () => {
 
 	return (
 		<>
-			<FramePersistor />
-			<ZoomPersistor />
-			<Canvas />
+			<FramePersistor /> {content}
 		</>
 	);
 };

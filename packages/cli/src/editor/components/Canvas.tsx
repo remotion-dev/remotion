@@ -263,7 +263,6 @@ export const Canvas: React.FC = () => {
 			zoomOut.unregister();
 		};
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
-
 	return (
 		<div ref={ref} style={container}>
 			{size ? <VideoPreview canvasSize={size} /> : null}
