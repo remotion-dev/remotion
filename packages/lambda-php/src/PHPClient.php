@@ -63,7 +63,6 @@ class PHPClient
             'type' => 'status',
             "version" => VERSION,
             "s3OutputProvider" => null,
-            "deleteAfter" => null
         );
         $result = json_encode($params);
         return $result;

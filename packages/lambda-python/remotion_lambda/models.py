@@ -136,7 +136,6 @@ class RenderProgressParams:
     bucket_name: str
     function_name: str
     region: str
-    delete_after: Optional[str] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -148,7 +147,6 @@ class RenderProgressParams:
             'type': 'status',
             "version": VERSION,
             "s3OutputProvider": None,
-            "deleteAfter": self.delete_after
         }
         return parameters
 
