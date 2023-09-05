@@ -7,7 +7,10 @@ import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
-import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateRenderFolderExpiry,
+} from './helpers/lifecycle';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -46,6 +49,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
+	validateRenderFolderExpiry(params.renderFolderExpiry);
 	const renderId = generateRandomHashWithLifeCycleRule(
 		params.renderFolderExpiry,
 	);
