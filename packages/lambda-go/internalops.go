@@ -38,6 +38,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		AudioCodec:                     options.AudioCodec,
 		ForceBucketName:                options.ForceBucketName,
 		RendererFunctionName:           &options.RendererFunctionName,
+		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
 	}
 

@@ -272,6 +272,7 @@ const innerLaunchHandler = async (
 			},
 			resolvedProps: serializedResolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 		};
 		return payload;
@@ -309,6 +310,7 @@ const innerLaunchHandler = async (
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
 		audioCodec: params.audioCodec,
+		deleteAfter: params.deleteAfter,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

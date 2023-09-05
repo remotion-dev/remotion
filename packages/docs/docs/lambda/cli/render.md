@@ -261,6 +261,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli/>
+
 ### `--webhook-custom-data`<AvailableFrom v="4.0.25"/>
 
 <Options id="webhook-custom-data" cli/>

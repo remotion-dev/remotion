@@ -1,9 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -88,13 +89,16 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
+	const enableFolderExpiry =
+		parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag];
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
-
 	const bucketName =
 		cliBucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
+				enableFolderExpiry: enableFolderExpiry ?? null,
+				customCredentials: null,
 			})
 		).bucketName;
 

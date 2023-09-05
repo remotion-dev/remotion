@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -132,6 +133,9 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		),
 	);
 
+	const deleteAfter =
+		parsedLambdaCli[BrowserSafeApis.options.deleteAfterOption.cliFlag];
+
 	const res = await renderStillOnLambda({
 		functionName,
 		serveUrl,
@@ -155,6 +159,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
 			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
 		},
+		deleteAfter,
 	});
 
 	if (downloadName) {

@@ -689,6 +689,34 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
+### `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
+
+For Lambda:
+
+<Options id="enable-folder-expiry" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEnableFolderExpiry(true);
+```
+
+### `setDeleteAfter`<AvailableFrom v="4.0.32" />
+
+For Lambda:
+
+<Options id="delete-after" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setDeleteAfter("3-days");
+```
+
 ## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.

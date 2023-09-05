@@ -81,7 +81,10 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const retriesInfo = getRetryStats({contents, renderId});
+	const retriesInfo = getRetryStats({
+		contents,
+		renderId,
+	});
 
 	return {
 		cost: {
@@ -120,5 +123,6 @@ export const createPostRenderData = ({
 			renderMetadata.frameRange[0],
 			renderMetadata.frameRange[1],
 		),
+		deleteAfter: renderMetadata.deleteAfter,
 	};
 };
