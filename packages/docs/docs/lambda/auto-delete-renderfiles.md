@@ -187,27 +187,6 @@ By applying the AWS Lifecycle rules, we are instructing AWS S3 to delete files b
 AWS does not delete the file at the exact time, but the deletion will happen.
 :::
 
-## Getting the progress of render
-
-Due to AWS limitation on postfix search, we need to provide the `renderFolderExpiry` values that we have defined during the render to get the progress of the render.
-
-### From Node.js
-
-```tsx twoslash
-// @module: esnext
-// @target: es2017
-// ---cut---
-import { getRenderProgress } from "@remotion/lambda/client";
-
-const progress = await getRenderProgress({
-  renderId: "d7nlc2y",
-  bucketName: "remotionlambda-d9mafgx",
-  functionName: "remotion-render-la8ffw",
-  region: "us-east-1",
-  renderFolderExpiry: "7-days",
-});
-```
-
 ## See also
 
 - [AWS Expiring objects](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-expire-general-considerations.html)
