@@ -218,6 +218,9 @@ impl OpenedStream {
             if stream.parameters().medium() != Type::Video {
                 continue;
             }
+            if stream.index() != self.stream_index {
+                continue;
+            }
 
             _print_verbose(&format!(
                 "Got packet dts = {:?} pts = {:?} key = {}",
