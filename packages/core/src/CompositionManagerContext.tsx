@@ -1,6 +1,10 @@
 import {createContext} from 'react';
 import type {AnyZodObject} from 'zod';
-import type {AnyComposition, TComposition} from './CompositionManager.js';
+import type {
+	AnyComposition,
+	MediaType,
+	TComposition,
+} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -27,7 +31,7 @@ export type CompositionManagerContext = {
 	folders: TFolder[];
 	currentAsset: string | null;
 	setCurrentAsset: (asset: string) => void;
-	mediaType: 'composition' | 'asset';
+	mediaType: MediaType;
 	setMediaType: (mediaType: 'composition' | 'asset') => void;
 };
 

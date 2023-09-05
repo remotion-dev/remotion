@@ -138,7 +138,7 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<CurrentComposition />
+			{currentComposition ? <CurrentComposition /> : null}
 			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (

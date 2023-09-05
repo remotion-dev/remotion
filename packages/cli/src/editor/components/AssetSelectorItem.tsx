@@ -200,10 +200,11 @@ export const AssetSelectorItem: React.FC<{
 		setCurrentAsset(relativePath);
 		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
 	}, [item.name, parentFolder, setCurrentAsset, setMediaType]);
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			color: LIGHT_TEXT,
+			color: hovered || selected ? 'white' : LIGHT_TEXT,
 			backgroundColor: hovered
 				? selected
 					? SELECTED_BACKGROUND
@@ -218,9 +219,9 @@ export const AssetSelectorItem: React.FC<{
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: LIGHT_TEXT,
+			color: hovered || selected ? 'white' : LIGHT_TEXT,
 		};
-	}, []);
+	}, [hovered, selected]);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;

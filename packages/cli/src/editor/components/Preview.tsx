@@ -2,7 +2,7 @@ import {getVideoMetadata} from '@remotion/media-utils';
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {Internals, staticFile, useVideoConfig} from 'remotion';
+import {Internals, staticFile} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -151,10 +151,23 @@ const Inner: React.FC<{
 	const {currentAsset} = useContext(Internals.CompositionManager);
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const {mediaType} = useContext(Internals.CompositionManager);
-	const config = useVideoConfig();
+	const config = Internals.useUnsafeVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
-	const [assetResolution, setAssetResolution] =
-		useState<AssetResolution | null>(null);
+	const [assetResolution, setAssetResolution] = useState<AssetResolution>({
+		width: 0,
+		height: 0,
+	});
+	const derivedConfig = useMemo(() => {
+		if (mediaType === 'asset') {
+			return assetResolution;
+		}
+
+		if (config) {
+			return {width: config.width, height: config.height};
+		}
+
+		return {width: 1920, height: 1080};
+	}, [assetResolution, config, mediaType]);
 
 	const currentAssetType = useMemo(() => {
 		return getFileType(currentAsset);
@@ -202,15 +215,15 @@ const Inner: React.FC<{
 
 		return PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
+			compositionHeight: derivedConfig.height,
+			compositionWidth: derivedConfig.width,
 			previewSize: previewSize.size,
 		});
 	}, [
 		assetResolution,
 		canvasSize,
-		config.height,
-		config.width,
+		derivedConfig.height,
+		derivedConfig.width,
 		mediaType,
 		previewSize.size,
 	]);
@@ -220,11 +233,11 @@ const Inner: React.FC<{
 			width:
 				assetResolution && mediaType === 'asset'
 					? assetResolution.width * scale
-					: config.width * scale,
+					: derivedConfig.width * scale,
 			height:
 				assetResolution && mediaType === 'asset'
 					? assetResolution.height * scale
-					: config.height * scale,
+					: derivedConfig.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
@@ -236,15 +249,15 @@ const Inner: React.FC<{
 		};
 	}, [
 		assetResolution,
-		centerX,
-		centerY,
-		config.height,
-		config.width,
-		currentAssetType,
 		mediaType,
+		scale,
+		derivedConfig.width,
+		derivedConfig.height,
+		centerX,
 		previewSize.translation.x,
 		previewSize.translation.y,
-		scale,
+		centerY,
+		currentAssetType,
 	]);
 
 	const style = useMemo((): React.CSSProperties => {
@@ -253,13 +266,13 @@ const Inner: React.FC<{
 			scale,
 			xCorrection,
 			yCorrection,
-			width: config.width,
-			height: config.height,
+			width: derivedConfig.width,
+			height: derivedConfig.height,
 		});
 	}, [
 		checkerboard,
-		config.height,
-		config.width,
+		derivedConfig.height,
+		derivedConfig.width,
 		scale,
 		xCorrection,
 		yCorrection,
@@ -288,8 +301,8 @@ export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const config = Internals.useUnsafeVideoConfig();
-
-	if (!config) {
+	const {mediaType} = useContext(Internals.CompositionManager);
+	if (!config && mediaType !== 'asset') {
 		return null;
 	}
 

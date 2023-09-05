@@ -133,6 +133,7 @@ export type TRenderAsset = {
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
 };
+export type MediaType = 'composition' | 'asset' | null;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadataWithCalcFunction<
@@ -154,9 +155,7 @@ export const CompositionManagerProvider: React.FC<{
 	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 	const [currentAsset, setCurrentAsset] = useState<string | null>(null);
-	const [mediaType, setMediaType] = useState<'composition' | 'asset'>(
-		'composition',
-	);
+	const [mediaType, setMediaType] = useState<MediaType>(deriveMediaType());
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
@@ -285,4 +284,13 @@ export const CompositionManagerProvider: React.FC<{
 			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);
+};
+
+const deriveMediaType = () => {
+	const substrings = window.location.pathname.split('/');
+	if (substrings.includes('assets')) {
+		return 'asset';
+	}
+
+	return 'composition';
 };
