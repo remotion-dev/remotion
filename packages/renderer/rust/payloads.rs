@@ -78,7 +78,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct StartPayLoad {
         pub concurrency: usize,
-        pub maximum_frame_cache_size_in_bytes: u128,
+        pub maximum_frame_cache_size_in_bytes: Option<u128>,
         pub verbose: bool,
     }
 

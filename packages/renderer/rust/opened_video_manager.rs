@@ -74,18 +74,19 @@ impl OpenedVideoManager {
         return Ok(total_size);
     }
 
-    pub fn only_keep_n_frames(
+    pub fn prune_oldest(
         &self,
         maximum_frame_cache_size_in_bytes: u128,
     ) -> Result<(), ErrorWithBacktrace> {
         self.prune(maximum_frame_cache_size_in_bytes)
     }
 
-    pub fn prune_oldest(
+    // Should be called if system is about to run out of memory
+    pub fn halfen_cache_size(
         &self,
         maximum_frame_cache_size_in_bytes: u128,
     ) -> Result<(), ErrorWithBacktrace> {
-        self.prune(maximum_frame_cache_size_in_bytes)
+        self.prune(maximum_frame_cache_size_in_bytes / 2)
     }
 
     pub fn prune(&self, maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {

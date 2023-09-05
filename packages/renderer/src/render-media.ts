@@ -591,8 +591,13 @@ const internalRenderMediaRaw = ({
 			})
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
-				callUpdate();
 
+				callUpdate();
+				Log.verboseAdvanced(
+					{indent, logLevel},
+					'Rendering frames done in',
+					renderedDoneIn + 'ms',
+				);
 				if (absoluteOutputLocation) {
 					ensureOutputDirectory(absoluteOutputLocation);
 				}
@@ -645,6 +650,11 @@ const internalRenderMediaRaw = ({
 				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
+				Log.verboseAdvanced(
+					{indent, logLevel},
+					'Stitching done in',
+					encodedDoneIn + 'ms',
+				);
 				slowestFrames.sort((a, b) => b.time - a.time);
 				const result: RenderMediaResult = {
 					buffer,
