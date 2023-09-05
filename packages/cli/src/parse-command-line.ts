@@ -75,7 +75,7 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
-	['enable-folder-expiry']: boolean | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };
 
 export const BooleanFlags = [

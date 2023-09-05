@@ -86,7 +86,8 @@ Verify that it worked
 </details>
 
 <br/>
-<Step>3</Step> <strong>Trigger a render with expiration</strong>
+
+## Trigger a render with expiration
 
 Valid values are `"1-day"`, `"3-days"`, `"7-days"` and `"30-days"`.
 

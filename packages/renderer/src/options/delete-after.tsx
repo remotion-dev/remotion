@@ -1,3 +1,5 @@
+import {AnyRemotionOption} from './option';
+
 export const deleteAfterOption = {
 	name: 'Lambda render expiration',
 	cliFlag: 'delete-after' as const,
@@ -14,4 +16,4 @@ export const deleteAfterOption = {
 	ssrName: 'deleteAfter' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
 	type: '' as string | null,
-};
+} satisfies AnyRemotionOption;

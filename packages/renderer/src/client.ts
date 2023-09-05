@@ -18,12 +18,13 @@ import {isAudioCodec} from './is-audio-codec';
 import {audioBitrateOption} from './options/audio-bitrate';
 import {colorSpaceOption, validColorSpaces} from './options/color-space';
 import {crfOption} from './options/crf';
+import {deleteAfterOption} from './options/delete-after';
 import {enforceAudioOption} from './options/enforce-audio';
+import {folderExpiryOption} from './options/folder-expiry';
 import {jpegQualityOption} from './options/jpeg-quality';
 import {muteOption} from './options/mute';
 import {offthreadVideoCacheSizeInBytesOption} from './options/offthreadvideo-cache-size';
 import {optionsMap} from './options/options-map';
-import {deleteAfterOption} from './options/render-expiry-days';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
@@ -62,6 +63,7 @@ export const BrowserSafeApis = {
 		webhookCustomDataOption,
 		colorSpaceOption,
 		deleteAfterOption,
+		folderExpiryOption,
 	},
 	validColorSpaces,
 	optionsMap,

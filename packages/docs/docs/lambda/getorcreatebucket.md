@@ -28,6 +28,10 @@ An object with the following property:
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
 
+### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
+
+<Options id="enable-folder-expiry"/>
+
 ### ~~`onBucketEnsured?`~~
 
 _removed in v4.0, optional_
@@ -46,10 +50,6 @@ The name of your bucket that was found or created.
 ### `alreadyExisted`<AvailableFrom v="3.3.78" />
 
 A boolean indicating whether the bucket already existed or was newly created.
-
-### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
-
-A boolean indicating whether to create lifecyle rules, to automatically delete render folders.
 
 ## See also
 
