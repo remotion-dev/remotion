@@ -147,7 +147,15 @@ export const lambdaWriteFile = async (
 		await tryLambdaWriteFile(params);
 	} catch (err) {
 		if (remainingRetries === 0) {
-			throw err;
+			throw new Error(
+				`Failed writing to Lambda bucket "${
+					params.bucketName
+				}" (custom credentials = ${Boolean(params.customCredentials)}, key = ${
+					params.key
+				}, expectedBucketOwner = ${params.expectedBucketOwner}, privacy = ${
+					params.privacy
+				}) : ${(err as Error).stack}`,
+			);
 		}
 
 		const backoff = 2 ** (2 - remainingRetries) * 2000;
