@@ -139,7 +139,7 @@ jobs:
           - os: macos-latest
             node_version: 16
           - os: ubuntu-latest
-            node_version: 20
+            node_version: 20.5
     steps:
       - name: Uninstall Chrome on Windows because it does not include proprietary codecs
         run: |
