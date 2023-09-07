@@ -1,4 +1,4 @@
-import {getAvailableMemory} from './get-free-memory';
+import {getAvailableMemory} from './get-available-memory';
 
 const estimateMemoryUsageForPrestitcher = ({
 	width,
