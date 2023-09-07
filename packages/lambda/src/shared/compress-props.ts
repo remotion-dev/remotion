@@ -86,7 +86,7 @@ export const compressInputProps = async ({
 			downloadBehavior: null,
 			expectedBucketOwner: null,
 			key: makeKey(propsType, hash),
-			privacy: 'public',
+			privacy: 'private',
 		});
 
 		return {
