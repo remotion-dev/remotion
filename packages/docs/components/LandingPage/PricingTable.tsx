@@ -158,7 +158,7 @@ export const PricingTable: React.FC<{}> = () => {
               </div>
               {Date.now() > DEV_SEAT_PRICE_INCREASE ? (
                 <div className={styles.minimum}>
-                  Minimum Plan amount:{" "}
+                  Minimum Amount:{" "}
                   {period === Period.Monthly ? "$100/month" : "$1'000/year"}
                 </div>
               ) : null}
