@@ -1,11 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
 
@@ -70,6 +69,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		port,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		deleteAfter,
+		x264Preset,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -152,10 +153,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
-	const deleteAfter =
-		parsedLambdaCli[BrowserSafeApis.options.deleteAfterOption.cliFlag];
-
-	const res = await renderMediaOnLambda({
+	const res = await internalRenderMediaOnLambdaRaw({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -172,8 +170,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		framesPerLambda,
 		privacy,
 		logLevel,
-		frameRange: frameRange ?? undefined,
-		outName: parsedLambdaCli['out-name'],
+		frameRange: frameRange ?? null,
+		outName: parsedLambdaCli['out-name'] ?? null,
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,
@@ -192,12 +190,15 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 					customData: webhookCustomData,
 			  }
-			: undefined,
+			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
-		forceBucketName: parsedLambdaCli['force-bucket-name'],
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec: CliInternals.parsedCli['audio-codec'],
-		deleteAfter,
+		deleteAfter: deleteAfter ?? null,
 		colorSpace,
+		downloadBehavior: {type: 'play-in-browser'},
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		x264Preset: x264Preset ?? null,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
