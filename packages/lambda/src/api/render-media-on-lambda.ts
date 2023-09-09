@@ -176,7 +176,8 @@ export const renderMediaOnLambda = (
 		maxRetries: options.maxRetries ?? 1,
 		muted: options.muted ?? false,
 		numberOfGifLoops: options.numberOfGifLoops ?? 0,
-		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes ?? 0,
+		offthreadVideoCacheSizeInBytes:
+			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
 		overwrite: options.overwrite ?? false,
 		pixelFormat: options.pixelFormat ?? undefined,
