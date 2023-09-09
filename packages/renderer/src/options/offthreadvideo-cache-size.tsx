@@ -33,7 +33,7 @@ export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {
 		throw new Error('Expected a number');
 	}
 
-	if (option < 0) {
+	if (option < 0 || option === 0) {
 		throw new Error('Expected a positive number');
 	}
 

@@ -79,7 +79,7 @@ export type RenderMediaOnLambdaOutput = {
 	folderInS3Console: string;
 };
 
-const renderMediaOnLambdaRaw = async (
+export const internalRenderMediaOnLambdaRaw = async (
 	input: InnerRenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
 	const {functionName, region, rendererFunctionName} = input;
@@ -144,7 +144,9 @@ const renderMediaOnLambdaRaw = async (
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const wrapped = PureJSAPIs.wrapWithErrorHandling(renderMediaOnLambdaRaw);
+	const wrapped = PureJSAPIs.wrapWithErrorHandling(
+		internalRenderMediaOnLambdaRaw,
+	);
 	if (options.quality) {
 		throw new Error(
 			'quality has been renamed to jpegQuality. Please rename the option.',
@@ -176,7 +178,8 @@ export const renderMediaOnLambda = (
 		maxRetries: options.maxRetries ?? 1,
 		muted: options.muted ?? false,
 		numberOfGifLoops: options.numberOfGifLoops ?? 0,
-		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes ?? 0,
+		offthreadVideoCacheSizeInBytes:
+			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
 		overwrite: options.overwrite ?? false,
 		pixelFormat: options.pixelFormat ?? undefined,
