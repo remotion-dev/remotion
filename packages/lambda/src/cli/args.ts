@@ -22,9 +22,9 @@ type LambdaCommandLineOptions = {
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
-	['max-retries']: number;
-	['frames-per-lambda']: number;
-	['concurrency-per-lambda']: number;
+	['max-retries']?: number;
+	['frames-per-lambda']?: number;
+	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
