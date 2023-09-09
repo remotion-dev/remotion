@@ -127,7 +127,7 @@ export const getRenderCommand = (manager: PackageManager) => {
 	}
 
 	if (manager === 'bun') {
-		return `bun build`;
+		return `bun run build`;
 	}
 };
 
