@@ -5,9 +5,7 @@ import type {Template} from './templates';
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 const shouldUseBun = (): boolean => {
-	const runtimeBinary = `${process.env?._?.slice(-8)}`;
-
-	if (runtimeBinary === '/bin/bun') {
+	if (process.env._?.endsWith('/bin/bun')) {
 		return true;
 	}
 
