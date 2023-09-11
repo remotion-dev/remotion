@@ -37,7 +37,6 @@ export const waitForReady = ({
 				return resolve(a);
 			})
 			.catch((err) => {
-				console.log({err});
 				if (
 					(err as Error).message.includes('timeout') &&
 					(err as Error).message.includes('exceeded')
@@ -60,7 +59,6 @@ export const waitForReady = ({
 						page,
 					})
 						.then((res) => {
-							console.log('got evaluation');
 							reject(
 								new Error(
 									`Timeout exceeded rendering the component${
@@ -72,7 +70,6 @@ export const waitForReady = ({
 							);
 						})
 						.catch((newErr) => {
-							console.log({newErr});
 							RenderInternals.Log.warn(
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
 								newErr,
