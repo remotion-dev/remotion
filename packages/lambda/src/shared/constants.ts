@@ -275,7 +275,6 @@ export type LambdaStartPayload = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace;
-	enableStreaming: boolean;
 };
 
 export type LambdaStatusPayload = {
@@ -331,7 +330,6 @@ export type LambdaPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
-		enableStreaming: boolean;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -374,7 +372,6 @@ export type LambdaPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
-		enableStreaming: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;
