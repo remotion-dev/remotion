@@ -85,7 +85,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
-		console.log('sending evaluation');
 		const {
 			value: {exceptionDetails: exceptDetails, result: remotObject},
 			size,
@@ -96,7 +95,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			awaitPromise: true,
 			userGesture: true,
 		});
-		console.log('got evaluation', remotObject);
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
