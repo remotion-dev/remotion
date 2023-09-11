@@ -39,17 +39,40 @@ function isString(obj: unknown): obj is string {
 	return typeof obj === 'string' || obj instanceof String;
 }
 
+type PuppeteerCatchOptions = {
+	page: Page;
+	pageFunction: Function | string;
+	frame: number | null;
+	args: unknown[];
+};
+
+export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
+	args,
+	frame,
+	page,
+	pageFunction,
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
+	return Promise.race([
+		new Promise<{value: ReturnType; size: number}>((_, reject) => {
+			setTimeout(() => {
+				reject(new Error('timeout exceeded'));
+			}, 5000);
+		}),
+		puppeteerEvaluateWithCatch<ReturnType>({
+			args,
+			frame,
+			page,
+			pageFunction,
+		}),
+	]);
+}
+
 export async function puppeteerEvaluateWithCatch<ReturnType>({
 	page,
 	pageFunction,
 	frame,
 	args,
-}: {
-	page: Page;
-	pageFunction: Function | string;
-	frame: number | null;
-	args: unknown[];
-}): Promise<{value: ReturnType; size: number}> {
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
@@ -129,8 +152,10 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		if (
 			error instanceof TypeError &&
 			error.message.startsWith('Converting circular structure to JSON')
-		)
+		) {
 			error.message += ' Are you passing a nested JSHandle?';
+		}
+
 		throw error;
 	}
 
