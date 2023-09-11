@@ -73,7 +73,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	frame,
 	args,
 }: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
-	console.log('getting context');
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
@@ -141,7 +140,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 	let callFunctionOnPromise;
 	try {
-		console.log('calling function');
 		callFunctionOnPromise = client.send('Runtime.callFunctionOn', {
 			functionDeclaration: functionText + '\n' + suffix + '\n',
 			executionContextId: contextId,
@@ -150,7 +148,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			awaitPromise: true,
 			userGesture: true,
 		});
-		console.log('function called');
 	} catch (error) {
 		if (
 			error instanceof TypeError &&
@@ -159,18 +156,14 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			error.message += ' Are you passing a nested JSHandle?';
 		}
 
-		console.log({error});
-
 		throw error;
 	}
 
 	try {
-		console.log('waiting for it to resolve');
 		const {
 			value: {exceptionDetails, result: remoteObject},
 			size,
 		} = await callFunctionOnPromise;
-		console.log('awaited', {exceptionDetails});
 
 		if (exceptionDetails) {
 			const err = new SymbolicateableError({
