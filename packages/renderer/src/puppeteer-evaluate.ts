@@ -58,7 +58,7 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 				reject(new Error('timeout exceeded'));
 			}, 5000);
 		}),
-		puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
+		puppeteerEvaluateWithCatch<ReturnType>({
 			args,
 			frame,
 			page,
