@@ -8,7 +8,7 @@ import {cpus} from 'node:os';
 // We also get it from nproc and use the minimum of the two.
 const getConcurrencyFromNProc = (): number | null => {
 	try {
-		return parseInt(execSync('nproc').toString().trim(), 10);
+		return parseInt(execSync('nproc', {stdio: 'pipe'}).toString().trim(), 10);
 	} catch (error) {
 		return null;
 	}
