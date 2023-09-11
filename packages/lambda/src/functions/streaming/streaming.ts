@@ -112,6 +112,10 @@ export const makeStreaming = (onMessage: OnMessage) => {
 
 			outputBuffer = Buffer.concat(unprocessedBuffers);
 			unprocessedBuffers = [];
+			console.log(
+				'the unprocessed input is now',
+				new TextDecoder('utf-8').decode(outputBuffer),
+			);
 			processInput();
 		},
 	};
@@ -135,3 +139,10 @@ export const makePayloadMessage = (
 
 	return concat;
 };
+
+export type StreamingPayload = {
+	type: 'frames-rendered';
+	frames: number;
+};
+
+export type OnStream = (payload: StreamingPayload) => void;
