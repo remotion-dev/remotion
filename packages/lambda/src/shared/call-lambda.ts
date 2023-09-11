@@ -2,6 +2,7 @@ import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
 import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
 import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
+import {makeStreaming} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
@@ -61,6 +62,10 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		}),
 	);
 
+	const {addData} = makeStreaming((successType, nonce, data) => {
+		console.log({successType, nonce, data});
+	});
+
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
 	let responsePayload = '';
@@ -71,6 +76,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
 		if (event.PayloadChunk) {
+			addData(event.PayloadChunk.Payload as Buffer);
 			// Decode the raw bytes into a string a human can read
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload,

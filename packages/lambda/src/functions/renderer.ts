@@ -27,17 +27,24 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
 };
 
-const renderHandler = async (
-	params: LambdaPayload,
-	options: Options,
-	logs: BrowserLog[],
-): Promise<{}> => {
+const renderHandler = async ({
+	params,
+	options,
+	logs,
+	onStream,
+}: {
+	params: LambdaPayload;
+	options: Options;
+	logs: BrowserLog[];
+	onStream: OnStream;
+}): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -149,6 +156,8 @@ const renderHandler = async (
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
+
+				onStream({type: 'frames-rendered', frames: renderedFrames});
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
@@ -275,6 +284,7 @@ const renderHandler = async (
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	onStream: OnStream,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -285,7 +295,7 @@ export const rendererHandler = async (
 	const logs: BrowserLog[] = [];
 
 	try {
-		await renderHandler(params, options, logs);
+		await renderHandler({params, options, logs, onStream});
 		return {
 			type: 'success',
 		};

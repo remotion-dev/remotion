@@ -20,6 +20,7 @@ import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
+import {makePayloadMessage} from './streaming/streaming';
 
 const innerHandler = async (
 	params: LambdaPayload,
@@ -121,6 +122,8 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
+		let nonce = 0;
+		nonce++;
 		printCloudwatchHelper(LambdaRoutines.renderer, {
 			renderId: params.renderId,
 			chunk: String(params.chunk),
@@ -132,14 +135,28 @@ const innerHandler = async (
 		});
 		RenderInternals.setLogLevel(params.logLevel);
 
-		const response = await rendererHandler(params, {
-			expectedBucketOwner: currentUserId,
-			isWarm,
-		});
-
-		responseStream.write(JSON.stringify(response), () => {
+		const response = await rendererHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				isWarm,
+			},
+			(payload) => {
+				if (params.enableStreaming) {
+					responseStream.write(
+						makePayloadMessage(nonce, Buffer.from(JSON.stringify(payload)), 0),
+					);
+				}
+			},
+		);
+		if (params.enableStreaming) {
+			responseStream.write(JSON.stringify(response), () => {
+				responseStream.end();
+			});
+		} else {
 			responseStream.end();
-		});
+		}
+
 		return;
 	}
 

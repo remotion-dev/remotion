@@ -4,6 +4,7 @@ import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {
 	cleanupSerializedInputProps,
 	cleanupSerializedResolvedProps,
@@ -362,7 +363,21 @@ const innerLaunchHandler = async (
 
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
-			await callFunctionWithRetry({payload, retries: 0, functionName});
+			if (params.enableStreaming) {
+				await callFunctionWithRetry({payload, retries: 0, functionName});
+			} else {
+				await callLambda({
+					functionName,
+					payload,
+					retriesRemaining: 0,
+					region: getCurrentRegionInFunction(),
+					timeoutInTest: 12000,
+					type: LambdaRoutines.renderer,
+					receivedStreamingPayload: (p) => {
+						console.log('p', {p});
+					},
+				});
+			}
 		}),
 	);
 
