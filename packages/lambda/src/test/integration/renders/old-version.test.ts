@@ -64,6 +64,7 @@ test('Should fail when using an incompatible version', async () => {
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				enableStreaming: false,
 			},
 			functionName: 'remotion-dev-render',
 			receivedStreamingPayload: () => undefined,
