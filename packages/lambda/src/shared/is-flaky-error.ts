@@ -50,5 +50,13 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	if (
+		message.includes(
+			'waiting for the page to render the React component failed',
+		)
+	) {
+		return true;
+	}
+
 	return false;
 };

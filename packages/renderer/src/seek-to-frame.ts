@@ -19,20 +19,6 @@ export const waitForReady = ({
 	timeoutInMilliseconds: number;
 	frame: number | null;
 }) => {
-	const interval = setInterval(() => {
-		console.log('should evaluate');
-		puppeteerEvaluateWithCatch({
-			pageFunction: () => {
-				console.log(
-					window.remotion_renderReady,
-					JSON.stringify(window.remotion_delayRenderTimeouts),
-				);
-			},
-			args: [],
-			frame: null,
-			page,
-		});
-	}, 2000);
 	const waitForReadyProm = new Promise<JSHandle>((resolve, reject) => {
 		page
 			.mainFrame()
@@ -48,7 +34,6 @@ export const waitForReady = ({
 				shouldClosePage: false,
 			})
 			.then((a) => {
-				clearInterval(interval);
 				return resolve(a);
 			})
 			.catch((err) => {
@@ -174,9 +159,7 @@ export const seekToFrame = async ({
 	page: Page;
 	timeoutInMilliseconds: number;
 }) => {
-	console.log('waiting for ready');
 	await waitForReady({page, timeoutInMilliseconds, frame: null});
-	console.log('waiting for frame to be set');
 	await puppeteerEvaluateWithCatch({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
@@ -185,8 +168,6 @@ export const seekToFrame = async ({
 		frame,
 		page,
 	});
-	console.log('waiting for page to be ready');
 	await waitForReady({page, timeoutInMilliseconds, frame});
-	console.log('waiting for fonts');
 	await page.evaluateHandle('document.fonts.ready');
 };
