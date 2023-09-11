@@ -5,7 +5,10 @@ import {PageEmittedEvents} from './browser/BrowserPage';
 import type {JSHandle} from './browser/JSHandle';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {
+	puppeteerEvaluateWithCatch,
+	puppeteerEvaluateWithCatchAndTimeout,
+} from './puppeteer-evaluate';
 
 export const waitForReady = ({
 	page,
@@ -16,6 +19,20 @@ export const waitForReady = ({
 	timeoutInMilliseconds: number;
 	frame: number | null;
 }) => {
+	const interval = setInterval(() => {
+		console.log('should evaluate');
+		puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				console.log(
+					window.remotion_renderReady,
+					JSON.stringify(window.remotion_delayRenderTimeouts),
+				);
+			},
+			args: [],
+			frame: null,
+			page,
+		});
+	}, 2000);
 	const waitForReadyProm = new Promise<JSHandle>((resolve, reject) => {
 		page
 			.mainFrame()
@@ -30,13 +47,17 @@ export const waitForReady = ({
 						: `the page to render the React component at frame ${frame}`,
 				shouldClosePage: false,
 			})
-			.then((a) => resolve(a))
+			.then((a) => {
+				clearInterval(interval);
+				return resolve(a);
+			})
 			.catch((err) => {
+				console.log({err});
 				if (
 					(err as Error).message.includes('timeout') &&
 					(err as Error).message.includes('exceeded')
 				) {
-					puppeteerEvaluateWithCatch({
+					puppeteerEvaluateWithCatchAndTimeout({
 						pageFunction: () => {
 							return Object.keys(window.remotion_delayRenderTimeouts)
 								.map((id, i) => {
@@ -54,6 +75,7 @@ export const waitForReady = ({
 						page,
 					})
 						.then((res) => {
+							console.log('got evaluation');
 							reject(
 								new Error(
 									`Timeout exceeded rendering the component${
@@ -65,6 +87,7 @@ export const waitForReady = ({
 							);
 						})
 						.catch((newErr) => {
+							console.log({newErr});
 							RenderInternals.Log.warn(
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
 								newErr,
@@ -151,7 +174,9 @@ export const seekToFrame = async ({
 	page: Page;
 	timeoutInMilliseconds: number;
 }) => {
+	console.log('waiting for ready');
 	await waitForReady({page, timeoutInMilliseconds, frame: null});
+	console.log('waiting for frame to be set');
 	await puppeteerEvaluateWithCatch({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
@@ -160,6 +185,8 @@ export const seekToFrame = async ({
 		frame,
 		page,
 	});
+	console.log('waiting for page to be ready');
 	await waitForReady({page, timeoutInMilliseconds, frame});
+	console.log('waiting for fonts');
 	await page.evaluateHandle('document.fonts.ready');
 };

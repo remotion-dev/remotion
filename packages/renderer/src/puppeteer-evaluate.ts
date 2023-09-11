@@ -39,17 +39,41 @@ function isString(obj: unknown): obj is string {
 	return typeof obj === 'string' || obj instanceof String;
 }
 
+type PuppeteerCatchOptions = {
+	page: Page;
+	pageFunction: Function | string;
+	frame: number | null;
+	args: unknown[];
+};
+
+export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
+	args,
+	frame,
+	page,
+	pageFunction,
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
+	return Promise.race([
+		new Promise<{value: ReturnType; size: number}>((_, reject) => {
+			setTimeout(() => {
+				reject(new Error('timeout exceeded'));
+			}, 5000);
+		}),
+		puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
+			args,
+			frame,
+			page,
+			pageFunction,
+		}),
+	]);
+}
+
 export async function puppeteerEvaluateWithCatch<ReturnType>({
 	page,
 	pageFunction,
 	frame,
 	args,
-}: {
-	page: Page;
-	pageFunction: Function | string;
-	frame: number | null;
-	args: unknown[];
-}): Promise<{value: ReturnType; size: number}> {
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
+	console.log('getting context');
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
@@ -61,6 +85,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
+		console.log('sending evaluation');
 		const {
 			value: {exceptionDetails: exceptDetails, result: remotObject},
 			size,
@@ -71,6 +96,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			awaitPromise: true,
 			userGesture: true,
 		});
+		console.log('got evaluation', remotObject);
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
@@ -117,6 +143,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 	let callFunctionOnPromise;
 	try {
+		console.log('calling function');
 		callFunctionOnPromise = client.send('Runtime.callFunctionOn', {
 			functionDeclaration: functionText + '\n' + suffix + '\n',
 			executionContextId: contextId,
@@ -125,20 +152,27 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			awaitPromise: true,
 			userGesture: true,
 		});
+		console.log('function called');
 	} catch (error) {
 		if (
 			error instanceof TypeError &&
 			error.message.startsWith('Converting circular structure to JSON')
-		)
+		) {
 			error.message += ' Are you passing a nested JSHandle?';
+		}
+
+		console.log({error});
+
 		throw error;
 	}
 
 	try {
+		console.log('waiting for it to resolve');
 		const {
 			value: {exceptionDetails, result: remoteObject},
 			size,
 		} = await callFunctionOnPromise;
+		console.log('awaited', {exceptionDetails});
 
 		if (exceptionDetails) {
 			const err = new SymbolicateableError({
@@ -157,6 +191,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 		return {size, value: valueFromRemoteObject(remoteObject)};
 	} catch (error) {
+		console.log({error});
 		if (
 			(error as {originalMessage: string})?.originalMessage?.startsWith(
 				"Object couldn't be returned by value",
