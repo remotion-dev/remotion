@@ -74,7 +74,6 @@ export type InnerRenderMediaOnLambdaInput = {
 	audioCodec: AudioCodec | null;
 	colorSpace: ColorSpace;
 	deleteAfter: DeleteAfter | null;
-	enableStreaming: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -116,7 +115,6 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
-	enableStreaming,
 }: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -169,19 +167,18 @@ export const makeLambdaRenderMediaPayload = async ({
 		downloadBehavior,
 		muted: muted ?? false,
 		version: VERSION,
-		overwrite,
-		audioBitrate,
-		videoBitrate,
-		webhook,
-		forceHeight,
-		forceWidth,
-		bucketName,
-		audioCodec,
+		overwrite: overwrite ?? false,
+		audioBitrate: audioBitrate ?? null,
+		videoBitrate: videoBitrate ?? null,
+		webhook: webhook ?? null,
+		forceHeight: forceHeight ?? null,
+		forceWidth: forceWidth ?? null,
+		bucketName: bucketName ?? null,
+		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
-		offthreadVideoCacheSizeInBytes,
-		deleteAfter,
-		colorSpace,
-		enableStreaming,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		deleteAfter: deleteAfter ?? null,
+		colorSpace: colorSpace ?? 'default',
 	};
 };
 
