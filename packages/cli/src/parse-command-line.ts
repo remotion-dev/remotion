@@ -100,6 +100,7 @@ export const BooleanFlags = [
 	'disable-keyboard-shortcuts',
 	'default-only',
 	'no-open',
+	'enable-streaming',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

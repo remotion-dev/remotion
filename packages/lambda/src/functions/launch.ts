@@ -275,6 +275,7 @@ const innerLaunchHandler = async (
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
+			enableStreaming: params.enableStreaming,
 		};
 		return payload;
 	});
