@@ -41,13 +41,17 @@ export const loadConfigFile = async (
 		process.exit(1);
 	}
 
-	const str = new TextDecoder().decode(result.outputFiles[0].contents);
+	let str = new TextDecoder().decode(result.outputFiles[0].contents);
 
 	const currentCwd = process.cwd();
 
 	// The config file is always executed from the Remotion root, if `process.cwd()` is being used. We cannot enforce this in worker threads used for testing
 	if (isMainThread) {
 		process.chdir(remotionRoot);
+	}
+
+	if (process.env.PATCH_BUN_DEVELOPMENT) {
+		str = str.replace('@remotion/cli/config', './config');
 	}
 
 	// Exectute the contents of the config file
