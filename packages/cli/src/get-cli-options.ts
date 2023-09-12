@@ -133,6 +133,8 @@ export const getCliOptions = async (options: {
 	const height = ConfigInternals.getHeight();
 	const width = ConfigInternals.getWidth();
 
+	const audioCodec = ConfigInternals.getAudioCodec() ?? null;
+
 	RenderInternals.validateConcurrency({
 		value: concurrency,
 		setting: 'concurrency',
@@ -169,10 +171,11 @@ export const getCliOptions = async (options: {
 		videoBitrate,
 		height,
 		width,
-		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
+		videoImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 		offthreadVideoCacheSizeInBytes:
 			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 		deleteAfter: ConfigInternals.getDeleteAfter(),
 		colorSpace: ConfigInternals.getColorSpace(),
+		audioCodec,
 	};
 };

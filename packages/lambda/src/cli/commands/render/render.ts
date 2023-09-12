@@ -71,6 +71,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		colorSpace,
 		deleteAfter,
 		x264Preset,
+		audioCodec,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -193,7 +194,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
-		audioCodec: CliInternals.parsedCli['audio-codec'],
+		audioCodec,
 		deleteAfter: deleteAfter ?? null,
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},

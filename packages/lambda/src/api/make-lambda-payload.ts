@@ -167,7 +167,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		numberOfGifLoops,
 		concurrencyPerLambda,
 		downloadBehavior,
-		muted: muted ?? false,
+		muted,
 		version: VERSION,
 		overwrite,
 		audioBitrate,
