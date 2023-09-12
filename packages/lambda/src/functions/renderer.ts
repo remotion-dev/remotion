@@ -157,7 +157,7 @@ const renderHandler = async ({
 					);
 				}
 
-				onStream({type: 'frames-rendered', frames: renderedFrames});
+				onStream({type: 'frames-rendered', payload: {frames: renderedFrames}});
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
@@ -255,6 +255,7 @@ const renderHandler = async ({
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+	onStream({type: 'chunk-rendered', payload: fs.readFileSync(outputLocation)});
 	RenderInternals.Log.verbose('Wrote chunk to S3', {
 		time: Date.now() - writeStart,
 	});
@@ -346,7 +347,7 @@ export const rendererHandler = async (
 				payload: retryPayload,
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
-				receivedStreamingPayload: () => undefined,
+				onMessage: () => undefined,
 				timeoutInTest: 120000,
 				retriesRemaining: 0,
 			});

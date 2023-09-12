@@ -122,8 +122,6 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
-		let nonce = 0;
-		nonce++;
 		printCloudwatchHelper(LambdaRoutines.renderer, {
 			renderId: params.renderId,
 			chunk: String(params.chunk),
@@ -143,9 +141,12 @@ const innerHandler = async (
 			},
 			(payload) => {
 				if (params.enableStreaming) {
-					responseStream.write(
-						makePayloadMessage(nonce, Buffer.from(JSON.stringify(payload)), 0),
-					);
+					const message = makePayloadMessage({
+						message: payload,
+						status: 0,
+					});
+
+					responseStream.write(message);
 				}
 			},
 		);
