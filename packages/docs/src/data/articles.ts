@@ -98,6 +98,13 @@ export const articles = [
     crumb: "Building video apps",
   },
   {
+    id: "bun",
+    title: "Bun support",
+    relativePath: "docs/bun.md",
+    compId: "articles-docs-bun",
+    crumb: "bun bun bun bun bun",
+  },
+  {
     id: "bundle",
     title: "bundle()",
     relativePath: "docs/bundle.md",

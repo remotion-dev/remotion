@@ -95,6 +95,20 @@ describe('Templates should be valid', () => {
 		);
 
 		it(
+			template.shortName + ' should not have a bun.lockb',
+			async () => {
+				const packageLockJson = getFileForTemplate(template, 'bun.lockb');
+
+				const res = await got(packageLockJson, {
+					throwHttpErrors: false,
+				});
+
+				expect(res.statusCode).toBe(404);
+			},
+			12000,
+		);
+
+		it(
 			template.shortName + ' should not have a standard entry point',
 			async () => {
 				const {contents, entryPoint} = await findFile([

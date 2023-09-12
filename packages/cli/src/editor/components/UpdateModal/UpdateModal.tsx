@@ -32,6 +32,7 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 	npm: 'npm run upgrade',
 	yarn: 'yarn upgrade',
 	pnpm: 'pnpm run upgrade',
+	bun: 'bun run upgrade',
 	unknown: 'npm run upgrade',
 };
 
