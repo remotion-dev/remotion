@@ -150,11 +150,11 @@ const innerHandler = async (
 			},
 		);
 		if (params.enableStreaming) {
+			responseStream.end();
+		} else {
 			responseStream.write(JSON.stringify(response), () => {
 				responseStream.end();
 			});
-		} else {
-			responseStream.end();
 		}
 
 		return;

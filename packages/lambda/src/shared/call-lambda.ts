@@ -81,6 +81,7 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload,
 			);
+			console.log({decoded});
 			const streamPayload = isStreamingPayload(decoded);
 
 			if (streamPayload) {
