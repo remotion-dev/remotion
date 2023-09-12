@@ -58,8 +58,13 @@ import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
 import {PageTransition} from './Transitions/PageTransition';
+import {_props} from './typechecks';
 
 if (alias !== 'alias') {
+	throw new Error('should support TS aliases');
+}
+
+if (!_props) {
 	throw new Error('should support TS aliases');
 }
 
