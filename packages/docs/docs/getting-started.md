@@ -57,6 +57,10 @@ yarn create video
 bun create video
 ```
 
+:::note
+Bun as a runtime is partially supported. [Read more here](/docs/bun).
+:::
+
   </TabItem>
 </Tabs>
 
