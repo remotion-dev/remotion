@@ -91,7 +91,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});
