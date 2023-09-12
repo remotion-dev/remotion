@@ -24,6 +24,7 @@ const getUpgradeCommand = ({
 		npm: ['i', '--save-exact', ...pkgList],
 		pnpm: ['i', '--save-exact', ...pkgList],
 		yarn: ['add', '--exact', ...pkgList],
+		bun: ['i', ...pkgList],
 	};
 
 	return commands[manager];
