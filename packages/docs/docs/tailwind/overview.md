@@ -77,6 +77,7 @@ values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'bun', value: 'bun', },
 ]
 }>
 <TabItem value="npm">
@@ -94,7 +95,13 @@ yarn create video --tailwind
 ```
 
   </TabItem>
+    <TabItem value="bun">
 
+```bash
+bun create video --tailwind
+```
+
+  </TabItem>
   <TabItem value="pnpm">
 
 ```bash
@@ -102,6 +109,7 @@ pnpm create video --tailwind
 ```
 
   </TabItem>
+
 </Tabs>
 
 ## APIs
