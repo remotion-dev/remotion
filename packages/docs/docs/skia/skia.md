@@ -109,6 +109,7 @@ values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'bun', value: 'bun', },
 ]
 }>
 <TabItem value="npm">
@@ -131,6 +132,13 @@ yarn create video --skia
 
 ```bash
 pnpm create video --skia
+```
+
+  </TabItem>
+    <TabItem value="pnpm">
+
+```bash
+bun create video --skia
 ```
 
   </TabItem>

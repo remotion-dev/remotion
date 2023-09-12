@@ -159,6 +159,7 @@ export const TemplateModalContent: React.FC<{
   const npmCommand = `npx create-video@latest --${template.cliId}`;
   const yarnCommand = `yarn create video --${template.cliId}`;
   const pnpmCommand = `pnpm create video --${template.cliId}`;
+  const bunCommand = `bun create video --${template.cliId}`;
 
   return (
     <div>
@@ -248,6 +249,20 @@ export const TemplateModalContent: React.FC<{
           </div>
           {showPkgManagers ? (
             <div style={githubrow}>
+              <a
+                target={"_blank"}
+                style={link}
+                onPointerDown={() => copyCommand(bunCommand)}
+              >
+                <div style={iconContainer}>
+                  <CommandCopyButton copied={copied === bunCommand} />
+                </div>
+                <div style={installCommand}>{bunCommand}</div>
+              </a>
+            </div>
+          ) : null}
+          {showPkgManagers ? (
+            <div style={githubrow}>
               <a style={link} onPointerDown={() => copyCommand(pnpmCommand)}>
                 <div style={iconContainer}>
                   <CommandCopyButton copied={copied === pnpmCommand} />
@@ -270,6 +285,7 @@ export const TemplateModalContent: React.FC<{
               </a>
             </div>
           ) : null}
+
           <div style={githubrow}>
             <a
               target={"_blank"}

@@ -23,8 +23,9 @@ You can initialize a new Remotion video using
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
@@ -46,6 +47,14 @@ pnpm create video
 
 ```bash
 yarn create video
+```
+
+  </TabItem>
+
+  <TabItem value="bun">
+
+```bash
+bun create video
 ```
 
   </TabItem>
