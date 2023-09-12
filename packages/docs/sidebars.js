@@ -664,6 +664,7 @@ module.exports = {
         "miscellaneous/thorium-browser",
         "compare/motion-canvas",
         "gl-options",
+        "bun",
       ],
     },
     {
