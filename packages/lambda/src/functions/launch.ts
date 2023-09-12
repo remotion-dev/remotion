@@ -364,8 +364,6 @@ const innerLaunchHandler = async (
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			if (params.enableStreaming) {
-				await callFunctionWithRetry({payload, retries: 0, functionName});
-			} else {
 				await callLambda({
 					functionName,
 					payload,
@@ -377,6 +375,8 @@ const innerLaunchHandler = async (
 						console.log('p', {p});
 					},
 				});
+			} else {
+				await callFunctionWithRetry({payload, retries: 0, functionName});
 			}
 		}),
 	);
