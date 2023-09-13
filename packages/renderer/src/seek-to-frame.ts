@@ -31,7 +31,6 @@ export const waitForReady = ({
 					frame === null
 						? 'the page to render the React component'
 						: `the page to render the React component at frame ${frame}`,
-				shouldClosePage: false,
 			})
 			.then((a) => {
 				return resolve(a);
@@ -91,7 +90,6 @@ export const waitForReady = ({
 				timeout: null,
 				pageFunction: 'window.remotion_cancelledError !== undefined',
 				title: 'remotion_cancelledError variable to appear on the page',
-				shouldClosePage: false,
 			})
 			.then(() => {
 				return puppeteerEvaluateWithCatch({
