@@ -19,7 +19,8 @@
 	},
 	"files": [
 		"dist",
-		"react-shim.js"
+		"react-shim.js",
+		"favicon.ico"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
