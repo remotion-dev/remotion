@@ -9,7 +9,6 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 
 const EVALUATION_SCRIPT_URL = '__puppeteer_evaluation_script__';
-const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 
 function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	if (remoteObject.unserializableValue) {
@@ -35,13 +34,9 @@ function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	return remoteObject.value;
 }
 
-function isString(obj: unknown): obj is string {
-	return typeof obj === 'string' || obj instanceof String;
-}
-
 type PuppeteerCatchOptions = {
 	page: Page;
-	pageFunction: Function | string;
+	pageFunction: Function;
 	frame: number | null;
 	args: unknown[];
 };
@@ -77,41 +72,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	const client = page._client();
 
 	const suffix = `//# sourceURL=${EVALUATION_SCRIPT_URL}`;
-
-	if (isString(pageFunction)) {
-		const expression = pageFunction;
-		const expressionWithSourceUrl = SOURCE_URL_REGEX.test(expression)
-			? expression
-			: expression + '\n' + suffix;
-
-		const {
-			value: {exceptionDetails: exceptDetails, result: remotObject},
-			size,
-		} = await client.send('Runtime.evaluate', {
-			expression: expressionWithSourceUrl,
-			contextId,
-			returnByValue: true,
-			awaitPromise: true,
-			userGesture: true,
-		});
-
-		if (exceptDetails?.exception) {
-			const err = new SymbolicateableError({
-				stack: exceptDetails.exception.description as string,
-				name: exceptDetails.exception.className as string,
-				message: exceptDetails.exception.description?.split(
-					'\n',
-				)?.[0] as string,
-				frame,
-				stackFrame: parseStack(
-					(exceptDetails.exception.description as string).split('\n'),
-				),
-			});
-			throw err;
-		}
-
-		return {value: valueFromRemoteObject(remotObject), size};
-	}
 
 	if (typeof pageFunction !== 'function')
 		throw new Error(
