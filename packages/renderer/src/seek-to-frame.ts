@@ -155,7 +155,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds: number;
 }) => {
 	await waitForReady({page, timeoutInMilliseconds, frame: null});
-	await puppeteerEvaluateWithCatch({
+	await puppeteerEvaluateWithCatchAndTimeout({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
 		},
