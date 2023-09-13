@@ -335,7 +335,9 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		Log.warn(`Browser failed to load ${request._url}: ${event.errorText}`);
+		if (!event.canceled) {
+			Log.warn(`Browser failed to load ${request._url}: ${event.errorText}`);
+		}
 
 		this.#forgetRequest(request, true);
 	}
