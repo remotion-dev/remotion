@@ -50,11 +50,17 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
-	if (
-		message.includes(
-			'waiting for the page to render the React component failed',
-		)
-	) {
+	if (message.includes('waiting for the page to render the React component')) {
+		return true;
+	}
+
+	// In puppeteer-evaluate.ts
+	if (message.includes('Timed out evaluating page function')) {
+		return true;
+	}
+
+	// Internet flakiness
+	if (message.includes('getaddrinfo') || message.includes('ECONNRESET')) {
 		return true;
 	}
 
