@@ -50,7 +50,13 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 	return Promise.race([
 		new Promise<{value: ReturnType; size: number}>((_, reject) => {
 			setTimeout(() => {
-				reject(new Error('timeout exceeded'));
+				reject(
+					new Error(
+						// This means the page is not responding anymore
+						// This error message is retryable - sync it with packages/lambda/src/shared/is-flaky-error.ts
+						`Timed out evaluating page function "${pageFunction.toString()}"`,
+					),
+				);
 			}, 5000);
 		}),
 		puppeteerEvaluateWithCatch<ReturnType>({
