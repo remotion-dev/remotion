@@ -25,5 +25,6 @@ As of Bun 1.0 and Remotion 4.0.37, the following issues are known:
 - ⚠️ Compositions `lazyComponent`'s do not work in Bun yet.
 - ⚠️ Reloading the Remotion Studio leads to a crash: `Cork buffer must not be held across event loop iterations!`
 - ⚠️ Cannot render videos in the Remotion Studio
+- ⚠️ [Cannot use `bundle()` with Tailwind override](https://github.com/remotion-dev/remotion/issues/2896)
 
 Feel free to file more issues with Remotion if you find them.
