@@ -51,6 +51,8 @@ pub fn get_time() -> u128 {
         .as_millis()
 }
 
+const MAX_DIVERGING_SEEK: u8 = 3;
+
 impl OpenedStream {
     pub fn receive_frame(&mut self) -> Result<Option<Video>, ErrorWithBacktrace> {
         let mut frame = Video::empty();
@@ -182,7 +184,7 @@ impl OpenedStream {
             match last_frame_received {
                 Some(_) => {
                     if stop_after_n_diverging_pts.is_none() {
-                        stop_after_n_diverging_pts = Some(3);
+                        stop_after_n_diverging_pts = Some(MAX_DIVERGING_SEEK);
                     }
                 }
                 None => {}
@@ -310,7 +312,8 @@ impl OpenedStream {
                                     stop_after_n_diverging_pts = Some(stop - 1);
                                 } else if prev_difference > new_difference {
                                     // Fixing test video crazy1.mp4, frames 240-259
-                                    stop_after_n_diverging_pts = Some(stop + 1);
+                                    stop_after_n_diverging_pts =
+                                        Some((stop + 1).min(MAX_DIVERGING_SEEK));
                                 }
                             }
                             None => {}
