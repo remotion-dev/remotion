@@ -223,8 +223,18 @@
       "permanent": false
     },
     {
+      "source": "/docs/thorium-browser",
+      "destination": "/docs/miscellaneous/thorium-browser",
+      "permanent": false
+    },
+    {
       "source": "/youtube",
       "destination": "https://youtube.com/@remotion_dev",
+      "permanent": false
+    },
+    {
+      "source": "/bun",
+      "destination": "/docs/bun",
       "permanent": false
     }
   ]

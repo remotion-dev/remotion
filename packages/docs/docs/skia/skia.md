@@ -107,14 +107,22 @@ You can find the [starter template](https://github.com/remotion-dev/template-ski
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
 
 ```bash
 npx create-video --skia
+```
+
+  </TabItem>
+    <TabItem value="bun">
+
+```bash
+bun create video --skia
 ```
 
   </TabItem>

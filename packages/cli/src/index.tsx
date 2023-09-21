@@ -49,6 +49,13 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
+	const isBun = typeof Bun !== 'undefined';
+	if (isBun) {
+		Log.warn(
+			'You are running Remotion with Bun. Visit https://remotion.dev/bun for known bugs and status updates.',
+		);
+	}
+
 	const isStudio = command === 'studio' || command === 'preview';
 
 	const errorSymbolicationLock = isStudio

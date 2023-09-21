@@ -7,6 +7,10 @@ crumb: DevOps advisory
 
 import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
 
+:::info
+In Remotion 4.0, this problem is fixed.
+:::
+
 On February 24th 2023, a new version of the AWS Lambda Node.JS runtime started rolling out that breaks Remotion Lambda.  
 Remotion Lambda users are advised to read this document to avoid any downtime.
 

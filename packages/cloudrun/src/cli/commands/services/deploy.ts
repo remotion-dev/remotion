@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {VERSION} from 'remotion/version';
 import {displayServiceInfo, LEFT_COL} from '.';
-import {deployService} from '../../../api/deploy-service';
+import {internalDeployService} from '../../../api/deploy-service';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -68,11 +68,13 @@ ${[
 	}
 
 	try {
-		const deployResult = await deployService({
+		const deployResult = await internalDeployService({
 			performImageVersionValidation: false, // this is already performed above
-			memoryLimit,
-			cpuLimit,
-			timeoutSeconds,
+			memoryLimit: memoryLimit ?? '2Gi',
+			cpuLimit: cpuLimit ?? '1.0',
+			timeoutSeconds: timeoutSeconds ?? DEFAULT_TIMEOUT,
+			minInstances: Number(minInstances) ?? DEFAULT_MIN_INSTANCES,
+			maxInstances: Number(maxInstances) ?? DEFAULT_MAX_INSTANCES,
 			projectID,
 			region,
 		});

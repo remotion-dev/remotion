@@ -1,11 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '../shared/constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
-import {randomHash} from '../shared/random-hash';
 import type {OrError} from '../shared/return-values';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateDeleteAfter,
+} from './helpers/lifecycle';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
@@ -41,7 +44,8 @@ const innerHandler = async (
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
-		const renderId = randomHash({randomInTests: true});
+		validateDeleteAfter(params.deleteAfter);
+		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 		printCloudwatchHelper(LambdaRoutines.still, {
 			renderId,
 			inputProps: JSON.stringify(params.inputProps),
