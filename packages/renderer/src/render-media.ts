@@ -304,6 +304,16 @@ const internalRenderMediaRaw = ({
 		'Estimated usage parallel encoding',
 		estimatedUsage,
 	);
+	const actualConcurrency = getActualConcurrency(concurrency);
+	Log.verboseAdvanced(
+		{
+			indent,
+			logLevel,
+			tag: 'renderMedia()',
+		},
+		'Using concurrency:',
+		actualConcurrency,
+	);
 	Log.verboseAdvanced(
 		{
 			indent,
@@ -492,7 +502,7 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: getActualConcurrency(concurrency),
+						concurrency: actualConcurrency,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),

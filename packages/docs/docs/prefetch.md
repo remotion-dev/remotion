@@ -56,7 +56,7 @@ The function takes a `src`, which can be a remote URL, an imported asset or an a
 
 ### `options`
 
-#### `method`<AvailableFrom v="3.2.35" />
+#### `method?`<AvailableFrom v="3.2.35" />
 
 _previously defaulted to `blob-url`_
 
@@ -66,6 +66,10 @@ Either `blob-url` or `base64`.
 - With `base64`, the asset is turned into a Base 64 URL.
 
 Read below for which option is suitable for you.
+
+#### `contentType?`<AvailableFrom v="4.0.40" />
+
+Set a content type for the blob. By default, the content type from the HTTP response is taken. We recommend setting an appropriate content type for the media, e.g `video/mp4` only if the HTTP resource does not contain the right one by default.
 
 ## Return value
 
@@ -80,6 +84,12 @@ Turning the asset into a blob URL is much faster and efficient in general.
 In Safari, even though it is a local URL, Safari may not be instantly playing the audio and have slight delays buffering audio.
 
 Use `base64` in Safari if you notice that your audio file plays with hickups even though the `<Player>` requests a `blob:` URL.
+
+## Setting the right content type
+
+Files loaded from the internet should be served with a proper content type, e.g. `video/mp4` for an MP4 file. When the file gets loaded into a blob URL, the file extension gets removed and the browser loses the information about the content type.
+
+This can lead to the video file not playing correctly in the browser. If you cannot influence the servre, you can also set the content type manually using the [`contentType`](#contenttype) option.
 
 ## See also
 

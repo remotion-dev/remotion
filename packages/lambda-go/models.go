@@ -11,7 +11,7 @@ type RemotionOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf"`
 	EnvVariables                   interface{}            `json:"envVariables"`
-	Quality                        int                    `json:"quality"`
+	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
 	ColorSpace                     string                 `json:"colorSpace"`
@@ -38,6 +38,7 @@ type RemotionOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
 }
 
 type renderInternalOptions struct {
@@ -51,7 +52,7 @@ type renderInternalOptions struct {
 	ImageFormat                    string                 `json:"imageFormat"`
 	Crf                            int                    `json:"crf,omitempty"`
 	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
-	Quality                        int                    `json:"quality,omitempty"`
+	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
 	ColorSpace                     string                 `json:"colorSpace"`
@@ -80,6 +81,7 @@ type renderInternalOptions struct {
 	ForceBucketName string      `json:"forceBucketName,omitempty"`
 	Gl              *string     `json:"gl,omitempty"`
 	X264Preset      interface{} `json:"x264Preset"`
+	DeleteAfter     *string     `json:"deleteAfter"`
 }
 
 type RawInvokeResponse struct {
@@ -96,10 +98,11 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId     string `json:"renderId" validate:"required"`
-	BucketName   string `json:"bucketName" validate:"required"`
-	FunctionName string `json:"functionName" validate:"required"`
-	Region       string `json:"region" validate:"required"`
+	RenderId     string  `json:"renderId" validate:"required"`
+	BucketName   string  `json:"bucketName" validate:"required"`
+	FunctionName string  `json:"functionName" validate:"required"`
+	Region       string  `json:"region" validate:"required"`
+	DeleteAfter  *string `json:"deleteAfter"`
 }
 
 type renderProgressInternalConfig struct {

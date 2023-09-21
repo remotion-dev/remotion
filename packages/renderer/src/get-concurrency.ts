@@ -1,26 +1,27 @@
-import os from 'node:os';
+import {getCpuCount} from './get-cpu-count';
 
 export const getActualConcurrency = (
 	userPreference: number | string | null,
 ) => {
+	const maxCpus = getCpuCount();
+
 	if (userPreference === null) {
-		return Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)));
+		return Math.round(Math.min(8, Math.max(1, maxCpus / 2)));
 	}
 
-	const max = os.cpus().length;
 	const min = 1;
 	let rounded;
 
 	if (typeof userPreference === 'string') {
 		const percentage = parseInt(userPreference.slice(0, -1), 10);
-		rounded = Math.floor((percentage / 100) * max);
+		rounded = Math.floor((percentage / 100) * maxCpus);
 	} else {
 		rounded = Math.floor(userPreference);
 	}
 
-	if (rounded > max) {
+	if (rounded > maxCpus) {
 		throw new Error(
-			`Maximum for --concurrency is ${max} (number of cores on this system)`,
+			`Maximum for --concurrency is ${maxCpus} (number of cores on this system)`,
 		);
 	}
 

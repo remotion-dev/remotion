@@ -22,7 +22,8 @@ export const deleteSite = ({
 
 		cloudStorageClient.bucket(bucketName).deleteFiles(
 			{
-				prefix: `sites/${siteName}`,
+				// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+				prefix: `sites/${siteName}/`,
 			},
 			(err) => {
 				if (err) {

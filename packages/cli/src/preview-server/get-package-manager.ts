@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-export type PackageManager = 'npm' | 'yarn' | 'pnpm';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 type LockfilePath = {
 	manager: PackageManager;
@@ -27,6 +27,12 @@ export const lockFilePaths: LockfilePath[] = [
 		manager: 'pnpm',
 		installCommand: 'pnpm i',
 		startCommand: 'pnpm start',
+	},
+	{
+		path: 'bun.lockb',
+		manager: 'bun',
+		installCommand: 'bun i',
+		startCommand: 'bun start',
 	},
 ];
 

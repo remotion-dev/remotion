@@ -510,6 +510,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/autodelete",
         {
           type: "category",
           label: "Troubleshooting",
@@ -663,6 +664,7 @@ module.exports = {
         "miscellaneous/thorium-browser",
         "compare/motion-canvas",
         "gl-options",
+        "bun",
       ],
     },
     {

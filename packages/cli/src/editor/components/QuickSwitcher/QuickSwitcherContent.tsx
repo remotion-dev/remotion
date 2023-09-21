@@ -192,7 +192,7 @@ export const QuickSwitcherContent: React.FC<{
 						selectComposition(c, true);
 						setSelectedModal(null);
 
-						const selector = `.__remotion-composition[data-compname=${c.id}`;
+						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
 
 						compositionSelectorRef.current?.expandComposition(c.id);
 						waitForElm(selector).then(() => {
