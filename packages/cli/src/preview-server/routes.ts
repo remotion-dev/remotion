@@ -78,6 +78,7 @@ const handleFallback = async ({
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
 	const offthreadVideoCacheSizeInBytes =
 		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
+	const colorSpace = ConfigInternals.getColorSpace();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -131,6 +132,7 @@ const handleFallback = async ({
 				ignoreCertificateErrors,
 				openGlRenderer,
 				offthreadVideoCacheSizeInBytes,
+				colorSpace,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),

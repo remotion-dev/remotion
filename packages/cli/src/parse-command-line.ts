@@ -31,6 +31,8 @@ type CommandLineOptions = {
 	['number-of-shared-audio-tags']: number;
 	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
 		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.colorSpaceOption
+		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -72,6 +74,8 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };
 
 export const BooleanFlags = [
@@ -262,6 +266,20 @@ export const parseCommandLine = () => {
 		Config.setOffthreadVideoCacheSizeInBytes(
 			parsedCli['offthreadvideo-cache-size-in-bytes'],
 		);
+	}
+
+	if (typeof parsedCli['delete-after'] !== 'undefined') {
+		Config.setDeleteAfter(
+			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
+		);
+	}
+
+	if (typeof parsedCli['color-space'] !== 'undefined') {
+		Config.setColorSpace(parsedCli['color-space']);
+	}
+
+	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
+		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
 	}
 };
 

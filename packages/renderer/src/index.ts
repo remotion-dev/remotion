@@ -79,6 +79,7 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
+
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -104,6 +105,7 @@ export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
+export {ColorSpace} from './options/color-space';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';

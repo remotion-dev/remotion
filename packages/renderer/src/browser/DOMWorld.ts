@@ -122,13 +122,11 @@ export class DOMWorld {
 		timeout,
 		pageFunction,
 		title,
-		shouldClosePage,
 	}: {
 		browser: HeadlessBrowser;
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
-		shouldClosePage: boolean;
 	}): Promise<JSHandle> {
 		return new WaitTask({
 			domWorld: this,
@@ -137,7 +135,6 @@ export class DOMWorld {
 			timeout,
 			args: [],
 			browser,
-			shouldClosePage,
 		}).promise;
 	}
 
@@ -155,7 +152,6 @@ interface WaitTaskOptions {
 	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
-	shouldClosePage: boolean;
 }
 
 const noop = (): void => undefined;
@@ -171,7 +167,6 @@ class WaitTask {
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
 	#browser: HeadlessBrowser;
-	#shouldClosePage: boolean;
 
 	promise: Promise<JSHandle>;
 
@@ -189,7 +184,6 @@ class WaitTask {
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#args = options.args;
 		this.#runCount = 0;
-		this.#shouldClosePage = options.shouldClosePage;
 		this.#domWorld._waitTasks.add(this);
 
 		this.promise = new Promise<JSHandle>((resolve, reject) => {
@@ -203,10 +197,6 @@ class WaitTask {
 				`waiting for ${options.title} failed: timeout ${options.timeout}ms exceeded`,
 			);
 			this.#timeoutTimer = setTimeout(() => {
-				if (this.#shouldClosePage) {
-					return this.terminate(timeoutError);
-				}
-
 				return this.#reject(timeoutError);
 			}, options.timeout);
 		}

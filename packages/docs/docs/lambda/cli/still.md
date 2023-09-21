@@ -106,3 +106,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli/>

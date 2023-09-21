@@ -67,7 +67,7 @@ const processJob = async ({
 		return;
 	}
 
-	if (job.type === 'video') {
+	if (job.type === 'video' || job.type === 'sequence') {
 		await processVideoJob({
 			job,
 			remotionRoot,
@@ -183,6 +183,14 @@ const processJobIfPossible = async ({
 					}
 
 					if (job.type === 'video') {
+						return {
+							...job,
+							status: 'running',
+							progress,
+						};
+					}
+
+					if (job.type === 'sequence') {
 						return {
 							...job,
 							status: 'running',

@@ -1,4 +1,4 @@
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
@@ -71,8 +71,10 @@ export const compressInputProps = async ({
 		const bucketName =
 			userSpecifiedBucketName ??
 			(
-				await getOrCreateBucket({
+				await internalGetOrCreateBucket({
 					region,
+					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 
@@ -84,7 +86,7 @@ export const compressInputProps = async ({
 			downloadBehavior: null,
 			expectedBucketOwner: null,
 			key: makeKey(propsType, hash),
-			privacy: 'public',
+			privacy: 'private',
 		});
 
 		return {

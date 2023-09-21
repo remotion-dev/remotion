@@ -7,6 +7,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -49,6 +50,7 @@ export type RenderStillOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
+	deleteAfter?: DeleteAfter | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
@@ -85,6 +87,7 @@ const renderStillOnLambdaRaw = async ({
 	dumpBrowserLogs,
 	onInit,
 	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -128,6 +131,7 @@ const renderStillOnLambdaRaw = async ({
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				deleteAfter: deleteAfter ?? null,
 			},
 			region,
 			receivedStreamingPayload: (payload) => {

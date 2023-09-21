@@ -8,11 +8,11 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(
-		40 * 24 * 1024 * 1024,
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: 40 * 24 * 1024 * 1024,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString()),
@@ -27,9 +27,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));
-	expect(
-		statsJson.frames_in_cache === 84 || statsJson.frames_in_cache === 85,
-	).toBe(true);
+	expect(statsJson.frames_in_cache).toBe(84);
 	expect(statsJson.open_streams).toBe(1);
 	expect(statsJson.open_videos).toBe(1);
 
@@ -42,6 +40,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson2 = JSON.parse(stats2.toString('utf-8'));
+
 	expect(
 		statsJson2.frames_in_cache === 185 || statsJson2.frames_in_cache === 184,
 	).toBe(true);
@@ -96,11 +95,11 @@ test('Memory usage should be determined ', async () => {
 });
 
 test('Should respect the maximum frame cache limit', async () => {
-	const compositor = startLongRunningCompositor(
-		50 * 24 * 1024 * 1024,
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: 50 * 24 * 1024 * 1024,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	await compositor.executeCommand('ExtractFrame', {
 		src: exampleVideos.bigBuckBunny,
@@ -123,11 +122,11 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(
-		100 * 24 * 1024 * 1024,
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: 100 * 24 * 1024 * 1024,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString()),

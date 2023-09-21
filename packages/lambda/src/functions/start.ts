@@ -1,13 +1,16 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateDeleteAfter,
+} from './helpers/lifecycle';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -34,8 +37,10 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const bucketName =
 		params.bucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
+				customCredentials: null,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({
@@ -44,7 +49,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const renderId = randomHash({randomInTests: true});
+	validateDeleteAfter(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,
@@ -95,6 +101,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		deleteAfter: params.deleteAfter,
+		colorSpace: params.colorSpace,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone

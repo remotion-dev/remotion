@@ -25,7 +25,9 @@ export const getRemotionStorageBuckets = async (
 
 	if (region !== 'all regions') {
 		remotionBuckets = buckets.filter(
-			(b) => b.metadata.location === region.toUpperCase(),
+			(b) =>
+				b.metadata.location === region.toUpperCase() &&
+				b.name?.startsWith(REMOTION_BUCKET_PREFIX),
 		);
 	}
 

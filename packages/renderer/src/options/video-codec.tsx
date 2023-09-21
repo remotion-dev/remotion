@@ -2,7 +2,7 @@ import {AnyRemotionOption} from './option';
 
 export const videoCodecOption = {
 	name: 'Codec',
-	cliFlag: '--codec',
+	cliFlag: 'codec',
 	description: () => (
 		<>
 			H264 works well in most cases, but sometimes it&apos;s worth going for a

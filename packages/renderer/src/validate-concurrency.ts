@@ -1,3 +1,5 @@
+import {getCpuCount} from './get-cpu-count';
+
 export const validateConcurrency = ({
 	setting,
 	value,
@@ -49,7 +51,7 @@ export const validateConcurrency = ({
 };
 
 export const getMaxConcurrency = () => {
-	return require('os').cpus().length;
+	return getCpuCount();
 };
 
 export const getMinConcurrency = () => 1;

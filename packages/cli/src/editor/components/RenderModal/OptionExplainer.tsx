@@ -80,7 +80,7 @@ export const OptionExplainer: React.FC<{
 				<div style={infoRow}>
 					<div style={infoRowLabel}>CLI flag</div>
 					<div style={flexSpacer} />
-					<code>{option.cliFlag}</code>
+					<code>--{option.cliFlag}</code>
 					<div style={copyWrapper}>
 						<CliCopyButton valueToCopy={option.cliFlag} />
 					</div>
