@@ -45,7 +45,11 @@ export type SelectCompositionOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
+	/**
+	 * @deprecated Use `logLevel` instead.
+	 */
 	verbose?: boolean;
+	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	serveUrl: string;
 	id: string;
@@ -286,6 +290,8 @@ export const selectComposition = async (
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		verbose,
+		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	} = options;
 
 	const data = await internalSelectComposition({
@@ -303,11 +309,10 @@ export const selectComposition = async (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose ? 'verbose' : 'info',
+		logLevel: logLevel ?? verbose ? 'verbose' : 'info',
 		indent: false,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes:
-			options.offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	});
 	return data.metadata;
 };

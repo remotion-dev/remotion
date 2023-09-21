@@ -3,10 +3,7 @@ import {URLSearchParams} from 'node:url';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startCompositor,
-} from './compositor/compositor';
+import {startCompositor} from './compositor/compositor';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
 import {Log} from './logger';
@@ -65,9 +62,7 @@ export const startOffthreadVideoServer = ({
 		'StartLongRunningProcess',
 		{
 			concurrency,
-			maximum_frame_cache_size_in_bytes:
-				offthreadVideoCacheSizeInBytes ??
-				getIdealMaximumFrameCacheSizeInBytes(),
+			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,

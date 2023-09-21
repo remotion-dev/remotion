@@ -58,8 +58,13 @@ import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
 import {PageTransition} from './Transitions/PageTransition';
+import {_props} from './typechecks';
 
 if (alias !== 'alias') {
+	throw new Error('should support TS aliases');
+}
+
+if (!_props) {
 	throw new Error('should support TS aliases');
 }
 
@@ -691,6 +696,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="loop-audio"
 					lazyComponent={() => import('./LoopAudio')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+				/>
+				<Composition
+					id="loop-trimmed-audio"
+					lazyComponent={() => import('./LoopTrimmedAudio')}
 					width={1080}
 					height={1080}
 					fps={30}

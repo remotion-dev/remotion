@@ -71,9 +71,6 @@ export const webpackConfig = ({
 	let lastProgress = 0;
 
 	const isBun = typeof Bun !== 'undefined';
-	if (isBun) {
-		console.warn('Unsupported feature in Bun: lazyComponent is not supported');
-	}
 
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {

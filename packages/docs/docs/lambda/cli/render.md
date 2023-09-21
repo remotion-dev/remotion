@@ -125,7 +125,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--codec`
 
-[`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
+[`h264` or `h265` (supported since v4.0.32) or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
@@ -261,6 +261,14 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli/>
+
 ### `--webhook-custom-data`<AvailableFrom v="4.0.25"/>
 
 <Options id="webhook-custom-data" cli/>
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />

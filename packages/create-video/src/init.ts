@@ -159,6 +159,16 @@ export const init = async () => {
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
 		await promise;
+	} else if (pkgManager === 'bun') {
+		Log.info('> bun install');
+		const promise = execa('bun', ['install'], {
+			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
 	} else {
 		Log.info('> npm install');
 		const promise = execa('npm', ['install', '--no-fund'], {

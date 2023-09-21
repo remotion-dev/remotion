@@ -1,17 +1,14 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test('Should return video metadata', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	const videoFile = path.join(
 		__dirname,
@@ -36,15 +33,16 @@ test('Should return video metadata', async () => {
 		canPlayInVideoTag: true,
 		codec: 'h264',
 		supportsSeeking: true,
+		colorSpace: 'bt601',
 	});
 });
 
 test('Should return an error due to non existing file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('GetVideoMetadata', {
@@ -58,11 +56,11 @@ test('Should return an error due to non existing file', async () => {
 });
 
 test('Should return an error due to using a audio file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	const audioFile = path.join(
 		__dirname,

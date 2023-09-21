@@ -266,6 +266,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
-
+	fs.copyFileSync(
+		path.join(__dirname, '../favicon.ico'),
+		path.join(outDir, 'favicon.ico'),
+	);
 	return outDir;
 }

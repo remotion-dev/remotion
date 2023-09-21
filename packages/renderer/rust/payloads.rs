@@ -78,7 +78,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct StartPayLoad {
         pub concurrency: usize,
-        pub maximum_frame_cache_size_in_bytes: u128,
+        pub maximum_frame_cache_size_in_bytes: Option<u128>,
         pub verbose: bool,
     }
 
@@ -117,6 +117,40 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub enum KnownColorSpaces {
+        #[serde(rename = "rgb")]
+        RGB,
+        #[serde(rename = "bt601")]
+        BT601,
+        #[serde(rename = "bt709")]
+        BT709,
+        #[serde(rename = "bt2020-ncl")]
+        BT2020NCL,
+        #[serde(rename = "bt2020-cl")]
+        BT2020CL,
+        #[serde(rename = "fcc")]
+        FCC,
+        #[serde(rename = "bt470bg")]
+        BT470BG,
+        #[serde(rename = "smpte170m")]
+        SMPTE170M,
+        #[serde(rename = "smpte240m")]
+        SMPTE240M,
+        #[serde(rename = "ycgco")]
+        YCGCO,
+        #[serde(rename = "smpte2085")]
+        SMPTE2085,
+        #[serde(rename = "chroma-derived-ncl")]
+        CHROMADERIVEDNCL,
+        #[serde(rename = "chroma-derived-cl")]
+        CHROMADERIVEDCL,
+        #[serde(rename = "ictcp")]
+        ICTCP,
+        #[serde(rename = "unknown")]
+        Unknown,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     #[allow(non_snake_case)]
     pub struct VideoMetadata {
         pub fps: i32,
@@ -126,6 +160,7 @@ pub mod payloads {
         pub codec: KnownCodecs,
         pub canPlayInVideoTag: bool,
         pub supportsSeeking: bool,
+        pub colorSpace: KnownColorSpaces,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

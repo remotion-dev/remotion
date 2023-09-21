@@ -15,10 +15,11 @@ jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
 lazy_static = "1.4"
 rayon = "1.7.0"
-image = "0.23.14"
+image = "0.23.7"
 arboard = "3.2.0"
+sysinfo = "0.29.9"
 mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641"}
-ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="467e5c758574d3fed6f463bee42054984048adae"}
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="d94f32c1a6a8af15c11eb7cf52cd75259326569c"}
 
 [[bin]]
 name = "compositor"

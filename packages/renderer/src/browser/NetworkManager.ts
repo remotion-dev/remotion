@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Log} from '../logger';
 import type {Commands} from './devtools-commands';
 import type {
 	LoadingFailedEvent,
@@ -332,6 +333,10 @@ export class NetworkManager extends EventEmitter {
 		// @see https://crbug.com/750469
 		if (!request) {
 			return;
+		}
+
+		if (!event.canceled) {
+			Log.warn(`Browser failed to load ${request._url}: ${event.errorText}`);
 		}
 
 		this.#forgetRequest(request, true);

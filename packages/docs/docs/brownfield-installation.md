@@ -119,6 +119,10 @@ registerRoot(RemotionRoot);
 
 The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion **entrypoint**.
 
+:::note
+Watch out for import aliases in your `tsconfig.json` that will resolve `import {...} from "remotion"` to the `remotion` folder. We recommend to not use `paths` without a prefix.
+:::
+
 ## Starting the Studio
 
 Start the Remotion Studio using the following command:

@@ -49,7 +49,7 @@ export const experts: Expert[] = [
     slug: "florent-pergoud",
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
-    website: null,
+    website: "https://pergoud.com/",
     x: "florentpergoud",
     github: "florentpergoud",
     linkedin: "in/florent-pergoud/",
@@ -58,15 +58,15 @@ export const experts: Expert[] = [
     since: new Date("2022-08-15").getTime(),
     description: (
       <div>
-        I made:{" "}
+        I made: Hello Météo, HugoDécrypteSport, Crowdfunding VFB, Cinéma Le
+        Vincennes and Piano MIDI visualizer. You can check them{" "}
         <a
           target={"_blank"}
           href="https://florentpergoud.notion.site/Florent-Pergoud-s-Remotion-showcase-b0ef4299d389401aab21bbc62516cafe"
         >
-          Hello Météo, HugoDécrypteSport, Crowdfunding VFB, Cinéma Le Vincennes
-          and Piano MIDI visualizer
+          here
         </a>
-        !
+        .
       </div>
     ),
   },
@@ -174,8 +174,8 @@ export const experts: Expert[] = [
     slug: "karel-nagel",
     name: "Karel Nagel",
     image: "/img/freelancers/karel.jpeg",
-    website: "https://asius.ee/",
-    x: "KarelETH",
+    website: null,
+    x: null,
     github: "karelnagel",
     linkedin: "in/karelnagel/",
     since: new Date("2022-08-22").getTime(),
@@ -283,11 +283,11 @@ export const experts: Expert[] = [
     since: new Date("2023-01-30").getTime(),
     description: (
       <div>
-        I made:{" "}
+        I made{" "}
         <a target={"_blank"} href="https://www.romrif.com/">
-          Romrif.com
+          Romrif
         </a>
-        ! <br />I build Websites & Videos with Remotion. I&apos;m alway
+        !<br />I build Websites & Videos with Remotion. I&apos;m alway
         interested in the latest Tech and love building stuff. Feel free to
         contact me - I&apos;m available for hire.
       </div>
