@@ -141,9 +141,9 @@ jobs:
           - os: ubuntu-latest
             node_version: 20.5
     steps:
-      - name: Uninstall Chrome on Windows because it does not include proprietary codecs
+      - name: Downgrade MinGW
         run: |
-          Remove-Item "C:\Program Files\Google\Chrome\Application\chrome.exe"
+          choco install mingw --version=11.2.0
         if: matrix.os == 'windows-latest'
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
