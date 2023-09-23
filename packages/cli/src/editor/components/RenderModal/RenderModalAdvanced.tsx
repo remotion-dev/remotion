@@ -80,7 +80,7 @@ export const RenderModalAdvanced: React.FC<{
 	setOffthreadVideoCacheSizeInBytes,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
-		return ['angle', 'egl', 'swangle', 'swiftshader', 'default'];
+		return ['angle', 'egl', 'swangle', 'swiftshader', 'vulkan', 'default'];
 	}, []);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
