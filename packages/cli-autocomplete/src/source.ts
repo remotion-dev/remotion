@@ -56,7 +56,7 @@ const chromeOptions: Fig.Option[] = [
     name: "--gl",
     description: "Which OpenGL renderer to use",
     args: {
-      suggestions: ["angle", "egl", "swiftshader", "swangle"],
+      suggestions: ["angle", "egl", "swiftshader", "swangle", "vulkan"],
     },
   },
   {
