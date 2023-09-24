@@ -15,8 +15,6 @@ const chromiumOptions = z.object({
 	gl: z.enum(RenderInternals.validOpenGlRenderers).optional().nullable(),
 	headless: z.boolean().optional(),
 	userAgent: z.string().optional().nullable(),
-	// TODO: Make optional
-	enableMultiProcessOnLinux: z.boolean(),
 });
 const logLevel = z.enum(RenderInternals.logLevels);
 
