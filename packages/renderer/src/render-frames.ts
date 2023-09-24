@@ -824,7 +824,7 @@ export const renderFrames = (
 	return internalRenderFrames({
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
-		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+		chromiumOptions: chromiumOptions ?? {},
 		composition,
 		concurrency: concurrency ?? null,
 		envVariables: envVariables ?? {},

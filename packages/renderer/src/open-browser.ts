@@ -208,7 +208,7 @@ export const openBrowser = (
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
-		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
 		indent: false,
 		viewport: null,
