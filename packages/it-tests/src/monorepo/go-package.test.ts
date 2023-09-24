@@ -36,7 +36,7 @@ test("Go package should create the same payload as normal Lambda package", async
     codec: "h264",
     audioBitrate: null,
     audioCodec: null,
-    chromiumOptions: { enableMultiProcessOnLinux: false },
+    chromiumOptions: {},
     colorSpace: "default",
     concurrencyPerLambda: 1,
     crf: undefined,

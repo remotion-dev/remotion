@@ -156,10 +156,7 @@ export const renderMediaOnLambda = (
 	return wrapped({
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
-		chromiumOptions: {
-			...(options.chromiumOptions ?? {}),
-			enableMultiProcessOnLinux: false,
-		},
+		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
 		colorSpace: options.colorSpace ?? 'default',
 		composition: options.composition,

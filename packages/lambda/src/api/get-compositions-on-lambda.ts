@@ -72,7 +72,7 @@ export const getCompositionsOnLambda = async ({
 			functionName,
 			type: LambdaRoutines.compositions,
 			payload: {
-				chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
