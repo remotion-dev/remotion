@@ -1,3 +1,4 @@
+import {makeConsoleUrl} from '../cli/helpers/make-console-url';
 import type {GcpRegion} from '../pricing/gcp-regions';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import {parseServiceName} from './helpers/parse-service-name';
@@ -55,6 +56,6 @@ export const getServiceInfo = async ({
 		remotionVersion,
 		uri: service.uri as string,
 		region: deployedRegion,
-		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
+		consoleUrl: makeConsoleUrl(deployedRegion, deployedServiceName),
 	};
 };
