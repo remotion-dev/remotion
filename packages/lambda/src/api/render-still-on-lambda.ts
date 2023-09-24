@@ -123,7 +123,7 @@ const renderStillOnLambdaRaw = async ({
 				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+				chromiumOptions: chromiumOptions ?? {},
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				version: VERSION,
