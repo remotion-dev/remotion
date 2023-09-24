@@ -3,9 +3,9 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
+	getChromiumMultiProcessOnLinux,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
-	getMultiProcessOnLinux,
 	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
@@ -610,5 +610,5 @@ export const ConfigInternals = {
 	getDeleteAfter,
 	getColorSpace,
 	getEnableFolderExpiry,
-	getMultiProcessOnLinux,
+	getChromiumMultiProcessOnLinux,
 };

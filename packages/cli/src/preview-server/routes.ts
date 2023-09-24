@@ -82,7 +82,7 @@ const handleFallback = async ({
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
-	const multiProcessOnLinux = ConfigInternals.getMultiProcessOnLinux();
+	const multiProcessOnLinux = ConfigInternals.getChromiumMultiProcessOnLinux();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
