@@ -82,6 +82,7 @@ const handleFallback = async ({
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const multiProcessOnLinux = ConfigInternals.getMultiProcessOnLinux();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -133,6 +134,7 @@ const handleFallback = async ({
 				openGlRenderer,
 				offthreadVideoCacheSizeInBytes,
 				colorSpace,
+				multiProcessOnLinux,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),

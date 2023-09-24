@@ -124,6 +124,7 @@ export const getCliOptions = async (options: {
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
 		userAgent: ConfigInternals.getChromiumUserAgent(),
+		enableMultiProcessOnLinux: ConfigInternals.getMultiProcessOnLinux(),
 	};
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();

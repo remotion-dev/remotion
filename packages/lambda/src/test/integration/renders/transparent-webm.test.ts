@@ -27,7 +27,7 @@ test('Should make a transparent video', async () => {
 		payload: {
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-			chromiumOptions: {},
+			chromiumOptions: {enableMultiProcessOnLinux: false},
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
 			crf: 9,

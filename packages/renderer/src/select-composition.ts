@@ -298,7 +298,7 @@ export const selectComposition = async (
 		id,
 		serveUrl,
 		browserExecutable: browserExecutable ?? null,
-		chromiumOptions: chromiumOptions ?? {},
+		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			indent: undefined,

@@ -62,6 +62,9 @@ export const Modals: React.FC = () => {
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
 					initialColorSpace={modalContextType.initialColorSpace}
+					initialMultiProcessOnLinux={
+						modalContextType.initialMultiProcessOnLinux
+					}
 				/>
 			)}
 

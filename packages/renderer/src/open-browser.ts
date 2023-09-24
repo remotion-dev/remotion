@@ -29,6 +29,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 	userAgent?: string | null;
+	enableMultiProcessOnLinux?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -146,7 +147,9 @@ export const internalOpenBrowser = async ({
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
-			process.platform === 'linux' && chromiumOptions.gl !== 'vulkan'
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!chromiumOptions.enableMultiProcessOnLinux
 				? '--single-process'
 				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
@@ -205,7 +208,7 @@ export const openBrowser = (
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
-		chromiumOptions: chromiumOptions ?? {},
+		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
 		forceDeviceScaleFactor,
 		indent: false,
 		viewport: null,

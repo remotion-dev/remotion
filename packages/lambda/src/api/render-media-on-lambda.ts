@@ -48,7 +48,7 @@ export type RenderMediaOnLambdaInput = {
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
+	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
@@ -156,7 +156,10 @@ export const renderMediaOnLambda = (
 	return wrapped({
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
-		chromiumOptions: options.chromiumOptions ?? {},
+		chromiumOptions: {
+			...(options.chromiumOptions ?? {}),
+			enableMultiProcessOnLinux: false,
+		},
 		codec: options.codec,
 		colorSpace: options.colorSpace ?? 'default',
 		composition: options.composition,

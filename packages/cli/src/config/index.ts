@@ -5,6 +5,8 @@ import {
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	getMultiProcessOnLinux,
+	setMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -407,6 +409,11 @@ declare global {
 		 * Opt into bt709 rendering.
 		 */
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
+
+		/**
+		 * Opt out of the `--single-process` Chromium flag in Chromium
+		 */
+		readonly setMultiProcessOnLinux: (should: boolean) => void;
 	}
 }
 
@@ -504,6 +511,7 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
+	setMultiProcessOnLinux,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -597,4 +605,5 @@ export const ConfigInternals = {
 	getDeleteAfter,
 	getColorSpace,
 	getEnableFolderExpiry,
+	getMultiProcessOnLinux,
 };

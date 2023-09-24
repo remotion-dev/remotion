@@ -229,6 +229,7 @@ type RenderModalProps = {
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	initialMultiProcessOnLinux: boolean;
 };
 
 const RenderModal: React.FC<
@@ -275,6 +276,7 @@ const RenderModal: React.FC<
 	resolvedComposition,
 	unresolvedComposition,
 	initialColorSpace,
+	initialMultiProcessOnLinux,
 }) => {
 	const isMounted = useRef(true);
 
@@ -323,6 +325,9 @@ const RenderModal: React.FC<
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
+	const [multiProcessOnLinux, setMultiProcessOnLinux] = useState<boolean>(
+		() => initialMultiProcessOnLinux,
+	);
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
 		() => initialGl ?? 'default',
 	);
@@ -336,8 +341,15 @@ const RenderModal: React.FC<
 			gl: openGlOption === 'default' ? null : openGlOption,
 			// TODO: Make this configurable at some point (not necessary for V4)
 			userAgent: null,
+			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
-	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
+	}, [
+		headless,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+		openGlOption,
+		multiProcessOnLinux,
+	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(
@@ -645,6 +657,7 @@ const RenderModal: React.FC<
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -668,6 +681,7 @@ const RenderModal: React.FC<
 		envVariables,
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -719,6 +733,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			colorSpace,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -760,6 +775,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -784,6 +800,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			disallowParallelEncoding,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -810,6 +827,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -1213,6 +1231,8 @@ const RenderModal: React.FC<
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}
+							enableMultiProcessOnLinux={multiProcessOnLinux}
+							setMultiProcessOnLinux={setMultiProcessOnLinux}
 							codec={codec}
 						/>
 					)}
