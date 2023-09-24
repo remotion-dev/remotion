@@ -289,6 +289,10 @@ const RenderModal: React.FC<
 	const [videoImageFormat, setVideoImageFormat] = useState<VideoImageFormat>(
 		() => initialVideoImageFormat,
 	);
+	const [sequenceImageFormat, setSequenceImageFormat] =
+		useState<VideoImageFormat>(() =>
+			initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png',
+		);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
 		() => initialVideoCodecForVideoTab,
@@ -786,7 +790,7 @@ const RenderModal: React.FC<
 		addSequenceRenderJob({
 			compositionId: resolvedComposition.id,
 			outName,
-			imageFormat: videoImageFormat,
+			imageFormat: sequenceImageFormat,
 			scale,
 			verbose,
 			concurrency,
@@ -813,7 +817,7 @@ const RenderModal: React.FC<
 		dispatchIfMounted,
 		resolvedComposition.id,
 		outName,
-		videoImageFormat,
+		sequenceImageFormat,
 		scale,
 		verbose,
 		concurrency,
@@ -866,6 +870,23 @@ const RenderModal: React.FC<
 			];
 		}
 
+		if (renderMode === 'sequence') {
+			return [
+				{
+					label: 'PNG',
+					onClick: () => setSequenceImageFormat('png'),
+					key: 'png',
+					selected: sequenceImageFormat === 'png',
+				},
+				{
+					label: 'JPEG',
+					onClick: () => setSequenceImageFormat('jpeg'),
+					key: 'jpeg',
+					selected: sequenceImageFormat === 'jpeg',
+				},
+			];
+		}
+
 		return [
 			{
 				label: 'PNG',
@@ -880,7 +901,13 @@ const RenderModal: React.FC<
 				selected: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
+	}, [
+		renderMode,
+		videoImageFormat,
+		stillImageFormat,
+		setStillFormat,
+		sequenceImageFormat,
+	]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
