@@ -283,16 +283,6 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Enable multi-process Chromium on Linux</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={enableMultiProcessOnLinux}
-						onChange={onEnableMultiProcessOnLinux}
-						name="enable-multi-process-on-linux"
-					/>
-				</div>
-			</div>
-			<div style={optionRow}>
 				<div style={label}>Ignore certificate errors </div>
 				<div style={rightRow}>
 					<Checkbox
@@ -319,6 +309,17 @@ export const RenderModalAdvanced: React.FC<{
 					/>
 				</div>
 			</div>
+			<div style={optionRow}>
+				<div style={label}>Multi-process Chrome on Linux</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={enableMultiProcessOnLinux}
+						onChange={onEnableMultiProcessOnLinux}
+						name="enable-multi-process-on-linux"
+					/>
+				</div>
+			</div>
+
 			<RenderModalHr />
 			<RenderModalEnvironmentVariables
 				envVariables={envVariables}
