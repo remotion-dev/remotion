@@ -118,10 +118,7 @@ const renderStillOnCloudrunRaw = async ({
 		imageFormat,
 		envVariables: envVariables ?? {},
 		jpegQuality,
-		chromiumOptions: {
-			...(chromiumOptions ?? {}),
-			enableMultiProcessOnLinux: false,
-		},
+		chromiumOptions: chromiumOptions ?? {},
 		scale: scale ?? 1,
 		forceWidth,
 		forceHeight,

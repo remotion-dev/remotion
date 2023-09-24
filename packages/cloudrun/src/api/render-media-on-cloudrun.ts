@@ -187,7 +187,6 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		chromiumOptions:
 			{
 				...(chromiumOptions ?? {}),
-				enableMultiProcessOnLinux: false,
 			} ?? null,
 		muted: muted ?? false,
 		outputBucket,
