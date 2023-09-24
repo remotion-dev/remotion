@@ -50,7 +50,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     },
     audioBitrate: null,
     audioCodec: null,
-    chromiumOptions: { enableMultiProcessOnLinux: false },
+    chromiumOptions: {},
     colorSpace: "default",
     concurrencyPerLambda: 1,
     crf: undefined,
