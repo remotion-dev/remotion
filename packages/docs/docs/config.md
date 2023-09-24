@@ -262,7 +262,19 @@ import { Config } from "@remotion/cli/config";
 Config.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
+## setChromiumMultiProcessOnLinux()<AvailableFrom v="4.0.42" />
+
+<Options id="enable-multiprocess-on-linux" cli/>
+
+```tsx twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+// ---cut---
+
+Config.setChromiumMultiProcessOnLinux(true);
+```
+
+The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enable-multiprocess-on-linux` will take precedence over this option.
 
 ## setChromiumOpenGlRenderer
 
@@ -657,7 +669,7 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
-### `setVideoBitrate()`<AvailableFrom v="3.2.32" />
+## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -673,7 +685,7 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-### `setAudioBitrate`<AvailableFrom v="3.2.32" />
+## `setAudioBitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
@@ -689,7 +701,7 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
-### `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
+## `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
@@ -703,7 +715,7 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-### `setDeleteAfter`<AvailableFrom v="4.0.32" />
+## `setDeleteAfter`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
