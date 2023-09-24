@@ -325,9 +325,8 @@ const RenderModal: React.FC<
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
-	const [multiProcessOnLinux, setMultiProcessOnLinux] = useState<boolean>(
-		() => initialMultiProcessOnLinux,
-	);
+	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
+		useState<boolean>(() => initialMultiProcessOnLinux);
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
 		() => initialGl ?? 'default',
 	);
@@ -1232,7 +1231,7 @@ const RenderModal: React.FC<
 								setOffthreadVideoCacheSizeInBytes
 							}
 							enableMultiProcessOnLinux={multiProcessOnLinux}
-							setMultiProcessOnLinux={setMultiProcessOnLinux}
+							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}
 						/>
 					)}

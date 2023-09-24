@@ -30,6 +30,6 @@ export const setChromiumHeadlessMode = (should: boolean) => {
 };
 
 export const getMultiProcessOnLinux = () => multiProcessOnLinux;
-export const setMultiProcessOnLinux = (should: boolean) => {
+export const setChromiumMultiProcessOnLinux = (should: boolean) => {
 	multiProcessOnLinux = should;
 };

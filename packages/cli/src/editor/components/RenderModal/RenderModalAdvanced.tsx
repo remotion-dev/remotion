@@ -52,7 +52,7 @@ export const RenderModalAdvanced: React.FC<{
 	>;
 	codec: Codec;
 	enableMultiProcessOnLinux: boolean;
-	setMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
+	setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -81,7 +81,7 @@ export const RenderModalAdvanced: React.FC<{
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
 	enableMultiProcessOnLinux,
-	setMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return ['angle', 'egl', 'swangle', 'swiftshader', 'vulkan', 'default'];
@@ -119,9 +119,9 @@ export const RenderModalAdvanced: React.FC<{
 
 	const onEnableMultiProcessOnLinux = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			setMultiProcessOnLinux(e.target.checked);
+			setChromiumMultiProcessOnLinux(e.target.checked);
 		},
-		[setMultiProcessOnLinux],
+		[setChromiumMultiProcessOnLinux],
 	);
 
 	const onIgnoreCertificatErrors = useCallback(

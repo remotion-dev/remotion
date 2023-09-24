@@ -6,7 +6,7 @@ import {
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
 	getMultiProcessOnLinux,
-	setMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -416,7 +416,9 @@ declare global {
 			multiple processes can be used, but may cause issues with some Linux
 			distributions or if window server libraries are missing.
 		 */
-		readonly setMultiProcessOnLinux: (multiProcessOnLinux: boolean) => void;
+		readonly setChromiumMultiProcessOnLinux: (
+			multiProcessOnLinux: boolean,
+		) => void;
 	}
 }
 
@@ -514,7 +516,7 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
-	setMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',

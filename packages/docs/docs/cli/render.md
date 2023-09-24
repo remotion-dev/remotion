@@ -212,6 +212,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="color-space" />
 
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_
