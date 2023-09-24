@@ -298,6 +298,7 @@ export const renderVideoFlow = async ({
 		height: config.height,
 		codec,
 		scale,
+		wantsImageSequence: shouldOutputImageSequence,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
