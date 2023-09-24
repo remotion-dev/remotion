@@ -184,7 +184,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? null,
 		envVariables: envVariables ?? {},
-		chromiumOptions: chromiumOptions ?? undefined,
+		chromiumOptions,
 		muted: muted ?? false,
 		outputBucket,
 		privacy,
