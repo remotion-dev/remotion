@@ -19,6 +19,7 @@ import {audioBitrateOption} from './options/audio-bitrate';
 import {colorSpaceOption, validColorSpaces} from './options/color-space';
 import {crfOption} from './options/crf';
 import {deleteAfterOption} from './options/delete-after';
+import {enableMultiprocessOnLinuxOption} from './options/enable-multiprocess-on-linux';
 import {enforceAudioOption} from './options/enforce-audio';
 import {folderExpiryOption} from './options/folder-expiry';
 import {jpegQualityOption} from './options/jpeg-quality';
@@ -64,6 +65,7 @@ export const BrowserSafeApis = {
 		colorSpaceOption,
 		deleteAfterOption,
 		folderExpiryOption,
+		enableMultiprocessOnLinuxOption,
 	},
 	validColorSpaces,
 	optionsMap,

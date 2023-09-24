@@ -99,6 +99,7 @@ export type RenderJob = {
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
+	multiProcessOnLinux: boolean;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -163,6 +164,7 @@ export type AddRenderRequest = {
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
+	multiProcessOnLinux: boolean;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

@@ -3,8 +3,10 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
+	getChromiumMultiProcessOnLinux,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -407,6 +409,16 @@ declare global {
 		 * Opt into bt709 rendering.
 		 */
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
+
+		/**
+		 * Removes the --single-process flag that gets passed to
+			Chromium on Linux by default. This will make the render faster because
+			multiple processes can be used, but may cause issues with some Linux
+			distributions or if window server libraries are missing.
+		 */
+		readonly setChromiumMultiProcessOnLinux: (
+			multiProcessOnLinux: boolean,
+		) => void;
 	}
 }
 
@@ -504,6 +516,7 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
+	setChromiumMultiProcessOnLinux,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -597,4 +610,5 @@ export const ConfigInternals = {
 	getDeleteAfter,
 	getColorSpace,
 	getEnableFolderExpiry,
+	getChromiumMultiProcessOnLinux,
 };
