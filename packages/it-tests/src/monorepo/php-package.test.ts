@@ -67,7 +67,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     },
     audioBitrate: null,
     audioCodec: null,
-    chromiumOptions: {},
+    chromiumOptions: { enableMultiProcessOnLinux: false },
     colorSpace: "default",
     concurrencyPerLambda: 1,
     crf: undefined,

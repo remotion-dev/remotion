@@ -125,6 +125,7 @@ export const RenderButton: React.FC = () => {
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
+			initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

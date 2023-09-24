@@ -60,7 +60,7 @@ describe('Webhooks', () => {
 			payload: {
 				serveUrl:
 					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-				chromiumOptions: {},
+				chromiumOptions: {enableMultiProcessOnLinux: false},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,
@@ -161,7 +161,7 @@ describe('Webhooks', () => {
 				offthreadVideoCacheSizeInBytes: null,
 				serveUrl:
 					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-				chromiumOptions: {},
+				chromiumOptions: {enableMultiProcessOnLinux: false},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,

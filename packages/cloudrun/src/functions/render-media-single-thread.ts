@@ -43,6 +43,8 @@ export const renderMediaSingleThread = async (
 			...body.chromiumOptions,
 			// Override the `null` value, which might come from CLI with swANGLE
 			gl: body.chromiumOptions?.gl ?? 'swangle',
+			enableMultiProcessOnLinux:
+				body.chromiumOptions?.enableMultiProcessOnLinux ?? false,
 		};
 
 		await RenderInternals.internalRenderMedia({

@@ -63,6 +63,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			outFrameMark: null,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
+			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 		};
 	}
 
@@ -112,6 +113,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
+			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 		};
 	}
 
@@ -162,6 +164,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: job.colorSpace,
+			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 		};
 	}
 

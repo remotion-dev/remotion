@@ -103,6 +103,7 @@ export const SidebarRenderButton: React.FC<{
 				inFrameMark: null,
 				outFrameMark: null,
 				initialColorSpace: defaults.colorSpace as ColorSpace,
+				initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 			});
 		},
 		[

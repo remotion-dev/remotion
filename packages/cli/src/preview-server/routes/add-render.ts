@@ -50,6 +50,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 					input.serializedInputPropsWithCustomSchema,
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 				colorSpace: input.colorSpace,
+				multiProcessOnLinux: input.multiProcessOnLinux,
 			},
 		});
 	}
@@ -81,6 +82,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
+				multiProcessOnLinux: input.multiProcessOnLinux,
 			},
 		});
 	}
@@ -108,6 +110,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
+				multiProcessOnLinux: input.multiProcessOnLinux,
 			},
 			entryPoint,
 			remotionRoot,
