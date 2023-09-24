@@ -792,7 +792,7 @@ export const renderMedia = ({
 		audioCodec: audioCodec ?? null,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
-		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+		chromiumOptions: chromiumOptions ?? {},
 		concurrency: concurrency ?? null,
 		crf: crf ?? null,
 		disallowParallelEncoding: disallowParallelEncoding ?? false,

@@ -24,7 +24,7 @@ test('Should be able to render to another bucket', async () => {
 		payload: {
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-			chromiumOptions: {enableMultiProcessOnLinux: false},
+			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,

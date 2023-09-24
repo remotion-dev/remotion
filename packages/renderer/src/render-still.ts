@@ -446,7 +446,7 @@ export const renderStill = (
 		composition,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal: cancelSignal ?? null,
-		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,

@@ -25,7 +25,7 @@ test('Should make a distributed GIF', async () => {
 		payload: {
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-			chromiumOptions: {enableMultiProcessOnLinux: false},
+			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
 			crf: 9,

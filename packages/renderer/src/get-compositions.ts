@@ -255,7 +255,7 @@ export const getCompositions = (
 	} = config ?? {};
 	return internalGetCompositions({
 		browserExecutable: browserExecutable ?? null,
-		chromiumOptions: chromiumOptions ?? {enableMultiProcessOnLinux: false},
+		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			data: inputProps ?? {},
