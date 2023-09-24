@@ -29,6 +29,7 @@ const bundleRenderLogic = async () => {
 			'./compositor.exe',
 			'./ffmpeg/remotion/bin/ffmpeg',
 			'./ffmpeg/remotion/bin/ffprobe',
+			'./mappings.wasm',
 		],
 	});
 
