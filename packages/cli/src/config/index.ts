@@ -411,9 +411,12 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
-		 * Opt out of the `--single-process` Chromium flag in Chromium
+		 * Removes the --single-process flag that gets passed to
+			Chromium on Linux by default. This will make the render faster because
+			multiple processes can be used, but may cause issues with some Linux
+			distributions or if window server libraries are missing.
 		 */
-		readonly setMultiProcessOnLinux: (should: boolean) => void;
+		readonly setMultiProcessOnLinux: (multiProcessOnLinux: boolean) => void;
 	}
 }
 

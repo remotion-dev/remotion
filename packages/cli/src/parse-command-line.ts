@@ -11,7 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
@@ -76,6 +76,7 @@ type CommandLineOptions = {
 	['user-agent']: string;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	[BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag]: boolean;
 };
 
 export const BooleanFlags = [
@@ -280,6 +281,18 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
 		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
+	}
+
+	if (
+		typeof parsedCli[
+			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+		] !== 'undefined'
+	) {
+		Config.setEnableFolderExpiry(
+			parsedCli[
+				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+			],
+		);
 	}
 };
 
