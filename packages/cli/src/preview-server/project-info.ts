@@ -15,6 +15,8 @@ export const getProjectInfo = (remotionRoot: string): Promise<ProjectInfo> => {
 		'app/remotion/Root.tsx',
 		'src/Video.tsx',
 		'src/Video.jsx',
+		'src/remotion/Root.tsx',
+		'src/remotion/Root.jsx',
 	].map((p) => {
 		return path.join(remotionRoot, p);
 	});

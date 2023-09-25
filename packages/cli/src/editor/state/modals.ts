@@ -49,6 +49,7 @@ export type RenderModalState = {
 	initialHeadless: boolean;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialColorSpace: ColorSpace;
+	initialMultiProcessOnLinux: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

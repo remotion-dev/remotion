@@ -6,7 +6,7 @@ if (
 	!['development', 'production'].includes(process.env.ARTIFACT_REGISTRY_ENV)
 ) {
 	throw new Error(
-		`ARTIFACT_REGISTRY_ENV is ${process.env.ARTIFACT_REGISTRY_ENV}, but it should be either 'development' or 'production'`
+		`ARTIFACT_REGISTRY_ENV is ${process.env.ARTIFACT_REGISTRY_ENV}, but it should be either 'development' or 'production'`,
 	);
 }
 

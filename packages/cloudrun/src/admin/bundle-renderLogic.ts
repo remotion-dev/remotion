@@ -29,6 +29,7 @@ const bundleRenderLogic = async () => {
 			'./compositor.exe',
 			'./ffmpeg/remotion/bin/ffmpeg',
 			'./ffmpeg/remotion/bin/ffprobe',
+			'./mappings.wasm',
 		],
 	});
 
@@ -36,6 +37,21 @@ const bundleRenderLogic = async () => {
 
 	fs.copyFileSync(x64BinaryPath, compositorFile);
 	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+
+	fs.cpSync(
+		path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'renderer',
+			'node_modules',
+			'source-map',
+			'lib',
+			'mappings.wasm',
+		),
+		`${outdir}/mappings.wasm`,
+	);
 
 	console.log('distribution bundled.');
 };
