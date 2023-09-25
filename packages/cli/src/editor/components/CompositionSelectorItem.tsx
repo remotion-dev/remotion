@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {Internals, type AnyComposition} from 'remotion';
+import React, {useCallback, useMemo, useState} from 'react';
+import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
@@ -87,7 +87,6 @@ export const CompositionSelectorItem: React.FC<{
 
 		return false;
 	}, [item, currentComposition]);
-	const {setCanvasContent} = useContext(Internals.CompositionManager);
 	const [hovered, setHovered] = useState(false);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -122,13 +121,12 @@ export const CompositionSelectorItem: React.FC<{
 		(evt) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
-				setCanvasContent({type: 'composition'});
 				selectComposition(item.composition, true);
 			} else {
 				toggleFolder(item.folderName, item.parentName);
 			}
 		},
-		[item, setCanvasContent, selectComposition, toggleFolder],
+		[item, selectComposition, toggleFolder],
 	);
 
 	if (item.type === 'folder') {

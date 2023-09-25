@@ -117,12 +117,11 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 	return <div style={msgStyle}> Unsupported file type</div>;
 };
 
-const Inner: React.FC<{
+export const VideoPreview: React.FC<{
 	canvasSize: Size;
 	contentDimensions: Dimensions | null;
-}> = ({canvasSize, contentDimensions}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
-
+	canvasContent: CanvasContent;
+}> = ({canvasSize, contentDimensions, canvasContent}) => {
 	if (!contentDimensions) {
 		return <div>loading...</div>;
 	}
@@ -238,19 +237,4 @@ const PortalContainer: React.FC<{
 	const portalContainer = useRef<HTMLDivElement>(null);
 
 	return <div ref={portalContainer} style={style} />;
-};
-
-export const VideoPreview: React.FC<{
-	canvasSize: Size;
-	contentDimensions: Dimensions | null;
-}> = ({canvasSize, contentDimensions}) => {
-	const config = Internals.useUnsafeVideoConfig();
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	if (!config && canvasContent.type !== 'asset') {
-		return null;
-	}
-
-	return (
-		<Inner canvasSize={canvasSize} contentDimensions={contentDimensions} />
-	);
 };

@@ -150,12 +150,9 @@ export const CompositionManagerProvider: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
-	const [currentComposition, setCurrentComposition] = useState<string | null>(
-		null,
-	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
-	const [canvasContent, setCanvasContent] = useState<CanvasContent>(
-		deriveCanvasContent(),
+	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
+		null,
 	);
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
@@ -165,7 +162,6 @@ export const CompositionManagerProvider: React.FC<{
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			updateComps: (comp: AnyComposition[]) => AnyComposition[],
 		) => {
-			setCanvasContent({type: 'composition'});
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
 				currentcompositionsRef.current = updated;
@@ -235,15 +231,17 @@ export const CompositionManagerProvider: React.FC<{
 		[],
 	);
 
-	const composition = compositions.find((c) => c.id === currentComposition);
+	const composition = compositions.find((c) =>
+		canvasContent?.type === 'composition'
+			? c.id === canvasContent.compositionId
+			: null,
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
 			registerComposition,
 			unregisterComposition,
-			currentComposition,
-			setCurrentComposition,
 			folders,
 			registerFolder,
 			unregisterFolder,
@@ -256,7 +254,6 @@ export const CompositionManagerProvider: React.FC<{
 		compositions,
 		registerComposition,
 		unregisterComposition,
-		currentComposition,
 		folders,
 		registerFolder,
 		unregisterFolder,
@@ -281,13 +278,4 @@ export const CompositionManagerProvider: React.FC<{
 			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);
-};
-
-const deriveCanvasContent = (): CanvasContent => {
-	const substrings = window.location.pathname.split('/');
-	if (substrings.includes('assets')) {
-		return {type: 'asset', asset: substrings[substrings.length - 1]};
-	}
-
-	return {type: 'composition'};
 };

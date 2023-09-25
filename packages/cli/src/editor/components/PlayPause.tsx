@@ -230,7 +230,7 @@ export const PlayPause: React.FC<{
 		onSpace,
 	]);
 
-	if (isStill || canvasContent.type === 'asset') {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

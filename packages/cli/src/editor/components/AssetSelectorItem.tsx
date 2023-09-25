@@ -179,12 +179,12 @@ export const AssetSelectorItem: React.FC<{
 		setHovered(true);
 	}, []);
 
-	const {canvasContent, setCurrentComposition, setCanvasContent} = useContext(
+	const {canvasContent, setCanvasContent} = useContext(
 		Internals.CompositionManager,
 	);
 
 	const selected = useMemo(() => {
-		if (canvasContent.type === 'asset') {
+		if (canvasContent && canvasContent.type === 'asset') {
 			const nameWOParent = canvasContent.asset.split('/').pop();
 
 			return nameWOParent === item.name;
@@ -202,9 +202,8 @@ export const AssetSelectorItem: React.FC<{
 			? parentFolder + '/' + item.name
 			: item.name;
 		setCanvasContent({type: 'asset', asset: relativePath});
-		setCurrentComposition(null);
 		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
-	}, [item.name, parentFolder, setCurrentComposition, setCanvasContent]);
+	}, [item.name, parentFolder, setCanvasContent]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {

@@ -21,7 +21,7 @@ export const LoopToggle: React.FC<{
 
 	const isStill = useIsStill();
 
-	if (isStill || canvasContent.type === 'asset') {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

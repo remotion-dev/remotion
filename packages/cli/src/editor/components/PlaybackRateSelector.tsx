@@ -61,7 +61,7 @@ export const PlaybackRateSelector: React.FC<{
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
-	if (isStill || canvasContent.type === 'asset') {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

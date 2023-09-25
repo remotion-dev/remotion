@@ -56,7 +56,7 @@ export const compositionSelectorRef = createRef<{
 }>();
 
 export const CompositionSelector: React.FC = () => {
-	const {compositions, currentComposition, folders} = useContext(
+	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
 	);
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
@@ -138,14 +138,20 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<div style={container}>
-			{currentComposition ? <CurrentComposition /> : null}
+			{canvasContent && canvasContent.type === 'composition' ? (
+				<CurrentComposition />
+			) : null}
 			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem
 							key={c.key + c.type}
 							level={0}
-							currentComposition={currentComposition}
+							currentComposition={
+								canvasContent && canvasContent.type === 'composition'
+									? canvasContent.compositionId
+									: null
+							}
 							selectComposition={selectComposition}
 							toggleFolder={toggleFolder}
 							tabIndex={tabIndex}

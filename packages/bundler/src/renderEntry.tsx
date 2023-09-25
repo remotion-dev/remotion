@@ -71,7 +71,15 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				);
 			}
 
-			compositions.setCurrentComposition(foundComposition?.id ?? null);
+			if (foundComposition) {
+				compositions.setCanvasContent({
+					type: 'composition',
+					compositionId: foundComposition.id,
+				});
+			} else {
+				compositions.setCanvasContent(null);
+			}
+
 			compositions.setCurrentCompositionMetadata({
 				props: Internals.deserializeJSONWithCustomFields(
 					state.serializedResolvedPropsWithSchema,

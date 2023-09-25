@@ -61,7 +61,6 @@ export const SharedPlayerContexts: React.FC<{
 			folders: [],
 			registerFolder: () => undefined,
 			unregisterFolder: () => undefined,
-			currentComposition: 'player-comp',
 			registerComposition: () => undefined,
 			registerSequence: () => undefined,
 			sequences: [],
@@ -74,7 +73,7 @@ export const SharedPlayerContexts: React.FC<{
 			assets: [],
 			setClipRegion: () => undefined,
 			resolved: null,
-			canvasContent: {type: 'composition'},
+			canvasContent: {type: 'composition', compositionId: 'player-comp'},
 			setCanvasContent: () => undefined,
 		};
 	}, [
