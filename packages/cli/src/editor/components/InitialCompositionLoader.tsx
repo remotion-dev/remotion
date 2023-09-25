@@ -5,18 +5,18 @@ import {Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
-import {getCurrentCompositionFromUrl} from './FramePersistor';
+import {deriveCanvasContentFromUrl} from './ZoomPersistor';
 
 export const useSelectComposition = () => {
 	const {setFoldersExpanded} = useContext(FolderContext);
-	const {setCurrentComposition} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionManager);
 
 	return (c: AnyComposition, push: boolean) => {
 		if (push) {
 			window.history.pushState({}, 'Studio', `/${c.id}`);
 		}
 
-		setCurrentComposition(c.id);
+		setCanvasContent({type: 'composition', compositionId: c.id});
 
 		const {folderName, parentFolderName} = c;
 
@@ -37,38 +37,30 @@ export const useSelectComposition = () => {
 };
 
 export const InitialCompositionLoader: React.FC = () => {
-	const {compositions, currentComposition, canvasContent, setCanvasContent} =
-		useContext(Internals.CompositionManager);
+	const {compositions, canvasContent, setCanvasContent} = useContext(
+		Internals.CompositionManager,
+	);
 	const selectComposition = useSelectComposition();
 
 	useEffect(() => {
-		if (canvasContent.type === 'asset') {
+		if (canvasContent) {
 			return;
 		}
 
-		if (currentComposition) {
-			return;
-		}
-
-		const compositionFromUrl = getCurrentCompositionFromUrl();
-		if (compositionFromUrl) {
-			const exists = compositions.find((c) => c.id === compositionFromUrl);
+		const canvasContentFromUrl = deriveCanvasContentFromUrl();
+		if (canvasContentFromUrl && canvasContentFromUrl.type === 'composition') {
+			const exists = compositions.find(
+				(c) => c.id === canvasContentFromUrl.compositionId,
+			);
 			if (exists) {
 				selectComposition(exists, true);
-				return;
 			}
-		}
-
-		if (compositions.length > 0) {
+		} else if (canvasContentFromUrl && canvasContentFromUrl.type === 'asset') {
+			setCanvasContent(canvasContentFromUrl);
+		} else if (compositions.length > 0) {
 			selectComposition(compositions[0], true);
 		}
-	}, [
-		compositions,
-		currentComposition,
-		canvasContent,
-		selectComposition,
-		setCanvasContent,
-	]);
+	}, [compositions, canvasContent, selectComposition, setCanvasContent]);
 
 	useEffect(() => {
 		const onchange = () => {

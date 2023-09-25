@@ -7,6 +7,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import type {CanvasContent} from 'remotion';
 import {Internals, staticFile} from 'remotion';
 import {
 	MAX_ZOOM,
@@ -44,10 +45,11 @@ const resetZoom: React.CSSProperties = {
 
 const ZOOM_PX_FACTOR = 0.003;
 
-export const Canvas: React.FC = () => {
+export const Canvas: React.FC<{
+	canvasContent: CanvasContent;
+}> = ({canvasContent}) => {
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
 
@@ -321,7 +323,11 @@ export const Canvas: React.FC = () => {
 	return (
 		<div ref={ref} style={container}>
 			{size ? (
-				<VideoPreview contentDimensions={contentDimensions} canvasSize={size} />
+				<VideoPreview
+					canvasContent={canvasContent}
+					contentDimensions={contentDimensions}
+					canvasSize={size}
+				/>
 			) : null}
 			{isFit ? null : (
 				<div style={resetZoom} className="css-reset">

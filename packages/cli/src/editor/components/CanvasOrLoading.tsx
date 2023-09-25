@@ -61,10 +61,14 @@ export const CanvasOrLoading: React.FC = () => {
 		};
 	}, [takesALongTime]);
 
+	if (!canvasContent) {
+		return null;
+	}
+
 	const content = (
 		<>
 			<ZoomPersistor />
-			<Canvas />
+			<Canvas canvasContent={canvasContent} />
 		</>
 	);
 	if (canvasContent.type === 'asset') {

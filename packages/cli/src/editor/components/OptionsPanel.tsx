@@ -86,7 +86,7 @@ export const OptionsPanel: React.FC<{}> = () => {
 		[],
 	);
 
-	const {compositions, currentComposition} = useContext(
+	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
 	const circleStyle = useMemo((): React.CSSProperties => {
@@ -100,14 +100,18 @@ export const OptionsPanel: React.FC<{}> = () => {
 	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return null;
+		}
+
 		for (const comp of compositions) {
-			if (comp.id === currentComposition) {
+			if (comp.id === canvasContent.compositionId) {
 				return comp;
 			}
 		}
 
 		return null;
-	}, [compositions, currentComposition]);
+	}, [canvasContent, compositions]);
 
 	const saveToolTip = useMemo(() => {
 		return process.env.KEYBOARD_SHORTCUTS_ENABLED

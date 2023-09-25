@@ -298,7 +298,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		[confId, onInMark, onInOutClear, onOutMark],
 	);
 
-	if (isStill || canvasContent.type === 'asset') {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 
