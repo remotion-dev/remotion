@@ -51,6 +51,8 @@ export const RenderModalAdvanced: React.FC<{
 		React.SetStateAction<number | null>
 	>;
 	codec: Codec;
+	enableMultiProcessOnLinux: boolean;
+	setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -78,9 +80,11 @@ export const RenderModalAdvanced: React.FC<{
 	codec,
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
+	enableMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
-		return ['angle', 'egl', 'swangle', 'swiftshader', 'default'];
+		return ['angle', 'egl', 'swangle', 'swiftshader', 'vulkan', 'default'];
 	}, []);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +115,13 @@ export const RenderModalAdvanced: React.FC<{
 			setDisableWebSecurity(e.target.checked);
 		},
 		[setDisableWebSecurity],
+	);
+
+	const onEnableMultiProcessOnLinux = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setChromiumMultiProcessOnLinux(e.target.checked);
+		},
+		[setChromiumMultiProcessOnLinux],
 	);
 
 	const onIgnoreCertificatErrors = useCallback(
@@ -298,6 +309,17 @@ export const RenderModalAdvanced: React.FC<{
 					/>
 				</div>
 			</div>
+			<div style={optionRow}>
+				<div style={label}>Multi-process Chrome on Linux</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={enableMultiProcessOnLinux}
+						onChange={onEnableMultiProcessOnLinux}
+						name="enable-multi-process-on-linux"
+					/>
+				</div>
+			</div>
+
 			<RenderModalHr />
 			<RenderModalEnvironmentVariables
 				envVariables={envVariables}

@@ -115,6 +115,10 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disable-headless)
 
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
 ### `--gl`
 
 _optional_

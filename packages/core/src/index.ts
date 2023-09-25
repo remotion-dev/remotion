@@ -100,10 +100,11 @@ export * from './freeze.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
-export * from './Img.js';
+export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {
+	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,

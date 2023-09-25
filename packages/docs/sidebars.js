@@ -662,6 +662,7 @@ module.exports = {
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
         "miscellaneous/thorium-browser",
+        "miscellaneous/linux-single-process",
         "compare/motion-canvas",
         "gl-options",
         "bun",
