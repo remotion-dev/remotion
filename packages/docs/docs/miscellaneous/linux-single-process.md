@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-linux-single-process.png
 sidebar_label: Multiple cores on Linux
 title: Multiple cores on Linux
 crumb: "Server-side rendering"
