@@ -53,9 +53,9 @@ export const Canvas: React.FC<{
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
 
-	const [assetResolution, setAssetResolution] = useState<Dimensions | null>(
-		null,
-	);
+	const [assetResolution, setAssetResolution] = useState<
+		Dimensions | 'none' | null
+	>(null);
 
 	const contentDimensions = useMemo(() => {
 		if (canvasContent.type === 'asset') {
@@ -86,7 +86,7 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			if (!contentDimensions) {
+			if (!contentDimensions || contentDimensions === 'none') {
 				return;
 			}
 
@@ -205,7 +205,7 @@ export const Canvas: React.FC<{
 	}, [setSize]);
 
 	const onZoomIn = useCallback(() => {
-		if (!contentDimensions) {
+		if (!contentDimensions || contentDimensions === 'none') {
 			return;
 		}
 
@@ -231,7 +231,7 @@ export const Canvas: React.FC<{
 	}, [contentDimensions, setSize, size]);
 
 	const onZoomOut = useCallback(() => {
-		if (!contentDimensions) {
+		if (!contentDimensions || contentDimensions === 'none') {
 			return;
 		}
 
@@ -299,20 +299,22 @@ export const Canvas: React.FC<{
 		setAssetResolution(null);
 
 		const assetSrc = staticFile(canvasContent.asset);
-		if (getPreviewFileType(canvasContent.asset) === 'video') {
+
+		const fileType = getPreviewFileType(canvasContent.asset);
+
+		if (fileType === 'video') {
 			await getVideoMetadata(assetSrc).then((data) => {
 				setAssetResolution({width: data.width, height: data.height});
 			});
-			return;
-		}
-
-		if (getPreviewFileType(canvasContent.asset) === 'image') {
+		} else if (fileType === 'image') {
 			const img = new Image();
 			img.onload = () => {
 				setAssetResolution({width: img.width, height: img.height});
 			};
 
 			img.src = assetSrc;
+		} else {
+			setAssetResolution('none');
 		}
 	}, [canvasContent]);
 
