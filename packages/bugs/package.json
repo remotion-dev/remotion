@@ -2,5 +2,6 @@
   "dependencies": {
     "@types/node": "^20.6.5"
   },
-  "private": true
+  "private": true,
+  "version": "4.0.42"
 }

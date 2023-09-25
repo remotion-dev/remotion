@@ -54,6 +54,7 @@ export const UpdateModal: React.FC<{
 	const hasKnownBugs = useMemo(() => {
 		return knownBugs && knownBugs?.length > 0;
 	}, [knownBugs]);
+
 	const command = commands[info.packageManager];
 
 	const onClick = useCallback(() => {

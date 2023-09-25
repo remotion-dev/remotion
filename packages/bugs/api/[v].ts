@@ -1,3 +1,4 @@
+// Keep in sync with packages/cli/src/editor/components/UpdateCheck.tsx
 type Bug = {
   title: string;
   description: string;

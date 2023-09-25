@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {VERSION} from 'remotion';
 import type {PackageManager} from '../../preview-server/get-package-manager';
 import {BLUE, FAIL_COLOR} from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
@@ -29,6 +30,7 @@ const buttonStyle: React.CSSProperties = {
 	fontSize: 14,
 };
 
+// Keep in sync with packages/bugs/api/[v].ts
 export type Bug = {
 	title: string;
 	description: string;
@@ -45,6 +47,7 @@ export const UpdateCheck = () => {
 	const hasKnownBugs = useMemo(() => {
 		return knownBugs && knownBugs.length > 0;
 	}, [knownBugs]);
+
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
 
@@ -63,25 +66,35 @@ export const UpdateCheck = () => {
 		return controller;
 	}, []);
 
+	const checkForBugs = useCallback(() => {
+		const controller = new AbortController();
+
+		fetch(`https://bugs.remotion.dev/api/${VERSION}`, {
+			signal: controller.signal,
+		})
+			.then(async (res) => {
+				const {body} = await res.json();
+				setKnownBugs(body.bugs);
+			})
+			.catch((err: Error) => {
+				if (err.message.includes('aborted')) {
+					return;
+				}
+
+				console.log('Could not check for bugs in this version', err);
+			});
+
+		return controller;
+	}, []);
+
 	useEffect(() => {
-		const abortController = checkForUpdates();
+		const abortUpdate = checkForUpdates();
+		const abortBugs = checkForBugs();
 		return () => {
-			abortController.abort();
+			abortUpdate.abort();
+			abortBugs.abort();
 		};
-	}, [checkForUpdates]);
-
-	useEffect(() => {
-		if (!info) {
-			return;
-		}
-
-		fetch(
-			`https://latest-stable-release.vercel.app/api/version?query=${info.currentVersion}`,
-		).then(async (res) => {
-			const {body} = await res.json();
-			setKnownBugs(body);
-		});
-	}, [info]);
+	}, [checkForBugs, checkForUpdates]);
 
 	const openModal = useCallback(() => {
 		setSelectedModal({
