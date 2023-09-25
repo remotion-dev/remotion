@@ -229,6 +229,7 @@ type RenderModalProps = {
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	initialMultiProcessOnLinux: boolean;
 };
 
 const RenderModal: React.FC<
@@ -275,6 +276,7 @@ const RenderModal: React.FC<
 	resolvedComposition,
 	unresolvedComposition,
 	initialColorSpace,
+	initialMultiProcessOnLinux,
 }) => {
 	const isMounted = useRef(true);
 
@@ -287,6 +289,10 @@ const RenderModal: React.FC<
 	const [videoImageFormat, setVideoImageFormat] = useState<VideoImageFormat>(
 		() => initialVideoImageFormat,
 	);
+	const [sequenceImageFormat, setSequenceImageFormat] =
+		useState<VideoImageFormat>(() =>
+			initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png',
+		);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
 		() => initialVideoCodecForVideoTab,
@@ -323,6 +329,8 @@ const RenderModal: React.FC<
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
+	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
+		useState<boolean>(() => initialMultiProcessOnLinux);
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
 		() => initialGl ?? 'default',
 	);
@@ -336,8 +344,15 @@ const RenderModal: React.FC<
 			gl: openGlOption === 'default' ? null : openGlOption,
 			// TODO: Make this configurable at some point (not necessary for V4)
 			userAgent: null,
+			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
-	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
+	}, [
+		headless,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+		openGlOption,
+		multiProcessOnLinux,
+	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(
@@ -645,6 +660,7 @@ const RenderModal: React.FC<
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -668,6 +684,7 @@ const RenderModal: React.FC<
 		envVariables,
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -719,6 +736,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			colorSpace,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -760,6 +778,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -771,7 +790,7 @@ const RenderModal: React.FC<
 		addSequenceRenderJob({
 			compositionId: resolvedComposition.id,
 			outName,
-			imageFormat: videoImageFormat,
+			imageFormat: sequenceImageFormat,
 			scale,
 			verbose,
 			concurrency,
@@ -784,6 +803,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			disallowParallelEncoding,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -797,7 +817,7 @@ const RenderModal: React.FC<
 		dispatchIfMounted,
 		resolvedComposition.id,
 		outName,
-		videoImageFormat,
+		sequenceImageFormat,
 		scale,
 		verbose,
 		concurrency,
@@ -810,6 +830,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -849,6 +870,23 @@ const RenderModal: React.FC<
 			];
 		}
 
+		if (renderMode === 'sequence') {
+			return [
+				{
+					label: 'PNG',
+					onClick: () => setSequenceImageFormat('png'),
+					key: 'png',
+					selected: sequenceImageFormat === 'png',
+				},
+				{
+					label: 'JPEG',
+					onClick: () => setSequenceImageFormat('jpeg'),
+					key: 'jpeg',
+					selected: sequenceImageFormat === 'jpeg',
+				},
+			];
+		}
+
 		return [
 			{
 				label: 'PNG',
@@ -863,7 +901,13 @@ const RenderModal: React.FC<
 				selected: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
+	}, [
+		renderMode,
+		videoImageFormat,
+		stillImageFormat,
+		setStillFormat,
+		sequenceImageFormat,
+	]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
@@ -1213,6 +1257,8 @@ const RenderModal: React.FC<
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}
+							enableMultiProcessOnLinux={multiProcessOnLinux}
+							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}
 						/>
 					)}

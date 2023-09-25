@@ -15,6 +15,7 @@ export const checkIfRenderExists = (
 	);
 
 	if (!initializedExists) {
+		// ! Error message is checked in progress handler and will be retried. Make sure to update
 		throw new TypeError(
 			`No render with ID "${renderId}" found in bucket ${bucketName} and region ${region}`,
 		);

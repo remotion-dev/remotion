@@ -30,7 +30,9 @@ export const constructServiceTemplate = ({
 		},
 		containers: [
 			{
-				image: `us-docker.pkg.dev/remotion-dev/production/render:${VERSION}`,
+				image: `us-docker.pkg.dev/remotion-dev/${
+					process.env.ARTIFACT_REGISTRY_ENV ?? 'production'
+				}/render:${VERSION}`,
 				resources: {
 					limits: {
 						memory: memoryLimit,
