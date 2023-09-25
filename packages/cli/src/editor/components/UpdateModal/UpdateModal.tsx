@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {SELECTED_BACKGROUND} from '../../helpers/colors';
+import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
@@ -15,31 +15,37 @@ const container: React.CSSProperties = {
 	paddingTop: 0,
 };
 
+const text: React.CSSProperties = {
+	fontSize: 14,
+};
+
 const title: React.CSSProperties = {
 	paddingTop: 12,
 	paddingBottom: 8,
+	...text,
 };
 
 const code: React.CSSProperties = {
 	background: SELECTED_BACKGROUND,
 	padding: '12px 10px',
-	fontSize: 17,
+	fontSize: 14,
 	marginTop: 10,
 	marginBottom: 10,
 };
 
 const link: React.CSSProperties = {
 	fontWeight: 'bold',
-	color: 'inherit',
+	color: BLUE,
 	textDecoration: 'none',
+	...text,
 };
 
 const commands: {[key in UpdateInfo['packageManager']]: string} = {
-	npm: 'npm run upgrade',
-	yarn: 'yarn upgrade',
-	pnpm: 'pnpm run upgrade',
-	bun: 'bun run upgrade',
-	unknown: 'npm run upgrade',
+	npm: 'npx remotion upgrade',
+	yarn: 'yarn remotion upgrade',
+	pnpm: 'pnpm exec remotion upgrade',
+	bun: 'bun remotion upgrade',
+	unknown: 'npx remotion upgrade',
 };
 
 export const UpdateModal: React.FC<{
@@ -69,15 +75,18 @@ export const UpdateModal: React.FC<{
 			<div style={container}>
 				{hasKnownBugs ? (
 					<>
-						<div style={title}>Known bugs in {info.currentVersion}:</div>
+						<div style={title}>
+							The currently installed version {info.currentVersion} has the
+							following known bugs:
+						</div>
 						<KnownBugs bugs={knownBugs as Bug[]} />
 						<div style={{height: '20px'}} />
-						Run the following command:
+						<div style={text}>To upgrade, run the following command:</div>
 					</>
 				) : (
-					<p>
+					<div style={text}>
 						A new update for Remotion is available! Run the following command:
-					</p>
+					</div>
 				)}
 				<Row align="center">
 					<Flex>
@@ -88,15 +97,15 @@ export const UpdateModal: React.FC<{
 					<Spacing x={1} />
 					<CopyButton
 						textToCopy={command}
-						label="Copy command"
+						label="Copy"
 						labelWhenCopied="Copied!"
 					/>
 				</Row>
-				<p>
+				<div style={text}>
 					This will upgrade Remotion from {info.currentVersion} to{' '}
 					{info.latestVersion}.
-				</p>
-				<p>
+				</div>
+				<div style={text}>
 					Read the{' '}
 					<a
 						style={link}
@@ -106,7 +115,7 @@ export const UpdateModal: React.FC<{
 						Release notes
 					</a>{' '}
 					to know what{"'s"} new in Remotion.
-				</p>
+				</div>
 			</div>
 		</ModalContainer>
 	);

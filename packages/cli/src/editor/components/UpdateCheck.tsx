@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import type {PackageManager} from '../../preview-server/get-package-manager';
-import {BLUE, FAIL_COLOR} from '../helpers/colors';
+import {BLUE, WARNING_COLOR} from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {updateAvailable} from './RenderQueue/actions';
@@ -73,7 +73,7 @@ export const UpdateCheck = () => {
 			signal: controller.signal,
 		})
 			.then(async (res) => {
-				const {body} = await res.json();
+				const body = await res.json();
 				setKnownBugs(body.bugs);
 			})
 			.catch((err: Error) => {
@@ -90,6 +90,7 @@ export const UpdateCheck = () => {
 	useEffect(() => {
 		const abortUpdate = checkForUpdates();
 		const abortBugs = checkForBugs();
+
 		return () => {
 			abortUpdate.abort();
 			abortBugs.abort();
@@ -107,7 +108,7 @@ export const UpdateCheck = () => {
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...buttonStyle,
-			color: hasKnownBugs ? FAIL_COLOR : BLUE,
+			color: hasKnownBugs ? WARNING_COLOR : BLUE,
 		};
 	}, [hasKnownBugs]);
 
@@ -126,7 +127,7 @@ export const UpdateCheck = () => {
 			onClick={openModal}
 			type="button"
 		>
-			{hasKnownBugs ? 'Bugfixes available!' : 'Update available!'}
+			{hasKnownBugs ? 'Bugfixes available' : 'Update available'}
 		</button>
 	);
 };

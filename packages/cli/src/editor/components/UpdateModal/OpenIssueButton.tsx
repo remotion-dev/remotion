@@ -17,9 +17,11 @@ const buttonStyle: React.CSSProperties = {
 export const OpenIssueButton: React.FC<{link: string}> = ({link}) => {
 	const [hovered, setHovered] = useState<boolean>(false);
 	const buttonTooltip = `Open GitHub issue in new Tab`;
+
 	const handleClick = useCallback(() => {
 		window.open(link, '_blank');
 	}, [link]);
+
 	const svgFillColor = useMemo(() => {
 		return hovered ? 'white' : LIGHT_TEXT;
 	}, [hovered]);

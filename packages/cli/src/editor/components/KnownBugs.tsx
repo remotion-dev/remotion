@@ -7,11 +7,17 @@ const container: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const text: React.CSSProperties = {
+	fontSize: 14,
+	flex: 1,
+};
+
 export const KnownBugs: React.FC<{bugs: Bug[]}> = ({bugs}) => {
 	const bugElements = bugs.map((bug) => {
 		return (
 			<div key={bug.description + bug.link} style={container}>
-				<div>🪲 {bug.title}</div>
+				<div style={text}>🪲 {bug.title}</div>
+
 				<OpenIssueButton link={bug.link} />
 			</div>
 		);
