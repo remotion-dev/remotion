@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
@@ -39,6 +39,16 @@ export const RenderQueue: React.FC = () => {
 	const {jobs} = useContext(RenderQueueContext);
 	const jobCount = jobs.length;
 
+	const divRef = React.useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!divRef.current) {
+			return;
+		}
+
+		divRef.current.scrollTop = divRef.current.scrollHeight;
+	}, [jobCount]);
+
 	if (connectionStatus === 'disconnected') {
 		return (
 			<div style={explainer}>
@@ -61,6 +71,7 @@ export const RenderQueue: React.FC = () => {
 
 	return (
 		<div
+			ref={divRef}
 			style={renderQueue}
 			className={['css-reset', VERTICAL_SCROLLBAR_CLASSNAME].join(' ')}
 		>
