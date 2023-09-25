@@ -135,10 +135,17 @@ await renderMedia({
   composition,
   serveUrl: bundled,
   outputLocation: `out/${composition.id}.mp4`,
+  chromiumOptions: {
+    enableMultiProcessOnLinux: true,
+  },
 });
 
 console.log(`Rendered composition ${composition.id}.`);
 ```
+
+:::note
+We recommend setting the `enableMultiProcessOnLinux` option for this Docker image, available from v4.0.42. [Read more](/docs/miscellaneous/linux-single-process)
+:::
 
 ## Building the Docker image
 
@@ -197,6 +204,8 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 - If a new version of Chrome gets released in the registry, you might be unable to downgrade because old versions are not kept and breaking changes can not be ruled out.
 
 ## Changelog
+
+**September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.
 
 **May 30th, 2023**: Update document for Remotion 4.0.
 
