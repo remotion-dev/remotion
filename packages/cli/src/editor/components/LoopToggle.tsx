@@ -11,7 +11,7 @@ export const LoopToggle: React.FC<{
 	loop: boolean;
 	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({loop, setLoop}) => {
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const onClick = useCallback(() => {
 		setLoop((c) => {
 			persistLoopOption(!c);
@@ -21,7 +21,7 @@ export const LoopToggle: React.FC<{
 
 	const isStill = useIsStill();
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 

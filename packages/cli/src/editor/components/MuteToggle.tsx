@@ -9,7 +9,7 @@ export const MuteToggle: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({muted, setMuted}) => {
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const onClick = useCallback(() => {
 		setMuted((m) => {
 			persistMuteOption(!m);
@@ -20,7 +20,7 @@ export const MuteToggle: React.FC<{
 
 	const isStill = useIsStill();
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 

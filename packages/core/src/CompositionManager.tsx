@@ -11,6 +11,7 @@ import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
 	BaseMetadata,
+	CanvasContent,
 	CompositionManagerContext,
 } from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
@@ -133,7 +134,6 @@ export type TRenderAsset = {
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
 };
-export type MediaType = 'composition' | 'asset' | null;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadataWithCalcFunction<
@@ -154,8 +154,9 @@ export const CompositionManagerProvider: React.FC<{
 		null,
 	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
-	const [currentAsset, setCurrentAsset] = useState<string | null>(null);
-	const [mediaType, setMediaType] = useState<MediaType>(deriveMediaType());
+	const [canvasContent, setCanvasContent] = useState<CanvasContent>(
+		deriveCanvasContent(),
+	);
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
@@ -164,7 +165,7 @@ export const CompositionManagerProvider: React.FC<{
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			updateComps: (comp: AnyComposition[]) => AnyComposition[],
 		) => {
-			setMediaType('composition');
+			setCanvasContent({type: 'composition'});
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
 				currentcompositionsRef.current = updated;
@@ -248,10 +249,8 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
-			currentAsset,
-			setCurrentAsset,
-			mediaType,
-			setMediaType,
+			canvasContent,
+			setCanvasContent,
 		};
 	}, [
 		compositions,
@@ -262,10 +261,8 @@ export const CompositionManagerProvider: React.FC<{
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
-		currentAsset,
-		setCurrentAsset,
-		mediaType,
-		setMediaType,
+		canvasContent,
+		setCanvasContent,
 	]);
 
 	return (
@@ -286,11 +283,11 @@ export const CompositionManagerProvider: React.FC<{
 	);
 };
 
-const deriveMediaType = () => {
+const deriveCanvasContent = (): CanvasContent => {
 	const substrings = window.location.pathname.split('/');
 	if (substrings.includes('assets')) {
-		return 'asset';
+		return {type: 'asset', asset: substrings[substrings.length - 1]};
 	}
 
-	return 'composition';
+	return {type: 'composition'};
 };

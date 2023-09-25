@@ -92,6 +92,7 @@ export {
 	TCompMetadata,
 	TRenderAsset,
 } from './CompositionManager.js';
+export {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';

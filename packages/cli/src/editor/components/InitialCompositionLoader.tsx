@@ -5,11 +5,7 @@ import {Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
-import {
-	deriveMediaType,
-	getCurrentAssetFromUrl,
-	getCurrentCompositionFromUrl,
-} from './FramePersistor';
+import {getCurrentCompositionFromUrl} from './FramePersistor';
 
 export const useSelectComposition = () => {
 	const {setFoldersExpanded} = useContext(FolderContext);
@@ -41,31 +37,12 @@ export const useSelectComposition = () => {
 };
 
 export const InitialCompositionLoader: React.FC = () => {
-	const {
-		compositions,
-		currentComposition,
-		mediaType,
-		setMediaType,
-		currentAsset,
-		setCurrentAsset,
-	} = useContext(Internals.CompositionManager);
+	const {compositions, currentComposition, canvasContent, setCanvasContent} =
+		useContext(Internals.CompositionManager);
 	const selectComposition = useSelectComposition();
 
 	useEffect(() => {
-		setMediaType(deriveMediaType());
-
-		if (currentAsset) {
-			return;
-		}
-
-		if (mediaType === 'asset') {
-			const assetFromUrl = getCurrentAssetFromUrl();
-
-			if (!assetFromUrl) {
-				return;
-			}
-
-			setCurrentAsset(assetFromUrl);
+		if (canvasContent.type === 'asset') {
 			return;
 		}
 
@@ -87,12 +64,10 @@ export const InitialCompositionLoader: React.FC = () => {
 		}
 	}, [
 		compositions,
-		currentAsset,
 		currentComposition,
-		mediaType,
+		canvasContent,
 		selectComposition,
-		setCurrentAsset,
-		setMediaType,
+		setCanvasContent,
 	]);
 
 	useEffect(() => {
@@ -107,7 +82,7 @@ export const InitialCompositionLoader: React.FC = () => {
 		window.addEventListener('popstate', onchange);
 
 		return () => window.removeEventListener('popstate', onchange);
-	}, [compositions, currentAsset, selectComposition]);
+	}, [compositions, selectComposition]);
 
 	return null;
 };

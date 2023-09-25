@@ -29,7 +29,7 @@ const iconStyle: React.CSSProperties = {
 };
 
 export const TimelineZoomControls: React.FC = () => {
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
 
@@ -50,7 +50,7 @@ export const TimelineZoomControls: React.FC = () => {
 
 	const isStill = useIsStill();
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 

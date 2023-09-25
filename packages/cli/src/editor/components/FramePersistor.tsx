@@ -19,15 +19,6 @@ export const getCurrentAssetFromUrl = () => {
 	return null;
 };
 
-export const deriveMediaType = () => {
-	const substrings = window.location.pathname.split('/');
-	if (substrings.includes('assets')) {
-		return 'asset';
-	}
-
-	return 'composition';
-};
-
 export const FramePersistor: React.FC = () => {
 	const [playing] = Internals.Timeline.usePlayingState();
 	const config = useVideoConfig();

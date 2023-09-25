@@ -11,9 +11,9 @@ const noop = () => undefined;
 
 export const EditorContent: React.FC = () => {
 	const isStill = useIsStill();
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return <TopPanel />;
 	}
 
