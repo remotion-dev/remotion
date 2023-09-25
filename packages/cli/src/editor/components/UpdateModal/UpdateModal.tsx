@@ -1,17 +1,23 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
+import {KnownBugs} from '../KnownBugs';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
-import type {UpdateInfo} from '../UpdateCheck';
+import type {Bug, UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
 	padding: 20,
 	paddingTop: 0,
+};
+
+const title: React.CSSProperties = {
+	paddingTop: 12,
+	paddingBottom: 8,
 };
 
 const code: React.CSSProperties = {
@@ -38,22 +44,34 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 
 export const UpdateModal: React.FC<{
 	info: UpdateInfo;
-}> = ({info}) => {
+	knownBugs: Bug[];
+}> = ({info, knownBugs}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
+	const hasKnownBugs = useMemo(() => {
+		return knownBugs && knownBugs?.length > 0;
+	}, [knownBugs]);
 	const command = commands[info.packageManager];
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="Update available" />
 			<div style={container}>
-				<p>
-					A new update for Remotion is available! Run the following command:
-				</p>
+				{hasKnownBugs ? (
+					<>
+						<div style={title}>Known bugs in {info.currentVersion}:</div>
+						<KnownBugs bugs={knownBugs as Bug[]} />
+						<div style={{height: '20px'}} />
+						Run the following command:
+					</>
+				) : (
+					<p>
+						A new update for Remotion is available! Run the following command:
+					</p>
+				)}
 				<Row align="center">
 					<Flex>
 						<pre

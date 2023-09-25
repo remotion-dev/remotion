@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@vercel/node": "^3.0.6"
+  },
+  "private": true
+}

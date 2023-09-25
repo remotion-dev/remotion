@@ -13,7 +13,7 @@ import type React from 'react';
 import {createContext} from 'react';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {UpdateInfo} from '../components/UpdateCheck';
+import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type CompType = 'composition' | 'still';
 
@@ -70,6 +70,7 @@ export type ModalState =
 	| {
 			type: 'update';
 			info: UpdateInfo;
+			knownBugs: Bug[];
 	  }
 	| {
 			type: 'quick-switcher';

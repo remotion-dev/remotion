@@ -1,6 +1,12 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {PackageManager} from '../../preview-server/get-package-manager';
-import {BLUE} from '../helpers/colors';
+import {BLUE, FAIL_COLOR} from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {updateAvailable} from './RenderQueue/actions';
@@ -23,11 +29,22 @@ const buttonStyle: React.CSSProperties = {
 	fontSize: 14,
 };
 
+export type Bug = {
+	title: string;
+	description: string;
+	link: string;
+	versions: string[];
+};
+
 export const UpdateCheck = () => {
 	const [info, setInfo] = useState<UpdateInfo | null>(null);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
+	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 
+	const hasKnownBugs = useMemo(() => {
+		return knownBugs && knownBugs.length > 0;
+	}, [knownBugs]);
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
 
@@ -53,12 +70,33 @@ export const UpdateCheck = () => {
 		};
 	}, [checkForUpdates]);
 
+	useEffect(() => {
+		if (!info) {
+			return;
+		}
+
+		fetch(
+			`https://latest-stable-release.vercel.app/api/version?query=${info.currentVersion}`,
+		).then(async (res) => {
+			const {body} = await res.json();
+			setKnownBugs(body);
+		});
+	}, [info]);
+
 	const openModal = useCallback(() => {
 		setSelectedModal({
 			type: 'update',
 			info: info as UpdateInfo,
+			knownBugs: knownBugs as Bug[],
 		});
-	}, [info, setSelectedModal]);
+	}, [info, knownBugs, setSelectedModal]);
+
+	const dynButtonStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...buttonStyle,
+			color: hasKnownBugs ? FAIL_COLOR : BLUE,
+		};
+	}, [hasKnownBugs]);
 
 	if (!info) {
 		return null;
@@ -71,11 +109,11 @@ export const UpdateCheck = () => {
 	return (
 		<button
 			tabIndex={tabIndex}
-			style={buttonStyle}
+			style={dynButtonStyle}
 			onClick={openModal}
 			type="button"
 		>
-			Update available!
+			{hasKnownBugs ? 'This version has known bugs!' : 'Update available!'}
 		</button>
 	);
 };
