@@ -113,7 +113,7 @@ export const UpdateCheck = () => {
 			onClick={openModal}
 			type="button"
 		>
-			{hasKnownBugs ? 'This version has known bugs!' : 'Update available!'}
+			{hasKnownBugs ? 'Bugfixes available!' : 'Update available!'}
 		</button>
 	);
 };
