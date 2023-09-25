@@ -119,7 +119,7 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
-	contentDimensions: Dimensions | null;
+	contentDimensions: Dimensions | 'none' | null;
 	canvasContent: CanvasContent;
 }> = ({canvasSize, contentDimensions, canvasContent}) => {
 	if (!contentDimensions) {
@@ -128,7 +128,7 @@ export const VideoPreview: React.FC<{
 
 	return (
 		<CompWhenItHasDimensions
-			derivedConfig={contentDimensions}
+			contentDimensions={contentDimensions}
 			canvasSize={canvasSize}
 			canvasContent={canvasContent}
 		/>
@@ -136,30 +136,39 @@ export const VideoPreview: React.FC<{
 };
 
 const CompWhenItHasDimensions: React.FC<{
-	derivedConfig: Dimensions;
+	contentDimensions: Dimensions | 'none';
 	canvasSize: Size;
 	canvasContent: CanvasContent;
-}> = ({derivedConfig: contentDimensions, canvasSize, canvasContent}) => {
+}> = ({contentDimensions, canvasSize, canvasContent}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
+		if (contentDimensions === 'none') {
+			return {
+				centerX: 0,
+				centerY: 0,
+				yCorrection: 0,
+				xCorrection: 0,
+				scale: 1,
+			};
+		}
+
 		return PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: contentDimensions.height,
 			compositionWidth: contentDimensions.width,
 			previewSize: previewSize.size,
 		});
-	}, [
-		canvasSize,
-		contentDimensions.height,
-		contentDimensions.width,
-		previewSize.size,
-	]);
+	}, [canvasSize, contentDimensions, previewSize.size]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
-			width: contentDimensions.width * scale,
-			height: contentDimensions.height * scale,
+			width:
+				contentDimensions === 'none' ? '100%' : contentDimensions.width * scale,
+			height:
+				contentDimensions === 'none'
+					? '100%'
+					: contentDimensions.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
@@ -174,8 +183,7 @@ const CompWhenItHasDimensions: React.FC<{
 					: 'normal',
 		};
 	}, [
-		contentDimensions.width,
-		contentDimensions.height,
+		contentDimensions,
 		scale,
 		centerX,
 		previewSize.translation.x,
@@ -190,7 +198,7 @@ const CompWhenItHasDimensions: React.FC<{
 				<AssetComponent currentAsset={canvasContent.asset} />
 			) : (
 				<PortalContainer
-					contentDimensions={contentDimensions}
+					contentDimensions={contentDimensions as Dimensions}
 					scale={scale}
 					xCorrection={xCorrection}
 					yCorrection={yCorrection}
