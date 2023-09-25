@@ -56,6 +56,12 @@ export const UpdateModal: React.FC<{
 	}, [knownBugs]);
 	const command = commands[info.packageManager];
 
+	const onClick = useCallback(() => {
+		copyText(command).catch((err) => {
+			sendErrorNotification(`Could not copy: ${err.message}`);
+		});
+	}, [command]);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="Update available" />
@@ -74,14 +80,7 @@ export const UpdateModal: React.FC<{
 				)}
 				<Row align="center">
 					<Flex>
-						<pre
-							onClick={() =>
-								copyText(command).catch((err) => {
-									sendErrorNotification(`Could not copy: ${err.message}`);
-								})
-							}
-							style={code}
-						>
+						<pre onClick={onClick} style={code}>
 							{command}
 						</pre>
 					</Flex>

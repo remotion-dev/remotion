@@ -30,6 +30,16 @@ const getVersionBugs = (version: string) => {
 };
 
 export default async function handler(request: Request) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET",
+        "access-control-allow-headers": "Content-Type",
+      },
+    });
+  }
+
   const urlParams = new URL(request.url).searchParams;
 
   const query = Object.fromEntries(urlParams);
@@ -46,6 +56,7 @@ export default async function handler(request: Request) {
       status: 200,
       headers: {
         "content-type": "application/json",
+        "access-control-allow-origin": "*",
       },
     }
   );
