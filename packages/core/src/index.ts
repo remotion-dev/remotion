@@ -104,6 +104,7 @@ export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {
+	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
