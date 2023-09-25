@@ -1,7 +1,7 @@
-import {getVideoMetadata} from '@remotion/media-utils';
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import type {CanvasContent} from 'remotion';
 import {Internals, staticFile} from 'remotion';
 import {
 	checkerboardBackgroundColor,
@@ -9,21 +9,10 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
+import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
-import {RemTextarea} from './NewComposition/RemTextarea';
-
-type AssetResolution = {
-	width: number;
-	height: number;
-};
-
-const jsonStyle: React.CSSProperties = {
-	marginTop: 14,
-	marginBottom: 14,
-	fontFamily: 'monospace',
-	flex: 1,
-};
+import {JSONViewer} from './JSONViewer';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,
@@ -34,7 +23,7 @@ const msgStyle: React.CSSProperties = {
 };
 
 type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'other';
-const getFileType = (fileName: string | null): AssetFileType => {
+export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
 		return 'other';
 	}
@@ -96,11 +85,9 @@ const containerStyle = (options: {
 	};
 };
 
-const AssetComponent: React.FC<{currentAsset: string | null}> = ({
-	currentAsset,
-}) => {
-	const fileType = getFileType(currentAsset);
-	const [json, setJson] = useState<string | null>(null);
+const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
+	const fileType = getPreviewFileType(currentAsset);
+
 	if (!currentAsset) {
 		return null;
 	}
@@ -124,21 +111,7 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 	}
 
 	if (fileType === 'json') {
-		fetch(staticFileSrc)
-			.then((res) => res.json())
-			.then((jsonRes) => {
-				setJson(JSON.stringify(jsonRes, null, 2));
-			});
-		return (
-			<RemTextarea
-				value={json ?? undefined}
-				status="ok"
-				onChange={() => {
-					return null;
-				}}
-				style={jsonStyle}
-			/>
-		);
+		return <JSONViewer src={staticFileSrc} />;
 	}
 
 	return <div style={msgStyle}> Unsupported file type</div>;
@@ -146,119 +119,95 @@ const AssetComponent: React.FC<{currentAsset: string | null}> = ({
 
 const Inner: React.FC<{
 	canvasSize: Size;
-}> = ({canvasSize}) => {
+	contentDimensions: Dimensions | null;
+}> = ({canvasSize, contentDimensions}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+
+	if (!contentDimensions) {
+		return <div>loading...</div>;
+	}
+
+	return (
+		<CompWhenItHasDimensions
+			derivedConfig={contentDimensions}
+			canvasSize={canvasSize}
+			canvasContent={canvasContent}
+		/>
+	);
+};
+
+const CompWhenItHasDimensions: React.FC<{
+	derivedConfig: Dimensions;
+	canvasSize: Size;
+	canvasContent: CanvasContent;
+}> = ({derivedConfig: contentDimensions, canvasSize, canvasContent}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
-	const {currentAsset} = useContext(Internals.CompositionManager);
-	const portalContainer = useRef<HTMLDivElement>(null);
-	const {mediaType} = useContext(Internals.CompositionManager);
-	const config = Internals.useUnsafeVideoConfig();
-	const {checkerboard} = useContext(CheckerboardContext);
-	const [assetResolution, setAssetResolution] = useState<AssetResolution>({
-		width: 0,
-		height: 0,
-	});
-	const derivedConfig = useMemo(() => {
-		if (mediaType === 'asset') {
-			return assetResolution;
-		}
-
-		if (config) {
-			return {width: config.width, height: config.height};
-		}
-
-		return {width: 1920, height: 1080};
-	}, [assetResolution, config, mediaType]);
-
-	const currentAssetType = useMemo(() => {
-		return getFileType(currentAsset);
-	}, [currentAsset]);
-
-	useEffect(() => {
-		const fetchMetadata = async () => {
-			if (!currentAsset) {
-				return;
-			}
-
-			const assetSrc = staticFile(currentAsset);
-			if (currentAssetType === 'video') {
-				await getVideoMetadata(assetSrc).then((data) => {
-					setAssetResolution({width: data.width, height: data.height});
-				});
-				return;
-			}
-
-			if (currentAssetType === 'image') {
-				const img = new Image();
-				img.onload = () => {
-					setAssetResolution({width: img.width, height: img.height});
-				};
-
-				img.src = assetSrc;
-				return;
-			}
-
-			setAssetResolution({width: 600, height: 600});
-		};
-
-		fetchMetadata();
-	}, [currentAsset, currentAssetType]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
-		if (assetResolution && mediaType === 'asset') {
-			return PlayerInternals.calculateCanvasTransformation({
-				canvasSize,
-				compositionHeight: assetResolution.height,
-				compositionWidth: assetResolution.width,
-				previewSize: previewSize.size,
-			});
-		}
-
 		return PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
-			compositionHeight: derivedConfig.height,
-			compositionWidth: derivedConfig.width,
+			compositionHeight: contentDimensions.height,
+			compositionWidth: contentDimensions.width,
 			previewSize: previewSize.size,
 		});
 	}, [
-		assetResolution,
 		canvasSize,
-		derivedConfig.height,
-		derivedConfig.width,
-		mediaType,
+		contentDimensions.height,
+		contentDimensions.width,
 		previewSize.size,
 	]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
-			width:
-				assetResolution && mediaType === 'asset'
-					? assetResolution.width * scale
-					: derivedConfig.width * scale,
-			height:
-				assetResolution && mediaType === 'asset'
-					? assetResolution.height * scale
-					: derivedConfig.height * scale,
+			width: contentDimensions.width * scale,
+			height: contentDimensions.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
-			justifyContent: mediaType === 'asset' ? 'center' : 'flex-start',
-			alignItems: currentAssetType === 'audio' ? 'center' : 'normal',
+			justifyContent: canvasContent.type === 'asset' ? 'center' : 'flex-start',
+			alignItems:
+				canvasContent.type === 'asset' &&
+				getPreviewFileType(canvasContent.asset) === 'audio'
+					? 'center'
+					: 'normal',
 		};
 	}, [
-		assetResolution,
-		mediaType,
+		contentDimensions.width,
+		contentDimensions.height,
 		scale,
-		derivedConfig.width,
-		derivedConfig.height,
 		centerX,
 		previewSize.translation.x,
 		previewSize.translation.y,
 		centerY,
-		currentAssetType,
+		canvasContent,
 	]);
+
+	return (
+		<div style={outer}>
+			{canvasContent.type === 'asset' ? (
+				<AssetComponent currentAsset={canvasContent.asset} />
+			) : (
+				<PortalContainer
+					contentDimensions={contentDimensions}
+					scale={scale}
+					xCorrection={xCorrection}
+					yCorrection={yCorrection}
+				/>
+			)}
+		</div>
+	);
+};
+
+const PortalContainer: React.FC<{
+	scale: number;
+	xCorrection: number;
+	yCorrection: number;
+	contentDimensions: Dimensions;
+}> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
+	const {checkerboard} = useContext(CheckerboardContext);
 
 	const style = useMemo((): React.CSSProperties => {
 		return containerStyle({
@@ -266,13 +215,13 @@ const Inner: React.FC<{
 			scale,
 			xCorrection,
 			yCorrection,
-			width: derivedConfig.width,
-			height: derivedConfig.height,
+			width: contentDimensions.width,
+			height: contentDimensions.height,
 		});
 	}, [
 		checkerboard,
-		derivedConfig.height,
-		derivedConfig.width,
+		contentDimensions.height,
+		contentDimensions.width,
 		scale,
 		xCorrection,
 		yCorrection,
@@ -286,25 +235,22 @@ const Inner: React.FC<{
 		};
 	}, []);
 
-	return (
-		<div style={outer}>
-			{mediaType === 'asset' ? (
-				<AssetComponent currentAsset={currentAsset} />
-			) : (
-				<div ref={portalContainer} style={style} />
-			)}
-		</div>
-	);
+	const portalContainer = useRef<HTMLDivElement>(null);
+
+	return <div ref={portalContainer} style={style} />;
 };
 
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
-}> = ({canvasSize}) => {
+	contentDimensions: Dimensions | null;
+}> = ({canvasSize, contentDimensions}) => {
 	const config = Internals.useUnsafeVideoConfig();
-	const {mediaType} = useContext(Internals.CompositionManager);
-	if (!config && mediaType !== 'asset') {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	if (!config && canvasContent.type !== 'asset') {
 		return null;
 	}
 
-	return <Inner canvasSize={canvasSize} />;
+	return (
+		<Inner canvasSize={canvasSize} contentDimensions={contentDimensions} />
+	);
 };

@@ -23,7 +23,7 @@ export const PlaybackRateSelector: React.FC<{
 	playbackRate: number;
 	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 }> = ({playbackRate, setPlaybackRate}) => {
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const style = useMemo(() => {
 		return {
@@ -61,7 +61,7 @@ export const PlaybackRateSelector: React.FC<{
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 

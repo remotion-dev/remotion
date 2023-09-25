@@ -28,7 +28,7 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
@@ -230,7 +230,7 @@ export const PlayPause: React.FC<{
 		onSpace,
 	]);
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 

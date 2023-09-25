@@ -74,10 +74,8 @@ export const SharedPlayerContexts: React.FC<{
 			assets: [],
 			setClipRegion: () => undefined,
 			resolved: null,
-			mediaType: 'composition',
-			currentAsset: null,
-			setCurrentAsset: () => undefined,
-			setMediaType: () => undefined,
+			canvasContent: {type: 'composition'},
+			setCanvasContent: () => undefined,
 		};
 	}, [
 		component,

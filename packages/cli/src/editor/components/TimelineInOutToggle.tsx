@@ -49,7 +49,7 @@ export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-	const {mediaType} = useContext(Internals.CompositionManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -298,7 +298,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		[confId, onInMark, onInOutClear, onOutMark],
 	);
 
-	if (isStill || mediaType === 'asset') {
+	if (isStill || canvasContent.type === 'asset') {
 		return null;
 	}
 
