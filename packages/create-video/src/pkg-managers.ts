@@ -18,7 +18,7 @@ const shouldUseBun = (): boolean => {
 const shouldUseYarn = (): boolean => {
 	return Boolean(
 		process.env.npm_execpath?.includes('yarn.js') ||
-			process.env.npm_config_user_agent?.includes('yarn')
+			process.env.npm_config_user_agent?.includes('yarn'),
 	);
 };
 
@@ -83,7 +83,7 @@ export const getDevCommand = (manager: PackageManager, template: Template) => {
 
 export const getRenderCommandForTemplate = (
 	manager: PackageManager,
-	template: Template
+	template: Template,
 ) => {
 	if (template.cliId === 'remix' || template.cliId === 'next') {
 		return `${getRunCommand(manager)} remotion:render`;
@@ -153,7 +153,7 @@ export const getRunCommand = (manager: PackageManager) => {
 };
 
 export const getPackageManagerVersion = (
-	manager: PackageManager
+	manager: PackageManager,
 ): Promise<string> => {
 	const cmd: `${PackageManager} -v` = `${manager} -v`;
 
@@ -175,7 +175,7 @@ export const getPackageManagerVersion = (
 };
 
 export const getPackageManagerVersionOrNull = async (
-	manager: PackageManager
+	manager: PackageManager,
 ): Promise<string | null> => {
 	try {
 		const version = await getPackageManagerVersion(manager);
