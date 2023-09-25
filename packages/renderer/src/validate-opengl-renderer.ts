@@ -3,6 +3,7 @@ export const validOpenGlRenderers = [
 	'angle',
 	'egl',
 	'swiftshader',
+	'vulkan',
 ] as const;
 
 export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];

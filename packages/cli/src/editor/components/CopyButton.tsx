@@ -65,11 +65,7 @@ export const CopyButton: React.FC<{
 	}, [copied]);
 
 	return (
-		<Button
-			onClick={onClick}
-			style={{}}
-			buttonContainerStyle={buttonContainerStyle}
-		>
+		<Button onClick={onClick} buttonContainerStyle={buttonContainerStyle}>
 			{copyIcon}
 			<Spacing x={1.5} />{' '}
 			<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>

@@ -113,6 +113,7 @@ const innerHandler = async (
 		const response = await progressHandler(params, {
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
+			retriesRemaining: 2,
 		});
 		responseStream.write(JSON.stringify(response), () => {
 			responseStream.end();
