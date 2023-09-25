@@ -1435,6 +1435,13 @@ export const articles = [
     crumb: "Advanced configuration",
   },
   {
+    id: "miscellaneous/linux-single-process",
+    title: "Multiple cores on Linux",
+    relativePath: "docs/miscellaneous/linux-single-process.md",
+    compId: "articles-docs-miscellaneous-linux-single-process",
+    crumb: "Server-side rendering",
+  },
+  {
     id: "miscellaneous/render-in-browser",
     title: "Can I render videos in the browser?",
     relativePath: "docs/miscellaneous/render-in-browser.md",
