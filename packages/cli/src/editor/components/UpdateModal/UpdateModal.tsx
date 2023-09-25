@@ -65,11 +65,11 @@ export const UpdateModal: React.FC<{
 						<div style={title}>Known bugs in {info.currentVersion}:</div>
 						<KnownBugs bugs={knownBugs as Bug[]} />
 						<div style={{height: '20px'}} />
-						Run the followin command:
+						Run the following command:
 					</>
 				) : (
 					<p>
-						A new update for Remotion is availale! Run the following command:
+						A new update for Remotion is available! Run the following command:
 					</p>
 				)}
 				<Row align="center">
