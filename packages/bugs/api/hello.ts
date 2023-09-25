@@ -15,3 +15,7 @@ export default async function handler(
 
   return response.status(200).json({ title });
 }
+
+export const config = {
+  runtime: "edge",
+};
