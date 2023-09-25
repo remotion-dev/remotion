@@ -13,18 +13,20 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
+export type ImgProps = Omit<
+	React.DetailedHTMLProps<
+		React.ImgHTMLAttributes<HTMLImageElement>,
+		HTMLImageElement
+	>,
+	'src'
+> & {
+	maxRetries?: number;
+	src: string;
+};
+
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
-	Omit<
-		React.DetailedHTMLProps<
-			React.ImgHTMLAttributes<HTMLImageElement>,
-			HTMLImageElement
-		>,
-		'src'
-	> & {
-		maxRetries?: number;
-		src: string;
-	}
+	ImgProps
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
