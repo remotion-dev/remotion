@@ -59,6 +59,10 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	if (message.includes('Timeout exceeded rendering the component')) {
+		return true;
+	}
+
 	// Internet flakiness
 	if (message.includes('getaddrinfo') || message.includes('ECONNRESET')) {
 		return true;
