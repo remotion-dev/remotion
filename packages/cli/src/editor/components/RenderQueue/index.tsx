@@ -37,6 +37,7 @@ const renderQueue: React.CSSProperties = {
 export const RenderQueue: React.FC = () => {
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {jobs} = useContext(RenderQueueContext);
+	const previousJobCount = React.useRef(jobs.length);
 	const jobCount = jobs.length;
 
 	const divRef = React.useRef<HTMLDivElement>(null);
@@ -46,7 +47,15 @@ export const RenderQueue: React.FC = () => {
 			return;
 		}
 
-		divRef.current.scrollTop = divRef.current.scrollHeight;
+		// Scroll down to bottom of render queue if new jobs have been added
+		if (jobCount > previousJobCount.current) {
+			divRef.current.scrollTo({
+				top: divRef.current.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+
+		previousJobCount.current = jobCount;
 	}, [jobCount]);
 
 	if (connectionStatus === 'disconnected') {
