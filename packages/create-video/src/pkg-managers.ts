@@ -5,7 +5,10 @@ import type {Template} from './templates';
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 const shouldUseBun = (): boolean => {
-	if (process.env._?.endsWith('/bin/bun')) {
+	if (
+		process.env._?.endsWith('/bin/bun') ||
+		process.env._?.endsWith('/bin/bunx')
+	) {
 		return true;
 	}
 
