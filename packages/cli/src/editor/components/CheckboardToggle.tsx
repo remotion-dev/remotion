@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {Internals} from 'remotion';
 import {truthy} from '../../truthy';
 import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -14,12 +15,17 @@ const accessibilityLabel = [
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	const onClick = useCallback(() => {
 		setCheckerboard((c) => {
 			return !c;
 		});
 	}, [setCheckerboard]);
+
+	if (canvasContent?.type === 'asset') {
+		return null;
+	}
 
 	return (
 		<ControlButton
