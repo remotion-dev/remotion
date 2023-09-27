@@ -1,3 +1,4 @@
+import type {CanvasContent} from 'remotion';
 import type {RenderJob} from '../../preview-server/render-queue/job';
 import {truthy} from '../../truthy';
 
@@ -6,8 +7,16 @@ let unsavedProps = false;
 let tabInactive = false;
 let renderJobs: RenderJob[] = [];
 
-export const setCurrentVideoId = (id: string | null) => {
-	currentVideoId = id;
+export const setCurrentCanvasContentId = (
+	canvasContent: CanvasContent | null,
+) => {
+	if (!canvasContent) {
+		return;
+	}
+
+	currentVideoId =
+		canvasContent.type === 'composition' ? canvasContent.compositionId : null;
+
 	updateTitle();
 };
 

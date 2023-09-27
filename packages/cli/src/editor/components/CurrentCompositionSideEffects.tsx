@@ -2,19 +2,22 @@ import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {setCurrentVideoId, setRenderJobs} from '../helpers/document-title';
+import {
+	setCurrentCanvasContentId,
+	setRenderJobs,
+} from '../helpers/document-title';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 import {RenderQueueContext} from './RenderQueue/context';
 
 export const TitleUpdater: React.FC = () => {
-	const video = Internals.useVideo();
 	const renderQueue = useContext(RenderQueueContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {jobs} = renderQueue;
 
 	useEffect(() => {
-		setCurrentVideoId(video?.id ?? null);
-	}, [video]);
+		setCurrentCanvasContentId(canvasContent);
+	}, [canvasContent, canvasContent?.type]);
 
 	useEffect(() => {
 		setRenderJobs(jobs);
