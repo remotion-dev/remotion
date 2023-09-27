@@ -1,10 +1,12 @@
 import type {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {Checkmark} from '../icons/Checkmark';
 import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
+import {getPreviewFileType} from './Preview';
 
 const commonPreviewSizes: PreviewSize[] = [
 	{
@@ -73,13 +75,24 @@ export const getUniqueSizes = (size: PreviewSize) => {
 };
 
 export const SizeSelector: React.FC = () => {
+	const zoomableFileTypes = ['video', 'image'];
 	const {size, setSize} = useContext(PreviewSizeContext);
-
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const style = useMemo(() => {
 		return {
 			padding: CONTROL_BUTTON_PADDING,
 		};
 	}, []);
+
+	const zoomable = useMemo(() => {
+		if (canvasContent?.type === 'asset') {
+			if (zoomableFileTypes.includes(getPreviewFileType(canvasContent.asset))) {
+				return true;
+			}
+		}
+
+		return false;
+	}, [canvasContent, zoomableFileTypes]);
 
 	const items: ComboboxValue[] = useMemo(() => {
 		return getUniqueSizes(size).map((newSize): ComboboxValue => {
@@ -101,6 +114,10 @@ export const SizeSelector: React.FC = () => {
 			};
 		});
 	}, [setSize, size]);
+
+	if (!zoomable) {
+		return null;
+	}
 
 	return (
 		<div style={style} aria-label={accessibilityLabel}>
