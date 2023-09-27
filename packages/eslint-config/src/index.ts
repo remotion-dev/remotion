@@ -162,7 +162,8 @@ const getRules = (typescript: boolean) => {
     "no-setter-return": "error",
     "no-sparse-arrays": "error",
     "no-template-curly-in-string": "error",
-    "no-unreachable": "error",
+    // TypeScript handles this
+    "no-unreachable": typescript ? "off" : "error",
     "no-unreachable-loop": "error",
     "no-unsafe-finally": "error",
     "no-unsafe-negation": "error",
