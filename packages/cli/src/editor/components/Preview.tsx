@@ -17,6 +17,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import {Spinner} from './Spinner';
+import {TextViewer} from './TextViewer';
 
 const spinnerContainer: React.CSSProperties = {
 	display: 'flex',
@@ -33,7 +34,7 @@ const msgStyle: React.CSSProperties = {
 	justifyContent: 'center',
 };
 
-type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'other';
+type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'txt' | 'other';
 export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
 		return 'other';
@@ -62,6 +63,10 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 
 	if (fileExtension === 'json') {
 		return 'json';
+	}
+
+	if (fileExtension === 'txt') {
+		return 'txt';
 	}
 
 	return 'other';
@@ -163,6 +168,10 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 
 	if (fileType === 'json') {
 		return <JSONViewer src={staticFileSrc} />;
+	}
+
+	if (fileType === 'txt') {
+		return <TextViewer src={staticFileSrc} />;
 	}
 
 	return (
