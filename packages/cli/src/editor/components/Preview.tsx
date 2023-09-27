@@ -91,7 +91,6 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 	const [fileSize, setFileSize] = useState<string>('');
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
-
 	useEffect(() => {
 		fetch(staticFileSrc).then((res) => {
 			if (!res.ok) {

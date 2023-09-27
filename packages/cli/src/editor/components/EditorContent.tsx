@@ -12,8 +12,7 @@ const noop = () => undefined;
 export const EditorContent: React.FC = () => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
-
-	if (canvasContent === null || isStill || canvasContent.type === 'asset') {
+	if (canvasContent === null || isStill || canvasContent?.type === 'asset') {
 		return <TopPanel />;
 	}
 

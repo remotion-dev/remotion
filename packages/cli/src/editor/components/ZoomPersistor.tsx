@@ -28,7 +28,7 @@ export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
 	const lastPart = substrings[substrings.length - 1];
 
 	if (substrings.includes('assets')) {
-		return {type: 'asset', asset: lastPart};
+		return {type: 'asset', asset: window.location.pathname.substring(8)};
 	}
 
 	if (lastPart) {
