@@ -3,6 +3,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, staticFile} from 'remotion';
+import {formatBytes} from '../../format-bytes';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -86,7 +87,7 @@ const containerStyle = (options: {
 };
 
 const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
-	const [fileSize, setFileSize] = useState<number>(0);
+	const [fileSize, setFileSize] = useState<string>('');
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 
@@ -107,8 +108,8 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 				return reader.read().then(({done, value}) => {
 					if (done) {
 						console.log(`Total bytes read: ${totalBytes}`);
-						setFileSize(totalBytes);
-						return totalBytes;
+						setFileSize(formatBytes(totalBytes));
+						return;
 					}
 
 					totalBytes += value.length;
@@ -144,7 +145,7 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 		return <JSONViewer src={staticFileSrc} />;
 	}
 
-	return <div style={msgStyle}>{fileSize} </div>;
+	return <div style={msgStyle}>File Size: {fileSize} </div>;
 };
 
 export const VideoPreview: React.FC<{
