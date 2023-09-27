@@ -108,7 +108,6 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 			const readChunk: any = () => {
 				return reader.read().then(({done, value}) => {
 					if (done) {
-						console.log(`Total bytes read: ${totalBytes}`);
 						setFileSize(formatBytes(totalBytes));
 						return;
 					}
