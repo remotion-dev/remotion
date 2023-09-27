@@ -16,6 +16,14 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
+import {Spinner} from './Spinner';
+
+const spinnerContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	justifyContent: 'center',
+	alignItems: 'center',
+};
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,
@@ -172,7 +180,11 @@ export const VideoPreview: React.FC<{
 	canvasContent: CanvasContent;
 }> = ({canvasSize, contentDimensions, canvasContent}) => {
 	if (!contentDimensions) {
-		return <div>loading...</div>;
+		return (
+			<div style={spinnerContainer}>
+				<Spinner duration={0.5} size={24} />
+			</div>
+		);
 	}
 
 	return (
