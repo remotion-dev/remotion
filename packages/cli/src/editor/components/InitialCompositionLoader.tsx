@@ -1,7 +1,7 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
-import {Internals} from 'remotion';
+import {getStaticFiles, Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
@@ -64,17 +64,28 @@ export const InitialCompositionLoader: React.FC = () => {
 
 	useEffect(() => {
 		const onchange = () => {
-			const newComp = window.location.pathname.substring(1);
-			const exists = compositions.find((c) => c.id === newComp);
-			if (exists) {
-				selectComposition(exists, false);
+			const newCanvas = deriveCanvasContentFromUrl();
+			if (newCanvas && newCanvas?.type === 'composition') {
+				const newComp = window.location.pathname.substring(1);
+				const exists = compositions.find((c) => c.id === newComp);
+				if (exists) {
+					selectComposition(exists, false);
+				}
+			} else if (newCanvas && newCanvas.type === 'asset') {
+				const staticFiles = getStaticFiles();
+				const exists = staticFiles.find((file) => {
+					return file.name === newCanvas.asset;
+				});
+				if (exists) {
+					setCanvasContent(newCanvas);
+				}
 			}
 		};
 
 		window.addEventListener('popstate', onchange);
 
 		return () => window.removeEventListener('popstate', onchange);
-	}, [compositions, selectComposition]);
+	}, [compositions, selectComposition, setCanvasContent]);
 
 	return null;
 };
