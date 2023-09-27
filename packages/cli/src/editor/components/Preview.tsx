@@ -2,7 +2,7 @@ import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {CanvasContent} from 'remotion';
-import {Internals, staticFile} from 'remotion';
+import {getStaticFiles, Internals, staticFile} from 'remotion';
 import {formatBytes} from '../../format-bytes';
 import {
 	checkerboardBackgroundColor,
@@ -10,6 +10,7 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
+import {FAIL_COLOR} from '../helpers/colors';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -91,37 +92,49 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 	const [fileSize, setFileSize] = useState<string>('');
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
+	const staticFiles = getStaticFiles();
+	const [fileError, setFileError] = useState<string | null>(null);
+
+	const exists = staticFiles.find((file) => file.name === currentAsset);
 	useEffect(() => {
-		fetch(staticFileSrc).then((res) => {
-			if (!res.ok) {
-				throw new Error('An error occured when fetching the staticSrc');
-			}
+		if (exists) {
+			fetch(staticFileSrc).then((res) => {
+				if (!res.ok) {
+					throw new Error('An error occured when fetching the staticSrc');
+				}
 
-			if (!res.body) {
-				return;
-			}
+				if (!res.body) {
+					return;
+				}
 
-			const reader = res.body.getReader();
-			let totalBytes = 0;
+				const reader = res.body.getReader();
+				let totalBytes = 0;
 
-			const readChunk: any = () => {
-				return reader.read().then(({done, value}) => {
-					if (done) {
-						setFileSize(formatBytes(totalBytes));
-						return;
-					}
+				const readChunk: any = () => {
+					return reader.read().then(({done, value}) => {
+						if (done) {
+							setFileSize(formatBytes(totalBytes));
+							return;
+						}
 
-					totalBytes += value.length;
-					return readChunk();
-				});
-			};
+						totalBytes += value.length;
+						return readChunk();
+					});
+				};
 
-			return readChunk();
-		});
-	}, [staticFileSrc]);
+				return readChunk();
+			});
+		} else {
+			setFileError(`${currentAsset} doesn't exist in your public folder`);
+		}
+	}, [currentAsset, exists, staticFileSrc]);
 
 	if (!currentAsset) {
 		return null;
+	}
+
+	if (fileError) {
+		return <div style={{...msgStyle, color: FAIL_COLOR}}>{fileError}</div>;
 	}
 
 	if (fileType === 'audio') {
