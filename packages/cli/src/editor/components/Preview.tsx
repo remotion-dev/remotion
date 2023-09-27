@@ -14,6 +14,7 @@ import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 import {JSONViewer} from './JSONViewer';
+import {Spacing} from './layout';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,
@@ -145,7 +146,13 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 		return <JSONViewer src={staticFileSrc} />;
 	}
 
-	return <div style={msgStyle}>File Size: {fileSize} </div>;
+	return (
+		<>
+			<div style={msgStyle}>{currentAsset}</div>
+			<Spacing y={1} />
+			<div style={msgStyle}>Size: {fileSize} </div>
+		</>
+	);
 };
 
 export const VideoPreview: React.FC<{
