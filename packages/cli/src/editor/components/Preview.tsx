@@ -1,6 +1,6 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, staticFile} from 'remotion';
 import {
@@ -86,13 +86,43 @@ const containerStyle = (options: {
 };
 
 const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
+	const [fileSize, setFileSize] = useState<number>(0);
 	const fileType = getPreviewFileType(currentAsset);
+	const staticFileSrc = staticFile(currentAsset);
+
+	useEffect(() => {
+		fetch(staticFileSrc).then((res) => {
+			if (!res.ok) {
+				throw new Error('An error occured when fetching the staticSrc');
+			}
+
+			if (!res.body) {
+				return;
+			}
+
+			const reader = res.body.getReader();
+			let totalBytes = 0;
+
+			const readChunk: any = () => {
+				return reader.read().then(({done, value}) => {
+					if (done) {
+						console.log(`Total bytes read: ${totalBytes}`);
+						setFileSize(totalBytes);
+						return totalBytes;
+					}
+
+					totalBytes += value.length;
+					return readChunk();
+				});
+			};
+
+			return readChunk();
+		});
+	}, [staticFileSrc]);
 
 	if (!currentAsset) {
 		return null;
 	}
-
-	const staticFileSrc = staticFile(currentAsset);
 
 	if (fileType === 'audio') {
 		return (
@@ -114,7 +144,7 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 		return <JSONViewer src={staticFileSrc} />;
 	}
 
-	return <div style={msgStyle}> Unsupported file type</div>;
+	return <div style={msgStyle}>{fileSize} </div>;
 };
 
 export const VideoPreview: React.FC<{
