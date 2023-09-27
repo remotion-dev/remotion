@@ -34,6 +34,11 @@ const msgStyle: React.CSSProperties = {
 	justifyContent: 'center',
 };
 
+const errMsgStyle: React.CSSProperties = {
+	...msgStyle,
+	color: FAIL_COLOR,
+};
+
 type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'txt' | 'other';
 export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
@@ -110,7 +115,7 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 
 	if (!exists) {
 		return (
-			<div style={{...msgStyle, color: FAIL_COLOR}}>
+			<div style={errMsgStyle}>
 				{currentAsset} does not exist in your public folder.
 			</div>
 		);
@@ -130,19 +135,31 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 	}
 
 	if (fileType === 'audio') {
-		return (
-			<div>
-				<audio src={staticFileSrc} controls />
-			</div>
-		);
+		try {
+			return (
+				<div>
+					<audio src={staticFileSrc} controls />
+				</div>
+			);
+		} catch (err) {
+			return <div style={errMsgStyle}>The audio could not be loaded</div>;
+		}
 	}
 
 	if (fileType === 'video') {
-		return <video src={staticFileSrc} controls />;
+		try {
+			return <video src={staticFileSrc} controls />;
+		} catch (err) {
+			return <div style={errMsgStyle}>The video could not be loaded</div>;
+		}
 	}
 
 	if (fileType === 'image') {
-		return <img src={staticFileSrc} />;
+		try {
+			return <img src={staticFileSrc} />;
+		} catch (err) {
+			return <div style={errMsgStyle}>The image could not be loaded</div>;
+		}
 	}
 
 	if (fileType === 'json') {
