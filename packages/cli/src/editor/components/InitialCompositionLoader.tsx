@@ -76,6 +76,7 @@ export const InitialCompositionLoader: React.FC = () => {
 				const exists = staticFiles.find((file) => {
 					return file.name === newCanvas.asset;
 				});
+
 				if (exists) {
 					setCanvasContent(newCanvas);
 				}
