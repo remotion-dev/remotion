@@ -1,6 +1,6 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import type {CanvasContent} from 'remotion';
 import {getStaticFiles, Internals, staticFile} from 'remotion';
 import {formatBytes} from '../../format-bytes';
@@ -102,52 +102,31 @@ const containerStyle = (options: {
 };
 
 const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
-	const [fileSize, setFileSize] = useState<string>('');
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 	const staticFiles = getStaticFiles();
-	const [fileError, setFileError] = useState<string | null>(null);
 
 	const exists = staticFiles.find((file) => file.name === currentAsset);
-	useEffect(() => {
-		if (exists) {
-			fetch(staticFileSrc).then((res) => {
-				if (!res.ok) {
-					throw new Error('An error occured when fetching the staticSrc');
-				}
 
-				if (!res.body) {
-					return;
-				}
+	if (!exists) {
+		return (
+			<div style={{...msgStyle, color: FAIL_COLOR}}>
+				{currentAsset} does not exist in your public folder.
+			</div>
+		);
+	}
 
-				const reader = res.body.getReader();
-				let totalBytes = 0;
-
-				const readChunk: any = () => {
-					return reader.read().then(({done, value}) => {
-						if (done) {
-							setFileSize(formatBytes(totalBytes));
-							return;
-						}
-
-						totalBytes += value.length;
-						return readChunk();
-					});
-				};
-
-				return readChunk();
-			});
-		} else {
-			setFileError(`${currentAsset} doesn't exist in your public folder`);
+	const fileSize = () => {
+		const fileFromStaticFiles = staticFiles.find(
+			(file) => file.name === currentAsset,
+		);
+		if (fileFromStaticFiles) {
+			return formatBytes(fileFromStaticFiles?.sizeInBytes);
 		}
-	}, [currentAsset, exists, staticFileSrc]);
+	};
 
 	if (!currentAsset) {
 		return null;
-	}
-
-	if (fileError) {
-		return <div style={{...msgStyle, color: FAIL_COLOR}}>{fileError}</div>;
 	}
 
 	if (fileType === 'audio') {
@@ -178,7 +157,7 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 		<>
 			<div style={msgStyle}>{currentAsset}</div>
 			<Spacing y={1} />
-			<div style={msgStyle}>Size: {fileSize} </div>
+			<div style={msgStyle}>Size: {fileSize()} </div>
 		</>
 	);
 };
