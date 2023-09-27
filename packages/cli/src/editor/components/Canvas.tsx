@@ -303,9 +303,13 @@ export const Canvas: React.FC<{
 		const fileType = getPreviewFileType(canvasContent.asset);
 
 		if (fileType === 'video') {
-			await getVideoMetadata(assetSrc).then((data) => {
-				setAssetResolution({width: data.width, height: data.height});
-			});
+			try {
+				await getVideoMetadata(assetSrc).then((data) => {
+					setAssetResolution({width: data.width, height: data.height});
+				});
+			} catch {
+				setAssetResolution('none');
+			}
 		} else if (fileType === 'image') {
 			const img = new Image();
 			img.onload = () => {
