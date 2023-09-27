@@ -7,7 +7,14 @@ let tabInactive = false;
 let renderJobs: RenderJob[] = [];
 
 export const setCurrentCanvasContentId = (id: string | null) => {
-	currentVideoId = id;
+	if (!id) {
+		currentVideoId = id;
+		updateTitle();
+		return;
+	}
+
+	const idWOFolder = id.split('/').pop() as string;
+	currentVideoId = idWOFolder;
 	updateTitle();
 };
 
