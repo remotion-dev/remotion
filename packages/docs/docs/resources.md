@@ -87,6 +87,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
 - [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 - [Shader example](https://github.com/onion2k/a-roll)
+- [Jump cuts without re-mounting](https://github.com/remotion-dev/video-with-jump-cuts)
 
 ## Videos
 
