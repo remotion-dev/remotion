@@ -42,10 +42,12 @@ export const decompressFrame = (
 		colorTable: image.descriptor.lct?.exists
 			? (image.lct as [number, number, number][])
 			: gct,
-		delay: (frame.gce.delay || 10) * 10,
-		disposalType: frame.gce.extras.disposal,
-		transparentIndex: frame.gce.extras.transparentColorGiven
-			? frame.gce.transparentColorIndex
+		delay: (frame.gce?.delay ?? 10) * 10,
+		disposalType: frame.gce ? frame.gce.extras.disposal : 1,
+		transparentIndex: frame.gce
+			? frame.gce.extras.transparentColorGiven
+				? frame.gce.transparentColorIndex
+				: -1
 			: -1,
 	};
 
