@@ -21,6 +21,7 @@ export const GifForDevelopment = forwardRef<
 			loopBehavior = 'loop',
 			onLoad,
 			fit = 'fill',
+			playbackRate = 1,
 			...props
 		},
 		ref,
@@ -104,7 +105,7 @@ export const GifForDevelopment = forwardRef<
 			);
 		}
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior);
+		const index = useCurrentGifIndex(state.delays, loopBehavior, playbackRate);
 
 		if (index === -1) {
 			return null;
