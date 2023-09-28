@@ -7,6 +7,7 @@ import type {
 import {
 	forwardRef,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -57,11 +58,18 @@ export const ThumbnailFn = <
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
 ) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_isPlayer = true;
+		}, []);
+	}
+
 	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
-		return {
+		const value: TimelineContextValue = {
 			playing: false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
@@ -76,6 +84,8 @@ export const ThumbnailFn = <
 			},
 			audioAndVideoTags: {current: []},
 		};
+
+		return value;
 	}, [frameToDisplay, thumbnailId]);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
@@ -99,7 +109,6 @@ export const ThumbnailFn = <
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={passedInputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>
