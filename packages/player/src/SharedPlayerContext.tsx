@@ -96,30 +96,28 @@ export const SharedPlayerContexts: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.SequenceManagerProvider>
-						<Internals.ResolveCompositionConfig>
-							<Internals.PrefetchProvider>
-								<Internals.DurationsContextProvider>
-									<Internals.MediaVolumeContext.Provider
-										value={mediaVolumeContextValue}
-									>
-										<Internals.NativeLayersProvider>
-											<Internals.SetMediaVolumeContext.Provider
-												value={setMediaVolumeContextValue}
+					<Internals.ResolveCompositionConfig>
+						<Internals.PrefetchProvider>
+							<Internals.DurationsContextProvider>
+								<Internals.MediaVolumeContext.Provider
+									value={mediaVolumeContextValue}
+								>
+									<Internals.NativeLayersProvider>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
+										>
+											<Internals.SharedAudioContextProvider
+												numberOfAudioTags={numberOfSharedAudioTags}
+												component={component}
 											>
-												<Internals.SharedAudioContextProvider
-													numberOfAudioTags={numberOfSharedAudioTags}
-													component={component}
-												>
-													{children}
-												</Internals.SharedAudioContextProvider>
-											</Internals.SetMediaVolumeContext.Provider>
-										</Internals.NativeLayersProvider>
-									</Internals.MediaVolumeContext.Provider>
-								</Internals.DurationsContextProvider>
-							</Internals.PrefetchProvider>
-						</Internals.ResolveCompositionConfig>
-					</Internals.SequenceManagerProvider>
+												{children}
+											</Internals.SharedAudioContextProvider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.NativeLayersProvider>
+								</Internals.MediaVolumeContext.Provider>
+							</Internals.DurationsContextProvider>
+						</Internals.PrefetchProvider>
+					</Internals.ResolveCompositionConfig>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.CanUseRemotionHooksProvider>
