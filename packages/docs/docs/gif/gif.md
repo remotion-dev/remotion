@@ -83,9 +83,9 @@ Controls the playback speed of the GIF. This prop allows you to adjust how fast 
 Type: number
 Default: 1.0 (Normal speed)
 Values:
-- 1.0: Plays the GIF at normal speed.
-- < 1.0: Slows down the GIF animation (e.g., 0.5 plays it at half speed).
-- > 1.0: Speeds up the GIF animation (e.g., 2.0 plays it at double speed).
+- `"1.0"`: Plays the GIF at normal speed.
+- `"< 1.0"`: Slows down the GIF animation (e.g., 0.5 plays it at half speed).
+- `"> 1.0:"` Speeds up the GIF animation (e.g., 2.0 plays it at double speed).
 
 Use this prop when you need precise control over the timing of the GIF animation to synchronize it with your video content. Here's an example of how to use it to adjust the playback speed:
 
