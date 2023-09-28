@@ -17,7 +17,6 @@ export function useCurrentGifIndex(
 				0,
 			);
 		}
-
 		return 1;
 	}, [delays]);
 
@@ -27,7 +26,7 @@ export function useCurrentGifIndex(
 
 	const correctedPlaybackRate = playbackRate === 0 ? 1 : playbackRate; // Check if playbackRate is 0, if so, default it to 1
 
-	const time = (currentFrame / correctedPlaybackRate / videoConfig.fps) * 1000;
+	const time = (currentFrame * correctedPlaybackRate / videoConfig.fps) * 1000; // Multiply by playbackRate to adjust play speed
 
 	if (loopBehavior === 'pause-after-finish' && time >= duration) {
 		return delays.length - 1;
@@ -44,7 +43,6 @@ export function useCurrentGifIndex(
 		if (currentTime < delay) {
 			return i;
 		}
-
 		currentTime -= delay;
 	}
 
