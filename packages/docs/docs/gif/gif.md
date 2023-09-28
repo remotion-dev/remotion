@@ -75,6 +75,19 @@ The looping behavior of the GIF. Can be one of these values:
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
 
+### playbackRate
+
+Controls the playback speed of the GIF. This prop allows you to adjust how fast or slow the GIF animation plays within your Remotion video.
+
+Type: number
+Default: 1.0 (Normal speed)
+Values:
+- `1.0`: Plays the GIF at normal speed.
+- `< 1.0`: Slows down the GIF animation (e.g., 0.5 plays it at half speed).
+- `> 1.0:` Speeds up the GIF animation (e.g., 2.0 plays it at double speed).
+
+Use this prop when you need precise control over the timing of the GIF animation to synchronize it with your video content. Here's an example of how to use it to adjust the playback speed:
+
 ## Example
 
 ```tsx twoslash
@@ -94,6 +107,8 @@ export const MyComponent: React.FC = () => {
       width={width}
       height={height}
       fit="fill"
+      playbackRate={0.5} {/* Play the GIF at half speed */}
+
     />
   );
 };
