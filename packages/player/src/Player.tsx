@@ -293,14 +293,11 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
-	const timelineContextValue = useMemo((): TimelineContextValue & {
-		shouldRegisterSequences: boolean;
-	} => {
+	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
 			playing,
 			rootId,
-			shouldRegisterSequences: false,
 			playbackRate: currentPlaybackRate,
 			imperativePlaying,
 			setPlaybackRate: (rate) => {
