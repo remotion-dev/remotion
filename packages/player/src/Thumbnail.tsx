@@ -99,7 +99,6 @@ export const ThumbnailFn = <
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={passedInputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>
