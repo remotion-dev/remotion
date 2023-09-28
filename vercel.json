@@ -236,6 +236,11 @@
       "source": "/bun",
       "destination": "/docs/bun",
       "permanent": false
+    },
+    {
+      "source": "/bounties",
+      "destination": "/docs/contributing/bounty",
+      "permanent": false
     }
   ]
 }
