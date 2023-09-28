@@ -85,7 +85,7 @@ export const getRenderCommandForTemplate = (
 	manager: PackageManager,
 	template: Template,
 ) => {
-	if (template.cliId === 'remix' || template.cliId === 'next') {
+	if (template.cliId === 'remix') {
 		return `${getRunCommand(manager)} remotion:render`;
 	}
 
