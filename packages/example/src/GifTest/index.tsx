@@ -61,6 +61,21 @@ const GifTest: React.FC = () => {
 					fit="fill"
 				/>
 			</Sequence>
+			<Sequence
+				from={200}
+				durationInFrames={50}
+				style={{
+					backgroundColor: 'white',
+				}}
+			>
+				<Gif
+					ref={ref4}
+					src={staticFile('non-animated-interlaced.gif')}
+					width={width}
+					height={height}
+					fit="fill"
+				/>
+			</Sequence>
 		</div>
 	);
 };
