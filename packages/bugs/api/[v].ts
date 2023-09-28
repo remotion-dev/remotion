@@ -21,6 +21,13 @@ const bugs: Bug[] = [
     link: "https://github.com/remotion-dev/remotion/pull/2882",
     versions: ["4.0.33", "4.0.34", "4.0.35", "4.0.36"],
   },
+  {
+    title: "<Thumbnail> component would crash",
+    description:
+      "<Thumbnail> component in a React app would crash if a <Sequence> was used.",
+    link: "https://github.com/remotion-dev/remotion/pull/2944",
+    versions: ["4.0.43", "4.0.42"],
+  },
 ];
 
 const getVersionBugs = (version: string) => {
