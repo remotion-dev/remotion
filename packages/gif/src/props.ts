@@ -18,6 +18,7 @@ export type RemotionGifProps = {
 	style?: React.CSSProperties;
 	loopBehavior?: GifLoopBehavior;
 	id?: string;
+	playbackRate?: number; // Added playbackRate prop
 };
 
 export type GifState = {
