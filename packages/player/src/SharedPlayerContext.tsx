@@ -16,7 +16,6 @@ export const PLAYER_COMP_ID = 'player-comp';
 export const SharedPlayerContexts: React.FC<{
 	children: React.ReactNode;
 	timelineContext: TimelineContextValue;
-	inputProps?: Record<string, unknown>;
 	fps: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -27,7 +26,6 @@ export const SharedPlayerContexts: React.FC<{
 }> = ({
 	children,
 	timelineContext,
-	inputProps,
 	fps,
 	compositionHeight,
 	compositionWidth,
@@ -37,7 +35,7 @@ export const SharedPlayerContexts: React.FC<{
 	initiallyMuted,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
-		return {
+		const context: CompositionManagerContext = {
 			compositions: [
 				{
 					component: component as React.LazyExoticComponent<
@@ -48,11 +46,8 @@ export const SharedPlayerContexts: React.FC<{
 					width: compositionWidth,
 					fps,
 					id: PLAYER_COMP_ID,
-					props: inputProps as unknown,
 					nonce: 777,
-					scale: 1,
 					folderName: null,
-					defaultProps: undefined,
 					parentFolderName: null,
 					schema: null,
 					calculateMetadata: null,
@@ -63,26 +58,13 @@ export const SharedPlayerContexts: React.FC<{
 			unregisterFolder: () => undefined,
 			currentComposition: 'player-comp',
 			registerComposition: () => undefined,
-			registerSequence: () => undefined,
-			sequences: [],
 			setCurrentComposition: () => undefined,
 			unregisterComposition: () => undefined,
-			unregisterSequence: () => undefined,
-			registerRenderAsset: () => undefined,
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
-			assets: [],
-			setClipRegion: () => undefined,
-			resolved: null,
 		};
-	}, [
-		component,
-		durationInFrames,
-		compositionHeight,
-		compositionWidth,
-		fps,
-		inputProps,
-	]);
+		return context;
+	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
@@ -114,28 +96,30 @@ export const SharedPlayerContexts: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.ResolveCompositionConfig>
-						<Internals.PrefetchProvider>
-							<Internals.DurationsContextProvider>
-								<Internals.MediaVolumeContext.Provider
-									value={mediaVolumeContextValue}
-								>
-									<Internals.NativeLayersProvider>
-										<Internals.SetMediaVolumeContext.Provider
-											value={setMediaVolumeContextValue}
-										>
-											<Internals.SharedAudioContextProvider
-												numberOfAudioTags={numberOfSharedAudioTags}
-												component={component}
+					<Internals.SequenceManagerProvider>
+						<Internals.ResolveCompositionConfig>
+							<Internals.PrefetchProvider>
+								<Internals.DurationsContextProvider>
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
+									>
+										<Internals.NativeLayersProvider>
+											<Internals.SetMediaVolumeContext.Provider
+												value={setMediaVolumeContextValue}
 											>
-												{children}
-											</Internals.SharedAudioContextProvider>
-										</Internals.SetMediaVolumeContext.Provider>
-									</Internals.NativeLayersProvider>
-								</Internals.MediaVolumeContext.Provider>
-							</Internals.DurationsContextProvider>
-						</Internals.PrefetchProvider>
-					</Internals.ResolveCompositionConfig>
+												<Internals.SharedAudioContextProvider
+													numberOfAudioTags={numberOfSharedAudioTags}
+													component={component}
+												>
+													{children}
+												</Internals.SharedAudioContextProvider>
+											</Internals.SetMediaVolumeContext.Provider>
+										</Internals.NativeLayersProvider>
+									</Internals.MediaVolumeContext.Provider>
+								</Internals.DurationsContextProvider>
+							</Internals.PrefetchProvider>
+						</Internals.ResolveCompositionConfig>
+					</Internals.SequenceManagerProvider>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.CanUseRemotionHooksProvider>
