@@ -18,6 +18,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			onError,
 			loopBehavior = 'loop',
 			fit = 'fill',
+			playbackRate = 1,
 			...props
 		},
 		ref,
@@ -49,7 +50,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			};
 		}, [id]);
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior);
+		const index = useCurrentGifIndex(state.delays, loopBehavior, playbackRate);
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
 		currentOnLoad.current = onLoad;
