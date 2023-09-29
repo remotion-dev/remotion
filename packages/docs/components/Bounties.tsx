@@ -33,7 +33,7 @@ export const Bounties = () => {
   }, []);
 
   return (
-    <div className={`bounty-grid ${colorMode}`}>
+    <div className={`${colorMode} bounty-grid`}>
       {bounties._tag === "success" &&
         bounties.data.map((bounty) => (
           <div key={bounty.id}>
