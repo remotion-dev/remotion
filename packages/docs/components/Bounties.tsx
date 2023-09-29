@@ -1,7 +1,8 @@
 import { algora, type AlgoraOutput } from "@algora/sdk";
+import { useColorMode } from "@docusaurus/theme-common";
+import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 
-import { useColorMode } from "@docusaurus/theme-common";
 import "./bounties.css";
 
 const org = "remotion";
@@ -15,7 +16,7 @@ type RemoteData<T> =
 type Bounty = AlgoraOutput["bounty"]["list"]["items"][number];
 
 export const Bounties = () => {
-  const { colorMode } = useColorMode();
+  const { isDarkTheme } = useColorMode();
 
   const [bounties, setBounties] = useState<RemoteData<Bounty[]>>({
     _tag: "loading",
@@ -33,7 +34,7 @@ export const Bounties = () => {
   }, []);
 
   return (
-    <div className={`${colorMode} bounty-grid`}>
+    <div className={clsx("bounty-grid", isDarkTheme && "dark")}>
       {bounties._tag === "success" &&
         bounties.data.map((bounty) => (
           <div key={bounty.id}>
