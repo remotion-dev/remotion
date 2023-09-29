@@ -41,7 +41,7 @@
   gap: 0.5rem;
 }
 
-.bounty-grid > *:not(:first-child) {
+.bounty-grid.bounty-grid-clamp > *:not(:first-child) {
   display: none;
 }
 
@@ -49,7 +49,7 @@
   .bounty-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .bounty-grid > *:nth-child(-n + 2) {
+  .bounty-grid.bounty-grid-clamp > *:nth-child(-n + 2) {
     display: block;
   }
 }
@@ -58,7 +58,7 @@
   .bounty-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .bounty-grid > *:nth-child(-n + 3) {
+  .bounty-grid.bounty-grid-clamp > *:nth-child(-n + 3) {
     display: block;
   }
 }
