@@ -120,7 +120,11 @@
   font-weight: 500;
   line-height: 1.25;
   color: rgb(var(--gray-800));
-  overflow-wrap: break-word;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .bounty-grid.dark .bounty-card .bounty-reward {
