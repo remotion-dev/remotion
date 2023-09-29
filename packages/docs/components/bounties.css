@@ -37,14 +37,29 @@
 }
 
 .bounty-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bounty-grid > *:not(:first-child) {
   display: none;
 }
 
 @media (min-width: 640px) {
   .bounty-grid {
-    display: grid;
-    gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bounty-grid > *:nth-child(-n + 2) {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .bounty-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bounty-grid > *:nth-child(-n + 3) {
+    display: block;
   }
 }
 
