@@ -209,6 +209,7 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 	still = 'still',
 	compositions = 'compositions',
+	merge = 'merge',
 }
 
 type Prettify<T> = {
@@ -409,6 +410,26 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+	};
+	merge: {
+		type: LambdaRoutines.merge;
+		audioCodec: AudioCodec;
+		bucketName: string;
+		chunkCount: number;
+		codec: LambdaCodec;
+		customCredentials: CustomCredentials | null;
+		downloadBehavior: DownloadBehavior;
+		frameCountLength: number;
+		fps: number;
+		inputProps: SerializedInputProps;
+		key: string;
+		numberOfGifLoops: number | null;
+		privacy: Privacy;
+		renderBucketName: string;
+		renderId: string;
+		renderMetadata: RenderMetadata;
+		serializedResolvedProps: SerializedInputProps;
+		verbose: boolean;
 	};
 };
 
