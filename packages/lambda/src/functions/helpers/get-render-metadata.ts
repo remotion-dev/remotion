@@ -14,7 +14,7 @@ export const getRenderMetadata = async ({
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-}) => {
+}): Promise<RenderMetadata> => {
 	const Body = await lambdaReadFile({
 		bucketName,
 		key: renderMetadataKey(renderId),
