@@ -53,6 +53,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					playbackRate: props.playbackRate ?? 1,
 					startFrom,
 				})}
+				layout="none"
 			>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
