@@ -159,6 +159,7 @@ const innerHandler = async (
 
 	if (params.type === LambdaRoutines.merge) {
 		printCloudwatchHelper(LambdaRoutines.merge, {
+			renderId: params.renderId,
 			isWarm,
 		});
 
