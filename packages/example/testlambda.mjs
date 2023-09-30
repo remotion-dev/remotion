@@ -21,7 +21,7 @@ execSync('pnpm exec remotion lambda functions deploy --memory=3000', {
 });
 
 execSync(
-	'pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --delete-after="1-days"',
+	'pnpm exec remotion lambda render testbed-v6 react-svg --log=verbose --delete-after="1-day"',
 	{
 		stdio: 'inherit',
 	},
