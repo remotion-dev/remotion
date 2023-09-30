@@ -545,51 +545,56 @@ export const launchHandler = async (
 			verbose,
 		});
 		clearTimeout(webhookDueToTimeout);
-		if (params.webhook && !webhookInvoked) {
-			try {
-				await invokeWebhook({
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'success',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-						outputUrl: postRenderData.outputFile,
-						lambdaErrors: postRenderData.errors,
-						outputFile: postRenderData.outputFile,
-						timeToFinish: postRenderData.timeToFinish,
-						costs: postRenderData.cost,
-					},
-				});
-				webhookInvoked = true;
-			} catch (err) {
-				if (process.env.NODE_ENV === 'test') {
-					throw err;
-				}
 
-				await writeLambdaError({
-					bucketName: params.bucketName,
-					errorInfo: {
-						type: 'webhook',
-						message: (err as Error).message,
-						name: (err as Error).name as string,
-						stack: (err as Error).stack as string,
-						tmpDir: null,
-						frame: 0,
-						chunk: 0,
-						isFatal: false,
-						attempt: 1,
-						willRetry: false,
-						totalAttempts: 1,
-					},
+		if (!params.webhook || webhookInvoked) {
+			return {
+				type: 'success',
+			};
+		}
+
+		try {
+			await invokeWebhook({
+				url: params.webhook.url,
+				secret: params.webhook.secret,
+				payload: {
+					type: 'success',
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
-				});
-				RenderInternals.Log.error('Failed to invoke webhook:');
-				RenderInternals.Log.error(err);
+					bucketName: params.bucketName,
+					customData: params.webhook.customData ?? null,
+					outputUrl: postRenderData.outputFile,
+					lambdaErrors: postRenderData.errors,
+					outputFile: postRenderData.outputFile,
+					timeToFinish: postRenderData.timeToFinish,
+					costs: postRenderData.cost,
+				},
+			});
+			webhookInvoked = true;
+		} catch (err) {
+			if (process.env.NODE_ENV === 'test') {
+				throw err;
 			}
+
+			await writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					type: 'webhook',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				},
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+			});
+			RenderInternals.Log.error('Failed to invoke webhook:');
+			RenderInternals.Log.error(err);
 		}
 
 		return {
