@@ -267,6 +267,7 @@ export const getProgress = async ({
 					renderMetadata,
 					chunks,
 					renderId,
+					missingChunks: missingChunks ?? [],
 			  })
 			: null,
 		...errorExplanations,

@@ -1,12 +1,11 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import type {RenderMetadata} from '../../defaults';
-import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {makeTimeoutMessage} from './make-timeout-message';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const makeTimeoutError = ({
 	timeoutInMilliseconds,
-	chunks,
+	missingChunks,
 	renderMetadata,
 	renderId,
 }: {
@@ -14,18 +13,8 @@ export const makeTimeoutError = ({
 	chunks: _Object[];
 	renderMetadata: RenderMetadata;
 	renderId: string;
+	missingChunks: number[];
 }): EnhancedErrorInfo => {
-	const availableChunks = chunks.map((c) =>
-		parseLambdaChunkKey(c.Key as string),
-	);
-
-	const missingChunks = new Array(renderMetadata.totalChunks)
-		.fill(true)
-		.map((_, i) => i)
-		.filter((index) => {
-			return !availableChunks.find((c) => c.chunk === index);
-		});
-
 	const message = makeTimeoutMessage({
 		missingChunks,
 		renderMetadata,
