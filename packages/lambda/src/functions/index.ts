@@ -16,6 +16,7 @@ import type {StreamingPayloads} from './helpers/streaming-payloads';
 import {sendProgressEvent} from './helpers/streaming-payloads';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
+import {mergeHandler} from './merge';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
@@ -154,6 +155,19 @@ const innerHandler = async (
 			responseStream.end();
 		});
 		return;
+	}
+
+	if (params.type === LambdaRoutines.merge) {
+		printCloudwatchHelper(LambdaRoutines.merge, {
+			isWarm,
+		});
+
+		const response = await mergeHandler(params, {
+			expectedBucketOwner: currentUserId,
+		});
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 	}
 
 	if (params.type === LambdaRoutines.compositions) {
