@@ -26,20 +26,42 @@ const bundleInstaller = async () => {
 		sapermissionsoutfile,
 	);
 
-	execSync(
-		`tar -cf ../gcpInstaller/gcpInstaller.tar -C . ${path.relative(
-			outdir,
-			bundlemjs,
-		)} ${path.relative(outdir, tfoutfile)} ${path.relative(
-			outdir,
-			sapermissionsoutfile,
-		)}`,
-		{
+	const tarArgs = `-cf ../gcpInstaller/gcpInstaller.tar -C . ${path.relative(
+		outdir,
+		bundlemjs,
+	)} ${path.relative(outdir, tfoutfile)} ${path.relative(
+		outdir,
+		sapermissionsoutfile,
+	)}`;
+
+	// A reproducible build will lead to no pending change in Git
+	if (hasGTar()) {
+		console.log('Making reproducible build with gtar');
+		execSync(
+			`gtar --mtime='2023-01-01 00:00Z' --sort=name --owner=0 --group=0 --numeric-owner --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime ${tarArgs}`,
+			{
+				stdio: 'inherit',
+				cwd: outdir,
+			},
+		);
+	} else {
+		console.log('Making non-reproducible build with tar.');
+		execSync(`tar ${tarArgs}`, {
 			stdio: 'inherit',
 			cwd: outdir,
-		},
-	);
+		});
+	}
+
 	rmSync(outdir, {recursive: true});
 };
 
 bundleInstaller();
+
+export const hasGTar = () => {
+	try {
+		execSync('gtar --version');
+		return true;
+	} catch {
+		return false;
+	}
+};
