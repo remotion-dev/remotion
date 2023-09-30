@@ -35,6 +35,11 @@ import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
 
+export type OnAllChunksAvailable = (options: {
+	inputProps: SerializedInputProps;
+	serializedResolvedProps: SerializedInputProps;
+}) => void;
+
 export const mergeChunksAndFinishRender = async (options: {
 	bucketName: string;
 	renderId: string;
@@ -54,6 +59,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	verbose: boolean;
 	serializedResolvedProps: SerializedInputProps;
 	renderMetadata: RenderMetadata;
+	onAllChunks: OnAllChunksAvailable;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -138,6 +144,10 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
+	});
+	options.onAllChunks({
+		inputProps: options.inputProps,
+		serializedResolvedProps: options.serializedResolvedProps,
 	});
 	const encodingStart = Date.now();
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
