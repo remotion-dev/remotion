@@ -10,6 +10,7 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
+import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -232,13 +233,35 @@ export const getProgress = async ({
 		? renderMetadata?.totalChunks ?? 0
 		: chunks.length;
 
+	const availableChunks = chunks.map((c) =>
+		parseLambdaChunkKey(c.Key as string),
+	);
+
+	const missingChunks = renderMetadata
+		? new Array(renderMetadata.totalChunks)
+				.fill(true)
+				.map((_, i) => i)
+				.filter((index) => {
+					return !availableChunks.find((c) => c.chunk === index);
+				})
+		: null;
+
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
-	const isBeyondTimeout =
+
+	// 1. If we have missing chunks, we consider it timed out
+	const isBeyondTimeoutAndMissingChunks =
 		renderMetadata &&
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000;
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		missingChunks &&
+		missingChunks.length > 0;
+
+	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
+	const isBeyondTimeoutAndHasStitchTimeout =
+		renderMetadata &&
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
-		isBeyondTimeout
+		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout
 			? makeTimeoutError({
 					timeoutInMilliseconds,
 					renderMetadata,
