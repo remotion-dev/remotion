@@ -59,8 +59,8 @@ bundleInstaller();
 
 export const hasGTar = () => {
 	try {
-		execSync('gtar --version');
-		return true;
+		const output = execSync('gtar --usage');
+		return output.includes('Usage: --sort');
 	} catch {
 		return false;
 	}
