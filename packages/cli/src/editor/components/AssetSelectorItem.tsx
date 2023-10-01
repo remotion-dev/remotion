@@ -254,10 +254,11 @@ export const AssetSelectorItem: React.FC<{
 	}, [item.name, parentFolder]);
 
 	const copyToClipboard = useCallback(() => {
-		copyText(`staticFile("${item.name}")`)
+		const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
+		copyText(content)
 			.then(() => {
 				notificationCenter.current?.addNotification({
-					content: `Copied 'staticFile("${item.name}")' to clipboard`,
+					content: `Copied '${content}' to clipboard`,
 					created: Date.now(),
 					duration: 1000,
 					id: String(Math.random()),
@@ -266,7 +267,8 @@ export const AssetSelectorItem: React.FC<{
 			.catch((err) => {
 				sendErrorNotification(`Could not copy: ${err.message}`);
 			});
-	}, [item.name]);
+	}, [item.name, parentFolder]);
+
 	return (
 		<Row align="center">
 			<div
