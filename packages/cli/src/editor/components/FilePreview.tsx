@@ -1,5 +1,4 @@
 import React from 'react';
-import {LIGHT_TEXT} from '../helpers/colors';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import type {AssetFileType} from './Preview';
@@ -13,58 +12,45 @@ const msgStyle: React.CSSProperties = {
 	justifyContent: 'center',
 };
 
-const errMsgStyle: React.CSSProperties = {
-	...msgStyle,
-	color: LIGHT_TEXT,
-};
-
 export const FilePreview: React.FC<{
-	staticFileSrc: string;
+	src: string;
 	fileType: AssetFileType;
 	currentAsset: string;
-	fileSize: string;
-}> = ({fileType, staticFileSrc, currentAsset, fileSize}) => {
+	fileSize: string | null;
+}> = ({fileType, src, currentAsset, fileSize}) => {
 	if (fileType === 'audio') {
-		try {
-			return (
-				<div>
-					<audio src={staticFileSrc} controls />
-				</div>
-			);
-		} catch (err) {
-			return <div style={errMsgStyle}>The audio could not be loaded</div>;
-		}
+		return (
+			<div>
+				<audio src={src} controls />
+			</div>
+		);
 	}
 
 	if (fileType === 'video') {
-		try {
-			return <video src={staticFileSrc} controls />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The video could not be loaded</div>;
-		}
+		return <video src={src} controls />;
 	}
 
 	if (fileType === 'image') {
-		try {
-			return <img src={staticFileSrc} />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The image could not be loaded</div>;
-		}
+		return <img src={src} />;
 	}
 
 	if (fileType === 'json') {
-		return <JSONViewer src={staticFileSrc} />;
+		return <JSONViewer src={src} />;
 	}
 
 	if (fileType === 'txt') {
-		return <TextViewer src={staticFileSrc} />;
+		return <TextViewer src={src} />;
 	}
 
 	return (
 		<>
 			<div style={msgStyle}>{currentAsset}</div>
-			<Spacing y={1} />
-			<div style={msgStyle}>Size: {fileSize} </div>
+			{fileSize ? (
+				<>
+					<Spacing y={1} />
+					<div style={msgStyle}>Size: {fileSize} </div>
+				</>
+			) : null}
 		</>
 	);
 };
