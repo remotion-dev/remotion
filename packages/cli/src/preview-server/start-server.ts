@@ -25,8 +25,10 @@ export const startServer = async (options: {
 	publicDir: string;
 	userPassedPublicDir: string | null;
 	poll: number | null;
-	hash: string;
-	hashPrefix: string;
+	staticHash: string;
+	staticHashPrefix: string;
+	outputHash: string;
+	outputHashPrefix: string;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -70,8 +72,10 @@ export const startServer = async (options: {
 			})
 			.then(() => {
 				handleRoutes({
-					hash: options.hash,
-					hashPrefix: options.hashPrefix,
+					staticHash: options.staticHash,
+					staticHashPrefix: options.staticHashPrefix,
+					outputHash: options.outputHash,
+					outputHashPrefix: options.outputHashPrefix,
 					request: request as IncomingMessage,
 					response,
 					liveEventsServer,
