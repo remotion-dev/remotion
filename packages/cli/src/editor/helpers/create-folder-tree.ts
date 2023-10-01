@@ -41,8 +41,8 @@ export const buildAssetFolderStructure = (
 				};
 			});
 
-			const isExpanded =
-				foldersExpanded[`${parentFolderName ?? ''}/${folderName}`] ?? false;
+			const key = [parentFolderName, folderName].filter(Boolean).join('/');
+			const isExpanded = foldersExpanded[key] ?? false;
 
 			return {
 				name: folderName,
