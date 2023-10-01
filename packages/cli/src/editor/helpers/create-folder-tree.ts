@@ -2,14 +2,16 @@ import type {AnyComposition, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
-export type AssetFolder = {name: string; items: Structure};
+export type AssetFolder = {name: string; items: AssetStructure};
 
-export type Structure = {
+export type AssetStructure = {
 	files: StaticFile[];
 	folders: AssetFolder[];
 };
 
-export const buildAssetFolderStructure = (files: StaticFile[]): Structure => {
+export const buildAssetFolderStructure = (
+	files: StaticFile[],
+): AssetStructure => {
 	const notInFolder = files.filter((f) => !f.name.includes('/'));
 	const inFolder = files.filter((f) => f.name.includes('/'));
 	const groupedByFolder: {[key: string]: StaticFile[]} = {};
