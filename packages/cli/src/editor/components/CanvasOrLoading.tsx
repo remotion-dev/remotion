@@ -71,7 +71,7 @@ export const CanvasOrLoading: React.FC = () => {
 			<Canvas canvasContent={canvasContent} />
 		</>
 	);
-	if (canvasContent.type === 'asset') {
+	if (canvasContent.type === 'asset' || canvasContent.type === 'output') {
 		return content;
 	}
 

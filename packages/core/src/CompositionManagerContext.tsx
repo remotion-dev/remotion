@@ -17,6 +17,10 @@ export type CanvasContent =
 	| {
 			type: 'asset';
 			asset: string;
+	  }
+	| {
+			type: 'output';
+			path: string;
 	  };
 
 export type CompositionManagerContext = {

@@ -89,6 +89,11 @@ export const InitialCompositionLoader: React.FC = () => {
 			return;
 		}
 
+		if (canvasContentFromUrl && canvasContentFromUrl.type === 'output') {
+			setCanvasContent(canvasContentFromUrl);
+			return;
+		}
+
 		if (compositions.length > 0) {
 			selectComposition(compositions[0], true);
 		}
@@ -103,13 +108,17 @@ export const InitialCompositionLoader: React.FC = () => {
 	useEffect(() => {
 		const onchange = () => {
 			const newCanvas = deriveCanvasContentFromUrl();
-			if (newCanvas && newCanvas?.type === 'composition') {
+			if (newCanvas && newCanvas.type === 'composition') {
 				const newComp = window.location.pathname.substring(1);
 				const exists = compositions.find((c) => c.id === newComp);
 				if (exists) {
 					selectComposition(exists, false);
 				}
-			} else if (newCanvas && newCanvas.type === 'asset') {
+
+				return;
+			}
+
+			if (newCanvas && newCanvas.type === 'asset') {
 				const staticFiles = getStaticFiles();
 				const exists = staticFiles.find((file) => {
 					return file.name === newCanvas.asset;
@@ -118,7 +127,11 @@ export const InitialCompositionLoader: React.FC = () => {
 				if (exists) {
 					setCanvasContent(newCanvas);
 				}
+
+				return;
 			}
+
+			setCanvasContent(newCanvas);
 		};
 
 		window.addEventListener('popstate', onchange);

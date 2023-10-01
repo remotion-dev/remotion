@@ -58,7 +58,7 @@ export const Canvas: React.FC<{
 	>(null);
 
 	const contentDimensions = useMemo(() => {
-		if (canvasContent.type === 'asset') {
+		if (canvasContent.type === 'asset' || canvasContent.type === 'output') {
 			return assetResolution;
 		}
 
@@ -292,15 +292,21 @@ export const Canvas: React.FC<{
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
 	const fetchMetadata = useCallback(async () => {
-		if (canvasContent.type !== 'asset') {
+		if (canvasContent.type !== 'asset' && canvasContent.type !== 'output') {
 			return;
 		}
 
+		const src =
+			canvasContent.type === 'asset'
+				? staticFile(canvasContent.asset)
+				: window.remotion_staticBase.replace('static', 'outputs') +
+				  canvasContent.path;
+
 		setAssetResolution(null);
 
-		const assetSrc = staticFile(canvasContent.asset);
+		const assetSrc = src;
 
-		const fileType = getPreviewFileType(canvasContent.asset);
+		const fileType = getPreviewFileType(src);
 
 		if (fileType === 'video') {
 			try {
