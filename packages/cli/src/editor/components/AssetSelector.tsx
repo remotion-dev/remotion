@@ -1,9 +1,15 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {subscribeToEvent} from '../../event-source';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {
+	loadExpandedFolders,
+	openFolderKey,
+	persistExpandedFolders,
+} from '../helpers/persist-open-folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
@@ -45,6 +51,10 @@ type State = {
 export const AssetSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 
+	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
+		loadExpandedFolders('assets'),
+	);
+
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
 			return {
@@ -53,9 +63,10 @@ export const AssetSelector: React.FC = () => {
 			};
 		},
 	);
+
 	const assetTree = useMemo(() => {
-		return buildAssetFolderStructure(staticFiles);
-	}, [staticFiles]);
+		return buildAssetFolderStructure(staticFiles, null, foldersExpanded);
+	}, [foldersExpanded, staticFiles]);
 
 	useEffect(() => {
 		const onUpdate = () => {
@@ -70,6 +81,22 @@ export const AssetSelector: React.FC = () => {
 			unsub();
 		};
 	}, []);
+
+	const toggleFolder = useCallback(
+		(folderName: string, parentName: string | null) => {
+			setFoldersExpanded((p) => {
+				const key = openFolderKey(folderName, parentName);
+				const prev = p[key] ?? false;
+				const foldersExpandedState: ExpandedFoldersState = {
+					...p,
+					[key]: !prev,
+				};
+				persistExpandedFolders('assets', foldersExpandedState);
+				return foldersExpandedState;
+			});
+		},
+		[],
+	);
 
 	return (
 		<div style={container}>
@@ -99,6 +126,7 @@ export const AssetSelector: React.FC = () => {
 						parentFolder={null}
 						name={null}
 						tabIndex={tabIndex}
+						toggleFolder={toggleFolder}
 					/>
 				</div>
 			)}

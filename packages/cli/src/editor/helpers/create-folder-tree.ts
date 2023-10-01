@@ -2,7 +2,11 @@ import type {AnyComposition, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
-export type AssetFolder = {name: string; items: AssetStructure};
+export type AssetFolder = {
+	name: string;
+	items: AssetStructure;
+	expanded: boolean;
+};
 
 export type AssetStructure = {
 	files: StaticFile[];
@@ -11,6 +15,8 @@ export type AssetStructure = {
 
 export const buildAssetFolderStructure = (
 	files: StaticFile[],
+	parentFolderName: string | null,
+	foldersExpanded: Record<string, boolean>,
 ): AssetStructure => {
 	const notInFolder = files.filter((f) => !f.name.includes('/'));
 	const inFolder = files.filter((f) => f.name.includes('/'));
@@ -35,10 +41,17 @@ export const buildAssetFolderStructure = (
 				};
 			});
 
+			const isExpanded =
+				foldersExpanded[`${parentFolderName ?? ''}/${folderName}`] ?? false;
+
 			return {
 				name: folderName,
-				items: buildAssetFolderStructure(filesWithoutFolderName),
-				expanded: false,
+				items: buildAssetFolderStructure(
+					filesWithoutFolderName,
+					[parentFolderName, folderName].filter(Boolean).join('/'),
+					foldersExpanded,
+				),
+				expanded: isExpanded,
 			};
 		}),
 	};

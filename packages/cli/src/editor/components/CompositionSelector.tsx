@@ -60,7 +60,7 @@ export const CompositionSelector: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders(),
+		loadExpandedFolders('compositions'),
 	);
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -74,7 +74,7 @@ export const CompositionSelector: React.FC = () => {
 					...p,
 					[key]: !prev,
 				};
-				persistExpandedFolders(foldersExpandedState);
+				persistExpandedFolders('compositions', foldersExpandedState);
 				return foldersExpandedState;
 			});
 		},
@@ -122,7 +122,7 @@ export const CompositionSelector: React.FC = () => {
 							currentParentName = parentFolder?.parent ?? null;
 						}
 
-						persistExpandedFolders(foldersExpandedState);
+						persistExpandedFolders('compositions', foldersExpandedState);
 
 						return foldersExpandedState;
 					});
