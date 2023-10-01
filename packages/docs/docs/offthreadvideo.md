@@ -120,6 +120,16 @@ export const LoopedOffthreadVideo: React.FC = () => {
 };
 ```
 
+## Supported codecs by `<OffthreadVideo>`
+
+The following codecs can be read by `<OffthreadVideo>`:
+
+- H.264 ("MP4")
+- H.265 ("HEVC")
+- VP8 and VP9 ("WebM")
+- AV1 (from _v4.0.6_)
+- ProRes
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)

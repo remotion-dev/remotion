@@ -5,7 +5,10 @@ import type {Template} from './templates';
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 const shouldUseBun = (): boolean => {
-	if (process.env._?.endsWith('/bin/bun')) {
+	if (
+		process.env._?.endsWith('/bin/bun') ||
+		process.env._?.endsWith('/bin/bunx')
+	) {
 		return true;
 	}
 
@@ -82,7 +85,7 @@ export const getRenderCommandForTemplate = (
 	manager: PackageManager,
 	template: Template,
 ) => {
-	if (template.cliId === 'remix' || template.cliId === 'next') {
+	if (template.cliId === 'remix') {
 		return `${getRunCommand(manager)} remotion:render`;
 	}
 

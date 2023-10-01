@@ -293,14 +293,11 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
-	const timelineContextValue = useMemo((): TimelineContextValue & {
-		shouldRegisterSequences: boolean;
-	} => {
+	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
 			playing,
 			rootId,
-			shouldRegisterSequences: false,
 			playbackRate: currentPlaybackRate,
 			imperativePlaying,
 			setPlaybackRate: (rate) => {
@@ -316,10 +313,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 			setPlaying,
 		};
 	}, [setFrame]);
-
-	const passedInputProps = useMemo(() => {
-		return inputProps ?? {};
-	}, [inputProps]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -342,7 +335,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={actualInputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 			>
@@ -358,7 +350,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							controls={Boolean(controls)}
 							errorFallback={errorFallback}
 							style={style}
-							inputProps={passedInputProps}
+							inputProps={actualInputProps}
 							allowFullscreen={Boolean(allowFullscreen)}
 							moveToBeginningWhenEnded={Boolean(moveToBeginningWhenEnded)}
 							clickToPlay={

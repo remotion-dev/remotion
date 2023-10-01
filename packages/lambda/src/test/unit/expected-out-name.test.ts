@@ -38,6 +38,8 @@ const testRenderMetadata: RenderMetadata = {
 	frameRange: [0, 199],
 	audioCodec: null,
 	deleteAfter: null,
+	numberOfGifLoops: null,
+	downloadBehavior: {type: 'play-in-browser'},
 };
 
 test('Should get a custom outname', () => {

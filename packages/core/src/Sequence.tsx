@@ -213,6 +213,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 /**
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
- * @see [Documentation](https://www.remotion.dev/docs/sequence]
+ * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
 export const Sequence = forwardRef(SequenceRefForwardingFunction);
