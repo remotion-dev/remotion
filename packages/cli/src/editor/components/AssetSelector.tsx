@@ -1,15 +1,12 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {subscribeToEvent} from '../../event-source';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
-import {
-	loadExpandedFolders,
-	openFolderKey,
-	persistExpandedFolders,
-} from '../helpers/persist-open-folders';
+import {persistExpandedFolders} from '../helpers/persist-open-folders';
+import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
@@ -50,10 +47,8 @@ type State = {
 
 export const AssetSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
-
-	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders('assets'),
-	);
+	const {assetFoldersExpanded, setAssetFoldersExpanded} =
+		useContext(FolderContext);
 
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
@@ -65,8 +60,8 @@ export const AssetSelector: React.FC = () => {
 	);
 
 	const assetTree = useMemo(() => {
-		return buildAssetFolderStructure(staticFiles, null, foldersExpanded);
-	}, [foldersExpanded, staticFiles]);
+		return buildAssetFolderStructure(staticFiles, null, assetFoldersExpanded);
+	}, [assetFoldersExpanded, staticFiles]);
 
 	useEffect(() => {
 		const onUpdate = () => {
@@ -84,8 +79,9 @@ export const AssetSelector: React.FC = () => {
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
-			setFoldersExpanded((p) => {
-				const key = openFolderKey(folderName, parentName);
+			setAssetFoldersExpanded((p) => {
+				const key = [parentName, folderName].filter(Boolean).join('/');
+
 				const prev = p[key] ?? false;
 				const foldersExpandedState: ExpandedFoldersState = {
 					...p,
@@ -95,7 +91,7 @@ export const AssetSelector: React.FC = () => {
 				return foldersExpandedState;
 			});
 		},
-		[],
+		[setAssetFoldersExpanded],
 	);
 
 	return (
