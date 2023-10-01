@@ -8,7 +8,7 @@ import {
 	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import type {AssetFolder, Structure} from '../helpers/create-folder-tree';
+import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -45,6 +45,7 @@ const itemStyle: React.CSSProperties = {
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: ASSET_ITEM_HEIGHT,
+	userSelect: 'none',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -117,7 +118,7 @@ export const AssetFolderItem: React.FC<{
 			</div>
 
 			{expanded ? (
-				<FolderTree
+				<AssetFolderTree
 					key={item.name}
 					item={item.items}
 					name={item.name}
@@ -130,8 +131,8 @@ export const AssetFolderItem: React.FC<{
 	);
 };
 
-export const FolderTree: React.FC<{
-	item: Structure;
+export const AssetFolderTree: React.FC<{
+	item: AssetStructure;
 	name: string | null;
 	parentFolder: string | null;
 	level: number;

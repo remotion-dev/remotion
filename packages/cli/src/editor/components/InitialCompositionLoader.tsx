@@ -55,9 +55,16 @@ export const InitialCompositionLoader: React.FC = () => {
 			if (exists) {
 				selectComposition(exists, true);
 			}
-		} else if (canvasContentFromUrl && canvasContentFromUrl.type === 'asset') {
+
+			return;
+		}
+
+		if (canvasContentFromUrl && canvasContentFromUrl.type === 'asset') {
 			setCanvasContent(canvasContentFromUrl);
-		} else if (compositions.length > 0) {
+			return;
+		}
+
+		if (compositions.length > 0) {
 			selectComposition(compositions[0], true);
 		}
 	}, [compositions, canvasContent, selectComposition, setCanvasContent]);
