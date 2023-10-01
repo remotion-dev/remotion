@@ -2,40 +2,25 @@ import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import type {CanvasContent} from 'remotion';
-import {getStaticFiles, Internals, staticFile} from 'remotion';
-import {formatBytes} from '../../format-bytes';
+import {Internals} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
-import {FilePreview} from './FilePreview';
+import {RenderPreview} from './RenderPreview';
 import {Spinner} from './Spinner';
+import {StaticFilePreview} from './StaticFilePreview';
 
 const spinnerContainer: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	justifyContent: 'center',
 	alignItems: 'center',
-};
-
-const msgStyle: React.CSSProperties = {
-	fontSize: 13,
-	color: 'white',
-	fontFamily: 'sans-serif',
-	display: 'flex',
-	justifyContent: 'center',
-};
-
-const errMsgStyle: React.CSSProperties = {
-	...msgStyle,
-	color: LIGHT_TEXT,
 };
 
 export type AssetFileType =
@@ -109,52 +94,6 @@ const containerStyle = (options: {
 				checkerboardSize,
 			) /* Must be half of one side of the square */,
 	};
-};
-
-const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
-	const fileType = getPreviewFileType(currentAsset);
-	const staticFileSrc = staticFile(currentAsset);
-	const staticFiles = getStaticFiles();
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
-
-	const exists = staticFiles.find((file) => file.name === currentAsset);
-
-	if (connectionStatus === 'disconnected') {
-		return <div style={errMsgStyle}>Studio server disconnected</div>;
-	}
-
-	if (!exists) {
-		return (
-			<div style={errMsgStyle}>
-				{currentAsset} does not exist in your public folder.
-			</div>
-		);
-	}
-
-	const fileSize = (() => {
-		const fileFromStaticFiles = staticFiles.find(
-			(file) => file.name === currentAsset,
-		);
-
-		if (fileFromStaticFiles) {
-			return formatBytes(fileFromStaticFiles?.sizeInBytes);
-		}
-
-		return '';
-	})();
-
-	if (!currentAsset) {
-		return null;
-	}
-
-	return (
-		<FilePreview
-			currentAsset={currentAsset}
-			fileSize={fileSize}
-			fileType={fileType}
-			staticFileSrc={staticFileSrc}
-		/>
-	);
 };
 
 export const VideoPreview: React.FC<{
@@ -239,9 +178,9 @@ const CompWhenItHasDimensions: React.FC<{
 	return (
 		<div style={outer}>
 			{canvasContent.type === 'asset' ? (
-				<AssetComponent currentAsset={canvasContent.asset} />
+				<StaticFilePreview currentAsset={canvasContent.asset} />
 			) : canvasContent.type === 'output' ? (
-				<div>hi there</div>
+				<RenderPreview path={canvasContent.path} />
 			) : (
 				<PortalContainer
 					contentDimensions={contentDimensions as Dimensions}

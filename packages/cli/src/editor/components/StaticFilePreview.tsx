@@ -1,0 +1,68 @@
+import {useContext} from 'react';
+import {getStaticFiles, staticFile} from 'remotion';
+import {formatBytes} from '../../format-bytes';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
+import {FilePreview} from './FilePreview';
+import {getPreviewFileType} from './Preview';
+
+const msgStyle: React.CSSProperties = {
+	fontSize: 13,
+	color: 'white',
+	fontFamily: 'sans-serif',
+	display: 'flex',
+	justifyContent: 'center',
+};
+
+const errMsgStyle: React.CSSProperties = {
+	...msgStyle,
+	color: LIGHT_TEXT,
+};
+
+export const StaticFilePreview: React.FC<{currentAsset: string}> = ({
+	currentAsset,
+}) => {
+	const fileType = getPreviewFileType(currentAsset);
+	const staticFileSrc = staticFile(currentAsset);
+	const staticFiles = getStaticFiles();
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+
+	const exists = staticFiles.find((file) => file.name === currentAsset);
+
+	if (connectionStatus === 'disconnected') {
+		return <div style={errMsgStyle}>Studio server disconnected</div>;
+	}
+
+	if (!exists) {
+		return (
+			<div style={errMsgStyle}>
+				{currentAsset} does not exist in your public folder.
+			</div>
+		);
+	}
+
+	const fileSize = (() => {
+		const fileFromStaticFiles = staticFiles.find(
+			(file) => file.name === currentAsset,
+		);
+
+		if (fileFromStaticFiles) {
+			return formatBytes(fileFromStaticFiles?.sizeInBytes);
+		}
+
+		return null;
+	})();
+
+	if (!currentAsset) {
+		return null;
+	}
+
+	return (
+		<FilePreview
+			currentAsset={currentAsset}
+			fileSize={fileSize}
+			fileType={fileType}
+			src={staticFileSrc}
+		/>
+	);
+};
