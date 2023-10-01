@@ -10,7 +10,8 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {FAIL_COLOR} from '../helpers/colors';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -36,7 +37,7 @@ const msgStyle: React.CSSProperties = {
 
 const errMsgStyle: React.CSSProperties = {
 	...msgStyle,
-	color: FAIL_COLOR,
+	color: LIGHT_TEXT,
 };
 
 type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'txt' | 'other';
@@ -110,8 +111,13 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 	const staticFiles = getStaticFiles();
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 
 	const exists = staticFiles.find((file) => file.name === currentAsset);
+
+	if (connectionStatus === 'disconnected') {
+		return <div style={errMsgStyle}>Studio server disconnected</div>;
+	}
 
 	if (!exists) {
 		return (
