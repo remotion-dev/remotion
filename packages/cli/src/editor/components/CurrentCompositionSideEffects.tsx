@@ -27,7 +27,7 @@ export const TitleUpdater: React.FC = () => {
 		}
 
 		setCurrentCanvasContentId(canvasContent.asset);
-	}, [canvasContent, canvasContent?.type]);
+	}, [canvasContent]);
 
 	useEffect(() => {
 		setRenderJobs(jobs);
