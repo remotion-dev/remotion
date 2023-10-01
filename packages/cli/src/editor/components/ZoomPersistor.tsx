@@ -23,14 +23,25 @@ export const getZoomForComposition = (composition: string) => {
 };
 
 export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
-	const substrings = window.location.pathname.split('/');
+	const substrings = window.location.pathname.split('/').filter(Boolean);
 
 	const lastPart = substrings[substrings.length - 1];
 
-	if (substrings.includes('assets')) {
+	if (substrings[0] === 'assets') {
 		return {
 			type: 'asset',
-			asset: decodeURIComponent(window.location.pathname.substring(8)),
+			asset: decodeURIComponent(
+				window.location.pathname.substring('/assets/'.length),
+			),
+		};
+	}
+
+	if (substrings[0] === 'outputs') {
+		return {
+			type: 'output',
+			path: decodeURIComponent(
+				window.location.pathname.substring('/outputs/'.length),
+			),
 		};
 	}
 

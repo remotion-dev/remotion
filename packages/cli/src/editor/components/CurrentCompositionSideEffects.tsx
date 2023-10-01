@@ -26,6 +26,11 @@ export const TitleUpdater: React.FC = () => {
 			return;
 		}
 
+		if (canvasContent.type === 'output') {
+			setCurrentCanvasContentId(canvasContent.path);
+			return;
+		}
+
 		setCurrentCanvasContentId(canvasContent.asset);
 	}, [canvasContent]);
 

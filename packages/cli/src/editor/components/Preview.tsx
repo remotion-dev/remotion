@@ -15,10 +15,8 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
-import {JSONViewer} from './JSONViewer';
-import {Spacing} from './layout';
+import {FilePreview} from './FilePreview';
 import {Spinner} from './Spinner';
-import {TextViewer} from './TextViewer';
 
 const spinnerContainer: React.CSSProperties = {
 	display: 'flex',
@@ -40,7 +38,13 @@ const errMsgStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 };
 
-type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'txt' | 'other';
+export type AssetFileType =
+	| 'audio'
+	| 'video'
+	| 'image'
+	| 'json'
+	| 'txt'
+	| 'other';
 export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
 		return 'other';
@@ -127,61 +131,29 @@ const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
 		);
 	}
 
-	const fileSize = () => {
+	const fileSize = (() => {
 		const fileFromStaticFiles = staticFiles.find(
 			(file) => file.name === currentAsset,
 		);
+
 		if (fileFromStaticFiles) {
 			return formatBytes(fileFromStaticFiles?.sizeInBytes);
 		}
-	};
+
+		return '';
+	})();
 
 	if (!currentAsset) {
 		return null;
 	}
 
-	if (fileType === 'audio') {
-		try {
-			return (
-				<div>
-					<audio src={staticFileSrc} controls />
-				</div>
-			);
-		} catch (err) {
-			return <div style={errMsgStyle}>The audio could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'video') {
-		try {
-			return <video src={staticFileSrc} controls />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The video could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'image') {
-		try {
-			return <img src={staticFileSrc} />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The image could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'json') {
-		return <JSONViewer src={staticFileSrc} />;
-	}
-
-	if (fileType === 'txt') {
-		return <TextViewer src={staticFileSrc} />;
-	}
-
 	return (
-		<>
-			<div style={msgStyle}>{currentAsset}</div>
-			<Spacing y={1} />
-			<div style={msgStyle}>Size: {fileSize()} </div>
-		</>
+		<FilePreview
+			currentAsset={currentAsset}
+			fileSize={fileSize}
+			fileType={fileType}
+			staticFileSrc={staticFileSrc}
+		/>
 	);
 };
 
@@ -268,6 +240,8 @@ const CompWhenItHasDimensions: React.FC<{
 		<div style={outer}>
 			{canvasContent.type === 'asset' ? (
 				<AssetComponent currentAsset={canvasContent.asset} />
+			) : canvasContent.type === 'output' ? (
+				<div>hi there</div>
 			) : (
 				<PortalContainer
 					contentDimensions={contentDimensions as Dimensions}
