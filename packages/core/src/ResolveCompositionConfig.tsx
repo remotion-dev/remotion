@@ -50,10 +50,13 @@ export const ResolveCompositionConfig: React.FC<
 > = ({children}) => {
 	const [currentRenderModalComposition, setCurrentRenderModalComposition] =
 		useState<string | null>(null);
-	const {compositions, currentComposition, currentCompositionMetadata} =
+	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
 	const selectedComposition = compositions.find(
-		(c) => c.id === currentComposition,
+		(c) =>
+			canvasContent &&
+			canvasContent.type === 'composition' &&
+			canvasContent.compositionId === c.id,
 	);
 	const renderModalComposition = compositions.find(
 		(c) => c.id === currentRenderModalComposition,
@@ -145,6 +148,9 @@ export const ResolveCompositionConfig: React.FC<
 		},
 		[currentCompositionMetadata],
 	);
+
+	const currentComposition =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 
 	useImperativeHandle(
 		resolveCompositionsRef,
@@ -238,8 +244,10 @@ export const useResolvedVideoConfig = (
 	) as ResolveCompositionConfigContect;
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
-	const {compositions, currentComposition, currentCompositionMetadata} =
+	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
+	const currentComposition =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
 
