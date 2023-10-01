@@ -20,7 +20,7 @@ export const FolderContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders(),
+		loadExpandedFolders('compositions'),
 	);
 
 	const value = useMemo((): TFolderContext => {

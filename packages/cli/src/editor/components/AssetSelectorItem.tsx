@@ -68,9 +68,9 @@ export const AssetFolderItem: React.FC<{
 	tabIndex: number;
 	level: number;
 	parentFolder: string;
-}> = ({tabIndex, item, level, parentFolder}) => {
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+}> = ({tabIndex, item, level, parentFolder, toggleFolder}) => {
 	const [hovered, setHovered] = useState(false);
-	const [expanded, setExpanded] = useState(false);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -95,10 +95,10 @@ export const AssetFolderItem: React.FC<{
 	}, [hovered]);
 
 	const onClick = useCallback(() => {
-		setExpanded((e) => !e);
-	}, []);
+		toggleFolder(item.name, parentFolder);
+	}, [item.name, parentFolder, toggleFolder]);
 
-	const Icon = expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
+	const Icon = item.expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
 
 	return (
 		<>
@@ -117,7 +117,7 @@ export const AssetFolderItem: React.FC<{
 				</Row>
 			</div>
 
-			{expanded ? (
+			{item.expanded ? (
 				<AssetFolderTree
 					key={item.name}
 					item={item.items}
@@ -125,6 +125,7 @@ export const AssetFolderItem: React.FC<{
 					level={level}
 					parentFolder={parentFolder}
 					tabIndex={tabIndex}
+					toggleFolder={toggleFolder}
 				/>
 			) : null}
 		</>
@@ -137,10 +138,12 @@ export const AssetFolderTree: React.FC<{
 	parentFolder: string | null;
 	level: number;
 	tabIndex: number;
-}> = ({item, level, name, parentFolder, tabIndex}) => {
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+}> = ({item, level, name, parentFolder, toggleFolder, tabIndex}) => {
 	const combinedParents = useMemo(() => {
 		return [parentFolder, name].filter(truthy).join('/');
 	}, [name, parentFolder]);
+
 	return (
 		<div>
 			{item.folders.map((folder) => {
@@ -151,6 +154,7 @@ export const AssetFolderTree: React.FC<{
 						tabIndex={tabIndex}
 						level={level + 1}
 						parentFolder={combinedParents}
+						toggleFolder={toggleFolder}
 					/>
 				);
 			})}
