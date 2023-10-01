@@ -240,34 +240,44 @@ export const AssetSelectorItem: React.FC<{
 		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
-	const revealInExplorer = React.useCallback(() => {
-		openInFileExplorer({
-			directory:
-				window.remotion_publicFolderExists +
-				'/' +
-				parentFolder +
-				'/' +
-				item.name,
-		}).catch((err) => {
-			sendErrorNotification(`Could not open file: ${err.message}`);
-		});
-	}, [item.name, parentFolder]);
-
-	const copyToClipboard = useCallback(() => {
-		const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
-		copyText(content)
-			.then(() => {
-				notificationCenter.current?.addNotification({
-					content: `Copied '${content}' to clipboard`,
-					created: Date.now(),
-					duration: 1000,
-					id: String(Math.random()),
+	const revealInExplorer: React.MouseEventHandler<HTMLAnchorElement> =
+		React.useCallback(
+			(e) => {
+				e.stopPropagation();
+				openInFileExplorer({
+					directory:
+						window.remotion_publicFolderExists +
+						'/' +
+						parentFolder +
+						'/' +
+						item.name,
+				}).catch((err) => {
+					sendErrorNotification(`Could not open file: ${err.message}`);
 				});
-			})
-			.catch((err) => {
-				sendErrorNotification(`Could not copy: ${err.message}`);
-			});
-	}, [item.name, parentFolder]);
+			},
+			[item.name, parentFolder],
+		);
+
+	const copyToClipboard: React.MouseEventHandler<HTMLAnchorElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
+				copyText(content)
+					.then(() => {
+						notificationCenter.current?.addNotification({
+							content: `Copied '${content}' to clipboard`,
+							created: Date.now(),
+							duration: 1000,
+							id: String(Math.random()),
+						});
+					})
+					.catch((err) => {
+						sendErrorNotification(`Could not copy: ${err.message}`);
+					});
+			},
+			[item.name, parentFolder],
+		);
 
 	return (
 		<Row align="center">
