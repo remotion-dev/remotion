@@ -16,11 +16,17 @@ export const TitleUpdater: React.FC = () => {
 	const {jobs} = renderQueue;
 
 	useEffect(() => {
-		if (canvasContent?.type === 'composition') {
-			setCurrentCanvasContentId(canvasContent.compositionId ?? null);
-		} else {
-			setCurrentCanvasContentId(canvasContent?.asset ?? null);
+		if (!canvasContent) {
+			setCurrentCanvasContentId(null);
+			return;
 		}
+
+		if (canvasContent.type === 'composition') {
+			setCurrentCanvasContentId(canvasContent.compositionId);
+			return;
+		}
+
+		setCurrentCanvasContentId(canvasContent.asset);
 	}, [canvasContent, canvasContent?.type]);
 
 	useEffect(() => {
