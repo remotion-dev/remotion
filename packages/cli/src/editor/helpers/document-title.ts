@@ -1,20 +1,20 @@
 import type {RenderJob} from '../../preview-server/render-queue/job';
 import {truthy} from '../../truthy';
 
-let currentVideoId: string | null = null;
+let currentItemName: string | null = null;
 let unsavedProps = false;
 let tabInactive = false;
 let renderJobs: RenderJob[] = [];
 
 export const setCurrentCanvasContentId = (id: string | null) => {
 	if (!id) {
-		currentVideoId = id;
+		currentItemName = id;
 		updateTitle();
 		return;
 	}
 
-	const idWOFolder = id.split('/').pop() as string;
-	currentVideoId = idWOFolder;
+	const idWithoutFolder = id.split('/').pop() as string;
+	currentItemName = idWithoutFolder;
 	updateTitle();
 };
 
@@ -38,15 +38,15 @@ const productName = 'Remotion Studio';
 const suffix = `- ${productName}`;
 
 const updateTitle = () => {
-	if (!currentVideoId) {
+	if (!currentItemName) {
 		document.title = productName;
 		return;
 	}
 
-	const currentCompTitle = `${currentVideoId} / ${window.remotion_projectName}`;
+	const currentCompTitle = `${currentItemName} / ${window.remotion_projectName}`;
 
 	document.title = [
-		getProgressInBrackets(currentVideoId, renderJobs),
+		getProgressInBrackets(currentItemName, renderJobs),
 		unsavedProps && tabInactive ? '✏️' : null,
 		`${currentCompTitle} ${suffix}`,
 	]
