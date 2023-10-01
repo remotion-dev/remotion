@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {AnyComposition} from 'remotion';
+import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,

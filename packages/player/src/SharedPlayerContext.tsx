@@ -56,12 +56,12 @@ export const SharedPlayerContexts: React.FC<{
 			folders: [],
 			registerFolder: () => undefined,
 			unregisterFolder: () => undefined,
-			currentComposition: 'player-comp',
 			registerComposition: () => undefined,
-			setCurrentComposition: () => undefined,
 			unregisterComposition: () => undefined,
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
+			canvasContent: {type: 'composition', compositionId: 'player-comp'},
+			setCanvasContent: () => undefined,
 		};
 		return context;
 	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);

@@ -9,6 +9,16 @@ export type BaseMetadata = Pick<
 	'durationInFrames' | 'fps' | 'props' | 'height' | 'width'
 >;
 
+export type CanvasContent =
+	| {
+			type: 'composition';
+			compositionId: string;
+	  }
+	| {
+			type: 'asset';
+			asset: string;
+	  };
+
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
 	registerComposition: <
@@ -20,11 +30,11 @@ export type CompositionManagerContext = {
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
-	currentComposition: string | null;
-	setCurrentComposition: (curr: string) => void;
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
+	canvasContent: CanvasContent | null;
+	setCanvasContent: (canvasContent: CanvasContent | null) => void;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -33,9 +43,9 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterComposition: () => undefined,
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
-	currentComposition: null,
-	setCurrentComposition: () => undefined,
 	setCurrentCompositionMetadata: () => undefined,
 	folders: [],
 	currentCompositionMetadata: null,
+	canvasContent: null,
+	setCanvasContent: () => undefined,
 });
