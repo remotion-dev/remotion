@@ -12,7 +12,6 @@ export type RemotionGifProps = {
 		height: number;
 		delays: number[];
 		frames: ImageData[];
-		
 	}) => void;
 	onError?: (error: Error) => void;
 	fit?: GifFillMode;
