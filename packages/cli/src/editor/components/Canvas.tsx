@@ -304,13 +304,11 @@ export const Canvas: React.FC<{
 
 		setAssetResolution(null);
 
-		const assetSrc = src;
-
 		const fileType = getPreviewFileType(src);
 
 		if (fileType === 'video') {
 			try {
-				await getVideoMetadata(assetSrc).then((data) => {
+				await getVideoMetadata(src).then((data) => {
 					setAssetResolution({width: data.width, height: data.height});
 				});
 			} catch {
@@ -322,7 +320,7 @@ export const Canvas: React.FC<{
 				setAssetResolution({width: img.width, height: img.height});
 			};
 
-			img.src = assetSrc;
+			img.src = src;
 		} else {
 			setAssetResolution('none');
 		}
