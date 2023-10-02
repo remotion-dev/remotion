@@ -105,7 +105,7 @@ export const GifForDevelopment = forwardRef<
 			);
 		}
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior,playbackRate);
+		const index = useCurrentGifIndex(state.delays, loopBehavior, playbackRate);
 
 		if (index === -1) {
 			return null;

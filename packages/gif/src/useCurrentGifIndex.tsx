@@ -5,7 +5,7 @@ import type {GifLoopBehavior} from './props';
 export function useCurrentGifIndex(
 	delays: number[],
 	loopBehavior: GifLoopBehavior,
-	playbackRate = 1
+	playbackRate = 1,
 ): number {
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -25,8 +25,8 @@ export function useCurrentGifIndex(
 		return 0;
 	}
 
-	const updatedFrame = (currentFrame / playbackRate);
-	
+	const updatedFrame = currentFrame / playbackRate;
+
 	const time = (updatedFrame / videoConfig.fps) * 1000;
 
 	if (loopBehavior === 'pause-after-finish' && time >= duration) {
