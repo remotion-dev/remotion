@@ -241,6 +241,11 @@
       "source": "/bounties",
       "destination": "/docs/contributing/bounty",
       "permanent": false
+    },
+    {
+      "source": "/repro",
+      "destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
+      "permanent": false
     }
   ]
 }
