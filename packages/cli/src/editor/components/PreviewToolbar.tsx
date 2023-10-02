@@ -86,7 +86,6 @@ export const PreviewToolbar: React.FC = () => {
 				</>
 			) : null}
 			{isFullscreenSupported && <FullScreenToggle />}
-			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
