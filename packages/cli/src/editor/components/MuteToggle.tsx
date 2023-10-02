@@ -1,6 +1,4 @@
-import {useCallback, useContext} from 'react';
-import {Internals} from 'remotion';
-import {useIsStill} from '../helpers/is-current-selected-still';
+import {useCallback} from 'react';
 import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';
@@ -9,7 +7,6 @@ export const MuteToggle: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({muted, setMuted}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const onClick = useCallback(() => {
 		setMuted((m) => {
 			persistMuteOption(!m);
@@ -17,12 +14,6 @@ export const MuteToggle: React.FC<{
 		});
 	}, [setMuted]);
 	const accessibilityLabel = muted ? 'Unmute video' : 'Mute video';
-
-	const isStill = useIsStill();
-
-	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
-		return null;
-	}
 
 	return (
 		<ControlButton
