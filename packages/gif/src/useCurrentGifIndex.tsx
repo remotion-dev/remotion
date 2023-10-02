@@ -14,7 +14,7 @@ export function useCurrentGifIndex(
 		if (delays.length !== 0) {
 			return delays.reduce(
 				(sum: number, delay: number) => sum + (delay ?? 0),
-				0
+				0,
 			);
 		}
 
