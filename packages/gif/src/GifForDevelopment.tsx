@@ -19,6 +19,7 @@ export const GifForDevelopment = forwardRef<
 			height,
 			onError,
 			loopBehavior = 'loop',
+			playbackRate = 1,
 			onLoad,
 			fit = 'fill',
 			...props
@@ -104,7 +105,7 @@ export const GifForDevelopment = forwardRef<
 			);
 		}
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior);
+		const index = useCurrentGifIndex(state.delays, loopBehavior,playbackRate);
 
 		if (index === -1) {
 			return null;
