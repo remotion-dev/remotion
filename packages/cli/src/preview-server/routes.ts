@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import {createReadStream, statSync} from 'node:fs';
+import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path from 'node:path';
 import {URLSearchParams} from 'node:url';
@@ -30,7 +30,7 @@ const editorGuess = guessEditor();
 const static404 = (response: ServerResponse) => {
 	response.writeHead(404);
 	response.end(
-		'The static/ prefix has been changed, this URL is no longer valid.'
+		'The static/ prefix has been changed, this URL is no longer valid.',
 	);
 };
 
@@ -57,12 +57,13 @@ const handleFallback = async ({
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(
-		ConfigInternals.getConcurrency()
+		ConfigInternals.getConcurrency(),
 	);
 	const muted = ConfigInternals.getMuted();
 	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
+	const x264Preset = ConfigInternals.getPresetProfile() ?? 'medium';
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
@@ -75,9 +76,13 @@ const handleFallback = async ({
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
+	const offthreadVideoCacheSizeInBytes =
+		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
+	const colorSpace = ConfigInternals.getColorSpace();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const multiProcessOnLinux = ConfigInternals.getChromiumMultiProcessOnLinux();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -115,6 +120,7 @@ const handleFallback = async ({
 				muted,
 				enforceAudioTrack,
 				proResProfile,
+				x264Preset,
 				pixelFormat,
 				audioBitrate,
 				videoBitrate,
@@ -126,15 +132,19 @@ const handleFallback = async ({
 				headless,
 				ignoreCertificateErrors,
 				openGlRenderer,
+				offthreadVideoCacheSizeInBytes,
+				colorSpace,
+				multiProcessOnLinux,
 			},
-		})
+			publicFolderExists: existsSync(publicDir) ? publicDir : null,
+		}),
 	);
 };
 
 const handleProjectInfo = async (
 	remotionRoot: string,
 	_: IncomingMessage,
-	response: ServerResponse
+	response: ServerResponse,
 ) => {
 	const data = await getProjectInfo(remotionRoot);
 	response.setHeader('content-type', 'application/json');
@@ -178,7 +188,7 @@ const handleFileSource = async ({
 const handleOpenInEditor = async (
 	remotionRoot: string,
 	req: IncomingMessage,
-	res: ServerResponse
+	res: ServerResponse,
 ) => {
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
@@ -209,7 +219,7 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: didOpen,
-			})
+			}),
 		);
 	} catch (err) {
 		res.setHeader('content-type', 'application/json');
@@ -218,7 +228,7 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: false,
-			})
+			}),
 		);
 	}
 };

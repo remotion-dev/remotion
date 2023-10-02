@@ -53,9 +53,10 @@ export const processStill = async ({
 		imageFormatFromUi: job.imageFormat,
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
-		indentOutput: true,
+		indent: true,
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
+		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 	});
 };

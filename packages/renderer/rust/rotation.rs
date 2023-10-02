@@ -6,10 +6,7 @@ pub fn get_from_side_data(value: &[u8]) -> Result<f64, ErrorWithBacktrace> {
     let mut i32_values: Vec<i32> = Vec::new();
 
     for bytes in value.chunks(4) {
-        let i32_value = ((bytes[0] as i32) << 24)
-            + ((bytes[1] as i32) << 16)
-            + ((bytes[2] as i32) << 8)
-            + (bytes[3] as i32);
+        let i32_value = i32::from_le_bytes(bytes.try_into().unwrap());
         i32_values.push(i32_value);
     }
 

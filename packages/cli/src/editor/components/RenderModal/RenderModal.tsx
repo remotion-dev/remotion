@@ -1,11 +1,13 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {
@@ -50,8 +52,15 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
-import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
+import {
+	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
+} from '../OptionsPanel';
+import {
+	addSequenceRenderJob,
+	addStillRenderJob,
+	addVideoRenderJob,
+} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';
@@ -124,7 +133,7 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const rightPanel: React.CSSProperties = {
+const optionsPanel: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
 };
@@ -203,6 +212,7 @@ type RenderModalProps = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialx264Preset: X264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -213,10 +223,13 @@ type RenderModalProps = {
 	initialDisableWebSecurity: boolean;
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
+	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialHeadless: boolean;
+	initialColorSpace: ColorSpace;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	initialMultiProcessOnLinux: boolean;
 };
 
 const RenderModal: React.FC<
@@ -242,12 +255,14 @@ const RenderModal: React.FC<
 	initialMuted,
 	initialEnforceAudioTrack,
 	initialProResProfile,
+	initialx264Preset,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
 	initialEveryNthFrame,
 	initialNumberOfGifLoops,
 	initialDelayRenderTimeout,
+	initialOffthreadVideoCacheSizeInBytes,
 	initialAudioCodec,
 	initialEnvVariables,
 	initialDisableWebSecurity,
@@ -260,57 +275,66 @@ const RenderModal: React.FC<
 	onClose,
 	resolvedComposition,
 	unresolvedComposition,
+	initialColorSpace,
+	initialMultiProcessOnLinux,
 }) => {
 	const isMounted = useRef(true);
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
-
+	const [saving, setSaving] = useState<boolean>(false);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
-		() => initialStillImageFormat
+		() => initialStillImageFormat,
 	);
 	const [videoImageFormat, setVideoImageFormat] = useState<VideoImageFormat>(
-		() => initialVideoImageFormat
+		() => initialVideoImageFormat,
 	);
+	const [sequenceImageFormat, setSequenceImageFormat] =
+		useState<VideoImageFormat>(() =>
+			initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png',
+		);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
-		() => initialVideoCodecForVideoTab
+		() => initialVideoCodecForVideoTab,
 	);
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
 		envVariablesObjectToArray(initialEnvVariables).filter(
-			([key]) => key !== 'NODE_ENV'
-		)
+			([key]) => key !== 'NODE_ENV',
+		),
 	);
 	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
-		() => initialVideoCodecForAudioTab
+		() => initialVideoCodecForAudioTab,
 	);
 
 	const [mutedState, setMuted] = useState(() => initialMuted);
 	const [enforceAudioTrackState, setEnforceAudioTrackState] = useState(
-		() => initialEnforceAudioTrack
+		() => initialEnforceAudioTrack,
 	);
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
 	const [jpegQuality, setJpegQuality] = useState<number>(
-		() => initialJpegQuality
+		() => initialJpegQuality,
 	);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
 		useState(false);
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
-		() => initialDisableWebSecurity
+		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
+	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
+		useState<boolean>(() => initialMultiProcessOnLinux);
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
-		() => initialGl ?? 'default'
+		() => initialGl ?? 'default',
 	);
+	const [colorSpace, setColorSpace] = useState(() => initialColorSpace);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
@@ -320,26 +344,36 @@ const RenderModal: React.FC<
 			gl: openGlOption === 'default' ? null : openGlOption,
 			// TODO: Make this configurable at some point (not necessary for V4)
 			userAgent: null,
+			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
-	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
+	}, [
+		headless,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+		openGlOption,
+		multiProcessOnLinux,
+	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(
-		() => outFrameMark ?? null
+		() => outFrameMark ?? null,
 	);
 	const [startFrameOrNull, setStartFrame] = useState<number | null>(
-		() => inFrameMark ?? null
+		() => inFrameMark ?? null,
 	);
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
-		() => initialProResProfile
+		() => initialProResProfile,
+	);
+	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
+		() => initialx264Preset,
 	);
 
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
-		() => initialPixelFormat
+		() => initialPixelFormat,
 	);
 	const [preferredQualityControlType, setQualityControl] =
 		useState<QualityControl>(() =>
-			initialVideoBitrate === null ? 'crf' : 'bitrate'
+			initialVideoBitrate === null ? 'crf' : 'bitrate',
 		);
 	const [
 		shouldHaveCustomTargetAudioBitrate,
@@ -347,21 +381,24 @@ const RenderModal: React.FC<
 	] = useState(() => initialAudioBitrate !== null);
 
 	const [customTargetAudioBitrate, setCustomTargetAudioBitrateValue] = useState(
-		() => initialAudioBitrate ?? '320K'
+		() => initialAudioBitrate ?? '320K',
 	);
 	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
-		() => initialVideoBitrate ?? '1M'
+		() => initialVideoBitrate ?? '1M',
 	);
 	const [limitNumberOfGifLoops, setLimitNumberOfGifLoops] = useState(
-		() => initialNumberOfGifLoops !== null
+		() => initialNumberOfGifLoops !== null,
 	);
 
 	const [numberOfGifLoopsSetting, setNumberOfGifLoopsSetting] = useState(
-		() => initialNumberOfGifLoops ?? 1
+		() => initialNumberOfGifLoops ?? 1,
 	);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
-		() => initialDelayRenderTimeout
+		() => initialDelayRenderTimeout,
 	);
+
+	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
+		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -457,6 +494,14 @@ const RenderModal: React.FC<
 		return null;
 	}, [codec, proResProfileSetting, renderMode]);
 
+	const x264Preset = useMemo(() => {
+		if (renderMode === 'video' && codec === 'h264') {
+			return x264PresetSetting;
+		}
+
+		return null;
+	}, [codec, x264PresetSetting, renderMode]);
+
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
 	const endFrame = useMemo((): number => {
@@ -466,7 +511,7 @@ const RenderModal: React.FC<
 
 		return Math.max(
 			0,
-			Math.min(resolvedComposition.durationInFrames - 1, endFrameOrNull)
+			Math.min(resolvedComposition.durationInFrames - 1, endFrameOrNull),
 		);
 	}, [resolvedComposition.durationInFrames, endFrameOrNull]);
 
@@ -483,12 +528,16 @@ const RenderModal: React.FC<
 
 		return Math.max(
 			0,
-			Math.min(resolvedComposition.durationInFrames - 1, parsed)
+			Math.min(resolvedComposition.durationInFrames - 1, parsed),
 		);
 	}, [resolvedComposition.durationInFrames, unclampedFrame]);
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
+		if (dotPos === -1) {
+			return fileName;
+		}
+
 		const bitBeforeDot = fileName.substring(0, dotPos);
 		return bitBeforeDot;
 	}, []);
@@ -509,18 +558,19 @@ const RenderModal: React.FC<
 			return BrowserSafeApis.defaultAudioCodecs[passedVideoCodec]
 				.compressed as AudioCodec;
 		},
-		[]
+		[],
 	);
 
 	const setDefaultOutName = useCallback(
 		(
 			options:
+				| {type: 'sequence'}
 				| {type: 'still'; imageFormat: StillImageFormat}
 				| {
 						type: 'render';
 						codec: Codec;
 						audioCodec: AudioCodec;
-				  }
+				  },
 		) => {
 			if (options.type === 'still') {
 				setOutName((prev) => {
@@ -528,11 +578,16 @@ const RenderModal: React.FC<
 						getStringBeforeSuffix(prev) + '.' + options.imageFormat;
 					return newFileName;
 				});
+			} else if (options.type === 'sequence') {
+				setOutName((prev) => {
+					const folderName = getStringBeforeSuffix(prev);
+					return folderName;
+				});
 			} else {
 				setOutName((prev) => {
 					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
 						options.codec,
-						deriveFinalAudioCodec(options.codec, options.audioCodec)
+						deriveFinalAudioCodec(options.codec, options.audioCodec),
 					);
 
 					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
@@ -540,7 +595,7 @@ const RenderModal: React.FC<
 				});
 			}
 		},
-		[deriveFinalAudioCodec, getStringBeforeSuffix]
+		[deriveFinalAudioCodec, getStringBeforeSuffix],
 	);
 
 	const setAudioCodec = useCallback(
@@ -552,7 +607,7 @@ const RenderModal: React.FC<
 				audioCodec: newAudioCodec,
 			});
 		},
-		[setDefaultOutName, videoCodecForVideoTab]
+		[setDefaultOutName, videoCodecForVideoTab],
 	);
 
 	const setCodec = useCallback(
@@ -574,7 +629,7 @@ const RenderModal: React.FC<
 			deriveFinalAudioCodec,
 			renderMode,
 			setDefaultOutName,
-		]
+		],
 	);
 
 	const setStillFormat = useCallback(
@@ -582,15 +637,15 @@ const RenderModal: React.FC<
 			setStillImageFormat(format);
 			setDefaultOutName({type: 'still', imageFormat: format});
 		},
-		[setDefaultOutName]
+		[setDefaultOutName],
 	);
 
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	const onClickStill = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId: resolvedComposition.id,
@@ -604,6 +659,8 @@ const RenderModal: React.FC<
 			delayRenderTimeout,
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
+			offthreadVideoCacheSizeInBytes,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -626,11 +683,13 @@ const RenderModal: React.FC<
 		delayRenderTimeout,
 		envVariables,
 		inputProps,
+		offthreadVideoCacheSizeInBytes,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
-		() => initialEveryNthFrame
+		() => initialEveryNthFrame,
 	);
 
 	const everyNthFrame = useMemo(() => {
@@ -645,8 +704,8 @@ const RenderModal: React.FC<
 
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId: resolvedComposition.id,
@@ -663,6 +722,7 @@ const RenderModal: React.FC<
 			muted,
 			enforceAudioTrack,
 			proResProfile,
+			x264Preset,
 			pixelFormat,
 			audioBitrate,
 			videoBitrate,
@@ -674,6 +734,9 @@ const RenderModal: React.FC<
 			chromiumOptions,
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
+			offthreadVideoCacheSizeInBytes,
+			colorSpace,
+			multiProcessOnLinux,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -701,6 +764,7 @@ const RenderModal: React.FC<
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		x264Preset,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
@@ -712,6 +776,61 @@ const RenderModal: React.FC<
 		chromiumOptions,
 		envVariables,
 		inputProps,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
+		multiProcessOnLinux,
+		onClose,
+	]);
+
+	const onClickSequence = useCallback(() => {
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
+		dispatchIfMounted({type: 'start'});
+		addSequenceRenderJob({
+			compositionId: resolvedComposition.id,
+			outName,
+			imageFormat: sequenceImageFormat,
+			scale,
+			verbose,
+			concurrency,
+			endFrame,
+			jpegQuality,
+			startFrame,
+			delayRenderTimeout,
+			chromiumOptions,
+			envVariables: envVariablesArrayToObject(envVariables),
+			inputProps,
+			offthreadVideoCacheSizeInBytes,
+			disallowParallelEncoding,
+			multiProcessOnLinux,
+		})
+			.then(() => {
+				dispatchIfMounted({type: 'succeed'});
+				onClose();
+			})
+			.catch(() => {
+				dispatchIfMounted({type: 'fail'});
+			});
+	}, [
+		setSidebarCollapsedState,
+		dispatchIfMounted,
+		resolvedComposition.id,
+		outName,
+		sequenceImageFormat,
+		scale,
+		verbose,
+		concurrency,
+		endFrame,
+		jpegQuality,
+		startFrame,
+		delayRenderTimeout,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		offthreadVideoCacheSizeInBytes,
+		disallowParallelEncoding,
+		multiProcessOnLinux,
 		onClose,
 	]);
 
@@ -751,6 +870,23 @@ const RenderModal: React.FC<
 			];
 		}
 
+		if (renderMode === 'sequence') {
+			return [
+				{
+					label: 'PNG',
+					onClick: () => setSequenceImageFormat('png'),
+					key: 'png',
+					selected: sequenceImageFormat === 'png',
+				},
+				{
+					label: 'JPEG',
+					onClick: () => setSequenceImageFormat('jpeg'),
+					key: 'jpeg',
+					selected: sequenceImageFormat === 'jpeg',
+				},
+			];
+		}
+
 		return [
 			{
 				label: 'PNG',
@@ -765,7 +901,13 @@ const RenderModal: React.FC<
 				selected: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
+	}, [
+		renderMode,
+		videoImageFormat,
+		stillImageFormat,
+		setStillFormat,
+		sequenceImageFormat,
+	]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
@@ -776,7 +918,7 @@ const RenderModal: React.FC<
 					codec: videoCodecForAudioTab,
 					audioCodec: deriveFinalAudioCodec(
 						videoCodecForAudioTab,
-						userSelectedAudioCodec
+						userSelectedAudioCodec,
 					),
 				});
 			}
@@ -787,13 +929,17 @@ const RenderModal: React.FC<
 					codec: videoCodecForVideoTab,
 					audioCodec: deriveFinalAudioCodec(
 						videoCodecForVideoTab,
-						userSelectedAudioCodec
+						userSelectedAudioCodec,
 					),
 				});
 			}
 
 			if (newRenderMode === 'still') {
 				setDefaultOutName({type: 'still', imageFormat: stillImageFormat});
+			}
+
+			if (newRenderMode === 'sequence') {
+				setDefaultOutName({type: 'sequence'});
 			}
 		},
 		[
@@ -803,7 +949,7 @@ const RenderModal: React.FC<
 			setDefaultOutName,
 			stillImageFormat,
 			videoCodecForVideoTab,
-		]
+		],
 	);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
@@ -845,6 +991,14 @@ const RenderModal: React.FC<
 				key: 'audio',
 				selected: renderMode === 'audio',
 			},
+			{
+				label: 'Image sequence',
+				onClick: () => {
+					setRenderMode('sequence');
+				},
+				key: 'sequence',
+				selected: renderMode === 'sequence',
+			},
 		];
 	}, [resolvedComposition?.durationInFrames, renderMode, setRenderMode]);
 
@@ -869,10 +1023,12 @@ const RenderModal: React.FC<
 
 		if (renderMode === 'still') {
 			onClickStill();
+		} else if (renderMode === 'sequence') {
+			onClickSequence();
 		} else {
 			onClickVideo();
 		}
-	}, [onClickStill, onClickVideo, renderDisabled, renderMode]);
+	}, [onClickSequence, onClickStill, onClickVideo, renderDisabled, renderMode]);
 
 	useEffect(() => {
 		const enter = registerKeybinding({
@@ -984,7 +1140,7 @@ const RenderModal: React.FC<
 						</VerticalTab>
 					) : null}
 				</div>
-				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
@@ -1022,6 +1178,8 @@ const RenderModal: React.FC<
 							jpegQuality={jpegQuality}
 							qualityControlType={qualityControlType}
 							setJpegQuality={setJpegQuality}
+							setColorSpace={setColorSpace}
+							colorSpace={colorSpace}
 							setCustomTargetVideoBitrateValue={
 								setCustomTargetVideoBitrateValue
 							}
@@ -1067,9 +1225,13 @@ const RenderModal: React.FC<
 							unresolvedComposition={unresolvedComposition}
 							mayShowSaveButton={false}
 							propsEditType="input-props"
+							saving={saving}
+							setSaving={setSaving}
 						/>
 					) : (
 						<RenderModalAdvanced
+							x264Preset={x264Preset}
+							setx264Preset={setx264Preset}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}
@@ -1091,6 +1253,13 @@ const RenderModal: React.FC<
 							setOpenGlOption={setOpenGlOption}
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
+							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
+							setOffthreadVideoCacheSizeInBytes={
+								setOffthreadVideoCacheSizeInBytes
+							}
+							enableMultiProcessOnLinux={multiProcessOnLinux}
+							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
+							codec={codec}
 						/>
 					)}
 				</div>
@@ -1121,7 +1290,7 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 	const resolved = Internals.useResolvedVideoConfig(props.compositionId);
 	const unresolvedContext = useContext(Internals.CompositionManager);
 	const unresolved = unresolvedContext.compositions.find(
-		(c) => props.compositionId === c.id
+		(c) => props.compositionId === c.id,
 	);
 
 	if (!unresolved) {

@@ -4,8 +4,8 @@
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import {AssetManagerProvider} from '../AssetManager.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
+import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
@@ -49,9 +49,9 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		return (
 			<CompositionManager.Provider value={mockCompositionContext}>
 				<SequenceManager.Provider value={sequenceManagerContext}>
-					<AssetManagerProvider>
+					<RenderAssetManagerProvider>
 						<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
-					</AssetManagerProvider>
+					</RenderAssetManagerProvider>
 				</SequenceManager.Provider>
 			</CompositionManager.Provider>
 		);
@@ -73,7 +73,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			}),
 		{
 			wrapper,
-		}
+		},
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	unmount();

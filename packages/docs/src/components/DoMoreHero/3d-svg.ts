@@ -26,7 +26,7 @@ export type ThreeDReducedInstruction =
     };
 
 const serializeThreeDReducedInstruction = (
-  instruction: ThreeDReducedInstruction
+  instruction: ThreeDReducedInstruction,
 ): string => {
   if (instruction.type === "M") {
     return `M ${instruction.point[0]} ${instruction.point[1]}`;
@@ -52,7 +52,7 @@ const serializeThreeDReducedInstruction = (
 };
 
 export const threeDIntoSvgPath = (
-  instructions: ThreeDReducedInstruction[]
+  instructions: ThreeDReducedInstruction[],
 ): string =>
   instructions
     .map((instruction) => serializeThreeDReducedInstruction(instruction))

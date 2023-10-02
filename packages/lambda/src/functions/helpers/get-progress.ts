@@ -10,6 +10,7 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
+import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -60,12 +61,12 @@ export const getProgress = async ({
 		const outData = getExpectedOutName(
 			postRenderData.renderMetadata,
 			bucketName,
-			customCredentials
+			customCredentials,
 		);
 
 		const totalFrameCount = RenderInternals.getFramesToRender(
 			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame
+			postRenderData.renderMetadata.everyNthFrame,
 		).length;
 
 		return {
@@ -116,7 +117,7 @@ export const getProgress = async ({
 	});
 
 	const renderMetadataExists = Boolean(
-		contents.find((c) => c.Key === renderMetadataKey(renderId))
+		contents.find((c) => c.Key === renderMetadataKey(renderId)),
 	);
 
 	const [renderMetadata, errorExplanations] = await Promise.all([
@@ -139,7 +140,7 @@ export const getProgress = async ({
 
 	if (renderMetadata?.type === 'still') {
 		throw new Error(
-			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉"
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
 		);
 	}
 
@@ -147,7 +148,7 @@ export const getProgress = async ({
 		contents,
 		renderId,
 		bucketName,
-		getCurrentRegionInFunction()
+		getCurrentRegionInFunction(),
 	);
 
 	const outputFile = renderMetadata
@@ -169,7 +170,7 @@ export const getProgress = async ({
 			// We cannot determine the ephemeral storage size, so we
 			// overestimate the price, but will only have a miniscule effect (~0.2%)
 			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		})
+		}),
 	);
 
 	const cleanup = getCleanupProgress({
@@ -213,7 +214,7 @@ export const getProgress = async ({
 	const frameCount = renderMetadata
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame
+				renderMetadata.everyNthFrame,
 		  ).length
 		: null;
 
@@ -232,18 +233,41 @@ export const getProgress = async ({
 		? renderMetadata?.totalChunks ?? 0
 		: chunks.length;
 
+	const availableChunks = chunks.map((c) =>
+		parseLambdaChunkKey(c.Key as string),
+	);
+
+	const missingChunks = renderMetadata
+		? new Array(renderMetadata.totalChunks)
+				.fill(true)
+				.map((_, i) => i)
+				.filter((index) => {
+					return !availableChunks.find((c) => c.chunk === index);
+				})
+		: null;
+
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
-	const isBeyondTimeout =
+
+	// 1. If we have missing chunks, we consider it timed out
+	const isBeyondTimeoutAndMissingChunks =
 		renderMetadata &&
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000;
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		missingChunks &&
+		missingChunks.length > 0;
+
+	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
+	const isBeyondTimeoutAndHasStitchTimeout =
+		renderMetadata &&
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
-		isBeyondTimeout
+		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout
 			? makeTimeoutError({
 					timeoutInMilliseconds,
 					renderMetadata,
 					chunks,
 					renderId,
+					missingChunks: missingChunks ?? [],
 			  })
 			: null,
 		...errorExplanations,

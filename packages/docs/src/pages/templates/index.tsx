@@ -33,7 +33,7 @@ export default () => {
       <Head>
         {Seo.renderTitle(`Starter Templates | Remotion`)}
         {Seo.renderDescription(
-          "Jumpstart your Remotion project with a template."
+          "Jumpstart your Remotion project with a template.",
         )}
         {Seo.renderImage(imgSrc, context.siteConfig.url)}
       </Head>

@@ -19,7 +19,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 		if (updatesDoOverwrite) {
 			output.update(
 				chalk.red('Symbolicating minified error message...\n' + err.message),
-				false
+				false,
 			);
 		}
 
@@ -30,7 +30,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			} else {
 				output.update(
 					chalk.red(`An error occurred while rendering frame ${err.frame}:`),
-					true
+					true,
 				);
 			}
 

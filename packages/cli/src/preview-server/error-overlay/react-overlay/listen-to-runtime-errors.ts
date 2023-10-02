@@ -35,7 +35,7 @@ export type ErrorRecord = {
 const CONTEXT_SIZE = 3;
 
 export const getErrorRecord = async (
-	error: Error
+	error: Error,
 ): Promise<ErrorRecord | null> => {
 	const stackFrames = await getStackFrames(error, CONTEXT_SIZE);
 
@@ -66,12 +66,14 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 
 	window.localStorage.setItem(
 		'remotion.lastCrashBecauseOfHooks',
-		String(Date.now())
+		String(Date.now()),
 	);
 
 	if (didHookOrderChange && !justRefreshedBecauseOfHooks) {
 		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
+
+		window.remotion_unsavedProps = false;
 		window.location.reload();
 	} else {
 		setErrorsRef.current?.addError(error);

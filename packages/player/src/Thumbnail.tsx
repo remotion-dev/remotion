@@ -7,6 +7,7 @@ import type {
 import {
 	forwardRef,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -24,7 +25,7 @@ import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
 type ThumbnailProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = PropsIfHasProps<Schema, Props> &
 	CompProps<Props> & {
 		frameToDisplay: number;
@@ -40,7 +41,7 @@ type ThumbnailProps<
 
 export const ThumbnailFn = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 >(
 	{
 		frameToDisplay,
@@ -55,13 +56,20 @@ export const ThumbnailFn = <
 		renderLoading,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
-	ref: MutableRefObject<ThumbnailMethods>
+	ref: MutableRefObject<ThumbnailMethods>,
 ) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_isPlayer = true;
+		}, []);
+	}
+
 	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
-		return {
+		const value: TimelineContextValue = {
 			playing: false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
@@ -76,12 +84,14 @@ export const ThumbnailFn = <
 			},
 			audioAndVideoTags: {current: []},
 		};
+
+		return value;
 	}, [frameToDisplay, thumbnailId]);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
 	const Component = Internals.useLazyComponent(
-		componentProps
+		componentProps,
 	) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
@@ -99,7 +109,6 @@ export const ThumbnailFn = <
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={passedInputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>
@@ -120,8 +129,8 @@ export const ThumbnailFn = <
 const forward = forwardRef as <T, P = {}>(
 	render: (
 		props: P,
-		ref: React.MutableRefObject<T>
-	) => React.ReactElement | null
+		ref: React.MutableRefObject<T>,
+	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**

@@ -45,7 +45,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		() => {
 			return inputRef.current as HTMLTextAreaElement;
 		},
-		[]
+		[],
 	);
 
 	const style = useMemo(() => {
@@ -64,7 +64,6 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		}
 
 		const {current} = inputRef;
-
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
 		const onMouseEnter = () => setIsHovered(true);
@@ -106,7 +105,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 				document.execCommand(
 					'insertText',
 					false,
-					'\n' + ' '.repeat(difference)
+					'\n' + ' '.repeat(difference),
 				);
 			}
 		};

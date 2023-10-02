@@ -6,34 +6,35 @@ import {defaultFileExtensionMap} from './file-extensions';
 
 export const getFileExtensionFromCodec = <T extends Codec>(
 	codec: T,
-	audioCodec: AudioCodec | null
+	audioCodec: AudioCodec | null,
 ) => {
 	if (!validCodecs.includes(codec)) {
 		throw new Error(
 			`Codec must be one of the following: ${validCodecs.join(
-				', '
-			)}, but got ${codec}`
+				', ',
+			)}, but got ${codec}`,
 		);
 	}
 
 	const map = defaultFileExtensionMap[
 		codec
-	] as typeof defaultFileExtensionMap[T];
+	] as (typeof defaultFileExtensionMap)[T];
 	if (audioCodec === null) {
 		return map.default;
 	}
 
 	const typedAudioCodec =
-		audioCodec as keyof typeof defaultFileExtensionMap[Codec]['forAudioCodec'];
+		audioCodec as keyof (typeof defaultFileExtensionMap)[Codec]['forAudioCodec'];
 
 	if (!(typedAudioCodec in map.forAudioCodec)) {
 		throw new Error(
-			`Audio codec ${typedAudioCodec} is not supported for codec ${codec}`
+			`Audio codec ${typedAudioCodec} is not supported for codec ${codec}`,
 		);
 	}
 
-	return map.forAudioCodec[audioCodec as typeof supportedAudioCodecs[T][number]]
-		.default;
+	return map.forAudioCodec[
+		audioCodec as (typeof supportedAudioCodecs)[T][number]
+	].default;
 };
 
 export const makeFileExtensionMap = () => {
@@ -43,14 +44,14 @@ export const makeFileExtensionMap = () => {
 			const codec = _codec as T;
 			const fileExtMap = defaultFileExtensionMap[
 				codec
-			] as typeof defaultFileExtensionMap[T];
+			] as (typeof defaultFileExtensionMap)[T];
 			const audioCodecs = Object.keys(fileExtMap.forAudioCodec);
 
 			const possibleExtensionsForAudioCodec = audioCodecs.map(
 				(audioCodec) =>
 					fileExtMap.forAudioCodec[
-						audioCodec as typeof supportedAudioCodecs[T][number]
-					].possible
+						audioCodec as (typeof supportedAudioCodecs)[T][number]
+					].possible,
 			);
 
 			const allPossibleExtensions = [
@@ -67,7 +68,7 @@ export const makeFileExtensionMap = () => {
 					map[extension].push(codec);
 				}
 			}
-		}
+		},
 	);
 
 	return map;

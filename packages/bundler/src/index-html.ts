@@ -16,6 +16,7 @@ export type RenderDefaults = {
 	audioCodec: string | null;
 	enforceAudioTrack: boolean;
 	proResProfile: string;
+	x264Preset: string;
 	pixelFormat: string;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -25,7 +26,10 @@ export type RenderDefaults = {
 	disableWebSecurity: boolean;
 	openGlRenderer: string | null;
 	ignoreCertificateErrors: boolean;
+	offthreadVideoCacheSizeInBytes: number | null;
 	headless: boolean;
+	colorSpace: string;
+	multiProcessOnLinux: boolean;
 };
 
 declare global {
@@ -48,6 +52,7 @@ export const indexHtml = ({
 	includeFavicon,
 	title,
 	renderDefaults,
+	publicFolderExists,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -59,10 +64,12 @@ export const indexHtml = ({
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
+	publicFolderExists: string | null;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
 }) =>
+	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +79,7 @@ export const indexHtml = ({
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 ${
 	includeFavicon
-		? `		<link rel="icon" type="image/png" href="/remotion.png" />\n`
+		? `		<link id="__remotion_favicon" rel="icon" type="image/png" href="/remotion.png" />\n`
 		: ''
 }
 		<title>${title}</title>
@@ -88,10 +95,10 @@ ${
 				: '<script>window.remotion_editorName = null;</script>'
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(
-			path.basename(remotionRoot)
+			path.basename(remotionRoot),
 		)};</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
-			renderDefaults
+			renderDefaults,
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_studioServerCommand = ${
@@ -100,7 +107,7 @@ ${
 		${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
-						JSON.stringify(inputProps)
+						JSON.stringify(inputProps),
 				  )};</script>
 			`
 				: ''
@@ -108,7 +115,7 @@ ${
 		${
 			renderQueue
 				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
-						renderQueue
+						renderQueue,
 				  )};</script>
 			`
 				: ''
@@ -122,6 +129,9 @@ ${
 				: ''
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_publicFolderExists = ${
+			publicFolderExists ? `"${publicFolderExists}"` : 'null'
+		};</script>
 		
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>

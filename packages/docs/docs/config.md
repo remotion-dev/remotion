@@ -32,8 +32,6 @@ In v3.3.39, a new config file format was introduced which flattens the options s
 Previously, each config option was two levels deep:
 
 ```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
 Config.Bundling.setCachingEnabled(false);
 ```
 
@@ -262,7 +260,19 @@ import { Config } from "@remotion/cli/config";
 Config.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
+## setChromiumMultiProcessOnLinux()<AvailableFrom v="4.0.42" />
+
+<Options id="enable-multiprocess-on-linux" cli/>
+
+```tsx twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+// ---cut---
+
+Config.setChromiumMultiProcessOnLinux(true);
+```
+
+The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enable-multiprocess-on-linux` will take precedence over this option.
 
 ## setChromiumOpenGlRenderer
 
@@ -494,7 +504,7 @@ In version 1.x, the default behavior was inverse - Remotion would not override b
 
 ## setPixelFormat()
 
-Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
+Controls the pixel format in FFmpeg. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
 Default value: `yuv420p`
 
 ```ts twoslash title="remotion.config.ts"
@@ -562,6 +572,20 @@ Config.setProResProfile("4444");
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
+## setX264Preset()<AvailableFrom v="4.2.2" />
+
+Set the Preset profile. This option is only valid if the codec has been set to `h264`.
+Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setX264Preset("fast");
+```
+
+The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
+
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
 ## setImageSequence()<AvailableFrom v="1.4.0" />
@@ -620,7 +644,7 @@ The [command line flag](/docs/cli) `--quality` will take precedence over this op
 
 ## setCrf()<AvailableFrom v="1.4.0" />
 
-The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
+The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFmpeg how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
 
 Ranges for CRF scale, by codec:
 
@@ -643,11 +667,11 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
-### `setVideoBitrate()`<AvailableFrom v="3.2.32" />
+## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+FFmpeg may encode the video in a way that will not result in the exact video bitrate specified.  
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
@@ -659,11 +683,11 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-### `setAudioBitrate`<AvailableFrom v="3.2.32" />
+## `setAudioBitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
 Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
@@ -675,22 +699,66 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
+## `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
+
+For Lambda:
+
+<Options id="enable-folder-expiry" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEnableFolderExpiry(true);
+```
+
+## `setDeleteAfter`<AvailableFrom v="4.0.32" />
+
+For Lambda:
+
+<Options id="delete-after" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setDeleteAfter("3-days");
+```
+
 ## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
 
-Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
+Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.overrideFfmpegCommand(({ args }) => {
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  // Define the custom FFmpeg options as an array of strings
+  const customFfmpegOptions = [
+    "-profile:v",
+    "main",
+    "-video_track_timescale",
+    "90000",
+    "-color_primaries",
+    "bt709",
+    "-color_trc",
+    "bt709",
+    "-strict",
+    "experimental",
+  ];
+  // The customFfmpegOptions are inserted before the last element to ensure
+  // they appear before the ffmpeg's output path
+  args.splice(args.length - 1, 0, ...customFfmpegOptions);
+  return args;
 });
 ```
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
 - `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
-- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+- `args`: An array of strings that is passed as arguments to the FFmpeg command.
 
 Your function must return a modified array of strings.
 
@@ -698,7 +766,8 @@ Your function must return a modified array of strings.
 Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
 
 - The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
-- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFmpeg commands being executed. Your function must be able to handle being called multiple times.
+- The FFmpeg binary provided by Remotion supports only a small subset of FFmpeg commands, therefore not every passed option will be applied.
 - This feature is not available when using Remotion Lambda.
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
@@ -708,7 +777,7 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 _removed in v4.0_
 
-Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, this is null and the FFMPEG in `PATH` will be used.
+Allows you to use a custom FFmpeg binary. Must be an absolute path. By default, this is null and the FFmpeg in `PATH` will be used.
 
 ```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

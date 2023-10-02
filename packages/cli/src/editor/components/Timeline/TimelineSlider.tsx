@@ -55,7 +55,7 @@ const Inner: React.FC = () => {
 		const left = getXPositionOfItemInTimelineImperatively(
 			timelinePosition,
 			videoConfig.durationInFrames,
-			timelineWidth
+			timelineWidth,
 		);
 		return {
 			...container,
@@ -76,12 +76,12 @@ const Inner: React.FC = () => {
 					current.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
 						frame,
 						getCurrentDuration(),
-						width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0
+						width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
 					)}px)`;
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	useEffect(() => {

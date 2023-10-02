@@ -53,6 +53,10 @@ Especially 1.x releases could timeout when importing large assets
 
 **Resolution**: Upgrade to the latest Remotion version using `npm run upgrade`.
 
+### Video needs to be downloaded
+
+If you render a video using [`<OffthreadVideo>`](/docs/offthreadvideo), then the video needs to be downloaded before it can be read. If the video is large and takes longer than the timeout to be downloaded, then the timeout will be triggered. In that you should increase the [timeout](#increase-timeout).
+
 ### Not helpful?
 
 [Open an issue](https://github.com/remotion-dev/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
@@ -63,12 +67,14 @@ Sometimes, you cannot avoid a frame taking longer than 30 seconds to render. For
 
 - Expensive WebGL scenes
 - Expensive preprocessing of data
+- Need to wait for videos to be downloaded
 
 You can increase the default timeout:
 
+- In the Remotion Studio render dialog under "Advanced"
 - Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
-- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
-- Using the [`Config.setDelayRenderTimeoutInMilliseconds()`](/docs/config#setdelayrendertimeoutinmilliseconds) option in the config file
+- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds), [`renderStillOnCloudRun()`](/docs/cloudrun/renderstilloncloudrun#delayrendertimeoutinmilliseconds) and [`renderMediaOnCloudRun()`](/docs/cloudrun/rendermediaoncloudrun#delayrendertimeoutinmilliseconds)
+- Using the [`Config.setDelayRenderTimeoutInMilliseconds()`](/docs/config#setdelayrendertimeoutinmilliseconds) option in the config file, if you render on the CLI
 
 ## Adding a label to help debugging<AvailableFrom v="2.6.13"/>
 

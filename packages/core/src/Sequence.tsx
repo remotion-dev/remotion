@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
-import {useRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
@@ -34,7 +34,13 @@ export type SequenceProps = {
 	from?: number;
 	durationInFrames?: number;
 	name?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	showInTimeline?: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	loopDisplay?: LoopDisplay;
 } & LayoutAndStyle;
 
@@ -51,7 +57,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 		...other
 	},
-	ref
+	ref,
 ) => {
 	const {layout = 'absolute-fill'} = other;
 	const [id] = useState(() => String(Math.random()));
@@ -61,11 +67,10 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const nonce = useNonce();
-	const environment = useRemotionEnvironment();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
-			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`,
 		);
 	}
 
@@ -76,25 +81,25 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (typeof durationInFrames !== 'number') {
 		throw new TypeError(
-			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
+			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`,
 		);
 	}
 
 	if (durationInFrames <= 0) {
 		throw new TypeError(
-			`durationInFrames must be positive, but got ${durationInFrames}`
+			`durationInFrames must be positive, but got ${durationInFrames}`,
 		);
 	}
 
 	if (typeof from !== 'number') {
 		throw new TypeError(
-			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
+			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`,
 		);
 	}
 
 	if (!Number.isFinite(from)) {
 		throw new TypeError(
-			`The "from" prop of a sequence must be finite, but got ${from}.`
+			`The "from" prop of a sequence must be finite, but got ${from}.`,
 		);
 	}
 
@@ -106,7 +111,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		: durationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
-		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
+		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
@@ -131,7 +136,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [children, name]);
 
 	useEffect(() => {
-		if (environment !== 'preview') {
+		if (!getRemotionEnvironment().isStudio) {
 			return;
 		}
 
@@ -164,7 +169,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		environment,
 	]);
 
 	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
@@ -186,7 +190,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
-			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.'
+			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.',
 		);
 	}
 
@@ -209,6 +213,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 /**
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
- * @see [Documentation](https://www.remotion.dev/docs/sequence]
+ * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
 export const Sequence = forwardRef(SequenceRefForwardingFunction);

@@ -10,5 +10,6 @@ export const handleUpdate: ApiHandler<
 	UpdateAvailableResponse
 > = async ({remotionRoot}) => {
 	const data = await isUpdateAvailableWithTimeout(remotionRoot);
+
 	return data;
 };

@@ -13,7 +13,7 @@ test('Get git status', async () => {
 	expect(
 		status.location ===
 			path.posix.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
-			status.location === 'D:/a/remotion/remotion'
+			status.location === 'D:/a/remotion/remotion',
 	).toEqual(true);
 
 	if (status.type !== 'is-git-repo') {
@@ -23,14 +23,14 @@ test('Get git status', async () => {
 	const status2 = await checkGitAvailability(
 		path.dirname(status.location),
 		'git',
-		['--version']
+		['--version'],
 	);
 	expect(status2).toEqual({type: 'no-git-repo'});
 
 	const status3 = await checkGitAvailability(
 		path.dirname(status.location),
 		'wronggitbinary',
-		['--version']
+		['--version'],
 	);
 	expect(status3).toEqual({type: 'git-not-installed'});
 });

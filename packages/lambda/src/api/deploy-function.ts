@@ -1,3 +1,4 @@
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -32,20 +33,8 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-/**
- * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
- * @see [Documentation](https://www.remotion.dev/docs/lambda/deployfunction)
- * @param params.createCloudWatchLogGroup Whether you'd like to create a CloudWatch Log Group to store the logs for this function.
- * @param params.cloudWatchLogRetentionPeriodInDays (optional) The number of days to retain the CloudWatch logs for this function. Default is 14 days.
- * @param params.region The region you want to deploy your function to.
- * @param params.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
- * @param params.memorySizeInMb How much memory should be allocated to the Lambda function.
- * @param params.architecture The architecture Lambda should run on. One of x86_64 and x64
- * @param params.diskSizeInMb The amount of storage the function should be allocated. The higher, the longer videos you can render. Default 512.
- * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
- */
-export const deployFunction = async (
-	params: DeployFunctionInput
+const deployFunctionRaw = async (
+	params: DeployFunctionInput,
 ): Promise<DeployFunctionOutput> => {
 	const diskSizeInMb = params.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 
@@ -74,7 +63,7 @@ export const deployFunction = async (
 			f.version === VERSION &&
 			f.memorySizeInMb === params.memorySizeInMb &&
 			f.timeoutInSeconds === params.timeoutInSeconds &&
-			f.diskSizeInMb === diskSizeInMb
+			f.diskSizeInMb === diskSizeInMb,
 	);
 
 	const created = await createFunction({
@@ -102,3 +91,20 @@ export const deployFunction = async (
 		alreadyExisted: Boolean(alreadyDeployed),
 	};
 };
+
+/**
+ * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
+ * @see [Documentation](https://www.remotion.dev/docs/lambda/deployfunction)
+ * @param params.createCloudWatchLogGroup Whether you'd like to create a CloudWatch Log Group to store the logs for this function.
+ * @param params.cloudWatchLogRetentionPeriodInDays (optional) The number of days to retain the CloudWatch logs for this function. Default is 14 days.
+ * @param params.region The region you want to deploy your function to.
+ * @param params.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
+ * @param params.memorySizeInMb How much memory should be allocated to the Lambda function.
+ * @param params.architecture The architecture Lambda should run on. One of x86_64 and x64
+ * @param params.diskSizeInMb The amount of storage the function should be allocated. The higher, the longer videos you can render. Default 512.
+ * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
+ */
+
+export const deployFunction = PureJSAPIs.wrapWithErrorHandling(
+	deployFunctionRaw,
+) as typeof deployFunctionRaw;

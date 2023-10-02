@@ -187,6 +187,19 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={right}>Toggle both sidebars</div>
 					</Row>
 					<br />
+					<div style={title}>View</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>F</kbd>
+						</div>
+						<div style={right}>Enter fullscreen</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>esc</kbd>
+						</div>
+						<div style={right}>Exit fullscreen</div>
+					</Row>
 				</Column>
 				<Spacing x={8} />
 				<Column>
@@ -262,6 +275,16 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 							<kbd style={key}>0</kbd>
 						</div>
 						<div style={right}>Reset zoom</div>
+					</Row>{' '}
+					<br />
+					<div style={title}>Props Editor</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>S</kbd>
+						</div>
+						<div style={right}>Save</div>
 					</Row>
 				</Column>
 			</Row>

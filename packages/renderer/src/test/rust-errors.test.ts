@@ -1,47 +1,45 @@
 import path from 'node:path';
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
-import {
-	getIdealMaximumFrameCacheItems,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test('Should get Rust errors in a good way', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		'info',
-		false
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('ExtractFrame', {
-			input: 'invlaid',
+			src: 'invlaid',
+			original_src: 'invlaid',
 			time: 1,
 			transparent: false,
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: No such file or directory'
+			'Compositor error: No such file or directory',
 		);
 		expect((err as Error).message).toContain(
-			'compositor::opened_stream::open_stream'
+			'compositor::opened_stream::open_stream',
 		);
 	}
 });
 
 test('Handle panics', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		'info',
-		false
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('DeliberatePanic', {});
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
 		expect((err as Error).message).toContain(
-			path.join('rust', 'commands', 'mod')
+			path.join('rust', 'commands', 'mod'),
 		);
 	}
 
@@ -56,14 +54,14 @@ test('Handle panics', async () => {
 		compositor.finishCommands();
 		throw new Error('should not be reached');
 	} catch (err) {
-		expect((err as Error).message).toContain('Compositor already quit');
+		expect((err as Error).message).toContain('Compositor quit');
 	}
 
 	try {
 		await compositor.waitForDone();
 		throw new Error('should not be reached');
 	} catch (err) {
-		expect((err as Error).message).toContain('Compositor already quit');
+		expect((err as Error).message).toContain('Compositor quit');
 	}
 });
 
@@ -81,7 +79,8 @@ test('Non-long running task panics should be handled', async () => {
 
 test('Long running task failures should be handled', async () => {
 	const command = serializeCommand('ExtractFrame', {
-		input: 'fsdfds',
+		src: 'fsdfds',
+		original_src: 'fsdfds',
 		time: 1,
 		transparent: false,
 	});
@@ -90,10 +89,10 @@ test('Long running task failures should be handled', async () => {
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: No such file or directory'
+			'Compositor error: No such file or directory',
 		);
 		expect((err as Error).stack).toContain(
-			'compositor::opened_stream::open_stream'
+			'compositor::opened_stream::open_stream',
 		);
 	}
 });
@@ -101,13 +100,14 @@ test('Long running task failures should be handled', async () => {
 test('Invalid payloads will be handled', async () => {
 	// @ts-expect-error
 	const command = serializeCommand('ExtractFrame', {
-		input: 'fsdfds',
+		src: 'fsdfds',
+		original_src: 'fsdfds',
 	});
 	try {
 		await callCompositor(JSON.stringify(command));
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: missing field `time`'
+			'Compositor error: missing field `time`',
 		);
 	}
 });

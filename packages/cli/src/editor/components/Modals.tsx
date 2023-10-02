@@ -27,6 +27,9 @@ export const Modals: React.FC = () => {
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
 					initialRenderType={modalContextType.initialRenderType}
+					initialOffthreadVideoCacheSizeInBytes={
+						modalContextType.initialOffthreadVideoCacheSizeInBytes
+					}
 					initialVideoCodecForAudioTab={
 						modalContextType.initialVideoCodecForAudioTab
 					}
@@ -40,6 +43,7 @@ export const Modals: React.FC = () => {
 					initialMuted={modalContextType.initialMuted}
 					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
 					initialProResProfile={modalContextType.initialProResProfile}
+					initialx264Preset={modalContextType.initialx264Preset}
 					initialPixelFormat={modalContextType.initialPixelFormat}
 					initialAudioBitrate={modalContextType.initialAudioBitrate}
 					initialVideoBitrate={modalContextType.initialVideoBitrate}
@@ -57,6 +61,10 @@ export const Modals: React.FC = () => {
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
+					initialColorSpace={modalContextType.initialColorSpace}
+					initialMultiProcessOnLinux={
+						modalContextType.initialMultiProcessOnLinux
+					}
 				/>
 			)}
 
@@ -67,7 +75,10 @@ export const Modals: React.FC = () => {
 				)}
 
 			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal info={modalContextType.info} />
+				<UpdateModal
+					info={modalContextType.info}
+					knownBugs={modalContextType.knownBugs}
+				/>
 			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (

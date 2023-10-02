@@ -15,11 +15,11 @@ test('Should handle the overlay', async () => {
 			'StartLongRunningProcess',
 			{
 				concurrency: 2,
-				maximum_frame_cache_items: 100,
+				maximum_frame_cache_size_in_bytes: 100,
 				verbose: false,
 			},
 			'info',
-			false
+			false,
 		);
 
 		await composeWithoutCache({
@@ -58,11 +58,11 @@ test('Should handle valid', async () => {
 		'StartLongRunningProcess',
 		{
 			concurrency: 2,
-			maximum_frame_cache_items: 100,
+			maximum_frame_cache_size_in_bytes: 100,
 			verbose: false,
 		},
 		'info',
-		false
+		false,
 	);
 
 	await composeWithoutCache({

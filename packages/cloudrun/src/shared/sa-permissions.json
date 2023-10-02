@@ -1,0 +1,64 @@
+{
+	"list": [
+		{
+			"name": "iam.serviceAccounts.actAs",
+			"reason": "When deploying, act as the default service account, which will grant further permissions required during deployment."
+		},
+		{
+			"name": "run.operations.get",
+			"reason": "Required during deployment to confirm that deployment was successful."
+		},
+		{
+			"name": "run.routes.invoke",
+			"reason": "Invoke the deployed Cloud Run services to perform a render."
+		},
+		{
+			"name": "run.services.create",
+			"reason": "Deploy new, and edit existing, Cloud Run services."
+		},
+		{
+			"name": "run.services.get",
+			"reason": ""
+		},
+		{
+			"name": "run.services.delete",
+			"reason": ""
+		},
+		{
+			"name": "run.services.list",
+			"reason": "Get a list of existing Cloud Run services, to ensure no unintended overwriting."
+		},
+		{
+			"name": "run.services.update",
+			"reason": "Update a Cloud Run service, for example providing it with more memory or CPU."
+		},
+		{
+			"name": "storage.buckets.create",
+			"reason": "Create the storage bucket to store the bundled site and render output."
+		},
+		{
+			"name": "storage.buckets.get",
+			"reason": ""
+		},
+		{
+			"name": "storage.buckets.list",
+			"reason": "Get a list of existing Cloud Storage resources, to ensure no unintended overwriting of storage buckets."
+		},
+		{
+			"name": "storage.objects.create",
+			"reason": "Create new objects in storage. This could be bundled sites, or renders, or logs."
+		},
+		{
+			"name": "storage.objects.delete",
+			"reason": ""
+		},
+		{
+			"name": "storage.objects.list",
+			"reason": ""
+		},
+		{
+			"name": "logging.logEntries.list",
+			"reason": "Used by the CLI to fetch recent logs if the Cloud Run service crashes, to assist in debugging the root cause."
+		}
+	]
+}

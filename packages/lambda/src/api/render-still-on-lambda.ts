@@ -2,8 +2,12 @@ import type {
 	ChromiumOptions,
 	LogLevel,
 	StillImageFormat,
+	ToOptions,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -46,7 +50,8 @@ export type RenderStillOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
-};
+	deleteAfter?: DeleteAfter | null;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
@@ -57,24 +62,7 @@ export type RenderStillOnLambdaOutput = {
 	cloudWatchLogs: string;
 };
 
-/**
- * @description Renders a still frame on Lambda
- * @link https://remotion.dev/docs/lambda/renderstillonlambda
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.imageFormat In which image format the frames should be rendered.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the video should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
- * @param params.frame Which frame should be used for the still image. Default 0.
- * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
- */
-
-export const renderStillOnLambda = async ({
+const renderStillOnLambdaRaw = async ({
 	functionName,
 	serveUrl,
 	inputProps,
@@ -98,10 +86,12 @@ export const renderStillOnLambda = async ({
 	forceBucketName,
 	dumpBrowserLogs,
 	onInit,
+	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+			'The `quality` option is deprecated. Use `jpegQuality` instead.',
 		);
 	}
 
@@ -140,6 +130,8 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
+				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				deleteAfter: deleteAfter ?? null,
 			},
 			region,
 			receivedStreamingPayload: (payload) => {
@@ -157,6 +149,7 @@ export const renderStillOnLambda = async ({
 				}
 			},
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 
 		return {
@@ -176,10 +169,30 @@ export const renderStillOnLambda = async ({
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 
 		throw err;
 	}
 };
+
+/**
+ * @description Renders a still frame on Lambda
+ * @link https://remotion.dev/docs/lambda/renderstillonlambda
+ * @param params.functionName The name of the Lambda function that should be used
+ * @param params.serveUrl The URL of the deployed project
+ * @param params.composition The ID of the composition which should be rendered.
+ * @param params.inputProps The input props that should be passed to the composition.
+ * @param params.imageFormat In which image format the frames should be rendered.
+ * @param params.envVariables Object containing environment variables to be inserted into the video environment
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
+ * @param params.region The AWS region in which the video should be rendered.
+ * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
+ * @param params.frame Which frame should be used for the still image. Default 0.
+ * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
+ * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
+ */
+export const renderStillOnLambda = PureJSAPIs.wrapWithErrorHandling(
+	renderStillOnLambdaRaw,
+) as typeof renderStillOnLambdaRaw;

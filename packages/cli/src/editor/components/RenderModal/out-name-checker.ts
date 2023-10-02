@@ -6,7 +6,7 @@ const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
-	stillImageFormat: StillImageFormat
+	stillImageFormat: StillImageFormat,
 ): boolean => {
 	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
 		return true;
@@ -65,7 +65,7 @@ const isValidOutName = ({
 		!(audioCodec in map.forAudioCodec)
 	) {
 		throw new Error(
-			`Audio codec ${audioCodec} is not supported for codec ${codec}`
+			`Audio codec ${audioCodec} is not supported for codec ${codec}`,
 		);
 	}
 
@@ -93,7 +93,7 @@ const isValidOutName = ({
 		});
 	}
 
-	if (prefix.length < 1) {
+	if (prefix.length < 1 && renderMode !== 'sequence') {
 		throw new Error('The prefix must be at least 1 character long');
 	}
 
@@ -103,7 +103,7 @@ const isValidOutName = ({
 
 	if (hasInvalidChar()) {
 		throw new Error(
-			"Filename can't contain the following characters:  ?, *, +, %, :"
+			"Filename can't contain the following characters:  ?, *, +, %, :",
 		);
 	}
 
@@ -113,7 +113,13 @@ const isValidOutName = ({
 		!isValidStillExtension(extension, stillImageFormat)
 	) {
 		throw new Error(
-			`The extension ${extension} is not supported for still image format ${stillImageFormat}`
+			`The extension ${extension} is not supported for still image format ${stillImageFormat}`,
 		);
+	}
+
+	if (renderMode === 'sequence') {
+		if (outName.includes('.')) {
+			throw new Error('Folder names must not contain a dot');
+		}
 	}
 };

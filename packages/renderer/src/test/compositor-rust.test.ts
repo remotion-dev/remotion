@@ -1,17 +1,14 @@
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheItems,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test(
 	'Compositor should process messages in the right order',
 	async () => {
-		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems(),
-			'verbose',
-			false
-		);
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'verbose',
+			indent: false,
+		});
 
 		const matching = await Promise.all(
 			new Array(100).fill(true).map(async (_, i) => {
@@ -24,12 +21,12 @@ test(
 				});
 				const isSame = output.toString('utf8') === 'Echo ' + expectedString;
 				return isSame;
-			})
+			}),
 		);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
 		expect(matching.every((m) => m)).toBe(true);
 	},
-	{timeout: 5000}
+	{timeout: 5000},
 );

@@ -23,7 +23,6 @@ import {BrowserRunner} from './BrowserRunner';
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
 import {getRevisionInfo} from './BrowserFetcher';
-import type {Product} from './Product';
 
 const tmpDir = () => {
 	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();
@@ -32,16 +31,9 @@ const tmpDir = () => {
 export interface ProductLauncher {
 	launch(object: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser>;
 	executablePath: (path?: any) => string;
-	product: Product;
 }
 
 export class ChromeLauncher implements ProductLauncher {
-	_preferredRevision: string;
-
-	constructor(preferredRevision: string) {
-		this._preferredRevision = preferredRevision;
-	}
-
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
 		const {
 			args = [],
@@ -67,13 +59,13 @@ export class ChromeLauncher implements ProductLauncher {
 		// Check for the user data dir argument, which will always be set even
 		// with a custom directory specified via the userDataDir option.
 		const userDataDir = await fs.promises.mkdtemp(
-			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-')
+			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'),
 		);
 		chromeArguments.push(`--user-data-dir=${userDataDir}`);
 
 		let chromeExecutable = executablePath;
 		if (!chromeExecutable) {
-			const {missingText, executablePath: exPath} = resolveExecutablePath(this);
+			const {missingText, executablePath: exPath} = resolveExecutablePath();
 			if (missingText) {
 				throw new Error(missingText);
 			}
@@ -113,7 +105,7 @@ export class ChromeLauncher implements ProductLauncher {
 				(t) => {
 					return t.type() === 'page';
 				},
-				{timeout}
+				{timeout},
 			);
 		} catch (error) {
 			await browser.close(false, options.logLevel, options.indent);
@@ -124,29 +116,19 @@ export class ChromeLauncher implements ProductLauncher {
 	}
 
 	executablePath(): string {
-		const results = resolveExecutablePath(this);
+		const results = resolveExecutablePath();
 		return results.executablePath;
-	}
-
-	get product(): Product {
-		return 'chrome';
 	}
 }
 
-function resolveExecutablePath(launcher: ChromeLauncher): {
+function resolveExecutablePath(): {
 	executablePath: string;
 	missingText?: string;
 } {
-	const {product, _preferredRevision} = launcher;
+	const revisionInfo = getRevisionInfo();
 
-	const revisionInfo = getRevisionInfo(_preferredRevision, 'chrome');
-
-	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
-	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision.`;
 	const missingText = revisionInfo.local
 		? undefined
-		: `Could not find expected browser (${product}) locally. ${
-				product === 'chrome' ? chromeHelp : firefoxHelp
-		  }`;
+		: `Could not find expected browser locally.`;
 	return {executablePath: revisionInfo.executablePath, missingText};
 }

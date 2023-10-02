@@ -1,4 +1,3 @@
-import {AssetManager} from './AssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -9,9 +8,9 @@ import {
 } from './CanUseRemotionHooks.js';
 import {ClipComposition, type CompProps} from './Composition.js';
 import type {
-	TAsset,
 	TCompMetadata,
 	TComposition,
+	TRenderAsset,
 	TSequence,
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
@@ -20,17 +19,15 @@ import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
-import type {RemotionEnvironment} from './get-environment.js';
-import {
-	getRemotionEnvironment,
-	useRemotionEnvironment,
-} from './get-environment.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
+import type {RemotionEnvironment} from './get-remotion-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
+	DATE_TOKEN,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
 	serializeJSONWithDate,
@@ -44,6 +41,7 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	ResolveCompositionConfig,
@@ -76,6 +74,7 @@ import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {isIosSafari} from './video/video-fragment.js';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -133,7 +132,6 @@ export const Internals = {
 	DurationsContextProvider,
 	IsPlayerContextProvider,
 	useIsPlayer,
-	useRemotionEnvironment,
 	validateFrame,
 	EditorPropsProvider,
 	EditorPropsContext,
@@ -145,7 +143,7 @@ export const Internals = {
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
-	AssetManager,
+	RenderAssetManager,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
@@ -153,8 +151,10 @@ export const Internals = {
 	serializeJSONWithDate,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
+	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
+	isIosSafari,
 } as const;
 
 export type {
@@ -162,7 +162,7 @@ export type {
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	TAsset,
+	TRenderAsset as TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,

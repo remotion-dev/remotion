@@ -82,14 +82,14 @@ export const Timeline: React.FC = () => {
 				},
 			};
 		},
-		[timeline]
+		[timeline],
 	);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const filtered = useMemo(() => {
 		const withoutHidden = timeline.filter(
-			(t) => !isTrackHidden(t, timeline, state)
+			(t) => !isTrackHidden(t, timeline, state),
 		);
 
 		const withoutAfter = withoutHidden.filter((t) => {

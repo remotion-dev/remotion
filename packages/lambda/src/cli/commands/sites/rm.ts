@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {deleteSite} from '../../../api/delete-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -12,7 +13,7 @@ export const SITES_RM_COMMAND = 'rm';
 export const sitesRmSubcommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error(
-			'No site name was passed. Run the command again and pass another argument <site-name>.'
+			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
 		quit(1);
 	}
@@ -30,23 +31,35 @@ export const sitesRmSubcommand = async (args: string[]) => {
 
 	const bucketName =
 		parsedLambdaCli['force-bucket-name'] ??
-		(await getOrCreateBucket({region})).bucketName;
+		(
+			await internalGetOrCreateBucket({
+				region,
+				enableFolderExpiry:
+					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
+					null,
+				customCredentials: null,
+			})
+		).bucketName;
 
 	for (const siteName of args) {
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
 			Log.error(
-				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`
+				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`,
 			);
 			return quit(1);
 		}
 
-		await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${
-				site.bucketName
-			} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
-			allowForceFlag: true,
-		});
+		if (
+			!(await confirmCli({
+				delMessage: `Site ${site.id} in bucket ${
+					site.bucketName
+				} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
+				allowForceFlag: true,
+			}))
+		) {
+			quit(1);
+		}
 
 		const {totalSizeInBytes: totalSize} = await deleteSite({
 			bucketName,
@@ -59,8 +72,8 @@ export const sitesRmSubcommand = async (args: string[]) => {
 
 		Log.info(
 			`Deleted site ${siteName} and freed up ${CliInternals.formatBytes(
-				totalSize
-			)}.`
+				totalSize,
+			)}.`,
 		);
 	}
 };

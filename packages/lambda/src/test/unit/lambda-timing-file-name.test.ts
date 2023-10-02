@@ -12,7 +12,7 @@ test('Should give expected file name', () => {
 			start: 1625579377044,
 			rendered: 1625579387219,
 			renderId: '8dakdd',
-		})
+		}),
 	).toBe(EXPECTED);
 });
 

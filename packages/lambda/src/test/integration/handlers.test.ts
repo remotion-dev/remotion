@@ -12,6 +12,7 @@ test('Call function locally', async () => {
 			region: 'us-east-1',
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
-		})
+			retriesRemaining: 0,
+		}),
 	).toEqual({type: 'success', version: VERSION});
 });

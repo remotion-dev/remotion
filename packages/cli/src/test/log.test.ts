@@ -11,7 +11,7 @@ describe('test loglevel getter and setter', () => {
 		(loglevel) => {
 			setLogLevel(loglevel);
 			expect(getLogLevel()).toEqual(loglevel);
-		}
+		},
 	);
 });
 
@@ -30,7 +30,7 @@ describe('loglevel comparison', () => {
 	])('%s is equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
 		expect(
-			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2)
+			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2),
 		).toEqual(true);
 	});
 
@@ -44,7 +44,7 @@ describe('loglevel comparison', () => {
 	])('%s is not equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
 		expect(
-			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2)
+			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2),
 		).toEqual(false);
 	});
 });

@@ -38,7 +38,7 @@ export const Log = {
 					options.tag ? verboseTag(options.tag) : null,
 				]
 					.filter(truthy)
-					.concat(args.map((a) => chalk.gray(a)))
+					.concat(args.map((a) => chalk.gray(a))),
 			);
 		}
 	},
@@ -50,7 +50,7 @@ export const Log = {
 		...args: Parameters<typeof console.log>
 	) => {
 		return console.log(
-			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args)
+			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
@@ -66,7 +66,7 @@ export const Log = {
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
 					.filter(truthy)
-					.concat(args.map((a) => chalk.yellow(a)))
+					.concat(args.map((a) => chalk.yellow(a))),
 			);
 		}
 	},
@@ -86,7 +86,7 @@ export const Log = {
 					options.tag ? verboseTag(options.tag) : null,
 				]
 					.filter(truthy)
-					.concat(args.map((a) => chalk.red(a)))
+					.concat(args.map((a) => chalk.red(a))),
 			);
 		}
 	},

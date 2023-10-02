@@ -1,1 +1,3 @@
 dist/test/**
+tsconfig.tsbuildinfo
+remotionlambda-x64.zip

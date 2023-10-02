@@ -25,6 +25,7 @@ describe('Templates should be valid', () => {
 
 				if (
 					!template.shortName.includes('Remix') &&
+					!template.shortName.includes('Next') &&
 					!template.shortName.includes('Still')
 				) {
 					expect(body.scripts.build).toMatch(/render/);
@@ -48,7 +49,7 @@ describe('Templates should be valid', () => {
 					expect(eitherPluginOrConfig).toBeTruthy();
 				}
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -56,7 +57,7 @@ describe('Templates should be valid', () => {
 			async () => {
 				const packageLockJson = getFileForTemplate(
 					template,
-					'package-lock.json'
+					'package-lock.json',
 				);
 
 				const res = await got(packageLockJson, {
@@ -64,7 +65,7 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -77,7 +78,7 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -90,7 +91,21 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
+		);
+
+		it(
+			template.shortName + ' should not have a bun.lockb',
+			async () => {
+				const packageLockJson = getFileForTemplate(template, 'bun.lockb');
+
+				const res = await got(packageLockJson, {
+					throwHttpErrors: false,
+				});
+
+				expect(res.statusCode).toBe(404);
+			},
+			12000,
 		);
 
 		it(
@@ -105,7 +120,7 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -120,7 +135,7 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/export const RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -135,26 +150,22 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/export const RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
-		it(
-			template.shortName + 'should use the new config file format',
-			async () => {
-				const {contents, entryPoint} = await findFile([
-					getFileForTemplate(template, 'remotion.config.ts'),
-					getFileForTemplate(template, 'remotion.config.js'),
-				]);
-				expect(entryPoint).toBeTruthy();
-				expect(contents).not.toContain('Config.Rendering');
-				expect(contents).not.toContain('Config.Bundling');
-				expect(contents).not.toContain('Config.Log');
-				expect(contents).not.toContain('Config.Puppeteer');
-				expect(contents).not.toContain('Config.Output');
-				expect(contents).not.toContain('Config.Preview');
-			},
-			12000
-		);
+		it(`${template.shortName} should use the new config file format`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).not.toContain('Config.Rendering');
+			expect(contents).not.toContain('Config.Bundling');
+			expect(contents).not.toContain('Config.Log');
+			expect(contents).not.toContain('Config.Puppeteer');
+			expect(contents).not.toContain('Config.Output');
+			expect(contents).not.toContain('Config.Preview');
+		}, 12000);
 		it(
 			template.shortName + ' should use noUnusedLocals',
 			async () => {
@@ -168,7 +179,7 @@ describe('Templates should be valid', () => {
 				const json = JSON.parse(contents as string);
 				expect(json.compilerOptions.noUnusedLocals).toBe(true);
 			},
-			12000
+			12000,
 		);
 	}
 });

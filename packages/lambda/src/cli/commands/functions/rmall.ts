@@ -37,10 +37,15 @@ export const functionsRmallCommand = async () => {
 				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
 			].join('\n'),
-			true
+			true,
 		);
 
-		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
+		if (
+			!(await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true}))
+		) {
+			continue;
+		}
+
 		const output = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,

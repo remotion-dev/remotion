@@ -42,7 +42,7 @@ const container: React.CSSProperties = {
 
 const Showcase = () => {
   const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body
+    typeof document === "undefined" ? null : document.body,
   );
   const mobileLayout = useMobileLayout();
   const mobileHeight = mobileLayout ? containerSize.width : null;
@@ -60,7 +60,7 @@ const Showcase = () => {
 
     return (
       showcaseVideos.find(
-        (v) => v.muxId === window.location.hash.replace("#", "")
+        (v) => v.muxId === window.location.hash.replace("#", ""),
       ) ?? null
     );
   });
@@ -80,7 +80,7 @@ const Showcase = () => {
       window.history.replaceState(
         {},
         document.title,
-        window.location.href.substr(0, window.location.href.indexOf("#"))
+        window.location.href.substr(0, window.location.href.indexOf("#")),
       );
     }
   }, [video]);

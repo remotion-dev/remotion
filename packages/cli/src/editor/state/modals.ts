@@ -1,17 +1,19 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {UpdateInfo} from '../components/UpdateCheck';
+import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type CompType = 'composition' | 'still';
 
@@ -33,6 +35,7 @@ export type RenderModalState = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialx264Preset: X264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -44,6 +47,9 @@ export type RenderModalState = {
 	initialOpenGlRenderer: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
+	initialOffthreadVideoCacheSizeInBytes: number | null;
+	initialColorSpace: ColorSpace;
+	initialMultiProcessOnLinux: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;
@@ -64,6 +70,7 @@ export type ModalState =
 	| {
 			type: 'update';
 			info: UpdateInfo;
+			knownBugs: Bug[];
 	  }
 	| {
 			type: 'quick-switcher';

@@ -1,17 +1,14 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheItems,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 test('Should return video metadata', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		'info',
-		false
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	const videoFile = path.join(
 		__dirname,
@@ -21,7 +18,7 @@ test('Should return video metadata', async () => {
 		'example',
 		'src',
 		'resources',
-		'framer-24fps.mp4'
+		'framer-24fps.mp4',
 	);
 	expect(existsSync(videoFile)).toEqual(true);
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
@@ -36,15 +33,16 @@ test('Should return video metadata', async () => {
 		canPlayInVideoTag: true,
 		codec: 'h264',
 		supportsSeeking: true,
+		colorSpace: 'bt601',
 	});
 });
 
 test('Should return an error due to non existing file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		'info',
-		false
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	try {
 		await compositor.executeCommand('GetVideoMetadata', {
@@ -52,17 +50,17 @@ test('Should return an error due to non existing file', async () => {
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: No such file or directory'
+			'Compositor error: No such file or directory',
 		);
 	}
 });
 
 test('Should return an error due to using a audio file', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		'info',
-		false
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+	});
 
 	const audioFile = path.join(
 		__dirname,
@@ -72,7 +70,7 @@ test('Should return an error due to using a audio file', async () => {
 		'example',
 		'src',
 		'resources',
-		'sound1.mp3'
+		'sound1.mp3',
 	);
 	expect(existsSync(audioFile)).toEqual(true);
 
@@ -82,7 +80,7 @@ test('Should return an error due to using a audio file', async () => {
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: No video stream found'
+			'Compositor error: No video stream found',
 		);
 	}
 });

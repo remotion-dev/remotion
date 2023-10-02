@@ -54,7 +54,7 @@ In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, descr
 const onFrameUpdate = (
   framesRendered: number,
   frame: number,
-  timeToRenderInMilliseconds: number
+  timeToRenderInMilliseconds: number,
 ) => {
   console.log(`${framesRendered} frames rendered.`);
 
@@ -201,7 +201,7 @@ renderFrames({
         .map((stack) => {
           return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
         })
-        .join("\n")
+        .join("\n"),
     );
   },
 });
@@ -253,6 +253,12 @@ _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
 #### `ignoreCertificateErrors`
 
 _boolean - default `false`_
@@ -278,6 +284,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 **Default for local rendering**: `null`.  
@@ -286,6 +293,10 @@ Accepted values:
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`quality?`~~
 

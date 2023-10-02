@@ -89,7 +89,7 @@ export const SplitterHandle: React.FC<{
 					cleanup();
 					setLastPointerUp(Date.now());
 				},
-				{once: true}
+				{once: true},
 			);
 			window.addEventListener('pointermove', onPointerMove);
 		};

@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {useRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -57,8 +57,6 @@ export const useMediaInTimeline = ({
 		: videoConfig.durationInFrames;
 	const doesVolumeChange = typeof volume === 'function';
 
-	const environment = useRemotionEnvironment();
-
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
 			return volume;
@@ -80,7 +78,7 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		if (typeof volume === 'number' && volume !== initialVolume) {
 			warnOnce(
-				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`
+				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`,
 			);
 		}
 	}, [initialVolume, mediaType, src, volume]);
@@ -94,7 +92,7 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (environment !== 'preview' && process.env.NODE_ENV !== 'test') {
+		if (!getRemotionEnvironment().isStudio && process.env.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -135,7 +133,6 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 		playbackRate,
-		environment,
 	]);
 
 	useEffect(() => {
@@ -154,7 +151,7 @@ export const useMediaInTimeline = ({
 
 		return () => {
 			audioAndVideoTags.current = audioAndVideoTags.current.filter(
-				(a) => a.id !== id
+				(a) => a.id !== id,
 			);
 		};
 	}, [audioAndVideoTags, id, mediaRef, mediaType, playing]);

@@ -32,6 +32,11 @@ export const resolveVideoConfig = ({
 		  })
 		: null;
 
+	const fallbackProps = {
+		...(composition.defaultProps ?? {}),
+		...(inputProps ?? {}),
+	};
+
 	if (
 		calculatedProm !== null &&
 		typeof calculatedProm === 'object' &&
@@ -49,7 +54,7 @@ export const resolveVideoConfig = ({
 				durationInFrames,
 				id: composition.id,
 				defaultProps: composition.defaultProps ?? {},
-				props: c.props ?? composition.defaultProps ?? {},
+				props: c.props ?? fallbackProps,
 			};
 		});
 	}
@@ -64,10 +69,7 @@ export const resolveVideoConfig = ({
 			...data,
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
-			props: {
-				...(composition.defaultProps ?? {}),
-				...(inputProps ?? {}),
-			},
+			props: fallbackProps,
 		};
 	}
 
@@ -97,7 +99,7 @@ const validateCalculated = ({
 	validateDimension(
 		width,
 		'width',
-		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation
+		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
 	const height = calculated?.height ?? composition.height ?? undefined;
@@ -105,7 +107,7 @@ const validateCalculated = ({
 	validateDimension(
 		height,
 		'height',
-		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation
+		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
 	const fps = calculated?.fps ?? composition.fps ?? null;
@@ -113,7 +115,7 @@ const validateCalculated = ({
 	validateFps(
 		fps,
 		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
-		false
+		false,
 	);
 
 	const durationInFrames =

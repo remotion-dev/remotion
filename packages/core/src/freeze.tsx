@@ -17,25 +17,25 @@ export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 	const videoConfig = useVideoConfig();
 	if (typeof frame === 'undefined') {
 		throw new Error(
-			`The <Freeze /> component requires a 'frame' prop, but none was passed.`
+			`The <Freeze /> component requires a 'frame' prop, but none was passed.`,
 		);
 	}
 
 	if (typeof frame !== 'number') {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frame}`
+			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frame}`,
 		);
 	}
 
 	if (Number.isNaN(frame)) {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a real number, but it is NaN.`
+			`The 'frame' prop of <Freeze /> must be a real number, but it is NaN.`,
 		);
 	}
 
 	if (!Number.isFinite(frame)) {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frame}.`
+			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frame}.`,
 		);
 	}
 

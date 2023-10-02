@@ -38,13 +38,13 @@ type AlgoliaResults = {
 };
 
 export const algoliaSearch = async (
-	query: string
+	query: string,
 ): Promise<TQuickSwitcherResult[]> => {
 	const url = new URL(AGOLIA_SEARCH_URL);
 
 	url.searchParams.set(
 		'x-algolia-agen',
-		encodeURIComponent('Remotion Studio DocSearch')
+		encodeURIComponent('Remotion Studio DocSearch'),
 	);
 	url.searchParams.set('x-algolia-api-key', ALGOLIA_API_KEY);
 	url.searchParams.set('x-algolia-application-id', ALGOLIA_APPLICATION_ID);

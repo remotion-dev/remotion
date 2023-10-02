@@ -1,1 +1,1 @@
-export { enableTailwind } from './enable'
+export {enableTailwind} from './enable';

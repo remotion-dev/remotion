@@ -4,14 +4,17 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"types": ["bun-types", "node"],
+		"lib": ["dom"]
 	},
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},
 		{"path": "../player"},
-		{"path": "../media-utils"}
+		{"path": "../media-utils"},
+		{"path": "../zod-types"}
 	],
 	"exclude": ["vitest.config.ts", "dist"]
 }

@@ -73,7 +73,7 @@ const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	const {initialCompType} = props;
 	const [selectedFrameRate, setFrameRate] = useState<string>(
-		String(commonFrameRates[0])
+		String(commonFrameRates[0]),
 	);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
@@ -97,7 +97,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	}, [type]);
 
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
-		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null
+		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
 	);
 	const [durationInFrames, setDurationInFrames] = useState('150');
 
@@ -105,10 +105,10 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		(option: boolean) => {
 			persistAspectRatioOption(option);
 			setLockedAspectRatio(
-				option ? Number(size.width) / Number(size.height) : null
+				option ? Number(size.width) / Number(size.height) : null,
 			);
 		},
-		[size.height, size.width]
+		[size.height, size.width],
 	);
 
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -135,7 +135,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onWidthDirectlyChanged = useCallback(
@@ -152,7 +152,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onHeightDirectlyChanged = useCallback(
@@ -169,7 +169,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onHeightChanged = useCallback(
@@ -186,13 +186,13 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setName(e.target.value);
 		},
-		[]
+		[],
 	);
 	const onFpsChange = useCallback((newFps: number) => {
 		setFrameRate(String(newFps));
@@ -219,7 +219,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
 	const compHeightErrMessage = validateCompositionDimension(
 		'Height',
-		size.height
+		size.height,
 	);
 
 	const typeValues: ComboboxValue[] = useMemo(() => {

@@ -32,7 +32,7 @@ export const useVideoControlsResize = ({
 
 		const maxTimeLabelWidthWithoutNegativeValue = Math.max(
 			maxTimeLabelWidth,
-			0
+			0,
 		);
 
 		const availableTimeLabelWidthIfVolumeOpen =

@@ -12,6 +12,6 @@ export const getMockBuckets = () => {
 
 export const mockBucketExists = (bucketName: string, region: string) => {
 	return Boolean(
-		mockBucketStore.find((s) => s.name === bucketName && s.region === region)
+		mockBucketStore.find((s) => s.name === bucketName && s.region === region),
 	);
 };

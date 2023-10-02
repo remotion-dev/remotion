@@ -3,10 +3,10 @@ import type {ErrorLocation} from './map-error-to-react-stack';
 
 export const resolveFileSource = async (
 	location: ErrorLocation,
-	contextLines: number
+	contextLines: number,
 ): Promise<SymbolicatedStackFrame> => {
 	const res = await fetch(
-		`/api/file-source?f=${encodeURIComponent(location.fileName)}`
+		`/api/file-source?f=${encodeURIComponent(location.fileName)}`,
 	);
 	const text = await res.text();
 

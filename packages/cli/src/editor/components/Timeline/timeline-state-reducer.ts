@@ -22,7 +22,7 @@ export type TimelineActionState =
 
 export const timelineStateReducer = (
 	state: TimelineViewState,
-	action: TimelineActionState
+	action: TimelineActionState,
 ): TimelineViewState => {
 	if (action.type === 'collapse') {
 		return {

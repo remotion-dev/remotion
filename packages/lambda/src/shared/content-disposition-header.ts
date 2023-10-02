@@ -12,7 +12,7 @@ export type DownloadBehavior =
 	  };
 
 export const getContentDispositionHeader = (
-	behavior: DownloadBehavior | null
+	behavior: DownloadBehavior | null,
 ): string | undefined => {
 	if (behavior === null) {
 		return undefined;

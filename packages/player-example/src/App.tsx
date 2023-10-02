@@ -132,7 +132,7 @@ const ControlsOnly: React.FC<{
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
 		};
 		const frameupdateCallbackListener: CallbackListener<'frameupdate'> = (
-			e
+			e,
 		) => {
 			setLogs((l) => [...l, 'frameupdate ' + e.detail.frame]);
 		};
@@ -145,7 +145,7 @@ const ControlsOnly: React.FC<{
 		};
 
 		const scalechangeCallbackListener: CallbackListener<'scalechange'> = (
-			e
+			e,
 		) => {
 			setLogs((l) => [...l, 'scalechange ' + e.detail.scale]);
 		};
@@ -160,7 +160,7 @@ const ControlsOnly: React.FC<{
 		};
 
 		const volumechangeCallbackListener: CallbackListener<'volumechange'> = (
-			e
+			e,
 		) => {
 			setLogs((l) => [
 				...l,
@@ -193,7 +193,7 @@ const ControlsOnly: React.FC<{
 		current.addEventListener('mutechange', mutechangeCallbackListener);
 		current.addEventListener(
 			'fullscreenchange',
-			fullscreenChangeCallbackListener
+			fullscreenChangeCallbackListener,
 		);
 
 		return () => {
@@ -210,7 +210,7 @@ const ControlsOnly: React.FC<{
 			current.removeEventListener('mutechange', mutechangeCallbackListener);
 			current.removeEventListener(
 				'fullscreenchange',
-				fullscreenChangeCallbackListener
+				fullscreenChangeCallbackListener,
 			);
 		};
 	}, [ref]);
@@ -257,8 +257,14 @@ const ControlsOnly: React.FC<{
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				⏯️ Toggle
 			</button>
-			<button type="button" onClick={() => ref.current?.seekTo(10)}>
-				seekTo 10
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(10);
+					ref.current?.pause();
+				}}
+			>
+				seekTo 10 and pause
 			</button>
 			<button type="button" onClick={() => ref.current?.seekTo(50)}>
 				seekTo 50

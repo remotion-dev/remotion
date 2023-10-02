@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {openBrowser} from './better-opn';
 import {chalk} from './chalk';
@@ -70,11 +71,11 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 
 	if (!file) {
 		Log.error(
-			'No Remotion entrypoint was found. Specify an additional argument manually:'
+			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
 		Log.error('  npx remotion studio src/index.ts');
 		Log.error(
-			'See https://www.remotion.dev/docs/register-root for more information.'
+			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
 	}
@@ -115,12 +116,20 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 		onUpdate: () => {
 			waitForLiveEventsListener().then((listener) => {
+				const files = getFiles();
 				listener.sendEventToClient({
 					type: 'new-public-folder',
-					files: getFiles(),
+					files,
+					folderExists:
+						files.length > 0
+							? publicDir
+							: existsSync(publicDir)
+							? publicDir
+							: null,
 				});
 			});
 		},
+
 		staticHash,
 	});
 
@@ -148,8 +157,8 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	if (networkAddress) {
 		setServerReadyComment(
 			`Local: ${chalk.underline(
-				`http://localhost:${port}`
-			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
+				`http://localhost:${port}`,
+			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`,
 		);
 	} else {
 		setServerReadyComment(`http://localhost:${port}`);

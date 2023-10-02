@@ -38,4 +38,5 @@ export type OffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	transparent?: boolean;
-} & DeprecatedOffthreadVideoProps;
+} & RemotionMainVideoProps &
+	DeprecatedOffthreadVideoProps;

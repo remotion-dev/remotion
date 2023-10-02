@@ -1,10 +1,12 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
@@ -73,7 +75,7 @@ export const RenderButton: React.FC = () => {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
 				defaultCodec: defaults.codec as Codec,
-				isStill: !isVideo,
+				renderType: isVideo ? 'video' : 'still',
 			});
 
 		setSelectedModal({
@@ -87,7 +89,7 @@ export const RenderButton: React.FC = () => {
 				defaultExtension: isVideo
 					? BrowserSafeApis.getFileExtensionFromCodec(
 							initialVideoCodec,
-							defaults.audioCodec as AudioCodec
+							defaults.audioCodec as AudioCodec,
 					  )
 					: defaults.stillImageFormat,
 				type: 'asset',
@@ -104,6 +106,7 @@ export const RenderButton: React.FC = () => {
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,
@@ -116,9 +119,13 @@ export const RenderButton: React.FC = () => {
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
+			initialOffthreadVideoCacheSizeInBytes:
+				defaults.offthreadVideoCacheSizeInBytes,
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
+			initialColorSpace: defaults.colorSpace as ColorSpace,
+			initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

@@ -5,6 +5,7 @@ import {BLUE, INPUT_BACKGROUND} from '../../helpers/colors';
 const container: React.CSSProperties = {
 	borderColor: 'black',
 	borderStyle: 'solid',
+	borderWidth: '2px',
 	height: 39,
 	width: 220,
 	position: 'relative',
@@ -14,17 +15,12 @@ const container: React.CSSProperties = {
 	borderRadius: 2,
 };
 
-const slider: React.CSSProperties = {
-	position: 'relative',
-	height: 38,
-	width: 220,
-};
-
+// blue slider
 const sliderRange: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	backgroundColor: BLUE,
-	height: 39,
+	height: 35,
 };
 
 interface MultiRangeSliderProps {
@@ -48,7 +44,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 }) => {
 	const getPercent = useCallback(
 		(value: number) => Math.round(((value - min) / (max - min)) * 100),
-		[min, max]
+		[min, max],
 	);
 
 	const rangeStyle = useMemo((): React.CSSProperties => {
@@ -67,7 +63,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 			const value = Math.min(Number(event.target.value), end - 1);
 			onLeftThumbDrag(value);
 		},
-		[end, onLeftThumbDrag]
+		[end, onLeftThumbDrag],
 	);
 
 	const onChangeRight = useCallback(
@@ -75,33 +71,31 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 			const value = Math.max(Number(event.target.value), start + 1);
 			onRightThumbDrag(value);
 		},
-		[onRightThumbDrag, start]
+		[onRightThumbDrag, start],
 	);
 
 	return (
 		<div style={container}>
-			<div style={slider}>
-				<input
-					type="range"
-					min={min}
-					max={max}
-					value={start}
-					step={step}
-					onChange={onChangeLeft}
-					className="__remotion_thumb"
-				/>
+			<input
+				type="range"
+				min={min}
+				max={max}
+				value={start}
+				step={step}
+				onChange={onChangeLeft}
+				className="__remotion_thumb"
+			/>
 
-				<input
-					type="range"
-					min={min}
-					max={max}
-					value={end}
-					step={step}
-					onChange={onChangeRight}
-					className="__remotion_thumb"
-				/>
-				<div style={rangeStyle} />
-			</div>
+			<input
+				type="range"
+				min={min}
+				max={max}
+				value={end}
+				step={step}
+				onChange={onChangeRight}
+				className="__remotion_thumb"
+			/>
+			<div style={rangeStyle} />
 		</div>
 	);
 };

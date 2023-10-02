@@ -2,7 +2,7 @@ import {expect, test} from 'vitest';
 import {patchPackageJson} from '../patch-package-json';
 import type {PackageManager} from '../pkg-managers';
 
-const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn'];
+const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun'];
 
 for (const packageManager of packageManagers) {
 	test(`Using ${packageManager} package manager provides the correct "packageManager" entry in package.json`, () => {
@@ -38,7 +38,7 @@ for (const packageManager of packageManagers) {
 				setPackageJson: (_: string, content: string) => {
 					newPackageJson = JSON.parse(content);
 				},
-			}
+			},
 		);
 		expect(newPackageJson).to.deep.equal({
 			...packageJson,

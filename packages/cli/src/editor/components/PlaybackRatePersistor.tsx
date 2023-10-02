@@ -5,7 +5,7 @@ import {loadPlaybackRate, persistPlaybackRate} from '../state/playbackrate';
 
 export const PlaybackRatePersistor: React.FC = () => {
 	const {setPlaybackRate, playbackRate} = useContext(
-		Internals.Timeline.TimelineContext
+		Internals.Timeline.TimelineContext,
 	);
 
 	useEffect(() => {

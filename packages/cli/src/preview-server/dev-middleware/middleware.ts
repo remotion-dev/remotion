@@ -39,7 +39,7 @@ const memoizedParse = mem(parse);
 
 function getFilenameFromUrl(
 	context: DevMiddlewareContext,
-	url: string | undefined
+	url: string | undefined,
 ) {
 	const paths = getPaths(context);
 
@@ -61,7 +61,7 @@ function getFilenameFromUrl(
 			publicPathObject = memoizedParse(
 				publicPath !== 'auto' && publicPath ? publicPath : '/',
 				false,
-				true
+				true,
 			);
 		} catch (_ignoreError) {
 			continue;
@@ -73,7 +73,7 @@ function getFilenameFromUrl(
 			// Strip the `pathname` property from the `publicPath` option from the start of requested url
 			// `/complex/foo.js` => `foo.js`
 			const pathname = urlObject.pathname.substr(
-				publicPathObject.pathname.length
+				publicPathObject.pathname.length,
 			);
 
 			if (pathname) {
@@ -125,7 +125,7 @@ export function getValueContentRangeHeader(
 	range?: {
 		start: number;
 		end: number;
-	}
+	},
 ) {
 	return `${type} ${range ? `${range.start}-${range.end}` : '*'}/${size}`;
 }
@@ -152,14 +152,14 @@ const BYTES_RANGE_REGEXP = /^ *bytes/i;
 export type MiddleWare = (
 	req: IncomingMessage,
 	res: ServerResponse,
-	next: () => void
+	next: () => void,
 ) => void;
 
 export function middleware(context: DevMiddlewareContext) {
 	return function (
 		req: IncomingMessage,
 		res: ServerResponse,
-		next: () => void
+		next: () => void,
 	) {
 		const acceptedMethods = ['GET', 'HEAD'];
 
@@ -191,7 +191,7 @@ export function middleware(context: DevMiddlewareContext) {
 			if (!res.getHeader('Content-Type')) {
 				// content-type name(like application/javascript; charset=utf-8) or false
 				const contentType = RenderInternals.mimeContentType(
-					path.extname(filename)
+					path.extname(filename),
 				);
 
 				// Only set content-type header if media type is known
@@ -246,7 +246,7 @@ export function middleware(context: DevMiddlewareContext) {
 					setHeaderForResponse(
 						res,
 						'Content-Range',
-						getValueContentRangeHeader('bytes', size)
+						getValueContentRangeHeader('bytes', size),
 					);
 					setHeaderForResponse(res, 'Content-Type', 'text/html; charset=utf-8');
 
@@ -256,7 +256,7 @@ export function middleware(context: DevMiddlewareContext) {
 					setHeaderForResponse(
 						res,
 						'Content-Length',
-						Buffer.byteLength(document)
+						Buffer.byteLength(document),
 					);
 
 					send(req, res, document, _byteLength);
@@ -266,11 +266,11 @@ export function middleware(context: DevMiddlewareContext) {
 
 				if (parsedRanges === -2) {
 					context.logger.error(
-						"A malformed 'Range' header was provided. A regular response will be sent for this request."
+						"A malformed 'Range' header was provided. A regular response will be sent for this request.",
 					);
 				} else if (parsedRanges.length > 1) {
 					context.logger.error(
-						"A 'Range' header with multiple ranges was provided. Multiple ranges are not supported, so a regular response will be sent for this request."
+						"A 'Range' header with multiple ranges was provided. Multiple ranges are not supported, so a regular response will be sent for this request.",
 					);
 				}
 
@@ -280,7 +280,7 @@ export function middleware(context: DevMiddlewareContext) {
 					setHeaderForResponse(
 						res,
 						'Content-Range',
-						getValueContentRangeHeader('bytes', size, parsedRanges[0])
+						getValueContentRangeHeader('bytes', size, parsedRanges[0]),
 					);
 
 					[{start, end}] = parsedRanges;
@@ -307,7 +307,7 @@ export function middleware(context: DevMiddlewareContext) {
 					byteLength = end - start + 1;
 				} else if (context.outputFileSystem) {
 					bufferOtStream = context.outputFileSystem.readFileSync(
-						filename
+						filename,
 					) as Buffer;
 					byteLength = bufferOtStream.byteLength;
 				}

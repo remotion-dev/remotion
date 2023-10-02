@@ -8,7 +8,7 @@ import {resolveFrom} from './resolve-from';
 
 const getVersion = async (
 	remotionRoot: string,
-	p: string
+	p: string,
 ): Promise<string | null> => {
 	try {
 		const remotionPkgJson = resolveFrom(remotionRoot, `${p}/package.json`);
@@ -34,13 +34,13 @@ const groupBy = (vals: [string, string][]) => {
 };
 
 const getAllVersions = async (
-	remotionRoot: string
+	remotionRoot: string,
 ): Promise<[string, string][]> => {
 	return (
 		await Promise.all(
 			listOfRemotionPackages.map(
-				async (p) => [p, await getVersion(remotionRoot, p)] as [string, string]
-			)
+				async (p) => [p, await getVersion(remotionRoot, p)] as [string, string],
+			),
 		)
 	).filter(([, version]) => version);
 };
@@ -76,19 +76,19 @@ export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
 	Log.warn();
 	Log.warn('To resolve:');
 	Log.warn(
-		'- Make sure your package.json has all Remotion packages pointing to the same version.'
+		'- Make sure your package.json has all Remotion packages pointing to the same version.',
 	);
 	Log.warn(
-		'- Remove the `^` character in front of a version to pin a package.'
+		'- Remove the `^` character in front of a version to pin a package.',
 	);
 	if (
 		!RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
+			'verbose',
 		)
 	) {
 		Log.warn(
-			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.'
+			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.',
 		);
 	}
 
@@ -120,22 +120,22 @@ export const versionsCommand = async (remotionRoot: string) => {
 		Log.info(`✅ Great! All packages have the same version.`);
 	} else {
 		Log.error(
-			'Version mismatch: Not all Remotion packages have the same version.'
+			'Version mismatch: Not all Remotion packages have the same version.',
 		);
 		Log.info(
-			'- Make sure your package.json has all Remotion packages pointing to the same version.'
+			'- Make sure your package.json has all Remotion packages pointing to the same version.',
 		);
 		Log.info(
-			'- Remove the `^` character in front of a version to pin a package.'
+			'- Remove the `^` character in front of a version to pin a package.',
 		);
 		if (
 			!RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
-				'verbose'
+				'verbose',
 			)
 		) {
 			Log.info(
-				'- Rerun this command with --log=verbose to see the path of the modules resolved.'
+				'- Rerun this command with --log=verbose to see the path of the modules resolved.',
 			);
 		}
 

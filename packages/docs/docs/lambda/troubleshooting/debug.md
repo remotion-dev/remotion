@@ -6,6 +6,15 @@ title: Debugging failed Lambda renders
 crumb: "Lambda"
 ---
 
+import { YouTube } from "../../../components/YouTube";
+
+<YouTube
+  minutes={11}
+  href="https://youtu.be/pwVEzTQ6VYE"
+  thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA"
+  title="How to troubleshoot and debug for Remotion Lambda"
+/>
+
 There are four reasons renders may fail:
 
 <div><Step>1</Step> An error occurs in your React code. </div>

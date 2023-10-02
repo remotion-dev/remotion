@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {deleteSite} from '../../../api/delete-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -17,15 +18,27 @@ export const sitesRmallSubcommand = async () => {
 
 	const bucketName =
 		parsedLambdaCli['force-bucket-name'] ??
-		(await getOrCreateBucket({region})).bucketName;
+		(
+			await internalGetOrCreateBucket({
+				region,
+				enableFolderExpiry:
+					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
+					null,
+				customCredentials: null,
+			})
+		).bucketName;
 
 	for (const site of deployedSites.sites) {
-		await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${
-				site.bucketName
-			} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
-			allowForceFlag: true,
-		});
+		if (
+			!(await confirmCli({
+				delMessage: `Site ${site.id} in bucket ${
+					site.bucketName
+				} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
+				allowForceFlag: true,
+			}))
+		) {
+			continue;
+		}
 
 		const {totalSizeInBytes: totalSize} = await deleteSite({
 			bucketName,
@@ -38,8 +51,8 @@ export const sitesRmallSubcommand = async () => {
 
 		Log.info(
 			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
-				totalSize
-			)}.`
+				totalSize,
+			)}.`,
 		);
 	}
 };

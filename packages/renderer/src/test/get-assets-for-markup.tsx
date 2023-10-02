@@ -11,13 +11,13 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import type {CompositionManagerContext, TAsset} from 'remotion';
+import type {CompositionManagerContext, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 
 // @ts-expect-error
 global.IS_REACT_ACT_ENVIRONMENT = true;
 
-let collectAssets = (): TAsset[] => [];
+let collectAssets = (): TRenderAsset[] => [];
 
 const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
@@ -42,20 +42,20 @@ export const getAssetsForMarkup = async (
 		width: number;
 		height: number;
 		fps: number;
-	}
+	},
 ) => {
-	const collectedAssets: TAsset[][] = [];
+	const collectedAssets: TRenderAsset[][] = [];
 	const Wrapped = () => {
 		window.remotion_audioEnabled = true;
 		window.remotion_videoEnabled = true;
-		const [assets, setAssets] = useState<TAsset[]>([]);
+		const [renderAssets, setAssets] = useState<TRenderAsset[]>([]);
 
-		const registerAsset = useCallback((asset: TAsset) => {
+		const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
 			setAssets((assts) => {
-				return [...assts, asset];
+				return [...assts, renderAsset];
 			});
 		}, []);
-		const unregisterAsset = useCallback((id: string) => {
+		const unregisterRenderAsset = useCallback((id: string) => {
 			setAssets((assts) => {
 				return assts.filter((a) => a.id !== id);
 			});
@@ -66,10 +66,10 @@ export const getAssetsForMarkup = async (
 					act(() => {
 						setAssets([]); // clear assets at next render
 					});
-					return assets;
+					return renderAssets;
 				};
 			}
-		}, [assets]);
+		}, [renderAssets]);
 		const compositions = useContext(Internals.CompositionManager);
 
 		const value: CompositionManagerContext = useMemo(() => {
@@ -82,7 +82,7 @@ export const getAssetsForMarkup = async (
 						component: React.lazy(() =>
 							Promise.resolve({
 								default: Markup as ComponentType<unknown>,
-							})
+							}),
 						),
 						nonce: 0,
 						defaultProps: undefined,
@@ -96,23 +96,26 @@ export const getAssetsForMarkup = async (
 						width: config.width,
 					},
 				],
-				currentComposition: 'markup',
+				canvasContent: {
+					type: 'composition',
+					compositionId: 'markup',
+				},
 			};
 		}, [compositions]);
 
 		const assetContext = useMemo(() => {
-			return {assets, registerAsset, unregisterAsset};
-		}, [assets, registerAsset, unregisterAsset]);
+			return {renderAssets, registerRenderAsset, unregisterRenderAsset};
+		}, [renderAssets, registerRenderAsset, unregisterRenderAsset]);
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
 					<Internals.CompositionManager.Provider value={value}>
-						<Internals.AssetManager.Provider value={assetContext}>
+						<Internals.RenderAssetManager.Provider value={assetContext}>
 							<Internals.ResolveCompositionConfig>
 								<Markup />
 							</Internals.ResolveCompositionConfig>
-						</Internals.AssetManager.Provider>
+						</Internals.RenderAssetManager.Provider>
 					</Internals.CompositionManager.Provider>
 				</Internals.RemotionRoot>
 			</Internals.CanUseRemotionHooksProvider>

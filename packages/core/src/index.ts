@@ -1,12 +1,20 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {TAsset} from './CompositionManager.js';
+import type {TRenderAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
 import type {VideoConfig} from './video-config.js';
+
+export type VideoConfigWithSerializedProps = Omit<
+	VideoConfig,
+	'defaultProps' | 'props'
+> & {
+	serializedDefaultPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+};
 
 declare global {
 	interface Window {
@@ -16,16 +24,14 @@ declare global {
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
-		getStaticCompositions: () => Promise<VideoConfig[]>;
-		remotion_calculateComposition: (compId: string) => Promise<
-			Omit<VideoConfig, 'defaultProps' | 'props'> & {
-				serializedDefaultPropsWithCustomSchema: string;
-				serializedResolvedPropsWithCustomSchema: string;
-			}
-		>;
+		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
+		remotion_calculateComposition: (
+			compId: string,
+		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
@@ -39,14 +45,15 @@ declare global {
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
-		remotion_collectAssets: () => TAsset[];
+		remotion_collectAssets: () => TRenderAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '9';
+		siteVersion: '10';
 		remotion_version: string;
 		remotion_imported: string | boolean;
+		remotion_unsavedProps: boolean | undefined;
 	}
 }
 
@@ -82,20 +89,23 @@ export {
 	AnyCompMetadata,
 	AnyComposition,
 	SmallTCompMetadata,
-	TAsset,
 	TCompMetadata,
+	TRenderAsset,
 } from './CompositionManager.js';
+export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
+export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
-export * from './Img.js';
+export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {
+	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
@@ -147,7 +157,7 @@ export const Config = new Proxy(proxyObj, {
 
 		return () => {
 			console.warn(
-				'⚠️  The CLI configuration has been extracted from Remotion Core.'
+				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
 			console.warn('Update the import from the config file:');
 			console.warn();
@@ -157,7 +167,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn('import {Config} from "@remotion/cli/config";');
 			console.warn();
 			console.warn(
-				'For more information, see https://www.remotion.dev/docs/4-0-migration.'
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
 
 			process.exit(1);

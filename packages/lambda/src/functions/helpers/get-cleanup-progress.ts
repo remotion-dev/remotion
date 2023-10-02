@@ -17,7 +17,10 @@ export const getCleanupProgress = ({
 		return null;
 	}
 
-	const filesToDelete = getFilesToDelete({chunkCount, renderId});
+	const filesToDelete = getFilesToDelete({
+		chunkCount,
+		renderId,
+	});
 	const filesStillThere = contents.filter((c) => {
 		return filesToDelete.find((f) => {
 			if (f.type === 'exact') {
@@ -34,7 +37,7 @@ export const getCleanupProgress = ({
 
 	const filesDeleted = Math.max(
 		0,
-		filesToDelete.length - filesStillThere.length
+		filesToDelete.length - filesStillThere.length,
 	);
 
 	return {

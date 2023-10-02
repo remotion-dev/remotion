@@ -24,15 +24,12 @@ export const mockCompositionContext: CompositionManagerContext = {
 			calculateMetadata: null,
 		},
 	],
-	currentComposition: 'my-comp',
 	folders: [],
-	registerAsset: () => undefined,
 	registerComposition: () => undefined,
 	registerFolder: () => undefined,
-	setCurrentComposition: () => undefined,
-	unregisterAsset: () => undefined,
 	unregisterComposition: () => undefined,
 	unregisterFolder: () => undefined,
+	canvasContent: {type: 'composition', compositionId: 'my-comp'},
 };
 
 export const WrapSequenceContext: React.FC<{

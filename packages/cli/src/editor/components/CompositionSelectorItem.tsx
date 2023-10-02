@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {AnyComposition} from 'remotion';
+import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
@@ -126,7 +126,7 @@ export const CompositionSelectorItem: React.FC<{
 				toggleFolder(item.folderName, item.parentName);
 			}
 		},
-		[item, selectComposition, toggleFolder]
+		[item, selectComposition, toggleFolder],
 	);
 
 	if (item.type === 'folder') {
@@ -184,6 +184,8 @@ export const CompositionSelectorItem: React.FC<{
 				onClick={onClick}
 				type="button"
 				title={item.composition.id}
+				className="__remotion-composition"
+				data-compname={item.composition.id}
 			>
 				{isCompositionStill(item.composition) ? (
 					<StillIcon

@@ -40,3 +40,7 @@ Skips confirmation when doing a destructive action.
 ### `--quiet`, `-q`
 
 Prints the minimal amount of logs.
+
+### `--env-file`
+
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)

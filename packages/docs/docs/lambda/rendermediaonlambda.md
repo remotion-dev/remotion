@@ -70,6 +70,12 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `frameRange?`
+
+_optional_
+
+Render a subset of a video. Example: `[0, 9]` to select the first 10 frames. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+
 ### `serveUrl`
 
 A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
@@ -88,7 +94,7 @@ React props that are passed to your composition. You define the shape of the pro
 
 Which codec should be used to encode the video.
 
-Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0`.
+Video codecs `h264`, and `vp8` are supported, `prores` is supported since `v3.2.0`. `h265` support has been added in `v4.0.32`.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
@@ -159,6 +165,12 @@ _optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
+### `x264Preset?`
+
+_optional_
+
+See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+
 ### `jpegQuality`
 
 See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
@@ -185,6 +197,10 @@ _optional since v3.2.27, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
+
+:::note
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+:::
 
 ### `scale?`
 
@@ -265,6 +281,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note
@@ -299,6 +316,10 @@ import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 const webhook: RenderMediaOnLambdaInput["webhook"] = {
   url: "https://mapsnap.app/api/webhook",
   secret: process.env.WEBHOOK_SECRET as string,
+  // Optionally pass up to 1024 bytes of custom data
+  customData: {
+    id: 42,
+  },
 };
 ```
 
@@ -328,6 +349,18 @@ _optional_
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
 
 ### ~~`dumpBrowserLogs?`~~
 

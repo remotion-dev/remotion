@@ -1,11 +1,14 @@
 mod commands;
 mod compositor;
+mod copy_clipboard;
 mod errors;
 mod ffmpeg;
 mod frame_cache;
+mod get_silent_parts;
 mod global_printer;
 mod image;
 mod logger;
+mod memory;
 mod opened_stream;
 mod opened_video;
 mod opened_video_manager;
@@ -14,7 +17,8 @@ mod rotation;
 mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
-use global_printer::set_verbose_logging;
+use global_printer::{_print_verbose, set_verbose_logging};
+use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
 use std::env;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
@@ -36,11 +40,19 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
 
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
-            start_long_running_process(
-                payload.concurrency,
-                payload.maximum_frame_cache_items,
-                payload.verbose,
-            )?;
+            set_verbose_logging(payload.verbose);
+
+            let max_video_cache_size = payload
+                .maximum_frame_cache_size_in_bytes
+                .unwrap_or(get_ideal_maximum_frame_cache_size());
+
+            _print_verbose(&format!(
+                "Starting Rust process. Max video cache size: {}MB, max concurrency = {}",
+                max_video_cache_size / 1024 / 1024,
+                payload.concurrency
+            ))?;
+
+            start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -59,11 +71,8 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 
 fn start_long_running_process(
     threads: usize,
-    frames_to_keep: usize,
-    verbose: bool,
+    maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    set_verbose_logging(verbose);
-
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
         .build()?;
@@ -92,7 +101,10 @@ fn start_long_running_process(
                 )
                 .unwrap(),
             };
-            ffmpeg::keep_only_latest_frames(frames_to_keep).unwrap();
+            if is_about_to_run_out_of_memory() {
+                ffmpeg::emergency_memory_free_up(maximum_frame_cache_size_in_bytes).unwrap();
+            }
+            ffmpeg::keep_only_latest_frames(maximum_frame_cache_size_in_bytes).unwrap();
         });
     }
 

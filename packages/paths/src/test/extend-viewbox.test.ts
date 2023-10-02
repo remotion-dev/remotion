@@ -7,6 +7,6 @@ test('Should be able to extend a viewBox', () => {
 
 test('Should reject an invalid viewBox', () => {
 	expect(() => extendViewBox('0 0 1000 ', 2)).toThrow(
-		/currentViewBox must be 4 valid numbers, but got "0 0 1000 "/
+		/currentViewBox must be 4 valid numbers, but got "0 0 1000 "/,
 	);
 });

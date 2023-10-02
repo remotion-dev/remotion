@@ -3,7 +3,7 @@ import type {TSequence} from 'remotion';
 export const getTimelineNestedLevel = (
 	sequence: TSequence,
 	allSequences: TSequence[],
-	depth: number
+	depth: number,
 ): number => {
 	if (!sequence.parent) {
 		return depth;
@@ -17,6 +17,6 @@ export const getTimelineNestedLevel = (
 	return getTimelineNestedLevel(
 		parentSequence,
 		allSequences,
-		depth + (parentSequence.showInTimeline ? 1 : 0)
+		depth + (parentSequence.showInTimeline ? 1 : 0),
 	);
 };

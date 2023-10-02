@@ -13,8 +13,8 @@ export function fetch(url: string, dest: string) {
 				if (code >= 400) {
 					reject(
 						new Error(
-							`Network request to ${url} failed with code ${code} (${response.statusMessage})`
-						)
+							`Network request to ${url} failed with code ${code} (${response.statusMessage})`,
+						),
 					);
 				} else if (code >= 300) {
 					fetch(response.headers.location as string, dest)
@@ -60,6 +60,6 @@ function untar(file: string, dest: string) {
 			strip: 1,
 			C: dest,
 		},
-		[]
+		[],
 	);
 }

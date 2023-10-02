@@ -35,7 +35,7 @@ export function mimeLookup(path: string) {
 
 function populateMaps(
 	exts: Record<string, string[]>,
-	_types: Record<string, string>
+	_types: Record<string, string>,
 ) {
 	// source preference (least -> most)
 	const preference = ['nginx', 'apache', undefined, 'iana'];

@@ -47,6 +47,7 @@ export type WebhookPayload = {
 	renderId: string;
 	expectedBucketOwner: string;
 	bucketName: string;
+	customData: Record<string, unknown> | null;
 } & DynamicWebhookPayload;
 
 const getWebhookClient = (url: string) => {
@@ -97,23 +98,27 @@ function invokeWebhookRaw({
 				if (res.statusCode && res.statusCode > 299) {
 					reject(
 						new Error(
-							`Sent a webhook to ${url} but got a status code of ${res.statusCode} with message '${res.statusMessage}'`
-						)
+							`Sent a webhook to ${url} but got a status code of ${res.statusCode} with message '${res.statusMessage}'`,
+						),
 					);
 					return;
 				}
 
 				resolve();
-			}
+			},
 		);
 
-		req.write(jsonPayload);
+		req.write(jsonPayload, (err) => {
+			if (err) {
+				reject(err);
+			} else {
+				req.end();
+			}
+		});
 
 		req.on('error', (err) => {
 			reject(err);
 		});
-
-		req.end();
 	});
 }
 
@@ -124,7 +129,7 @@ function exponentialBackoff(errorCount: number): number {
 export const invokeWebhook = async (
 	options: InvokeWebhookOptions,
 	retries = 2,
-	errors = 0
+	errors = 0,
 ): Promise<void> => {
 	try {
 		await invokeWebhookRaw(options);

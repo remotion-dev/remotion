@@ -10,7 +10,8 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {VideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
-import {webpackOverride} from '../webpack-override';
+// @ts-expect-error it does work
+import {webpackOverride} from '../webpack-override.mjs';
 
 test(
 	'Can render a still png using Node.JS APIs',
@@ -23,7 +24,7 @@ test(
 		const compositions = await getCompositions(bundled);
 
 		const composition = compositions.find(
-			(c) => c.id === 'react-svg'
+			(c) => c.id === 'react-svg',
 		) as VideoConfig;
 
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
@@ -38,13 +39,14 @@ test(
 				concurrency: RenderInternals.getActualConcurrency(null),
 				logLevel: 'info',
 				indent: false,
+				offthreadVideoCacheSizeInBytes: null,
 			},
 			{
 				onDownload: () => undefined,
 				onError: (err) => {
 					throw err;
 				},
-			}
+			},
 		);
 
 		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
@@ -56,9 +58,9 @@ test(
 				output: testOut,
 				serveUrl,
 				frame: 500,
-			})
+			}),
 		).rejects.toThrow(
-			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/
+			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
 		);
 
 		await expect(() =>
@@ -66,7 +68,7 @@ test(
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
 				serveUrl,
-			})
+			}),
 		).rejects.toThrow(/already exists, but is not a file/);
 
 		await expect(() =>
@@ -75,9 +77,9 @@ test(
 				output: 'src/index.ts',
 				serveUrl,
 				overwrite: false,
-			})
+			}),
 		).rejects.toThrow(
-			/Cannot render still - "overwrite" option was set to false, but the output/
+			/Cannot render still - "overwrite" option was set to false, but the output/,
 		);
 
 		await renderStill({
@@ -97,7 +99,7 @@ test(
 	{
 		retry: 3,
 		timeout: 90000,
-	}
+	},
 );
 
 test(
@@ -121,13 +123,14 @@ test(
 				concurrency: RenderInternals.getActualConcurrency(null),
 				logLevel: 'info',
 				indent: false,
+				offthreadVideoCacheSizeInBytes: null,
 			},
 			{
 				onDownload: () => undefined,
 				onError: (err) => {
 					throw err;
 				},
-			}
+			},
 		);
 
 		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
@@ -141,12 +144,12 @@ test(
 
 		for (const toRenderComposition of toRenderCompositions) {
 			const composition = compositions.find(
-				(c) => c.id === toRenderComposition[0]
+				(c) => c.id === toRenderComposition[0],
 			) as VideoConfig;
 
 			const testOut = path.join(
 				folder,
-				`${toRenderComposition[0]}-${toRenderComposition[1]}.${imageFormat}`
+				`${toRenderComposition[0]}-${toRenderComposition[1]}.${imageFormat}`,
 			);
 
 			await renderStill({
@@ -169,5 +172,5 @@ test(
 	{
 		retry: 3,
 		timeout: 90000,
-	}
+	},
 );

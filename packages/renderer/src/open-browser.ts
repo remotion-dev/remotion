@@ -13,9 +13,15 @@ import {
 	validateOpenGlRenderer,
 } from './validate-opengl-renderer';
 
-const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
+const validRenderers = [
+	'swangle',
+	'angle',
+	'egl',
+	'swiftshader',
+	'vulkan',
+] as const;
 
-type OpenGlRenderer = typeof validRenderers[number];
+type OpenGlRenderer = (typeof validRenderers)[number];
 
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
@@ -23,6 +29,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 	userAgent?: string | null;
+	enableMultiProcessOnLinux?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -30,6 +37,16 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+	}
+
+	if (renderer === 'vulkan') {
+		return [
+			'--use-angle=vulkan',
+			`--use-vulkan=swiftshader`,
+			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--dignore-gpu-blocklist',
+			'--enable-features=Vulkan,UseSkiaRenderer',
+		];
 	}
 
 	if (renderer === null) {
@@ -75,21 +92,21 @@ export const internalOpenBrowser = async ({
 	viewport,
 	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
+	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
-			'Firefox supported is not yet turned on. Stay tuned for the future.'
+			'Firefox supported is not yet turned on. Stay tuned for the future.',
 		);
 	}
 
-	await ensureLocalBrowser(browser, browserExecutable);
+	await ensureLocalBrowser(browserExecutable);
 
-	const executablePath = getLocalBrowserExecutable(browser, browserExecutable);
+	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
-		product: browser,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
@@ -130,7 +147,11 @@ export const internalOpenBrowser = async ({
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
-			process.platform === 'linux' ? '--single-process' : null,
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!chromiumOptions.enableMultiProcessOnLinux
+				? '--single-process'
+				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
@@ -176,7 +197,7 @@ export const internalOpenBrowser = async ({
  */
 export const openBrowser = (
 	browser: Browser,
-	options?: OpenBrowserOptions
+	options?: OpenBrowserOptions,
 ): Promise<HeadlessBrowser> => {
 	const {
 		browserExecutable,

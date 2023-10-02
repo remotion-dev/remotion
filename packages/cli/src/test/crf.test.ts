@@ -9,7 +9,7 @@ describe('set crf invalid input', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => setCrf(entry),
-				/The CRF must be a number or undefined/
-			))
+				/The CRF must be a number or undefined/,
+			)),
 	);
 });

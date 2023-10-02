@@ -16,7 +16,7 @@ export const Null: React.FC = () => {
 			}
 
 			throw new Error(
-				'Cannot render <Null>, because another component clipping the region was already rendered (most likely <Clipper>)'
+				'Cannot render <Null>, because another component clipping the region was already rendered (most likely <Clipper>)',
 			);
 		});
 

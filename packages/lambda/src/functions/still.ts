@@ -5,7 +5,7 @@ import path from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {decompressInputProps} from '../shared/compress-props';
@@ -21,7 +21,7 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getServeUrlHash} from '../shared/make-s3-url';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -35,6 +35,7 @@ import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {validateComposition} from './helpers/validate-composition';
 import {
 	getTmpDirStateIfENoSp,
@@ -59,12 +60,12 @@ const innerStillHandler = async ({
 	if (lambdaParams.version !== VERSION) {
 		if (!lambdaParams.version) {
 			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 		);
 	}
 
@@ -76,13 +77,15 @@ const innerStillHandler = async ({
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
-			getOrCreateBucket({
+			internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
+				customCredentials: null,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			lambdaParams.logLevel,
 			false,
-			lambdaParams.chromiumOptions ?? {}
+			lambdaParams.chromiumOptions ?? {},
 		),
 	]);
 
@@ -112,6 +115,7 @@ const innerStillHandler = async ({
 		remotionRoot: process.cwd(),
 		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const composition = await validateComposition({
@@ -127,6 +131,7 @@ const innerStillHandler = async ({
 		forceWidth: lambdaParams.forceWidth,
 		logLevel: lambdaParams.logLevel,
 		server,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -136,7 +141,7 @@ const innerStillHandler = async ({
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,
 		estimatedRenderLambdaInvokations: 1,
-		siteId: getServeUrlHash(serveUrl),
+		siteId: serveUrl,
 		totalChunks: 1,
 		type: 'still',
 		imageFormat: lambdaParams.imageFormat,
@@ -151,6 +156,9 @@ const innerStillHandler = async ({
 		everyNthFrame: 1,
 		frameRange: [lambdaParams.frame, lambdaParams.frame],
 		audioCodec: null,
+		deleteAfter: lambdaParams.deleteAfter,
+		numberOfGifLoops: null,
+		downloadBehavior: lambdaParams.downloadBehavior,
 	};
 
 	await lambdaWriteFile({
@@ -185,7 +193,7 @@ const innerStillHandler = async ({
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: null,
+		onDownload: onDownloadsHelper(),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
@@ -194,12 +202,13 @@ const innerStillHandler = async ({
 			staticBase: null,
 			data: composition.props,
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName)
+		getCredentialsFromOutName(lambdaParams.outName),
 	);
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -226,7 +235,7 @@ const innerStillHandler = async ({
 	]);
 
 	const estimatedPrice = estimatePrice({
-		durationInMiliseconds: Date.now() - start + 100,
+		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
@@ -240,7 +249,7 @@ const innerStillHandler = async ({
 		output: getOutputUrlFromMetadata(
 			renderMetadata,
 			bucketName,
-			customCredentials
+			customCredentials,
 		),
 		size,
 		bucketName,
@@ -259,7 +268,7 @@ type RenderStillLambdaResponsePayload = {
 };
 
 export const stillHandler = async (
-	options: Options
+	options: Options,
 ): Promise<RenderStillLambdaResponsePayload> => {
 	const {params} = options;
 
@@ -272,11 +281,7 @@ export const stillHandler = async (
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			);
+		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
 		if (!willRetry) {
@@ -296,12 +301,15 @@ export const stillHandler = async (
 			type: LambdaRoutines.still,
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		const bucketName =
 			params.bucketName ??
 			(
-				await getOrCreateBucket({
+				await internalGetOrCreateBucket({
 					region: getCurrentRegionInFunction(),
+					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 

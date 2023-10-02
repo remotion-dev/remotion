@@ -21,7 +21,7 @@ export const MediaVolumeSlider: React.FC<{
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
 	const [randomClass] = useState(() =>
-		`__remotion-volume-slider-${random(randomId)}`.replace('.', '')
+		`__remotion-volume-slider-${random(randomId)}`.replace('.', ''),
 	);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
@@ -141,7 +141,7 @@ export const MediaVolumeSlider: React.FC<{
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</button>
-			{(focused || hover) && !mediaMuted ? (
+			{(focused || hover) && !mediaMuted && !Internals.isIosSafari() ? (
 				<input
 					ref={inputRef}
 					aria-label="Change volume"

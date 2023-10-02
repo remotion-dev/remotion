@@ -55,7 +55,7 @@ export const MenuContent: React.FC<{
 	const [selectedItem, setSelectedItem] = useState<string | null>(
 		typeof preselectIndex === 'number' && preselectIndex >= 0
 			? (values[preselectIndex].id as string)
-			: null
+			: null,
 	);
 
 	const onEscape = useCallback(() => {
@@ -78,7 +78,7 @@ export const MenuContent: React.FC<{
 			}
 
 			const previousItems = values.filter(
-				(v, i) => i < index && v.type !== 'divider'
+				(v, i) => i < index && v.type !== 'divider',
 			);
 			if (previousItems.length > 0) {
 				return previousItems[previousItems.length - 1].id as MenuId;

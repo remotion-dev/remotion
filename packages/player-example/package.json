@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "4.0.10",
+	"version": "4.0.43",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -20,11 +20,10 @@
 		"next": "^13.1.3",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"remotion": "workspace:*",
-		"typescript": "4.9.5"
+		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"prettier": "^2.7.1",
+		"prettier": "3.0.2",
 		"prettier-plugin-organize-imports": "^3.2.2"
 	},
 	"scripts": {

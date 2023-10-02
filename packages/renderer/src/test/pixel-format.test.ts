@@ -19,7 +19,7 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 		for (const codec of codecs) {
 			test(`test for valid combination ${format} and ${codec}`, () => {
 				expect(() =>
-					validateSelectedPixelFormatAndCodecCombination(format, codec)
+					validateSelectedPixelFormatAndCodecCombination(format, codec),
 				).not.toThrow();
 			});
 		}
@@ -29,17 +29,17 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 	invalidCodecs.forEach((entry) =>
 		test(`test for invalid combination yuva420p and ${entry}`, () =>
 			expect(() =>
-				validateSelectedPixelFormatAndCodecCombination('yuva420p', entry)
+				validateSelectedPixelFormatAndCodecCombination('yuva420p', entry),
 			).toThrow(
-				/Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp9'. To render videos with alpha channel, you must choose a codec that supports it./
-			))
+				/Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp9'. To render videos with alpha channel, you must choose a codec that supports it./,
+			)),
 	);
 	const validCodecs: Codec[] = ['vp8', 'vp9'];
 	validCodecs.forEach((c) =>
 		test(`test for valid combination yuva420p and ${c}`, () =>
 			expect(() =>
-				validateSelectedPixelFormatAndCodecCombination('yuva420p', c)
-			).not.toThrow())
+				validateSelectedPixelFormatAndCodecCombination('yuva420p', c),
+			).not.toThrow()),
 	);
 
 	const invalidFormats = ['abc', '', 3];
@@ -47,7 +47,7 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 		test(`test for invalid input "${entry}"`, () =>
 			expect(
 				// @ts-expect-error
-				() => validateSelectedPixelFormatAndCodecCombination(entry, 'h264')
-			).toThrow(new RegExp(`Value ${entry} is not valid as a pixel format.`)))
+				() => validateSelectedPixelFormatAndCodecCombination(entry, 'h264'),
+			).toThrow(new RegExp(`Value ${entry} is not valid as a pixel format.`))),
 	);
 });

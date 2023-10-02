@@ -32,7 +32,7 @@ type MultiRenderProgress = {
 const makeInvokeProgress = (
 	invokeProgress: LambdaInvokeProgress,
 	totalSteps: number,
-	retriesInfo: ChunkRetry[]
+	retriesInfo: ChunkRetry[],
 ) => {
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
 	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
@@ -122,7 +122,7 @@ const makeEncodingProgress = ({
 const makeCleanupProgress = (
 	cleanupInfo: CleanupInfo | null,
 	totalSteps: number,
-	skipped: boolean
+	skipped: boolean,
 ) => {
 	if (!cleanupInfo) {
 		return '';
@@ -132,7 +132,7 @@ const makeCleanupProgress = (
 		return [
 			`(5/${totalSteps})`,
 			CliInternals.chalk.blueBright(
-				`Not cleaning up because --log=verbose was set`
+				`Not cleaning up because --log=verbose was set`,
 			),
 		].join(' ');
 	}
@@ -151,14 +151,14 @@ const makeCleanupProgress = (
 
 const makeDownloadProgress = (
 	downloadInfo: DownloadedInfo,
-	totalSteps: number
+	totalSteps: number,
 ) => {
 	return [
 		`(6/${totalSteps})`,
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
-					downloadInfo.downloaded / downloadInfo.totalSize
+					downloadInfo.downloaded / downloadInfo.totalSize,
 			  ),
 		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
 		downloadInfo.doneIn === null
@@ -175,7 +175,7 @@ const makeDownloadProgress = (
 };
 
 export const makeMultiProgressFromStatus = (
-	status: RenderProgress
+	status: RenderProgress,
 ): MultiRenderProgress => {
 	return {
 		chunkProgress: {
@@ -186,7 +186,7 @@ export const makeMultiProgressFromStatus = (
 			totalFrames: status.renderMetadata
 				? RenderInternals.getFramesToRender(
 						status.renderMetadata.frameRange,
-						status.renderMetadata.everyNthFrame
+						status.renderMetadata.everyNthFrame,
 				  ).length
 				: null,
 		},

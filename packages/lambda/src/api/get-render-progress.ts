@@ -24,7 +24,7 @@ export type GetRenderProgressInput = {
  * @returns {Promise<RenderProgress>} See documentation for this function to see all properties on the return object.
  */
 export const getRenderProgress = async (
-	input: GetRenderProgressInput
+	input: GetRenderProgressInput,
 ): Promise<RenderProgress> => {
 	const result = await callLambda({
 		functionName: input.functionName,
@@ -33,6 +33,7 @@ export const getRenderProgress = async (
 		region: input.region,
 		receivedStreamingPayload: () => undefined,
 		timeoutInTest: 120000,
+		retriesRemaining: 2,
 	});
 	return result;
 };

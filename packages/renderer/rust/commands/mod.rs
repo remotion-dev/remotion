@@ -1,15 +1,21 @@
 use crate::compositor::draw_layer;
+use crate::copy_clipboard::copy_to_clipboard;
 use crate::errors::ErrorWithBacktrace;
-use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
+use crate::{ffmpeg, get_silent_parts};
 use std::io::ErrorKind;
 
 pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
-            let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;
+            let res = ffmpeg::extract_frame(
+                command.src,
+                command.original_src,
+                command.time,
+                command.transparent,
+            )?;
             Ok(res)
         }
         CliInputCommandPayload::GetOpenVideoStats(_) => {
@@ -24,7 +30,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(vec![])
         }
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::free_up_memory(payload.percent_of_memory)?;
+            ffmpeg::free_up_memory(payload.remaining_bytes)?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
@@ -45,7 +51,15 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
-
+        CliInputCommandPayload::GetSilences(_command) => {
+            let filter = format!(
+                "silencedetect=n={}dB:d={}",
+                _command.noiseThresholdInDecibels, _command.minDurationInSeconds
+            );
+            let res = get_silent_parts::get_silent_parts(_command.src, filter.to_string())?;
+            let str = serde_json::to_string(&res)?;
+            Ok(str.as_bytes().to_vec())
+        }
         CliInputCommandPayload::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;
             let mut data: Vec<u8> = vec![0; len * 4];
@@ -75,5 +89,6 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
 
             Ok("".as_bytes().to_vec())
         }
+        CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
     }
 }

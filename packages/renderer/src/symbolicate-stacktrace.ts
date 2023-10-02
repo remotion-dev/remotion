@@ -32,7 +32,7 @@ function extractSourceMapUrl(fileContents: string): string | null {
 export const getSourceMapFromRemoteUrl = async (url: string) => {
 	if (!url.endsWith('.js.map')) {
 		throw new Error(
-			`The URL ${url} does not seem to be a valid source map URL.`
+			`The URL ${url} does not seem to be a valid source map URL.`,
 		);
 	}
 
@@ -43,7 +43,7 @@ export const getSourceMapFromRemoteUrl = async (url: string) => {
 const getSourceMap = (
 	filePath: string,
 	fileContents: string,
-	type: 'local' | 'remote'
+	type: 'local' | 'remote',
 ): Promise<AnySourceMapConsumer | null> => {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
@@ -55,21 +55,26 @@ const getSourceMap = (
 		const match2 = sm.match(base64);
 		if (!match2) {
 			throw new Error(
-				'Sorry, non-base64 inline source-map encoding is not supported.'
+				'Sorry, non-base64 inline source-map encoding is not supported.',
 			);
 		}
 
 		const converted = window.atob(sm.substring(match2[0].length));
-		return Promise.resolve(
-			new SourceMapConsumer(JSON.parse(converted) as RawSourceMap)
-		);
+		try {
+			const sourceMapConsumer = new SourceMapConsumer(
+				JSON.parse(converted) as RawSourceMap,
+			);
+			return Promise.resolve(sourceMapConsumer);
+		} catch {
+			return Promise.resolve(null);
+		}
 	}
 
 	if (type === 'local') {
 		// Find adjacent file: bundle.js -> bundle.js.map
 		const newFilePath = path.join(path.dirname(filePath), sm);
 		return Promise.resolve(
-			new SourceMapConsumer(readFileSync(newFilePath, 'utf8'))
+			new SourceMapConsumer(readFileSync(newFilePath, 'utf8')),
 		);
 	}
 
@@ -110,7 +115,7 @@ export type SymbolicatedStackFrame = {
 function getLinesAround(
 	line: number,
 	count: number,
-	lines: string[]
+	lines: string[],
 ): ScriptLine[] {
 	const result: ScriptLine[] = [];
 	for (
@@ -131,7 +136,7 @@ function getLinesAround(
 const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,
-	column: number
+	column: number,
 ): {source: string | null; line: number | null; column: number | null} => {
 	const result = source_map.originalPositionFor({
 		line,
@@ -141,20 +146,20 @@ const getOriginalPosition = (
 };
 
 export const symbolicateStackTraceFromRemoteFrames = async (
-	frames: UnsymbolicatedStackFrame[]
+	frames: UnsymbolicatedStackFrame[],
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
 		...new Set(
 			frames
 				.map((f) => f.fileName)
 				.filter((f) => f.startsWith('http://') || f.startsWith('https://'))
-				.filter(truthy)
+				.filter(truthy),
 		),
 	];
 	const maps = await Promise.all(
 		uniqueFileNames.map((fileName) => {
 			return getSourceMapFromRemoteFile(fileName);
-		})
+		}),
 	);
 
 	const mapValues: Record<string, SourceMapConsumer | null> = {};
@@ -167,7 +172,7 @@ export const symbolicateStackTraceFromRemoteFrames = async (
 
 export const symbolicateFromSources = (
 	frames: UnsymbolicatedStackFrame[],
-	mapValues: Record<string, SourceMapConsumer | null>
+	mapValues: Record<string, SourceMapConsumer | null>,
 ) => {
 	return frames
 		.map((frame): SymbolicatedStackFrame | null => {
@@ -183,7 +188,7 @@ export const symbolicateFromSources = (
 
 export const symbolicateStackFrame = (
 	frame: UnsymbolicatedStackFrame,
-	map: SourceMapConsumer
+	map: SourceMapConsumer,
 ) => {
 	const pos = getOriginalPosition(map, frame.lineNumber, frame.columnNumber);
 

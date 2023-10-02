@@ -27,7 +27,7 @@ import { estimatePrice } from "@remotion/lambda";
 console.log(
   estimatePrice({
     region: "us-east-1",
-    durationInMiliseconds: 20000,
+    durationInMilliseconds: 20000,
     memorySizeInMb: 2048,
     diskSizeInMb: 2048,
     lambdasInvoked: 1,
@@ -47,9 +47,9 @@ The region in which the Lambda function is executed in. [Pricing varies across r
 
 The amount of memory that has been given to the Lambda function. May be received with [`getFunctionInfo()`](/docs/lambda/getfunctioninfo).
 
-### `durationInMiliseconds`
+### `durationInMilliseconds`
 
-The estimated total execution duration in miliseconds of all Lambdas combined. See the top of this page for a guide on how to approximate the duration.
+The estimated total execution duration in Milliseconds of all Lambdas combined. See the top of this page for a guide on how to approximate the duration.
 
 ### `lambdasInvoked`
 

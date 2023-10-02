@@ -12,13 +12,13 @@ let listeners: {
 
 export const subscribeToEvent = (
 	type: EventSourceEvent['type'],
-	listener: (event: EventSourceEvent) => void
+	listener: (event: EventSourceEvent) => void,
 ) => {
 	listeners.push({type, listener});
 
 	return () => {
 		listeners = listeners.filter(
-			(l) => l.type !== type || l.listener !== listener
+			(l) => l.type !== type || l.listener !== listener,
 		);
 	};
 };
@@ -52,6 +52,7 @@ export const openEventSource = () => {
 
 		if (newEvent.type === 'new-public-folder') {
 			window.remotion_staticFiles = newEvent.files;
+			window.remotion_publicFolderExists = newEvent.folderExists;
 		}
 
 		listeners.forEach((l) => {
@@ -74,7 +75,7 @@ export const openEventSource = () => {
 					openEventSource();
 				}, 1000);
 			},
-			{once: true}
+			{once: true},
 		);
 	});
 };

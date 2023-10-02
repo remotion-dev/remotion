@@ -7,7 +7,7 @@ export const getAccountId = async (options: {region: AwsRegion}) => {
 	validateAwsRegion(options.region);
 
 	const callerIdentity = await getStsClient(options.region).send(
-		new GetCallerIdentityCommand({})
+		new GetCallerIdentityCommand({}),
 	);
 
 	if (!callerIdentity.Account) {

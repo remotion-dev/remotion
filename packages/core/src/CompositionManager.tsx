@@ -7,22 +7,23 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyZodObject} from 'zod';
-import {AssetManagerProvider} from './AssetManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
 	BaseMetadata,
+	CanvasContent,
 	CompositionManagerContext,
 } from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width: number | undefined;
 	height: number | undefined;
@@ -46,7 +47,7 @@ export type AnyComposition = TComposition<
 
 export type TCompMetadataWithCalcFunction<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<Schema, Props>,
 	| 'id'
@@ -60,7 +61,7 @@ export type TCompMetadataWithCalcFunction<
 
 export type TCompMetadata<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<Schema, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
@@ -73,7 +74,7 @@ export type AnyCompMetadata = TCompMetadata<
 
 export type SmallTCompMetadata<
 	T extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<T, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
@@ -123,7 +124,7 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 } & EnhancedTSequenceData;
 
-export type TAsset = {
+export type TRenderAsset = {
 	type: 'audio' | 'video';
 	src: string;
 	id: string;
@@ -149,18 +150,17 @@ export const CompositionManagerProvider: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
-	const [currentComposition, setCurrentComposition] = useState<string | null>(
-		null
-	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
-
+	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
+		null,
+	);
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
 	const updateCompositions = useCallback(
 		(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			updateComps: (comp: AnyComposition[]) => AnyComposition[]
+			updateComps: (comp: AnyComposition[]) => AnyComposition[],
 		) => {
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
@@ -168,17 +168,17 @@ export const CompositionManagerProvider: React.FC<{
 				return updated;
 			});
 		},
-		[]
+		[],
 	);
 
 	const registerComposition = useCallback(
 		<Schema extends AnyZodObject, Props extends Record<string, unknown>>(
-			comp: TComposition<Schema, Props>
+			comp: TComposition<Schema, Props>,
 		) => {
 			updateCompositions((comps) => {
 				if (comps.find((c) => c.id === comp.id)) {
 					throw new Error(
-						`Multiple composition with id ${comp.id} are registered.`
+						`Multiple composition with id ${comp.id} are registered.`,
 					);
 				}
 
@@ -189,7 +189,7 @@ export const CompositionManagerProvider: React.FC<{
 				return value;
 			});
 		},
-		[updateCompositions]
+		[updateCompositions],
 	);
 
 	const unregisterComposition = useCallback((id: string) => {
@@ -214,11 +214,11 @@ export const CompositionManagerProvider: React.FC<{
 		(name: string, parent: string | null) => {
 			setFolders((prevFolders) => {
 				return prevFolders.filter(
-					(p) => !(p.name === name && p.parent === parent)
+					(p) => !(p.name === name && p.parent === parent),
 				);
 			});
 		},
-		[]
+		[],
 	);
 
 	useImperativeHandle(
@@ -228,39 +228,44 @@ export const CompositionManagerProvider: React.FC<{
 				getCompositions: () => currentcompositionsRef.current,
 			};
 		},
-		[]
+		[],
 	);
 
-	const composition = compositions.find((c) => c.id === currentComposition);
+	const composition = compositions.find((c) =>
+		canvasContent?.type === 'composition'
+			? c.id === canvasContent.compositionId
+			: null,
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
 			registerComposition,
 			unregisterComposition,
-			currentComposition,
-			setCurrentComposition,
 			folders,
 			registerFolder,
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
+			canvasContent,
+			setCanvasContent,
 		};
 	}, [
 		compositions,
 		registerComposition,
 		unregisterComposition,
-		currentComposition,
 		folders,
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
+		canvasContent,
+		setCanvasContent,
 	]);
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
 			<SequenceManagerProvider>
-				<AssetManagerProvider>
+				<RenderAssetManagerProvider>
 					<ResolveCompositionConfig>
 						<SharedAudioContextProvider
 							numberOfAudioTags={numberOfAudioTags}
@@ -269,7 +274,7 @@ export const CompositionManagerProvider: React.FC<{
 							{children}
 						</SharedAudioContextProvider>
 					</ResolveCompositionConfig>
-				</AssetManagerProvider>
+				</RenderAssetManagerProvider>
 			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);

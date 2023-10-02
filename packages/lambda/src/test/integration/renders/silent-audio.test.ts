@@ -22,7 +22,7 @@ test('Should add silent audio if there is no audio', async () => {
 	const res = await callLambda({
 		payload: {
 			serveUrl:
-				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
@@ -41,6 +41,7 @@ test('Should add silent audio if there is no audio', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
+			x264Preset: null,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
@@ -61,12 +62,16 @@ test('Should add silent audio if there is no audio', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			offthreadVideoCacheSizeInBytes: null,
+			deleteAfter: null,
+			colorSpace: 'default',
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		type: LambdaRoutines.start,
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const progress = await callLambda({
@@ -80,6 +85,7 @@ test('Should add silent audio if there is no audio', async () => {
 		region: 'eu-central-1',
 		type: LambdaRoutines.status,
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const file = await lambdaReadFile({

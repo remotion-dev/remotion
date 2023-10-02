@@ -47,7 +47,7 @@ Formats the given number using `Number#toLocaleString`.
 const toLocaleString = (
 	number: number,
 	locale: string,
-	options?: Intl.NumberFormatOptions
+	options?: Intl.NumberFormatOptions,
 ): string => {
 	if (typeof locale === 'string' || Array.isArray(locale)) {
 		return number.toLocaleString(locale, options);
@@ -71,11 +71,11 @@ export const formatBytes = (
 		locale: 'en-US',
 		signed: false,
 		maximumFractionDigits: 1,
-	}
+	},
 ) => {
 	if (!Number.isFinite(number)) {
 		throw new TypeError(
-			`Expected a finite number, got ${typeof number}: ${number}`
+			`Expected a finite number, got ${typeof number}: ${number}`,
 		);
 	}
 
@@ -126,16 +126,16 @@ export const formatBytes = (
 		Math.floor(
 			options.binary
 				? Math.log(number) / Math.log(1024)
-				: Math.log10(number) / 3
+				: Math.log10(number) / 3,
 		),
-		UNITS.length - 1
+		UNITS.length - 1,
 	);
 	number /= (options.binary ? 1024 : 1000) ** exponent;
 
 	const numberString = toLocaleString(
 		Number(number),
 		options.locale,
-		localeOptions
+		localeOptions,
 	);
 
 	const unit = UNITS[exponent];

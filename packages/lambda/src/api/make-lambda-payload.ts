@@ -1,17 +1,80 @@
+import type {
+	AudioCodec,
+	ChromiumOptions,
+	ColorSpace,
+	FrameRange,
+	LogLevel,
+	PixelFormat,
+	ProResProfile,
+	ToOptions,
+	VideoImageFormat,
+	X264Preset,
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion/version';
-import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
+import type {AwsRegion, DeleteAfter} from '../client';
+import type {
+	LambdaStartPayload,
+	LambdaStatusPayload,
+	OutNameInput,
+	Privacy,
+	WebhookOption,
+} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '../shared/compress-props';
+import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {validateWebhook} from '../shared/validate-webhook';
 import type {GetRenderProgressInput} from './get-render-progress';
-import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
+
+export type InnerRenderMediaOnLambdaInput = {
+	region: AwsRegion;
+	functionName: string;
+	serveUrl: string;
+	composition: string;
+	inputProps: Record<string, unknown>;
+	codec: LambdaCodec;
+	imageFormat: VideoImageFormat;
+	crf: number | undefined;
+	envVariables: Record<string, string>;
+	pixelFormat: PixelFormat | undefined;
+	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | null;
+	privacy: Privacy;
+	jpegQuality: number;
+	maxRetries: number;
+	framesPerLambda: number | null;
+	logLevel: LogLevel;
+	frameRange: FrameRange | null;
+	outName: OutNameInput | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	concurrencyPerLambda: number;
+	downloadBehavior: DownloadBehavior;
+	muted: boolean;
+	overwrite: boolean;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	webhook: WebhookOption | null;
+	forceWidth: number | null;
+	forceHeight: number | null;
+	rendererFunctionName: string | null;
+	forceBucketName: string | null;
+	audioCodec: AudioCodec | null;
+	colorSpace: ColorSpace;
+	deleteAfter: DeleteAfter | null;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -28,6 +91,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	envVariables,
 	pixelFormat,
 	proResProfile,
+	x264Preset,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -47,16 +111,11 @@ export const makeLambdaRenderMediaPayload = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
-	dumpBrowserLogs,
 	jpegQuality,
-	quality,
-}: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
-	if (quality) {
-		throw new Error(
-			'quality has been renamed to jpegQuality. Please rename the option.'
-		);
-	}
-
+	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
+	colorSpace,
+}: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -64,10 +123,11 @@ export const makeLambdaRenderMediaPayload = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
+	validateWebhook(webhook);
 
 	const stringifiedInputProps = serializeOrThrow(
 		inputProps ?? {},
-		'input-props'
+		'input-props',
 	);
 
 	const serialized = await compressInputProps({
@@ -80,30 +140,31 @@ export const makeLambdaRenderMediaPayload = async ({
 		propsType: 'input-props',
 	});
 	return {
-		rendererFunctionName: rendererFunctionName ?? null,
-		framesPerLambda: framesPerLambda ?? null,
+		rendererFunctionName,
+		framesPerLambda,
 		composition,
 		serveUrl,
 		inputProps: serialized,
 		codec: actualCodec,
-		imageFormat: imageFormat ?? 'jpeg',
+		imageFormat,
 		crf,
 		envVariables,
 		pixelFormat,
 		proResProfile,
+		x264Preset,
 		jpegQuality,
-		maxRetries: maxRetries ?? 1,
-		privacy: privacy ?? 'public',
-		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
-		frameRange: frameRange ?? null,
-		outName: outName ?? null,
-		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-		chromiumOptions: chromiumOptions ?? {},
-		scale: scale ?? 1,
-		everyNthFrame: everyNthFrame ?? 1,
-		numberOfGifLoops: numberOfGifLoops ?? 0,
-		concurrencyPerLambda: concurrencyPerLambda ?? 1,
-		downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+		maxRetries,
+		privacy,
+		logLevel,
+		frameRange,
+		outName,
+		timeoutInMilliseconds,
+		chromiumOptions,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
+		concurrencyPerLambda,
+		downloadBehavior,
 		muted: muted ?? false,
 		version: VERSION,
 		overwrite: overwrite ?? false,
@@ -115,6 +176,9 @@ export const makeLambdaRenderMediaPayload = async ({
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		deleteAfter: deleteAfter ?? null,
+		colorSpace: colorSpace ?? 'default',
 	};
 };
 

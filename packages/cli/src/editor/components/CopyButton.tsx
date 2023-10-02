@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
 import {copyText} from '../helpers/copy-text';
 import {Spacing} from './layout';
+import {sendErrorNotification} from './Notifications/NotificationCenter';
 
 const iconStyle: React.CSSProperties = {
 	width: 16,
@@ -45,8 +46,13 @@ export const CopyButton: React.FC<{
 	const [copied, setCopied] = useState<false | number>(false);
 
 	const onClick = useCallback(() => {
-		copyText(textToCopy);
-		setCopied(Date.now());
+		copyText(textToCopy)
+			.then(() => {
+				setCopied(Date.now());
+			})
+			.catch((err) => {
+				sendErrorNotification(`Could not copy: ${err.message}`);
+			});
 	}, [textToCopy]);
 
 	useEffect(() => {
@@ -59,11 +65,7 @@ export const CopyButton: React.FC<{
 	}, [copied]);
 
 	return (
-		<Button
-			onClick={onClick}
-			style={{}}
-			buttonContainerStyle={buttonContainerStyle}
-		>
+		<Button onClick={onClick} buttonContainerStyle={buttonContainerStyle}>
 			{copyIcon}
 			<Spacing x={1.5} />{' '}
 			<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>

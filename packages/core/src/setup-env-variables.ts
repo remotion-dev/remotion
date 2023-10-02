@@ -1,7 +1,7 @@
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 
 const getEnvVariables = (): Record<string, string> => {
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		const param = window.remotion_envVariables;
 		if (!param) {
 			return {};
@@ -10,8 +10,8 @@ const getEnvVariables = (): Record<string, string> => {
 		return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
 	}
 
-	if (getRemotionEnvironment() === 'preview') {
-		// For the Preview, we already set the environment variables in index-html.ts.
+	if (getRemotionEnvironment().isStudio) {
+		// For the Studio, we already set the environment variables in index-html.ts.
 		// We just add NODE_ENV here.
 		return {
 			NODE_ENV: 'development',
@@ -19,7 +19,7 @@ const getEnvVariables = (): Record<string, string> => {
 	}
 
 	throw new Error(
-		'Can only call getEnvVariables() if environment is `rendering` or `preview`'
+		'Can only call getEnvVariables() if environment is `rendering` or `preview`',
 	);
 };
 

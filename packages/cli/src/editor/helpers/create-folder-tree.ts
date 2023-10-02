@@ -1,9 +1,64 @@
-import type {AnyComposition, TFolder} from 'remotion';
+import type {AnyComposition, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
+export type AssetFolder = {
+	name: string;
+	items: AssetStructure;
+	expanded: boolean;
+};
+
+export type AssetStructure = {
+	files: StaticFile[];
+	folders: AssetFolder[];
+};
+
+export const buildAssetFolderStructure = (
+	files: StaticFile[],
+	parentFolderName: string | null,
+	foldersExpanded: Record<string, boolean>,
+): AssetStructure => {
+	const notInFolder = files.filter((f) => !f.name.includes('/'));
+	const inFolder = files.filter((f) => f.name.includes('/'));
+	const groupedByFolder: {[key: string]: StaticFile[]} = {};
+	for (const item of inFolder) {
+		const folderName = item.name.split('/')[0];
+		if (!groupedByFolder[folderName]) {
+			groupedByFolder[folderName] = [];
+		}
+
+		groupedByFolder[folderName].push(item);
+	}
+
+	return {
+		files: notInFolder,
+		folders: Object.keys(groupedByFolder).map((folderName) => {
+			const filesInFolder = groupedByFolder[folderName];
+			const filesWithoutFolderName = filesInFolder.map((f): StaticFile => {
+				return {
+					...f,
+					name: f.name.substring(folderName.length + 1),
+				};
+			});
+
+			const key = [parentFolderName, folderName].filter(Boolean).join('/');
+			const isExpanded = foldersExpanded[key] ?? false;
+
+			return {
+				name: folderName,
+				items: buildAssetFolderStructure(
+					filesWithoutFolderName,
+					[parentFolderName, folderName].filter(Boolean).join('/'),
+					foldersExpanded,
+				),
+				expanded: isExpanded,
+			};
+		}),
+	};
+};
+
 export const splitParentIntoNameAndParent = (
-	name: string | null
+	name: string | null,
 ): {name: string | null; parent: string | null} => {
 	if (name === null) {
 		return {
@@ -27,7 +82,7 @@ export const splitParentIntoNameAndParent = (
 const doesFolderExist = (
 	items: CompositionSelectorItemType[],
 	folderName: string,
-	parentName: string | null
+	parentName: string | null,
 ): CompositionSelectorItemType[] | false => {
 	for (const item of items) {
 		if (item.type === 'folder') {
@@ -48,7 +103,7 @@ const doesFolderExist = (
 const findItemListToPush = (
 	items: CompositionSelectorItemType[],
 	folderName: string | null,
-	parentName: string | null
+	parentName: string | null,
 ): CompositionSelectorItemType[] => {
 	if (folderName === null) {
 		return items;
@@ -67,7 +122,7 @@ const createFolderIfDoesNotExist = (
 	items: CompositionSelectorItemType[],
 	availableFolders: TFolder[],
 	folderItem: TFolder,
-	foldersExpanded: Record<string, boolean>
+	foldersExpanded: Record<string, boolean>,
 ) => {
 	if (doesFolderExist(items, folderItem.name, folderItem.parent)) {
 		return;
@@ -76,7 +131,7 @@ const createFolderIfDoesNotExist = (
 	const splitted = splitParentIntoNameAndParent(folderItem.parent);
 	if (folderItem.parent) {
 		const parent = availableFolders.find(
-			(f) => f.name === splitted.name && f.parent === splitted.parent
+			(f) => f.name === splitted.name && f.parent === splitted.parent,
 		);
 		if (!parent) {
 			throw new Error('unexpectedly did not have parent');
@@ -86,7 +141,7 @@ const createFolderIfDoesNotExist = (
 			items,
 			availableFolders,
 			parent,
-			foldersExpanded
+			foldersExpanded,
 		);
 	}
 
@@ -110,7 +165,7 @@ const createFolderIfDoesNotExist = (
 export const createFolderTree = (
 	comps: AnyComposition[],
 	folders: TFolder[],
-	foldersExpanded: Record<string, boolean>
+	foldersExpanded: Record<string, boolean>,
 ): CompositionSelectorItemType[] => {
 	const items: CompositionSelectorItemType[] = [];
 	const uniqueFolderKeys: string[] = [];
@@ -119,14 +174,14 @@ export const createFolderTree = (
 		if (uniqueFolderKeys.includes(folderKey)) {
 			if (folder.parent) {
 				throw new Error(
-					`Multiple folders with the name ${folder.name} inside the folder ${folder.parent} exist. Folder names must be unique.`
+					`Multiple folders with the name ${folder.name} inside the folder ${folder.parent} exist. Folder names must be unique.`,
 				);
 			}
 
 			throw new Error(
 				'Multiple folders with the name ' +
 					folder.name +
-					' exist. Folder names must be unique.'
+					' exist. Folder names must be unique.',
 			);
 		}
 
@@ -143,7 +198,7 @@ export const createFolderTree = (
 		const list = findItemListToPush(
 			items,
 			item.folderName,
-			item.parentFolderName
+			item.parentFolderName,
 		);
 		list.push(toPush);
 	}

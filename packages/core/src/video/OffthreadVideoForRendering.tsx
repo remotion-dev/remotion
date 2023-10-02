@@ -1,6 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {AssetManager} from '../AssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -9,6 +8,7 @@ import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
@@ -36,7 +36,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {registerAsset, unregisterAsset} = useContext(AssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
@@ -46,15 +47,15 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`offthreadvideo-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
-				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}`,
+			`offthreadvideo-${random(
+				src ?? '',
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
 			src,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
-		]
+		],
 	);
 
 	if (!videoConfig) {
@@ -85,7 +86,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(src),
 			id,
@@ -96,13 +97,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		muted,
 		src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,
@@ -124,9 +125,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		return `http://localhost:${
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
-			getAbsoluteSrc(src)
+			getAbsoluteSrc(src),
 		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
-			transparent
+			transparent,
 		)}`;
 	}, [currentTime, src, transparent]);
 
@@ -139,7 +140,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					cancelRender('Failed to load image with src ' + actualSrc);
 				}
 			},
-			[actualSrc, onError]
+			[actualSrc, onError],
 		);
 
 	const className = useMemo(() => {

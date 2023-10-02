@@ -164,7 +164,7 @@ function RefreshModuleRuntime() {
 		// templating and execution.
 		self.$RefreshHelpers$.registerExportsForReactRefresh(
 			currentExports,
-			__webpack_module__.id
+			__webpack_module__.id,
 		);
 
 		// A module can be accepted automatically based on its exports, e.g. when
@@ -193,7 +193,7 @@ function RefreshModuleRuntime() {
 				if (
 					self.$RefreshHelpers$.shouldInvalidateReactRefreshBoundary(
 						prevExports,
-						currentExports
+						currentExports,
 					)
 				) {
 					__webpack_module__.hot.invalidate();
@@ -217,7 +217,7 @@ function RefreshModuleRuntime() {
 let refreshModuleRuntime = RefreshModuleRuntime.toString();
 refreshModuleRuntime = refreshModuleRuntime.slice(
 	refreshModuleRuntime.indexOf('{') + 1,
-	refreshModuleRuntime.lastIndexOf('}')
+	refreshModuleRuntime.lastIndexOf('}'),
 );
 
 const ReactRefreshLoader: LoaderDefinition = function (source, inputSourceMap) {
