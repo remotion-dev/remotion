@@ -1,5 +1,7 @@
-import React from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {CLEAR_HOVER} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 import {
 	RenderQueueCopyToClipboard,
@@ -44,8 +46,45 @@ const subtitle: React.CSSProperties = {
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
+	const [hovered, setHovered] = useState(false);
+
+	const {setCanvasContent} = useContext(Internals.CompositionManager);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const isHoverable = job.status === 'done';
+
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...container,
+			backgroundColor: isHoverable && hovered ? CLEAR_HOVER : 'transparent',
+			userSelect: 'none',
+		};
+	}, [hovered, isHoverable]);
+
+	const onClick: React.MouseEventHandler = useCallback(() => {
+		if (job.status !== 'done') {
+			return;
+		}
+
+		setCanvasContent({type: 'output', path: `/${job.outName}`});
+		window.history.pushState({}, 'Studio', `/outputs/${job.outName}`);
+	}, [job.outName, job.status, setCanvasContent]);
+
 	return (
-		<Row style={container} align="center">
+		<Row
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
+			style={containerStyle}
+			align="center"
+			onClick={onClick}
+		>
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
 			<div style={right}>

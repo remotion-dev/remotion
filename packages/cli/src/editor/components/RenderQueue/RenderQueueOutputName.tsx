@@ -7,24 +7,44 @@ import {renderQueueItemSubtitleStyle} from './item-style';
 export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
-	const onClick = useCallback(() => {
-		if (job.deletedOutputLocation) return;
+	const [hovered, setHovered] = React.useState(false);
 
-		openInFileExplorer({directory: job.outName}).catch((err) => {
-			sendErrorNotification(err.message);
-		});
-	}, [job]);
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			if (job.deletedOutputLocation) return;
+			e.stopPropagation();
+
+			openInFileExplorer({directory: job.outName}).catch((err) => {
+				sendErrorNotification(err.message);
+			});
+		},
+		[job],
+	);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...renderQueueItemSubtitleStyle,
 			cursor: job.deletedOutputLocation ? 'inherit' : 'pointer',
 			textDecoration: job.deletedOutputLocation ? 'line-through' : 'none',
+			color:
+				hovered && !job.deletedOutputLocation
+					? 'white'
+					: renderQueueItemSubtitleStyle.color,
 		};
-	}, [job.deletedOutputLocation]);
+	}, [hovered, job.deletedOutputLocation]);
 
 	return (
 		<button
+			onPointerLeave={onPointerLeave}
+			onPointerEnter={onPointerEnter}
 			onClick={onClick}
 			type="button"
 			style={style}
