@@ -29,7 +29,7 @@ export function useCurrentGifIndex({
 		return 0;
 	}
 
-	const updatedFrame = currentFrame / playbackRate;
+	const updatedFrame = currentFrame / (1 / playbackRate);
 
 	const time = (updatedFrame / videoConfig.fps) * 1000;
 
