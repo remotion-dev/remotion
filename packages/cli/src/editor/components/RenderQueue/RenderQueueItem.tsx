@@ -1,4 +1,11 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
@@ -43,6 +50,8 @@ const subtitle: React.CSSProperties = {
 	overflow: 'hidden',
 };
 
+const SELECTED_CLASSNAME = '__remotion_selected_classname';
+
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
 	selected: boolean;
@@ -72,14 +81,42 @@ export const RenderQueueItem: React.FC<{
 		};
 	}, [hovered, isHoverable, selected]);
 
+	const scrollCurrentIntoView = useCallback(() => {
+		document
+			.querySelector(`.${SELECTED_CLASSNAME}`)
+			?.scrollIntoView({behavior: 'smooth'});
+	}, []);
+
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
 			return;
 		}
 
-		setCanvasContent({type: 'output', path: `/${job.outName}`});
+		setCanvasContent((c: CanvasContent | null): CanvasContent => {
+			const isAlreadySelected =
+				c && c.type === 'output' && c.path === `/${job.outName}`;
+
+			if (isAlreadySelected && !selected) {
+				scrollCurrentIntoView();
+				return c;
+			}
+
+			return {type: 'output', path: `/${job.outName}`};
+		});
 		window.history.pushState({}, 'Studio', `/outputs/${job.outName}`);
-	}, [job.outName, job.status, setCanvasContent]);
+	}, [
+		job.outName,
+		job.status,
+		scrollCurrentIntoView,
+		selected,
+		setCanvasContent,
+	]);
+
+	useEffect(() => {
+		if (selected) {
+			scrollCurrentIntoView();
+		}
+	}, [scrollCurrentIntoView, selected]);
 
 	return (
 		<Row
@@ -88,6 +125,7 @@ export const RenderQueueItem: React.FC<{
 			style={containerStyle}
 			align="center"
 			onClick={onClick}
+			className={selected ? SELECTED_CLASSNAME : undefined}
 		>
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
