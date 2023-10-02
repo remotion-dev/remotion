@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {CLEAR_HOVER} from '../../helpers/colors';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 import {
 	RenderQueueCopyToClipboard,
@@ -45,7 +45,8 @@ const subtitle: React.CSSProperties = {
 
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
-}> = ({job}) => {
+	selected: boolean;
+}> = ({job, selected}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionManager);
@@ -63,10 +64,13 @@ export const RenderQueueItem: React.FC<{
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: isHoverable && hovered ? CLEAR_HOVER : 'transparent',
+			backgroundColor: getBackgroundFromHoverState({
+				hovered: isHoverable && hovered,
+				selected,
+			}),
 			userSelect: 'none',
 		};
-	}, [hovered, isHoverable]);
+	}, [hovered, isHoverable, selected]);
 
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
