@@ -2,11 +2,15 @@ import {useMemo} from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 import type {GifLoopBehavior} from './props';
 
-export function useCurrentGifIndex(
-	delays: number[],
-	loopBehavior: GifLoopBehavior,
-	playbackRate = 1,
-): number {
+export function useCurrentGifIndex({
+	delays,
+	loopBehavior,
+	playbackRate,
+}: {
+	delays: number[];
+	loopBehavior: GifLoopBehavior;
+	playbackRate: number;
+}): number {
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 

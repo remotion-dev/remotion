@@ -50,7 +50,11 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			};
 		}, [id]);
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior, playbackRate);
+		const index = useCurrentGifIndex({
+			delays: state.delays,
+			loopBehavior,
+			playbackRate,
+		});
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
 		currentOnLoad.current = onLoad;
