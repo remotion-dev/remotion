@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {deserializeJSONWithCustomFields} from '../input-props-serialization.js';
 
 let didWarnSSRImport = false;
@@ -10,7 +10,7 @@ const warnOnceSSRImport = () => {
 
 	didWarnSSRImport = true;
 	console.warn(
-		'Called `getInputProps()` on the server. This function is not available server-side and has returned an empty object.'
+		'Called `getInputProps()` on the server. This function is not available server-side and has returned an empty object.',
 	);
 	console.warn("To hide this warning, don't call this function on the server:");
 	console.warn("  typeof window === 'undefined' ? {} : getInputProps()");
@@ -22,12 +22,9 @@ export const getInputProps = () => {
 		return {};
 	}
 
-	if (
-		getRemotionEnvironment() === 'player-development' ||
-		getRemotionEnvironment() === 'player-production'
-	) {
+	if (getRemotionEnvironment().isPlayer) {
 		throw new Error(
-			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
+			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.',
 		);
 	}
 

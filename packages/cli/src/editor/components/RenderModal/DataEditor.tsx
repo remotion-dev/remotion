@@ -117,17 +117,20 @@ export const DataEditor: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
+	saving: boolean;
+	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	unresolvedComposition,
 	inputProps,
 	setInputProps,
 	mayShowSaveButton,
 	propsEditType,
+	saving,
+	setSaving,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
-	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
-		() => getPersistedShowWarningState()
+		() => getPersistedShowWarningState(),
 	);
 
 	const inJSONEditor = mode === 'json';
@@ -163,7 +166,7 @@ export const DataEditor: React.FC<{
 
 		if (!(typeof unresolvedComposition.schema.safeParse === 'function')) {
 			throw new Error(
-				'A value which is not a Zod schema was passed to `schema`'
+				'A value which is not a Zod schema was passed to `schema`',
 			);
 		}
 
@@ -245,7 +248,7 @@ export const DataEditor: React.FC<{
 	useEffect(() => {
 		const unsub = subscribeToEvent(
 			'root-file-changed',
-			checkIfCanSaveDefaultProps
+			checkIfCanSaveDefaultProps,
 		);
 
 		return () => {
@@ -283,11 +286,11 @@ export const DataEditor: React.FC<{
 		updateDefaultProps(
 			unresolvedComposition.id,
 			inputProps,
-			extractEnumJsonPaths(schema, z, [])
+			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
 				sendErrorNotification(
-					'Cannot update default props: ' + response.reason
+					'Cannot update default props: ' + response.reason,
 				);
 			}
 		});
@@ -295,11 +298,11 @@ export const DataEditor: React.FC<{
 
 	useEffect(() => {
 		setSaving(false);
-	}, [fastRefreshes]);
+	}, [fastRefreshes, setSaving]);
 
 	const onSave = useCallback(
 		(
-			updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
 		) => {
 			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
 				sendErrorNotification('Cannot update default props: No Zod schema');
@@ -310,13 +313,13 @@ export const DataEditor: React.FC<{
 			updateDefaultProps(
 				unresolvedComposition.id,
 				updater(unresolvedComposition.defaultProps ?? {}),
-				extractEnumJsonPaths(schema, z, [])
+				extractEnumJsonPaths(schema, z, []),
 			)
 				.then((response) => {
 					if (!response.success) {
 						console.log(response.stack);
 						sendErrorNotification(
-							`Cannot update default props: ${response.reason}. See console for more information.`
+							`Cannot update default props: ${response.reason}. See console for more information.`,
 						);
 					}
 				})
@@ -325,7 +328,13 @@ export const DataEditor: React.FC<{
 					setSaving(false);
 				});
 		},
-		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
+		[
+			schema,
+			z,
+			setSaving,
+			unresolvedComposition.id,
+			unresolvedComposition.defaultProps,
+		],
 	);
 
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;

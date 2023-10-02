@@ -3,6 +3,7 @@ import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
+import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
 import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
@@ -14,7 +15,6 @@ import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
-import {handleCommonError} from './handle-common-errors';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
@@ -23,6 +23,7 @@ import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
+import {printError} from './print-error';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
@@ -38,7 +39,6 @@ import {
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
-
 	if (parsedCli.help) {
 		printHelp();
 		process.exit(0);
@@ -47,6 +47,24 @@ export const cli = async () => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	if (command !== VERSIONS_COMMAND) {
 		await validateVersionsBeforeCommand(remotionRoot);
+	}
+
+	const isBun = typeof Bun !== 'undefined';
+	if (isBun) {
+		const version = Bun.version.split('.');
+		if (version.length === 3) {
+			if (Number(version[0]) < 1) {
+				throw new Error('Please upgrade to at least Bun 1.0.3');
+			}
+
+			if (Number(version[1]) === 0 && Number(version[2]) < 3) {
+				throw new Error('Please upgrade to at least Bun 1.0.3');
+			}
+		}
+
+		Log.info(
+			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
+		);
 	}
 
 	const isStudio = command === 'studio' || command === 'preview';
@@ -58,7 +76,6 @@ export const cli = async () => {
 	handleCtrlC();
 
 	await initializeCli(remotionRoot);
-
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
@@ -66,6 +83,8 @@ export const cli = async () => {
 			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
+		} else if (command === 'cloudrun') {
+			await cloudrunCommand(remotionRoot, args);
 		} else if (command === 'render') {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {
@@ -75,7 +94,11 @@ export const cli = async () => {
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
-			await upgrade(remotionRoot, parsedCli['package-manager']);
+			await upgrade(
+				remotionRoot,
+				parsedCli['package-manager'],
+				parsedCli.version,
+			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
@@ -93,10 +116,7 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(
-			err as Error,
-			ConfigInternals.Logging.getLogLevel()
-		);
+		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
 		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
@@ -118,7 +138,7 @@ export const CliInternals = {
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
-	handleCommonError,
+	printError,
 	formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,

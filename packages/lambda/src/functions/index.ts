@@ -1,11 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '../shared/constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
-import {randomHash} from '../shared/random-hash';
 import type {OrError} from '../shared/return-values';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateDeleteAfter,
+} from './helpers/lifecycle';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
@@ -13,6 +16,7 @@ import type {StreamingPayloads} from './helpers/streaming-payloads';
 import {sendProgressEvent} from './helpers/streaming-payloads';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
+import {mergeHandler} from './merge';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
@@ -24,14 +28,14 @@ const innerHandler = async (
 	context: {
 		invokedFunctionArn: string;
 		getRemainingTimeInMillis: () => number;
-	}
+	},
 ): Promise<void> => {
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
 	if (!context?.invokedFunctionArn) {
 		throw new Error(
-			'Lambda function unexpectedly does not have context.invokedFunctionArn'
+			'Lambda function unexpectedly does not have context.invokedFunctionArn',
 		);
 	}
 
@@ -41,7 +45,8 @@ const innerHandler = async (
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
-		const renderId = randomHash({randomInTests: true});
+		validateDeleteAfter(params.deleteAfter);
+		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 		printCloudwatchHelper(LambdaRoutines.still, {
 			renderId,
 			inputProps: JSON.stringify(params.inputProps),
@@ -60,8 +65,9 @@ const innerHandler = async (
 			params,
 			renderId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 
 		return;
 	}
@@ -76,8 +82,9 @@ const innerHandler = async (
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -93,8 +100,9 @@ const innerHandler = async (
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -106,9 +114,11 @@ const innerHandler = async (
 		const response = await progressHandler(params, {
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
+			retriesRemaining: 2,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -117,7 +127,7 @@ const innerHandler = async (
 			renderId: params.renderId,
 			chunk: String(params.chunk),
 			dumpLogs: String(
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			),
 			resolvedProps: JSON.stringify(params.resolvedProps),
 			isWarm,
@@ -129,8 +139,9 @@ const innerHandler = async (
 			isWarm,
 		});
 
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -140,9 +151,24 @@ const innerHandler = async (
 		});
 
 		const response = await infoHandler(params);
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
+	}
+
+	if (params.type === LambdaRoutines.merge) {
+		printCloudwatchHelper(LambdaRoutines.merge, {
+			renderId: params.renderId,
+			isWarm,
+		});
+
+		const response = await mergeHandler(params, {
+			expectedBucketOwner: currentUserId,
+		});
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 	}
 
 	if (params.type === LambdaRoutines.compositions) {
@@ -153,8 +179,9 @@ const innerHandler = async (
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -167,7 +194,7 @@ const routine = async (
 	context: {
 		invokedFunctionArn: string;
 		getRemainingTimeInMillis: () => number;
-	}
+	},
 ): Promise<void> => {
 	try {
 		await innerHandler(params, responseStream, context);

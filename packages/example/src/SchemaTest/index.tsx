@@ -7,6 +7,7 @@ export const schemaTestSchema = z.object({
 	title: z.string().nullable(),
 	delay: z.number().min(0).max(1000).step(0.1),
 	color: zColor(),
+	list: z.array(z.string()),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());
@@ -27,6 +28,7 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 	delay,
 	title,
 	color,
+	list,
 }) => {
 	return (
 		<AbsoluteFill
@@ -37,7 +39,15 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 			}}
 		>
 			<Sequence from={delay}>
-				<span style={{color}}>{title}</span>
+				<span style={{marginRight: 20, color}}>{title}</span>
+
+				<ul style={{listStyleType: 'disc'}}>
+					{list.map((item) => (
+						<li key={item} style={{fontSize: 10}}>
+							{item}
+						</li>
+					))}
+				</ul>
 			</Sequence>
 		</AbsoluteFill>
 	);

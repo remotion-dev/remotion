@@ -22,7 +22,7 @@ beforeEach(() => {
 		(
 			_url: string,
 			_options: unknown,
-			cb: (a: {statusCode: number}) => void
+			cb: (a: {statusCode: number}) => void,
 		) => {
 			cb({
 				statusCode: 201,
@@ -31,7 +31,7 @@ beforeEach(() => {
 				on: () => undefined,
 				end: () => undefined,
 			};
-		}
+		},
 	);
 });
 
@@ -59,7 +59,7 @@ describe('Webhooks', () => {
 			type: LambdaRoutines.start,
 			payload: {
 				serveUrl:
-					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -78,6 +78,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
+				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 40000,
@@ -93,6 +94,9 @@ describe('Webhooks', () => {
 				webhook: {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
+					customData: {
+						customID: 123,
+					},
 				},
 				audioBitrate: null,
 				videoBitrate: null,
@@ -101,11 +105,15 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
+				offthreadVideoCacheSizeInBytes: null,
+				deleteAfter: null,
+				colorSpace: 'default',
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		const parsed = res;
 
@@ -120,6 +128,7 @@ describe('Webhooks', () => {
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -136,7 +145,7 @@ describe('Webhooks', () => {
 				},
 				timeout: 5000,
 			},
-			expect.anything()
+			expect.anything(),
 		);
 	});
 
@@ -149,8 +158,9 @@ describe('Webhooks', () => {
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
+				offthreadVideoCacheSizeInBytes: null,
 				serveUrl:
-					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -169,6 +179,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
+				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 3000,
@@ -180,7 +191,11 @@ describe('Webhooks', () => {
 				},
 				muted: false,
 				overwrite: true,
-				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				webhook: {
+					url: TEST_URL,
+					secret: 'TEST_SECRET',
+					customData: {customID: 123},
+				},
 				audioBitrate: null,
 				videoBitrate: null,
 				bucketName: 'abc',
@@ -189,8 +204,11 @@ describe('Webhooks', () => {
 				forceWidth: null,
 				rendererFunctionName: null,
 				audioCodec: null,
+				deleteAfter: null,
+				colorSpace: 'default',
 			},
 			timeoutInTest: 1000,
+			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {
@@ -206,11 +224,11 @@ describe('Webhooks', () => {
 					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
-					'Content-Length': 54,
+					'Content-Length': 84,
 				},
 				timeout: 5000,
 			},
-			expect.anything()
+			expect.anything(),
 		);
 	});
 });

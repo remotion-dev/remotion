@@ -3,11 +3,17 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
+	getChromiumMultiProcessOnLinux,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
+import {
+	getEnableFolderExpiry,
+	setEnableFolderExpiry,
+} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -29,15 +35,18 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
+import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
+import {getX264Preset} from './x264-preset';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	CodecOrUndefined,
+	ColorSpace,
 	Crf,
 	FrameRange,
 	StillImageFormat,
@@ -58,6 +67,7 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import {setCodec} from './codec';
+import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -86,6 +96,10 @@ import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
+import {
+	getOffthreadVideoCacheSizeInBytes,
+	setOffthreadVideoCacheSizeInBytes,
+} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -104,6 +118,9 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
+import {setX264Preset} from './x264-preset';
+
+export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -173,21 +190,21 @@ declare global {
 		 * Set this to 'verbose' to get browser logs and other IO.
 		 */
 		readonly setLevel: (
-			newLogLevel: 'verbose' | 'info' | 'warn' | 'error'
+			newLogLevel: 'verbose' | 'info' | 'warn' | 'error',
 		) => void;
 		/**
 		 * Specify executable path for the browser to use.
 		 * Default: null, which will make Remotion find or download a version of said browser.
 		 */
 		readonly setBrowserExecutable: (
-			newBrowserExecutablePath: BrowserExecutable
+			newBrowserExecutablePath: BrowserExecutable,
 		) => void;
 		/**
 		 * Set how many milliseconds a frame may take to render before it times out.
 		 * Default: `30000`
 		 */
 		readonly setDelayRenderTimeoutInMilliseconds: (
-			newPuppeteerTimeout: number
+			newPuppeteerTimeout: number,
 		) => void;
 		/**
 		 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
@@ -211,11 +228,11 @@ declare global {
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle' and 'vulkan'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
+			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader' | 'vulkan',
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.
@@ -310,7 +327,7 @@ declare global {
 				| 'yuv420p10le'
 				| 'yuv422p10le'
 				| 'yuv444p10le'
-				| 'yuva444p10le'
+				| 'yuva444p10le',
 		) => void;
 		/**
 		 * Specify the codec for stitching the frames into a video.
@@ -349,7 +366,22 @@ declare global {
 				| 'standard'
 				| 'light'
 				| 'proxy'
-				| undefined
+				| undefined,
+		) => void;
+
+		readonly setX264Preset: (
+			profile:
+				| 'ultrafast'
+				| 'superfast'
+				| 'veryfast'
+				| 'faster'
+				| 'fast'
+				| 'medium'
+				| 'slow'
+				| 'slower'
+				| 'veryslow'
+				| 'placebo'
+				| undefined,
 		) => void;
 		/**
 		 * Override the arguments that Remotion passes to FFMPEG.
@@ -359,7 +391,7 @@ declare global {
 			command: (info: {
 				type: 'pre-stitcher' | 'stitcher';
 				args: string[];
-			}) => string[]
+			}) => string[],
 		) => void;
 
 		/**
@@ -372,6 +404,21 @@ declare global {
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Opt into bt709 rendering.
+		 */
+		readonly setColorSpace: (colorSpace: ColorSpace) => void;
+
+		/**
+		 * Removes the --single-process flag that gets passed to
+			Chromium on Linux by default. This will make the render faster because
+			multiple processes can be used, but may cause issues with some Linux
+			distributions or if window server libraries are missing.
+		 */
+		readonly setChromiumMultiProcessOnLinux: (
+			multiProcessOnLinux: boolean,
+		) => void;
 	}
 }
 
@@ -382,6 +429,15 @@ type FlatConfig = RemotionConfigObject &
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
+		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
+
+		setDeleteAfter: (
+			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
+		) => void;
+		/**
+		 *
+		 */
+		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -411,32 +467,32 @@ type FlatConfig = RemotionConfigObject &
 export const Config: FlatConfig = {
 	get Bundling() {
 		throw new Error(
-			'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Rendering() {
 		throw new Error(
-			'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Output() {
 		throw new Error(
-			'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Log() {
 		throw new Error(
-			'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Preview() {
 		throw new Error(
-			'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Puppeteer() {
 		throw new Error(
-			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	setMaxTimelineTracks,
@@ -460,14 +516,15 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
+	setChromiumMultiProcessOnLinux,
 	setQuality: () => {
 		throw new Error(
-			'setQuality() has been renamed - use setJpegQuality() instead.'
+			'setQuality() has been renamed - use setJpegQuality() instead.',
 		);
 	},
 	setImageFormat: () => {
 		throw new Error(
-			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")'
+			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")',
 		);
 	},
 	setJpegQuality,
@@ -486,15 +543,18 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
+	setX264Preset,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
+	setOffthreadVideoCacheSizeInBytes,
+	setDeleteAfter,
+	setColorSpace,
+	setEnableFolderExpiry,
 };
-
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 export const ConfigInternals = {
 	getRange,
@@ -502,6 +562,7 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
+	getPresetProfile: getX264Preset,
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,
@@ -545,4 +606,9 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
+	getOffthreadVideoCacheSizeInBytes,
+	getDeleteAfter,
+	getColorSpace,
+	getEnableFolderExpiry,
+	getChromiumMultiProcessOnLinux,
 };

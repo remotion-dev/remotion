@@ -13,7 +13,7 @@ import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
+	currentConfiguration: WebpackConfiguration,
 ) => WebpackConfiguration;
 
 if (!ReactDOM?.version) {
@@ -23,7 +23,7 @@ if (!ReactDOM?.version) {
 const reactDomVersion = ReactDOM.version.split('.')[0];
 if (reactDomVersion === '0') {
 	throw new Error(
-		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`,
 	);
 }
 
@@ -69,17 +69,21 @@ export const webpackConfig = ({
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
 	let lastProgress = 0;
+
+	const isBun = typeof Bun !== 'undefined';
+
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
 			minimize: false,
 		},
 		experiments: {
-			lazyCompilation:
-				environment === 'production'
-					? false
-					: {
-							entries: false,
-					  },
+			lazyCompilation: isBun
+				? false
+				: environment === 'production'
+				? false
+				: {
+						entries: false,
+				  },
 		},
 		watchOptions: {
 			poll: poll ?? undefined,
@@ -137,6 +141,7 @@ export const webpackConfig = ({
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')

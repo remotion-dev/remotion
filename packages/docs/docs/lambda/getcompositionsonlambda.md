@@ -94,6 +94,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note
@@ -113,6 +114,10 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 ### `logLevel?`
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`dumpBrowserLogs?`~~
 

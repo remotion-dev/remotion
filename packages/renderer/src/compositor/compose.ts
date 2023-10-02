@@ -33,7 +33,7 @@ const getCompositorHash = ({...input}: CompositorInput): string => {
 
 export const serializeCommand = <Type extends keyof CompositorCommand>(
 	command: Type,
-	params: CompositorCommand[Type]
+	params: CompositorCommand[Type],
 ): CompositorCommandSerialized<Type> => {
 	return {
 		nonce: makeNonce(),
@@ -121,7 +121,7 @@ export const callCompositor = (payload: string) => {
 					reject(err);
 				} catch (err) {
 					reject(
-						new Error(`Compositor panicked with code ${code}: ${message}`)
+						new Error(`Compositor panicked with code ${code}: ${message}`),
 					);
 				}
 			}
@@ -131,8 +131,8 @@ export const callCompositor = (payload: string) => {
 			reject(
 				new Error(
 					'Compositor stdin closed unexpectedly,' +
-						Buffer.concat(stderrChunks).toString('utf-8')
-				)
+						Buffer.concat(stderrChunks).toString('utf-8'),
+				),
 			);
 			return;
 		}

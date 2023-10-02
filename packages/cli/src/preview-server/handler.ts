@@ -39,14 +39,14 @@ export const handleRequest = async <Req, Res>({
 			JSON.stringify({
 				success: true,
 				data: outputData,
-			})
+			}),
 		);
 	} catch (err) {
 		response.end(
 			JSON.stringify({
 				success: false,
 				error: (err as Error).message,
-			})
+			}),
 		);
 	}
 };

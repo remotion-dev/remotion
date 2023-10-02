@@ -9,14 +9,19 @@ export const exampleVideos = {
 	framerWithoutFileExtension: path.join(
 		examplePackage,
 		'public',
-		'framermp4withoutfileextension'
+		'framermp4withoutfileextension',
 	),
 	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
 	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
 	screenrecording: path.join(examplePackage, 'public', 'quick.mov'),
 	nofps: path.join(examplePackage, 'public', 'nofps.webm'),
+	variablefps: path.join(examplePackage, 'public', 'variablefps.webm'),
+	zerotimestamp: path.join(examplePackage, 'public', 'zero-timestamp.mp4'),
 	webcam: path.join(examplePackage, 'public', 'webcam.webm'),
 	iphonevideo: path.join(examplePackage, 'public', 'iphonevideo.mov'),
 	av1: path.join(examplePackage, 'public', 'av1.webm'),
 	framer24fps: path.join(examplePackage, 'public', 'framer-24fps.mp4'),
+	music: path.join(examplePackage, 'public', 'music.mp3'),
+	notavideo: path.join(examplePackage, 'public', 'giphy.gif'),
+	notafile: path.join(examplePackage, 'public', 'doesnotexist'),
 };

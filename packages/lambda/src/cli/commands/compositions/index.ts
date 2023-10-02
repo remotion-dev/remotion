@@ -12,14 +12,14 @@ export const COMPOSITIONS_COMMAND = 'compositions';
 
 export const compositionsCommand = async (
 	args: string[],
-	remotionRoot: string
+	remotionRoot: string,
 ) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
-			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
+			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`);

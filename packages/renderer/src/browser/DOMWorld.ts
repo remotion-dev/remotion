@@ -57,7 +57,7 @@ export class DOMWorld {
 		if (context) {
 			assert(
 				this.#contextResolveCallback,
-				'Execution Context has already been set.'
+				'Execution Context has already been set.',
 			);
 			this.#contextResolveCallback?.call(null, context);
 			this.#contextResolveCallback = null;
@@ -79,7 +79,7 @@ export class DOMWorld {
 		this.#detached = true;
 		for (const waitTask of this._waitTasks) {
 			waitTask.terminate(
-				new Error('waitForFunction failed: frame got detached.')
+				new Error('waitForFunction failed: frame got detached.'),
 			);
 		}
 	}
@@ -87,7 +87,7 @@ export class DOMWorld {
 	executionContext(): Promise<ExecutionContext> {
 		if (this.#detached) {
 			throw new Error(
-				`Execution context is not available in detached frame "${this.#frame.url()}" (are you trying to evaluate?)`
+				`Execution context is not available in detached frame "${this.#frame.url()}" (are you trying to evaluate?)`,
 			);
 		}
 
@@ -113,7 +113,7 @@ export class DOMWorld {
 		const context = await this.executionContext();
 		return context.evaluate<UnwrapPromiseLike<EvaluateFnReturnType<T>>>(
 			pageFunction,
-			...args
+			...args,
 		);
 	}
 
@@ -122,13 +122,11 @@ export class DOMWorld {
 		timeout,
 		pageFunction,
 		title,
-		shouldClosePage,
 	}: {
 		browser: HeadlessBrowser;
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
-		shouldClosePage: boolean;
 	}): Promise<JSHandle> {
 		return new WaitTask({
 			domWorld: this,
@@ -137,7 +135,6 @@ export class DOMWorld {
 			timeout,
 			args: [],
 			browser,
-			shouldClosePage,
 		}).promise;
 	}
 
@@ -155,7 +152,6 @@ interface WaitTaskOptions {
 	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
-	shouldClosePage: boolean;
 }
 
 const noop = (): void => undefined;
@@ -171,7 +167,6 @@ class WaitTask {
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
 	#browser: HeadlessBrowser;
-	#shouldClosePage: boolean;
 
 	promise: Promise<JSHandle>;
 
@@ -189,7 +184,6 @@ class WaitTask {
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#args = options.args;
 		this.#runCount = 0;
-		this.#shouldClosePage = options.shouldClosePage;
 		this.#domWorld._waitTasks.add(this);
 
 		this.promise = new Promise<JSHandle>((resolve, reject) => {
@@ -200,13 +194,9 @@ class WaitTask {
 		// timeout on our end.
 		if (options.timeout) {
 			const timeoutError = new TimeoutError(
-				`waiting for ${options.title} failed: timeout ${options.timeout}ms exceeded`
+				`waiting for ${options.title} failed: timeout ${options.timeout}ms exceeded`,
 			);
 			this.#timeoutTimer = setTimeout(() => {
-				if (this.#shouldClosePage) {
-					return this.terminate(timeoutError);
-				}
-
 				return this.#reject(timeoutError);
 			}, options.timeout);
 		}
@@ -216,7 +206,7 @@ class WaitTask {
 		this.#browser.on(BrowserEmittedEvents.Closed, this.onBrowserClose);
 		this.#browser.on(
 			BrowserEmittedEvents.ClosedSilent,
-			this.onBrowserCloseSilent
+			this.onBrowserCloseSilent,
 		);
 
 		this.rerun();
@@ -257,7 +247,7 @@ class WaitTask {
 				waitForPredicatePageFunction,
 				this.#predicateBody,
 				this.#timeout,
-				...this.#args
+				...this.#args,
 			);
 		} catch (error_) {
 			error = error_ as Error;
@@ -302,11 +292,11 @@ class WaitTask {
 			// so we terminate here instead.
 			if (
 				error.message.includes(
-					'Execution context is not available in detached frame'
+					'Execution context is not available in detached frame',
 				)
 			) {
 				this.terminate(
-					new Error('waitForFunction failed: frame got detached.')
+					new Error('waitForFunction failed: frame got detached.'),
 				);
 				return;
 			}
@@ -343,7 +333,7 @@ class WaitTask {
 		this.#browser.off(BrowserEmittedEvents.Closed, this.onBrowserClose);
 		this.#browser.off(
 			BrowserEmittedEvents.ClosedSilent,
-			this.onBrowserCloseSilent
+			this.onBrowserCloseSilent,
 		);
 
 		this.#domWorld._waitTasks.delete(this);

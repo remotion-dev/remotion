@@ -37,6 +37,9 @@ import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import type {ColorSpace} from './options/color-space';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
@@ -53,6 +56,7 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
+import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
@@ -60,6 +64,9 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
+import type {X264Preset} from './x264-preset';
+import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -95,6 +102,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -117,7 +125,8 @@ export type InternalRenderMediaOptions = {
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
-};
+	colorSpace: ColorSpace;
+} & ToOptions<typeof optionsMap.renderMedia>;
 
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
@@ -141,6 +150,7 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -168,6 +178,8 @@ export type RenderMediaOptions = {
 	serveUrl: string;
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
+	offthreadVideoCacheSizeInBytes?: number | null;
+	colorSpace?: ColorSpace;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -177,8 +189,9 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-export const internalRenderMedia = ({
+const internalRenderMediaRaw = ({
 	proResProfile,
+	x264Preset,
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
@@ -218,6 +231,8 @@ export const internalRenderMedia = ({
 	server: reusedServer,
 	logLevel,
 	serializedResolvedPropsWithCustomSchema,
+	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -228,6 +243,12 @@ export const internalRenderMedia = ({
 		codec,
 		proResProfile,
 	});
+
+	validateSelectedCodecAndPresetCombination({
+		codec,
+		x264Preset,
+	});
+
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
 		validateOutputFilename({
@@ -255,6 +276,7 @@ export const internalRenderMedia = ({
 	let encodedFrames = 0;
 	let muxedFrames = 0;
 	let renderedFrames = 0;
+	let totalFramesToRender = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
@@ -280,7 +302,17 @@ export const internalRenderMedia = ({
 		'Free memory:',
 		freeMemory,
 		'Estimated usage parallel encoding',
-		estimatedUsage
+		estimatedUsage,
+	);
+	const actualConcurrency = getActualConcurrency(concurrency);
+	Log.verboseAdvanced(
+		{
+			indent,
+			logLevel,
+			tag: 'renderMedia()',
+		},
+		'Using concurrency:',
+		actualConcurrency,
 	);
 	Log.verboseAdvanced(
 		{
@@ -289,7 +321,7 @@ export const internalRenderMedia = ({
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
-		canUseParallelEncoding(codec)
+		canUseParallelEncoding(codec),
 	);
 	if (disallowParallelEncoding) {
 		Log.verboseAdvanced(
@@ -298,7 +330,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'User disallowed parallel encoding.'
+			'User disallowed parallel encoding.',
 		);
 	}
 
@@ -309,7 +341,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is enabled.'
+			'Parallel encoding is enabled.',
 		);
 	} else {
 		Log.verboseAdvanced(
@@ -318,7 +350,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is disabled.'
+			'Parallel encoding is disabled.',
 		);
 	}
 
@@ -328,17 +360,17 @@ export const internalRenderMedia = ({
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
-		imageFormat
+		imageFormat,
 	);
 
 	const workingDir = fs.mkdtempSync(
-		path.join(os.tmpdir(), 'react-motion-render')
+		path.join(os.tmpdir(), 'react-motion-render'),
 	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
 		  )
 		: null;
 
@@ -351,7 +383,13 @@ export const internalRenderMedia = ({
 		height: composition.height,
 		scale,
 		width: composition.width,
+		wantsImageSequence: false,
 	});
+
+	const realFrameRange = getRealFrameRange(
+		composition.durationInFrames,
+		frameRange,
+	);
 
 	const callUpdate = () => {
 		onProgress?.({
@@ -363,15 +401,10 @@ export const internalRenderMedia = ({
 			progress:
 				Math.round(
 					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						composition.durationInFrames
+						totalFramesToRender,
 				) / 100,
 		});
 	};
-
-	const realFrameRange = getRealFrameRange(
-		composition.durationInFrames,
-		frameRange
-	);
 
 	const cancelRenderFrames = makeCancelSignal();
 	const cancelPrestitcher = makeCancelSignal();
@@ -385,7 +418,8 @@ export const internalRenderMedia = ({
 		ensureFramesInOrder(realFrameRange);
 
 	const fps = composition.fps / everyNthFrame;
-	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
+
+	validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
@@ -408,6 +442,8 @@ export const internalRenderMedia = ({
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
 				indent,
+				x264Preset: x264Preset ?? null,
+				colorSpace,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -446,7 +482,7 @@ export const internalRenderMedia = ({
 		} else {
 			// add frame at appropriate position
 			const index = slowestFrames.findIndex(
-				({time: indexTime}) => indexTime < time
+				({time: indexTime}) => indexTime < time,
 			);
 			slowestFrames.splice(index, 0, frameTime);
 		}
@@ -467,17 +503,19 @@ export const internalRenderMedia = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: getActualConcurrency(concurrency),
+						concurrency: actualConcurrency,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
 						logLevel,
 						webpackConfigOrServeUrl: serveUrl,
+						offthreadVideoCacheSizeInBytes:
+							offthreadVideoCacheSizeInBytes ?? null,
 					},
 					{
 						onDownload,
 						onError: (err) => reject(err),
-					}
+					},
 				);
 			})
 			.then(({server, cleanupServer}) => {
@@ -487,7 +525,7 @@ export const internalRenderMedia = ({
 					onFrameUpdate: (
 						frame: number,
 						frameIndex: number,
-						timeToRenderInMilliseconds
+						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
 						callUpdate();
@@ -497,6 +535,7 @@ export const internalRenderMedia = ({
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
+						totalFramesToRender = data.frameCount;
 						callUpdate();
 						onStart?.(data);
 					},
@@ -518,13 +557,13 @@ export const internalRenderMedia = ({
 								const exitStatus = preStitcher?.getExitStatus();
 								if (exitStatus?.type === 'quit-successfully') {
 									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
 								if (exitStatus?.type === 'quit-with-error') {
 									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
@@ -532,7 +571,7 @@ export const internalRenderMedia = ({
 								stopPerfMeasure(id);
 
 								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
+									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
 								);
 						  }
 						: null,
@@ -550,6 +589,7 @@ export const internalRenderMedia = ({
 					indent,
 					server,
 					serializedResolvedPropsWithCustomSchema,
+					offthreadVideoCacheSizeInBytes,
 				});
 
 				return renderFramesProc;
@@ -562,8 +602,13 @@ export const internalRenderMedia = ({
 			})
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
-				callUpdate();
 
+				callUpdate();
+				Log.verboseAdvanced(
+					{indent, logLevel},
+					'Rendering frames done in',
+					renderedDoneIn + 'ms',
+				);
 				if (absoluteOutputLocation) {
 					ensureOutputDirectory(absoluteOutputLocation);
 				}
@@ -589,6 +634,7 @@ export const internalRenderMedia = ({
 							if (preEncodedFileLocation) {
 								muxedFrames = frame;
 							} else {
+								muxedFrames = frame;
 								encodedFrames = frame;
 							}
 
@@ -605,6 +651,8 @@ export const internalRenderMedia = ({
 						audioBitrate,
 						videoBitrate,
 						audioCodec,
+						x264Preset: x264Preset ?? null,
+						colorSpace,
 					}),
 					stitchStart,
 				]);
@@ -613,6 +661,11 @@ export const internalRenderMedia = ({
 				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
+				Log.verboseAdvanced(
+					{indent, logLevel},
+					'Stitching done in',
+					encodedDoneIn + 'ms',
+				);
 				slowestFrames.sort((a, b) => b.time - a.time);
 				const result: RenderMediaResult = {
 					buffer,
@@ -671,6 +724,10 @@ export const internalRenderMedia = ({
 	]);
 };
 
+export const internalRenderMedia = wrapWithErrorHandling(
+	internalRenderMediaRaw,
+);
+
 /**
  *
  * @description Render a video from a composition
@@ -678,6 +735,7 @@ export const internalRenderMedia = ({
  */
 export const renderMedia = ({
 	proResProfile,
+	x264Preset,
 	crf,
 	composition,
 	inputProps,
@@ -716,15 +774,18 @@ export const renderMedia = ({
 	verbose,
 	quality,
 	logLevel,
+	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
+		x264Preset,
 		codec,
 		composition,
 		serveUrl,
@@ -773,5 +834,7 @@ export const renderMedia = ({
 			staticBase: null,
 			data: composition.props ?? {},
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		colorSpace: colorSpace ?? 'default',
 	});
 };

@@ -52,12 +52,14 @@ const AvailableCompositions: React.FC = () => {
 		const check = () => {
 			if (window.remotion_renderReady === true) {
 				setComps({type: 'loading'});
-				try {
-					const newComps = window.remotion_getCompositionNames();
-					setComps({type: 'loaded', comps: newComps});
-				} catch (err) {
-					setComps({type: 'error', error: err as Error});
-				}
+				setTimeout(() => {
+					try {
+						const newComps = window.remotion_getCompositionNames();
+						setComps({type: 'loaded', comps: newComps});
+					} catch (err) {
+						setComps({type: 'error', error: err as Error});
+					}
+				}, 250);
 			} else {
 				timeout = setTimeout(check, 250);
 			}
@@ -119,7 +121,7 @@ const TestCORS: React.FC = () => {
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			setServeUrl(e.target.value);
 		},
-		[]
+		[],
 	);
 
 	const isCORSWorking: React.FormEventHandler<HTMLFormElement> = useCallback(
@@ -132,16 +134,16 @@ const TestCORS: React.FC = () => {
 					setResult(`CORS is enabled on this URL: ${serveUrl}`);
 				} else {
 					setResult(
-						'URL does not support CORS - See DevTools console for more details'
+						'URL does not support CORS - See DevTools console for more details',
 					);
 				}
 			} catch (error) {
 				setResult(
-					'URL does not support CORS - See DevTools console for more details'
+					'URL does not support CORS - See DevTools console for more details',
 				);
 			}
 		},
-		[serveUrl]
+		[serveUrl],
 	);
 
 	return (

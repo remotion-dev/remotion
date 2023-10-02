@@ -1,4 +1,4 @@
-import os from 'node:os';
+import {getAvailableMemory} from './get-available-memory';
 
 const estimateMemoryUsageForPrestitcher = ({
 	width,
@@ -22,7 +22,7 @@ export const shouldUseParallelEncoding = ({
 	width: number;
 	height: number;
 }) => {
-	const freeMemory = os.freemem();
+	const freeMemory = getAvailableMemory();
 	const estimatedUsage = estimateMemoryUsageForPrestitcher({
 		height,
 		width,

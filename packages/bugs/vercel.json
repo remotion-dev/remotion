@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    {
+      "source": "/:path",
+      "destination": "/api/:path"
+    },
+    {
+      "source": "/",
+      "destination": "/api"
+    }
+  ]
+}

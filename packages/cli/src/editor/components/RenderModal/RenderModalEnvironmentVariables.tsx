@@ -31,7 +31,7 @@ export const RenderModalEnvironmentVariables: React.FC<{
 				return newEnv;
 			});
 		},
-		[setEnvVariables]
+		[setEnvVariables],
 	);
 
 	const onEnvKeyChange = useCallback(
@@ -42,14 +42,14 @@ export const RenderModalEnvironmentVariables: React.FC<{
 				return newEnv;
 			});
 		},
-		[setEnvVariables]
+		[setEnvVariables],
 	);
 
 	const onDelete = useCallback(
 		(index: number) => {
 			setEnvVariables((oldEnv) => oldEnv.filter((_, idx) => idx !== index));
 		},
-		[setEnvVariables]
+		[setEnvVariables],
 	);
 
 	const addField = useCallback(() => {

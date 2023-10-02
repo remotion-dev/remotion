@@ -47,14 +47,14 @@ export class NetworkEventManager {
 	}
 
 	responseExtraInfo(
-		networkRequestId: NetworkRequestId
+		networkRequestId: NetworkRequestId,
 	): ResponseReceivedExtraInfoEvent[] {
 		if (!this.#responseReceivedExtraInfoMap.has(networkRequestId)) {
 			this.#responseReceivedExtraInfoMap.set(networkRequestId, []);
 		}
 
 		return this.#responseReceivedExtraInfoMap.get(
-			networkRequestId
+			networkRequestId,
 		) as ResponseReceivedExtraInfoEvent[];
 	}
 
@@ -68,13 +68,13 @@ export class NetworkEventManager {
 
 	queueRedirectInfo(
 		fetchRequestId: FetchRequestId,
-		redirectInfo: RedirectInfo
+		redirectInfo: RedirectInfo,
 	): void {
 		this.queuedRedirectInfo(fetchRequestId).push(redirectInfo);
 	}
 
 	takeQueuedRedirectInfo(
-		fetchRequestId: FetchRequestId
+		fetchRequestId: FetchRequestId,
 	): RedirectInfo | undefined {
 		return this.queuedRedirectInfo(fetchRequestId).shift();
 	}
@@ -87,13 +87,13 @@ export class NetworkEventManager {
 
 	storeRequestWillBeSent(
 		networkRequestId: NetworkRequestId,
-		event: RequestWillBeSentEvent
+		event: RequestWillBeSentEvent,
 	): void {
 		this.#requestWillBeSentMap.set(networkRequestId, event);
 	}
 
 	getRequestWillBeSent(
-		networkRequestId: NetworkRequestId
+		networkRequestId: NetworkRequestId,
 	): RequestWillBeSentEvent | undefined {
 		return this.#requestWillBeSentMap.get(networkRequestId);
 	}
@@ -104,7 +104,7 @@ export class NetworkEventManager {
 
 	storeRequestPaused(
 		networkRequestId: NetworkRequestId,
-		event: RequestPausedEvent
+		event: RequestPausedEvent,
 	): void {
 		this.#requestPausedMap.set(networkRequestId, event);
 	}
@@ -122,14 +122,14 @@ export class NetworkEventManager {
 	}
 
 	getQueuedEventGroup(
-		networkRequestId: NetworkRequestId
+		networkRequestId: NetworkRequestId,
 	): QueuedEventGroup | undefined {
 		return this.#queuedEventGroupMap.get(networkRequestId);
 	}
 
 	queueEventGroup(
 		networkRequestId: NetworkRequestId,
-		event: QueuedEventGroup
+		event: QueuedEventGroup,
 	): void {
 		this.#queuedEventGroupMap.set(networkRequestId, event);
 	}

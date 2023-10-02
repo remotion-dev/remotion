@@ -3,13 +3,11 @@ import {URLSearchParams} from 'node:url';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
-import {
-	getIdealMaximumFrameCacheItems,
-	startCompositor,
-} from './compositor/compositor';
+import {startCompositor} from './compositor/compositor';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
 import {Log} from './logger';
+import {validateOffthreadVideoCacheSizeInBytes} from './options/offthreadvideo-cache-size';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -47,8 +45,10 @@ export const startOffthreadVideoServer = ({
 	concurrency,
 	logLevel,
 	indent,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	downloadMap: DownloadMap;
+	offthreadVideoCacheSizeInBytes: number | null;
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -57,21 +57,30 @@ export const startOffthreadVideoServer = ({
 	close: () => Promise<void>;
 	compositor: Compositor;
 } => {
+	validateOffthreadVideoCacheSizeInBytes(offthreadVideoCacheSizeInBytes);
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
 		{
 			concurrency,
-			maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
+			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
-		indent
+		indent,
 	);
 
 	return {
 		close: () => {
-			compositor.finishCommands();
-			return compositor.waitForDone();
+			// Note: This is being used as a promise:
+			//     .close().then()
+			// but if finishCommands() fails, it acts like a sync function,
+			// therefore we have to catch an error and put a promise rejection
+			try {
+				compositor.finishCommands();
+				return compositor.waitForDone();
+			} catch (err) {
+				return Promise.reject(err);
+			}
 		},
 		listener: (req, response) => {
 			if (!req.url) {
@@ -91,6 +100,13 @@ export const startOffthreadVideoServer = ({
 			} else {
 				response.setHeader('content-type', `image/bmp`);
 			}
+
+			// Prevent caching of the response and excessive disk writes
+			// https://github.com/remotion-dev/remotion/issues/2760
+			response.setHeader(
+				'cache-control',
+				'no-cache, no-store, must-revalidate',
+			);
 
 			// Handling this case on Lambda:
 			// https://support.google.com/chrome/a/answer/7679408?hl=en
@@ -123,10 +139,11 @@ export const startOffthreadVideoServer = ({
 						extractStart = Date.now();
 						resolve(
 							compositor.executeCommand('ExtractFrame', {
-								input: to,
+								src: to,
+								original_src: src,
 								time,
 								transparent,
-							})
+							}),
 						);
 					});
 				})
@@ -147,7 +164,7 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
-								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
 						}
 
@@ -217,7 +234,7 @@ export class OffthreadVideoServerEmitter {
 
 	addEventListener<Q extends EventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
 
@@ -228,21 +245,21 @@ export class OffthreadVideoServerEmitter {
 
 	removeEventListener<Q extends EventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		this.listeners[name] = this.listeners[name].filter(
-			(l) => l !== callback
+			(l) => l !== callback,
 		) as Listeners[Q];
 	}
 
 	private dispatchEvent<T extends EventTypes>(
 		dispatchName: T,
-		context: EventMap[T]
+		context: EventMap[T],
 	) {
 		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
 			(callback) => {
 				callback({detail: context});
-			}
+			},
 		);
 	}
 
@@ -256,7 +273,7 @@ export class OffthreadVideoServerEmitter {
 		src: string,
 		percent: number | null,
 		downloaded: number,
-		totalSize: number | null
+		totalSize: number | null,
 	) {
 		this.dispatchEvent('progress', {
 			downloaded,

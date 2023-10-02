@@ -33,6 +33,10 @@ Rendering using the serve URL shorthand:
 npx remotion lambda still testbed my-comp
 ```
 
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
 Rendering the 10th frame of a composition:
 
 ```
@@ -98,3 +102,11 @@ This will most notably disable CORS in Chrome among other security features.
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli/>

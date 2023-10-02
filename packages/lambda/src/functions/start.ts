@@ -1,13 +1,16 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {
+	generateRandomHashWithLifeCycleRule,
+	validateDeleteAfter,
+} from './helpers/lifecycle';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -21,12 +24,12 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+			`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 		);
 	}
 
@@ -34,8 +37,10 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const bucketName =
 		params.bucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getCurrentRegionInFunction(),
+				enableFolderExpiry: null,
+				customCredentials: null,
 			})
 		).bucketName;
 	const realServeUrl = convertToServeUrl({
@@ -44,7 +49,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName,
 	});
 
-	const renderId = randomHash({randomInTests: true});
+	validateDeleteAfter(params.deleteAfter);
+	const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
 
 	const initialFile = lambdaWriteFile({
 		bucketName,
@@ -71,6 +77,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		envVariables: params.envVariables,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
+		x264Preset: params.x264Preset,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
@@ -93,6 +100,9 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
+		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		deleteAfter: params.deleteAfter,
+		colorSpace: params.colorSpace,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
@@ -101,7 +111,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
-		})
+		}),
 	);
 	await initialFile;
 

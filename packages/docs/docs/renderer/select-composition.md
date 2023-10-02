@@ -5,7 +5,7 @@ id: select-composition
 crumb: "@remotion/renderer"
 ---
 
-# selectComposition<AvailableFrom v="4.0.0"/>
+# selectComposition()<AvailableFrom v="4.0.0"/>
 
 Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology#bundle) by evaluating the [Remotion Root](/docs/terminology#remotion-root) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology#composition).
 
@@ -81,6 +81,10 @@ React props that can be obtained using [`getInputProps()`](/docs/get-input-props
 An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ## See also
 

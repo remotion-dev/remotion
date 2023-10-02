@@ -1,4 +1,4 @@
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
@@ -6,12 +6,13 @@ import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
 import {serializeJSONWithDate} from './serialize-props';
 import {streamToString} from './stream-to-string';
+import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
 
 export const serializeOrThrow = (
 	inputProps: Record<string, unknown>,
-	propsType: PropsType
+	propsType: PropsType,
 ) => {
 	try {
 		const payload = serializeJSONWithDate({
@@ -22,16 +23,16 @@ export const serializeOrThrow = (
 		return payload.serializedString;
 	} catch (err) {
 		throw new Error(
-			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`
+			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
 	}
 };
 
 export const getNeedsToUpload = (
 	type: 'still' | 'video-or-audio',
-	sizes: number[]
+	sizes: number[],
 ) => {
-	const MARGIN = 5_000;
+	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
 		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
 
@@ -40,10 +41,10 @@ export const getNeedsToUpload = (
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
 		console.warn(
 			`Warning: The props are over ${Math.round(
-				MAX_INLINE_PAYLOAD_SIZE / 1000
+				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
-				sizesAlreadyUsed / 1024
-			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`
+				sizesAlreadyUsed / 1024,
+			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`,
 		);
 		return true;
 	}
@@ -70,8 +71,10 @@ export const compressInputProps = async ({
 		const bucketName =
 			userSpecifiedBucketName ??
 			(
-				await getOrCreateBucket({
+				await internalGetOrCreateBucket({
 					region,
+					enableFolderExpiry: null,
+					customCredentials: null,
 				})
 			).bucketName;
 
@@ -83,7 +86,7 @@ export const compressInputProps = async ({
 			downloadBehavior: null,
 			expectedBucketOwner: null,
 			key: makeKey(propsType, hash),
-			privacy: 'public',
+			privacy: 'private',
 		});
 
 		return {
@@ -131,7 +134,7 @@ export const decompressInputProps = async ({
 		throw new Error(
 			`Failed to parse input props that were serialized: ${
 				(err as Error).stack
-			}`
+			}`,
 		);
 	}
 };

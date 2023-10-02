@@ -30,7 +30,7 @@ export const TimelineZoomContext: React.FC<{
 				setZoom((prevZoom) => {
 					const newZoomWithFloatingPointErrors = Math.min(
 						TIMELINE_MAX_ZOOM,
-						Math.max(TIMELINE_MIN_ZOOM, callback(prevZoom))
+						Math.max(TIMELINE_MIN_ZOOM, callback(prevZoom)),
 					);
 					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
 					zoomAndPreserveCursor({

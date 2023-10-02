@@ -4,7 +4,7 @@ import {resetPath} from '../reset-path';
 
 test('getBoundingBox()', () => {
 	expect(
-		getBoundingBox('M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0')
+		getBoundingBox('M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0'),
 	).toEqual({
 		x1: 35,
 		x2: 85,

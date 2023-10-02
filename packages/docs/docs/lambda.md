@@ -5,6 +5,15 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
+import { YouTube } from "../components/YouTube";
+
+<YouTube
+  minutes={11}
+  href="https://youtu.be/dQyPUasZY7I"
+  thumb="https://i.ytimg.com/vi/dQyPUasZY7I/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCn-snZSKGnDuNkm0fIQYnQ9gJz4w"
+  title="Integrate Remotion Lambda into your app"
+/>
+
 Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is the fastest, most cost-efficient and most scalable way to render Remotion videos.
 
 import {LambdaRegionList} from '../components/lambda/regions.tsx';

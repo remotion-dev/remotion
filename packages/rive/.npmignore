@@ -1,1 +1,6 @@
 dist/tsconfig-esm.tsbuildinfo
+tsconfig-esm.json
+src
+rollup.config.js
+tsconfig.json
+.eslintrc

@@ -5,6 +5,7 @@ import type {
 	CancelSignal,
 	ChromiumOptions,
 	Codec,
+	ColorSpace,
 	Crf,
 	FfmpegOverrideFn,
 	FrameRange,
@@ -13,6 +14,7 @@ import type {
 	ProResProfile,
 	RenderMediaOnDownload,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
@@ -28,6 +30,7 @@ import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
+import {makeOnDownload} from '../make-on-download';
 import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {BundlingState, CopyingState} from '../progress-bar';
@@ -84,12 +87,15 @@ export const renderVideoFlow = async ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	x264Preset,
 	pixelFormat,
 	videoBitrate,
 	numberOfGifLoops,
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
+	offthreadVideoCacheSizeInBytes,
+	colorSpace,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -129,18 +135,20 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
+	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
 }) => {
 	const downloads: DownloadProgress[] = [];
-
 	if (browserExecutable) {
 		Log.verboseAdvanced(
 			{indent, logLevel},
 			'Browser executable: ',
-			browserExecutable
+			browserExecutable,
 		);
 	}
 
@@ -180,7 +188,13 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
-	const updateRenderProgress = (newline: boolean) => {
+	const updateRenderProgress = ({
+		newline,
+		printToConsole,
+	}: {
+		newline: boolean;
+		printToConsole: boolean;
+	}) => {
 		const aggregateRenderProgress: AggregateRenderProgress = {
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
@@ -196,10 +210,9 @@ export const renderVideoFlow = async ({
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
-		return renderProgress.update(
-			updatesDontOverwrite ? message : output,
-			newline
-		);
+		if (printToConsole) {
+			renderProgress.update(updatesDontOverwrite ? message : output, newline);
+		}
 	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
@@ -210,7 +223,7 @@ export const renderVideoFlow = async ({
 			onProgress: ({bundling, copying}) => {
 				bundlingProgress = bundling;
 				copyingState = copying;
-				updateRenderProgress(false);
+				updateRenderProgress({newline: false, printToConsole: true});
 			},
 			indentOutput: indent,
 			logLevel,
@@ -220,29 +233,18 @@ export const renderVideoFlow = async ({
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: updatesDontOverwrite,
-		}
+		},
 	);
 
 	addCleanupCallback(() => cleanupBundle());
 
-	const onDownload: RenderMediaOnDownload = (src) => {
-		const id = Math.random();
-		const download: DownloadProgress = {
-			id,
-			name: src,
-			progress: 0,
-			downloaded: 0,
-			totalBytes: null,
-		};
-		downloads.push(download);
-		updateRenderProgress(false);
-		return ({percent, downloaded, totalSize}) => {
-			download.progress = percent;
-			download.totalBytes = totalSize;
-			download.downloaded = downloaded;
-			updateRenderProgress(false);
-		};
-	};
+	const onDownload: RenderMediaOnDownload = makeOnDownload({
+		downloads,
+		indent,
+		logLevel,
+		updateRenderProgress,
+		updatesDontOverwrite,
+	});
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
@@ -255,6 +257,7 @@ export const renderVideoFlow = async ({
 		remotionRoot,
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -276,6 +279,7 @@ export const renderVideoFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
 			server,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({
@@ -284,7 +288,7 @@ export const renderVideoFlow = async ({
 		downloadName: null,
 		outName: getUserPassedOutputLocation(
 			argsAfterComposition,
-			outputLocationFromUI
+			outputLocationFromUI,
 		),
 		uiCodec,
 	});
@@ -294,6 +298,7 @@ export const renderVideoFlow = async ({
 		height: config.height,
 		codec,
 		scale,
+		wantsImageSequence: shouldOutputImageSequence,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -301,7 +306,7 @@ export const renderVideoFlow = async ({
 		compositionName: compositionId,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(
 			codec,
-			audioCodec
+			audioCodec,
 		),
 		args: argsAfterComposition,
 		indent,
@@ -311,28 +316,28 @@ export const renderVideoFlow = async ({
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
-		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
-		)
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`,
+		),
 	);
 
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
-		overwrite
+		overwrite,
 	);
 	const exists = existsSync(absoluteOutputFile);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
-		frameRange
+		frameRange,
 	);
 	const totalFrames: number[] = RenderInternals.getFramesToRender(
 		realFrameRange,
-		everyNthFrame
+		everyNthFrame,
 	);
 
 	renderingProgress = {
@@ -347,21 +352,20 @@ export const renderVideoFlow = async ({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
 	});
-
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
 		});
 		if (imageFormat === 'none') {
 			throw new Error(
-				`Cannot render an image sequence with a codec that renders no images. codec = ${codec}, imageFormat = ${imageFormat}`
+				`Cannot render an image sequence with a codec that renders no images. codec = ${codec}, imageFormat = ${imageFormat}`,
 			);
 		}
 
 		const outputDir = shouldOutputImageSequence
 			? absoluteOutputFile
 			: await fs.promises.mkdtemp(
-					path.join(os.tmpdir(), 'react-motion-render')
+					path.join(os.tmpdir(), 'react-motion-render'),
 			  );
 
 		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
@@ -371,7 +375,7 @@ export const renderVideoFlow = async ({
 			serializedInputPropsWithCustomSchema,
 			onFrameUpdate: (rendered) => {
 				(renderingProgress as RenderingProgressInput).frames = rendered;
-				updateRenderProgress(false);
+				updateRenderProgress({newline: false, printToConsole: true});
 			},
 			onStart: () => undefined,
 			onDownload,
@@ -401,10 +405,14 @@ export const renderVideoFlow = async ({
 				staticBase: null,
 				data: config.props,
 			}).serializedString,
+			offthreadVideoCacheSizeInBytes,
 		});
 
-		updateRenderProgress(true);
-		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		updateRenderProgress({newline: true, printToConsole: true});
+		Log.infoAdvanced(
+			{indent, logLevel},
+			chalk.blue(`▶ ${absoluteOutputFile}`),
+		);
 		return;
 	}
 
@@ -430,6 +438,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		pixelFormat,
 		proResProfile,
+		x264Preset,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
@@ -457,7 +466,7 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
-			updateRenderProgress(false);
+			updateRenderProgress({newline: false, printToConsole: true});
 		},
 		puppeteerInstance,
 		onDownload,
@@ -476,19 +485,21 @@ export const renderVideoFlow = async ({
 			indent: undefined,
 			staticBase: null,
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 
-	updateRenderProgress(true);
+	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
 
 	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
 		Log.verboseAdvanced(
 			{indent, logLevel},
-			`  Frame ${frame} (${time.toFixed(3)}ms)`
+			`  Frame ${frame} (${time.toFixed(3)}ms)`,
 		);
 	});
 

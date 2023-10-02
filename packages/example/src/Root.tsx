@@ -57,8 +57,14 @@ import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
+import {PageTransition} from './Transitions/PageTransition';
+import {_props} from './typechecks';
 
 if (alias !== 'alias') {
+	throw new Error('should support TS aliases');
+}
+
+if (!_props) {
 	throw new Error('should support TS aliases');
 }
 
@@ -113,7 +119,7 @@ export const Index: React.FC = () => {
 			'Hello World Promise',
 			new Promise<void>((resolve) => {
 				resolve();
-			})
+			}),
 		);
 		shouldLog('Hello World Proxy', new Proxy(document, {}));
 		shouldLog('Hello World RegExp', /abc/);
@@ -479,15 +485,18 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={900}
+					defaultProps={{
+						src: 'variablefps.webm',
+					}}
 				/>
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920 * 2}
-					height={1080 * 2}
-					fps={60}
-					durationInFrames={20000}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -593,6 +602,10 @@ export const Index: React.FC = () => {
 					component={StaticDemo}
 					width={1000}
 					height={1000}
+					defaultProps={{flag: false}}
+					calculateMetadata={async () => {
+						return {};
+					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
@@ -686,6 +699,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="loop-audio"
 					lazyComponent={() => import('./LoopAudio')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+				/>
+				<Composition
+					id="loop-trimmed-audio"
+					lazyComponent={() => import('./LoopTrimmedAudio')}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -810,7 +831,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={200}
+					durationInFrames={250}
 				/>
 				<Composition
 					id="gif-duration"
@@ -907,7 +928,7 @@ export const Index: React.FC = () => {
 							union: z.null().or(
 								z.object({
 									abc: z.string(),
-								})
+								}),
 							),
 							jkl: z.string(),
 							def: z.object({
@@ -920,7 +941,7 @@ export const Index: React.FC = () => {
 								z.object({
 									a: z.string(),
 									b: z.string(),
-								})
+								}),
 							)
 							.min(2),
 						array2: z.array(z.array(z.number())),
@@ -967,6 +988,16 @@ export const Index: React.FC = () => {
 							'y',
 							'z',
 						]),
+						union: z.discriminatedUnion('type', [
+							z.object({
+								type: z.literal('car'),
+								color: z.string(),
+							}),
+							z.object({
+								type: z.literal('boat'),
+								depth: z.number(),
+							}),
+						]),
 					})}
 					defaultProps={{
 						vehicle: 'car',
@@ -997,6 +1028,7 @@ export const Index: React.FC = () => {
 						nullable: null,
 						optional: '',
 						filePath: staticFile('nested/logö.png'),
+						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
 					calculateMetadata={({defaultProps}) => {
@@ -1009,6 +1041,16 @@ export const Index: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<Folder name="Transitions">
+				<Composition
+					id="transition"
+					component={PageTransition}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
+			</Folder>
 			<Folder name="Schema">
 				<Composition
 					id="schema-test"
@@ -1018,7 +1060,12 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'sdasdsd', delay: 5.2, color: '#df822a'}}
+					defaultProps={{
+						title: 'sdasdsd',
+						delay: 5.2,
+						color: '#df822a',
+						list: ['Sample Item'],
+					}}
 				/>
 				{/**
 				 // @ts-expect-error */}
@@ -1032,7 +1079,7 @@ export const Index: React.FC = () => {
 					schema={schemaTestSchema}
 				/>
 				<Composition
-					id="array-schem"
+					id="array-schema"
 					component={ArrayTest}
 					width={1200}
 					height={630}

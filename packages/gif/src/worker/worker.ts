@@ -18,7 +18,7 @@ self.addEventListener('message', (e) => {
 						self.postMessage(
 							Object.assign(result, {src}),
 							// @ts-expect-error
-							result.frames.map((frame) => frame.buffer)
+							result.frames.map((frame) => frame.buffer),
 						);
 					})
 					.catch((error) => {

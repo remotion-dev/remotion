@@ -6,6 +6,7 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
+import {useHoverState} from './use-hover-state.js';
 import type {usePlayer} from './use-player.js';
 import {
 	useVideoControlsResize,
@@ -99,7 +100,6 @@ const PlayPauseButton: React.FC<{playing: boolean}> = ({playing}) =>
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
-	hovered: boolean;
 	showVolumeControls: boolean;
 	player: ReturnType<typeof usePlayer>;
 	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
@@ -117,9 +117,9 @@ export const Controls: React.FC<{
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
 	showPlaybackRateControl: boolean | number[];
+	containerRef: React.RefObject<HTMLDivElement>;
 }> = ({
 	durationInFrames,
-	hovered,
 	isFullscreen,
 	fps,
 	player,
@@ -138,10 +138,12 @@ export const Controls: React.FC<{
 	renderFullscreenButton,
 	alwaysShowControls,
 	showPlaybackRateControl,
+	containerRef,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+	const hovered = useHoverState(containerRef);
 
 	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
 		useVideoControlsResize({
@@ -158,7 +160,7 @@ export const Controls: React.FC<{
 		if (typeof initiallyShowControls === 'number') {
 			if (initiallyShowControls % 1 !== 0) {
 				throw new Error(
-					'initiallyShowControls must be an integer or a boolean'
+					'initiallyShowControls must be an integer or a boolean',
 				);
 			}
 
@@ -204,7 +206,7 @@ export const Controls: React.FC<{
 		setSupportsFullscreen(
 			(typeof document !== 'undefined' &&
 				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
-				false
+				false,
 		);
 	}, []);
 
@@ -243,13 +245,13 @@ export const Controls: React.FC<{
 			for (const rate of showPlaybackRateControl) {
 				if (typeof rate !== 'number') {
 					throw new Error(
-						'Every item in showPlaybackRateControl must be a number'
+						'Every item in showPlaybackRateControl must be a number',
 					);
 				}
 
 				if (rate <= 0) {
 					throw new Error(
-						'Every item in showPlaybackRateControl must be positive'
+						'Every item in showPlaybackRateControl must be positive',
 					);
 				}
 			}

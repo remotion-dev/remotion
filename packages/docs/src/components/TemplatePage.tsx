@@ -26,7 +26,7 @@ export default () => {
   }
 
   const template = CreateVideoInternals.FEATURED_TEMPLATES.find(
-    (e) => e.cliId === templatePathname[1]
+    (e) => e.cliId === templatePathname[1],
   );
   // After Next.js is enabled we can throw an error instead
   if (!template) {

@@ -13,6 +13,7 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
+import {isFlakyError} from '../shared/is-flaky-error';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -21,6 +22,7 @@ import {getBrowserInstance} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -34,7 +36,7 @@ type Options = {
 const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
-	logs: BrowserLog[]
+	logs: BrowserLog[],
 ): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -42,7 +44,7 @@ const renderHandler = async (
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
-			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`,
 		);
 	}
 
@@ -65,7 +67,7 @@ const renderHandler = async (
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
-		params.chromiumOptions ?? {}
+		params.chromiumOptions ?? {},
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -77,6 +79,10 @@ const renderHandler = async (
 	if (!params.frameRange) {
 		throw new Error('must pass framerange');
 	}
+
+	RenderInternals.Log.verbose(
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
+	);
 
 	const start = Date.now();
 	const chunkTimingData: ObjectChunkTimingData = {
@@ -97,17 +103,15 @@ const renderHandler = async (
 		outdir,
 		`localchunk-${String(params.chunk).padStart(
 			8,
-			'0'
+			'0',
 		)}.${RenderInternals.getFileExtensionFromCodec(
 			chunkCodec,
 			RenderInternals.getDefaultAudioCodec({
 				codec: params.codec,
 				preferLossless: true,
-			})
-		)}`
+			}),
+		)}`,
 	);
-
-	const downloads: Record<string, number> = {};
 
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
@@ -127,7 +131,7 @@ const renderHandler = async (
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 					writeLambdaInitializedFile({
 						attempt: params.attempt,
@@ -142,13 +146,13 @@ const renderHandler = async (
 					});
 				} else {
 					RenderInternals.Log.verbose(
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
-					params.everyNthFrame
+					params.everyNthFrame,
 				);
 
 				if (renderedFrames === allFrames.length) {
@@ -181,36 +185,8 @@ const renderHandler = async (
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
-			onDownload: (src: string) => {
-				console.log('Downloading', src);
-				downloads[src] = 0;
-				return ({percent, downloaded}) => {
-					if (percent === null) {
-						console.log(
-							`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
-						);
-						return;
-					}
-
-					if (
-						// Only report every 10% change
-						downloads[src] > percent - 0.1 &&
-						percent !== 1
-					) {
-						return;
-					}
-
-					downloads[src] = percent;
-					console.log(
-						`Download progress (${src}): ${downloaded} bytes, ${(
-							percent * 100
-						).toFixed(1)}%`
-					);
-					if (percent === 1) {
-						console.log(`Download complete: ${src}`);
-					}
-				};
-			},
+			x264Preset: params.x264Preset ?? undefined,
+			onDownload: onDownloadsHelper(),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
@@ -235,6 +211,8 @@ const renderHandler = async (
 			onCtrlCExit: () => undefined,
 			server: undefined,
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -296,7 +274,7 @@ const renderHandler = async (
 
 export const rendererHandler = async (
 	params: LambdaPayload,
-	options: Options
+	options: Options,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -319,17 +297,15 @@ export const rendererHandler = async (
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			);
+		const isRetryableError = isFlakyError(err as Error);
+
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const isFatal = !isBrowserError;
-		const willRetry = !isFatal && params.retriesLeft > 0 && !shouldNotRetry;
+		const willRetry =
+			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
+		const isFatal = !willRetry;
 
-		console.log('Error occurred');
+		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
@@ -362,6 +338,7 @@ export const rendererHandler = async (
 				region: getCurrentRegionInFunction(),
 				receivedStreamingPayload: () => undefined,
 				timeoutInTest: 120000,
+				retriesRemaining: 0,
 			});
 
 			return res;

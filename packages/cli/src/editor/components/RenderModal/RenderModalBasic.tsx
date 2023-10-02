@@ -103,7 +103,7 @@ export const RenderModalBasic: React.FC<{
 		(newFrame: number) => {
 			setFrame(newFrame);
 		},
-		[setFrame]
+		[setFrame],
 	);
 
 	const onFrameChanged = useCallback(
@@ -117,19 +117,19 @@ export const RenderModalBasic: React.FC<{
 				return newFrame;
 			});
 		},
-		[setFrame]
+		[setFrame],
 	);
 
 	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setOutName(e.target.value);
 		},
-		[setOutName]
+		[setOutName],
 	);
 
 	return (
 		<div style={container}>
-			{renderMode === 'still' ? (
+			{renderMode === 'still' || renderMode === 'sequence' ? (
 				<div style={optionRow}>
 					<div style={label}>Format</div>
 					<div style={rightRow}>
@@ -183,7 +183,7 @@ export const RenderModalBasic: React.FC<{
 					<div style={label}>ProRes profile</div>
 					<div style={rightRow}>
 						<Combobox
-							title={proResProfile as string}
+							title={'proResProfile' as string}
 							selectedId={proResProfile as string}
 							values={proResProfileOptions}
 						/>
@@ -205,6 +205,7 @@ export const RenderModalBasic: React.FC<{
 				outName={outName}
 				onValueChange={onValueChange}
 				validationMessage={validationMessage}
+				renderType={renderMode}
 			/>
 		</div>
 	);

@@ -45,13 +45,13 @@ function getMatchers(): Matchers {
 	if (cachedMatchers.rgb === undefined) {
 		cachedMatchers.rgb = new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER));
 		cachedMatchers.rgba = new RegExp(
-			'rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER)
+			'rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER),
 		);
 		cachedMatchers.hsl = new RegExp(
-			'hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE)
+			'hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE),
 		);
 		cachedMatchers.hsla = new RegExp(
-			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER)
+			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER),
 		);
 		cachedMatchers.hex3 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
 		cachedMatchers.hex4 =
@@ -354,7 +354,7 @@ function normalizeColor(color: string): number {
 						match[3] +
 						match[3] + // b
 						'ff', // a
-					16
+					16,
 				) >>> 0
 			);
 		}
@@ -379,7 +379,7 @@ function normalizeColor(color: string): number {
 						match[3] + // b
 						match[4] +
 						match[4], // a
-					16
+					16,
 				) >>> 0
 			);
 		}
@@ -391,7 +391,7 @@ function normalizeColor(color: string): number {
 				(hslToRgb(
 					parse360(match[1]), // h
 					parsePercentage(match[2]), // s
-					parsePercentage(match[3]) // l
+					parsePercentage(match[3]), // l
 				) |
 					0x000000ff) >>> // a
 				0
@@ -405,7 +405,7 @@ function normalizeColor(color: string): number {
 				(hslToRgb(
 					parse360(match[1]), // h
 					parsePercentage(match[2]), // s
-					parsePercentage(match[3]) // l
+					parsePercentage(match[3]), // l
 				) |
 					parse1(match[4])) >>> // a
 				0
@@ -445,7 +445,7 @@ export function processColor(color: string): number {
 const interpolateColorsRGB = (
 	value: number,
 	inputRange: readonly number[],
-	colors: readonly number[]
+	colors: readonly number[],
 ) => {
 	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
@@ -455,7 +455,7 @@ const interpolateColorsRGB = (
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
-			}
+			},
 		);
 		if (f === opacity) {
 			return Number(unrounded.toFixed(3));
@@ -473,7 +473,7 @@ const interpolateColorsRGB = (
 export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly string[]
+	outputRange: readonly string[],
 ): string => {
 	if (typeof input === 'undefined') {
 		throw new TypeError('input can not be undefined');
@@ -493,7 +493,7 @@ export const interpolateColors = (
 				inputRange.length +
 				' values provided) and outputRange (' +
 				outputRange.length +
-				' values provided) must have the same length'
+				' values provided) must have the same length',
 		);
 	}
 

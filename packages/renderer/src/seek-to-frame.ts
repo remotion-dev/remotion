@@ -5,7 +5,10 @@ import {PageEmittedEvents} from './browser/BrowserPage';
 import type {JSHandle} from './browser/JSHandle';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {
+	puppeteerEvaluateWithCatch,
+	puppeteerEvaluateWithCatchAndTimeout,
+} from './puppeteer-evaluate';
 
 export const waitForReady = ({
 	page,
@@ -28,15 +31,16 @@ export const waitForReady = ({
 					frame === null
 						? 'the page to render the React component'
 						: `the page to render the React component at frame ${frame}`,
-				shouldClosePage: false,
 			})
-			.then((a) => resolve(a))
+			.then((a) => {
+				return resolve(a);
+			})
 			.catch((err) => {
 				if (
 					(err as Error).message.includes('timeout') &&
 					(err as Error).message.includes('exceeded')
 				) {
-					puppeteerEvaluateWithCatch({
+					puppeteerEvaluateWithCatchAndTimeout({
 						pageFunction: () => {
 							return Object.keys(window.remotion_delayRenderTimeouts)
 								.map((id, i) => {
@@ -58,14 +62,16 @@ export const waitForReady = ({
 								new Error(
 									`Timeout exceeded rendering the component${
 										frame ? ' at frame ' + frame : ''
-									}. Open delayRender() handles: ${res.value}`
-								)
+									}. ${
+										res.value ? `Open delayRender() handles: ${res.value}` : ''
+									}`,
+								),
 							);
 						})
 						.catch((newErr) => {
 							RenderInternals.Log.warn(
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
-								newErr
+								newErr,
 							);
 							// Ignore, use prev error
 							reject(err);
@@ -84,7 +90,6 @@ export const waitForReady = ({
 				timeout: null,
 				pageFunction: 'window.remotion_cancelledError !== undefined',
 				title: 'remotion_cancelledError variable to appear on the page',
-				shouldClosePage: false,
 			})
 			.then(() => {
 				return puppeteerEvaluateWithCatch({
@@ -107,7 +112,7 @@ export const waitForReady = ({
 						name: 'CancelledError',
 						message: val.split('\n')[0],
 						stackFrame: parseStack(val.split('\n')),
-					})
+					}),
 				);
 			})
 			.catch((err) => {
@@ -150,7 +155,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds: number;
 }) => {
 	await waitForReady({page, timeoutInMilliseconds, frame: null});
-	await puppeteerEvaluateWithCatch({
+	await puppeteerEvaluateWithCatchAndTimeout({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
 		},

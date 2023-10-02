@@ -79,9 +79,17 @@ This will most notably disable CORS in Chrome among other security features.
 
 Opens an actual browser to observe the composition fetching.
 
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### `--quiet`, `--q`
 
@@ -101,7 +109,6 @@ _removed in v4.0_
 
 ## See also
 
-- [`getCompositions()`](/docs/cli/compositions)
-- [`npx remotion compositions`](/docs/cli/compositions)
+- [`getCompositions()`](/docs/renderer/get-compositions)
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
 - [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

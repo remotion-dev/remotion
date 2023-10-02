@@ -69,6 +69,7 @@ export const WebhookTest: React.FC = () => {
               type,
               renderId: "demo-render-id",
               bucketName: "demo-bucket-name",
+              customData: {},
               expectedBucketOwner: "demo-bucket-owner",
               outputUrl: "https://www.example.com",
               outputFile: "demo-output.mp4",
@@ -97,12 +98,14 @@ export const WebhookTest: React.FC = () => {
               type,
               renderId: "demo-render-id",
               bucketName: "demo-bucket-name",
+              customData: {},
               expectedBucketOwner: "demo-bucket-owner",
             }
           : {
               type,
               renderId: "demo-render-id",
               bucketName: "demo-bucket-name",
+              customData: {},
               expectedBucketOwner: "demo-bucket-owner",
             };
       const stringifiedPayload = JSON.stringify(payload);

@@ -17,7 +17,7 @@ const AllTheProviders: FC<{
 
 const customRender = (
 	ui: ReactElement,
-	options?: Omit<RenderOptions, 'queries'>
+	options?: Omit<RenderOptions, 'queries'>,
 ) => render<typeof queries>(ui, {wrapper: AllTheProviders, ...options});
 
 export * from '@testing-library/react';

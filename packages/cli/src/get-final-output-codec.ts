@@ -2,7 +2,7 @@ import type {Codec, CodecOrUndefined, FileExtension} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
 const deriveCodecsFromFilename = (
-	extension: string | null
+	extension: string | null,
 ): {
 	possible: Codec[];
 	default: Codec | null;
@@ -51,7 +51,7 @@ export const getFinalOutputCodec = ({
 			derivedOutNameCodecs.possible.join('')
 	) {
 		throw new TypeError(
-			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`
+			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`,
 		);
 	}
 
@@ -62,8 +62,8 @@ export const getFinalOutputCodec = ({
 		) {
 			throw new TypeError(
 				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodecs.possible.join(
-					' or '
-				)} which does not align with the --codec flag.`
+					' or ',
+				)} which does not align with the --codec flag.`,
 			);
 		}
 
@@ -73,8 +73,8 @@ export const getFinalOutputCodec = ({
 		) {
 			throw new TypeError(
 				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodecs.possible.join(
-					' or '
-				)} which does not align with the --codec flag.`
+					' or ',
+				)} which does not align with the --codec flag.`,
 			);
 		}
 

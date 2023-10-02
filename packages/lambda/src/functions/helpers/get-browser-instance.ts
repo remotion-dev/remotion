@@ -26,7 +26,7 @@ const waitForLaunched = () => {
 export const getBrowserInstance = async (
 	logLevel: LogLevel,
 	indent: boolean,
-	chromiumOptions: ChromiumOptions
+	chromiumOptions: ChromiumOptions,
 ): ReturnType<typeof openBrowser> => {
 	if (launching) {
 		await waitForLaunched();

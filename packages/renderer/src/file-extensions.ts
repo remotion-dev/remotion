@@ -22,7 +22,7 @@ export const defaultFileExtensionMap: {
 	[key in Codec]: {
 		default: FileExtension;
 		forAudioCodec: {
-			[k in typeof supportedAudioCodecs[key][number]]: {
+			[k in (typeof supportedAudioCodecs)[key][number]]: {
 				possible: FileExtension[];
 				default: FileExtension;
 			};
@@ -33,6 +33,7 @@ export const defaultFileExtensionMap: {
 		default: 'mkv',
 		forAudioCodec: {
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+			mp3: {possible: ['mkv'], default: 'mkv'},
 		},
 	},
 	aac: {
@@ -57,6 +58,7 @@ export const defaultFileExtensionMap: {
 		forAudioCodec: {
 			'pcm-16': {possible: ['mkv', 'mov'], default: 'mkv'},
 			aac: {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
+			mp3: {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
 		},
 	},
 	h265: {

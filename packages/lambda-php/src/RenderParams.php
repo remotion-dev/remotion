@@ -5,6 +5,30 @@ require_once __DIR__ . '/Version.php';
 use stdClass;
 use VERSION;
 
+class RenderMediaOnLambdaResponse
+{
+    public string $type;
+    public string $bucketName;
+    public string $renderId;
+}
+
+class GetRenderProgressResponse
+{
+    public int $chunks;
+    public bool $done;
+    public float $overallProgress;
+    public string $type;
+    public ?string $outputFile;
+    public int $lambdasInvoked;
+    public int $renderSize;
+    public int $currentTime;
+    public bool $fatalErrorEncountered;
+    public ?int $timeToFinish;
+    public ?string $outBucket;
+    public ?string $outKey;
+    public ?string $bucket;
+}
+
 class RenderParams
 {
 
@@ -21,9 +45,10 @@ class RenderParams
     private $imageFormat = 'jpeg';
     private $crf = null;
     private $envVariables = [];
-    private $quality = null;
     private $maxRetries = 1;
+    private $jpegQuality = 80;
     private $privacy = 'private';
+    private $colorSpace = 'default';
     private $logLevel = 'info';
     private $frameRange = null;
     private $timeoutInMilliseconds = 30000;
@@ -42,45 +67,53 @@ class RenderParams
     private $webhook = null;
     private $forceHeight = null;
     private $forceWidth = null;
+    private $offthreadVideoCacheSizeInBytes = null;
     private $audioCodec = null;
     private $rendererFunctionName = null;
     private $proResProfile = null;
     private $pixelFormat = null;
-
+    private $x264Preset = null;
+    private $deleteAfter = null;
+    
     public function __construct(
-        ? array $data = null,
-        ? string $composition = 'main',
+        ?array $data = null,
+        ?string $composition = 'main',
         string $codec = 'h264',
-        ? string $version = null,
+        ?string $version = null,
         string $imageFormat = 'jpeg',
-        ? int $crf = null,
-        ? array $envVariables = null,
-        ? int $quality = null,
+        ?int $crf = null,
+        ?array $envVariables = null,
         int $maxRetries = 1,
+        int $jpegQuality = 80,
         string $privacy = 'public',
+        string $colorSpace = 'default',
         string $logLevel = 'info',
-        ? string $frameRange = null,
-        ? string $outName = null,
-        ? int $timeoutInMilliseconds = 30000,
-        ? object $chromiumOptions = new stdClass(),
-        ? int $scale = 1,
-        ? int $everyNthFrame = 1,
-        ? int $numberOfGifLoops = 0,
-        ? int $concurrencyPerLambda = 1,
-        ? array $downloadBehavior = null,
-        ? bool $muted = false,
-        ? bool $overwrite = false,
-        ? int $audioBitrate = null,
-        ? int $videoBitrate = null,
-        ? string $webhook = null,
-        ? int $forceHeight = null,
-        ? int $forceWidth = null,
-        ? string $audioCodec = null,
-        ? int $framesPerLambda = null,
-        ? string $rendererFunctionName = null,
-        ? string $proResProfile = null,
-        ? string $pixelFormat = null
-    ) {
+        ?string $frameRange = null,
+        ?string $outName = null,
+        ?int $timeoutInMilliseconds = 30000,
+        ?object $chromiumOptions = new stdClass(), 
+        ?int $scale = 1, 
+        ?int $everyNthFrame = 1, 
+        ?int $numberOfGifLoops = 0, 
+        ?int $concurrencyPerLambda = 1, 
+        ?array $downloadBehavior = null, 
+        ?bool $muted = false, 
+        ?bool $overwrite = false, 
+        ?int $audioBitrate = null, 
+        ?int $videoBitrate = null, 
+        ?string $webhook = null, 
+        ?int $forceHeight = null, 
+        ?int $forceWidth = null, 
+        ?int $offthreadVideoCacheSizeInBytes = null, 
+        ?string $audioCodec = null, 
+        ?int $framesPerLambda = null, 
+        ?string $rendererFunctionName = null, 
+        ?string $proResProfile = null, 
+        ?string $pixelFormat = null,
+        ?string $x264Preset = null,
+        ?string $deleteAfter = null
+        )
+    {
         $this->data = $data;
         $this->composition = $composition;
         $this->codec = $codec;
@@ -88,9 +121,10 @@ class RenderParams
         $this->imageFormat = $imageFormat;
         $this->crf = $crf;
         $this->envVariables = $envVariables;
-        $this->quality = $quality;
         $this->maxRetries = $maxRetries;
+        $this->jpegQuality = $jpegQuality;
         $this->privacy = $privacy;
+        $this->colorSpace = $colorSpace;
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
@@ -108,11 +142,14 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
+        $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->audioCodec = $audioCodec;
         $this->framesPerLambda = $framesPerLambda;
         $this->rendererFunctionName = $rendererFunctionName;
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
+        $this->x264Preset = $x264Preset;
+        $this->deleteAfter = $deleteAfter;
     }
 
     private array $inputProps = array();
@@ -122,12 +159,14 @@ class RenderParams
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
-            'serveUrl' => $this->getServerUrl(),
+            'serveUrl' => $this->getServeUrl(),
             'inputProps' => $this->getInputProps(),
             'codec' => $this->getCodec(),
             'imageFormat' => $this->getImageFormat(),
             'maxRetries' => $this->getMaxRetries(),
+            'jpegQuality' => $this->getJpegQuality(),
             'privacy' => $this->getPrivacy(),
+            'colorSpace' => $this->getColorSpace(),
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
@@ -146,8 +185,11 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
+            'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
+            'x264Preset' => $this->getX264Preset(),
+            'deleteAfter' => $this->getDeleteAfter(),
             'type' => 'start'
         ];
 
@@ -157,18 +199,20 @@ class RenderParams
 
         if ($this->getEnvVariables() !== null) {
             $parameters['envVariables'] = $this->getEnvVariables();
+        } else {
+            $parameters['envVariables'] = new stdClass();
         }
 
         if ($this->getPixelFormat() !== null) {
             $parameters['pixelFormat'] = $this->getPixelFormat();
         }
 
-        if ($this->getProResProfile() !== null) {
-            $parameters['proResProfile'] = $this->getProResProfile();
+        if ($this->getX264Preset() !== null) {
+            $parameters['x264Preset'] = $this->getX264Preset();
         }
 
-        if ($this->getQuality() !== null) {
-            $parameters['quality'] = $this->getQuality();
+        if ($this->getProResProfile() !== null) {
+            $parameters['proResProfile'] = $this->getProResProfile();
         }
 
         return $parameters;
@@ -187,7 +231,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setInputProps($inputProps)
+    public function internal_setSerializedInputProps($inputProps)
     {
         $this->inputProps = $inputProps;
 
@@ -243,11 +287,23 @@ class RenderParams
     }
 
     /**
+     * Backwards compatible version of setInputProps()
      * Set the value of data
      *
      * @return  self
      */
     public function setData($data)
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of inputProps
+     * @return
+     */
+    public function setInputProps($data)
     {
         $this->data = $data;
 
@@ -374,25 +430,6 @@ class RenderParams
         return $this;
     }
 
-    /**
-     * Get the value of quality
-     */
-    public function getQuality()
-    {
-        return $this->quality;
-    }
-
-    /**
-     * Set the value of quality
-     *
-     * @return  self
-     */
-    public function setQuality($quality)
-    {
-        $this->quality = $quality;
-
-        return $this;
-    }
 
     /**
      * Get the value of maxRetries
@@ -414,6 +451,26 @@ class RenderParams
         return $this;
     }
 
+      /**
+     * Get the value of jpegQuality
+     */
+    public function getJpegQuality()
+    {
+        return $this->jpegQuality;
+    }
+
+    /**
+     * Set the value of jpegQuality
+     *
+     * @return  self
+     */
+    public function setJpegQuality($jpegQuality)
+    {
+        $this->jpegQuality = $jpegQuality;
+
+        return $this;
+    }
+
     /**
      * Get the value of privacy
      */
@@ -430,6 +487,26 @@ class RenderParams
     public function setPrivacy($privacy)
     {
         $this->privacy = $privacy;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of colorspace
+     */
+    public function getColorSpace()
+    {
+        return $this->colorSpace;
+    }
+
+    /**
+     * Set the value of colorSpace
+     *
+     * @return  self
+     */
+    public function setColorSpace($colorSpace)
+    {
+        $this->colorSpace = $colorSpace;
 
         return $this;
     }
@@ -581,6 +658,11 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
+    public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
+    {
+        $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
     // Getter methods
     public function getMuted()
     {
@@ -616,11 +698,15 @@ class RenderParams
     {
         return $this->forceWidth;
     }
+    public function getOffthreadVideoCacheSizeInBytes()
+    {
+        return $this->offthreadVideoCacheSizeInBytes;
+    }
 
     /**
      * Get the value of serverUrl
      */
-    public function getServerUrl()
+    public function getServeUrl()
     {
         return $this->serverUrl;
     }
@@ -630,7 +716,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setServerUrl($serverUrl)
+    public function setServeUrl($serverUrl)
     {
         $this->serverUrl = $serverUrl;
 
@@ -735,5 +821,27 @@ class RenderParams
         $this->pixelFormat = $pixelFormat;
 
         return $this;
+    }
+
+    public function getX264Preset()
+    {
+        return $this->x264Preset;
+    }
+
+    public function setX264Preset($x264Preset)
+    {
+         $this->x264Preset = $x264Preset;
+         return $this;
+    }
+
+    public function getDeleteAfter()
+    {
+        return $this->deleteAfter;
+    }
+
+    public function setDeleteAfter($deleteAfter)
+    {
+         $this->$deleteAfter = $deleteAfter;
+         return $this;
     }
 }

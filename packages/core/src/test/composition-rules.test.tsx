@@ -22,9 +22,9 @@ describe('Render composition-rules should throw with invalid props', () => {
 						height={100}
 						id="invalid@id"
 						width={100}
-					/>
+					/>,
 				),
-			/can only contain/
+			/can only contain/,
 		);
 	});
 
@@ -39,9 +39,9 @@ describe('Render composition-rules should throw with invalid props', () => {
 						fps={30}
 						height={100}
 						width={100}
-					/>
+					/>,
 				),
-			/No id for composition passed./
+			/No id for composition passed./,
 		);
 	});
 
@@ -66,9 +66,9 @@ describe('Render composition-rules should throw with invalid props', () => {
 							width={100}
 							id="id"
 						/>
-					</RemotionRoot>
+					</RemotionRoot>,
 				),
-			/Multiple composition with id id/
+			/Multiple composition with id id/,
 		);
 	});
 });
@@ -83,8 +83,8 @@ describe('Render composition-rules should not with valid props', () => {
 					height={100}
 					id="valid-id"
 					width={100}
-				/>
-			)
+				/>,
+			),
 		).not.toThrow();
 	});
 });

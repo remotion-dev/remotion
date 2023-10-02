@@ -25,7 +25,7 @@ export const checkCredentials = () => {
 		!process.env.REMOTION_AWS_ACCESS_KEY_ID
 	) {
 		throw new Error(
-			messageForVariable('AWS_ACCESS_KEY_ID or REMOTION_AWS_ACCESS_KEY_ID')
+			messageForVariable('AWS_ACCESS_KEY_ID or REMOTION_AWS_ACCESS_KEY_ID'),
 		);
 	}
 
@@ -35,8 +35,8 @@ export const checkCredentials = () => {
 	) {
 		throw new Error(
 			messageForVariable(
-				'AWS_SECRET_ACCESS_KEY or REMOTION_AWS_SECRET_ACCESS_KEY'
-			)
+				'AWS_SECRET_ACCESS_KEY or REMOTION_AWS_SECRET_ACCESS_KEY',
+			),
 		);
 	}
 };

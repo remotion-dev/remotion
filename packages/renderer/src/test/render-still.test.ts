@@ -16,9 +16,9 @@ test('Need to pass valid metadata', async () => {
 			frame: 0,
 			output: '/file/output.png',
 			serveUrl:
-				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			verbose: false,
-		})
+		}),
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
 
@@ -35,7 +35,7 @@ test('Returns buffer in promise result', async () => {
 		},
 		frame: 0,
 		serveUrl:
-			'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+			'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
@@ -56,11 +56,11 @@ test('Need to pass valid metadata', async () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			verbose: false,
-		})
+		}),
 	).rejects.toThrow(
-		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
+		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/,
 	);
 });
 
@@ -81,9 +81,9 @@ test('Catches invalid image format', () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
-		})
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+		}),
 	).rejects.toThrow(
-		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/,
 	);
 });

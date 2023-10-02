@@ -1,6 +1,6 @@
 export const getFramesToRender = (
 	frameRange: [number, number],
-	everyNthFrame: number
+	everyNthFrame: number,
 ): number[] => {
 	if (everyNthFrame === 0) {
 		throw new Error('everyNthFrame cannot be 0');

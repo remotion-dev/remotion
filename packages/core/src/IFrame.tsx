@@ -9,7 +9,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	>
 > = ({onLoad, onError, ...props}, ref) => {
 	const [handle] = useState(() =>
-		delayRender(`Loading <IFrame> with source ${props.src}`)
+		delayRender(`Loading <IFrame> with source ${props.src}`),
 	);
 
 	const didLoad = useCallback(
@@ -17,7 +17,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 			continueRender(handle);
 			onLoad?.(e);
 		},
-		[handle, onLoad]
+		[handle, onLoad],
 	);
 
 	const didGetError = useCallback(
@@ -29,11 +29,11 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 				console.error(
 					'Error loading iframe:',
 					e,
-					'Handle the event using the onError() prop to make this message disappear.'
+					'Handle the event using the onError() prop to make this message disappear.',
 				);
 			}
 		},
-		[handle, onError]
+		[handle, onError],
 	);
 
 	return <iframe {...props} ref={ref} onError={didGetError} onLoad={didLoad} />;

@@ -21,7 +21,7 @@ export const isStreamingPayload = (str: string) => {
 
 export const sendProgressEvent = (
 	responseStream: ResponseStream,
-	payload: StreamingPayloads
+	payload: StreamingPayloads,
 ) => {
 	const stringified = JSON.stringify(payload);
 	responseStream.write(stringified);

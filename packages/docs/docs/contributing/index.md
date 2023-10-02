@@ -35,8 +35,12 @@ Prefix with `sudo` if necessary.
 <Step>2</Step> Clone the Remotion repository:<br/>
 
 ```sh
-git clone https://github.com/remotion-dev/remotion.git && cd remotion
+git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
 ```
+
+:::note
+The full Git history of Remotion is large. To save time and disk space, we recommend adding `--depth=1` to only clone the most recent `main` branch.
+:::
 
 <Step>3</Step> Install all dependencies:<br/>
 
@@ -57,6 +61,16 @@ pnpm watch
 ```
 
 <Step>6</Step> You can start making changes!
+
+## Note about browser packages
+
+Some packages need `pnpm build` in order for their changes to apply.
+
+Packages that are imported in the browser, like `remotion`, `@remotion/player`, `@remotion/gif` have ESM versions. In the Remotion Studio and Next.js, ES Modules are preferred, and they need to build separately. If you don't see changes applied, run:
+
+```sh
+cd packages/core && pnpm build
+```
 
 ## Testing your changes
 

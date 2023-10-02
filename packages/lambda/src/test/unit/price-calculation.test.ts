@@ -30,6 +30,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			memorySizeInMb: 1024,
 			region: 'eu-central-1',
 			renderId: '123',
+			deleteAfter: null,
 			siteId: 'my-site',
 			startedDate: aDate + 1000,
 			totalChunks: 20,
@@ -48,6 +49,8 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			everyNthFrame: 1,
 			frameRange: [0, 99],
 			audioCodec: null,
+			downloadBehavior: {type: 'play-in-browser'},
+			numberOfGifLoops: null,
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',

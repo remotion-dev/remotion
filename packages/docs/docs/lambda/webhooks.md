@@ -49,6 +49,7 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
     }
   | {
       type: "success";
@@ -59,6 +60,7 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
       // Available from v3.3.11
       costs: {
         estimatedCost: number;
@@ -72,10 +74,13 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
     };
 ```
 
 The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
+
+You can use the field `customData` to set a JSON-serializable object, which is useful to pass on custom data to the webhook endpoint. **The `customData` field must be less than 1KB (1024 bytes) when serialized, otherwise an error is thrown**. Store larger data in `inputProps` and retrieve it back by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress) and reading `progress.renderMetadata.inputProps`.
 
 If the render process times out, the reponse body will not contain any other fields.
 
@@ -226,14 +231,14 @@ const ENABLE_TESTING = true;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (ENABLE_TESTING) {
     res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
     res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode",
     );
   }
   if (req.method === "OPTIONS") {

@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
@@ -38,11 +38,12 @@ export const prefetch = (
 	src: string,
 	options?: {
 		method?: 'blob-url' | 'base64';
-	}
+		contentType?: string;
+	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		return {
 			free: () => undefined,
 			waitUntilDone: () => Promise.resolve(src),
@@ -82,11 +83,25 @@ export const prefetch = (
 				return;
 			}
 
-			if (method === 'base64') {
-				return blobToBase64(buf);
+			if (
+				!buf.type.startsWith('video/') &&
+				!buf.type.startsWith('audio/') &&
+				!options?.contentType
+			) {
+				console.warn(
+					`Called prefetch() on ${src} which returned a "Content-Type" of ${buf.type}. Prefetched content should have a proper content type (video/... or audio/...) or a contentType passed the options of prefetch(). Otherwise, prefetching will not work properly in all browsers.`,
+				);
 			}
 
-			return URL.createObjectURL(buf);
+			const actualBlob = options?.contentType
+				? new Blob([buf], {type: options.contentType})
+				: buf;
+
+			if (method === 'base64') {
+				return blobToBase64(actualBlob);
+			}
+
+			return URL.createObjectURL(actualBlob);
 		})
 		.then((url) => {
 			if (canceled) {

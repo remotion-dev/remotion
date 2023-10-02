@@ -145,6 +145,10 @@ _optional - default `1`_
 
 How often a frame render may be retried until it fails.
 
+:::note
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+:::
+
 ### `envVariables?`
 
 _optional - default `{}`_
@@ -195,6 +199,14 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
+
 ### `chromiumOptions?`
 
 _optional_
@@ -224,6 +236,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note

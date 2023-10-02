@@ -41,3 +41,7 @@ We commonly get asked if Remotion would consider changing the way how it renders
 - Setting `--concurrency=1` on a video that would be choppy otherwise does not fully fix the problem. Often the result looks okay only because of coincidence, because the rendering speed is approximately the same as the animation speed. There is no real timing synchronization and results will differ across machines.
 
 - Multithreading is very important for future ideas such as [rendering on AWS Lambda](https://github.com/remotion-dev/remotion/pull/423). Using this integration, you can render a video much faster by rendering it on multiple computers at the same time. All you need for it is a video that is programmed in a concurrency-safe way.
+
+## Flickering `<Video>` tag
+
+Adding many video tags can lead to stutters. If you are experiencing the problem, consider using the [`<OffthreadVideo>`](/docs/offthreadvideo) component for frame-perfect rendering.

@@ -5,7 +5,11 @@ sidebar_label: Bounty issues
 crumb: Contributing
 ---
 
+import { Bounties } from "../../components/Bounties.tsx";
+
 Some issues carry cash bounties that you can earn by solving them.
+
+<Bounties />
 
 ## Find bounties
 

@@ -167,6 +167,12 @@ _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
 #### `ignoreCertificateErrors`
 
 _boolean - default `false`_
@@ -192,6 +198,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 Default: `null`.  
@@ -200,6 +207,10 @@ Default: `null`.
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`dumpBrowserLogs?`~~
 

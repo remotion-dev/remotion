@@ -11,7 +11,7 @@ test('Guess extension for media - H264', async () => {
 			'..',
 			'example',
 			'public',
-			'framermp4withoutfileextension'
+			'framermp4withoutfileextension',
 		),
 	});
 
@@ -27,7 +27,7 @@ test('Guess extension for media - WebM', async () => {
 			'..',
 			'example',
 			'public',
-			'framer.webm'
+			'framer.webm',
 		),
 	});
 
@@ -43,7 +43,7 @@ test('Guess extension for media - WAV', async () => {
 			'..',
 			'example',
 			'public',
-			'22khz.wav'
+			'22khz.wav',
 		),
 	});
 
@@ -59,7 +59,7 @@ test('Guess extension for media - MP3', async () => {
 			'..',
 			'example',
 			'public',
-			'music.mp3'
+			'music.mp3',
 		),
 	});
 

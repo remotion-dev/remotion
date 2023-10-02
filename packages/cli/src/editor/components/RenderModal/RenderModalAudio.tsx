@@ -55,7 +55,7 @@ export const RenderModalAudio: React.FC<{
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setShouldHaveCustomTargetAudioBitrate(e.target.checked);
 		},
-		[setShouldHaveCustomTargetAudioBitrate]
+		[setShouldHaveCustomTargetAudioBitrate],
 	);
 
 	const onTargetAudioBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
@@ -63,7 +63,7 @@ export const RenderModalAudio: React.FC<{
 			(e) => {
 				setCustomTargetAudioBitrateValue(e.target.value);
 			},
-			[setCustomTargetAudioBitrateValue]
+			[setCustomTargetAudioBitrateValue],
 		);
 
 	const audioCodecOptions = useCallback(
@@ -82,10 +82,10 @@ export const RenderModalAudio: React.FC<{
 						type: 'item',
 						value: audioCodecOption,
 					};
-				}
+				},
 			);
 		},
-		[codec, setAudioCodec]
+		[codec, setAudioCodec],
 	);
 
 	return (

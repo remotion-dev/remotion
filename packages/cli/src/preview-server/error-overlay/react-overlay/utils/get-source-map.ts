@@ -17,7 +17,7 @@ import {SourceMapConsumer} from 'source-map';
 export const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,
-	column: number
+	column: number,
 ): {source: string | null; line: number | null; column: number | null} => {
 	const result = source_map.originalPositionFor({
 		line,
@@ -48,7 +48,7 @@ function extractSourceMapUrl(fileContents: string): string | null {
 // TODO: Can import this from BrowserSafeApis.getSourceMapRemotely
 export async function getSourceMap(
 	fileUri: string,
-	fileContents: string
+	fileContents: string,
 ): Promise<SourceMapConsumer | null> {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
@@ -60,7 +60,7 @@ export async function getSourceMap(
 		const match2 = sm.match(base64);
 		if (!match2) {
 			throw new Error(
-				'Sorry, non-base64 inline source-map encoding is not supported.'
+				'Sorry, non-base64 inline source-map encoding is not supported.',
 			);
 		}
 

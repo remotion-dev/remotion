@@ -41,6 +41,38 @@ export type VideoMetadata = {
 	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
 	canPlayInVideoTag: boolean;
 	supportsSeeking: boolean;
+	colorSpace:
+		| 'rgb'
+		| 'bt601'
+		| 'bt709'
+		| 'bt2020-ncl'
+		| 'bt2020-cl'
+		| 'fcc'
+		| 'bt470bg'
+		| 'smpte170m'
+		| 'smpte240m'
+		| 'ycgco'
+		| 'smpte2085'
+		| 'chroma-derived-ncl'
+		| 'chroma-derived-cl'
+		| 'ictcp'
+		| 'unknown';
+};
+
+type SilentPart = {
+	startInSeconds: number;
+	endInSeconds: number;
+};
+
+export type SilentParts = SilentPart[];
+
+export type GetSilentPartsResponseRust = {
+	silentParts: SilentParts;
+	durationInSeconds: number;
+};
+
+export type GetSilentPartsResponse = GetSilentPartsResponseRust & {
+	audibleParts: SilentParts;
 };
 
 export type CompositorCommand = {
@@ -52,23 +84,32 @@ export type CompositorCommand = {
 		output_format: CompositorImageFormat;
 	};
 	ExtractFrame: {
-		input: string;
+		src: string;
+		original_src: string;
 		time: number;
 		transparent: boolean;
+	};
+	GetSilences: {
+		src: string;
+		noiseThresholdInDecibels: number;
+		minDurationInSeconds: number;
 	};
 	Echo: {
 		message: string;
 	};
 	StartLongRunningProcess: {
 		concurrency: number;
-		maximum_frame_cache_items: number;
+		maximum_frame_cache_size_in_bytes: number | null;
 		verbose: boolean;
+	};
+	CopyImageToClipboard: {
+		src: string;
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
 	CloseAllVideos: {};
 	FreeUpMemory: {
-		percent_of_memory: number;
+		remaining_bytes: number;
 	};
 	GetVideoMetadata: {src: string};
 	VideoMetadata: VideoMetadata;

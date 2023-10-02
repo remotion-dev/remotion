@@ -24,7 +24,7 @@ test('Should make a distributed GIF', async () => {
 		type: LambdaRoutines.start,
 		payload: {
 			serveUrl:
-				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
@@ -44,6 +44,7 @@ test('Should make a distributed GIF', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
+			x264Preset: null,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
@@ -62,11 +63,15 @@ test('Should make a distributed GIF', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			offthreadVideoCacheSizeInBytes: null,
+			deleteAfter: null,
+			colorSpace: 'default',
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const progress = await callLambda({
@@ -80,6 +85,7 @@ test('Should make a distributed GIF', async () => {
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const file = await lambdaReadFile({

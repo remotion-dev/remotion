@@ -10,7 +10,8 @@ import {
 import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
-import {useRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
@@ -49,7 +50,7 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 
 type OptionalDimensions<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width?: number;
 	height?: number;
@@ -58,7 +59,7 @@ type OptionalDimensions<
 
 type MandatoryDimensions<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width: number;
 	height: number;
@@ -67,12 +68,12 @@ type MandatoryDimensions<
 
 type StillCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = OptionalDimensions<Schema, Props> | MandatoryDimensions<Schema, Props>;
 
 type CompositionCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > =
 	| (OptionalDimensions<Schema, Props> & {
 			fps?: number;
@@ -85,7 +86,7 @@ type CompositionCalculateMetadataOrExplicit<
 
 export type StillProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	id: string;
 	schema?: Schema;
@@ -95,7 +96,7 @@ export type StillProps<
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	id: string;
 	schema?: Schema;
@@ -118,7 +119,7 @@ const Fallback: React.FC = () => {
 
 export const Composition = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 >({
 	width,
 	height,
@@ -135,21 +136,19 @@ export const Composition = <
 
 	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
 	const nonce = useNonce();
-	const environment = useRemotionEnvironment();
+	const isPlayer = useIsPlayer();
+	const environment = getRemotionEnvironment();
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (
-			environment === 'player-development' ||
-			environment === 'player-production'
-		) {
+		if (isPlayer) {
 			throw new Error(
-				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
+				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.',
 			);
 		}
 
 		throw new Error(
-			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.'
+			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.',
 		);
 	}
 
@@ -199,7 +198,7 @@ export const Composition = <
 	]);
 	const resolved = useResolvedVideoConfig(id);
 
-	if (environment === 'preview' && video && video.component === lazy) {
+	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
 		if (resolved === null || resolved.type !== 'success') {
 			return null;
@@ -218,11 +217,11 @@ export const Composition = <
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-			portalNode()
+			portalNode(),
 		);
 	}
 
-	if (environment === 'rendering' && video && video.component === lazy) {
+	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
 		if (resolved === null || resolved.type !== 'success') {
 			return null;
@@ -239,7 +238,7 @@ export const Composition = <
 					/>
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
-			portalNode()
+			portalNode(),
 		);
 	}
 

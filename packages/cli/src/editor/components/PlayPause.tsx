@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -28,7 +28,7 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
@@ -67,7 +67,7 @@ export const PlayPause: React.FC<{
 
 			e.preventDefault();
 		},
-		[pause, play, playing]
+		[pause, play, playing],
 	);
 
 	const onEnter = useCallback(
@@ -78,7 +78,7 @@ export const PlayPause: React.FC<{
 				pauseAndReturnToPlayStart();
 			}
 		},
-		[pauseAndReturnToPlayStart, playing]
+		[pauseAndReturnToPlayStart, playing],
 	);
 
 	const onArrowLeft = useCallback(
@@ -108,7 +108,7 @@ export const PlayPause: React.FC<{
 				});
 			}
 		},
-		[frameBack, seek]
+		[frameBack, seek],
 	);
 
 	const onArrowRight = useCallback(
@@ -127,7 +127,7 @@ export const PlayPause: React.FC<{
 					durationInFrames: getCurrentDuration(),
 					frame: Math.min(
 						getCurrentDuration() - 1,
-						getCurrentFrame() + getCurrentFps()
+						getCurrentFrame() + getCurrentFps(),
 					),
 				});
 			} else {
@@ -141,7 +141,7 @@ export const PlayPause: React.FC<{
 
 			e.preventDefault();
 		},
-		[frameForward, seek]
+		[frameForward, seek],
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -230,7 +230,7 @@ export const PlayPause: React.FC<{
 		onSpace,
 	]);
 
-	if (isStill) {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

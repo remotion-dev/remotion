@@ -6,7 +6,7 @@ import {
 export const validateDiskSizeInMb = (diskSizeInMb: unknown) => {
 	if (typeof diskSizeInMb !== 'number') {
 		throw new TypeError(
-			`parameter 'diskSizeInMb' must be a number, got a ${typeof diskSizeInMb}`
+			`parameter 'diskSizeInMb' must be a number, got a ${typeof diskSizeInMb}`,
 		);
 	}
 
@@ -16,7 +16,7 @@ export const validateDiskSizeInMb = (diskSizeInMb: unknown) => {
 
 	if (!Number.isFinite(diskSizeInMb)) {
 		throw new TypeError(
-			`parameter 'diskSizeInMb' must be finite, but is ${diskSizeInMb}`
+			`parameter 'diskSizeInMb' must be finite, but is ${diskSizeInMb}`,
 		);
 	}
 
@@ -25,13 +25,13 @@ export const validateDiskSizeInMb = (diskSizeInMb: unknown) => {
 		diskSizeInMb > MAX_EPHEMERAL_STORAGE_IN_MB
 	) {
 		throw new TypeError(
-			`parameter 'diskSizeInMb' must be between ${MIN_EPHEMERAL_STORAGE_IN_MB} and ${MAX_EPHEMERAL_STORAGE_IN_MB}, but got ${diskSizeInMb}`
+			`parameter 'diskSizeInMb' must be between ${MIN_EPHEMERAL_STORAGE_IN_MB} and ${MAX_EPHEMERAL_STORAGE_IN_MB}, but got ${diskSizeInMb}`,
 		);
 	}
 
 	if (diskSizeInMb % 1 !== 0) {
 		throw new TypeError(
-			`parameter 'diskSizeInMb' must be an integer but got ${diskSizeInMb}`
+			`parameter 'diskSizeInMb' must be an integer but got ${diskSizeInMb}`,
 		);
 	}
 };

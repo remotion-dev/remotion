@@ -1,6 +1,7 @@
 import React, {
 	createRef,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 } from 'react';
@@ -48,7 +49,7 @@ export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -66,7 +67,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames]
+		[setInAndOutFrames],
 	);
 
 	const onInMark = useCallback(
@@ -127,7 +128,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, timelinePosition, videoConfig]
+		[setInAndOutFrames, timelinePosition, videoConfig],
 	);
 
 	const clearInMark = useCallback(
@@ -148,7 +149,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, videoConfig]
+		[setInAndOutFrames, videoConfig],
 	);
 
 	const clearOutMark = useCallback(
@@ -169,7 +170,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, videoConfig]
+		[setInAndOutFrames, videoConfig],
 	);
 
 	const onOutMark = useCallback(
@@ -232,7 +233,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, timelinePosition, videoConfig]
+		[setInAndOutFrames, timelinePosition, videoConfig],
 	);
 
 	const confId = videoConfig?.id;
@@ -294,10 +295,10 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				outMarkClick: onOutMark,
 			};
 		},
-		[confId, onInMark, onInOutClear, onOutMark]
+		[confId, onInMark, onInOutClear, onOutMark],
 	);
 
-	if (isStill) {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

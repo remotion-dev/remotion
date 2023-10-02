@@ -126,7 +126,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 		const error = err as Error;
 		if (
 			error.message.includes(
-				'The role defined for the function cannot be assumed by Lambda'
+				'The role defined for the function cannot be assumed by Lambda',
 			)
 		) {
 			if (parsedLambdaCli['custom-role-arn']) {
@@ -137,7 +137,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 	- Make sure the role has the same policy assigned as the one returned by "npx ${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}"
 	
 	Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
-	`.trim()
+	`.trim(),
 				);
 			}
 
@@ -148,7 +148,7 @@ The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong poli
 - The policy is not exactly as specified in the setup guide
 
 Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
-`.trim()
+`.trim(),
 			);
 		}
 
@@ -156,7 +156,7 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 			Log.error(
 				`
 AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
-`.trim()
+`.trim(),
 			);
 		}
 
@@ -164,26 +164,26 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 			Log.error(
 				`
 AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
-`.trim()
+`.trim(),
 			);
 		}
 
 		if (
 			error.stack?.includes(
-				'The security token included in the request is invalid'
+				'The security token included in the request is invalid',
 			)
 		) {
 			Log.error(
 				`
 AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
-`
+`,
 			);
 		}
 
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				error,
-				ConfigInternals.Logging.getLogLevel()
+				ConfigInternals.Logging.getLogLevel(),
 			);
 		} else {
 			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
@@ -195,9 +195,9 @@ AWS returned an error message "The security token included in the request is inv
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.handleCommonError(
+			await CliInternals.printError(
 				errorWithStackFrame,
-				ConfigInternals.Logging.getLogLevel()
+				ConfigInternals.Logging.getLogLevel(),
 			);
 		}
 

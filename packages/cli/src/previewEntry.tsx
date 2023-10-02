@@ -9,7 +9,7 @@ import {ServerDisconnected} from './editor/components/Notifications/ServerDiscon
 import {openEventSource} from './event-source';
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428')
+	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
 );
 
 const getServerDisconnectedDomElement = () => {
@@ -22,7 +22,7 @@ const content = (
 			<Editor />
 			{createPortal(
 				<ServerDisconnected />,
-				getServerDisconnectedDomElement() as HTMLElement
+				getServerDisconnectedDomElement() as HTMLElement,
 			)}
 		</EditorContexts>
 	</Internals.RemotionRoot>
@@ -30,12 +30,12 @@ const content = (
 
 if (ReactDOM.createRoot) {
 	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
-		content
+		content,
 	);
 } else {
 	(ReactDOM as unknown as {render: typeof render}).render(
 		content,
-		Internals.getPreviewDomElement()
+		Internals.getPreviewDomElement(),
 	);
 }
 

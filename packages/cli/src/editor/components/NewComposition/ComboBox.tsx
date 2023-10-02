@@ -123,7 +123,7 @@ export const Combobox: React.FC<{
 						},
 						{
 							once: true,
-						}
+						},
 					);
 				}
 
@@ -255,7 +255,7 @@ export const Combobox: React.FC<{
 											onHide={onHide}
 											leaveLeftSpace
 											preselectIndex={values.findIndex(
-												(v) => selected && v.id === selected.id
+												(v) => selected && v.id === selected.id,
 											)}
 											topItemCanBeUnselected={false}
 											fixedHeight={derivedMaxHeight}
@@ -264,7 +264,7 @@ export const Combobox: React.FC<{
 								</HigherZIndex>
 							</div>
 						</div>,
-						getPortal(currentZIndex)
+						getPortal(currentZIndex),
 				  )
 				: null}
 		</>

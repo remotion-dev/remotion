@@ -58,6 +58,7 @@ const watchPublicFolder = ({
 					onUpdate,
 					staticHash,
 				});
+				onUpdate();
 				watcher.close();
 			}
 		};
@@ -66,6 +67,8 @@ const watchPublicFolder = ({
 		return;
 	}
 
+	// Known bug: If whole public folder is deleted, this will not be called on macOS.
+	// This is not severe, so a wontfix for now.
 	watch(publicDir, {recursive: envSupportsFsRecursive()}, () => {
 		fetchFolder({publicDir, staticHash});
 		onUpdate();

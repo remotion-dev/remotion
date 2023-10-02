@@ -7,7 +7,7 @@ import {getAbsoluteSrc} from '../absolute-src.js';
 describe('Absolute src should behave as expected', () => {
 	test('Get localhost:8080', () => {
 		expect(getAbsoluteSrc('http://localhost:8080')).toBe(
-			'http://localhost:8080/'
+			'http://localhost:8080/',
 		);
 	});
 	test('Get localhost/hi', () => {
@@ -15,7 +15,7 @@ describe('Absolute src should behave as expected', () => {
 	});
 	test('Get data:base64', () => {
 		expect(getAbsoluteSrc('data:base64,image/png,abc')).toBe(
-			'data:base64,image/png,abc'
+			'data:base64,image/png,abc',
 		);
 	});
 });

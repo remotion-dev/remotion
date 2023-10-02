@@ -26,19 +26,19 @@ export const Trail: React.FC<TrailProps> = ({
 		!Number.isFinite(layers)
 	) {
 		throw new TypeError(
-			`"layers" must be a number, but got ${JSON.stringify(layers)}`
+			`"layers" must be a number, but got ${JSON.stringify(layers)}`,
 		);
 	}
 
 	if (layers % 1 !== 0) {
 		throw new TypeError(
-			`"layers" must be an integer, but got ${JSON.stringify(layers)}`
+			`"layers" must be an integer, but got ${JSON.stringify(layers)}`,
 		);
 	}
 
 	if (layers < 0) {
 		throw new TypeError(
-			`"layers" must be non-negative, but got ${JSON.stringify(layers)}`
+			`"layers" must be non-negative, but got ${JSON.stringify(layers)}`,
 		);
 	}
 
@@ -48,7 +48,9 @@ export const Trail: React.FC<TrailProps> = ({
 		!Number.isFinite(trailOpacity)
 	) {
 		throw new TypeError(
-			`"trailOpacity" must be a number, but got ${JSON.stringify(trailOpacity)}`
+			`"trailOpacity" must be a number, but got ${JSON.stringify(
+				trailOpacity,
+			)}`,
 		);
 	}
 
@@ -58,7 +60,7 @@ export const Trail: React.FC<TrailProps> = ({
 		!Number.isFinite(lagInFrames)
 	) {
 		throw new TypeError(
-			`"lagInFrames" must be a number, but got ${JSON.stringify(lagInFrames)}`
+			`"lagInFrames" must be a number, but got ${JSON.stringify(lagInFrames)}`,
 		);
 	}
 

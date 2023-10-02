@@ -1,14 +1,17 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
+	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
@@ -18,7 +21,7 @@ import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request'],
-	signal?: AbortSignal
+	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
 		fetch(endpoint, {
@@ -34,14 +37,14 @@ const callApi = <Endpoint extends keyof ApiRoutes>(
 				(
 					data:
 						| {success: true; data: ApiRoutes[Endpoint]['Response']}
-						| {success: false; error: string}
+						| {success: false; error: string},
 				) => {
 					if (data.success) {
 						resolve(data.data);
 					} else {
 						reject(new Error(data.error));
 					}
-				}
+				},
 			)
 			.catch((err) => {
 				reject(err);
@@ -61,6 +64,8 @@ export const addStillRenderJob = ({
 	delayRenderTimeout,
 	envVariables,
 	inputProps,
+	offthreadVideoCacheSizeInBytes,
+	multiProcessOnLinux,
 }: {
 	compositionId: string;
 	outName: string;
@@ -73,6 +78,8 @@ export const addStillRenderJob = ({
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSizeInBytes: number | null;
+	multiProcessOnLinux: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -91,6 +98,68 @@ export const addStillRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes,
+		multiProcessOnLinux,
+	});
+};
+
+export const addSequenceRenderJob = ({
+	compositionId,
+	outName,
+	imageFormat,
+	startFrame,
+	endFrame,
+	scale,
+	verbose,
+	chromiumOptions,
+	delayRenderTimeout,
+	envVariables,
+	inputProps,
+	concurrency,
+	offthreadVideoCacheSizeInBytes,
+	jpegQuality,
+	disallowParallelEncoding,
+	multiProcessOnLinux,
+}: {
+	compositionId: string;
+	outName: string;
+	imageFormat: VideoImageFormat;
+	jpegQuality: number;
+	startFrame: number;
+	endFrame: number;
+	scale: number;
+	verbose: boolean;
+	chromiumOptions: RequiredChromiumOptions;
+	concurrency: number;
+	delayRenderTimeout: number;
+	envVariables: Record<string, string>;
+	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSizeInBytes: number | null;
+	disallowParallelEncoding: boolean;
+	multiProcessOnLinux: boolean;
+}) => {
+	return callApi('/api/render', {
+		compositionId,
+		type: 'sequence',
+		outName,
+		imageFormat,
+		jpegQuality,
+		scale,
+		startFrame,
+		endFrame,
+		verbose,
+		chromiumOptions,
+		delayRenderTimeout,
+		envVariables,
+		concurrency,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
+		offthreadVideoCacheSizeInBytes,
+		disallowParallelEncoding,
+		multiProcessOnLinux,
 	});
 };
 
@@ -109,6 +178,7 @@ export const addVideoRenderJob = ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	x264Preset,
 	pixelFormat,
 	audioBitrate,
 	videoBitrate,
@@ -120,6 +190,9 @@ export const addVideoRenderJob = ({
 	chromiumOptions,
 	envVariables,
 	inputProps,
+	offthreadVideoCacheSizeInBytes,
+	colorSpace,
+	multiProcessOnLinux,
 }: {
 	compositionId: string;
 	outName: string;
@@ -135,6 +208,7 @@ export const addVideoRenderJob = ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | null;
+	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -146,6 +220,9 @@ export const addVideoRenderJob = ({
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSizeInBytes: number | null;
+	colorSpace: ColorSpace;
+	multiProcessOnLinux: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -163,6 +240,7 @@ export const addVideoRenderJob = ({
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		x264Preset,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
@@ -178,6 +256,9 @@ export const addVideoRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
+		multiProcessOnLinux,
 	});
 };
 
@@ -212,6 +293,13 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	return callApi('/api/open-in-file-explorer', body);
 };
 
+export const copyToClipboard = ({outName}: {outName: string}) => {
+	const body: CopyStillToClipboardRequest = {
+		outName,
+	};
+	return callApi('/api/copy-still-to-clipboard', body);
+};
+
 export const removeRenderJob = (job: RenderJob) => {
 	return callApi('/api/remove-render', {
 		jobId: job.id,
@@ -231,7 +319,7 @@ export const updateAvailable = (signal: AbortSignal) => {
 export const updateDefaultProps = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
-	enumPaths: EnumPath[]
+	enumPaths: EnumPath[],
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,

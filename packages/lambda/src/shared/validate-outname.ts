@@ -6,7 +6,7 @@ import {validateBucketName} from './validate-bucketname';
 const validateS3Key = (s3Key: string) => {
 	if (typeof s3Key !== 'string') {
 		throw new TypeError(
-			'The S3 key must be a string. Passed an object of type ' + typeof s3Key
+			'The S3 key must be a string. Passed an object of type ' + typeof s3Key,
 		);
 	}
 
@@ -15,7 +15,7 @@ const validateS3Key = (s3Key: string) => {
 		throw new Error(
 			"The S3 Key must match the RegExp `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`. You passed: " +
 				s3Key +
-				'. Check for invalid characters.'
+				'. Check for invalid characters.',
 		);
 	}
 };
@@ -23,7 +23,7 @@ const validateS3Key = (s3Key: string) => {
 export const validateOutname = (
 	outName: OutNameInputWithoutCredentials | undefined | null,
 	codec: Codec | null,
-	audioCodec: AudioCodec | null
+	audioCodec: AudioCodec | null,
 ) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;

@@ -72,7 +72,7 @@ export const getAllFilesS3 = ({
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
+	onErrors: (errors: EnhancedErrorInfo[]) => void;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -91,8 +91,8 @@ export const getAllFilesS3 = ({
 			filesInBucket: contents
 				.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
 				.map((_) => _.Key as string),
-			errorContents: contents.filter((c) =>
-				c.Key?.startsWith(getErrorKeyPrefix(renderId))
+			errorContents: contents.filter(
+				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)),
 			),
 		};
 	};
@@ -106,14 +106,16 @@ export const getAllFilesS3 = ({
 				console.log(
 					'Checking for finish... ',
 					Object.keys(downloaded),
-					expectedFiles + ' files expected'
+					expectedFiles + ' files expected',
 				);
 				if (areAllFilesDownloaded) {
 					console.log('All files are downloaded!');
 					resolve(
-						filesInBucket.map((file) =>
-							getChunkDownloadOutputLocation({outdir, file})
-						)
+						// Need to use downloaded variable, not filesInBucket
+						// as it may be out of date
+						Object.keys(downloaded)
+							.sort()
+							.map((file) => getChunkDownloadOutputLocation({outdir, file})),
 					);
 				}
 			};
@@ -130,7 +132,7 @@ export const getAllFilesS3 = ({
 			).filter((e) => e.isFatal);
 
 			if (errors.length > 0) {
-				await onErrors(errors);
+				onErrors(errors);
 				// Will die here
 			}
 
@@ -149,7 +151,7 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					console.log('Successfully downloaded', key);
+					RenderInternals.Log.info('Successfully downloaded', key);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
@@ -192,7 +194,7 @@ export const concatVideosS3 = async ({
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
-		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec)
+		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec),
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);

@@ -21,6 +21,6 @@ export const deleteFunction = async ({
 	await getLambdaClient(region).send(
 		new DeleteFunctionCommand({
 			FunctionName: functionName,
-		})
+		}),
 	);
 };

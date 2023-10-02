@@ -6,7 +6,7 @@ test("Fatal error on frame 10 should yield correct error", async () => {
     return renderMedia({
       codec: "h264",
       serveUrl:
-        "https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/",
+        "https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,

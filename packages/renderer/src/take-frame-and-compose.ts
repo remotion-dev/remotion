@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type {ClipRegion, TAsset} from 'remotion';
+import type {ClipRegion, TRenderAsset} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
@@ -34,7 +34,7 @@ export const takeFrameAndCompose = async ({
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
 	compositor: Compositor;
-}): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
+}): Promise<{buffer: Buffer | null; collectedAssets: TRenderAsset[]}> => {
 	const [{value: clipRegion}, {value: collectedAssets}] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
@@ -48,7 +48,7 @@ export const takeFrameAndCompose = async ({
 			frame,
 			page: freePage,
 		}),
-		puppeteerEvaluateWithCatch<TAsset[]>({
+		puppeteerEvaluateWithCatch<TRenderAsset[]>({
 			pageFunction: () => {
 				return window.remotion_collectAssets();
 			},
@@ -68,13 +68,13 @@ export const takeFrameAndCompose = async ({
 			: {
 					tmpFile: path.join(
 						downloadMap.compositingDir,
-						`${frame}.${imageFormat}`
+						`${frame}.${imageFormat}`,
 					),
 					finalOutFile:
 						output ??
 						path.join(
 							downloadMap.compositingDir,
-							`${frame}-final.${imageFormat}`
+							`${frame}-final.${imageFormat}`,
 						),
 					clipRegion: clipRegion as ClipRegion,
 			  };
@@ -102,13 +102,13 @@ export const takeFrameAndCompose = async ({
 	if (needsComposing) {
 		if (imageFormat === 'pdf') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'."
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'.",
 			);
 		}
 
 		if (imageFormat === 'webp') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'."
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'.",
 			);
 		}
 

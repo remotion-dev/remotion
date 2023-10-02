@@ -4,25 +4,25 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {beforeEach, describe, expect, test, vitest} from 'vitest';
-import {AssetManager} from '../AssetManager.js';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {mockCompositionContext} from './wrap-sequence-context.js';
 
 interface MockCompositionManagerContext {
 	MockProvider: Function;
-	registerAsset: Function;
-	unregisterAsset: Function;
+	registerRenderAsset: Function;
+	unregisterRenderAsset: Function;
 }
 let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
 	function createMockContext(): MockCompositionManagerContext {
-		const registerAsset = vitest.fn();
-		const unregisterAsset = vitest.fn();
+		const registerRenderAsset = vitest.fn();
+		const unregisterRenderAsset = vitest.fn();
 		window.remotion_audioEnabled = true;
 		const MockProvider: React.FC<{
 			children: React.ReactNode;
@@ -30,16 +30,16 @@ describe('Register and unregister asset', () => {
 			return (
 				<CanUseRemotionHooksProvider>
 					<CompositionManager.Provider value={mockCompositionContext}>
-						<AssetManager.Provider
+						<RenderAssetManager.Provider
 							// eslint-disable-next-line react/jsx-no-constructed-context-values
 							value={{
-								registerAsset,
-								unregisterAsset,
-								assets: [],
+								registerRenderAsset,
+								unregisterRenderAsset,
+								renderAssets: [],
 							}}
 						>
 							<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
-						</AssetManager.Provider>
+						</RenderAssetManager.Provider>
 					</CompositionManager.Provider>
 				</CanUseRemotionHooksProvider>
 			);
@@ -47,8 +47,8 @@ describe('Register and unregister asset', () => {
 
 		return {
 			MockProvider,
-			registerAsset,
-			unregisterAsset,
+			registerRenderAsset,
+			unregisterRenderAsset,
 		};
 	}
 
@@ -68,12 +68,12 @@ describe('Register and unregister asset', () => {
 				<mockContext.MockProvider>
 					<AudioForRendering {...props} />
 				</mockContext.MockProvider>
-			</CanUseRemotionHooksProvider>
+			</CanUseRemotionHooksProvider>,
 		);
 
-		expect(mockContext.registerAsset).toHaveBeenCalled();
+		expect(mockContext.registerRenderAsset).toHaveBeenCalled();
 		unmount();
-		expect(mockContext.unregisterAsset).toHaveBeenCalled();
+		expect(mockContext.unregisterRenderAsset).toHaveBeenCalled();
 	});
 
 	test('no src passed', () => {
@@ -89,10 +89,10 @@ describe('Register and unregister asset', () => {
 					<mockContext.MockProvider>
 						<AudioForRendering {...props} />
 					</mockContext.MockProvider>
-				</CanUseRemotionHooksProvider>
+				</CanUseRemotionHooksProvider>,
 			);
 		}, /No src passed/);
-		expect(mockContext.registerAsset).not.toHaveBeenCalled();
-		expect(mockContext.unregisterAsset).not.toHaveBeenCalled();
+		expect(mockContext.registerRenderAsset).not.toHaveBeenCalled();
+		expect(mockContext.unregisterRenderAsset).not.toHaveBeenCalled();
 	});
 });

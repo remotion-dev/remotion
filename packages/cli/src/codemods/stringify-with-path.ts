@@ -13,7 +13,7 @@ const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 			}
 
 			return item === p[index];
-		})
+		}),
 	);
 };
 
@@ -23,14 +23,12 @@ export const stringifyDefaultProps = ({
 }: {
 	props: unknown;
 	enumPaths: EnumPath[];
-}) =>
-	JSON.stringify(
+}) => {
+	return JSON.stringify(
 		props,
 		replacerWithPath(function (key, value, path) {
-			/* Don't replace with arrow function */ const item = this[key];
-			if (item instanceof Date) {
-				return `__REMOVEQUOTE__new Date('${item.toISOString()}')__REMOVEQUOTE__`;
-			}
+			/* Don't replace with arrow function! This function uses `this` */
+			const item = this[key];
 
 			if (typeof item === 'string' && doesMatchPath(path, enumPaths)) {
 				return `${item}__ADD_AS_CONST__`;
@@ -38,33 +36,42 @@ export const stringifyDefaultProps = ({
 
 			if (typeof item === 'string' && item.startsWith(Internals.FILE_TOKEN)) {
 				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
-					item.replace(Internals.FILE_TOKEN, '')
+					item.replace(Internals.FILE_TOKEN, ''),
 				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 
+			if (typeof item === 'string' && item.startsWith(Internals.DATE_TOKEN)) {
+				return `__REMOVEQUOTE____WRAP_IN_DATE_START__${decodeURIComponent(
+					item.replace(Internals.DATE_TOKEN, ''),
+				)}__WRAP_IN_DATE_END____REMOVEQUOTE__`;
+			}
+
 			return value;
-		})
+		}),
 	)
 		.replace(/"__REMOVEQUOTE__/g, '')
 		.replace(/__REMOVEQUOTE__"/g, '')
 		.replace(/__ADD_AS_CONST__"/g, '" as const')
 		.replace(/__WRAP_IN_STATIC_FILE_START__/g, 'staticFile("')
-		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")');
+		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")')
+		.replace(/__WRAP_IN_DATE_START__/g, 'new Date("')
+		.replace(/__WRAP_IN_DATE_END__/g, '")');
+};
 
 function replacerWithPath(
 	replacer: (
 		this: Record<string, unknown>,
 		field: string,
 		value: unknown,
-		path: (string | number)[]
-	) => unknown
+		path: (string | number)[],
+	) => unknown,
 ) {
 	const m = new Map();
 
 	return function (
 		this: Record<string, unknown>,
 		field: string,
-		value: unknown
+		value: unknown,
 	) {
 		const path = [m.get(this), field].flat(1);
 		if (value === Object(value)) {
@@ -75,7 +82,7 @@ function replacerWithPath(
 			this,
 			field,
 			value,
-			path.filter((item) => typeof item !== 'undefined' && item !== '')
+			path.filter((item) => typeof item !== 'undefined' && item !== ''),
 		);
 	};
 }
