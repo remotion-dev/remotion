@@ -1,7 +1,5 @@
-import React, {useCallback, useContext} from 'react';
-import {Internals} from 'remotion';
+import React, {useCallback} from 'react';
 import {BLUE} from '../helpers/colors';
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {persistLoopOption} from '../state/loop';
 import {ControlButton} from './ControlButton';
 
@@ -11,19 +9,12 @@ export const LoopToggle: React.FC<{
 	loop: boolean;
 	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({loop, setLoop}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const onClick = useCallback(() => {
 		setLoop((c) => {
 			persistLoopOption(!c);
 			return !c;
 		});
 	}, [setLoop]);
-
-	const isStill = useIsStill();
-
-	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
-		return null;
-	}
 
 	return (
 		<ControlButton
