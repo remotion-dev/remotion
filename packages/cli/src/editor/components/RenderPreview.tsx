@@ -2,6 +2,7 @@ import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import {remotion_outputsBase} from '../helpers/get-asset-metadata';
 import {FilePreview} from './FilePreview';
 import {getPreviewFileType} from './Preview';
 
@@ -23,7 +24,7 @@ export const RenderPreview: React.FC<{
 	assetMetadata: AssetMetadata | null;
 }> = ({path, assetMetadata}) => {
 	const fileType = getPreviewFileType(path);
-	const src = window.remotion_staticBase.replace('static', 'outputs') + path;
+	const src = remotion_outputsBase + path;
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 
 	if (connectionStatus === 'disconnected') {
