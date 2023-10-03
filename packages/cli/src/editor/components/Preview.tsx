@@ -9,6 +9,8 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
+import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -16,11 +18,17 @@ import {RenderPreview} from './RenderPreview';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
 
-const spinnerContainer: React.CSSProperties = {
+const centeredContainer: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	justifyContent: 'center',
 	alignItems: 'center',
+};
+
+const label: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	color: LIGHT_TEXT,
 };
 
 export type AssetFileType =
@@ -100,10 +108,19 @@ export const VideoPreview: React.FC<{
 	canvasSize: Size;
 	contentDimensions: Dimensions | 'none' | null;
 	canvasContent: CanvasContent;
-}> = ({canvasSize, contentDimensions, canvasContent}) => {
-	if (!contentDimensions) {
+	assetMetadata: AssetMetadata | null;
+}> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
+	if (assetMetadata && assetMetadata.type === 'not-found') {
 		return (
-			<div style={spinnerContainer}>
+			<div style={centeredContainer}>
+				<div style={label}>File does not exist</div>
+			</div>
+		);
+	}
+
+	if (contentDimensions === null) {
+		return (
+			<div style={centeredContainer}>
 				<Spinner duration={0.5} size={24} />
 			</div>
 		);
@@ -114,6 +131,7 @@ export const VideoPreview: React.FC<{
 			contentDimensions={contentDimensions}
 			canvasSize={canvasSize}
 			canvasContent={canvasContent}
+			assetMetadata={assetMetadata}
 		/>
 	);
 };
@@ -122,7 +140,8 @@ const CompWhenItHasDimensions: React.FC<{
 	contentDimensions: Dimensions | 'none';
 	canvasSize: Size;
 	canvasContent: CanvasContent;
-}> = ({contentDimensions, canvasSize, canvasContent}) => {
+	assetMetadata: AssetMetadata | null;
+}> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
@@ -178,9 +197,15 @@ const CompWhenItHasDimensions: React.FC<{
 	return (
 		<div style={outer}>
 			{canvasContent.type === 'asset' ? (
-				<StaticFilePreview currentAsset={canvasContent.asset} />
+				<StaticFilePreview
+					assetMetadata={assetMetadata}
+					currentAsset={canvasContent.asset}
+				/>
 			) : canvasContent.type === 'output' ? (
-				<RenderPreview path={canvasContent.path} />
+				<RenderPreview
+					path={canvasContent.path}
+					assetMetadata={assetMetadata}
+				/>
 			) : (
 				<PortalContainer
 					contentDimensions={contentDimensions as Dimensions}

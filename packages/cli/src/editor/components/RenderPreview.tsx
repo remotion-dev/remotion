@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {FilePreview} from './FilePreview';
 import {getPreviewFileType} from './Preview';
 
@@ -19,7 +20,8 @@ const errMsgStyle: React.CSSProperties = {
 
 export const RenderPreview: React.FC<{
 	path: string;
-}> = ({path}) => {
+	assetMetadata: AssetMetadata | null;
+}> = ({path, assetMetadata}) => {
 	const fileType = getPreviewFileType(path);
 	const src = window.remotion_staticBase.replace('static', 'outputs') + path;
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
@@ -30,8 +32,8 @@ export const RenderPreview: React.FC<{
 
 	return (
 		<FilePreview
+			assetMetadata={assetMetadata}
 			currentAsset={path}
-			fileSize={null}
 			fileType={fileType}
 			src={src}
 		/>

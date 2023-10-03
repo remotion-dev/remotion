@@ -1,4 +1,3 @@
-import {getVideoMetadata} from '@remotion/media-utils';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -8,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {CanvasContent} from 'remotion';
-import {Internals, staticFile} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -16,17 +15,18 @@ import {
 	unsmoothenZoom,
 } from '../../smooth-zoom';
 import {BACKGROUND} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
-import type {Dimensions} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
-import {getPreviewFileType, VideoPreview} from './Preview';
+import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 
 const container: React.CSSProperties = {
@@ -53,13 +53,17 @@ export const Canvas: React.FC<{
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
 
-	const [assetResolution, setAssetResolution] = useState<
-		Dimensions | 'none' | null
-	>(null);
+	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
+		null,
+	);
 
 	const contentDimensions = useMemo(() => {
-		if (canvasContent.type === 'asset' || canvasContent.type === 'output') {
-			return assetResolution;
+		if (
+			(canvasContent.type === 'asset' || canvasContent.type === 'output') &&
+			assetResolution &&
+			assetResolution.type === 'found'
+		) {
+			return assetResolution.dimensions;
 		}
 
 		if (config) {
@@ -292,38 +296,13 @@ export const Canvas: React.FC<{
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
 	const fetchMetadata = useCallback(async () => {
-		if (canvasContent.type !== 'asset' && canvasContent.type !== 'output') {
+		setAssetResolution(null);
+		if (canvasContent.type === 'composition') {
 			return;
 		}
 
-		const src =
-			canvasContent.type === 'asset'
-				? staticFile(canvasContent.asset)
-				: window.remotion_staticBase.replace('static', 'outputs') +
-				  canvasContent.path;
-
-		setAssetResolution(null);
-
-		const fileType = getPreviewFileType(src);
-
-		if (fileType === 'video') {
-			try {
-				await getVideoMetadata(src).then((data) => {
-					setAssetResolution({width: data.width, height: data.height});
-				});
-			} catch {
-				setAssetResolution('none');
-			}
-		} else if (fileType === 'image') {
-			const img = new Image();
-			img.onload = () => {
-				setAssetResolution({width: img.width, height: img.height});
-			};
-
-			img.src = src;
-		} else {
-			setAssetResolution('none');
-		}
+		const metadata = await getAssetMetadata(canvasContent);
+		setAssetResolution(metadata);
 	}, [canvasContent]);
 
 	useEffect(() => {
@@ -337,6 +316,7 @@ export const Canvas: React.FC<{
 					canvasContent={canvasContent}
 					contentDimensions={contentDimensions}
 					canvasSize={size}
+					assetMetadata={assetResolution}
 				/>
 			) : null}
 			{isFit ? null : (

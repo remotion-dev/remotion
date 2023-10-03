@@ -18,26 +18,60 @@ const getSrcFromCanvasContent = (canvasContent: CanvasContent) => {
 	);
 };
 
+export type AssetMetadata =
+	| {
+			type: 'not-found';
+	  }
+	| {
+			type: 'found';
+			size: number;
+			dimensions: Dimensions | 'none' | null;
+	  };
+
 export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
-): Promise<Dimensions | 'none' | null> => {
+): Promise<AssetMetadata> => {
 	const src = getSrcFromCanvasContent(canvasContent);
+
+	const file = await fetch(src, {
+		method: 'HEAD',
+	});
+	if (file.status === 404) {
+		return {type: 'not-found'};
+	}
+
+	if (file.status !== 200) {
+		throw new Error(
+			`Expected status code 200 or 404 for file, got ${file.status}`,
+		);
+	}
+
+	const size = file.headers.get('content-length');
+
+	if (!size) {
+		throw new Error('Unexpected error: content-length is null');
+	}
 
 	const fileType = getPreviewFileType(src);
 
 	if (fileType === 'video') {
 		const resolution = await getVideoMetadata(src);
-		return {width: resolution.width, height: resolution.height};
+		return {
+			type: 'found',
+			size: Number(size),
+			dimensions: {width: resolution.width, height: resolution.height},
+		};
 	}
 
 	if (fileType === 'image') {
-		const resolution = await new Promise<{
-			width: number;
-			height: number;
-		}>((resolve, reject) => {
+		const resolution = await new Promise<AssetMetadata>((resolve, reject) => {
 			const img = new Image();
 			img.onload = () => {
-				resolve({width: img.width, height: img.height});
+				resolve({
+					type: 'found',
+					size: Number(size),
+					dimensions: {width: img.width, height: img.height},
+				});
 			};
 
 			img.onerror = () => {
@@ -46,8 +80,12 @@ export const getAssetMetadata = async (
 
 			img.src = src;
 		});
-		return {width: resolution.width, height: resolution.height};
+		return resolution;
 	}
 
-	return null;
+	return {
+		type: 'found',
+		dimensions: 'none',
+		size: Number(size),
+	};
 };
