@@ -23,7 +23,7 @@
 	"dependencies": {
 		"autoprefixer": "^10.4.14",
 		"css-loader": "5.2.7",
-		"postcss": "^8.4.21",
+		"postcss": "^8.4.31",
 		"postcss-loader": "^7.3.0",
 		"postcss-preset-env": "^8.3.2",
 		"style-loader": "2.0.0",
