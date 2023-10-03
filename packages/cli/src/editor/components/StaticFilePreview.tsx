@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {getStaticFiles, staticFile} from 'remotion';
-import {formatBytes} from '../../format-bytes';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {FilePreview} from './FilePreview';
 import {getPreviewFileType} from './Preview';
 
@@ -19,9 +19,10 @@ const errMsgStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 };
 
-export const StaticFilePreview: React.FC<{currentAsset: string}> = ({
-	currentAsset,
-}) => {
+export const StaticFilePreview: React.FC<{
+	currentAsset: string;
+	assetMetadata: AssetMetadata | null;
+}> = ({currentAsset, assetMetadata}) => {
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 	const staticFiles = getStaticFiles();
@@ -41,18 +42,6 @@ export const StaticFilePreview: React.FC<{currentAsset: string}> = ({
 		);
 	}
 
-	const fileSize = (() => {
-		const fileFromStaticFiles = staticFiles.find(
-			(file) => file.name === currentAsset,
-		);
-
-		if (fileFromStaticFiles) {
-			return formatBytes(fileFromStaticFiles?.sizeInBytes);
-		}
-
-		return null;
-	})();
-
 	if (!currentAsset) {
 		return null;
 	}
@@ -60,9 +49,9 @@ export const StaticFilePreview: React.FC<{currentAsset: string}> = ({
 	return (
 		<FilePreview
 			currentAsset={currentAsset}
-			fileSize={fileSize}
 			fileType={fileType}
 			src={staticFileSrc}
+			assetMetadata={assetMetadata}
 		/>
 	);
 };

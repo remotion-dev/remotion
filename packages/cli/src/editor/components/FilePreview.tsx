@@ -1,4 +1,6 @@
 import React from 'react';
+import {formatBytes} from '../../format-bytes';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import type {AssetFileType} from './Preview';
@@ -16,8 +18,16 @@ export const FilePreview: React.FC<{
 	src: string;
 	fileType: AssetFileType;
 	currentAsset: string;
-	fileSize: string | null;
-}> = ({fileType, src, currentAsset, fileSize}) => {
+	assetMetadata: AssetMetadata | null;
+}> = ({fileType, src, currentAsset, assetMetadata}) => {
+	if (!assetMetadata) {
+		throw new Error('expected to have assetMetadata');
+	}
+
+	if (assetMetadata.type === 'not-found') {
+		throw new Error('expected to have assetMetadata, got "not-found"');
+	}
+
 	if (fileType === 'audio') {
 		return (
 			<div>
@@ -45,12 +55,8 @@ export const FilePreview: React.FC<{
 	return (
 		<>
 			<div style={msgStyle}>{currentAsset}</div>
-			{fileSize ? (
-				<>
-					<Spacing y={1} />
-					<div style={msgStyle}>Size: {fileSize} </div>
-				</>
-			) : null}
+			<Spacing y={0.5} />
+			<div style={msgStyle}>Size: {formatBytes(assetMetadata.size)} </div>
 		</>
 	);
 };
