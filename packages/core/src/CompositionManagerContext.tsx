@@ -1,3 +1,4 @@
+import type React from 'react';
 import {createContext} from 'react';
 import type {AnyZodObject} from 'zod';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
@@ -17,6 +18,10 @@ export type CanvasContent =
 	| {
 			type: 'asset';
 			asset: string;
+	  }
+	| {
+			type: 'output';
+			path: string;
 	  };
 
 export type CompositionManagerContext = {
@@ -34,7 +39,7 @@ export type CompositionManagerContext = {
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
 	canvasContent: CanvasContent | null;
-	setCanvasContent: (canvasContent: CanvasContent | null) => void;
+	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({

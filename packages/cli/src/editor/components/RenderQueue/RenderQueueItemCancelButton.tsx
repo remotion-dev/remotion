@@ -5,12 +5,18 @@ import {InlineAction} from '../InlineAction';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob} from './actions';
 
-export const RenderQueueCancelButton: React.FC<{job: RenderJob}> = ({job}) => {
-	const onClick = useCallback(() => {
-		cancelRenderJob(job).catch((err) => {
-			sendErrorNotification(`Could not cancel job: ${err.message}`);
-		});
-	}, [job]);
+export const RenderQueueCancelButton: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			e.stopPropagation();
+			cancelRenderJob(job).catch((err) => {
+				sendErrorNotification(`Could not cancel job: ${err.message}`);
+			});
+		},
+		[job],
+	);
 
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
