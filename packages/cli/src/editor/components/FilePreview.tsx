@@ -29,11 +29,7 @@ export const FilePreview: React.FC<{
 	}
 
 	if (fileType === 'audio') {
-		return (
-			<div>
-				<audio src={src} controls />
-			</div>
-		);
+		return <audio src={src} controls />;
 	}
 
 	if (fileType === 'video') {
