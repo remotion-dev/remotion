@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import "./bounties.css";
 
 const org = "remotion";
-const limit = 3;
+const limit = 100;
 
 type RemoteData<T> =
   | { _tag: "loading" }
@@ -42,7 +42,7 @@ export const Bounties = () => {
           </div>
         ))}
       {bounties._tag === "loading" &&
-        [...Array(limit).keys()].map((i) => (
+        [...Array(6).keys()].map((i) => (
           <div key={i}>
             <BountyCardSkeleton />
           </div>
