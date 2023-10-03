@@ -20,7 +20,7 @@
     "@types/node": "18.14.6",
     "@types/prettier": "^2.7.1",
     "got": "^11",
-    "postcss": "^8.4.18",
+    "postcss": "^8.4.31",
     "prettier": "3.0.2",
     "rollup": "^2.70.1",
     "ts-node": "^10.8.0"
