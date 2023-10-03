@@ -424,6 +424,7 @@ export const launchHandler = async (
 						outName: params.outName,
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
+						logLevel: params.logLevel,
 					},
 					retries: 2,
 				});

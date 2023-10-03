@@ -163,6 +163,8 @@ const innerHandler = async (
 			isWarm,
 		});
 
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const response = await mergeHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
