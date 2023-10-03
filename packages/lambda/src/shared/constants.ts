@@ -418,6 +418,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		serializedResolvedProps: SerializedInputProps;
 		verbose: boolean;
+		logLevel: LogLevel;
 	};
 };
 
