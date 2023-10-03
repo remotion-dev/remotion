@@ -4,6 +4,11 @@ import {staticFile} from 'remotion';
 import {getPreviewFileType} from '../components/Preview';
 import type {Dimensions} from './is-current-selected-still';
 
+export const remotion_outputsBase = window.remotion_staticBase.replace(
+	'static',
+	'outputs',
+);
+
 const getSrcFromCanvasContent = (canvasContent: CanvasContent) => {
 	if (canvasContent.type === 'asset') {
 		return staticFile(canvasContent.asset);
@@ -13,9 +18,7 @@ const getSrcFromCanvasContent = (canvasContent: CanvasContent) => {
 		throw new Error('cannot get dimensions for composition');
 	}
 
-	return (
-		window.remotion_staticBase.replace('static', 'outputs') + canvasContent.path
-	);
+	return remotion_outputsBase + canvasContent.path;
 };
 
 export type AssetMetadata =

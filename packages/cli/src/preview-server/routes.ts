@@ -37,7 +37,7 @@ const static404 = (response: ServerResponse) => {
 const output404 = (response: ServerResponse) => {
 	response.writeHead(404);
 	response.end(
-		'The output/ prefix has been changed, this URL is no longer valid.',
+		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
 };
 
