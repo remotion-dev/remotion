@@ -430,8 +430,9 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec
 			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
 			: null,
-		// Set max bitrate up to 1024kbps, will choose lower if that's too much
-		resolvedAudioCodec ? ['-b:a', audioBitrate || '512K'] : null,
+		resolvedAudioCodec && audioBitrate
+			? ['-b:a', audioBitrate || '512K']
+			: null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
