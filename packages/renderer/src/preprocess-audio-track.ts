@@ -15,7 +15,7 @@ type Options = {
   expectedFrames: number;
   fps: number;
   downloadMap: DownloadMap;
-  toneFrequency: number | null; // Add toneFrequency parameter
+  toneFrequency?: number | null; // Add toneFrequency parameter
 };
 
 export type PreprocessedAudioTrack = {

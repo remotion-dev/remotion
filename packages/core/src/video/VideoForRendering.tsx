@@ -1,3 +1,4 @@
+
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
@@ -110,6 +111,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: null,
 		});
 
 		return () => unregisterRenderAsset(id);
