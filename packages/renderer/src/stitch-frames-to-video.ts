@@ -433,6 +433,8 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec && audioBitrate
 			? ['-b:a', audioBitrate || '512K']
 			: null,
+		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
+		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[

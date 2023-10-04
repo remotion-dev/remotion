@@ -69,6 +69,8 @@ export const combineVideos = async (options: Options) => {
 		resolvedAudioCodec
 			? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
 			: null,
+		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
+		resolvedAudioCodec === 'aac' ? '18000' : null,
 		audioBitrate ? '-b:a' : null,
 		audioBitrate ? audioBitrate : null,
 		codec === 'h264' ? '-movflags' : null,
