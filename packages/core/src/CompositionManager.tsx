@@ -133,6 +133,7 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 export const compositionsRef = React.createRef<{

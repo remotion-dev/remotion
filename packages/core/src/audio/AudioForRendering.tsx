@@ -97,6 +97,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: null
 		});
 		return () => unregisterRenderAsset(id);
 	}, [

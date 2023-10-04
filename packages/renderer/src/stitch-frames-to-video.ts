@@ -169,7 +169,7 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
-					toneFrequency:0.9,
+					toneFrequency:null,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
