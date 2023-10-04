@@ -20,9 +20,8 @@ Gets metadata about a video file in Node.js. Useful for calculating metadata on 
 // @target: ESNext
 import { getVideoMetadata } from "@remotion/renderer";
 
-const { width, height, fps, durationInSeconds } = await getVideoMetadata(
-  "./bunny.mp4"
-);
+const { width, height, fps, durationInSeconds } =
+  await getVideoMetadata("./bunny.mp4");
 ```
 
 ## Arguments
@@ -83,6 +82,10 @@ If a video is not seekable, you might run into the ["Non-seekable media"](/docs/
 This means that the video might fail to render if embedded in a `<Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
 
 You may consider re-encoding the video using FFmpeg to make it seekable.
+
+### `colorSpace`<AvailableFrom v="4.0.28"/>
+
+One of `rgb`, `bt601`, `bt709`, `bt2020-ncl`, `bt2020-cl`, `fcc`, `bt470bg`, `smpte170m`, `smpte240m`, `ycgco`, `smpte2085`, `chroma-derived-ncl`, `chroma-derived-cl`, `ictcp` or `unknown`.
 
 ## See also
 

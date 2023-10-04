@@ -12,6 +12,16 @@ import {checkIfServiceExists} from './check-if-service-exists';
 import {constructServiceTemplate} from './helpers/construct-service-deploy-request';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
+type InternalDeployServiceInput = {
+	performImageVersionValidation: boolean;
+	memoryLimit: string;
+	cpuLimit: string;
+	timeoutSeconds: number;
+	minInstances: number;
+	maxInstances: number;
+	projectID: string;
+	region: string;
+};
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
 	memoryLimit?: string;
@@ -39,31 +49,11 @@ const deployServiceRaw = async ({
 	maxInstances,
 	projectID,
 	region,
-}: DeployServiceInput): Promise<DeployServiceOutput> => {
+}: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
 	if (performImageVersionValidation) {
 		validateImageRemotionVersion();
-	}
-
-	if (!memoryLimit) {
-		memoryLimit = '2Gi';
-	}
-
-	if (!cpuLimit) {
-		cpuLimit = '1.0';
-	}
-
-	if (!timeoutSeconds) {
-		timeoutSeconds = DEFAULT_TIMEOUT;
-	}
-
-	if (!minInstances) {
-		minInstances = DEFAULT_MIN_INSTANCES;
-	}
-
-	if (!maxInstances) {
-		maxInstances = DEFAULT_MAX_INSTANCES;
 	}
 
 	const parent = `projects/${projectID}/locations/${region}`;
@@ -120,6 +110,9 @@ const deployServiceRaw = async ({
 	};
 };
 
+export const internalDeployService =
+	PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);
+
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
  * @link https://remotion.dev/docs/cloudrun/deployservice
@@ -131,4 +124,25 @@ const deployServiceRaw = async ({
  * @param params.region GCP region to deploy the Cloud Run service to.
  * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
  */
-export const deployService = PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);
+
+export const deployService = ({
+	performImageVersionValidation = true,
+	memoryLimit,
+	cpuLimit,
+	timeoutSeconds,
+	minInstances,
+	maxInstances,
+	projectID,
+	region,
+}: DeployServiceInput): Promise<DeployServiceOutput> => {
+	return internalDeployService({
+		performImageVersionValidation,
+		memoryLimit: memoryLimit ?? '2Gi',
+		cpuLimit: cpuLimit ?? '1.0',
+		timeoutSeconds: timeoutSeconds ?? DEFAULT_TIMEOUT,
+		minInstances: minInstances ?? DEFAULT_MIN_INSTANCES,
+		maxInstances: maxInstances ?? DEFAULT_MAX_INSTANCES,
+		projectID,
+		region,
+	});
+};

@@ -7,8 +7,10 @@ export type ExtrapolateType = 'extend' | 'identity' | 'clamp';
  * @see [Documentation](https://www.remotion.dev/docs/interpolate)
  */
 
+export type EasingFunction = (input: number) => number;
+
 export type InterpolateOptions = Partial<{
-	easing: (input: number) => number;
+	easing: EasingFunction;
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
 }>;

@@ -1,5 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
+import {calculateLoopDuration} from '../calculate-loop.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
@@ -42,12 +43,18 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const naturalDuration = durations[getAbsoluteSrc(props.src)] * fps;
-		const playbackRate = props.playbackRate ?? 1;
-		const durationInFrames = Math.floor(naturalDuration / playbackRate);
+		const mediaDuration = durations[getAbsoluteSrc(props.src)] * fps;
 
 		return (
-			<Loop durationInFrames={durationInFrames}>
+			<Loop
+				durationInFrames={calculateLoopDuration({
+					endAt,
+					mediaDuration,
+					playbackRate: props.playbackRate ?? 1,
+					startFrom,
+				})}
+				layout="none"
+			>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);

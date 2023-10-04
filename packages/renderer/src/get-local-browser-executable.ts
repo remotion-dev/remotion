@@ -98,7 +98,7 @@ export const ensureLocalBrowser = async (
 	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
 		Log.info(
-			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/thorium-browser',
+			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/miscellaneous/thorium-browser',
 		);
 		await downloadBrowser();
 	}

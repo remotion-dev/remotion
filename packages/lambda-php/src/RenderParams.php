@@ -45,9 +45,10 @@ class RenderParams
     private $imageFormat = 'jpeg';
     private $crf = null;
     private $envVariables = [];
-    private $quality = null;
     private $maxRetries = 1;
+    private $jpegQuality = 80;
     private $privacy = 'private';
+    private $colorSpace = 'default';
     private $logLevel = 'info';
     private $frameRange = null;
     private $timeoutInMilliseconds = 30000;
@@ -72,7 +73,8 @@ class RenderParams
     private $proResProfile = null;
     private $pixelFormat = null;
     private $x264Preset = null;
-
+    private $deleteAfter = null;
+    
     public function __construct(
         ?array $data = null,
         ?string $composition = 'main',
@@ -81,9 +83,10 @@ class RenderParams
         string $imageFormat = 'jpeg',
         ?int $crf = null,
         ?array $envVariables = null,
-        ?int $quality = null,
         int $maxRetries = 1,
+        int $jpegQuality = 80,
         string $privacy = 'public',
+        string $colorSpace = 'default',
         string $logLevel = 'info',
         ?string $frameRange = null,
         ?string $outName = null,
@@ -108,6 +111,7 @@ class RenderParams
         ?string $proResProfile = null, 
         ?string $pixelFormat = null,
         ?string $x264Preset = null,
+        ?string $deleteAfter = null
         )
     {
         $this->data = $data;
@@ -117,9 +121,10 @@ class RenderParams
         $this->imageFormat = $imageFormat;
         $this->crf = $crf;
         $this->envVariables = $envVariables;
-        $this->quality = $quality;
         $this->maxRetries = $maxRetries;
+        $this->jpegQuality = $jpegQuality;
         $this->privacy = $privacy;
+        $this->colorSpace = $colorSpace;
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
@@ -144,6 +149,7 @@ class RenderParams
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
         $this->x264Preset = $x264Preset;
+        $this->deleteAfter = $deleteAfter;
     }
 
     private array $inputProps = array();
@@ -158,7 +164,9 @@ class RenderParams
             'codec' => $this->getCodec(),
             'imageFormat' => $this->getImageFormat(),
             'maxRetries' => $this->getMaxRetries(),
+            'jpegQuality' => $this->getJpegQuality(),
             'privacy' => $this->getPrivacy(),
+            'colorSpace' => $this->getColorSpace(),
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
@@ -181,6 +189,7 @@ class RenderParams
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
+            'deleteAfter' => $this->getDeleteAfter(),
             'type' => 'start'
         ];
 
@@ -190,6 +199,8 @@ class RenderParams
 
         if ($this->getEnvVariables() !== null) {
             $parameters['envVariables'] = $this->getEnvVariables();
+        } else {
+            $parameters['envVariables'] = new stdClass();
         }
 
         if ($this->getPixelFormat() !== null) {
@@ -202,10 +213,6 @@ class RenderParams
 
         if ($this->getProResProfile() !== null) {
             $parameters['proResProfile'] = $this->getProResProfile();
-        }
-
-        if ($this->getQuality() !== null) {
-            $parameters['quality'] = $this->getQuality();
         }
 
         return $parameters;
@@ -423,25 +430,6 @@ class RenderParams
         return $this;
     }
 
-    /**
-     * Get the value of quality
-     */
-    public function getQuality()
-    {
-        return $this->quality;
-    }
-
-    /**
-     * Set the value of quality
-     *
-     * @return  self
-     */
-    public function setQuality($quality)
-    {
-        $this->quality = $quality;
-
-        return $this;
-    }
 
     /**
      * Get the value of maxRetries
@@ -463,6 +451,26 @@ class RenderParams
         return $this;
     }
 
+      /**
+     * Get the value of jpegQuality
+     */
+    public function getJpegQuality()
+    {
+        return $this->jpegQuality;
+    }
+
+    /**
+     * Set the value of jpegQuality
+     *
+     * @return  self
+     */
+    public function setJpegQuality($jpegQuality)
+    {
+        $this->jpegQuality = $jpegQuality;
+
+        return $this;
+    }
+
     /**
      * Get the value of privacy
      */
@@ -479,6 +487,26 @@ class RenderParams
     public function setPrivacy($privacy)
     {
         $this->privacy = $privacy;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of colorspace
+     */
+    public function getColorSpace()
+    {
+        return $this->colorSpace;
+    }
+
+    /**
+     * Set the value of colorSpace
+     *
+     * @return  self
+     */
+    public function setColorSpace($colorSpace)
+    {
+        $this->colorSpace = $colorSpace;
 
         return $this;
     }
@@ -803,6 +831,17 @@ class RenderParams
     public function setX264Preset($x264Preset)
     {
          $this->x264Preset = $x264Preset;
+         return $this;
+    }
+
+    public function getDeleteAfter()
+    {
+        return $this->deleteAfter;
+    }
+
+    public function setDeleteAfter($deleteAfter)
+    {
+         $this->$deleteAfter = $deleteAfter;
          return $this;
     }
 }

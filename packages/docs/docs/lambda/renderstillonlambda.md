@@ -199,15 +199,19 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
+
 ### `chromiumOptions?`
 
 _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
-
-### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
-
-<Options id="offthreadvideo-cache-size-in-bytes" />
 
 #### `disableWebSecurity`
 
@@ -232,6 +236,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note

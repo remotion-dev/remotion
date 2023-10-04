@@ -203,14 +203,17 @@ pub fn scale_and_make_bitmap(
     };
 
     if transparent {
-        if native_frame.format == Pixel::YUVA420P {
-            return get_png_data(&rotated, rotated_width, rotated_height);
-        } else if native_frame.format == Pixel::YUVA444P10LE {
+        let is_transparent_pixel_format = native_frame.format == Pixel::YUVA420P
+            || native_frame.format == Pixel::YUVA444P10LE
+            || native_frame.format == Pixel::YUVA444P12LE;
+
+        if is_transparent_pixel_format {
             return get_png_data(&rotated, rotated_width, rotated_height);
         } else {
             _print_verbose(&format!(
-                "Requested transparent image, but the video {} is not transparent. Returning BMP.",
-                native_frame.original_src
+                "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
+                native_frame.original_src,
+                native_frame.format
             ))?;
             return Ok(create_bmp_image_from_frame(
                 &rotated,

@@ -223,13 +223,28 @@
       "permanent": false
     },
     {
+      "source": "/docs/thorium-browser",
+      "destination": "/docs/miscellaneous/thorium-browser",
+      "permanent": false
+    },
+    {
       "source": "/youtube",
       "destination": "https://youtube.com/@remotion_dev",
       "permanent": false
     },
     {
-      "source": "/docs/thorium-browser",
-      "destination": "/docs/miscellaneous/thorium-browser",
+      "source": "/bun",
+      "destination": "/docs/bun",
+      "permanent": false
+    },
+    {
+      "source": "/bounties",
+      "destination": "/docs/contributing/bounty",
+      "permanent": false
+    },
+    {
+      "source": "/repro",
+      "destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
       "permanent": false
     }
   ]

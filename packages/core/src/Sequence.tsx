@@ -174,7 +174,9 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 	]);
 
-	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
+	// Ceil to support floats
+	// https://github.com/remotion-dev/remotion/issues/2958
+	const endThreshold = Math.ceil(cumulatedFrom + from + durationInFrames - 1);
 	const content =
 		absoluteFrame < cumulatedFrom + from
 			? null
@@ -216,6 +218,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 /**
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
- * @see [Documentation](https://www.remotion.dev/docs/sequence]
+ * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
 export const Sequence = forwardRef(SequenceRefForwardingFunction);

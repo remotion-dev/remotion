@@ -35,8 +35,12 @@ Prefix with `sudo` if necessary.
 <Step>2</Step> Clone the Remotion repository:<br/>
 
 ```sh
-git clone https://github.com/remotion-dev/remotion.git && cd remotion
+git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
 ```
+
+:::note
+The full Git history of Remotion is large. To save time and disk space, we recommend adding `--depth=1` to only clone the most recent `main` branch.
+:::
 
 <Step>3</Step> Install all dependencies:<br/>
 
@@ -144,3 +148,4 @@ To develop the Rust parts of Remotion, see the README in [packages/renderer/READ
 - [Implementing a new option](/docs/contributing/option)
 - [Writing documentation](/docs/contributing/docs)
 - [How to take a bounty issue](/docs/contributing/bounty)
+- [Formatting guidelines](/docs/contributing/formatting)

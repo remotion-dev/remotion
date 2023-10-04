@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "4.0.27",
+	"version": "4.0.45",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -19,7 +19,8 @@
 	},
 	"files": [
 		"dist",
-		"react-shim.js"
+		"react-shim.js",
+		"favicon.ico"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",

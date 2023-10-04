@@ -141,7 +141,7 @@ export const MediaVolumeSlider: React.FC<{
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</button>
-			{(focused || hover) && !mediaMuted ? (
+			{(focused || hover) && !mediaMuted && !Internals.isIosSafari() ? (
 				<input
 					ref={inputRef}
 					aria-label="Change volume"

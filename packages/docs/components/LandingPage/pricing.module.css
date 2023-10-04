@@ -53,19 +53,19 @@
   font-size: 60px;
   font-weight: 700;
   margin-top: -5px;
-  font-family: 'GTPlanar';
+  font-family: "GTPlanar";
 }
 
 .freeprice {
-  color:  #4290f5;
+  color: #4290f5;
 }
 
 .gradientprice {
-  color: #79367a
+  color: #79367a;
 }
 
 .orangeprice {
- color: #fd764a;
+  color: #fd764a;
 }
 
 .portion {
@@ -73,9 +73,11 @@
 }
 
 .targettitle {
-  border-bottom: 1px solid var(--text-color);
-  font-weight: 600;
-  margin-bottom: 20px;
+  border-bottom: 2px solid var(--text-color);
+  font-weight: 750;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 1.1em;
 }
 
 .bulletcontainer {
@@ -124,11 +126,9 @@
   font-size: 15px;
 }
 
-
 .plus svg {
   height: 20px;
 }
-
 
 @media screen and (max-width: 900px) {
   .pricingcontainer {
@@ -151,4 +151,3 @@
     margin-bottom: 30px;
   }
 }
-

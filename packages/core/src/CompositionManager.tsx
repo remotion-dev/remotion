@@ -11,6 +11,7 @@ import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
 	BaseMetadata,
+	CanvasContent,
 	CompositionManagerContext,
 } from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
@@ -149,11 +150,10 @@ export const CompositionManagerProvider: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
-	const [currentComposition, setCurrentComposition] = useState<string | null>(
+	const [folders, setFolders] = useState<TFolder[]>([]);
+	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		null,
 	);
-	const [folders, setFolders] = useState<TFolder[]>([]);
-
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
@@ -231,30 +231,35 @@ export const CompositionManagerProvider: React.FC<{
 		[],
 	);
 
-	const composition = compositions.find((c) => c.id === currentComposition);
+	const composition = compositions.find((c) =>
+		canvasContent?.type === 'composition'
+			? c.id === canvasContent.compositionId
+			: null,
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
 			registerComposition,
 			unregisterComposition,
-			currentComposition,
-			setCurrentComposition,
 			folders,
 			registerFolder,
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
+			canvasContent,
+			setCanvasContent,
 		};
 	}, [
 		compositions,
 		registerComposition,
 		unregisterComposition,
-		currentComposition,
 		folders,
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
+		canvasContent,
+		setCanvasContent,
 	]);
 
 	return (

@@ -43,6 +43,7 @@ export const renderMediaSingleThread = async (
 			...body.chromiumOptions,
 			// Override the `null` value, which might come from CLI with swANGLE
 			gl: body.chromiumOptions?.gl ?? 'swangle',
+			enableMultiProcessOnLinux: true,
 		};
 
 		await RenderInternals.internalRenderMedia({
@@ -97,6 +98,7 @@ export const renderMediaSingleThread = async (
 			puppeteerInstance: undefined,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			colorSpace: body.colorSpace,
 		});
 
 		const storage = new Storage();

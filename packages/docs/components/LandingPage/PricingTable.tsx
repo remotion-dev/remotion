@@ -38,7 +38,11 @@ export const PricingTable: React.FC<{}> = () => {
             <ul>
               <li>
                 <Bullet color="#4290f5" />
-                Unlimited usage of all Remotion tools
+                Unlimited use of Remotion
+              </li>
+              <li>
+                <Bullet color="#4290f5" />
+                For teams up to 3 people
               </li>
               <li>
                 <Bullet color="#4290f5" />
@@ -68,7 +72,7 @@ export const PricingTable: React.FC<{}> = () => {
             <div className={styles.panel}>
               <div className={styles.doublepanel}>
                 <div className={styles.doublepanelsingle}>
-                  <strong>Developer seat</strong>
+                  <strong>Developer Seat</strong>
                   <div
                     className={[styles.tableprice, styles.gradientprice].join(
                       " ",
@@ -88,11 +92,15 @@ export const PricingTable: React.FC<{}> = () => {
                   <ul>
                     <li>
                       <Bullet color="#79367a" />
-                      allows 1 developer to work on Remotion projects
+                      Allows 1 developer to work on Remotion projects
                     </li>
                     <li>
                       <Bullet color="#79367a" />
-                      may use Remotion on multiple local machines
+                      May use Remotion on multiple local machines
+                    </li>
+                    <li>
+                      <Bullet color="#79367a" />
+                      Designated stable releases
                     </li>
                     <li>
                       <Bullet color="#79367a" />
@@ -110,8 +118,7 @@ export const PricingTable: React.FC<{}> = () => {
                     </li>
                     <li>
                       <Bullet color="#79367a" />
-                      As long as you make renders, at least one license must be
-                      kept active
+                      Rendering requires at least one active license
                     </li>
                   </ul>
                   <div style={{ flex: 1 }} />
@@ -125,7 +132,7 @@ export const PricingTable: React.FC<{}> = () => {
                   </svg>
                 </div>
                 <div className={styles.doublepanelsingle}>
-                  <strong>Cloud rendering seat</strong>
+                  <strong>Cloud Rendering Seat</strong>
                   <div
                     className={[styles.tableprice, styles.orangeprice].join(
                       " ",
@@ -139,25 +146,20 @@ export const PricingTable: React.FC<{}> = () => {
                   <ul>
                     <li>
                       <Bullet color="#f5ad43" />
-                      Choose 1 seat per cloud instance (e.g. VPS, EC2) you are
-                      running Remotion on
+                      Rendering up to {"2'000 "} videos in a serverless or
+                      serverside infrastructure
                     </li>
                     <li>
                       <Bullet color="#f5ad43" />
-                      Pay only for as long as you are rendering videos.
-                    </li>
-                    <li>
-                      <Bullet color="#f5ad43" />
-                      Using serverless? Choose 1 seat per 2.000 renders per
-                      month.
+                      Flexible licensing for projects and campaigns
                     </li>
                   </ul>
                 </div>
               </div>
               {Date.now() > DEV_SEAT_PRICE_INCREASE ? (
                 <div className={styles.minimum}>
-                  Minimum plan amount:{" "}
-                  {period === Period.Monthly ? "$100/month" : "$1000/year"}
+                  Minimum Amount:{" "}
+                  {period === Period.Monthly ? "$100/month" : "$1'000/year"}
                 </div>
               ) : null}
               <a
@@ -176,7 +178,7 @@ export const PricingTable: React.FC<{}> = () => {
         </div>
       </div>
       <p style={{ textAlign: "center", marginTop: 24 }}>
-        Want a 15 minute call to evaluate if Remotion is right for you?{" "}
+        Want a 20-minute call to evaluate if Remotion is right for you?{" "}
         <a
           style={{
             color: "var(--ifm-color-primary)",
@@ -184,7 +186,7 @@ export const PricingTable: React.FC<{}> = () => {
             textDecoration: "none",
           }}
           target="_blank"
-          href="mailto:hi@remotion.dev"
+          href="https://cal.com/remotion/evaluate"
         >
           Contact us
         </a>

@@ -212,6 +212,7 @@ const renderHandler = async (
 			server: undefined,
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -300,9 +301,9 @@ export const rendererHandler = async (
 
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const isFatal = !isRetryableError;
 		const willRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
+		const isFatal = !willRetry;
 
 		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);

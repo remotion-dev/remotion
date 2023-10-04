@@ -148,6 +148,14 @@ const Experts: React.FC = () => {
 
                   {e.github ? (
                     <>
+                      {/* Check if the expert has a website and a GitHub profile, but not a Twitter */}
+                      {e.website && !e.x ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
                       {e.x ? (
                         <>
                           <Spacer />

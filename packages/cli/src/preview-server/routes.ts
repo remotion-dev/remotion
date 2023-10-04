@@ -2,7 +2,7 @@ import {BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import path from 'node:path';
+import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {ConfigInternals} from '../config';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
@@ -31,6 +31,13 @@ const static404 = (response: ServerResponse) => {
 	response.writeHead(404);
 	response.end(
 		'The static/ prefix has been changed, this URL is no longer valid.',
+	);
+};
+
+const output404 = (response: ServerResponse) => {
+	response.writeHead(404);
+	response.end(
+		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
 };
 
@@ -78,9 +85,11 @@ const handleFallback = async ({
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
 	const offthreadVideoCacheSizeInBytes =
 		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
+	const colorSpace = ConfigInternals.getColorSpace();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const multiProcessOnLinux = ConfigInternals.getChromiumMultiProcessOnLinux();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -131,6 +140,8 @@ const handleFallback = async ({
 				ignoreCertificateErrors,
 				openGlRenderer,
 				offthreadVideoCacheSizeInBytes,
+				colorSpace,
+				multiProcessOnLinux,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),
@@ -243,8 +254,10 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 };
 
 export const handleRoutes = ({
-	hash,
-	hashPrefix,
+	staticHash,
+	staticHashPrefix,
+	outputHash,
+	outputHashPrefix,
 	request,
 	response,
 	liveEventsServer,
@@ -254,8 +267,10 @@ export const handleRoutes = ({
 	entryPoint,
 	publicDir,
 }: {
-	hash: string;
-	hashPrefix: string;
+	staticHash: string;
+	staticHashPrefix: string;
+	outputHash: string;
+	outputHashPrefix: string;
 	request: IncomingMessage;
 	response: ServerResponse;
 	liveEventsServer: LiveEventsServer;
@@ -307,17 +322,47 @@ export const handleRoutes = ({
 		return liveEventsServer.router(request, response);
 	}
 
-	if (url.pathname.startsWith(hash)) {
-		return serveStatic(publicDir, hash, request, response);
+	if (url.pathname.startsWith(staticHash)) {
+		const filename = new URL(
+			request.url as string,
+			'http://localhost',
+		).pathname.replace(new RegExp(`^${staticHash}`), '');
+		const filePath = join(publicDir, decodeURIComponent(filename));
+
+		return serveStatic({
+			root: publicDir,
+			path: filePath,
+			req: request,
+			res: response,
+		});
 	}
 
-	if (url.pathname.startsWith(hashPrefix)) {
+	if (url.pathname.startsWith(staticHashPrefix)) {
 		return static404(response);
+	}
+
+	if (url.pathname.startsWith(outputHash)) {
+		const filename = new URL(
+			request.url as string,
+			'http://localhost',
+		).pathname.replace(new RegExp(`^${outputHash}`), '');
+		const filePath = join(remotionRoot, decodeURIComponent(filename));
+
+		return serveStatic({
+			root: remotionRoot,
+			path: filePath,
+			req: request,
+			res: response,
+		});
+	}
+
+	if (url.pathname.startsWith(outputHashPrefix)) {
+		return output404(response);
 	}
 
 	return handleFallback({
 		remotionRoot,
-		hash,
+		hash: staticHash,
 		response,
 		getCurrentInputProps,
 		getEnvVariables,

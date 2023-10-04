@@ -11,7 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
@@ -31,6 +31,8 @@ type CommandLineOptions = {
 	['number-of-shared-audio-tags']: number;
 	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
 		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.colorSpaceOption
+		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -72,6 +74,9 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	[BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag]: boolean;
 };
 
 export const BooleanFlags = [
@@ -261,6 +266,32 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {
 		Config.setOffthreadVideoCacheSizeInBytes(
 			parsedCli['offthreadvideo-cache-size-in-bytes'],
+		);
+	}
+
+	if (typeof parsedCli['delete-after'] !== 'undefined') {
+		Config.setDeleteAfter(
+			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
+		);
+	}
+
+	if (typeof parsedCli['color-space'] !== 'undefined') {
+		Config.setColorSpace(parsedCli['color-space']);
+	}
+
+	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
+		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
+	}
+
+	if (
+		typeof parsedCli[
+			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+		] !== 'undefined'
+	) {
+		Config.setEnableFolderExpiry(
+			parsedCli[
+				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+			],
 		);
 	}
 };

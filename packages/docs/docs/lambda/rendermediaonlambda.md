@@ -94,7 +94,7 @@ React props that are passed to your composition. You define the shape of the pro
 
 Which codec should be used to encode the video.
 
-Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0`.
+Video codecs `h264`, and `vp8` are supported, `prores` is supported since `v3.2.0`. `h265` support has been added in `v4.0.32`.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
@@ -281,6 +281,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note
@@ -352,6 +353,14 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
 
 ### ~~`dumpBrowserLogs?`~~
 

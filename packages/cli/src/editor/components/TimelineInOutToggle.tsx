@@ -7,7 +7,6 @@ import React, {
 import {Internals} from 'remotion';
 import {truthy} from '../../truthy';
 import {BLUE} from '../helpers/colors';
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -48,9 +47,7 @@ export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
-	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
 
@@ -296,10 +293,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		},
 		[confId, onInMark, onInOutClear, onOutMark],
 	);
-
-	if (isStill) {
-		return null;
-	}
 
 	return (
 		<>

@@ -1,7 +1,4 @@
-import {
-	getIdealMaximumFrameCacheSizeInBytes,
-	startLongRunningCompositor,
-} from './compositor/compositor';
+import {startLongRunningCompositor} from './compositor/compositor';
 import type {
 	GetSilentPartsResponse,
 	GetSilentPartsResponseRust,
@@ -20,11 +17,11 @@ export const getSilentParts = async ({
 	logLevel?: LogLevel;
 	noiseThresholdInDecibels?: number;
 }): Promise<GetSilentPartsResponse> => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheSizeInBytes(),
-		logLevel ?? 'info',
-		false,
-	);
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: logLevel ?? 'info',
+		indent: false,
+	});
 
 	const minDurationInSeconds = passedMinDuration ?? 1;
 

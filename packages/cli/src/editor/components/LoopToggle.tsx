@@ -1,6 +1,5 @@
 import React, {useCallback} from 'react';
 import {BLUE} from '../helpers/colors';
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {persistLoopOption} from '../state/loop';
 import {ControlButton} from './ControlButton';
 
@@ -16,12 +15,6 @@ export const LoopToggle: React.FC<{
 			return !c;
 		});
 	}, [setLoop]);
-
-	const isStill = useIsStill();
-
-	if (isStill) {
-		return null;
-	}
 
 	return (
 		<ControlButton

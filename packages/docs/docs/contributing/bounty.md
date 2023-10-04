@@ -5,7 +5,11 @@ sidebar_label: Bounty issues
 crumb: Contributing
 ---
 
+import { Bounties } from "../../components/Bounties.tsx";
+
 Some issues carry cash bounties that you can earn by solving them.
+
+<Bounties />
 
 ## Find bounties
 
@@ -38,7 +42,7 @@ If there is no update from you for a week, and it looks like the issue is abando
 
 ## Get help
 
-During Hacktoberfest (i.e., October), the Remotion team provides more guidance, since it is about helping first-time contributors.
+During [Hacktoberfest](https://github.com/remotion-dev/remotion/issues?q=label%3A%22%F0%9F%A5%A8++hacktoberfest%22+sort%3Aupdated-desc+is%3Aopen) (i.e., October), the Remotion team provides more guidance, since it is about helping first-time contributors.
 
 The rest of the year, there is less guidance provided when tackling a bounty issue. You are expected to have a basic idea how to solve the issue. Of course, questions can always arise, but there is less hand-holding than during Hacktoberfest.
 

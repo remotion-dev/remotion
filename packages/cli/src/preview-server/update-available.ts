@@ -11,6 +11,7 @@ const isUpdateAvailable = async ({
 	currentVersion: string;
 }): Promise<UpdateAvailableResponse> => {
 	const latest = await getLatestRemotionVersion();
+
 	const pkgManager = getPackageManager(remotionRoot, undefined);
 
 	return {

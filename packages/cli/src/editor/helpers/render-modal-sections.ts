@@ -19,6 +19,10 @@ export const useRenderModalSections = (
 			return ['general', 'data', 'picture', 'advanced'];
 		}
 
+		if (renderMode === 'sequence') {
+			return ['general', 'data', 'picture', 'advanced'];
+		}
+
 		if (renderMode === 'video') {
 			if (codec === 'gif') {
 				return ['general', 'data', 'picture', 'gif', 'advanced'];

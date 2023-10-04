@@ -1,7 +1,7 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	Codec,
+	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
@@ -14,6 +14,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -207,6 +208,7 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 	still = 'still',
 	compositions = 'compositions',
+	merge = 'merge',
 }
 
 type Prettify<T> = {
@@ -271,6 +273,8 @@ export type LambdaStartPayload = {
 	forceWidth: number | null;
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	deleteAfter: DeleteAfter | null;
+	colorSpace: ColorSpace;
 };
 
 export type LambdaStatusPayload = {
@@ -324,6 +328,8 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -364,6 +370,8 @@ export type LambdaPayloads = {
 			version: string;
 		};
 		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -382,12 +390,13 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
-		downloadBehavior: DownloadBehavior | null;
+		downloadBehavior: DownloadBehavior;
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -400,6 +409,16 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+	};
+	merge: {
+		type: LambdaRoutines.merge;
+		bucketName: string;
+		renderId: string;
+		outName: OutNameInput | null;
+		inputProps: SerializedInputProps;
+		serializedResolvedProps: SerializedInputProps;
+		verbose: boolean;
+		logLevel: LogLevel;
 	};
 };
 
@@ -427,7 +446,7 @@ export type RenderMetadata = Discriminated & {
 	estimatedTotalLambdaInvokations: number;
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
-	codec: Codec | null;
+	codec: LambdaCodec | null;
 	audioCodec: AudioCodec | null;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
@@ -439,6 +458,9 @@ export type RenderMetadata = Discriminated & {
 	privacy: Privacy;
 	frameRange: [number, number];
 	everyNthFrame: number;
+	deleteAfter: DeleteAfter | null;
+	numberOfGifLoops: number | null;
+	downloadBehavior: DownloadBehavior;
 };
 
 export type AfterRenderCost = {
@@ -464,6 +486,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	deleteAfter: DeleteAfter | null;
 };
 
 export type CostsInfo = {

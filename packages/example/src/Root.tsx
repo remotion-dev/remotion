@@ -70,6 +70,7 @@ if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
 
+
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
 
@@ -487,15 +488,18 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={900}
+					defaultProps={{
+						src: 'variablefps.webm',
+					}}
 				/>
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920 * 2}
-					height={1080 * 2}
-					fps={60}
-					durationInFrames={20000}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -703,6 +707,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={180 * 30}
 				/>
+				<Composition
+					id="loop-trimmed-audio"
+					lazyComponent={() => import('./LoopTrimmedAudio')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+				/>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />
@@ -822,7 +834,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={200}
+					durationInFrames={250}
 				/>
 				<Composition
 					id="gif-duration"

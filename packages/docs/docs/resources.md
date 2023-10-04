@@ -86,6 +86,8 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
 - [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
 - [Mapbox example](https://github.com/remotion-dev/mapbox-example)
+- [Shader example](https://github.com/onion2k/a-roll)
+- [Jump cuts without re-mounting](https://github.com/remotion-dev/video-with-jump-cuts)
 
 ## Videos
 
@@ -114,6 +116,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 
 - [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
 - [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
+- [Rustymotion - Rust renderer](https://github.com/clearlysid/rustymotion)
 - [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
 
 ## Humans
