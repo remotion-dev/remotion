@@ -64,15 +64,13 @@ export const mergeChunksAndFinishRender = async (options: {
 	let lastProgressUploaded = 0;
 
 	const onProgress = (framesEncoded: number) => {
-		const relativeProgress = framesEncoded / options.frameCountLength;
-		const deltaSinceLastProgressUploaded =
-			relativeProgress - lastProgressUploaded;
+		const deltaSinceLastProgressUploaded = framesEncoded - lastProgressUploaded;
 
-		if (deltaSinceLastProgressUploaded < 0.1) {
+		if (deltaSinceLastProgressUploaded < 200) {
 			return;
 		}
 
-		lastProgressUploaded = relativeProgress;
+		lastProgressUploaded = framesEncoded;
 
 		lambdaWriteFile({
 			bucketName: options.bucketName,

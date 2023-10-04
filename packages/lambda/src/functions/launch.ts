@@ -625,6 +625,7 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
+		RenderInternals.Log.error('Wrote error to S3');
 		clearTimeout(webhookDueToTimeout);
 		if (params.webhook && !webhookInvoked) {
 			try {
