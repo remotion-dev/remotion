@@ -1,19 +1,21 @@
 import {Storage} from '@google-cloud/storage';
+import {
+	getProjectId,
+	isInCloudTask,
+} from '../../functions/helpers/is-in-cloud-task';
 
 export const getCloudStorageClient = () => {
-	if (
-		process.env.REMOTION_GCP_PROJECT_ID &&
-		process.env.REMOTION_GCP_CLIENT_EMAIL &&
-		process.env.REMOTION_GCP_PRIVATE_KEY
-	) {
+	if (isInCloudTask()) {
 		return new Storage({
-			projectId: process.env.REMOTION_GCP_PROJECT_ID,
-			credentials: {
-				client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
-				private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
-			},
+			projectId: getProjectId(),
 		});
 	}
 
-	return new Storage();
+	return new Storage({
+		projectId: process.env.REMOTION_GCP_PROJECT_ID,
+		credentials: {
+			client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
+			private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
+		},
+	});
 };

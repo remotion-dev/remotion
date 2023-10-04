@@ -10,8 +10,7 @@
 		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs",
-		"render-cloud": "ts-node src/render-cloud.ts"
+		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
 	},
 	"dependencies": {
 		"@google-cloud/artifact-registry": "^2.2.2",
