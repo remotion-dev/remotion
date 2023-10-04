@@ -60,6 +60,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	serializedResolvedProps: SerializedInputProps;
 	renderMetadata: RenderMetadata;
 	onAllChunks: OnAllChunksAvailable;
+	audioBitrate: string | null;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -159,6 +160,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		files,
 		outdir,
 		audioCodec: options.audioCodec,
+		audioBitrate: options.audioBitrate,
 	});
 	const encodingStop = Date.now();
 

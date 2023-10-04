@@ -298,6 +298,7 @@ const innerLaunchHandler = async ({
 		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
+		audioBitrate: params.audioBitrate,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -375,6 +376,7 @@ const innerLaunchHandler = async ({
 		verbose,
 		renderMetadata,
 		onAllChunks: onAllChunksAvailable,
+		audioBitrate: params.audioBitrate,
 	});
 
 	return postRenderData;

@@ -366,9 +366,8 @@ const innerStitchFramesToVideo = async (
 				audio,
 				'-c:a',
 				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				// Set bitrate up to 320k, for aac it might effectively be lower
-				'-b:a',
-				audioBitrate ?? '320k',
+				audioBitrate ? '-b:a' : undefined,
+				audioBitrate ? audioBitrate : undefined,
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(Internals.truthy),
