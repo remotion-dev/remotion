@@ -125,7 +125,8 @@ export const MyVideo = () => {
 };
 ```
 
-### `toneFrequency`<AvailableFrom v="4.0.45"/> 
+### `toneFrequency`<AvailableFrom v="4.0.45"/>
+
 //update the version
 
 The `toneFrequency` prop allows you to adjust the pitch of the audio. It accepts a number between 0 and 1, where 0 represents the lowest pitch and 1 represents the highest pitch. For example, a toneFrequency of 0.5 would lower the pitch by half. The valid range for toneFrequency is from 0 (lowest pitch) to 1 (highest pitch).
@@ -147,7 +148,7 @@ In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion 
 
 ## `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
 
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ## See also
@@ -156,3 +157,4 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
+```
