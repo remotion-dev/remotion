@@ -7,9 +7,10 @@ import {getProgress} from './helpers/get-progress';
 type Options = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
+	retriesRemaining: number;
 };
 
-export const progressHandler = (
+export const progressHandler = async (
 	lambdaParams: LambdaPayload,
 	options: Options,
 ): Promise<RenderProgress> => {
@@ -29,13 +30,33 @@ export const progressHandler = (
 		);
 	}
 
-	return getProgress({
-		bucketName: lambdaParams.bucketName,
-		renderId: lambdaParams.renderId,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		timeoutInMilliseconds: options.timeoutInMilliseconds,
-		customCredentials: lambdaParams.s3OutputProvider ?? null,
-	});
+	try {
+		const progress = await getProgress({
+			bucketName: lambdaParams.bucketName,
+			renderId: lambdaParams.renderId,
+			expectedBucketOwner: options.expectedBucketOwner,
+			region: getCurrentRegionInFunction(),
+			memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+			timeoutInMilliseconds: options.timeoutInMilliseconds,
+			customCredentials: lambdaParams.s3OutputProvider ?? null,
+		});
+		return progress;
+	} catch (err) {
+		if (options.retriesRemaining === 0) {
+			throw err;
+		}
+
+		if ((err as Error).message.includes('No render with ID')) {
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1000);
+			});
+			return progressHandler(lambdaParams, {
+				expectedBucketOwner: options.expectedBucketOwner,
+				timeoutInMilliseconds: options.timeoutInMilliseconds,
+				retriesRemaining: options.retriesRemaining - 1,
+			});
+		}
+
+		throw err;
+	}
 };

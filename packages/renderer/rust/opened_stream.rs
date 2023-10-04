@@ -253,11 +253,8 @@ impl OpenedStream {
                 }
             }
 
-            if packet.dts().is_some() {
-                self.video.send_packet(&packet)?;
-            } else {
-                _print_verbose("Found packet with no DTS. Skipping")?;
-            }
+            self.video.send_packet(&packet)?;
+
             let result = self.receive_frame();
 
             match result {

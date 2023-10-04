@@ -1,6 +1,10 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
+import {
+	useIsStill,
+	useIsVideoComposition,
+} from '../helpers/is-current-selected-still';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -48,6 +52,8 @@ export const PreviewToolbar: React.FC = () => {
 
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
+	const isVideoComposition = useIsVideoComposition();
+	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
@@ -62,19 +68,24 @@ export const PreviewToolbar: React.FC = () => {
 			</div>
 			<Flex />
 			<SizeSelector />
-			<PlaybackRateSelector
-				setPlaybackRate={setPlaybackRate}
-				playbackRate={playbackRate}
-			/>
-			<Spacing x={2} />
-			<PlayPause loop={loop} playbackRate={playbackRate} />
-			<Spacing x={2} />
-			<LoopToggle loop={loop} setLoop={setLoop} />
-			<CheckboardToggle />
-			<TimelineInOutPointToggle />
-			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			{isStill || isVideoComposition ? (
+				<PlaybackRateSelector
+					setPlaybackRate={setPlaybackRate}
+					playbackRate={playbackRate}
+				/>
+			) : null}
+			{isVideoComposition ? (
+				<>
+					<Spacing x={2} />
+					<PlayPause loop={loop} playbackRate={playbackRate} />
+					<Spacing x={2} />
+					<LoopToggle loop={loop} setLoop={setLoop} />
+					<CheckboardToggle />
+					<TimelineInOutPointToggle />
+					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+				</>
+			) : null}
 			{isFullscreenSupported && <FullScreenToggle />}
-			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />

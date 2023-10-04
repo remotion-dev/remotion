@@ -1,11 +1,10 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {AnyComposition} from 'remotion';
+import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
-	CLEAR_HOVER,
+	getBackgroundFromHoverState,
 	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -99,13 +98,7 @@ export const CompositionSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			backgroundColor: hovered
-				? selected
-					? SELECTED_BACKGROUND
-					: CLEAR_HOVER
-				: selected
-				? SELECTED_BACKGROUND
-				: 'transparent',
+			backgroundColor: getBackgroundFromHoverState({hovered, selected}),
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);

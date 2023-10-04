@@ -1,5 +1,4 @@
 import {useCallback} from 'react';
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';
@@ -15,12 +14,6 @@ export const MuteToggle: React.FC<{
 		});
 	}, [setMuted]);
 	const accessibilityLabel = muted ? 'Unmute video' : 'Mute video';
-
-	const isStill = useIsStill();
-
-	if (isStill) {
-		return null;
-	}
 
 	return (
 		<ControlButton

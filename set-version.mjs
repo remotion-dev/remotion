@@ -61,6 +61,11 @@ execSync("node build.mjs --all", {
   stdio: "inherit",
 });
 
+execSync("pnpm build", {
+  cwd: "packages/cloudrun",
+  stdio: "inherit",
+});
+
 if (!noCommit) {
   execSync("git add .", { stdio: "inherit" });
   execSync(`git commit -m "v${version}"`, { stdio: "inherit" });

@@ -15,6 +15,7 @@ export type RemotionGifProps = {
 	}) => void;
 	onError?: (error: Error) => void;
 	fit?: GifFillMode;
+	playbackRate?: number;
 	style?: React.CSSProperties;
 	loopBehavior?: GifLoopBehavior;
 	id?: string;

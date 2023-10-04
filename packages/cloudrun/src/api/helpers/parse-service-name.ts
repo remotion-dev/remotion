@@ -1,3 +1,4 @@
+import {makeConsoleUrl} from '../../cli/helpers/make-console-url';
 import {getProjectId} from '../../functions/helpers/is-in-cloud-task';
 import type {GcpRegion} from '../../pricing/gcp-regions';
 
@@ -24,6 +25,6 @@ export const parseServiceName = (
 		serviceName: shortServiceName,
 		remotionVersion: matched[1],
 		region: deployedRegion as GcpRegion,
-		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${shortServiceName}/logs`,
+		consoleUrl: makeConsoleUrl(deployedRegion as GcpRegion, shortServiceName),
 	};
 };

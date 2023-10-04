@@ -86,7 +86,7 @@ export const OptionsPanel: React.FC<{}> = () => {
 		[],
 	);
 
-	const {compositions, currentComposition} = useContext(
+	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
 	const circleStyle = useMemo((): React.CSSProperties => {
@@ -100,14 +100,18 @@ export const OptionsPanel: React.FC<{}> = () => {
 	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return null;
+		}
+
 		for (const comp of compositions) {
-			if (comp.id === currentComposition) {
+			if (comp.id === canvasContent.compositionId) {
 				return comp;
 			}
 		}
 
 		return null;
-	}, [compositions, currentComposition]);
+	}, [canvasContent, compositions]);
 
 	const saveToolTip = useMemo(() => {
 		return process.env.KEYBOARD_SHORTCUTS_ENABLED
@@ -150,33 +154,29 @@ export const OptionsPanel: React.FC<{}> = () => {
 		return !deepEqual(composition.defaultProps, actualProps);
 	}, [actualProps, composition]);
 
-	if (composition === null) {
-		return null;
-	}
-
 	return (
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
 				<Tabs>
-					<Tab
-						selected={panel === 'input-props'}
-						onClick={onPropsSelected}
-						style={{justifyContent: 'space-between'}}
-					>
-						Props
-						{unsavedChangesExist ? (
-							<div title={saveToolTip} style={circleStyle} />
-						) : null}
-					</Tab>
+					{composition ? (
+						<Tab
+							selected={panel === 'input-props'}
+							onClick={onPropsSelected}
+							style={{justifyContent: 'space-between'}}
+						>
+							Props
+							{unsavedChangesExist ? (
+								<div title={saveToolTip} style={circleStyle} />
+							) : null}
+						</Tab>
+					) : null}
 					<RendersTab
 						onClick={onRendersSelected}
 						selected={panel === 'renders'}
 					/>
 				</Tabs>
 			</div>
-			{panel === 'renders' ? (
-				<RenderQueue />
-			) : (
+			{panel === `input-props` && composition ? (
 				<DataEditor
 					key={composition.id}
 					unresolvedComposition={composition}
@@ -187,6 +187,8 @@ export const OptionsPanel: React.FC<{}> = () => {
 					saving={saving}
 					setSaving={setSaving}
 				/>
+			) : (
+				<RenderQueue />
 			)}
 		</div>
 	);

@@ -48,7 +48,7 @@ export type RenderMediaOnLambdaInput = {
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
+	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
