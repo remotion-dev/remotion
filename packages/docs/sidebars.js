@@ -676,6 +676,7 @@ module.exports = {
         "contributing/feature",
         "contributing/option",
         "contributing/docs",
+        "contributing/formatting",
         "contributing/bounty",
         "contributing/rust",
       ],
