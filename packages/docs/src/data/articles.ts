@@ -511,6 +511,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/formatting",
+    title: "Formatting in the Remotion repo",
+    relativePath: "docs/contributing/formatting.md",
+    compId: "articles-docs-contributing-formatting",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/index",
     title: "Contributing to Remotion",
     relativePath: "docs/contributing/index.md",
