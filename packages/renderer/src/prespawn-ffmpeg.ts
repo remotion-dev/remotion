@@ -1,14 +1,14 @@
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {validateQualitySettings} from './crf';
+import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
-import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import type {ColorSpace} from './options/color-space';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
 import {
@@ -18,6 +18,7 @@ import {
 import type {ProResProfile} from './prores-profile';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import type {X264Preset} from './x264-preset';
 
 type RunningStatus =
 	| {
@@ -41,6 +42,7 @@ type PreStitcherOptions = {
 	pixelFormat: PixelFormat | undefined;
 	codec: Codec | undefined;
 	crf: number | null | undefined;
+	x264Preset: X264Preset | null;
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
 	logLevel: LogLevel;
@@ -49,6 +51,7 @@ type PreStitcherOptions = {
 	signal: CancelSignal;
 	videoBitrate: string | null;
 	indent: boolean;
+	colorSpace: ColorSpace;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -69,15 +72,11 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		height: options.height,
 		codec,
 		scale: 1,
+		wantsImageSequence: false,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 
-	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
-
-	if (encoderName === null) {
-		throw new TypeError('encoderName is null: ' + JSON.stringify(options));
-	}
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -91,19 +90,15 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
 			['-i', '-'],
 		],
-		// -c:v is the same as -vcodec as -codec:video
-		// and specified the video codec.
-		['-c:v', encoderName],
-		proResProfileName ? ['-profile:v', proResProfileName] : null,
-		['-pix_fmt', pixelFormat],
-
-		// Without explicitly disabling auto-alt-ref,
-		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-		...validateQualitySettings({
+		...generateFfmpegArgs({
+			hasPreencoded: false,
+			proResProfileName,
+			pixelFormat,
+			x264Preset: options.x264Preset,
+			codec,
 			crf: options.crf,
 			videoBitrate: options.videoBitrate,
-			codec,
+			colorSpace: options.colorSpace,
 		}),
 
 		'-y',

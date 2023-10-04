@@ -548,6 +548,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/autodelete",
         {
           type: "category",
           label: "Troubleshooting",
@@ -699,8 +700,10 @@ module.exports = {
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
         "miscellaneous/thorium-browser",
+        "miscellaneous/linux-single-process",
         "compare/motion-canvas",
         "gl-options",
+        "bun",
       ],
     },
     {
@@ -711,6 +714,7 @@ module.exports = {
         "contributing/feature",
         "contributing/option",
         "contributing/docs",
+        "contributing/formatting",
         "contributing/bounty",
         "contributing/rust",
       ],

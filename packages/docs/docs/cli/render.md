@@ -194,6 +194,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
@@ -205,7 +206,15 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size-in-bytes" />
+<Options cli id="offthreadvideo-cache-size-in-bytes" />
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
 
 ### ~~`--ffmpeg-executable`~~
 

@@ -180,7 +180,6 @@ const bundleOnCli = async ({
 		options,
 		resolvedRemotionRoot: remotionRoot,
 	});
-
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,
 		'production',
@@ -232,10 +231,20 @@ const bundleOnCli = async ({
 		progress: 1,
 		doneIn: Date.now() - bundleStartTime,
 	};
+	Log.verboseAdvanced(
+		{logLevel, indent},
+		'Bundling done in',
+		bundlingState.doneIn + 'ms',
+	);
 	copyingState = {
 		...copyingState,
 		doneIn: copyStart ? Date.now() - copyStart : 0,
 	};
+	Log.verboseAdvanced(
+		{logLevel, indent},
+		'Copying done in ',
+		copyingState.doneIn + 'ms',
+	);
 	updateProgress(true);
 
 	Log.verboseAdvanced({indent, logLevel}, 'Bundled under', bundled);

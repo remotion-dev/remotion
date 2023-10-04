@@ -220,6 +220,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 ### `muted?`
@@ -278,6 +279,10 @@ Uses a lossless audio codec, if one is available for the codec. If you set audio
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
 
 ## Return value
 

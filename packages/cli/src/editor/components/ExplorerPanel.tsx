@@ -1,13 +1,4 @@
-import {
-	createRef,
-	useCallback,
-	useContext,
-	useImperativeHandle,
-	useMemo,
-	useState,
-} from 'react';
-import type {AnyComposition} from 'remotion';
-import {Internals} from 'remotion';
+import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
@@ -75,23 +66,6 @@ export const ExplorerPanel: React.FC<{}> = () => {
 		},
 		[],
 	);
-
-	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager,
-	);
-
-	const composition = useMemo((): AnyComposition | null => {
-		for (const comp of compositions) {
-			if (comp.id === currentComposition) {
-				return comp;
-			}
-		}
-
-		return null;
-	}, [compositions, currentComposition]);
-	if (composition === null) {
-		return null;
-	}
 
 	return (
 		<div style={container} className="css-reset">

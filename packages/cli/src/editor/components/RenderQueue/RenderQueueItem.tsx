@@ -1,5 +1,14 @@
-import React from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import type {CanvasContent} from 'remotion';
+import {Internals} from 'remotion';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 import {
 	RenderQueueCopyToClipboard,
@@ -41,11 +50,83 @@ const subtitle: React.CSSProperties = {
 	overflow: 'hidden',
 };
 
+const SELECTED_CLASSNAME = '__remotion_selected_classname';
+
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
-}> = ({job}) => {
+	selected: boolean;
+}> = ({job, selected}) => {
+	const [hovered, setHovered] = useState(false);
+
+	const {setCanvasContent} = useContext(Internals.CompositionManager);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const isHoverable = job.status === 'done';
+
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...container,
+			backgroundColor: getBackgroundFromHoverState({
+				hovered: isHoverable && hovered,
+				selected,
+			}),
+			userSelect: 'none',
+		};
+	}, [hovered, isHoverable, selected]);
+
+	const scrollCurrentIntoView = useCallback(() => {
+		document
+			.querySelector(`.${SELECTED_CLASSNAME}`)
+			?.scrollIntoView({behavior: 'smooth'});
+	}, []);
+
+	const onClick: React.MouseEventHandler = useCallback(() => {
+		if (job.status !== 'done') {
+			return;
+		}
+
+		setCanvasContent((c: CanvasContent | null): CanvasContent => {
+			const isAlreadySelected =
+				c && c.type === 'output' && c.path === `/${job.outName}`;
+
+			if (isAlreadySelected && !selected) {
+				scrollCurrentIntoView();
+				return c;
+			}
+
+			return {type: 'output', path: `/${job.outName}`};
+		});
+		window.history.pushState({}, 'Studio', `/outputs/${job.outName}`);
+	}, [
+		job.outName,
+		job.status,
+		scrollCurrentIntoView,
+		selected,
+		setCanvasContent,
+	]);
+
+	useEffect(() => {
+		if (selected) {
+			scrollCurrentIntoView();
+		}
+	}, [scrollCurrentIntoView, selected]);
+
 	return (
-		<Row style={container} align="center">
+		<Row
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
+			style={containerStyle}
+			align="center"
+			onClick={onClick}
+			className={selected ? SELECTED_CLASSNAME : undefined}
+		>
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
 			<div style={right}>

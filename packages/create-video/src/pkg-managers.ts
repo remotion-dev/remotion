@@ -2,7 +2,18 @@ import {exec} from 'node:child_process';
 import path from 'node:path';
 import type {Template} from './templates';
 
-export type PackageManager = 'npm' | 'yarn' | 'pnpm';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+
+const shouldUseBun = (): boolean => {
+	if (
+		process.env._?.endsWith('/bin/bun') ||
+		process.env._?.endsWith('/bin/bunx')
+	) {
+		return true;
+	}
+
+	return false;
+};
 
 const shouldUseYarn = (): boolean => {
 	return Boolean(
@@ -37,6 +48,10 @@ export const selectPackageManager = (): PackageManager => {
 		return 'pnpm';
 	}
 
+	if (shouldUseBun()) {
+		return 'bun';
+	}
+
 	return 'npm';
 };
 
@@ -52,6 +67,10 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'pnpm') {
 		return `pnpm i`;
 	}
+
+	if (manager === 'bun') {
+		return `bun install`;
+	}
 };
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
@@ -66,7 +85,7 @@ export const getRenderCommandForTemplate = (
 	manager: PackageManager,
 	template: Template,
 ) => {
-	if (template.cliId === 'remix' || template.cliId === 'next') {
+	if (template.cliId === 'remix') {
 		return `${getRunCommand(manager)} remotion:render`;
 	}
 
@@ -89,6 +108,10 @@ const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'pnpm') {
 		return `pnpm start`;
 	}
+
+	if (manager === 'bun') {
+		return `bun start`;
+	}
 };
 
 export const getRenderCommand = (manager: PackageManager) => {
@@ -103,6 +126,10 @@ export const getRenderCommand = (manager: PackageManager) => {
 	if (manager === 'pnpm') {
 		return `pnpm build`;
 	}
+
+	if (manager === 'bun') {
+		return `bun run build`;
+	}
 };
 
 export const getRunCommand = (manager: PackageManager) => {
@@ -116,6 +143,10 @@ export const getRunCommand = (manager: PackageManager) => {
 
 	if (manager === 'pnpm') {
 		return `pnpm run`;
+	}
+
+	if (manager === 'bun') {
+		return `bun run`;
 	}
 
 	throw new TypeError('unknown package manager');

@@ -92,6 +92,7 @@ export {
 	TCompMetadata,
 	TRenderAsset,
 } from './CompositionManager.js';
+export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
@@ -100,10 +101,11 @@ export * from './freeze.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
-export * from './Img.js';
+export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {
+	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,

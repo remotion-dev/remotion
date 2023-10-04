@@ -13,7 +13,13 @@ import {
 	validateOpenGlRenderer,
 } from './validate-opengl-renderer';
 
-const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
+const validRenderers = [
+	'swangle',
+	'angle',
+	'egl',
+	'swiftshader',
+	'vulkan',
+] as const;
 
 type OpenGlRenderer = (typeof validRenderers)[number];
 
@@ -23,6 +29,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 	userAgent?: string | null;
+	enableMultiProcessOnLinux?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -30,6 +37,16 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+	}
+
+	if (renderer === 'vulkan') {
+		return [
+			'--use-angle=vulkan',
+			`--use-vulkan=swiftshader`,
+			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--dignore-gpu-blocklist',
+			'--enable-features=Vulkan,UseSkiaRenderer',
+		];
 	}
 
 	if (renderer === null) {
@@ -130,7 +147,11 @@ export const internalOpenBrowser = async ({
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
-			process.platform === 'linux' ? '--single-process' : null,
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!chromiumOptions.enableMultiProcessOnLinux
+				? '--single-process'
+				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium

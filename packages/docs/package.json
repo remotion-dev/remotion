@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.27",
+  "version": "4.0.45",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -18,6 +18,7 @@
     "remotion": "remotion studio src/remotion/entry.ts"
   },
   "dependencies": {
+    "@algora/sdk": "^0.1.2",
     "@aws-sdk/s3-request-presigner": "3.215.0",
     "@babel/plugin-transform-modules-commonjs": "^7.15.4",
     "@docusaurus/core": "2.4.1",

@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {VERSION} from 'remotion/version';
 import {displayServiceInfo, LEFT_COL} from '.';
-import {deployService} from '../../../api/deploy-service';
+import {internalDeployService} from '../../../api/deploy-service';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -12,6 +12,7 @@ import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateImageRemotionVersion} from '../../../shared/validate-image-remotion-version';
 import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
+import {makeConsoleUrl} from '../../helpers/make-console-url';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
@@ -68,11 +69,13 @@ ${[
 	}
 
 	try {
-		const deployResult = await deployService({
+		const deployResult = await internalDeployService({
 			performImageVersionValidation: false, // this is already performed above
-			memoryLimit,
-			cpuLimit,
-			timeoutSeconds,
+			memoryLimit: memoryLimit ?? '2Gi',
+			cpuLimit: cpuLimit ?? '1.0',
+			timeoutSeconds: timeoutSeconds ?? DEFAULT_TIMEOUT,
+			minInstances: Number(minInstances) ?? DEFAULT_MIN_INSTANCES,
+			maxInstances: Number(maxInstances) ?? DEFAULT_MAX_INSTANCES,
 			projectID,
 			region,
 		});
@@ -91,7 +94,7 @@ ${[
 			Log.error('service uri not returned from Cloud Run API.');
 		}
 
-		const consoleUrl = `https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs`;
+		const consoleUrl = makeConsoleUrl(region, deployResult.shortName);
 
 		if (deployResult.alreadyExists) {
 			Log.info();

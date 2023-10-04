@@ -2,10 +2,6 @@ import type React from 'react';
 import {useEffect} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 
-export const getCurrentCompositionFromUrl = () => {
-	return window.location.pathname.substr(1);
-};
-
 export const FramePersistor: React.FC = () => {
 	const [playing] = Internals.Timeline.usePlayingState();
 	const config = useVideoConfig();
@@ -16,6 +12,5 @@ export const FramePersistor: React.FC = () => {
 			Internals.persistCurrentFrame(frame, config.id);
 		}
 	}, [config.id, frame, playing]);
-
 	return null;
 };

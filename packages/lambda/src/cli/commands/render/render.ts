@@ -4,9 +4,10 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
+
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -67,6 +68,9 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
+		deleteAfter,
+		x264Preset,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -149,7 +153,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const webhookCustomData = getWebhookCustomData();
 
-	const res = await renderMediaOnLambda({
+	const res = await internalRenderMediaOnLambdaRaw({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -163,17 +167,17 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		region,
 		maxRetries,
 		composition,
-		framesPerLambda,
+		framesPerLambda: framesPerLambda ?? null,
 		privacy,
 		logLevel,
-		frameRange: frameRange ?? undefined,
-		outName: parsedLambdaCli['out-name'],
+		frameRange: frameRange ?? null,
+		outName: parsedLambdaCli['out-name'] ?? null,
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,
 		numberOfGifLoops,
 		everyNthFrame,
-		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
+		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
 		muted,
 		overwrite,
 		audioBitrate,
@@ -186,10 +190,15 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 					customData: webhookCustomData,
 			  }
-			: undefined,
+			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
-		forceBucketName: parsedLambdaCli['force-bucket-name'],
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec: CliInternals.parsedCli['audio-codec'],
+		deleteAfter: deleteAfter ?? null,
+		colorSpace,
+		downloadBehavior: {type: 'play-in-browser'},
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		x264Preset: x264Preset ?? null,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

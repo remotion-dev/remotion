@@ -15,7 +15,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 **Pros**
 
 ✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
-✅ &nbsp; Can be rendered without having to be downloaded fully.  
+✅ &nbsp; Can be rendered without having to be downloaded fully (only if you don't need audio and pass `muted`).  
 ✅ &nbsp; [Renders embedded transparent videos quickly](/docs/transparent-videos).
 
 **Cons**

@@ -96,7 +96,10 @@ export const getAssetsForMarkup = async (
 						width: config.width,
 					},
 				],
-				currentComposition: 'markup',
+				canvasContent: {
+					type: 'composition',
+					compositionId: 'markup',
+				},
 			};
 		}, [compositions]);
 

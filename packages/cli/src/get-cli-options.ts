@@ -124,6 +124,7 @@ export const getCliOptions = async (options: {
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
 		userAgent: ConfigInternals.getChromiumUserAgent(),
+		enableMultiProcessOnLinux: ConfigInternals.getChromiumMultiProcessOnLinux(),
 	};
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
@@ -172,5 +173,7 @@ export const getCliOptions = async (options: {
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 		offthreadVideoCacheSizeInBytes:
 			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
+		deleteAfter: ConfigInternals.getDeleteAfter(),
+		colorSpace: ConfigInternals.getColorSpace(),
 	};
 };

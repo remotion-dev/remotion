@@ -74,6 +74,7 @@ import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {isIosSafari} from './video/video-fragment.js';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -153,6 +154,7 @@ export const Internals = {
 	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
+	isIosSafari,
 } as const;
 
 export type {

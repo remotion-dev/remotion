@@ -3,11 +3,17 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
+	getChromiumMultiProcessOnLinux,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
+import {
+	getEnableFolderExpiry,
+	setEnableFolderExpiry,
+} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -29,6 +35,7 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
+import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -39,6 +46,7 @@ import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	CodecOrUndefined,
+	ColorSpace,
 	Crf,
 	FrameRange,
 	StillImageFormat,
@@ -59,6 +67,7 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import {setCodec} from './codec';
+import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -110,6 +119,8 @@ import {
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 import {setX264Preset} from './x264-preset';
+
+export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -217,11 +228,11 @@ declare global {
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle' and 'vulkan'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader',
+			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader' | 'vulkan',
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.
@@ -393,6 +404,21 @@ declare global {
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Opt into bt709 rendering.
+		 */
+		readonly setColorSpace: (colorSpace: ColorSpace) => void;
+
+		/**
+		 * Removes the --single-process flag that gets passed to
+			Chromium on Linux by default. This will make the render faster because
+			multiple processes can be used, but may cause issues with some Linux
+			distributions or if window server libraries are missing.
+		 */
+		readonly setChromiumMultiProcessOnLinux: (
+			multiProcessOnLinux: boolean,
+		) => void;
 	}
 }
 
@@ -404,6 +430,14 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
+
+		setDeleteAfter: (
+			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
+		) => void;
+		/**
+		 *
+		 */
+		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -482,6 +516,7 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
+	setChromiumMultiProcessOnLinux,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -516,9 +551,10 @@ export const Config: FlatConfig = {
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
 	setOffthreadVideoCacheSizeInBytes,
+	setDeleteAfter,
+	setColorSpace,
+	setEnableFolderExpiry,
 };
-
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 export const ConfigInternals = {
 	getRange,
@@ -571,4 +607,8 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getOffthreadVideoCacheSizeInBytes,
+	getDeleteAfter,
+	getColorSpace,
+	getEnableFolderExpiry,
+	getChromiumMultiProcessOnLinux,
 };

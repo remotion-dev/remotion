@@ -3,7 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadFile} from '../../../api/download-file';
-import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
+import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../args';
@@ -46,6 +46,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
+		x264Preset,
 		jpegQuality,
 		scale,
 		everyNthFrame,
@@ -59,6 +60,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		port,
 		enforceAudioTrack,
 		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -172,41 +174,45 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		}
 	};
 
-	const res = await renderMediaOnCloudrun({
+	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,
-		serveUrl,
+		serviceName: undefined,
 		region,
+		serveUrl,
+		composition,
 		inputProps,
 		codec: codec as CloudrunCodec,
-		imageFormat,
-		crf: crf ?? undefined,
-		envVariables,
-		pixelFormat,
-		proResProfile,
-		jpegQuality,
-		composition,
+		forceBucketName,
 		privacy,
-		frameRange: frameRange ?? undefined,
 		outName,
-		chromiumOptions,
-		scale,
-		numberOfGifLoops,
-		everyNthFrame,
-		muted,
+		updateRenderProgress,
+		jpegQuality,
+		audioCodec,
 		audioBitrate,
 		videoBitrate,
-		forceHeight: height,
+		proResProfile,
+		x264Preset,
+		crf,
+		pixelFormat,
+		imageFormat,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
+		frameRange: frameRange ?? undefined,
+		envVariables,
+		chromiumOptions,
+		muted,
 		forceWidth: width,
-		audioCodec,
-		forceBucketName,
-		updateRenderProgress,
+		forceHeight: height,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
+		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		// Special case: Should not use default local concurrency, or from
 		// config file, just when explicitly set
 		concurrency: CliInternals.parsedCli.concurrency ?? null,
-		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		enforceAudioTrack,
 		preferLossless: false,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	});
 
 	if (res.type === 'crash') {

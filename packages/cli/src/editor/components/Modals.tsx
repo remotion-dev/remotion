@@ -61,6 +61,10 @@ export const Modals: React.FC = () => {
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
+					initialColorSpace={modalContextType.initialColorSpace}
+					initialMultiProcessOnLinux={
+						modalContextType.initialMultiProcessOnLinux
+					}
 				/>
 			)}
 
@@ -71,7 +75,10 @@ export const Modals: React.FC = () => {
 				)}
 
 			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal info={modalContextType.info} />
+				<UpdateModal
+					info={modalContextType.info}
+					knownBugs={modalContextType.knownBugs}
+				/>
 			)}
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (

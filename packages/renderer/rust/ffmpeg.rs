@@ -1,7 +1,8 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::{KnownCodecs, OpenVideoStats, VideoMetadata};
+use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata};
 use std::fs::File;
 use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
@@ -32,7 +33,18 @@ pub fn keep_only_latest_frames(
 ) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
 
-    manager.only_keep_n_frames(maximum_frame_cache_size_in_bytes)?;
+    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+
+    Ok(())
+}
+
+pub fn emergency_memory_free_up(
+    maximum_frame_cache_size_in_bytes: u128,
+) -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    _print_verbose("System is about to run out of memory, freeing up memory.")?;
+    manager.halfen_cache_size(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }
@@ -91,10 +103,10 @@ pub fn extract_frame(
         if transparent != stream.transparent {
             continue;
         }
-        if stream.last_position > max_stream_position {
+        if stream.last_position.unwrap_or(0) > max_stream_position {
             continue;
         }
-        if stream.last_position < min_stream_position {
+        if stream.last_position.unwrap_or(0) < min_stream_position {
             continue;
         }
         suitable_open_stream = Some(i);
@@ -156,7 +168,10 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             "No video stream found",
         ))?,
     };
+
     let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
+    let color_space = unsafe { (*(*(stream).as_ptr()).codecpar).color_space };
+
     let codec_name = match codec_id {
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => KnownCodecs::H264,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => KnownCodecs::H265,
@@ -165,6 +180,30 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AV1 => KnownCodecs::Av1,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PRORES => KnownCodecs::ProRes,
         _ => KnownCodecs::Unknown,
+    };
+
+    #[allow(non_snake_case)]
+    let colorSpace = match color_space {
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_BT2020_CL => KnownColorSpaces::BT2020CL,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_BT2020_NCL => KnownColorSpaces::BT2020NCL,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_BT470BG => KnownColorSpaces::BT470BG,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_BT709 => KnownColorSpaces::BT709,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_SMPTE170M => KnownColorSpaces::SMPTE170M,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_SMPTE240M => KnownColorSpaces::SMPTE240M,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_YCGCO => KnownColorSpaces::YCGCO,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_RGB => KnownColorSpaces::RGB,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_FCC => KnownColorSpaces::FCC,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_CHROMA_DERIVED_CL => {
+            KnownColorSpaces::CHROMADERIVEDCL
+        }
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_CHROMA_DERIVED_NCL => {
+            KnownColorSpaces::CHROMADERIVEDNCL
+        }
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_ICTCP => KnownColorSpaces::ICTCP,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_NB => KnownColorSpaces::Unknown,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_RESERVED => KnownColorSpaces::Unknown,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_SMPTE2085 => KnownColorSpaces::SMPTE2085,
+        remotionffmpeg::ffi::AVColorSpace::AVCOL_SPC_UNSPECIFIED => KnownColorSpaces::BT601,
     };
 
     #[allow(non_snake_case)]
@@ -224,6 +263,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             codec: codec_name,
             canPlayInVideoTag,
             supportsSeeking,
+            colorSpace,
         };
         Ok(metadata)
     } else {

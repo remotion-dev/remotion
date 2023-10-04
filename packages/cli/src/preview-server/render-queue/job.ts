@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	ColorSpace,
 	makeCancelSignal,
 	PixelFormat,
 	ProResProfile,
@@ -52,6 +53,16 @@ type RenderJobDynamicFields =
 			offthreadVideoCacheSizeInBytes: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			offthreadVideoCacheSizeInBytes: number | null;
+	  } & RenderJobDynamicStatus)
+	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
 			jpegQuality: number | null;
@@ -73,6 +84,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			colorSpace: ColorSpace;
 	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
@@ -87,6 +99,7 @@ export type RenderJob = {
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
+	multiProcessOnLinux: boolean;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -101,6 +114,17 @@ type AddRenderRequestDynamicFields =
 			frame: number;
 			scale: number;
 			verbose: boolean;
+	  }
+	| {
+			type: 'sequence';
+			imageFormat: VideoImageFormat;
+			jpegQuality: number | null;
+			scale: number;
+			verbose: boolean;
+			concurrency: number;
+			startFrame: number;
+			endFrame: number;
+			disallowParallelEncoding: boolean;
 	  }
 	| {
 			type: 'video';
@@ -124,6 +148,7 @@ type AddRenderRequestDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
+			colorSpace: ColorSpace;
 	  };
 
 export type CancelRenderRequest = {
@@ -139,6 +164,7 @@ export type AddRenderRequest = {
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
+	multiProcessOnLinux: boolean;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

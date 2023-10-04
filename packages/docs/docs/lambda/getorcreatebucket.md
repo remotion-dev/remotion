@@ -28,6 +28,10 @@ An object with the following property:
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
 
+### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
+
+<Options id="enable-folder-expiry"/>
+
 ### ~~`onBucketEnsured?`~~
 
 _removed in v4.0, optional_

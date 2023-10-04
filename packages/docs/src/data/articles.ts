@@ -98,6 +98,13 @@ export const articles = [
     crumb: "Building video apps",
   },
   {
+    id: "bun",
+    title: "Bun support",
+    relativePath: "docs/bun.md",
+    compId: "articles-docs-bun",
+    crumb: "bun bun bun bun bun",
+  },
+  {
     id: "bundle",
     title: "bundle()",
     relativePath: "docs/bundle.md",
@@ -504,6 +511,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/formatting",
+    title: "Formatting in the Remotion repo",
+    relativePath: "docs/contributing/formatting.md",
+    compId: "articles-docs-contributing-formatting",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/index",
     title: "Contributing to Remotion",
     relativePath: "docs/contributing/index.md",
@@ -817,6 +831,13 @@ export const articles = [
     relativePath: "docs/lambda/authentication.md",
     compId: "articles-docs-lambda-authentication",
     crumb: "Lambda",
+  },
+  {
+    id: "autodelete",
+    title: "Auto-delete renders",
+    relativePath: "docs/lambda/autodelete.md",
+    compId: "articles-docs-lambda-autodelete",
+    crumb: "Lambda API",
   },
   {
     id: "lambda/bucket-naming",
@@ -1419,6 +1440,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/changing-temp-dir.md",
     compId: "articles-docs-miscellaneous-changing-temp-dir",
     crumb: "Advanced configuration",
+  },
+  {
+    id: "miscellaneous/linux-single-process",
+    title: "Multiple cores on Linux",
+    relativePath: "docs/miscellaneous/linux-single-process.md",
+    compId: "articles-docs-miscellaneous-linux-single-process",
+    crumb: "Server-side rendering",
   },
   {
     id: "miscellaneous/render-in-browser",

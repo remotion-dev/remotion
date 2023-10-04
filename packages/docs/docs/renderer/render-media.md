@@ -333,6 +333,12 @@ _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
 #### `ignoreCertificateErrors`
 
 _boolean - default `false`_
@@ -356,6 +362,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
@@ -404,6 +411,10 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
 
 ### ~~`parallelism?`~~
 
