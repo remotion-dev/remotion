@@ -125,6 +125,22 @@ export const MyVideo = () => {
 };
 ```
 
+### `toneFrequency`<AvailableFrom v="4.0.45"/> 
+//update the version
+
+The `toneFrequency` prop allows you to adjust the pitch of the audio. It accepts a number between 0 and 1, where 0 represents the lowest pitch and 1 represents the highest pitch. For example, a toneFrequency of 0.5 would lower the pitch by half. The valid range for toneFrequency is from 0 (lowest pitch) to 1 (highest pitch).
+
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile } from "remotion";
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile("audio.mp3")} toneFrequency={0.5} />
+    </AbsoluteFill>
+  );
+};
+
 ## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
 In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
