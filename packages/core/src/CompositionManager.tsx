@@ -124,6 +124,17 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 } & EnhancedTSequenceData;
 
+
+type ToneFrequencyConstraints = {
+	min: number;
+	max: number;
+};
+
+const TONE_FREQUENCY_CONSTRAINTS: ToneFrequencyConstraints = {
+	min: 0,  // Minimum allowed value for toneFrequency
+	max: 1, // Maximum allowed value for toneFrequency
+};
+
 export type TRenderAsset = {
 	type: 'audio' | 'video';
 	src: string;
@@ -134,6 +145,13 @@ export type TRenderAsset = {
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
+};
+export const validateToneFrequency = (toneFrequency?: number | null): boolean => {
+	if (toneFrequency === undefined || toneFrequency === null) {
+			return true; // toneFrequency is optional, so it's valid if undefined or null
+	}
+	
+	return toneFrequency >= TONE_FREQUENCY_CONSTRAINTS.min && toneFrequency <= TONE_FREQUENCY_CONSTRAINTS.max;
 };
 
 export const compositionsRef = React.createRef<{
