@@ -21,6 +21,7 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
+	ffmpegFilter?: string; // Add the ffmpegFilter property
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -97,7 +98,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-			toneFrequency: null,
+			toneFrequency: 0,
+			ffmpegFilter: '',
 		});
 		return () => unregisterRenderAsset(id);
 	}, [

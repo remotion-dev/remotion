@@ -143,11 +143,10 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
-	toneFrequency?: number | null;
+	toneFrequency?: number;
+	ffmpegFilter?: string;
 };
-export const validateToneFrequency = (
-	toneFrequency?: number | null,
-): boolean => {
+export const validateToneFrequency = (toneFrequency?: number): boolean => {
 	if (toneFrequency === undefined || toneFrequency === null) {
 		return true; // toneFrequency is optional, so it's valid if undefined or null
 	}
