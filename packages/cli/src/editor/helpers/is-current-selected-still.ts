@@ -1,6 +1,11 @@
-import {useMemo} from 'react';
+import {useContext} from 'react';
 import {Internals} from 'remotion';
 import {isCompositionStill} from './is-composition-still';
+
+export type Dimensions = {
+	width: number;
+	height: number;
+};
 
 export const useIsStill = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
@@ -12,17 +17,17 @@ export const useIsStill = () => {
 	return isCompositionStill(resolved.result);
 };
 
-export const useDimensions = () => {
-	const config = Internals.useUnsafeVideoConfig();
+export const useIsVideoComposition = () => {
+	const isStill = useIsStill();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	return useMemo(() => {
-		if (!config) {
-			return null;
-		}
+	if (canvasContent === null) {
+		return false;
+	}
 
-		return {
-			width: config.width,
-			height: config.height,
-		};
-	}, [config]);
+	if (isStill) {
+		return false;
+	}
+
+	return canvasContent.type === 'composition';
 };

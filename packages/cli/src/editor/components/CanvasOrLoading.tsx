@@ -26,6 +26,7 @@ export const CanvasOrLoading: React.FC = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
 	const {setZoom} = useContext(TimelineZoomCtx);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
@@ -60,6 +61,20 @@ export const CanvasOrLoading: React.FC = () => {
 		};
 	}, [takesALongTime]);
 
+	if (!canvasContent) {
+		return null;
+	}
+
+	const content = (
+		<>
+			<ZoomPersistor />
+			<Canvas canvasContent={canvasContent} />
+		</>
+	);
+	if (canvasContent.type === 'asset' || canvasContent.type === 'output') {
+		return content;
+	}
+
 	if (!resolved) {
 		return null;
 	}
@@ -82,9 +97,7 @@ export const CanvasOrLoading: React.FC = () => {
 
 	return (
 		<>
-			<FramePersistor />
-			<ZoomPersistor />
-			<Canvas />
+			<FramePersistor /> {content}
 		</>
 	);
 };

@@ -1,10 +1,13 @@
 import type {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {Checkmark} from '../icons/Checkmark';
 import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
+import type {AssetFileType} from './Preview';
+import {getPreviewFileType} from './Preview';
 
 const commonPreviewSizes: PreviewSize[] = [
 	{
@@ -72,14 +75,42 @@ export const getUniqueSizes = (size: PreviewSize) => {
 	});
 };
 
+const zoomableFileTypes: AssetFileType[] = ['video', 'image'];
+
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
-
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const style = useMemo(() => {
 		return {
 			padding: CONTROL_BUTTON_PADDING,
 		};
 	}, []);
+
+	const zoomable = useMemo(() => {
+		if (!canvasContent) {
+			return null;
+		}
+
+		if (canvasContent.type === 'composition') {
+			return true;
+		}
+
+		if (
+			canvasContent.type === 'asset' &&
+			zoomableFileTypes.includes(getPreviewFileType(canvasContent.asset))
+		) {
+			return true;
+		}
+
+		if (
+			canvasContent.type === 'output' &&
+			zoomableFileTypes.includes(getPreviewFileType(canvasContent.path))
+		) {
+			return true;
+		}
+
+		return false;
+	}, [canvasContent]);
 
 	const items: ComboboxValue[] = useMemo(() => {
 		return getUniqueSizes(size).map((newSize): ComboboxValue => {
@@ -101,6 +132,10 @@ export const SizeSelector: React.FC = () => {
 			};
 		});
 	}, [setSize, size]);
+
+	if (!zoomable) {
+		return null;
+	}
 
 	return (
 		<div style={style} aria-label={accessibilityLabel}>

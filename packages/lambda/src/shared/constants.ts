@@ -1,7 +1,6 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	Codec,
 	ColorSpace,
 	FrameRange,
 	LogLevel,
@@ -209,6 +208,7 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 	still = 'still',
 	compositions = 'compositions',
+	merge = 'merge',
 }
 
 type Prettify<T> = {
@@ -390,7 +390,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
-		downloadBehavior: DownloadBehavior | null;
+		downloadBehavior: DownloadBehavior;
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
@@ -409,6 +409,16 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+	};
+	merge: {
+		type: LambdaRoutines.merge;
+		bucketName: string;
+		renderId: string;
+		outName: OutNameInput | null;
+		inputProps: SerializedInputProps;
+		serializedResolvedProps: SerializedInputProps;
+		verbose: boolean;
+		logLevel: LogLevel;
 	};
 };
 
@@ -436,7 +446,7 @@ export type RenderMetadata = Discriminated & {
 	estimatedTotalLambdaInvokations: number;
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
-	codec: Codec | null;
+	codec: LambdaCodec | null;
 	audioCodec: AudioCodec | null;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
@@ -449,6 +459,8 @@ export type RenderMetadata = Discriminated & {
 	frameRange: [number, number];
 	everyNthFrame: number;
 	deleteAfter: DeleteAfter | null;
+	numberOfGifLoops: number | null;
+	downloadBehavior: DownloadBehavior;
 };
 
 export type AfterRenderCost = {

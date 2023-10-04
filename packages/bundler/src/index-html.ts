@@ -29,6 +29,7 @@ export type RenderDefaults = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	headless: boolean;
 	colorSpace: string;
+	multiProcessOnLinux: boolean;
 };
 
 declare global {

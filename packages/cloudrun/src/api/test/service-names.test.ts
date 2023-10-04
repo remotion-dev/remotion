@@ -25,9 +25,10 @@ test('Parse service names', () => {
 		region,
 	)}/services/${shortServiceName}`;
 
+	process.env.REMOTION_GCP_PROJECT_ID = 'remotion-test-project';
 	const parsed = parseServiceName(fullServiceName, region);
 	expect(parsed).toEqual({
-		consoleUrl: `https://console.cloud.google.com/run/detail/asia-east1/remotion-${dashedVersion}-mem100000k-cpu8-0-t3600/logs`,
+		consoleUrl: `https://console.cloud.google.com/run/detail/asia-east1/remotion-${dashedVersion}-mem100000k-cpu8-0-t3600/logs?project=remotion-test-project`,
 		region: 'asia-east1',
 		remotionVersion: VERSION.replace(/\./g, '-'),
 		serviceName: `remotion-${dashedVersion}-mem100000k-cpu8-0-t3600`,

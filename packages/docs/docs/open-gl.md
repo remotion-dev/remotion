@@ -13,6 +13,7 @@ The following renderer backends are supported in Remotion:
 - <code>angle</code>
 - <code>egl</code>
 - <code>swiftshader</code>
+- <code>vulkan</code> (from Remotion v4.0.41)
 - <code>swangle</code> - default on Lambda
 
 ## Using the GPU

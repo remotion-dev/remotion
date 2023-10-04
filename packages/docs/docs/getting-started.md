@@ -58,7 +58,7 @@ bun create video
 ```
 
 :::note
-Bun as a runtime is partially supported. [Read more here](/docs/bun).
+Bun as a runtime is mostly supported. [Read more here](/docs/bun).
 :::
 
   </TabItem>

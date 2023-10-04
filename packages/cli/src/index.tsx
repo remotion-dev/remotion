@@ -51,8 +51,19 @@ export const cli = async () => {
 
 	const isBun = typeof Bun !== 'undefined';
 	if (isBun) {
-		Log.warn(
-			'You are running Remotion with Bun. Visit https://remotion.dev/bun for known bugs and status updates.',
+		const version = Bun.version.split('.');
+		if (version.length === 3) {
+			if (Number(version[0]) < 1) {
+				throw new Error('Please upgrade to at least Bun 1.0.3');
+			}
+
+			if (Number(version[1]) === 0 && Number(version[2]) < 3) {
+				throw new Error('Please upgrade to at least Bun 1.0.3');
+			}
+		}
+
+		Log.info(
+			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
 		);
 	}
 

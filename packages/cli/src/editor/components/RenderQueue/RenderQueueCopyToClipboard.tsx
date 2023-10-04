@@ -34,27 +34,31 @@ export const supportsCopyingToClipboard = (job: RenderJob) => {
 	return false;
 };
 
-export const RenderQueueCopyToClipboard: React.FC<{job: RenderJob}> = ({
-	job,
-}) => {
+export const RenderQueueCopyToClipboard: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
 	const renderCopyAction: RenderInlineAction = useCallback((color) => {
 		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
-	const onClick = useCallback(() => {
-		copyToClipboard({outName: job.outName})
-			.catch((err) => {
-				sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
-			})
-			.then(() => {
-				notificationCenter.current?.addNotification({
-					content: 'Copied to clipboard',
-					created: Date.now(),
-					duration: 1000,
-					id: String(Math.random()),
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			e.stopPropagation();
+			copyToClipboard({outName: job.outName})
+				.catch((err) => {
+					sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
+				})
+				.then(() => {
+					notificationCenter.current?.addNotification({
+						content: 'Copied to clipboard',
+						created: Date.now(),
+						duration: 1000,
+						id: String(Math.random()),
+					});
 				});
-			});
-	}, [job.outName]);
+		},
+		[job.outName],
+	);
 
 	return (
 		<InlineAction

@@ -485,15 +485,18 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={900}
+					defaultProps={{
+						src: 'variablefps.webm',
+					}}
 				/>
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920 * 2}
-					height={1080 * 2}
-					fps={60}
-					durationInFrames={20000}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -828,7 +831,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={200}
+					durationInFrames={250}
 				/>
 				<Composition
 					id="gif-duration"

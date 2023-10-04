@@ -65,6 +65,7 @@ export const addStillRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	multiProcessOnLinux,
 }: {
 	compositionId: string;
 	outName: string;
@@ -78,6 +79,7 @@ export const addStillRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	multiProcessOnLinux: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -97,6 +99,7 @@ export const addStillRenderJob = ({
 			indent: undefined,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		multiProcessOnLinux,
 	});
 };
 
@@ -116,6 +119,7 @@ export const addSequenceRenderJob = ({
 	offthreadVideoCacheSizeInBytes,
 	jpegQuality,
 	disallowParallelEncoding,
+	multiProcessOnLinux,
 }: {
 	compositionId: string;
 	outName: string;
@@ -132,6 +136,7 @@ export const addSequenceRenderJob = ({
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
 	disallowParallelEncoding: boolean;
+	multiProcessOnLinux: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -154,6 +159,7 @@ export const addSequenceRenderJob = ({
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
+		multiProcessOnLinux,
 	});
 };
 
@@ -186,6 +192,7 @@ export const addVideoRenderJob = ({
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	multiProcessOnLinux,
 }: {
 	compositionId: string;
 	outName: string;
@@ -215,6 +222,7 @@ export const addVideoRenderJob = ({
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
+	multiProcessOnLinux: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -250,6 +258,7 @@ export const addVideoRenderJob = ({
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		multiProcessOnLinux,
 	});
 };
 

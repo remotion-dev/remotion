@@ -8,22 +8,28 @@ import {
 } from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
-export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
-	const onClick = useCallback(() => {
-		removeRenderJob(job)
-			.then(() => {
-				notificationCenter.current?.addNotification({
-					content: 'Removed job',
-					duration: 2000,
-					created: Date.now(),
-					id: String(Math.random()).replace('0.', ''),
+export const RenderQueueRemoveItem: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			e.stopPropagation();
+			removeRenderJob(job)
+				.then(() => {
+					notificationCenter.current?.addNotification({
+						content: 'Removed job',
+						duration: 2000,
+						created: Date.now(),
+						id: String(Math.random()).replace('0.', ''),
+					});
+				})
+				.catch((err) => {
+					sendErrorNotification(`Could not remove item: ${err.message}`);
+					console.log(err);
 				});
-			})
-			.catch((err) => {
-				sendErrorNotification(`Could not remove item: ${err.message}`);
-				console.log(err);
-			});
-	}, [job]);
+		},
+		[job],
+	);
 
 	const icon: React.CSSProperties = useMemo(() => {
 		return {

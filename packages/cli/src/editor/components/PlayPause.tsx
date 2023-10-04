@@ -230,10 +230,6 @@ export const PlayPause: React.FC<{
 		onSpace,
 	]);
 
-	if (isStill) {
-		return null;
-	}
-
 	return (
 		<>
 			<ControlButton

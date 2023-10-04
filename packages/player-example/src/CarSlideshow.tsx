@@ -58,19 +58,21 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 			}}
 		>
 			<Experimental.Clipper height={100} width={100} x={0} y={0} />
-			<h1
-				style={{
-					fontSize: '5em',
-					fontWeight: 'bold',
-					position: 'absolute',
-					top: height / 2 - 100,
-					left,
-					color,
-					whiteSpace: 'nowrap',
-				}}
-			>
-				{title} {dummyText()}
-			</h1>
+			<Sequence>
+				<h1
+					style={{
+						fontSize: '5em',
+						fontWeight: 'bold',
+						position: 'absolute',
+						top: height / 2 - 100,
+						left,
+						color,
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{title} {dummyText()}
+				</h1>
+			</Sequence>
 			<Img
 				src={staticFile('/logo.png')}
 				style={{

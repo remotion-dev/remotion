@@ -49,6 +49,8 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			everyNthFrame: 1,
 			frameRange: [0, 99],
 			audioCodec: null,
+			downloadBehavior: {type: 'play-in-browser'},
+			numberOfGifLoops: null,
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',

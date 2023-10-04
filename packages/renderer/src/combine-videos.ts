@@ -86,6 +86,7 @@ export const combineVideos = async (options: Options) => {
 				if (parsed === undefined) {
 					Log.verbose(data.toString('utf8'));
 				} else {
+					Log.verbose(parsed);
 					onProgress(parsed);
 				}
 			}
