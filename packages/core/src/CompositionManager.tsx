@@ -144,7 +144,7 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
+	toneFrequency?: number | null;
 };
 export const validateToneFrequency = (toneFrequency?: number | null): boolean => {
 	if (toneFrequency === undefined || toneFrequency === null) {
