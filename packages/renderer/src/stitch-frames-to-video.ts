@@ -366,8 +366,8 @@ const innerStitchFramesToVideo = async (
 				audio,
 				'-c:a',
 				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				audioBitrate ? '-b:a' : undefined,
-				audioBitrate ? audioBitrate : undefined,
+				'-b:a',
+				audioBitrate ? audioBitrate : '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(Internals.truthy),
@@ -430,9 +430,7 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec
 			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
 			: null,
-		resolvedAudioCodec && audioBitrate
-			? ['-b:a', audioBitrate || '512K']
-			: null,
+		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
 		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
 		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
