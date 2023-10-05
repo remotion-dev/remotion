@@ -16,6 +16,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		],
 		memorySizeInMb: 1024,
 		renderMetadata: {
+			audioBitrate: null,
 			codec: 'h264',
 			compositionId: 'react-svg',
 			estimatedRenderLambdaInvokations: 10,
