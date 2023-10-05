@@ -21,8 +21,8 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
-	toneFrequency: number; // Add toneFrequency property
-	ffmpegFilter: string; // Add ffmpegFilter property
+	toneFrequency?: number; // Add toneFrequency property
+	// ffmpegFilter: string; // Add ffmpegFilter property
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -56,7 +56,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		onDuration,
 		toneFrequency, // Default value for toneFrequency
-		ffmpegFilter: propFfmpegFilter, // Default value for ffmpegFilter
+		// ffmpegFilter: propFfmpegFilter, // Default value for ffmpegFilter
 		_remotionInternalNeedsDurationCalculation,
 		acceptableTimeShiftInSeconds,
 		...nativeProps
@@ -94,7 +94,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (toneFrequency < 0 || toneFrequency > 1) {
+		if (
+			toneFrequency !== undefined &&
+			(toneFrequency < 0 || toneFrequency > 1)
+		) {
 			throw new Error('Tone frequency must be between 0 and 1');
 		}
 
@@ -127,7 +130,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		props.playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
-		propFfmpegFilter,
+		// propFfmpegFilter,
 	]);
 
 	const {src} = props;

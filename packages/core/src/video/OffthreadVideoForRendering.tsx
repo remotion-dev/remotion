@@ -95,6 +95,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: 0,
 		});
 
 		return () => unregisterRenderAsset(id);
