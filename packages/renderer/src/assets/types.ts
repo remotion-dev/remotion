@@ -23,6 +23,7 @@ export type AssetVolume = number | number[];
 export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 	duration: number;
 	volume: AssetVolume;
+	toneFrequency?: number | undefined;
 };
 
 export const uncompressMediaAsset = (
