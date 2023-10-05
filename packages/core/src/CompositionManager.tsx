@@ -124,15 +124,15 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 } & EnhancedTSequenceData;
 
-type ToneFrequencyConstraints = {
-	min: number;
-	max: number;
-};
+// type ToneFrequencyConstraints = {
+// 	min: number;
+// 	max: number;
+// };
 
-const TONE_FREQUENCY_CONSTRAINTS: ToneFrequencyConstraints = {
-	min: 0, // Minimum allowed value for toneFrequency
-	max: 1, // Maximum allowed value for toneFrequency
-};
+// const TONE_FREQUENCY_CONSTRAINTS: ToneFrequencyConstraints = {
+// 	min: 0, // Minimum allowed value for toneFrequency
+// 	max: 1, // Maximum allowed value for toneFrequency
+// };
 
 export type TRenderAsset = {
 	type: 'audio' | 'video';
@@ -143,19 +143,19 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
-	toneFrequency?: number;
-	ffmpegFilter?: string;
+	toneFrequency: number;
+	ffmpegFilter: string;
 };
-export const validateToneFrequency = (toneFrequency?: number): boolean => {
-	if (toneFrequency === undefined || toneFrequency === null) {
-		return true; // toneFrequency is optional, so it's valid if undefined or null
-	}
+// export const validateToneFrequency = (toneFrequency?: number): boolean => {
+// 	if (toneFrequency === undefined || toneFrequency === null) {
+// 		return true; // toneFrequency is optional, so it's valid if undefined or null
+// 	}
 
-	return (
-		toneFrequency >= TONE_FREQUENCY_CONSTRAINTS.min &&
-		toneFrequency <= TONE_FREQUENCY_CONSTRAINTS.max
-	);
-};
+// 	return (
+// 		toneFrequency >= TONE_FREQUENCY_CONSTRAINTS.min &&
+// 		toneFrequency <= TONE_FREQUENCY_CONSTRAINTS.max
+// 	);
+// };
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadataWithCalcFunction<

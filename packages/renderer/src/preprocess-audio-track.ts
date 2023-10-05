@@ -15,7 +15,7 @@ type Options = {
 	expectedFrames: number;
 	fps: number;
 	downloadMap: DownloadMap;
-	toneFrequency?: number; // Add toneFrequency parameter
+	// toneFrequency?: number; // Add toneFrequency parameter
 };
 
 export type PreprocessedAudioTrack = {
@@ -28,8 +28,7 @@ const preprocessAudioTrackUnlimited = async ({
 	asset,
 	expectedFrames,
 	fps,
-	downloadMap,
-	toneFrequency, // Receive toneFrequency from options
+	downloadMap, // toneFrequency, // Receive toneFrequency from options
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
@@ -37,7 +36,7 @@ const preprocessAudioTrackUnlimited = async ({
 	);
 
 	// Calculate the FFmpeg filter for pitch adjustment based on tone frequency
-	const ffmpegFilter = `asetrate=44100*${toneFrequency},aresample=44100,atempo=1/${toneFrequency}`;
+	// const ffmpegFilter = `asetrate=44100*${toneFrequency},aresample=44100,atempo=1/${toneFrequency}`;
 
 	const filter = calculateFfmpegFilter({
 		asset,
@@ -64,8 +63,7 @@ const preprocessAudioTrackUnlimited = async ({
 		'pcm_s16le',
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
-		'-af',
-		ffmpegFilter, // Apply the FFmpeg filter for pitch adjustment
+		// Apply the FFmpeg filter for pitch adjustment
 		'-y',
 		outName,
 	].flat(2);
