@@ -143,8 +143,8 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
-	toneFrequency: number;
-	ffmpegFilter: string;
+	toneFrequency?: number;
+	ffmpegFilter?: string;
 };
 // export const validateToneFrequency = (toneFrequency?: number): boolean => {
 // 	if (toneFrequency === undefined || toneFrequency === null) {

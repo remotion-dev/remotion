@@ -42,7 +42,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		playbackRate,
 		onDuration,
-		
+
 		...props
 	},
 	ref,
@@ -112,6 +112,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: 0,
 		});
 
 		return () => unregisterRenderAsset(id);
