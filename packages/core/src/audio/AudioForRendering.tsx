@@ -21,7 +21,8 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
-	ffmpegFilter?: string; // Add the ffmpegFilter property
+	toneFrequency: number; // Add toneFrequency property
+	ffmpegFilter: string; // Add ffmpegFilter property
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -47,11 +48,15 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.src, sequenceContext],
 	);
 
+	// const {toneFrequency = 0} = props;
+
 	const {
 		volume: volumeProp,
 		playbackRate,
 		allowAmplificationDuringRender,
 		onDuration,
+		toneFrequency, // Default value for toneFrequency
+		ffmpegFilter: propFfmpegFilter, // Default value for ffmpegFilter
 		_remotionInternalNeedsDurationCalculation,
 		acceptableTimeShiftInSeconds,
 		...nativeProps
@@ -89,6 +94,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (toneFrequency < 0 || toneFrequency > 1) {
+			throw new Error('Tone frequency must be between 0 and 1');
+		}
+
+		const ffmpegFilter = `asetrate=44100*${toneFrequency},aresample=44100,atempo=1/${toneFrequency}`;
+
 		registerRenderAsset({
 			type: 'audio',
 			src: getAbsoluteSrc(props.src),
@@ -98,8 +109,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-			toneFrequency: 0,
-			ffmpegFilter: '',
+			toneFrequency,
+			ffmpegFilter,
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -115,12 +126,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		allowAmplificationDuringRender,
+		toneFrequency,
+		propFfmpegFilter,
 	]);
 
 	const {src} = props;
 
-	// The <audio> tag is only rendered if the duration needs to be calculated for the `loop`
-	// attribute to work, or if the user assigns a ref to it.
 	const needsToRenderAudioTag =
 		ref || _remotionInternalNeedsDurationCalculation;
 
