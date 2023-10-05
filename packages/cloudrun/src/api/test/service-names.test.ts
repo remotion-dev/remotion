@@ -7,9 +7,9 @@ import {speculateServiceName} from '../speculate-service-name';
 const dashedVersion = VERSION.replace(/\./g, '-');
 const region: GcpRegion = 'asia-east1';
 
-process.env.REMOTION_GCP_PROJECT_ID = 'remotion-test-project';
-
 test('Parse service names', () => {
+	process.env.REMOTION_GCP_PROJECT_ID = 'remotion-test-project';
+
 	const shortServiceName = speculateServiceName({
 		cpuLimit: '8.0',
 		memoryLimit: '100000k',
