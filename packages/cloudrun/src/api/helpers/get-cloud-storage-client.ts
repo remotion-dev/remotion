@@ -1,6 +1,16 @@
 import {Storage} from '@google-cloud/storage';
+import {
+	getProjectId,
+	isInCloudTask,
+} from '../../functions/helpers/is-in-cloud-task';
 
 export const getCloudStorageClient = () => {
+	if (isInCloudTask()) {
+		return new Storage({
+			projectId: getProjectId(),
+		});
+	}
+
 	return new Storage({
 		projectId: process.env.REMOTION_GCP_PROJECT_ID,
 		credentials: {
