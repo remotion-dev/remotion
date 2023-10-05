@@ -25,10 +25,10 @@ export type PreprocessedAudioTrack = {
 
 const preprocessAudioTrackUnlimited = async ({
 	outName,
-	asset,
+	asset, // Receive toneFrequency from options as MediaAsset type
 	expectedFrames,
 	fps,
-	downloadMap, // toneFrequency, // Receive toneFrequency from options
+	downloadMap,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
