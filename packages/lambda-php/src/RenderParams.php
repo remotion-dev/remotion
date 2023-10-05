@@ -114,6 +114,11 @@ class RenderParams
         ?string $deleteAfter = null
         )
     {
+        if ($chromiumOptions === null) {
+            $this->chromiumOptions = new stdClass();
+        } else {
+            $this->chromiumOptions = $chromiumOptions;
+        }
         $this->data = $data;
         $this->composition = $composition;
         $this->codec = $codec;
@@ -129,7 +134,6 @@ class RenderParams
         $this->frameRange = $frameRange;
         $this->outName = $outName;
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
-        $this->chromiumOptions = $chromiumOptions;
         $this->scale = $scale;
         $this->everyNthFrame = $everyNthFrame;
         $this->numberOfGifLoops = $numberOfGifLoops;
