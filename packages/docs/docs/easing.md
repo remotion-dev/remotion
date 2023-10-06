@@ -221,24 +221,42 @@ Use with `Animated.parallel()` to create a basic effect where the object animate
 ### `bounce()`
 
 ```jsx
-static bounce(t)
+static bounce(t): number
 ```
 
 Provides a basic bouncing effect.
 
 http://easings.net/#easeInBounce
 
+See an example of how you might use it below
+
+```jsx
+interpolate(0.5, [0, 1], [0, 1], {
+  easing: Easing.bounce,
+});
+```
+
 ---
 
 ### `bezier()`
 
 ```jsx
-static bezier(x1, y1, x2, y2)
+static bezier(x1, y1, x2, y2) => (t): number
 ```
 
 Provides a cubic bezier curve, equivalent to CSS Transitions' `transition-timing-function`.
 
 A useful tool to visualize cubic bezier curves can be found at http://cubic-bezier.com/
+
+```jsx
+interpolate(0.5, [0, 1], [0, 1], {
+  easing: Easing.beizer(0.5, 0.01, 0.5, 1),
+});
+```
+
+:::info
+Sometimes, you might end up misplacing the usage of `bounce()` and `beizer()`. Whenever you're stuck, remember that, to use the `beizer()` easing function, you need to call it and pass the params like so `Easing.beizer(x1, x2, x3, x4)`. for `bounce()` you don't have to.
+:::
 
 ---
 
