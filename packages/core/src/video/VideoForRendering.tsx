@@ -29,7 +29,6 @@ import type {RemotionVideoProps} from './props.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
-	toneFrequency?: number;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<

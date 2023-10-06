@@ -21,6 +21,7 @@ test('Dont skip assets', () => {
 			volume: 1,
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -32,6 +33,7 @@ test('Dont skip assets', () => {
 			volume: 1,
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 	]);
 });
