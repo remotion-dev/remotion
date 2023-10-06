@@ -91,7 +91,7 @@ class RenderParams
         ?string $frameRange = null,
         ?string $outName = null,
         ?int $timeoutInMilliseconds = 30000,
-        ?object $chromiumOptions = new stdClass(), 
+        ?object $chromiumOptions = null, 
         ?int $scale = 1, 
         ?int $everyNthFrame = 1, 
         ?int $numberOfGifLoops = 0, 
