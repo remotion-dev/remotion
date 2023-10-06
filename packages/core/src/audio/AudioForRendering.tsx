@@ -95,10 +95,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			toneFrequency !== undefined &&
 			(toneFrequency < 0 || toneFrequency > 1)
 		) {
-			throw new Error('Tone frequency must be between 0 and 1');
+			throw new Error('Tone frequency must be between 0 and 1');// Stabilizing a min and max value for toneFrequecny
 		}
 
-		const ffmpegFilter = `asetrate=44100*${toneFrequency},aresample=44100,atempo=1/${toneFrequency}`;
+		const ffmpegFilter = `asetrate=44100*${toneFrequency},aresample=44100,atempo=1/${toneFrequency}`; // Logic to calculate the pitch
 
 		registerRenderAsset({
 			type: 'audio',
