@@ -159,6 +159,7 @@ const innerStillHandler = async ({
 		deleteAfter: lambdaParams.deleteAfter,
 		numberOfGifLoops: null,
 		downloadBehavior: lambdaParams.downloadBehavior,
+		audioBitrate: null,
 	};
 
 	await lambdaWriteFile({

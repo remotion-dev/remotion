@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.45",
+	"version": "4.0.46",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -73,7 +73,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"vitest": "0.31.1",
-		"zod": "^3.21.4"
+		"zod": "^3.22.3"
 	},
 	"keywords": [
 		"remotion",

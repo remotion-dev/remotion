@@ -60,19 +60,18 @@ export const mergeChunksAndFinishRender = async (options: {
 	serializedResolvedProps: SerializedInputProps;
 	renderMetadata: RenderMetadata;
 	onAllChunks: OnAllChunksAvailable;
+	audioBitrate: string | null;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
 	const onProgress = (framesEncoded: number) => {
-		const relativeProgress = framesEncoded / options.frameCountLength;
-		const deltaSinceLastProgressUploaded =
-			relativeProgress - lastProgressUploaded;
+		const deltaSinceLastProgressUploaded = framesEncoded - lastProgressUploaded;
 
-		if (deltaSinceLastProgressUploaded < 0.1) {
+		if (deltaSinceLastProgressUploaded < 200) {
 			return;
 		}
 
-		lastProgressUploaded = relativeProgress;
+		lastProgressUploaded = framesEncoded;
 
 		lambdaWriteFile({
 			bucketName: options.bucketName,
@@ -159,6 +158,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		files,
 		outdir,
 		audioCodec: options.audioCodec,
+		audioBitrate: options.audioBitrate,
 	});
 	const encodingStop = Date.now();
 
