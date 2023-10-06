@@ -24,6 +24,7 @@ export const stringifyFfmpegFilter = ({
 	durationInFrames,
 	assetDuration,
 	allowAmplificationDuringRender,
+	toneFrequency,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -35,6 +36,7 @@ export const stringifyFfmpegFilter = ({
 	playbackRate: number;
 	assetDuration: number | null;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 }): FilterWithoutPaddingApplied | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
@@ -76,6 +78,9 @@ export const stringifyFfmpegFilter = ({
 				volumeFilter.value === '1'
 					? null
 					: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+				toneFrequency
+					? `asetrate=${DEFAULT_SAMPLE_RATE}*${toneFrequency},aresample=${DEFAULT_SAMPLE_RATE},atempo=1/${toneFrequency}`
+					: null,
 				// For n channels, we delay n + 1 channels.
 				// This is because `ffprobe` for some audio files reports the wrong amount
 				// of channels.

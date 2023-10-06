@@ -51,6 +51,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 						playbackRate: 1,
 						mediaFrame: 0,
 						allowAmplificationDuringRender: false,
+						toneFrequency: null,
 				  }
 				: null,
 			{
@@ -62,6 +63,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 				playbackRate: 1,
 				mediaFrame: k,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 		].filter(truthy);
 	});

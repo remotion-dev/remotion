@@ -14,6 +14,7 @@ export type UnsafeAsset = Omit<
 	id: string;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 // Volume can either be static, for all frames the same,
@@ -23,7 +24,6 @@ export type AssetVolume = number | number[];
 export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 	duration: number;
 	volume: AssetVolume;
-	toneFrequency?: number | undefined;
 };
 
 export const uncompressMediaAsset = (
