@@ -42,7 +42,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		playbackRate,
 		onDuration,
-
 		...props
 	},
 	ref,
