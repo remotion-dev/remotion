@@ -21,7 +21,6 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
-	toneFrequency?: number; // Add toneFrequency property
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
