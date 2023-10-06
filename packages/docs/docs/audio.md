@@ -125,7 +125,7 @@ export const MyVideo = () => {
 };
 ```
 
-### `toneFrequency`<AvailableFrom v="4.0.45"/>
+### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
 //update the version
 
@@ -141,6 +141,7 @@ export const MyVideo = () => {
     </AbsoluteFill>
   );
 };
+```
 
 ## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
@@ -157,4 +158,3 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
-```
