@@ -182,6 +182,7 @@ export const concatVideosS3 = async ({
 	files,
 	outdir,
 	audioCodec,
+	audioBitrate,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -191,6 +192,7 @@ export const concatVideosS3 = async ({
 	files: string[];
 	outdir: string;
 	audioCodec: AudioCodec | null;
+	audioBitrate: string | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -209,6 +211,7 @@ export const concatVideosS3 = async ({
 		fps,
 		numberOfGifLoops,
 		audioCodec,
+		audioBitrate,
 	});
 	combine.end();
 

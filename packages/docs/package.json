@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.45",
+  "version": "4.0.46",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -72,7 +72,7 @@
     "three": "0.145.0",
     "uuid": "^8.3.2",
     "vitest": "0.31.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",

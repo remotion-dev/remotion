@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.45",
+	"version": "4.0.46",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -68,7 +68,7 @@
 		"ts-unused-exports": "^7.0.1",
 		"use-asset": "^1.0.4",
 		"vitest": "0.31.1",
-		"zod": "^3.21.4"
+		"zod": "^3.22.3"
 	},
 	"devDependencies": {
 		"eslint": "8.42.0",
