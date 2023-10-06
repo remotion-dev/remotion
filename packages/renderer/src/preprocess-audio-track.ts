@@ -49,18 +49,12 @@ const preprocessAudioTrackUnlimited = async ({
 	const {cleanup, file} = await makeFfmpegFilterFile(filter, downloadMap);
 
 	const args = [
-		'-i',
-		resolveAssetSrc(asset.src),
-		'-ac',
-		'2',
-		'-filter_script:a',
-		file,
-		'-c:a',
-		'pcm_s16le',
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		'-y',
-		outName,
+		['-i', resolveAssetSrc(asset.src)],
+		['-ac', '2'],
+		['-filter_script:a', file],
+		['-c:a', 'pcm_s16le'],
+		['-ar', String(DEFAULT_SAMPLE_RATE)],
+		['-y', outName],
 	].flat(2);
 
 	await callFf('ffmpeg', args);
