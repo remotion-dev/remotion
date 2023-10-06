@@ -15,6 +15,7 @@ const asset: MediaAsset = {
 	id: '1',
 	playbackRate: 1,
 	allowAmplificationDuringRender: false,
+	toneFrequency: null,
 };
 
 test('Should create a basic filter correctly', () => {
@@ -153,6 +154,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 				startInVideo: 0,
 				playbackRate: 16,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 			durationInFrames: 2000,
 			channels: 1,

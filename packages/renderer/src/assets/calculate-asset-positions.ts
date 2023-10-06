@@ -49,6 +49,7 @@ export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
 					volume: [],
 					playbackRate: asset.playbackRate,
 					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+					toneFrequency: asset.toneFrequency,
 				});
 			}
 
