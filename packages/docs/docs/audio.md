@@ -127,8 +127,6 @@ export const MyVideo = () => {
 
 ### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
-//update the version
-
 The `toneFrequency` prop allows you to adjust the pitch of the audio. It accepts a number between 0 and 1, where 0 represents the lowest pitch and 1 represents the highest pitch. For example, a toneFrequency of 0.5 would lower the pitch by half. The valid range for toneFrequency is from 0 (lowest pitch) to 1 (highest pitch).
 
 ```tsx twoslash
