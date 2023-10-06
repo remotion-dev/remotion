@@ -52,6 +52,7 @@ test('Should compress and uncompress assets', () => {
 			type: 'video',
 			volume: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 	]);
 });
