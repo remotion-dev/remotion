@@ -54,7 +54,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
-- [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
+- [MapSnap](https://remotion.pro) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
