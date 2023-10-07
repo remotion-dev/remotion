@@ -609,9 +609,6 @@ importers:
       '@shopify/react-native-skia':
         specifier: ^0.1.191
         version: 0.1.191(react@18.0.0)
-      '@splitbee/web':
-        specifier: ^0.2.4
-        version: 0.2.4
       '@swc/core':
         specifier: ^1.3.27
         version: 1.3.27
@@ -8459,10 +8456,6 @@ packages:
       '@smithy/abort-controller': 2.0.1
       '@smithy/types': 2.0.2
       tslib: 2.5.0
-    dev: false
-
-  /@splitbee/web@0.2.4:
-    resolution: {integrity: sha512-LMXnN5X/jen4ssBZ8ULXckQgJVvv8Ox2brcK7g2aLrok8ISzO76+DC0b6Cierk8oIXcx/+aflbVuBaKKFqyBCg==}
     dev: false
 
   /@svgr/babel-plugin-add-jsx-attribute@6.0.0(@babel/core@7.15.5):
