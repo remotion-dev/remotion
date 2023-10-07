@@ -51,7 +51,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		onDuration,
-		toneFrequency, // Default value for toneFrequency
+		toneFrequency,
 		_remotionInternalNeedsDurationCalculation,
 		acceptableTimeShiftInSeconds,
 		...nativeProps
