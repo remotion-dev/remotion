@@ -52,14 +52,11 @@ const V4: React.FC = () => {
 
         if (isValidEmail(email)) {
           setLoading(true);
-          const res = await fetch(
-            "https://companies.remotion.dev/api/newsletter",
-            {
-              method: "POST",
-              body: JSON.stringify({ email }),
-              headers: { "content-type": "application/json" },
-            },
-          );
+          const res = await fetch("https://www.remotion.pro/api/newsletter", {
+            method: "POST",
+            body: JSON.stringify({ email }),
+            headers: { "content-type": "application/json" },
+          });
           const json = await res.json();
           if (json.success) {
             setSubscribed(true);
