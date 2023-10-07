@@ -21,6 +21,7 @@ import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
+import {makePayloadMessage} from './streaming/streaming';
 
 const innerHandler = async (
 	params: LambdaPayload,
@@ -134,14 +135,31 @@ const innerHandler = async (
 		});
 		RenderInternals.setLogLevel(params.logLevel);
 
-		const response = await rendererHandler(params, {
-			expectedBucketOwner: currentUserId,
-			isWarm,
-		});
+		const response = await rendererHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				isWarm,
+			},
+			(payload) => {
+				if (params.enableStreaming) {
+					const message = makePayloadMessage({
+						message: payload,
+						status: 0,
+					});
 
-		responseStream.write(JSON.stringify(response), () => {
+					responseStream.write(message);
+				}
+			},
+		);
+		if (params.enableStreaming) {
 			responseStream.end();
-		});
+		} else {
+			responseStream.write(JSON.stringify(response), () => {
+				responseStream.end();
+			});
+		}
+
 		return;
 	}
 

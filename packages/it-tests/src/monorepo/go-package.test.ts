@@ -68,6 +68,7 @@ test("Go package should create the same payload as normal Lambda package", async
     webhook: null,
     x264Preset: null,
     inputProps: {},
+    enableStreaming: false,
   });
 
   expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

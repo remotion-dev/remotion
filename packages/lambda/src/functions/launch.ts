@@ -2,6 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -259,6 +260,7 @@ const innerLaunchHandler = async ({
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
+			enableStreaming: params.enableStreaming,
 		};
 		return payload;
 	});
@@ -349,7 +351,29 @@ const innerLaunchHandler = async ({
 
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
-			await callFunctionWithRetry({payload, retries: 0, functionName});
+			if (params.enableStreaming) {
+				await callLambda({
+					functionName,
+					payload,
+					retriesRemaining: 0,
+					region: getCurrentRegionInFunction(),
+					timeoutInTest: 12000,
+					type: LambdaRoutines.renderer,
+					onMessage: ({message}) => {
+						if (message.type === 'frames-rendered') {
+							console.log(
+								`[STREAMING]: ${message.payload.frames} frames rendered`,
+							);
+						} else if (message.type === 'chunk-rendered') {
+							console.log(
+								`[STREAMING]: ${message.payload.length} bytes chunk received`,
+							);
+						}
+					},
+				});
+			} else {
+				await callFunctionWithRetry({payload, retries: 0, functionName});
+			}
 		}),
 	);
 

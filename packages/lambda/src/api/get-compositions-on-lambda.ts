@@ -83,9 +83,9 @@ export const getCompositionsOnLambda = async ({
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 			},
 			region,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
+			onMessage: () => undefined,
 		});
 		return res.compositions;
 	} catch (err) {

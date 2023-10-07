@@ -108,9 +108,10 @@ describe('Webhooks', () => {
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				enableStreaming: false,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
@@ -125,7 +126,7 @@ describe('Webhooks', () => {
 				version: VERSION,
 			},
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
@@ -154,7 +155,7 @@ describe('Webhooks', () => {
 
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
@@ -206,6 +207,7 @@ describe('Webhooks', () => {
 				audioCodec: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				enableStreaming: false,
 			},
 			timeoutInTest: 1000,
 			retriesRemaining: 0,

@@ -6,7 +6,6 @@ import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
-import {parsedCloudrunCli} from '../../args';
 import {displayCrashLogs} from '../../helpers/cloudrun-crash-logs';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
@@ -31,10 +30,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
 	});
-
-	const imageFormat = parsedCloudrunCli['image-format'];
-
-	const audioCodec = parsedCloudrunCli['audio-codec'];
 
 	const {
 		chromiumOptions,
@@ -61,6 +56,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		enforceAudioTrack,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		audioCodec,
+		videoImageFormat,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -194,7 +191,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		x264Preset,
 		crf,
 		pixelFormat,
-		imageFormat,
+		imageFormat: videoImageFormat,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,

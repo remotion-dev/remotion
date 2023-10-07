@@ -10,7 +10,7 @@ test('Call function locally', async () => {
 			type: LambdaRoutines.info,
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		}),

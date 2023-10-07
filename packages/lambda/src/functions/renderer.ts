@@ -27,17 +27,24 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
 };
 
-const renderHandler = async (
-	params: LambdaPayload,
-	options: Options,
-	logs: BrowserLog[],
-): Promise<{}> => {
+const renderHandler = async ({
+	params,
+	options,
+	logs,
+	onStream,
+}: {
+	params: LambdaPayload;
+	options: Options;
+	logs: BrowserLog[];
+	onStream: OnStream;
+}): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -150,6 +157,8 @@ const renderHandler = async (
 					);
 				}
 
+				onStream({type: 'frames-rendered', payload: {frames: renderedFrames}});
+
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
 					params.everyNthFrame,
@@ -246,6 +255,7 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+	onStream({type: 'chunk-rendered', payload: fs.readFileSync(outputLocation)});
 	RenderInternals.Log.verbose('Wrote chunk to S3', {
 		time: Date.now() - writeStart,
 	});
@@ -275,6 +285,7 @@ const renderHandler = async (
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	onStream: OnStream,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -285,7 +296,7 @@ export const rendererHandler = async (
 	const logs: BrowserLog[] = [];
 
 	try {
-		await renderHandler(params, options, logs);
+		await renderHandler({params, options, logs, onStream});
 		return {
 			type: 'success',
 		};
@@ -336,7 +347,7 @@ export const rendererHandler = async (
 				payload: retryPayload,
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
-				receivedStreamingPayload: () => undefined,
+				onMessage: () => undefined,
 				timeoutInTest: 120000,
 				retriesRemaining: 0,
 			});

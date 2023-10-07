@@ -2,6 +2,7 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	FrameRange,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
@@ -10,6 +11,7 @@ import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
+import {parsedCli} from './parse-command-line';
 
 const getAndValidateFrameRange = () => {
 	const frameRange = ConfigInternals.getRange();
@@ -134,6 +136,8 @@ export const getCliOptions = async (options: {
 	const height = ConfigInternals.getHeight();
 	const width = ConfigInternals.getWidth();
 
+	const audioCodec = ConfigInternals.getAudioCodec() ?? null;
+
 	RenderInternals.validateConcurrency({
 		value: concurrency,
 		setting: 'concurrency',
@@ -170,10 +174,12 @@ export const getCliOptions = async (options: {
 		videoBitrate,
 		height,
 		width,
-		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
+		videoImageFormat: (parsedCli['image-format'] ??
+			ConfigInternals.getUserPreferredVideoImageFormat()) as VideoImageFormat,
 		offthreadVideoCacheSizeInBytes:
 			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 		deleteAfter: ConfigInternals.getDeleteAfter(),
 		colorSpace: ConfigInternals.getColorSpace(),
+		audioCodec,
 	};
 };

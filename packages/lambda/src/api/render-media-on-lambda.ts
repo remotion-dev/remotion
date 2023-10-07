@@ -70,6 +70,7 @@ export type RenderMediaOnLambdaInput = {
 	dumpBrowserLogs?: boolean;
 	colorSpace?: ColorSpace;
 	deleteAfter?: DeleteAfter | null;
+	enableStreaming?: boolean;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -90,7 +91,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
-			receivedStreamingPayload: () => undefined,
+			onMessage: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});
@@ -194,6 +195,7 @@ export const renderMediaOnLambda = (
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
+		enableStreaming: options.enableStreaming ?? false,
 	});
 };
 

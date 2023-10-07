@@ -300,9 +300,9 @@ export const stillHandler = async (
 			payload: retryPayload,
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.still,
-			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
+			onMessage: () => undefined,
 		});
 		const bucketName =
 			params.bucketName ??
