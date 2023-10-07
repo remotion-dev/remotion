@@ -16,13 +16,13 @@ export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
 				current.removeEventListener('frameupdate', updater);
 			};
 		},
-		[ref]
+		[ref],
 	);
 
 	const data = useSyncExternalStore<number>(
 		subscribe,
 		() => ref.current?.getCurrentFrame() ?? 0,
-		() => 0
+		() => 0,
 	);
 
 	return data;

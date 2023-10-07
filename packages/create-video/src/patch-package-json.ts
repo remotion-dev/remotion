@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import type {PackageManager} from './pkg-managers';
 
@@ -19,7 +19,7 @@ export const patchPackageJson = (
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
 		setPackageJson = (filename: string, content: string) =>
 			fs.writeFileSync(filename, content),
-	} = {}
+	} = {},
 ) => {
 	const fileName = path.join(projectRoot, 'package.json');
 
@@ -54,7 +54,7 @@ export const patchPackageJson = (
 			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,
-		2
+		2,
 	);
 
 	setPackageJson(fileName, newPackageJson);

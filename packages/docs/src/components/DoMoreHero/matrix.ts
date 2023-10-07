@@ -48,7 +48,7 @@ export const m44multiply = (
 // number of matrices following it.
 function multiplyMany(
   size: number,
-  listOfMatrices: MatrixTransform4D[]
+  listOfMatrices: MatrixTransform4D[],
 ): MatrixTransform4D {
   if (listOfMatrices.length < 2) {
     throw new Error("multiplication expected two or more matrices");
@@ -67,13 +67,13 @@ function multiplyMany(
 function mul(m1: number[], m2: number[], size: number): number[] {
   if (m1.length !== m2.length) {
     throw new Error(
-      `Undefined for matrices of different sizes. m1.length=${m1.length}, m2.length=${m2.length}`
+      `Undefined for matrices of different sizes. m1.length=${m1.length}, m2.length=${m2.length}`,
     );
   }
 
   if (size * size !== m1.length) {
     throw new Error(
-      `Undefined for non-square matrices. array size was ${size}`
+      `Undefined for non-square matrices. array size was ${size}`,
     );
   }
 
@@ -101,7 +101,7 @@ const rotated = function (axisVec: Vector, radians: number): MatrixTransform4D {
   return rotatedUnitSinCos(
     normalize(axisVec),
     Math.sin(radians),
-    Math.cos(radians)
+    Math.cos(radians),
   );
 };
 
@@ -133,7 +133,7 @@ export type MatrixTransform4D = [
   number,
   number,
   number,
-  number
+  number,
 ];
 
 export const scaled = function (value: number | Vector) {
@@ -144,7 +144,7 @@ export const scaled = function (value: number | Vector) {
 const rotatedUnitSinCos = function (
   axisVec: Vector,
   sinAngle: number,
-  cosAngle: number
+  cosAngle: number,
 ): MatrixTransform4D {
   const x = axisVec[0];
   const y = axisVec[1];
@@ -191,7 +191,7 @@ const lengthSquared = function (v: number[]) {
 export const dot = function (a: number[], b: number[]) {
   if (a.length !== b.length) {
     throw new Error(
-      `Cannot perform dot product on arrays of different length (${a.length} vs ${b.length})`
+      `Cannot perform dot product on arrays of different length (${a.length} vs ${b.length})`,
     );
   }
 
@@ -243,7 +243,7 @@ export const mulScalar = function <T extends number[]>(v: T, s: number): T {
 
 export function multiplyMatrixAndSvgInstruction(
   matrix: MatrixTransform4D,
-  point: ThreeDReducedInstruction
+  point: ThreeDReducedInstruction,
 ): ThreeDReducedInstruction {
   if (point.type === "C") {
     return {
@@ -288,7 +288,7 @@ export function multiplyMatrixAndSvgInstruction(
 
 export const multiplyMatrix = (
   matrix: MatrixTransform4D,
-  point: Vector4D
+  point: Vector4D,
 ): Vector4D => {
   if (matrix.length !== 16 || point.length !== 4) {
     throw new Error("Invalid matrix or vector dimension");

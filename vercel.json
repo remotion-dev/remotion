@@ -1,4 +1,21 @@
 {
+  "headers": [
+    {
+      "source": "/img/gt-planar(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+        }
+      ]
+    }
+  ],
   "redirects": [
     {
       "source": "/changelog",
@@ -8,6 +25,11 @@
     {
       "source": "/discord",
       "destination": "https://discord.gg/6VzzNDwUwV",
+      "permanent": false
+    },
+    {
+      "source": "/booking",
+      "destination": "https://cal.com/remotion",
       "permanent": false
     },
     {
@@ -146,6 +168,11 @@
       "permanent": false
     },
     {
+      "source": "/docs/cli/preview",
+      "destination": "/docs/cli/studio",
+      "permanent": false
+    },
+    {
       "source": "/links",
       "destination": "https://linktr.ee/remotion",
       "permanent": false
@@ -166,6 +193,16 @@
       "permanent": false
     },
     {
+      "source": "/zod-types",
+      "destination": "https://www.remotion.dev/docs/zod-types",
+      "permanent": false
+    },
+    {
+      "source": "/cloudrun",
+      "destination": "https://www.remotion.dev/docs/cloudrun",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
@@ -173,6 +210,41 @@
     {
       "source": "/native",
       "destination": "https://remotion.dev/docs/react-native",
+      "permanent": false
+    },
+    {
+      "source": "/docs/parametrized-rendering",
+      "destination": "https://www.remotion.dev/docs/parameterized-rendering",
+      "permanent": false
+    },
+    {
+      "source": "/business",
+      "destination": "https://github.com/orgs/remotion-dev/projects/10",
+      "permanent": false
+    },
+    {
+      "source": "/docs/thorium-browser",
+      "destination": "/docs/miscellaneous/thorium-browser",
+      "permanent": false
+    },
+    {
+      "source": "/youtube",
+      "destination": "https://youtube.com/@remotion_dev",
+      "permanent": false
+    },
+    {
+      "source": "/bun",
+      "destination": "/docs/bun",
+      "permanent": false
+    },
+    {
+      "source": "/bounties",
+      "destination": "/docs/contributing/bounty",
+      "permanent": false
+    },
+    {
+      "source": "/repro",
+      "destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
       "permanent": false
     }
   ]

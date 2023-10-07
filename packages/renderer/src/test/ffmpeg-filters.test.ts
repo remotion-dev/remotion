@@ -15,6 +15,7 @@ const asset: MediaAsset = {
 	id: '1',
 	playbackRate: 1,
 	allowAmplificationDuringRender: false,
+	toneFrequency: null,
 };
 
 test('Should create a basic filter correctly', () => {
@@ -28,7 +29,7 @@ test('Should create a basic filter correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:6.666667[a0]',
@@ -44,7 +45,7 @@ test('Trim the end', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:0.666667[a0]',
@@ -64,7 +65,7 @@ test('Should handle trim correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
@@ -84,7 +85,7 @@ test('Should add padding if audio is too short', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 1,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
@@ -106,7 +107,7 @@ test('Should handle delay correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 1,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
@@ -127,7 +128,7 @@ test('Should offset multiple channels', () => {
 			durationInFrames: 100,
 			channels: 3,
 			assetDuration: 1,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
@@ -153,11 +154,12 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 				startInVideo: 0,
 				playbackRate: 16,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 			durationInFrames: 2000,
 			channels: 1,
 			assetDuration: 33.333333,
-		})
+		}),
 	).toEqual({
 		filter:
 			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:33.333333,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',

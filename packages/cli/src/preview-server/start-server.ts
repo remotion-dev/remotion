@@ -1,8 +1,10 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import http from 'http';
+import type {IncomingMessage} from 'node:http';
+import http from 'node:http';
 import {ConfigInternals} from '../config';
+import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
@@ -23,8 +25,10 @@ export const startServer = async (options: {
 	publicDir: string;
 	userPassedPublicDir: string | null;
 	poll: number | null;
-	hash: string;
-	hashPrefix: string;
+	staticHash: string;
+	staticHashPrefix: string;
+	outputHash: string;
+	outputHashPrefix: string;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -36,7 +40,7 @@ export const startServer = async (options: {
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
+		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),
@@ -55,27 +59,30 @@ export const startServer = async (options: {
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
-			wdmMiddleware(request, response, () => {
+			wdmMiddleware(request as IncomingMessage, response, () => {
 				resolve();
 			});
 		})
 			.then(() => {
 				return new Promise<void>((resolve) => {
-					whm(request, response, () => {
+					whm(request as IncomingMessage, response, () => {
 						resolve();
 					});
 				});
 			})
 			.then(() => {
-				return handleRoutes({
-					hash: options.hash,
-					hashPrefix: options.hashPrefix,
-					request,
+				handleRoutes({
+					staticHash: options.staticHash,
+					staticHashPrefix: options.staticHashPrefix,
+					outputHash: options.outputHash,
+					outputHashPrefix: options.outputHashPrefix,
+					request: request as IncomingMessage,
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
+					entryPoint: options.userDefinedComponent,
 					publicDir: options.publicDir,
 				});
 			})
@@ -90,7 +97,7 @@ export const startServer = async (options: {
 					response.end(
 						JSON.stringify({
 							err: (err as Error).message,
-						})
+						}),
 					);
 				}
 			});
@@ -125,7 +132,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				Log.error(
-					`Port ${codedError.port} is already in use. Trying another port...`
+					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {
 				throw err;

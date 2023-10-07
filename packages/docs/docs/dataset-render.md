@@ -20,8 +20,9 @@ import TabItem from '@theme/TabItem';
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
@@ -38,14 +39,21 @@ pnpm create video --blank
 ```
 
   </TabItem>
-
   <TabItem value="yarn">
+
+```bash
+bun create video --blank
+```
+
+  </TabItem>
+  <TabItem value="bun">
 
 ```bash
 yarn create video --blank
 ```
 
   </TabItem>
+
 </Tabs>
 
 ## Sample dataset
@@ -248,6 +256,8 @@ const composition = {
   fps: 30,
   durationInFrames: 30,
   id: "hi",
+  defaultProps: {},
+  props: {},
 };
 const bundleLocation = "xxx";
 // ---cut---

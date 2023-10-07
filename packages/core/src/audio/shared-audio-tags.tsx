@@ -47,7 +47,7 @@ type SharedContext = {
 
 const compareProps = (
 	obj1: Record<string, unknown>,
-	obj2: Record<string, unknown>
+	obj2: Record<string, unknown>,
 ) => {
 	const keysA = Object.keys(obj1).sort();
 	const keysB = Object.keys(obj2).sort();
@@ -95,14 +95,14 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
-	component: LazyExoticComponent<ComponentType<unknown>> | null;
+	component: LazyExoticComponent<ComponentType<Record<string, unknown>>> | null;
 }> = ({children, numberOfAudioTags, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
 	if (numberOfAudioTags !== initialNumberOfAudioTags) {
 		throw new Error(
-			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.'
+			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
 		);
 	}
 
@@ -113,7 +113,7 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [numberOfAudioTags]);
 
 	const takenAudios = useRef<(false | number)[]>(
-		new Array(numberOfAudioTags).fill(false)
+		new Array(numberOfAudioTags).fill(false),
 	);
 
 	const rerenderAudios = useCallback(() => {
@@ -157,7 +157,7 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error(
 					`Tried to simultaneously mount ${
 						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property for more information on how to increase this limit.`
+					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property for more information on how to increase this limit.`,
 				);
 			}
 
@@ -176,7 +176,7 @@ export const SharedAudioContextProvider: React.FC<{
 			rerenderAudios();
 			return newElem;
 		},
-		[numberOfAudioTags, refs, rerenderAudios]
+		[numberOfAudioTags, refs, rerenderAudios],
 	);
 
 	const unregisterAudio = useCallback(
@@ -194,7 +194,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			rerenderAudios();
 		},
-		[refs, rerenderAudios]
+		[refs, rerenderAudios],
 	);
 
 	const updateAudio = useCallback(
@@ -231,7 +231,7 @@ export const SharedAudioContextProvider: React.FC<{
 				rerenderAudios();
 			}
 		},
-		[rerenderAudios]
+		[rerenderAudios],
 	);
 
 	const playAllAudios = useCallback(() => {
@@ -279,7 +279,12 @@ export const SharedAudioContextProvider: React.FC<{
 	return (
 		<SharedAudioContext.Provider value={value}>
 			{refs.map(({id, ref}) => {
-				return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
+				return (
+					// Without preload="metadata", iOS will seek the time internally
+					// but not actually with sound. Adding `preload="metadata"` helps here.
+					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+				);
 			})}
 			{children}
 		</SharedAudioContext.Provider>

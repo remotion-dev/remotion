@@ -62,7 +62,7 @@ import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "./assets/img0.png"}
-  return <Img src={require(inputProps.imageSrc)} />;
+  return <Img src={require(inputProps.imageSrc as string)} />;
 };
 ```
 
@@ -75,7 +75,7 @@ import { getInputProps, Img } from "remotion";
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "img0.png"}
   // Works!
-  return <Img src={require("./assets/" + inputProps.imageSrc)} />;
+  return <Img src={require(("./assets/" + inputProps.imageSrc) as string)} />;
 };
 ```
 

@@ -114,7 +114,7 @@ export const VideoPlayer: React.FC<{
       if (
         !mobileLayout &&
         (backButtonCurrent as HTMLDivElement).contains(
-          event.target as Node | null
+          event.target as Node | null,
         )
       ) {
         return;
@@ -123,7 +123,7 @@ export const VideoPlayer: React.FC<{
       if (
         !mobileLayout &&
         (forwardButtonCurrent as HTMLDivElement).contains(
-          event.target as Node | null
+          event.target as Node | null,
         )
       ) {
         return;
@@ -132,7 +132,7 @@ export const VideoPlayer: React.FC<{
       if (
         mobileLayout &&
         (headerBarCurrent as HTMLDivElement).contains(
-          event.target as Node | null
+          event.target as Node | null,
         )
       ) {
         return;

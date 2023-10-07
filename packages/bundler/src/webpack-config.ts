@@ -1,22 +1,29 @@
-import {createHash} from 'crypto';
+import {createHash} from 'node:crypto';
 import ReactDOM from 'react-dom';
-import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
-import {AllowOptionalDependenciesPlugin} from './optional-depdendencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
-if (!ReactDOM || !ReactDOM.version) {
+import {Internals} from 'remotion';
+import type {Configuration} from 'webpack';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
+export type WebpackConfiguration = Configuration;
+
+export type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration,
+) => WebpackConfiguration;
+
+if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
 }
 
 const reactDomVersion = ReactDOM.version.split('.')[0];
 if (reactDomVersion === '0') {
 	throw new Error(
-		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`,
 	);
 }
 
@@ -61,17 +68,22 @@ export const webpackConfig = ({
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
+	let lastProgress = 0;
+
+	const isBun = typeof Bun !== 'undefined';
+
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
 			minimize: false,
 		},
 		experiments: {
-			lazyCompilation:
-				environment === 'production'
-					? false
-					: {
-							entries: false,
-					  },
+			lazyCompilation: isBun
+				? false
+				: environment === 'production'
+				? false
+				: {
+						entries: false,
+				  },
 		},
 		watchOptions: {
 			poll: poll ?? undefined,
@@ -109,14 +121,17 @@ export const webpackConfig = ({
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								onProgress(Number((p * 100).toFixed(2)));
+								if (p === 1 || p - lastProgress > 0.05) {
+									lastProgress = p;
+									onProgress(Number((p * 100).toFixed(2)));
+								}
 							}
 						}),
 						new AllowOptionalDependenciesPlugin(),
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			filename: 'bundle.js',
+			filename: Internals.bundleName,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
@@ -126,12 +141,12 @@ export const webpackConfig = ({
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
-				'react-native$': 'react-native-web',
 			},
 		},
 		module: {

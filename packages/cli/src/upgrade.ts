@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -20,11 +20,11 @@ const getUpgradeCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
-
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', '--save-exact', ...pkgList],
 		pnpm: ['i', '--save-exact', ...pkgList],
 		yarn: ['add', '--exact', ...pkgList],
+		bun: ['i', ...pkgList],
 	};
 
 	return commands[manager];
@@ -32,19 +32,26 @@ const getUpgradeCommand = ({
 
 export const upgrade = async (
 	remotionRoot: string,
-	packageManager: string | undefined
+	packageManager: string | undefined,
+	version: string | undefined,
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
-
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
 	const optionalDependencies = Object.keys(
-		packageJson.optionalDependencies ?? {}
+		packageJson.optionalDependencies ?? {},
 	);
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
-	const latestRemotionVersion = await getLatestRemotionVersion();
-	Log.info('Newest Remotion version is', latestRemotionVersion);
+
+	let targetVersion: string;
+	if (version) {
+		targetVersion = version;
+		Log.info('Upgrading to specified version: ' + version);
+	} else {
+		targetVersion = await getLatestRemotionVersion();
+		Log.info('Newest Remotion version is', targetVersion);
+	}
 
 	const manager = getPackageManager(remotionRoot, packageManager);
 
@@ -52,7 +59,7 @@ export const upgrade = async (
 		throw new Error(
 			`No lockfile was found in your project (one of ${lockFilePaths
 				.map((p) => p.path)
-				.join(', ')}). Install dependencies using your favorite manager!`
+				.join(', ')}). Install dependencies using your favorite manager!`,
 		);
 	}
 
@@ -61,7 +68,7 @@ export const upgrade = async (
 			dependencies.includes(u) ||
 			devDependencies.includes(u) ||
 			optionalDependencies.includes(u) ||
-			peerDependencies.includes(u)
+			peerDependencies.includes(u),
 	);
 
 	const prom = RenderInternals.execa(
@@ -69,16 +76,16 @@ export const upgrade = async (
 		getUpgradeCommand({
 			manager: manager.manager,
 			packages: toUpgrade,
-			version: latestRemotionVersion,
+			version: targetVersion,
 		}),
 		{
 			stdio: 'inherit',
-		}
+		},
 	);
 	if (
 		RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
-			'info'
+			'info',
 		)
 	) {
 		prom.stdout?.pipe(process.stdout);

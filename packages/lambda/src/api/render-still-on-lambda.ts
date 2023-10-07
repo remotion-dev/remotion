@@ -2,27 +2,39 @@ import type {
 	ChromiumOptions,
 	LogLevel,
 	StillImageFormat,
+	ToOptions,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
@@ -33,8 +45,13 @@ export type RenderStillOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	forceBucketName?: string;
+	/**
+	 * @deprecated Renamed to `dumpBrowserLogs`
+	 */
 	dumpBrowserLogs?: boolean;
-};
+	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
+	deleteAfter?: DeleteAfter | null;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
@@ -45,31 +62,14 @@ export type RenderStillOnLambdaOutput = {
 	cloudWatchLogs: string;
 };
 
-/**
- * @description Renders a still frame on Lambda
- * @link https://remotion.dev/docs/lambda/renderstillonlambda
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.imageFormat In which image format the frames should be rendered.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.quality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the video should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
- * @param params.frame Which frame should be used for the still image. Default 0.
- * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch.
- * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
- */
-
-export const renderStillOnLambda = async ({
+const renderStillOnLambdaRaw = async ({
 	functionName,
 	serveUrl,
 	inputProps,
 	imageFormat,
 	envVariables,
 	quality,
+	jpegQuality,
 	region,
 	maxRetries,
 	composition,
@@ -85,12 +85,24 @@ export const renderStillOnLambda = async ({
 	forceWidth,
 	forceBucketName,
 	dumpBrowserLogs,
+	onInit,
+	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	if (quality) {
+		throw new Error(
+			'The `quality` option is deprecated. Use `jpegQuality` instead.',
+		);
+	}
+
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
+	const serializedInputProps = await compressInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
 		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
@@ -103,12 +115,12 @@ export const renderStillOnLambda = async ({
 				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
-				quality,
+				jpegQuality,
 				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
@@ -118,17 +130,35 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
+				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				deleteAfter: deleteAfter ?? null,
 			},
 			region,
+			receivedStreamingPayload: (payload) => {
+				if (payload.type === 'render-id-determined') {
+					onInit?.({
+						renderId: payload.renderId,
+						cloudWatchLogs: getCloudwatchMethodUrl({
+							functionName,
+							method: LambdaRoutines.still,
+							region,
+							rendererFunctionName: null,
+							renderId: payload.renderId,
+						}),
+					});
+				}
+			},
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
+
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
 				method: LambdaRoutines.still,
 				region,
@@ -139,10 +169,30 @@ export const renderStillOnLambda = async ({
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 
 		throw err;
 	}
 };
+
+/**
+ * @description Renders a still frame on Lambda
+ * @link https://remotion.dev/docs/lambda/renderstillonlambda
+ * @param params.functionName The name of the Lambda function that should be used
+ * @param params.serveUrl The URL of the deployed project
+ * @param params.composition The ID of the composition which should be rendered.
+ * @param params.inputProps The input props that should be passed to the composition.
+ * @param params.imageFormat In which image format the frames should be rendered.
+ * @param params.envVariables Object containing environment variables to be inserted into the video environment
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
+ * @param params.region The AWS region in which the video should be rendered.
+ * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
+ * @param params.frame Which frame should be used for the still image. Default 0.
+ * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
+ * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
+ */
+export const renderStillOnLambda = PureJSAPIs.wrapWithErrorHandling(
+	renderStillOnLambdaRaw,
+) as typeof renderStillOnLambdaRaw;

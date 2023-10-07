@@ -1,10 +1,15 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
+import {
+	useIsStill,
+	useIsVideoComposition,
+} from '../helpers/is-current-selected-still';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
+import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
@@ -12,7 +17,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
-import {RichTimelineToggle} from './RichTimelineToggle';
+import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -42,13 +47,18 @@ const padding: React.CSSProperties = {
 
 export const PreviewToolbar: React.FC = () => {
 	const {playbackRate, setPlaybackRate} = useContext(
-		Internals.Timeline.TimelineContext
+		Internals.Timeline.TimelineContext,
 	);
 
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
+	const isVideoComposition = useIsVideoComposition();
+	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
+
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
 	return (
 		<div style={container} className="css-reset">
@@ -58,23 +68,31 @@ export const PreviewToolbar: React.FC = () => {
 			</div>
 			<Flex />
 			<SizeSelector />
-			<PlaybackRateSelector
-				setPlaybackRate={setPlaybackRate}
-				playbackRate={playbackRate}
-			/>
-			<Spacing x={2} />
-			<PlayPause loop={loop} playbackRate={playbackRate} />
-			<Spacing x={2} />
-			<LoopToggle loop={loop} setLoop={setLoop} />
-			<CheckboardToggle />
-			<RichTimelineToggle />
-			<TimelineInOutPointToggle />
-			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			{isStill || isVideoComposition ? (
+				<PlaybackRateSelector
+					setPlaybackRate={setPlaybackRate}
+					playbackRate={playbackRate}
+				/>
+			) : null}
+			{isVideoComposition ? (
+				<>
+					<Spacing x={2} />
+					<PlayPause loop={loop} playbackRate={playbackRate} />
+					<Spacing x={2} />
+					<LoopToggle loop={loop} setLoop={setLoop} />
+					<CheckboardToggle />
+					<TimelineInOutPointToggle />
+					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+				</>
+			) : null}
+			{isFullscreenSupported && <FullScreenToggle />}
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
-				<div style={padding} />
+				<Spacing x={2} />
+				<RenderButton />
+				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />

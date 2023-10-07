@@ -1,4 +1,4 @@
-import {extname} from 'path';
+import {extname} from 'node:path';
 import {mimeDb} from './mime-db';
 
 const extensions: Record<string, string[]> = {};
@@ -35,7 +35,7 @@ export function mimeLookup(path: string) {
 
 function populateMaps(
 	exts: Record<string, string[]>,
-	_types: Record<string, string>
+	_types: Record<string, string>,
 ) {
 	// source preference (least -> most)
 	const preference = ['nginx', 'apache', undefined, 'iana'];
@@ -44,7 +44,7 @@ function populateMaps(
 		const mime = mimeDb[type];
 		const _exts = mime.extensions;
 
-		if (!_exts || !_exts.length) {
+		if (!_exts?.length) {
 			return;
 		}
 

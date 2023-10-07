@@ -27,7 +27,10 @@ Takes an object with the following keys:
 
 ### `composition`
 
-A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the composition ID. You can obtain an array of available compositions using [`getCompositions()`](/docs/renderer/get-compositions).
+_VideoConfig_
+
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `onStart`
 
@@ -51,7 +54,7 @@ In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, descr
 const onFrameUpdate = (
   framesRendered: number,
   frame: number,
-  timeToRenderInMilliseconds: number
+  timeToRenderInMilliseconds: number,
 ) => {
   console.log(`${framesRendered} frames rendered.`);
 
@@ -69,7 +72,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `inputProps`
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `serveUrl`
 
@@ -77,7 +80,7 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional since v4.0 - default "jpeg"_
 
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
@@ -89,17 +92,13 @@ _optional_
 
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### ~~`parallelism?`~~
-
-Renamed to `concurrency` in v3.2.17.
-
 ### `scale?`<AvailableFrom v="2.6.7" />
 
 _number - default: 1_
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
@@ -119,17 +118,16 @@ _optional_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
 
-### `dumpBrowserLogs?`
+### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-_optional_
-
-Passes the `dumpio` flag to Puppeteer which will log all browser logs to the console. Useful for debugging. `boolean` flag, default is `false`.
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `puppeteerInstance?`
 
 _optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`<AvailableFrom v="2.2.0" />
 
@@ -203,23 +201,11 @@ renderFrames({
         .map((stack) => {
           return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
         })
-        .join("\n")
+        .join("\n"),
     );
   },
 });
 ```
-
-### `ffmpegExecutable?`<AvailableFrom v="3.0.11" />
-
-_optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### `ffprobeExecutable?`<AvailableFrom v="3.0.17" />
-
-_optional_
-
-An absolute path overriding the `ffprobe` executable to use.
 
 ### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
@@ -267,6 +253,12 @@ _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
 #### `ignoreCertificateErrors`
 
 _boolean - default `false`_
@@ -292,6 +284,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 **Default for local rendering**: `null`.  
@@ -300,6 +293,37 @@ Accepted values:
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
+Removed in `v4.0.0`.
+
+### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 

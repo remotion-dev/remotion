@@ -1,20 +1,28 @@
 import {MIN_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {pricing} from '../pricing/price-per-1-s';
-import type {LambdaArchitecture} from '../shared/validate-architecture';
-import {validateArchitecture} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
 
+type Miliseconds =
+	| {
+			/**
+			 * @deprecated Typo in property name. Use `durationInMilliseconds` instead.
+			 */
+			durationInMiliseconds: number;
+	  }
+	| {
+			durationInMilliseconds: number;
+	  };
+
 export type EstimatePriceInput = {
 	region: AwsRegion;
-	durationInMiliseconds: number;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
-	architecture: LambdaArchitecture;
 	lambdasInvoked: number;
-};
+} & Miliseconds;
+
 /**
  *
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
@@ -23,69 +31,67 @@ export type EstimatePriceInput = {
  */
 export const estimatePrice = ({
 	region,
-	durationInMiliseconds,
 	memorySizeInMb,
 	diskSizeInMb,
-	architecture,
 	lambdasInvoked,
+	...other
 }: EstimatePriceInput): number => {
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
-	validateArchitecture(architecture);
 	validateDiskSizeInMb(diskSizeInMb);
-	if (typeof durationInMiliseconds !== 'number') {
+
+	const durationInMilliseconds =
+		'durationInMiliseconds' in other
+			? other.durationInMiliseconds
+			: other.durationInMilliseconds;
+
+	if (typeof durationInMilliseconds !== 'number') {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be a number but got ${typeof durationInMiliseconds}`
+			`Parameter 'durationInMilliseconds' must be a number but got ${typeof durationInMilliseconds}`,
 		);
 	}
 
-	if (Number.isNaN(durationInMiliseconds)) {
+	if (Number.isNaN(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must not be NaN but it is.`
+			`Parameter 'durationInMilliseconds' must not be NaN but it is.`,
 		);
 	}
 
-	if (!Number.isFinite(durationInMiliseconds)) {
+	if (!Number.isFinite(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be finite but it is ${durationInMiliseconds}`
+			`Parameter 'durationInMilliseconds' must be finite but it is ${durationInMilliseconds}`,
 		);
 	}
 
-	if (durationInMiliseconds < 0) {
+	if (durationInMilliseconds < 0) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be over 0 but it is ${durationInMiliseconds}.`
+			`Parameter 'durationInMilliseconds' must be over 0 but it is ${durationInMilliseconds}.`,
 		);
 	}
 
-	const durationPrice =
-		architecture === 'x86_64'
-			? pricing[region]['Lambda Duration'].price
-			: pricing[region]['Lambda Duration-ARM'].price;
+	const durationPrice = pricing[region]['Lambda Duration-ARM'].price;
 
 	// In GB-second
 	const timeCostDollars =
 		Number(durationPrice) *
-		((memorySizeInMb * durationInMiliseconds) / 1000 / 1024);
+		((memorySizeInMb * durationInMilliseconds) / 1000 / 1024);
 
-	const diskSizePrice =
-		architecture === 'x86_64'
-			? pricing[region]['Lambda Storage-Duration'].price
-			: pricing[region]['Lambda Storage-Duration-ARM'].price;
+	const diskSizePrice = pricing[region]['Lambda Storage-Duration-ARM'].price;
 
 	const chargedDiskSize = Math.max(
 		0,
-		diskSizeInMb - MIN_EPHEMERAL_STORAGE_IN_MB
+		diskSizeInMb - MIN_EPHEMERAL_STORAGE_IN_MB,
 	);
 	// In GB-second
 	const diskSizeDollars =
 		chargedDiskSize *
 		Number(diskSizePrice) *
-		(durationInMiliseconds / 1000 / 1024);
+		(durationInMilliseconds / 1000 / 1024);
 
 	const invocationCost =
 		Number(pricing[region]['Lambda Requests'].price) * lambdasInvoked;
 
 	return Number(
-		(timeCostDollars + diskSizeDollars + invocationCost).toFixed(5)
+		(timeCostDollars + diskSizeDollars + invocationCost).toFixed(5),
 	);
 };

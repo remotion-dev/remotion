@@ -2,6 +2,7 @@
 export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/cli',
+	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
 	'@remotion/renderer',
@@ -20,6 +21,7 @@ export const listOfRemotionPackages = [
 	'@remotion/rive',
 	'@remotion/gif',
 	'@remotion/shapes',
+	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'remotion',
 ];

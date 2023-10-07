@@ -1,6 +1,6 @@
-import os from 'os';
+import {getAvailableMemory} from './get-available-memory';
 
-export const estimateMemoryUsageForPrestitcher = ({
+const estimateMemoryUsageForPrestitcher = ({
 	width,
 	height,
 }: {
@@ -22,7 +22,7 @@ export const shouldUseParallelEncoding = ({
 	width: number;
 	height: number;
 }) => {
-	const freeMemory = os.freemem();
+	const freeMemory = getAvailableMemory();
 	const estimatedUsage = estimateMemoryUsageForPrestitcher({
 		height,
 		width,

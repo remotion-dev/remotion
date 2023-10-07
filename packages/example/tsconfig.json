@@ -13,10 +13,22 @@
 	"include": ["src"],
 	"references": [
 		{"path": "../core"},
-		{"path": "../media-utils"},
 		{"path": "../babel-loader"},
-		{"path": "../three"},
+		{"path": "../bundler"},
+		{"path": "../cli"},
+		{"path": "../eslint-config"},
+		{"path": "../eslint-plugin"},
+		{"path": "../gif"},
+		{"path": "../lambda"},
+		{"path": "../lottie"},
+		{"path": "../media-utils"},
+		{"path": "../motion-blur"},
+		{"path": "../paths"},
+		{"path": "../renderer"},
 		{"path": "../rive"},
-		{"path": "../motion-blur"}
+		{"path": "../shapes"},
+		{"path": "../skia"},
+		{"path": "../three"},
+		{"path": "../zod-types"}
 	]
 }

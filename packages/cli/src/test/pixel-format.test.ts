@@ -18,7 +18,7 @@ describe('pixel-format tests setPixelFormat', () => {
 		test(`test for ${entry}`, () => {
 			setPixelFormat(entry);
 			expect(getPixelFormat()).toEqual(entry);
-		})
+		}),
 	);
 
 	// input format
@@ -28,7 +28,7 @@ describe('pixel-format tests setPixelFormat', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => setPixelFormat(entry),
-				new RegExp(`Value ${entry} is not valid as a pixel format.`)
-			))
+				new RegExp(`Value ${entry} is not valid as a pixel format.`),
+			)),
 	);
 });

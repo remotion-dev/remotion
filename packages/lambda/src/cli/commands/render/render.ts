@@ -1,10 +1,13 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
+
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -19,6 +22,7 @@ import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
@@ -30,34 +34,16 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
-			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
+			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
 		Log.info();
 		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`,
 		);
 		quit(1);
 	}
 
 	const region = getAwsRegion();
-
-	let composition: string = args[1];
-	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
-		composition = compositionId;
-	}
-
-	const outName = parsedLambdaCli['out-name'];
-	const downloadName = args[2] ?? null;
-
-	const {codec, reason} = CliInternals.getFinalCodec({
-		downloadName,
-		outName: outName ?? null,
-	});
 
 	const {
 		chromiumOptions,
@@ -69,7 +55,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
-		quality,
+		jpegQuality,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
@@ -79,13 +65,81 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		videoBitrate,
 		height,
 		width,
+		browserExecutable,
+		port,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
+		deleteAfter,
+		x264Preset,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 	});
 
-	const imageFormat = CliInternals.getImageFormat(codec);
+	let composition: string = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+
+		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
+			throw Error(
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+			);
+		}
+
+		const server = await RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args: args.slice(1),
+				compositionIdFromUi: null,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				height,
+				indent: false,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
+				port,
+				puppeteerInstance: undefined,
+				serveUrlOrWebpackUrl: serveUrl,
+				timeoutInMilliseconds: puppeteerTimeout,
+				logLevel,
+				width,
+				server,
+				offthreadVideoCacheSizeInBytes,
+			});
+		composition = compositionId;
+	}
+
+	const outName = parsedLambdaCli['out-name'];
+	const downloadName = args[2] ?? null;
+
+	const {codec, reason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
+		downloadName,
+		outName: outName ?? null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
+	});
+
+	const imageFormat = CliInternals.getVideoImageFormat({
+		codec,
+		uiImageFormat: null,
+	});
 
 	const functionName = await findFunctionName();
 
@@ -97,7 +151,9 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
-	const res = await renderMediaOnLambda({
+	const webhookCustomData = getWebhookCustomData();
+
+	const res = await internalRenderMediaOnLambdaRaw({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -107,21 +163,21 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		region,
 		maxRetries,
 		composition,
-		framesPerLambda,
+		framesPerLambda: framesPerLambda ?? null,
 		privacy,
 		logLevel,
-		frameRange: frameRange ?? undefined,
-		outName: parsedLambdaCli['out-name'],
+		frameRange: frameRange ?? null,
+		outName: parsedLambdaCli['out-name'] ?? null,
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,
 		numberOfGifLoops,
 		everyNthFrame,
-		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
+		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
 		muted,
 		overwrite,
 		audioBitrate,
@@ -132,32 +188,42 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			? {
 					url: parsedLambdaCli.webhook,
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
+					customData: webhookCustomData,
 			  }
-			: undefined,
+			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
-		forceBucketName: parsedLambdaCli['force-bucket-name'],
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec: CliInternals.parsedCli['audio-codec'],
+		deleteAfter: deleteAfter ?? null,
+		colorSpace,
+		downloadBehavior: {type: 'play-in-browser'},
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		x264Preset: x264Preset ?? null,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs in Lambda
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	Log.info(
 		CliInternals.chalk.gray(
-			`bucket = ${res.bucketName}, function = ${functionName}`
-		)
+			`bucket = ${res.bucketName}, function = ${functionName}`,
+		),
 	);
 	Log.info(
 		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, codec = ${codec} (${reason})`
-		)
+			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
+		),
 	);
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(
 		ConfigInternals.Logging.getLogLevel(),
-		'verbose'
+		'verbose',
 	);
 
 	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
@@ -178,7 +244,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			verbose,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
-		})
+		}),
+		false,
 	);
 
 	// eslint-disable-next-line no-constant-condition
@@ -200,7 +267,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				verbose,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
-			})
+			}),
+			false,
 		);
 
 		if (newStatus.done) {
@@ -213,7 +281,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					verbose,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
-				})
+				}),
+				false,
 			);
 			if (downloadName) {
 				const downloadStart = Date.now();
@@ -236,7 +305,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 								verbose,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
-							})
+							}),
+							false,
 						);
 					},
 				});
@@ -253,7 +323,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						verbose,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
-					})
+					}),
+					false,
 				);
 				Log.info();
 				Log.info();
@@ -275,7 +346,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					`Estimated cost $${newStatus.costs.displayCost}`,
 				]
 					.filter(Boolean)
-					.join(', ')
+					.join(', '),
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
 				Log.verbose('Most expensive frame ranges:');
@@ -284,7 +355,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						.map((f) => {
 							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
 						})
-						.join(', ')
+						.join(', '),
 				);
 			}
 
@@ -313,9 +384,16 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					stack: err.stack,
 					stackFrame: frames,
 				});
-				await CliInternals.handleCommonError(errorWithStackFrame);
+				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}
 
+			Log.info();
+			Log.info(
+				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
+			);
+			Log.info(
+				'This is an estimate and continuing Lambda functions may incur additional costs.',
+			);
 			quit(1);
 		}
 	}
@@ -325,7 +403,7 @@ function getTotalFrames(status: RenderProgress): number | null {
 	return status.renderMetadata
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame
+				status.renderMetadata.everyNthFrame,
 		  ).length
 		: null;
 }

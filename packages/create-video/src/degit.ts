@@ -1,7 +1,7 @@
-import fs from 'fs';
 import https from 'https';
-import {tmpdir} from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import tar from 'tar';
 import {mkdirp} from './mkdirp';
 
@@ -13,8 +13,8 @@ export function fetch(url: string, dest: string) {
 				if (code >= 400) {
 					reject(
 						new Error(
-							`Network request to ${url} failed with code ${code} (${response.statusMessage})`
-						)
+							`Network request to ${url} failed with code ${code} (${response.statusMessage})`,
+						),
 					);
 				} else if (code >= 300) {
 					fetch(response.headers.location as string, dest)
@@ -60,6 +60,6 @@ function untar(file: string, dest: string) {
 			strip: 1,
 			C: dest,
 		},
-		[]
+		[],
 	);
 }

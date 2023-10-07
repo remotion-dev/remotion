@@ -5,7 +5,7 @@ export const parse = <T extends Record<string, T>>(
 	stream: Stream,
 	schema: GifSchema,
 	result: T = {} as T,
-	parent: T = result
+	parent: T = result,
 ): GifSchema => {
 	if (Array.isArray(schema)) {
 		schema.forEach((partSchema) => {
@@ -34,7 +34,7 @@ export const parse = <T extends Record<string, T>>(
 
 export const loop = <R>(
 	schema: GifSchema,
-	continueFunc: (st: Stream, r: R, p: R) => boolean
+	continueFunc: (st: Stream, r: R, p: R) => boolean,
 ) => {
 	return function (stream: Stream, result: R, parent: R, _parse: ParseFn<R>) {
 		const arr = [];

@@ -1,4 +1,4 @@
-import type {TComposition} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {TIMELINE_PADDING} from './timeline-layout';
 
 export const SEQUENCE_BORDER_WIDTH = 1;
@@ -37,7 +37,7 @@ export const getTimelineSequenceLayout = ({
 	startFrom: number;
 	startFromMedia: number;
 	maxMediaDuration: number | null;
-	video: TComposition<unknown>;
+	video: VideoConfig;
 	windowWidth: number;
 }) => {
 	const maxMediaSequenceDuration =
@@ -46,7 +46,7 @@ export const getTimelineSequenceLayout = ({
 	let spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1,
-		lastFrame - startFrom
+		lastFrame - startFrom,
 	);
 
 	const shouldAddHalfAFrameAtEnd = startFrom + durationInFrames < lastFrame;
@@ -80,7 +80,7 @@ export const getTimelineSequenceLayout = ({
 				nonNegativeMarginLeft,
 				spatialDuration,
 				windowWidth,
-			})
+			}),
 		),
 	};
 };

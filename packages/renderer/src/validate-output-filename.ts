@@ -1,7 +1,7 @@
-import type {AudioCodec} from './audio-codec';
+import type {AudioCodec, supportedAudioCodecs} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
-import type {FileExtension, supportedAudioCodecs} from './file-extensions';
+import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
 
 export const validateOutputFilename = <T extends Codec>({
@@ -18,8 +18,8 @@ export const validateOutputFilename = <T extends Codec>({
 	if (!defaultFileExtensionMap[codec]) {
 		throw new TypeError(
 			`The codec "${codec}" is not supported. Supported codecs are: ${Object.keys(
-				defaultFileExtensionMap
-			).join(', ')}`
+				defaultFileExtensionMap,
+			).join(', ')}`,
 		);
 	}
 
@@ -30,7 +30,7 @@ export const validateOutputFilename = <T extends Codec>({
 	if (resolvedAudioCodec === null) {
 		if (extension !== map.default) {
 			throw new TypeError(
-				`When using the ${codec} codec, the output filename must end in .${map.default}.`
+				`When using the ${codec} codec, the output filename must end in .${map.default}.`,
 			);
 		}
 
@@ -39,20 +39,20 @@ export const validateOutputFilename = <T extends Codec>({
 
 	if (!(resolvedAudioCodec in map.forAudioCodec)) {
 		throw new Error(
-			`Audio codec ${resolvedAudioCodec} is not supported for codec ${codec}`
+			`Audio codec ${resolvedAudioCodec} is not supported for codec ${codec}`,
 		);
 	}
 
 	const acceptableExtensions =
 		map.forAudioCodec[
-			resolvedAudioCodec as typeof supportedAudioCodecs[T][number]
+			resolvedAudioCodec as (typeof supportedAudioCodecs)[T][number]
 		].possible;
 
 	if (!acceptableExtensions.includes(extension as FileExtension)) {
 		throw new TypeError(
 			`When using the ${codec} codec with the ${resolvedAudioCodec} audio codec, the output filename must end in one of the following: ${acceptableExtensions.join(
-				', '
-			)}.`
+				', ',
+			)}.`,
 		);
 	}
 };

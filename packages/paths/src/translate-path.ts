@@ -6,7 +6,7 @@ import {serializeInstructions} from './serialize-instructions';
 export const translateSegments = (
 	segments: Instruction[],
 	x: number,
-	y: number
+	y: number,
 ) => {
 	return segments.map((segment): Instruction => {
 		// Shift coords only for commands with absolute values

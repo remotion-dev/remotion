@@ -1,9 +1,9 @@
-import http from 'http';
 import type {Socket} from 'net';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
-import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
+import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
 
@@ -11,24 +11,28 @@ export const serveStatic = async (
 	path: string | null,
 	options: {
 		port: number | null;
-		ffmpegExecutable: FfmpegExecutable;
-		ffprobeExecutable: FfmpegExecutable;
-		onDownload: RenderMediaOnDownload;
-		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
-	}
+		concurrency: number;
+		logLevel: LogLevel;
+		indent: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+	},
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
+	compositor: Compositor;
 }> => {
-	const offthreadRequest = startOffthreadVideoServer({
-		ffmpegExecutable: options.ffmpegExecutable,
-		ffprobeExecutable: options.ffprobeExecutable,
-		onDownload: options.onDownload,
-		onError: options.onError,
+	const {
+		listener: offthreadRequest,
+		close: closeCompositor,
+		compositor,
+	} = startOffthreadVideoServer({
 		downloadMap: options.downloadMap,
-		remotionRoot: options.remotionRoot,
+		concurrency: options.concurrency,
+		logLevel: options.logLevel,
+		indent: options.indent,
+		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 	});
 
 	const connections: Record<string, Socket> = {};
@@ -47,7 +51,10 @@ export const serveStatic = async (
 		serveHandler(request, response, {
 			public: path,
 		}).catch(() => {
-			response.statusCode = 500;
+			if (!response.headersSent) {
+				response.writeHead(500);
+			}
+
 			response.end('Error serving file');
 		});
 	});
@@ -83,27 +90,36 @@ export const serveStatic = async (
 				for (const key in connections) connections[key].destroy();
 			};
 
-			const close = () => {
-				return new Promise<void>((resolve, reject) => {
-					destroyConnections();
-					server.close((err) => {
-						if (err) {
-							if (
-								(err as Error & {code: string}).code ===
-								'ERR_SERVER_NOT_RUNNING'
-							) {
-								return resolve();
-							}
-
-							reject(err);
-						} else {
+			const close = async () => {
+				await Promise.all([
+					new Promise<void>((resolve) => {
+						// compositor may have already quit before,
+						// this is okay as we are in cleanup phase
+						closeCompositor().finally(() => {
 							resolve();
-						}
-					});
-				});
+						});
+					}),
+					new Promise<void>((resolve, reject) => {
+						destroyConnections();
+						server.close((err) => {
+							if (err) {
+								if (
+									(err as Error & {code: string}).code ===
+									'ERR_SERVER_NOT_RUNNING'
+								) {
+									return resolve();
+								}
+
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					}),
+				]);
 			};
 
-			return {port: selectedPort, close};
+			return {port: selectedPort, close, compositor};
 		} catch (err) {
 			if (!(err instanceof Error)) {
 				throw err;

@@ -31,9 +31,10 @@ let lastTimelinePositionWhileScrolling: TimelinePosition | null = null;
 export const TimelinePlayCursorSyncer: React.FC = () => {
 	const video = Internals.useVideo();
 	const timelineContext = useContext(Internals.Timeline.TimelineContext);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {zoom} = useContext(TimelineZoomCtx);
 
-	setCurrentFrame(timelineContext.frame);
+	setCurrentFrame(timelinePosition);
 	setCurrentZoom(zoom);
 	setCurrentDuration(video?.durationInFrames ?? 1);
 	setCurrentFps(video?.fps ?? 1);
@@ -55,9 +56,9 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		ensureFrameIsInViewport({
 			direction: timelineContext.playbackRate > 0 ? 'page-right' : 'page-left',
 			durationInFrames: video.durationInFrames,
-			frame: timelineContext.frame,
+			frame: timelinePosition,
 		});
-	}, [playing, timelineContext, video]);
+	}, [playing, timelineContext, timelinePosition, video]);
 
 	/**
 	 * Restore state if `enter` is being pressed

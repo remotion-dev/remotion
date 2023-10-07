@@ -13,7 +13,7 @@ export class ResponseStream extends Stream.Writable {
 	_write(
 		chunk: string,
 		encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
+		callback: (error?: Error | null) => void,
 	): void {
 		this.response.push(Buffer.from(chunk, encoding));
 		callback();
@@ -32,7 +32,7 @@ export class ResponseStream extends Stream.Writable {
 	}
 }
 export const HANDLER_STREAMING = Symbol.for(
-	'aws.lambda.runtime.handler.streaming'
+	'aws.lambda.runtime.handler.streaming',
 );
 export const STREAM_RESPONSE = 'response';
 
@@ -46,8 +46,13 @@ export function isInAWS(handler: Function): boolean {
 }
 
 export function streamifyResponse(handler: Function): Function {
-	// Check for global awslambda
-	if (isInAWS(handler)) {
+	// Check if we are inside Lambda
+	if (
+		process.env.AWS_LAMBDA_FUNCTION_VERSION &&
+		process.env.AWS_LAMBDA_FUNCTION_NAME &&
+		// @ts-expect-error
+		typeof awslambda !== 'undefined'
+	) {
 		// @ts-expect-error
 		return awslambda.streamifyResponse(handler);
 	}
@@ -57,16 +62,16 @@ export function streamifyResponse(handler: Function): Function {
 			const responseStream: ResponseStream = patchArgs(argList);
 			await target(...argList);
 			return {
-				statusCode: 200,
-				headers: {
-					'content-type': responseStream._contentType || 'application/json',
-				},
-				...(responseStream._isBase64Encoded
-					? {isBase64Encoded: responseStream._isBase64Encoded}
-					: {}),
-				body: responseStream._isBase64Encoded
-					? responseStream.getBufferedData().toString('base64')
-					: responseStream.getBufferedData().toString(),
+				EventStream: [
+					{
+						PayloadChunk: {
+							Payload: responseStream._isBase64Encoded
+								? responseStream.getBufferedData()
+								: responseStream.getBufferedData(),
+						},
+						InvokeComplete: true,
+					},
+				],
 			};
 		},
 	});

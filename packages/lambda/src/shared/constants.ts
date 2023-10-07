@@ -1,15 +1,20 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	Codec,
+	ColorSpace,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	ToOptions,
+	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
@@ -18,14 +23,11 @@ import type {
 } from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
-import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
-
-export const DEFAULT_ARCHITECTURE: LambdaArchitecture = 'arm64';
 
 export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
@@ -73,7 +75,7 @@ export const lambdaChunkInitializedKey = ({
 	chunk: number;
 }) =>
 	`${lambdaChunkInitializedPrefix(
-		renderId
+		renderId,
 	)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
@@ -85,11 +87,11 @@ export const lambdaLogsPrefix = (
 	renderId: string,
 	chunk: number,
 	startFrame: number,
-	endFrame: number
+	endFrame: number,
 ) =>
 	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
 		8,
-		'0'
+		'0',
 	)}:frames:${startFrame}-${endFrame}.json`;
 
 export const lambdaTimingsKey = ({
@@ -105,7 +107,7 @@ export const lambdaTimingsKey = ({
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
-		chunk
+		chunk,
 	)}-start:${start}-rendered:${rendered}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
@@ -155,12 +157,12 @@ export type OutNameOutput = {
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
-export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput
+	name: OutNameInput,
 ): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {
@@ -181,8 +183,16 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const defaultPropsKey = (hash: string) => {
+	return `default-props/${hash}.json`;
+};
+
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
+};
+
+export const resolvedPropsKey = (hash: string) => {
+	return `resolved-props/${hash}.json`;
 };
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
@@ -198,12 +208,22 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 	still = 'still',
 	compositions = 'compositions',
+	merge = 'merge',
 }
 
-type WebhookOption = null | {
-	url: string;
-	secret: string | null;
-};
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type WebhookOption = Prettify<
+	| null
+	| ({
+			url: string;
+			secret: string | null;
+	  } & Partial<
+			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+	  >)
+>;
 
 export type SerializedInputProps =
 	| {
@@ -212,7 +232,7 @@ export type SerializedInputProps =
 	  }
 	| {
 			type: 'payload';
-			payload: unknown;
+			payload: string;
 	  };
 
 export type LambdaStartPayload = {
@@ -224,12 +244,13 @@ export type LambdaStartPayload = {
 	inputProps: SerializedInputProps;
 	codec: LambdaCodec;
 	audioCodec: AudioCodec | null;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	crf: number | undefined;
 	envVariables: Record<string, string> | undefined;
 	pixelFormat: PixelFormat | undefined;
 	proResProfile: ProResProfile | undefined;
-	quality: number | undefined;
+	x264Preset: X264Preset | null;
+	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
 	logLevel: LogLevel;
@@ -251,7 +272,9 @@ export type LambdaStartPayload = {
 	forceHeight: number | null;
 	forceWidth: number | null;
 	bucketName: string | null;
-	dumpBrowserLogs: boolean;
+	offthreadVideoCacheSizeInBytes: number | null;
+	deleteAfter: DeleteAfter | null;
+	colorSpace: ColorSpace;
 };
 
 export type LambdaStatusPayload = {
@@ -276,14 +299,15 @@ export type LambdaPayloads = {
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		audioCodec: AudioCodec | null;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		quality: number | undefined;
+		x264Preset: X264Preset | null;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
@@ -303,7 +327,9 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
-		dumpBrowserLogs: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -321,18 +347,20 @@ export type LambdaPayloads = {
 		retriesLeft: number;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
+		x264Preset: X264Preset | null;
 		pixelFormat: PixelFormat | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
 		attempt: number;
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		resolvedProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
@@ -341,17 +369,19 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
-		dumpBrowserLogs: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace;
 	};
 	still: {
 		type: LambdaRoutines.still;
 		serveUrl: string;
 		composition: string;
 		inputProps: SerializedInputProps;
-		imageFormat: ImageFormat;
+		imageFormat: StillImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
@@ -360,12 +390,13 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
-		downloadBehavior: DownloadBehavior | null;
+		downloadBehavior: DownloadBehavior;
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
-		dumpBrowserLogs: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -377,7 +408,17 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
-		dumpBrowserLogs: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+	};
+	merge: {
+		type: LambdaRoutines.merge;
+		bucketName: string;
+		renderId: string;
+		outName: OutNameInput | null;
+		inputProps: SerializedInputProps;
+		serializedResolvedProps: SerializedInputProps;
+		verbose: boolean;
+		logLevel: LogLevel;
 	};
 };
 
@@ -387,7 +428,17 @@ export type EncodingProgress = {
 	framesEncoded: number;
 };
 
-export type RenderMetadata = {
+type Discriminated =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+	  }
+	| {
+			type: 'video';
+			imageFormat: VideoImageFormat;
+	  };
+
+export type RenderMetadata = Discriminated & {
 	siteId: string;
 	videoConfig: VideoConfig;
 	startedDate: number;
@@ -395,10 +446,8 @@ export type RenderMetadata = {
 	estimatedTotalLambdaInvokations: number;
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
-	codec: Codec | null;
+	codec: LambdaCodec | null;
 	audioCodec: AudioCodec | null;
-	type: 'still' | 'video';
-	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;
@@ -409,6 +458,10 @@ export type RenderMetadata = {
 	privacy: Privacy;
 	frameRange: [number, number];
 	everyNthFrame: number;
+	deleteAfter: DeleteAfter | null;
+	numberOfGifLoops: number | null;
+	audioBitrate: string | null;
+	downloadBehavior: DownloadBehavior;
 };
 
 export type AfterRenderCost = {
@@ -434,6 +487,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	deleteAfter: DeleteAfter | null;
 };
 
 export type CostsInfo = {
@@ -474,6 +528,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 	framesRendered: number;
 	outputSizeInBytes: number | null;
+	type: 'success';
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

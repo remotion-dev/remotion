@@ -7,6 +7,7 @@ import { NextIcon } from "./icons/next";
 import { OverlayIcon } from "./icons/overlay";
 import { RemixIcon } from "./icons/remix";
 import { SkiaIcon } from "./icons/skia";
+import { Stargazer } from "./icons/stargazer";
 import { StillIcon } from "./icons/still";
 import { Tailwind } from "./icons/tailwind";
 import { TypeScriptIcon } from "./icons/ts";
@@ -88,6 +89,16 @@ export const IconForTemplate: React.FC<{
     );
   }
 
+  if (template.cliId === "google-tts") {
+    return (
+      <TTSIcon
+        style={{
+          height: scale * 36,
+        }}
+      />
+    );
+  }
+
   if (template.cliId === "tailwind") {
     return (
       <Tailwind
@@ -122,8 +133,12 @@ export const IconForTemplate: React.FC<{
     return <OverlayIcon style={{ height: scale * 42 }} />;
   }
 
-  if (template.cliId === "next") {
+  if (template.cliId === "next" || template.cliId === "next-pages-dir") {
     return <NextIcon style={{ height: scale * 36 }} />;
+  }
+
+  if (template.cliId === "stargazer") {
+    return <Stargazer style={{ height: scale * 36 }} />;
   }
 
   return (

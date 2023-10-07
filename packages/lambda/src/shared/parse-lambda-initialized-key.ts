@@ -1,10 +1,10 @@
 export const parseLambdaInitializedKey = (key: string) => {
 	const match = key.match(
-		/^renders\/(.*)\/lambda-initialized-chunk:([0-9]+)-attempt:([0-9]+).txt$/
+		/^renders\/(.*)\/lambda-initialized-chunk:([0-9]+)-attempt:([0-9]+).txt$/,
 	);
 	if (!match) {
 		throw new Error(
-			`Cannot parse filename ${key} into timing information. Malformed data.`
+			`Cannot parse filename ${key} into timing information. Malformed data.`,
 		);
 	}
 

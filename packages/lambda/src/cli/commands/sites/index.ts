@@ -14,31 +14,31 @@ const printSitesHelp = () => {
 	CliInternals.Log.info('Available subcommands:');
 	CliInternals.Log.info();
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <entry-point>`
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <entry-point>`,
 	);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('Creates a new site based on a Remotion project')
-	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}`
-	);
-	CliInternals.Log.info(
-		CliInternals.chalk.gray('Lists the sites currently deployed')
+		CliInternals.chalk.gray('Creates a new site based on a Remotion project'),
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RM_COMMAND} <site-id>`
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}`,
 	);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('Remove a site from the S3 bucket.')
+		CliInternals.chalk.gray('Lists the sites currently deployed'),
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RM_COMMAND} <site-id>`,
 	);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('Remove all sites from the S3 bucket.')
+		CliInternals.chalk.gray('Remove a site from the S3 bucket.'),
+	);
+	CliInternals.Log.info();
+	CliInternals.Log.info(
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`,
+	);
+	CliInternals.Log.info(
+		CliInternals.chalk.gray('Remove all sites from the S3 bucket.'),
 	);
 };
 

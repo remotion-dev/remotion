@@ -177,7 +177,7 @@ rotation={[constantRotation / 2, constantRotation, 0]}
 The X rotation is half of the Y rotation, so for every 2 turns in the Y axis, our Torus will turn once in the X axis.
 :::
 
-11. That's it! See a rotating Torus in the Remotion Preview.
+11. That's it! See a rotating Torus in the Remotion Studio.
 
 12. If you want to export your video to a MP4 video file, run:
 

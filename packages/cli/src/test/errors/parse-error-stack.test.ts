@@ -12,7 +12,7 @@ test('Parse error stack', () => {
 			stack,
 			message,
 			name: 'Error',
-		})
+		}),
 	).toEqual({
 		fileName: '/Users/jonathanburger/remotion/packages/example/src/Video.tsx',
 		lineNumber: 31,

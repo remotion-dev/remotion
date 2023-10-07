@@ -44,7 +44,7 @@ export const Greenscreen: React.FC<{
   );
 
   useEffect(() => {
-    if (!video.current || !video.current.requestVideoFrameCallback) {
+    if (!video.current?.requestVideoFrameCallback) {
       return;
     }
 
@@ -107,7 +107,7 @@ export const VideoOnCanvas: React.FC = () => {
   }, [height, width]);
 
   useEffect(() => {
-    if (!video.current || !video.current.requestVideoFrameCallback) {
+    if (!video.current?.requestVideoFrameCallback) {
       return;
     }
 

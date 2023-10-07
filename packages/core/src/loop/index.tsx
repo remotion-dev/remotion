@@ -29,27 +29,26 @@ export const Loop: React.FC<LoopProps> = ({
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
 
-	validateDurationInFrames({
-		durationInFrames,
+	validateDurationInFrames(durationInFrames, {
 		component: 'of the <Loop /> component',
 		allowFloats: true,
 	});
 
 	if (typeof times !== 'number') {
 		throw new TypeError(
-			`You passed to "times" an argument of type ${typeof times}, but it must be a number.`
+			`You passed to "times" an argument of type ${typeof times}, but it must be a number.`,
 		);
 	}
 
 	if (times !== Infinity && times % 1 !== 0) {
 		throw new TypeError(
-			`The "times" prop of a loop must be an integer, but got ${times}.`
+			`The "times" prop of a loop must be an integer, but got ${times}.`,
 		);
 	}
 
 	if (times < 0) {
 		throw new TypeError(
-			`The "times" prop of a loop must be at least 0, but got ${times}`
+			`The "times" prop of a loop must be at least 0, but got ${times}`,
 		);
 	}
 

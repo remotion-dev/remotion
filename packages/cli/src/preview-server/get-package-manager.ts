@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-export type PackageManager = 'npm' | 'yarn' | 'pnpm';
+import fs from 'node:fs';
+import path from 'node:path';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 type LockfilePath = {
 	manager: PackageManager;
@@ -28,11 +28,17 @@ export const lockFilePaths: LockfilePath[] = [
 		installCommand: 'pnpm i',
 		startCommand: 'pnpm start',
 	},
+	{
+		path: 'bun.lockb',
+		manager: 'bun',
+		installCommand: 'bun i',
+		startCommand: 'bun start',
+	},
 ];
 
 export const getPackageManager = (
 	remotionRoot: string,
-	packageManager: string | undefined
+	packageManager: string | undefined,
 ): LockfilePath | 'unknown' => {
 	if (packageManager) {
 		const manager = lockFilePaths.find((p) => p.manager === packageManager);
@@ -41,7 +47,7 @@ export const getPackageManager = (
 			throw new Error(
 				`The package manager ${packageManager} is not supported. Supported package managers are ${lockFilePaths
 					.map((p) => p.manager)
-					.join(', ')}`
+					.join(', ')}`,
 			);
 		}
 
@@ -49,7 +55,7 @@ export const getPackageManager = (
 	}
 
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(remotionRoot, p.path))
+		fs.existsSync(path.join(remotionRoot, p.path)),
 	);
 
 	if (existingPkgManagers.length === 0) {

@@ -1,36 +1,30 @@
-import type {RenderMediaOptions} from '@remotion/renderer';
-import {
-	getCompositions,
-	openBrowser,
-	RenderInternals,
-	renderMedia,
-} from '@remotion/renderer';
+import type {InternalRenderMediaOptions} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
-import {getRenderMediaOptions} from './get-render-media-options';
+import {getCliOptions} from './get-cli-options';
+import {getFinalOutputCodec} from './get-final-output-codec';
+import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
-import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
+import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
 
-const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
-	const concurrency =
-		'concurrency' in renderMediaOptions
-			? renderMediaOptions.concurrency ?? null
-			: null;
-
+const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(concurrency)];
+		return [RenderInternals.getActualConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)
@@ -40,15 +34,15 @@ const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
 
 const runBenchmark = async (
 	runs: number,
-	options: RenderMediaOptions,
-	onProgress?: (run: number, progress: number) => void
+	options: Omit<InternalRenderMediaOptions, 'onProgress'>,
+	onProgress?: (run: number, progress: number) => void,
 ) => {
 	const timeTaken: number[] = [];
 	for (let run = 0; run < runs; ++run) {
 		const startTime = performance.now();
-		await renderMedia({
-			...options,
+		await RenderInternals.internalRenderMedia({
 			onProgress: ({progress}) => onProgress?.(run, progress),
+			...options,
 		});
 		const endTime = performance.now();
 
@@ -88,7 +82,7 @@ const avg = (time: number[]) =>
 const stdDev = (time: number[]) => {
 	const mean = avg(time);
 	return Math.sqrt(
-		time.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / time.length
+		time.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / time.length,
 	);
 };
 
@@ -99,13 +93,13 @@ const getResults = (results: number[], runs: number) => {
 	const min = Math.min(...results);
 
 	return `    Time (${chalk.green('mean')} ± ${chalk.green(
-		'σ'
+		'σ',
 	)}):         ${chalk.green(formatTime(mean))} ± ${chalk.green(
-		formatTime(dev)
+		formatTime(dev),
 	)}\n    Range (${chalk.blue('min')} ... ${chalk.red(
-		'max'
+		'max',
 	)}):     ${chalk.blue(formatTime(min))} ... ${chalk.red(
-		formatTime(max)
+		formatTime(max),
 	)} \t ${chalk.gray(`${runs} runs`)}
 	`;
 };
@@ -136,7 +130,7 @@ const makeBenchmarkProgressBar = ({
 
 export const benchmarkCommand = async (
 	remotionRoot: string,
-	args: string[]
+	args: string[],
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
@@ -150,57 +144,98 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
+	const fullEntryPoint = convertEntryPointToServeUrl(file);
+
 	const {
 		inputProps,
 		envVariables,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		port,
 		puppeteerTimeout,
 		browser,
 		scale,
 		publicDir,
+		proResProfile,
+		x264Preset,
+		frameRange: defaultFrameRange,
+		overwrite,
+		jpegQuality,
+		crf: configFileCrf,
+		pixelFormat,
+		scale: configFileScale,
+		numberOfGifLoops,
+		everyNthFrame,
+		muted,
+		enforceAudioTrack,
+		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
+		height,
+		width,
+		concurrency: unparsedConcurrency,
+		logLevel,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
 	});
 
-	Log.verbose('Entry point:', file, 'reason:', reason);
+	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
 
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
+		indent: false,
+		viewport: null,
+		logLevel,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
-			fullPath: file,
+			fullPath: fullEntryPoint,
 			publicDir,
 			remotionRoot,
-			steps: ['bundling'],
+			onProgress: () => undefined,
+			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
+			bundlingStep: 0,
+			steps: 1,
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(bundleLocation, {
-		inputProps,
+	const serializedInputPropsWithCustomSchema = Internals.serializeJSONWithDate({
+		data: inputProps ?? {},
+		indent: undefined,
+		staticBase: null,
+	}).serializedString;
+
+	const comps = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: bundleLocation,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		port,
 		puppeteerInstance,
+		browserExecutable,
+		indent: false,
+		onBrowserLog: null,
+		//  Intentionally disabling server to not cache results
+		server: undefined,
+		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	const ids = (
@@ -209,7 +244,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await selectCompositions(comps)
+			: await showMultiCompositionsPicker(comps)
 	) as string[];
 
 	const compositions = ids.map((compId) => {
@@ -224,7 +259,7 @@ export const benchmarkCommand = async (
 
 	if (compositions.length === 0) {
 		Log.error(
-			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.'
+			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.',
 		);
 	}
 
@@ -232,39 +267,89 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {codec, reason: codecReason} = getFinalCodec({
+	const {codec, reason: codecReason} = getFinalOutputCodec({
+		cliFlag: parsedCli.codec,
 		downloadName: null,
 		outName: null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	for (const composition of compositions) {
-		const renderMediaOptions = await getRenderMediaOptions({
-			config: composition,
-			outputLocation: undefined,
-			serveUrl: bundleLocation,
-			codec,
-			remotionRoot,
-		});
-		const concurrency = getValidConcurrency(renderMediaOptions);
+		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
 		for (const con of concurrency) {
-			const benchmarkProgress = createOverwriteableCliOutput(
-				quietFlagProvided()
-			);
+			const benchmarkProgress = createOverwriteableCliOutput({
+				quiet: quietFlagProvided(),
+				cancelSignal: null,
+				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+				indent: false,
+			});
 			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`
-				)}`
+					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
+				)}`,
 			);
 
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					...renderMediaOptions,
+					outputLocation: null,
+					composition: {
+						...composition,
+						width: width ?? composition.width,
+						height: height ?? composition.height,
+					},
+					crf: configFileCrf ?? null,
+					envVariables,
+					frameRange: defaultFrameRange,
+					imageFormat: getVideoImageFormat({
+						codec,
+						uiImageFormat: null,
+					}),
+					serializedInputPropsWithCustomSchema,
+					overwrite,
+					pixelFormat,
+					proResProfile,
+					x264Preset,
+					jpegQuality,
+					chromiumOptions,
+					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+					scale: configFileScale,
+					port,
+					numberOfGifLoops,
+					everyNthFrame,
+					logLevel,
+					muted,
+					enforceAudioTrack,
+					browserExecutable,
+					ffmpegOverride,
+					serveUrl: bundleLocation,
+					codec,
+					audioBitrate,
+					videoBitrate,
 					puppeteerInstance,
 					concurrency: con,
+					audioCodec: null,
+					cancelSignal: undefined,
+					disallowParallelEncoding: false,
+					indent: false,
+					onBrowserLog: null,
+					onCtrlCExit: () => undefined,
+					onDownload: () => undefined,
+					onStart: () => undefined,
+					preferLossless: false,
+					server: undefined,
+					serializedResolvedPropsWithCustomSchema:
+						Internals.serializeJSONWithDate({
+							data: composition.props,
+							indent: undefined,
+							staticBase: null,
+						}).serializedString,
+					offthreadVideoCacheSizeInBytes,
+					colorSpace,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -273,13 +358,14 @@ export const benchmarkCommand = async (
 							run,
 							doneIn: null,
 							progress,
-						})
+						}),
+						false,
 					);
-				}
+				},
 			);
 
-			benchmarkProgress.update('');
-			benchmarkProgress.update(getResults(timeTaken, runs));
+			benchmarkProgress.update('', false);
+			benchmarkProgress.update(getResults(timeTaken, runs), false);
 
 			benchmark[composition.id][`${con}`] = timeTaken;
 		}

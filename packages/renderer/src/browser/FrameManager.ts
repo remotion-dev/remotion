@@ -39,11 +39,11 @@ import type {
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import type {HTTPResponse} from './HTTPResponse';
+import {isTargetClosedErr} from './is-target-closed-err';
 import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
-import type {TimeoutSettings} from './TimeoutSettings';
 import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
@@ -54,7 +54,7 @@ export const FrameManagerEmittedEvents = {
 	FrameSwapped: Symbol('FrameManager.FrameSwapped'),
 	LifecycleEvent: Symbol('FrameManager.LifecycleEvent'),
 	FrameNavigatedWithinDocument: Symbol(
-		'FrameManager.FrameNavigatedWithinDocument'
+		'FrameManager.FrameNavigatedWithinDocument',
 	),
 	ExecutionContextCreated: Symbol('FrameManager.ExecutionContextCreated'),
 	ExecutionContextDestroyed: Symbol('FrameManager.ExecutionContextDestroyed'),
@@ -63,31 +63,21 @@ export const FrameManagerEmittedEvents = {
 export class FrameManager extends EventEmitter {
 	#page: Page;
 	#networkManager: NetworkManager;
-	#timeoutSettings: TimeoutSettings;
 	#frames = new Map<string, Frame>();
 	#contextIdToContext = new Map<string, ExecutionContext>();
 	#isolatedWorlds = new Set<string>();
 	#mainFrame?: Frame;
 	#client: CDPSession;
 
-	get _timeoutSettings(): TimeoutSettings {
-		return this.#timeoutSettings;
-	}
-
 	get _client(): CDPSession {
 		return this.#client;
 	}
 
-	constructor(
-		client: CDPSession,
-		page: Page,
-		timeoutSettings: TimeoutSettings
-	) {
+	constructor(client: CDPSession, page: Page) {
 		super();
 		this.#client = client;
 		this.#page = page;
 		this.#networkManager = new NetworkManager(client, this);
-		this.#timeoutSettings = timeoutSettings;
 		this.setupEventListeners(this.#client);
 	}
 
@@ -104,7 +94,7 @@ export class FrameManager extends EventEmitter {
 		session.on('Page.frameDetached', (event: FrameDetachedEvent) => {
 			this.#onFrameDetached(
 				event.frameId,
-				event.reason as FrameDetachedEventReason
+				event.reason as FrameDetachedEventReason,
 			);
 		});
 		session.on('Page.frameStartedLoading', (event) => {
@@ -147,7 +137,9 @@ export class FrameManager extends EventEmitter {
 					  }),
 			]);
 
-			const {frameTree} = result[1];
+			const {
+				value: {frameTree},
+			} = result[1];
 			this.#handleFrameTree(client, frameTree);
 			await Promise.all([
 				client.send('Page.setLifecycleEventsEnabled', {enabled: true}),
@@ -160,11 +152,7 @@ export class FrameManager extends EventEmitter {
 			]);
 		} catch (error) {
 			// The target might have been closed before the initialization finished.
-			if (
-				isErrorLike(error) &&
-				(error.message.includes('Target closed') ||
-					error.message.includes('Session closed'))
-			) {
+			if (isErrorLike(error) && isTargetClosedErr(error)) {
 				return;
 			}
 
@@ -179,17 +167,14 @@ export class FrameManager extends EventEmitter {
 	async navigateFrame(
 		frame: Frame,
 		url: string,
+		timeout: number,
 		options: {
 			referer?: string;
 			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent;
-		} = {}
+		} = {},
 	): Promise<HTTPResponse | null> {
-		const {
-			referer = undefined,
-			waitUntil = 'load',
-			timeout = this.#timeoutSettings.navigationTimeout(),
-		} = options;
+		const {referer = undefined, waitUntil = 'load'} = options;
 
 		const watcher = new LifecycleWatcher(this, frame, waitUntil, timeout);
 		let error = await Promise.race([
@@ -215,10 +200,10 @@ export class FrameManager extends EventEmitter {
 			client: CDPSession,
 			_url: string,
 			referrer: string | undefined,
-			frameId: string
+			frameId: string,
 		): Promise<Error | null> {
 			try {
-				const response = await client.send('Page.navigate', {
+				const {value: response} = await client.send('Page.navigate', {
 					url: _url,
 					referrer,
 					frameId,
@@ -301,7 +286,7 @@ export class FrameManager extends EventEmitter {
 			this.#onFrameAttached(
 				session,
 				frameTree.frame.id,
-				frameTree.frame.parentId
+				frameTree.frame.parentId,
 			);
 		}
 
@@ -335,7 +320,7 @@ export class FrameManager extends EventEmitter {
 	#onFrameAttached(
 		session: CDPSession,
 		frameId: string,
-		parentFrameId?: string
+		parentFrameId?: string,
 	): void {
 		if (this.#frames.has(frameId)) {
 			const _frame = this.#frames.get(frameId) as Frame;
@@ -363,7 +348,7 @@ export class FrameManager extends EventEmitter {
 			: this.#frames.get(framePayload.id);
 		assert(
 			isMainFrame || frame,
-			'We either navigate top level or have old version of the navigated frame'
+			'We either navigate top level or have old version of the navigated frame',
 		);
 
 		// Detach all child frames first.
@@ -421,7 +406,7 @@ export class FrameManager extends EventEmitter {
 							grantUniveralAccess: true,
 						})
 						.catch(() => undefined);
-				})
+				}),
 		);
 	}
 
@@ -452,7 +437,7 @@ export class FrameManager extends EventEmitter {
 
 	#onExecutionContextCreated(
 		contextPayload: ExecutionContextDescription,
-		session: CDPSession
+		session: CDPSession,
 	): void {
 		const auxData = contextPayload.auxData as {frameId?: string} | undefined;
 		const frameId = auxData?.frameId;
@@ -481,7 +466,7 @@ export class FrameManager extends EventEmitter {
 		const context = new ExecutionContext(
 			frame?._client() || this.#client,
 			contextPayload,
-			world as DOMWorld
+			world as DOMWorld,
 		);
 		if (world) {
 			world._setContext(context);
@@ -493,7 +478,7 @@ export class FrameManager extends EventEmitter {
 
 	#onExecutionContextDestroyed(
 		executionContextId: number,
-		session: CDPSession
+		session: CDPSession,
 	): void {
 		const key = `${session.id()}:${executionContextId}`;
 		const context = this.#contextIdToContext.get(key);
@@ -525,7 +510,7 @@ export class FrameManager extends EventEmitter {
 
 	executionContextById(
 		contextId: number,
-		session: CDPSession = this.#client
+		session: CDPSession = this.#client,
 	): ExecutionContext {
 		const key = `${session.id()}:${contextId}`;
 		const context = this.#contextIdToContext.get(key);
@@ -563,7 +548,7 @@ export class Frame {
 		frameManager: FrameManager,
 		parentFrame: Frame | null,
 		frameId: string,
-		client: CDPSession
+		client: CDPSession,
 	) {
 		this._frameManager = frameManager;
 		this.#parentFrame = parentFrame ?? null;
@@ -582,11 +567,8 @@ export class Frame {
 
 	_updateClient(client: CDPSession): void {
 		this.#client = client;
-		this._mainWorld = new DOMWorld(this, this._frameManager._timeoutSettings);
-		this._secondaryWorld = new DOMWorld(
-			this,
-			this._frameManager._timeoutSettings
-		);
+		this._mainWorld = new DOMWorld(this);
+		this._secondaryWorld = new DOMWorld(this);
 	}
 
 	isOOPFrame(): boolean {
@@ -595,13 +577,13 @@ export class Frame {
 
 	goto(
 		url: string,
+		timeout: number,
 		options: {
 			referer?: string;
-			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent;
-		} = {}
+		} = {},
 	): Promise<HTTPResponse | null> {
-		return this._frameManager.navigateFrame(this, url, options);
+		return this._frameManager.navigateFrame(this, url, timeout, options);
 	}
 
 	_client(): CDPSession {

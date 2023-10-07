@@ -1,4 +1,4 @@
-import {networkInterfaces} from 'os';
+import {networkInterfaces} from 'node:os';
 
 export const getNetworkAddress = (): string | undefined => {
 	for (const interfaceDetails of Object.values(networkInterfaces())) {

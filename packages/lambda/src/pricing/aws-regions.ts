@@ -42,4 +42,4 @@ export const AWS_REGIONS = [
 	'sa-east-1',
 ] as const;
 
-export type AwsRegion = typeof AWS_REGIONS[number];
+export type AwsRegion = (typeof AWS_REGIONS)[number];

@@ -71,7 +71,7 @@ export function spring({
 		: {
 				get: () => {
 					throw new Error(
-						'did not calculate natural duration, this is an error with Remotion. Please report'
+						'did not calculate natural duration, this is an error with Remotion. Please report',
 					);
 				},
 		  };
@@ -79,7 +79,7 @@ export function spring({
 	const frame =
 		(reverse
 			? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
-			: passedFrame) - delay;
+			: passedFrame) - (reverse ? -delay : delay);
 
 	const spr = springCalculation({
 		fps,

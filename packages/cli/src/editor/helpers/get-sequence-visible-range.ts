@@ -2,7 +2,7 @@ import type {TSequence} from 'remotion';
 
 export const getCascadedStart = (
 	sequence: TSequence,
-	sequences: TSequence[]
+	sequences: TSequence[],
 ): number => {
 	if (!sequence.parent) {
 		return sequence.from;
@@ -18,7 +18,7 @@ export const getCascadedStart = (
 
 export const getTimelineVisibleStart = (
 	sequence: TSequence,
-	sequences: TSequence[]
+	sequences: TSequence[],
 ): number => {
 	const cascadedStart = Math.max(0, getCascadedStart(sequence, sequences));
 	if (!sequence.parent) {
@@ -36,7 +36,7 @@ export const getTimelineVisibleStart = (
 
 export const getTimelineVisibleDuration = (
 	sequence: TSequence,
-	sequences: TSequence[]
+	sequences: TSequence[],
 ): number => {
 	const visibleDuration = sequence.duration + Math.min(sequence.from, 0);
 	if (!sequence.parent) {
@@ -50,6 +50,6 @@ export const getTimelineVisibleDuration = (
 
 	return Math.min(
 		visibleDuration,
-		getTimelineVisibleDuration(parent, sequences)
+		getTimelineVisibleDuration(parent, sequences),
 	);
 };

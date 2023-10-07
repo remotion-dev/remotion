@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-getting-started.png
 id: getting-started
-title: Setup and Installation
+title: Creating a new project
 sidebar_label: Installation
 slug: /
 crumb: "Let's begin!"
@@ -12,9 +12,10 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-To use Remotion, you need at least Node 14. See: [Installing Node.js](https://nodejs.org/en/download/)
+To use Remotion, you need at least Node 16.  
+[Install Node.js here.](https://nodejs.org/en/download/)
 
-## Installation
+## Scaffolding a new project
 
 You can initialize a new Remotion video using
 
@@ -22,8 +23,9 @@ You can initialize a new Remotion video using
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
@@ -48,14 +50,35 @@ yarn create video
 ```
 
   </TabItem>
+
+  <TabItem value="bun">
+
+```bash
+bun create video
+```
+
+:::note
+Bun as a runtime is mostly supported. [Read more here](/docs/bun).
+:::
+
+  </TabItem>
 </Tabs>
 
-That's it! Wait for the installation to be finished and follow the instructions in the terminal.
+Choose the template that is most suitable for you. For your first project, we recommend the [Hello World](/templates/hello-world) template.
 
-### Additional step for Linux users
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/timeline):
 
+```bash
+npm start
+```
+
+<details>
+
+<summary>
+Additional information for Linux users
+
+</summary>
 Linux users need to install some additional packages to get Chrome/Puppeteer working correctly.
-
 <Tabs
 defaultValue="arch"
 values={[
@@ -85,12 +108,11 @@ Watch out for `apt` wanting to uninstall critical packages (e.g the Desktop) in 
 
 </Tabs>
 
+Linux distros that use libc need at least version 2.35 of it. [Check here](https://github.com/remotion-dev/remotion/issues/2439) if your distro has it.
+
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
 
-## FFmpeg requirement
-
-Remotion requires `ffmpeg` and `ffprobe` binaries (minimum version 4.1) to render videos.  
-If you don't have them, [Remotion will try to install FFmpeg for you](/docs/ffmpeg).
+</details>
 
 ## Installation in existing projects
 

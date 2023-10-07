@@ -56,7 +56,7 @@ const chromeOptions: Fig.Option[] = [
     name: "--gl",
     description: "Which OpenGL renderer to use",
     args: {
-      suggestions: ["angle", "egl", "swiftshader", "swangle"],
+      suggestions: ["angle", "egl", "swiftshader", "swangle", "vulkan"],
     },
   },
   {
@@ -328,6 +328,25 @@ const renderOptions: Fig.Option[] = [
     description: "ProRes profile, need --codec=prores to be set",
     args: {
       suggestions: ["4444-xq", "4444", "hq", "standard", "light", "proxy"],
+    },
+  },
+  {
+    name: "--x264-preset",
+    description:
+      "Presets balance encoding speed and compression quality, with slower presets achieving better compression. Needs --codec=h264 to be set",
+    args: {
+      suggestions: [
+        "ultrafast",
+        "superfast",
+        "veryfast",
+        "faster",
+        "fast",
+        "medium",
+        "slow",
+        "slower",
+        "veryslow",
+        "placebo",
+      ],
     },
   },
   {
@@ -849,10 +868,9 @@ const completionSpec: Fig.Spec = {
       ],
     },
     {
-      name: "preview",
+      name: ["preview", "studio"],
       priority: 50,
-      description:
-        "Start the server which allows you to preview the Remotion video",
+      description: "Start the Remotion Studio",
       args: {
         name: "entry",
         template: ["filepaths"],
@@ -897,6 +915,13 @@ const completionSpec: Fig.Spec = {
           args: {
             name: "package-manager",
             suggestions: [{ name: "npm" }, { name: "yarn" }, { name: "pnpm" }],
+          },
+        },
+        {
+          name: "--version",
+          description: "Upgrade to a specific version",
+          args: {
+            name: "version",
           },
         },
       ],

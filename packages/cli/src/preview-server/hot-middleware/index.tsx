@@ -5,8 +5,8 @@
  */
 
 import type {webpack} from '@remotion/bundler';
-import type {IncomingMessage, ServerResponse} from 'http';
-import {parse} from 'url';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import {parse} from 'node:url';
 import {Log} from '../../log';
 import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
 import {hotMiddlewareOptions} from './types';
@@ -128,7 +128,7 @@ const pathMatch = function (url: string, path: string) {
 
 export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	const eventStream: EventStream | null = createEventStream(
-		hotMiddlewareOptions.heartbeat
+		hotMiddlewareOptions.heartbeat,
 	);
 	let latestStats: webpack.Stats | null = null;
 
@@ -153,7 +153,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	const middleware = function (
 		req: IncomingMessage,
 		res: ServerResponse,
-		next: () => void
+		next: () => void,
 	) {
 		if (!pathMatch(req.url as string, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
@@ -225,7 +225,7 @@ function createEventStream(heartbeat: number) {
 function publishStats(
 	action: HotMiddlewareMessage['action'],
 	statsResult: webpack.Stats,
-	eventStream: EventStream | null
+	eventStream: EventStream | null,
 ) {
 	const stats = statsResult.toJson({
 		all: false,

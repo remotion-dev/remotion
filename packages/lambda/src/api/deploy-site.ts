@@ -1,5 +1,6 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import fs from 'fs';
+import {PureJSAPIs} from '@remotion/renderer/pure';
+import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -44,16 +45,7 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-/**
- * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
- * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
- * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
- * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.siteName The name of the folder in which the project gets deployed to.
- * @param {object} params.options Further options, see documentation page for this function.
- */
-export const deploySite = async ({
+const deploySiteRaw = async ({
 	bucketName,
 	entryPoint,
 	siteName,
@@ -128,18 +120,14 @@ export const deploySite = async ({
 					key: d.Key as string,
 					region,
 				});
-			})
+			}),
 		),
 	]);
 
 	if (!process.env.VITEST) {
-		if (fs.rmSync) {
-			fs.rmSync(bundled, {
-				recursive: true,
-			});
-		} else {
-			fs.rmdirSync(bundled, {recursive: true});
-		}
+		fs.rmSync(bundled, {
+			recursive: true,
+		});
 	}
 
 	return {
@@ -152,3 +140,16 @@ export const deploySite = async ({
 		},
 	};
 };
+
+/**
+ * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
+ * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
+ * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
+ * @param {string} params.bucketName The name of the bucket to deploy your project into.
+ * @param {string} params.siteName The name of the folder in which the project gets deployed to.
+ * @param {object} params.options Further options, see documentation page for this function.
+ */
+export const deploySite = PureJSAPIs.wrapWithErrorHandling(
+	deploySiteRaw,
+) as typeof deploySiteRaw;

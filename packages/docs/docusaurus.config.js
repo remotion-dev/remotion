@@ -34,14 +34,6 @@ const config = (mode) => ({
     }),
   },
   themeConfig: {
-    announcementBar: {
-      id: "support_us",
-      content:
-        '<a id="launch4" rel="noopener noreferrer" href="/4" style="text-decoration: none">Join the Remotion 4.0 launch on July 3rd</a>',
-      backgroundColor: "#fafbfc",
-      textColor: "#091E42",
-      isCloseable: false,
-    },
     algolia: {
       appId: "PLSDUOL1CA",
       apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
@@ -73,7 +65,11 @@ const config = (mode) => ({
               sidebarId: "apiSidebar",
             }
           : null,
-        { to: "/docs/license", label: "Pricing", position: "left" },
+        {
+          to: "https://companies.remotion.dev/",
+          label: "Pricing",
+          position: "left",
+        },
         {
           type: "dropdown",
           label: "More",
@@ -93,25 +89,25 @@ const config = (mode) => ({
           ],
         },
         {
-          href: "https://twitter.com/remotion",
-          label: "Twitter",
+          to: "https://github.com/remotion-dev/remotion",
+          label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "Twitter",
+          "data-splitbee-event-target": "GitHub",
         },
         {
-          href: "https://remotion.dev/discord",
+          to: "https://remotion.dev/discord",
           label: "Discord",
           position: "right",
           "data-splitbee-event": "External Link",
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://github.com/remotion-dev/remotion",
-          label: "GitHub",
+          to: "https://x.com/remotion",
+          label: "X",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "GitHub",
+          "data-splitbee-event-target": "X",
         },
       ].filter(Boolean),
     },
@@ -172,16 +168,10 @@ const config = (mode) => ({
               "data-splitbee-event-target": "Discord",
             },
             {
-              label: "Twitter",
-              href: "https://twitter.com/remotion",
+              label: "X",
+              href: "https://x.com/remotion",
               "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Twitter",
-            },
-            {
-              label: "Instagram",
-              href: "https://instagram.com/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Instagram",
+              "data-splitbee-event-target": "X",
             },
             {
               label: "YouTube",
@@ -192,6 +182,12 @@ const config = (mode) => ({
               href: "https://www.linkedin.com/company/remotion-dev/",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "LinkedIn",
+            },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
             },
             {
               label: "TikTok",

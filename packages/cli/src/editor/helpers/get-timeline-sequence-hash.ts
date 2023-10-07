@@ -11,7 +11,7 @@ export const getTimelineSequenceHash = (
 	hashesUsedInRoot: {
 		[rootId: string]: string[];
 	},
-	cache: {[sequenceId: string]: string}
+	cache: {[sequenceId: string]: string},
 ): string => {
 	if (cache[sequence.id]) {
 		return cache[sequence.id];

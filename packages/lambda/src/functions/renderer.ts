@@ -1,11 +1,11 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import {RenderInternals} from '@remotion/renderer';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
+import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
@@ -13,7 +13,7 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
+import {isFlakyError} from '../shared/is-flaky-error';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -22,6 +22,7 @@ import {getBrowserInstance} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -35,28 +36,38 @@ type Options = {
 const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
-	logs: BrowserLog[]
-) => {
+	logs: BrowserLog[],
+): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
-			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`,
 		);
 	}
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
+	});
+
+	const resolvedPropsPromise = decompressInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-		params.chromiumOptions ?? {}
+		params.logLevel,
+		false,
+		params.chromiumOptions ?? {},
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -68,6 +79,10 @@ const renderHandler = async (
 	if (!params.frameRange) {
 		throw new Error('must pass framerange');
 	}
+
+	RenderInternals.Log.verbose(
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
+	);
 
 	const start = Date.now();
 	const chunkTimingData: ObjectChunkTimingData = {
@@ -88,23 +103,21 @@ const renderHandler = async (
 		outdir,
 		`localchunk-${String(params.chunk).padStart(
 			8,
-			'0'
+			'0',
 		)}.${RenderInternals.getFileExtensionFromCodec(
 			chunkCodec,
 			RenderInternals.getDefaultAudioCodec({
 				codec: params.codec,
 				preferLossless: true,
-			})
-		)}`
+			}),
+		)}`,
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
+	const resolvedProps = await resolvedPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
-	const downloads: Record<string, number> = {};
-
-	const inputProps = await inputPropsPromise;
 	await new Promise<void>((resolve, reject) => {
-		renderMedia({
+		RenderInternals.internalRenderMedia({
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
@@ -113,15 +126,12 @@ const renderHandler = async (
 				width: params.width,
 			},
 			imageFormat: params.imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (
-					renderedFrames % 5 === 0 &&
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-				) {
-					console.log(
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+				if (renderedFrames % 5 === 0) {
+					RenderInternals.Log.info(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 					writeLambdaInitializedFile({
 						attempt: params.attempt,
@@ -130,12 +140,19 @@ const renderHandler = async (
 						expectedBucketOwner: options.expectedBucketOwner,
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
-					}).catch((err) => reject(err));
+					}).catch((err) => {
+						console.log('Could not write progress', err);
+						return reject(err);
+					});
+				} else {
+					RenderInternals.Log.verbose(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
+					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
-					params.everyNthFrame
+					params.everyNthFrame,
 				);
 
 				if (renderedFrames === allFrames.length) {
@@ -157,53 +174,19 @@ const renderHandler = async (
 			},
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
-			quality: params.quality,
-			envVariables: params.envVariables,
-			dumpBrowserLogs:
-				params.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
 			outputLocation,
 			codec: chunkCodec,
-			crf: params.crf ?? undefined,
-			pixelFormat: params.pixelFormat,
+			crf: params.crf ?? null,
+			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
-			onDownload: (src: string) => {
-				console.log('Downloading', src);
-				downloads[src] = 0;
-				return ({percent, downloaded}) => {
-					if (percent === null) {
-						console.log(
-							`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
-						);
-						return;
-					}
-
-					if (
-						// Only report every 10% change
-						downloads[src] > percent - 0.1 &&
-						percent !== 1
-					) {
-						return;
-					}
-
-					downloads[src] = percent;
-					console.log(
-						`Download progress (${src}): ${downloaded} bytes, ${(
-							percent * 100
-						).toFixed(1)}%`
-					);
-					if (percent === 1) {
-						console.log(`Download complete: ${src}`);
-					}
-				};
-			},
+			x264Preset: params.x264Preset ?? undefined,
+			onDownload: onDownloadsHelper(),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
@@ -211,28 +194,33 @@ const renderHandler = async (
 			port: null,
 			everyNthFrame: params.everyNthFrame,
 			numberOfGifLoops: null,
-			internal: {
-				downloadMap,
-			},
 			muted: params.muted,
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
-			onSlowestFrames: (slowestFrames) => {
-				console.log();
-				console.log(`Slowest frames:`);
-				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
-				});
-			},
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
 			audioCodec: null,
 			preferLossless: true,
 			browserExecutable: executablePath(),
+			cancelSignal: undefined,
+			disallowParallelEncoding: false,
+			ffmpegOverride: ({args}) => args,
+			indent: false,
+			onCtrlCExit: () => undefined,
+			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace,
 		})
-			.then(() => resolve())
+			.then(({slowestFrames}) => {
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+				resolve();
+			})
 			.catch((err) => reject(err));
 	});
 
@@ -243,6 +231,8 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
+	RenderInternals.Log.verbose('Writing chunk to S3');
+	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: chunkKeyForIndex({
@@ -256,6 +246,10 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+	RenderInternals.Log.verbose('Wrote chunk to S3', {
+		time: Date.now() - writeStart,
+	});
+	RenderInternals.Log.verbose('Cleaning up and writing timings');
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
@@ -274,14 +268,16 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
-		RenderInternals.cleanDownloadMap(downloadMap),
 	]);
+	return {};
 };
 
 export const rendererHandler = async (
 	params: LambdaPayload,
-	options: Options
-) => {
+	options: Options,
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -290,6 +286,9 @@ export const rendererHandler = async (
 
 	try {
 		await renderHandler(params, options, logs);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			console.log({err});
@@ -298,17 +297,15 @@ export const rendererHandler = async (
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			);
+		const isRetryableError = isFlakyError(err as Error);
+
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
 		const willRetry =
-			(isBrowserError || params.retriesLeft > 0) && !shouldNotRetry;
+			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
+		const isFatal = !willRetry;
 
-		console.log('Error occurred');
+		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
@@ -319,7 +316,7 @@ export const rendererHandler = async (
 				chunk: params.chunk,
 				frame: null,
 				type: 'renderer',
-				isFatal: !isBrowserError,
+				isFatal,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,
@@ -334,14 +331,19 @@ export const rendererHandler = async (
 				retriesLeft: params.retriesLeft - 1,
 				attempt: params.attempt + 1,
 			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
+			const res = await callLambda({
+				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+				payload: retryPayload,
+				type: LambdaRoutines.renderer,
+				region: getCurrentRegionInFunction(),
+				receivedStreamingPayload: () => undefined,
+				timeoutInTest: 120000,
+				retriesRemaining: 0,
+			});
+
+			return res;
 		}
+
+		throw err;
 	}
 };

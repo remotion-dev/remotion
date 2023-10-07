@@ -7,7 +7,7 @@ test('Should have no buckets at first', async () => {
 	expect(
 		await getSites({
 			region: 'us-east-1',
-		})
+		}),
 	).toEqual({buckets: [], sites: []});
 });
 
@@ -21,7 +21,7 @@ test('Should have a site after deploying', async () => {
 			entryPoint: 'first',
 			region: 'eu-central-1',
 			siteName: 'testing',
-		})
+		}),
 	).toEqual({
 		serveUrl:
 			'https://remotionlambda-eucentral1-abcdef.s3.eu-central-1.amazonaws.com/sites/testing/index.html',

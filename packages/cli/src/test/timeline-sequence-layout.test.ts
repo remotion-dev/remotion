@@ -14,8 +14,8 @@ test('Should test timeline sequence layout without max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
+				// @ts-expect-error
 				component: {
-					// @ts-expect-error
 					_payload: {
 						_status: 1,
 					},
@@ -24,7 +24,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 				nonce: 16,
 			},
 			windowWidth: 1414.203125,
-		})
+		}),
 	).toEqual({
 		marginLeft: 1154,
 		width: 226,
@@ -43,8 +43,8 @@ test('Should test timeline sequence layout with max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
+				// @ts-expect-error
 				component: {
-					// @ts-expect-error
 					_payload: {
 						_status: 1,
 					},
@@ -53,7 +53,7 @@ test('Should test timeline sequence layout with max media duration', () => {
 				nonce: 16,
 			},
 			windowWidth: 1414.203125,
-		})
+		}),
 	).toEqual({
 		marginLeft: 1154,
 		width: 221,

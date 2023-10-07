@@ -1,11 +1,13 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
-import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
+import {
+	getAudioChannelsAndDuration,
+	getAudioChannelsAndDurationWithoutCache,
+} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {
-	const downloadMap = makeDownloadMap();
 	const videoWithoutAudio = path.join(
 		__dirname,
 		'..',
@@ -14,21 +16,15 @@ test('Get audio channels for video', async () => {
 		'example',
 		'src',
 		'resources',
-		'framer-music.mp4'
+		'framer-music.mp4',
 	);
 	expect(existsSync(videoWithoutAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
-		videoWithoutAudio,
-		null,
-		process.cwd()
-	);
-	cleanDownloadMap(downloadMap);
+	const channels =
+		await getAudioChannelsAndDurationWithoutCache(videoWithoutAudio);
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
 
 test('Get audio channels for video without music', async () => {
-	const downloadMap = makeDownloadMap();
 	const videoWithAudio = path.join(
 		__dirname,
 		'..',
@@ -37,16 +33,11 @@ test('Get audio channels for video without music', async () => {
 		'example',
 		'src',
 		'resources',
-		'framer.mp4'
+		'framer.mp4',
 	);
 	expect(existsSync(videoWithAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
-		videoWithAudio,
-		null,
-		process.cwd()
-	);
-	cleanDownloadMap(downloadMap);
+	const channels =
+		await getAudioChannelsAndDurationWithoutCache(videoWithAudio);
 
 	expect(channels.channels).toEqual(0);
 	expect(channels.duration).toBeCloseTo(3.334, 2);
@@ -62,15 +53,10 @@ test('Get audio channels for video with music', async () => {
 		'example',
 		'src',
 		'resources',
-		'sound1.mp3'
+		'sound1.mp3',
 	);
 	expect(existsSync(audio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
-		audio,
-		null,
-		process.cwd()
-	);
+	const channels = await getAudioChannelsAndDuration(downloadMap, audio);
 	cleanDownloadMap(downloadMap);
 
 	expect(channels).toEqual({channels: 2, duration: 56.529});
@@ -78,10 +64,10 @@ test('Get audio channels for video with music', async () => {
 
 test('Throw error if parsing a non video file', () => {
 	const downloadMap = makeDownloadMap();
-	const tsFile = path.join(__dirname, '..', 'ffmpeg-flags.ts');
+	const tsFile = path.join(__dirname, '..', 'can-use-parallel-encoding.ts');
 	expect(existsSync(tsFile)).toEqual(true);
 	expect(() =>
-		getAudioChannelsAndDuration(downloadMap, tsFile, null, process.cwd())
+		getAudioChannelsAndDuration(downloadMap, tsFile),
 	).rejects.toThrow(/Invalid data found when processing input/);
 	cleanDownloadMap(downloadMap);
 });

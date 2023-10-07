@@ -1,5 +1,5 @@
-import {Config} from 'remotion';
-import {webpackOverride} from './src/webpack-override';
+import {Config} from '@remotion/cli/config';
+import {webpackOverride} from './src/webpack-override.mjs';
 
 Config.setOverwriteOutput(true);
-Config.Bundling.overrideWebpackConfig(webpackOverride);
+Config.overrideWebpackConfig(webpackOverride);

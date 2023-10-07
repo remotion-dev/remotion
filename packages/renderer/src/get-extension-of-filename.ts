@@ -1,7 +1,7 @@
-import path from 'path';
+import path from 'node:path';
 
 export const getExtensionOfFilename = (
-	filename: string | null
+	filename: string | null,
 ): string | null => {
 	if (filename === null) {
 		return null;

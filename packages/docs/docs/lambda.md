@@ -5,17 +5,26 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
+import { YouTube } from "../components/YouTube";
+
+<YouTube
+  minutes={11}
+  href="https://youtu.be/dQyPUasZY7I"
+  thumb="https://i.ytimg.com/vi/dQyPUasZY7I/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCn-snZSKGnDuNkm0fIQYnQ9gJz4w"
+  title="Integrate Remotion Lambda into your app"
+/>
+
 Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is the fastest, most cost-efficient and most scalable way to render Remotion videos.
 
 import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
 ## When should I use it?
 
-- You are rendering less than 1 hour of video per minute. <sub>([AWS Lambda Concurrency Limit / Burst Limit constraint](/docs/lambda/troubleshooting/rate-limit))</sub>
-- Your videos are less than 2 hours long. <sub>([AWS Lambda storage constraint](/docs/lambda/disk-size))</sub>
+- Your videos are less than 30 minutes long at Full HD. <sub>approximately until the 15min AWS Timeout limit is hit</sub>
+- You stay within the ([AWS Lambda Concurrency Limit](/docs/lambda/troubleshooting/rate-limit)) or you are requesting an [increase from AWS](/docs/lambda/troubleshooting/rate-limit).
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 
-If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
+If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr) or consider using [Cloud Run](/docs/cloudrun).
 
 ## How it works
 
@@ -28,7 +37,7 @@ If one of those constraints is a dealbreaker for you, resort to normal [server-s
 
 ## Architecture
 
-- **Lambda function**: Requires a layer with Chromium and FFMPEG, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
+- **Lambda function**: Requires a layer with Chromium, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
 - **S3 bucket**: Stores the projects, the renders, and render metadata.
 - **CLI**: Allows to control the overall architecture from the command line. Is installed by adding `@remotion/lambda` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically

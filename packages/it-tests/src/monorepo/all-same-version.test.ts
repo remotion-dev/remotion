@@ -73,5 +73,8 @@ test("All packages require the same remotion version", () => {
     const packageJson = JSON.parse(json);
     versions.add(packageJson.version);
   }
+  if (versions.size > 1) {
+    console.log("Versions", versions);
+  }
   expect(versions.size).toBe(1);
 });

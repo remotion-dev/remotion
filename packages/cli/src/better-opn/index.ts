@@ -1,6 +1,6 @@
 // Copied from https://github.com/michaellzc/better-opn#readme
 
-import {exec} from 'child_process';
+import {exec} from 'node:child_process';
 import type {Writable} from 'stream';
 import open = require('open');
 
@@ -61,7 +61,7 @@ const startBrowserProcess = async ({
 		});
 
 		const browsersToTry = supportedChromiumBrowsers.filter((b) =>
-			processes.includes(b)
+			processes.includes(b),
 		);
 
 		for (const chromiumBrowser of browsersToTry) {

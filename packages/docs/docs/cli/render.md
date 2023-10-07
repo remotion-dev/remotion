@@ -10,7 +10,7 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> [<composition-id>] [<output-location>]
+npx remotion render <entry-file?> [<composition-id>] [<output-location>]
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
@@ -28,7 +28,7 @@ Besides choosing a video and output location with the command line arguments, th
 
 ### `--props`
 
-[React Props to pass to the selected composition of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
+[React Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
 
 :::info
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
@@ -52,7 +52,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format`<AvailableFrom v="1.4.0" />
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
 ### `--config`<AvailableFrom v="1.2.0" />
 
@@ -62,9 +62,17 @@ Specify a location for the Remotion config file.
 
 Specify a location for a dotenv file. Default `.env`.
 
-### `--quality`<AvailableFrom v="1.4.0" />
+### `--jpeg-quality`<AvailableFrom v="4.0.0" />
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~<AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
 
 ### `--overwrite`
 
@@ -101,6 +109,11 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
+
+### `--x264-preset`<AvailableFrom v="4.2.2" />
+
+[Set the x264 preset](/docs/config#x264Preset). This option is only valid if the [`codec`](#--codec) has been set to `h264`. Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
 
 ### `--crf`<AvailableFrom v="1.4.0" />
 
@@ -154,16 +167,6 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--ffmpeg-executable`
 
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable`<AvailableFrom v="3.0.17" />
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
-
-### `--timeout`
-
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
-
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
 :::
@@ -191,6 +194,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
@@ -199,3 +203,27 @@ Accepted values:
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options cli id="offthreadvideo-cache-size-in-bytes" />
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

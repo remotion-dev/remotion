@@ -1,104 +1,118 @@
 package lambda_go_sdk
 
 type RemotionOptions struct {
-	ServeUrl              string                 `json:"serveUrl" validate:"required"`
-	FunctionName          string                 `json:"functionName" validate:"required"`
-	RendererFunctionName  string                 `json:"rendererFunctionName"`
-	Region                string                 `json:"region" validate:"required"`
-	InputProps            interface{}            `json:"inputProps"`
-	Composition           string                 `json:"composition" validate:"required"`
-	Codec                 string                 `json:"codec"`
-	ImageFormat           string                 `json:"imageFormat"`
-	Crf                   int                    `json:"crf"`
-	EnvVariables          interface{}            `json:"envVariables"`
-	Quality               int                    `json:"quality"`
-	MaxRetries            int                    `json:"maxRetries"`
-	Privacy               string                 `json:"privacy"`
-	LogLevel              string                 `json:"logLevel"`
-	FrameRange            interface{}            `json:"frameRange"`
-	OutName               interface{}            `json:"outName"`
-	TimeoutInMilliseconds int                    `json:"timeoutInMilliseconds"`
-	ChromiumOptions       interface{}            `json:"chromiumOptions"`
-	Scale                 int                    `json:"scale"`
-	EveryNthFrame         int                    `json:"everyNthFrame"`
-	NumberOfGifLoops      int                    `json:"numberOfGifLoops"`
-	ConcurrencyPerLambda  int                    `json:"concurrencyPerLambda"`
-	DownloadBehavior      map[string]interface{} `json:"downloadBehavior"`
-	Muted                 bool                   `json:"muted"`
-	Overwrite             bool                   `json:"overwrite"`
-	AudioBitrate          interface{}            `json:"audioBitrate"`
-	VideoBitrate          interface{}            `json:"videoBitrate"`
-	Webhook               interface{}            `json:"webhook"`
-	ForceHeight           interface{}            `json:"forceHeight"`
-	ForceWidth            interface{}            `json:"forceWidth"`
-	BucketName            interface{}            `json:"bucketName"`
-	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
-	ForceBucketName       string                 `json:"forceBucketName"`
-	Gl                    string                 `json:"gl"`
+	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
+	FunctionName                   string                 `json:"functionName" validate:"required"`
+	RendererFunctionName           string                 `json:"rendererFunctionName"`
+	Region                         string                 `json:"region" validate:"required"`
+	InputProps                     interface{}            `json:"inputProps"`
+	Composition                    string                 `json:"composition" validate:"required"`
+	Codec                          string                 `json:"codec"`
+	ImageFormat                    string                 `json:"imageFormat"`
+	Crf                            int                    `json:"crf"`
+	EnvVariables                   interface{}            `json:"envVariables"`
+	JpegQuality                    int                    `json:"jpegQuality"`
+	MaxRetries                     int                    `json:"maxRetries"`
+	Privacy                        string                 `json:"privacy"`
+	ColorSpace                     string                 `json:"colorSpace"`
+	LogLevel                       string                 `json:"logLevel"`
+	FrameRange                     interface{}            `json:"frameRange"`
+	OutName                        interface{}            `json:"outName"`
+	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
+	ChromiumOptions                interface{}            `json:"chromiumOptions"`
+	Scale                          int                    `json:"scale"`
+	EveryNthFrame                  int                    `json:"everyNthFrame"`
+	NumberOfGifLoops               int                    `json:"numberOfGifLoops"`
+	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
+	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
+	Muted                          bool                   `json:"muted"`
+	Overwrite                      bool                   `json:"overwrite"`
+	AudioBitrate                   interface{}            `json:"audioBitrate"`
+	VideoBitrate                   interface{}            `json:"videoBitrate"`
+	Webhook                        interface{}            `json:"webhook"`
+	ForceHeight                    interface{}            `json:"forceHeight"`
+	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	ForceWidth                     interface{}            `json:"forceWidth"`
+	BucketName                     interface{}            `json:"bucketName"`
+	AudioCodec                     interface{}            `json:"audioCodec"`
+	ForceBucketName                string                 `json:"forceBucketName"`
+	Gl                             string                 `json:"gl"`
+	X264Preset                     interface{}            `json:"x264Preset"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
 }
 
 type renderInternalOptions struct {
-	RendererFunctionName  *string                `json:"rendererFunctionName"`
-	FramesPerLambda       *string                `json:"framesPerLambda"`
-	Composition           string                 `json:"composition" validate:"required"`
-	ServeUrl              string                 `json:"serveUrl" validate:"required"`
-	InputProps            interface{}            `json:"inputProps"`
-	Type                  string                 `json:"type,omitempty"`
-	Codec                 string                 `json:"codec"`
-	ImageFormat           string                 `json:"imageFormat"`
-	Crf                   int                    `json:"crf,omitempty"`
-	EnvVariables          interface{}            `json:"envVariables,omitempty"`
-	Quality               int                    `json:"quality,omitempty"`
-	MaxRetries            int                    `json:"maxRetries"`
-	Privacy               string                 `json:"privacy"`
-	LogLevel              string                 `json:"logLevel"`
-	FrameRange            interface{}            `json:"frameRange"`
-	OutName               interface{}            `json:"outName"`
-	TimeoutInMilliseconds int                    `json:"timeoutInMilliseconds"`
-	ChromiumOptions       interface{}            `json:"chromiumOptions"`
-	Scale                 int                    `json:"scale"`
-	EveryNthFrame         int                    `json:"everyNthFrame"`
-	NumberOfGifLoops      int                    `json:"numberOfGifLoops"`
-	ConcurrencyPerLambda  int                    `json:"concurrencyPerLambda"`
-	DownloadBehavior      map[string]interface{} `json:"downloadBehavior"`
-	Muted                 bool                   `json:"muted"`
-	Version               string                 `json:"version"`
-	Overwrite             bool                   `json:"overwrite"`
-	AudioBitrate          interface{}            `json:"audioBitrate"`
-	VideoBitrate          interface{}            `json:"videoBitrate"`
-	Webhook               interface{}            `json:"webhook"`
-	ForceHeight           interface{}            `json:"forceHeight"`
-	ForceWidth            interface{}            `json:"forceWidth"`
-	BucketName            interface{}            `json:"bucketName"`
-	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
+	RendererFunctionName           *string                `json:"rendererFunctionName"`
+	FramesPerLambda                *string                `json:"framesPerLambda"`
+	Composition                    string                 `json:"composition" validate:"required"`
+	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
+	InputProps                     interface{}            `json:"inputProps"`
+	Type                           string                 `json:"type,omitempty"`
+	Codec                          string                 `json:"codec"`
+	ImageFormat                    string                 `json:"imageFormat"`
+	Crf                            int                    `json:"crf,omitempty"`
+	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
+	JpegQuality                    int                    `json:"jpegQuality"`
+	MaxRetries                     int                    `json:"maxRetries"`
+	Privacy                        string                 `json:"privacy"`
+	ColorSpace                     string                 `json:"colorSpace"`
+	LogLevel                       string                 `json:"logLevel"`
+	FrameRange                     interface{}            `json:"frameRange"`
+	OutName                        interface{}            `json:"outName"`
+	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
+	ChromiumOptions                interface{}            `json:"chromiumOptions"`
+	Scale                          int                    `json:"scale"`
+	EveryNthFrame                  int                    `json:"everyNthFrame"`
+	NumberOfGifLoops               int                    `json:"numberOfGifLoops"`
+	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
+	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
+	Muted                          bool                   `json:"muted"`
+	Version                        string                 `json:"version"`
+	Overwrite                      bool                   `json:"overwrite"`
+	AudioBitrate                   interface{}            `json:"audioBitrate"`
+	VideoBitrate                   interface{}            `json:"videoBitrate"`
+	Webhook                        interface{}            `json:"webhook"`
+	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	ForceHeight                    interface{}            `json:"forceHeight"`
+	ForceWidth                     interface{}            `json:"forceWidth"`
+	BucketName                     interface{}            `json:"bucketName"`
+	AudioCodec                     interface{}            `json:"audioCodec"`
 
-	ForceBucketName string  `json:"forceBucketName,omitempty"`
-	Gl              *string `json:"gl,omitempty"`
+	ForceBucketName string      `json:"forceBucketName,omitempty"`
+	Gl              *string     `json:"gl,omitempty"`
+	X264Preset      interface{} `json:"x264Preset"`
+	DeleteAfter     *string     `json:"deleteAfter"`
+}
+
+type RawInvokeResponse struct {
+	StatusCode int `json:"statusCode"`
+	Headers    struct {
+		ContentType string `json:"content-type"`
+	} `json:"headers"`
+	Body string `json:"body"`
 }
 
 type RemotionRenderResponse struct {
-	RenderId          string `json:"renderId"`
-	BucketName        string `json:"bucketName"`
-	CloudWatchLogs    string `json:"cloudWatchLogs"`
-	FolderInS3Console string `json:"folderInS3Console"`
+	BucketName string `json:"bucketName"`
+	RenderId   string `json:"renderId"`
 }
 
 type RenderConfig struct {
-	RenderId     string `json:"renderId" validate:"required"`
-	BucketName   string `json:"bucketName" validate:"required"`
-	FunctionName string `json:"functionName" validate:"required"`
-	Region       string `json:"region" validate:"required"`
+	RenderId     string  `json:"renderId" validate:"required"`
+	BucketName   string  `json:"bucketName" validate:"required"`
+	FunctionName string  `json:"functionName" validate:"required"`
+	Region       string  `json:"region" validate:"required"`
+	DeleteAfter  *string `json:"deleteAfter"`
 }
 
 type renderProgressInternalConfig struct {
 	RenderId   string `json:"renderId" validate:"required"`
 	BucketName string `json:"bucketName" validate:"required"`
 	Type       string `json:"type" validate:"required"`
+	Version    string `json:"version" validate:"required"`
 }
 
-type RenderProgressResponse struct {
+type RenderProgress struct {
 	OverallProgress          float64         `json:"overallProgress"`
 	Chunks                   int             `json:"chunks"`
 	Done                     bool            `json:"done"`

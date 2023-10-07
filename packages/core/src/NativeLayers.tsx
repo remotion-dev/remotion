@@ -34,13 +34,14 @@ export const NativeLayersProvider: React.FC<PropsWithChildren> = ({
 		};
 	}, [clipRegion, setClipRegion]);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
 			window.remotion_getClipRegion = () => {
 				return clipRegion;
 			};
-		}
-	}, [clipRegion, setClipRegion]);
+		}, [clipRegion, setClipRegion]);
+	}
 
 	return (
 		<NativeLayersContext.Provider value={context}>

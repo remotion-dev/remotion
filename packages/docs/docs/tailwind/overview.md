@@ -57,7 +57,7 @@ Make sure no package version number has a `^` character in front of it as it can
 [Override the Webpack config](/docs/webpack) by using [`enableTailwind()`](/docs/tailwind/enable-tailwind).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind";
 
 Config.overrideWebpackConfig((currentConfiguration) => {
@@ -77,6 +77,7 @@ values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'bun', value: 'bun', },
 ]
 }>
 <TabItem value="npm">
@@ -94,14 +95,21 @@ yarn create video --tailwind
 ```
 
   </TabItem>
-
-  <TabItem value="pnpm">
+    <TabItem value="bun">
 
 ```bash
-pnpm create video -- --tailwind
+bun create video --tailwind
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --tailwind
+```
+
+  </TabItem>
+
 </Tabs>
 
 ## APIs

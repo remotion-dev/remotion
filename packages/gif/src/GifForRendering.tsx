@@ -17,10 +17,11 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			onLoad,
 			onError,
 			loopBehavior = 'loop',
+			playbackRate = 1,
 			fit = 'fill',
 			...props
 		},
-		ref
+		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
 		const [state, update] = useState<GifState>(() => {
@@ -40,7 +41,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		const [error, setError] = useState<Error | null>(null);
 
 		const [id] = useState(() =>
-			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
+			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`),
 		);
 
 		useEffect(() => {
@@ -49,7 +50,11 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			};
 		}, [id]);
 
-		const index = useCurrentGifIndex(state.delays, loopBehavior);
+		const index = useCurrentGifIndex({
+			delays: state.delays,
+			loopBehavior,
+			playbackRate,
+		});
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
 		currentOnLoad.current = onLoad;
@@ -97,12 +102,12 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			console.error(error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
-					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`
+					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`,
 				);
 			}
 
 			throw new Error(
-				`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`
+				`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`,
 			);
 		}
 
@@ -121,5 +126,5 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				ref={ref}
 			/>
 		);
-	}
+	},
 );

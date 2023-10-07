@@ -1,5 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useEffect, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import type {CanvasContent} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -7,12 +15,14 @@ import {
 	unsmoothenZoom,
 } from '../../smooth-zoom';
 import {BACKGROUND} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
-import {useDimensions} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
@@ -35,12 +45,33 @@ const resetZoom: React.CSSProperties = {
 
 const ZOOM_PX_FACTOR = 0.003;
 
-export const Canvas: React.FC = () => {
-	const dimensions = useDimensions();
-	const ref = useRef<HTMLDivElement>(null);
+export const Canvas: React.FC<{
+	canvasContent: CanvasContent;
+}> = ({canvasContent}) => {
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
+	const config = Internals.useUnsafeVideoConfig();
+
+	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
+		null,
+	);
+
+	const contentDimensions = useMemo(() => {
+		if (
+			(canvasContent.type === 'asset' || canvasContent.type === 'output') &&
+			assetResolution &&
+			assetResolution.type === 'found'
+		) {
+			return assetResolution.dimensions;
+		}
+
+		if (config) {
+			return {width: config.width, height: config.height};
+		}
+
+		return null;
+	}, [assetResolution, config, canvasContent]);
 
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: false,
@@ -59,7 +90,7 @@ export const Canvas: React.FC = () => {
 				return;
 			}
 
-			if (!dimensions) {
+			if (!contentDimensions || contentDimensions === 'none') {
 				return;
 			}
 
@@ -74,8 +105,8 @@ export const Canvas: React.FC = () => {
 			setSize((prevSize) => {
 				const scale = PlayerInternals.calculateScale({
 					canvasSize: size,
-					compositionHeight: dimensions.height,
-					compositionWidth: dimensions.width,
+					compositionHeight: contentDimensions.height,
+					compositionWidth: contentDimensions.width,
 					previewSize: prevSize.size,
 				});
 
@@ -90,23 +121,23 @@ export const Canvas: React.FC = () => {
 						size,
 						clientX: e.clientX,
 						clientY: e.clientY,
-						compositionWidth: dimensions.width,
-						compositionHeight: dimensions.height,
+						compositionWidth: contentDimensions.width,
+						compositionHeight: contentDimensions.height,
 						scale,
 						translation: prevSize.translation,
 					});
 
 					const zoomDifference = unsmoothened - oldSize;
 
-					const uvCoordinatesX = centerX / dimensions.width;
-					const uvCoordinatesY = centerY / dimensions.height;
+					const uvCoordinatesX = centerX / contentDimensions.width;
+					const uvCoordinatesY = centerY / contentDimensions.height;
 
 					const correctionLeft =
-						-uvCoordinatesX * (zoomDifference * dimensions.width) +
-						(1 - uvCoordinatesX) * zoomDifference * dimensions.width;
+						-uvCoordinatesX * (zoomDifference * contentDimensions.width) +
+						(1 - uvCoordinatesX) * zoomDifference * contentDimensions.width;
 					const correctionTop =
-						-uvCoordinatesY * (zoomDifference * dimensions.height) +
-						(1 - uvCoordinatesY) * zoomDifference * dimensions.height;
+						-uvCoordinatesY * (zoomDifference * contentDimensions.height) +
+						(1 - uvCoordinatesY) * zoomDifference * contentDimensions.height;
 
 					return {
 						translation: getEffectiveTranslation({
@@ -115,8 +146,8 @@ export const Canvas: React.FC = () => {
 								y: prevSize.translation.y - correctionTop / 2,
 							},
 							canvasSize: size,
-							compositionHeight: dimensions.height,
-							compositionWidth: dimensions.width,
+							compositionHeight: contentDimensions.height,
+							compositionWidth: contentDimensions.width,
 							scale,
 						}),
 						size: unsmoothened,
@@ -126,8 +157,8 @@ export const Canvas: React.FC = () => {
 				const effectiveTranslation = getEffectiveTranslation({
 					translation: prevSize.translation,
 					canvasSize: size,
-					compositionHeight: dimensions.height,
-					compositionWidth: dimensions.width,
+					compositionHeight: contentDimensions.height,
+					compositionWidth: contentDimensions.width,
 					scale,
 				});
 
@@ -140,14 +171,14 @@ export const Canvas: React.FC = () => {
 							y: effectiveTranslation.y + e.deltaY,
 						},
 						canvasSize: size,
-						compositionHeight: dimensions.height,
-						compositionWidth: dimensions.width,
+						compositionHeight: contentDimensions.height,
+						compositionWidth: contentDimensions.width,
 						scale,
 					}),
 				};
 			});
 		},
-		[editorZoomGestures, dimensions, isFit, setSize, size]
+		[editorZoomGestures, contentDimensions, isFit, setSize, size],
 	);
 
 	useEffect(() => {
@@ -178,7 +209,7 @@ export const Canvas: React.FC = () => {
 	}, [setSize]);
 
 	const onZoomIn = useCallback(() => {
-		if (!dimensions) {
+		if (!contentDimensions || contentDimensions === 'none') {
 			return;
 		}
 
@@ -189,8 +220,8 @@ export const Canvas: React.FC = () => {
 		setSize((prevSize) => {
 			const scale = PlayerInternals.calculateScale({
 				canvasSize: size,
-				compositionHeight: dimensions.height,
-				compositionWidth: dimensions.width,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
 				previewSize: prevSize.size,
 			});
 			return {
@@ -201,10 +232,10 @@ export const Canvas: React.FC = () => {
 				size: Math.min(MAX_ZOOM, scale * 2),
 			};
 		});
-	}, [dimensions, setSize, size]);
+	}, [contentDimensions, setSize, size]);
 
 	const onZoomOut = useCallback(() => {
-		if (!dimensions) {
+		if (!contentDimensions || contentDimensions === 'none') {
 			return;
 		}
 
@@ -215,8 +246,8 @@ export const Canvas: React.FC = () => {
 		setSize((prevSize) => {
 			const scale = PlayerInternals.calculateScale({
 				canvasSize: size,
-				compositionHeight: dimensions.height,
-				compositionWidth: dimensions.width,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
 				previewSize: prevSize.size,
 			});
 			return {
@@ -227,7 +258,7 @@ export const Canvas: React.FC = () => {
 				size: Math.max(MIN_ZOOM, scale / 2),
 			};
 		});
-	}, [dimensions, setSize, size]);
+	}, [contentDimensions, setSize, size]);
 
 	useEffect(() => {
 		const resetBinding = keybindings.registerKeybinding({
@@ -236,6 +267,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onReset,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -244,6 +276,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomIn,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -252,6 +285,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomOut,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {
@@ -261,9 +295,30 @@ export const Canvas: React.FC = () => {
 		};
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
+	const fetchMetadata = useCallback(async () => {
+		setAssetResolution(null);
+		if (canvasContent.type === 'composition') {
+			return;
+		}
+
+		const metadata = await getAssetMetadata(canvasContent);
+		setAssetResolution(metadata);
+	}, [canvasContent]);
+
+	useEffect(() => {
+		fetchMetadata();
+	}, [fetchMetadata]);
+
 	return (
 		<div ref={ref} style={container}>
-			{size ? <VideoPreview canvasSize={size} /> : null}
+			{size ? (
+				<VideoPreview
+					canvasContent={canvasContent}
+					contentDimensions={contentDimensions}
+					canvasSize={size}
+					assetMetadata={assetResolution}
+				/>
+			) : null}
 			{isFit ? null : (
 				<div style={resetZoom} className="css-reset">
 					<ResetZoomButton onClick={onReset} />

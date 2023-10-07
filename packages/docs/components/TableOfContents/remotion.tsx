@@ -18,7 +18,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/folder">
           <strong>{"<Folder>"}</strong>
-          <div>Organize compositions in the preview sidebar</div>
+          <div>Organize compositions in the Studio sidebar</div>
         </TOCItem>
         <TOCItem link="/docs/register-root">
           <strong>{"registerRoot()"}</strong>
@@ -135,6 +135,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/get-input-props">
           <strong>getInputProps()</strong>
           <div>Receive the user-defined input data</div>
+        </TOCItem>
+        <TOCItem link="/docs/get-remotion-environment">
+          <strong>getRemotionEnvironment()</strong>
+          <div>Determine if you are currently previewing or rendering</div>
         </TOCItem>
       </Grid>
       <h2>Assets</h2>

@@ -2,7 +2,7 @@ import type {FrameRange} from './frame-range';
 
 export const getRealFrameRange = (
 	durationInFrames: number,
-	frameRange: FrameRange | null
+	frameRange: FrameRange | null,
 ): [number, number] => {
 	if (frameRange === null) {
 		return [0, durationInFrames - 1];
@@ -13,7 +13,7 @@ export const getRealFrameRange = (
 			throw new Error(
 				`Frame number is out of range, must be between 0 and ${
 					durationInFrames - 1
-				} but got ${frameRange}`
+				} but got ${frameRange}`,
 			);
 		}
 
@@ -24,7 +24,7 @@ export const getRealFrameRange = (
 		throw new Error(
 			`Frame range ${frameRange.join('-')} is not inbetween 0-${
 				durationInFrames - 1
-			}`
+			}`,
 		);
 	}
 

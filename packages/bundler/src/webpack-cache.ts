@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 type Environment = 'development' | 'production';
 
@@ -50,38 +50,43 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
-const remotionCacheLocation = (
+const remotionCacheLocationForEnv = (
 	remotionRoot: string,
 	environment: Environment,
-	hash: string
 ) => {
 	return path.join(
 		getWebpackCacheDir(remotionRoot),
-		getWebpackCacheName(environment, hash)
+		getWebpackCacheEnvDir(environment),
 	);
 };
 
-export const clearCache = (remotionRoot: string) => {
-	return (fs.promises.rm ?? fs.promises.rmdir)(
+const remotionCacheLocation = (
+	remotionRoot: string,
+	environment: Environment,
+	hash: string,
+) => {
+	return path.join(
 		getWebpackCacheDir(remotionRoot),
-		{
-			recursive: true,
-		}
+		getWebpackCacheName(environment, hash),
 	);
+};
+
+export const clearCache = (remotionRoot: string, env: Environment) => {
+	return fs.promises.rm(remotionCacheLocationForEnv(remotionRoot, env), {
+		recursive: true,
+	});
 };
 
 const getPrefix = (environment: Environment) => {
-	return `remotion-v4-${environment}`;
+	return `remotion-v5-${environment}`;
+};
+
+export const getWebpackCacheEnvDir = (environment: Environment) => {
+	return getPrefix(environment);
 };
 
 export const getWebpackCacheName = (environment: Environment, hash: string) => {
-	if (environment === 'development') {
-		return `${getPrefix(environment)}-${hash}`;
-	}
-
-	// In production, the cache is independent from input props because
-	// they are passed over URL params. Speed is mostly important in production.
-	return `${getPrefix(environment)}-${hash}`;
+	return [getWebpackCacheEnvDir(environment), hash].join(path.sep);
 };
 
 const hasOtherCache = ({
@@ -106,7 +111,7 @@ const hasOtherCache = ({
 export const cacheExists = (
 	remotionRoot: string,
 	environment: Environment,
-	hash: string
+	hash: string,
 ): CacheState => {
 	if (fs.existsSync(remotionCacheLocation(remotionRoot, environment, hash))) {
 		return 'exists';

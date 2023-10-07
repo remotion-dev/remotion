@@ -7,18 +7,22 @@
  */
 
 import {RenderInternals} from '@remotion/renderer';
-import {createReadStream, existsSync, promises} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import {join} from 'path';
+import {createReadStream, existsSync, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';
 
-export const serveStatic = async function (
-	root: string,
-	hash: string,
-	req: IncomingMessage,
-	res: ServerResponse
-) {
+export const serveStatic = async function ({
+	root,
+	path,
+	req,
+	res,
+}: {
+	root: string;
+	path: string;
+	req: IncomingMessage;
+	res: ServerResponse;
+}) {
 	if (req.method !== 'GET' && req.method !== 'HEAD') {
 		// method not allowed
 		res.statusCode = 405;
@@ -27,12 +31,6 @@ export const serveStatic = async function (
 		res.end();
 		return;
 	}
-
-	const filename = new URL(
-		req.url as string,
-		'http://localhost'
-	).pathname.replace(new RegExp(`^${hash}`), '');
-	const path = join(root, decodeURIComponent(filename));
 
 	if (!RenderInternals.isPathInside(path, root)) {
 		res.writeHead(500);
@@ -64,7 +62,7 @@ export const serveStatic = async function (
 		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
-			RenderInternals.mimeLookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
@@ -79,14 +77,14 @@ export const serveStatic = async function (
 
 		res.setHeader(
 			'content-type',
-			RenderInternals.mimeLookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader(
 			'content-range',
 			getValueContentRangeHeader('bytes', lstat.size, {
 				end,
 				start,
-			})
+			}),
 		);
 		res.setHeader('content-length', end - start + 1);
 

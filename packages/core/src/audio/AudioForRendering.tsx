@@ -9,10 +9,9 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {CompositionManager} from '../CompositionManager.js';
 import {continueRender, delayRender} from '../delay-render.js';
-import {useRemotionEnvironment} from '../get-environment.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -34,17 +33,17 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-	const environment = useRemotionEnvironment();
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
-				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}`,
-		[props.src, sequenceContext]
+			`audio-${random(
+				props.src ?? '',
+			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}`,
+		[props.src, sequenceContext],
 	);
 
 	const {
@@ -52,6 +51,9 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		onDuration,
+		toneFrequency,
+		_remotionInternalNeedsDurationCalculation,
+		acceptableTimeShiftInSeconds,
 		...nativeProps
 	} = props;
 
@@ -67,7 +69,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		() => {
 			return audioRef.current as HTMLVideoElement;
 		},
-		[]
+		[],
 	);
 
 	useEffect(() => {
@@ -87,7 +89,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'audio',
 			src: getAbsoluteSrc(props.src),
 			id,
@@ -96,64 +98,76 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: toneFrequency ?? null,
 		});
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
 		props.src,
-		registerAsset,
+		registerRenderAsset,
 		absoluteFrame,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		volumePropFrame,
 		frame,
 		playbackRate,
 		props.playbackRate,
 		allowAmplificationDuringRender,
+		toneFrequency,
 	]);
 
 	const {src} = props;
 
+	// The <audio> tag is only rendered if the duration needs to be calculated for the `loop`
+	// attribute to work, or if the user assigns a ref to it.
+	const needsToRenderAudioTag =
+		ref || _remotionInternalNeedsDurationCalculation;
+
 	// If audio source switches, make new handle
-	if (environment === 'rendering') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
-				return;
-			}
+	useLayoutEffect(() => {
+		if (process.env.NODE_ENV === 'test') {
+			return;
+		}
 
-			const newHandle = delayRender('Loading <Audio> duration with src=' + src);
-			const {current} = audioRef;
+		if (!needsToRenderAudioTag) {
+			return;
+		}
 
-			const didLoad = () => {
-				if (current?.duration) {
-					onDuration(current.src as string, current.duration);
-				}
+		const newHandle = delayRender('Loading <Audio> duration with src=' + src);
+		const {current} = audioRef;
 
-				continueRender(newHandle);
-			};
-
+		const didLoad = () => {
 			if (current?.duration) {
 				onDuration(current.src as string, current.duration);
-				continueRender(newHandle);
-			} else {
-				current?.addEventListener('loadedmetadata', didLoad, {once: true});
 			}
 
-			// If tag gets unmounted, clear pending handles because video metadata is not going to load
-			return () => {
-				current?.removeEventListener('loadedmetadata', didLoad);
-				continueRender(newHandle);
-			};
-		}, [src, onDuration]);
+			continueRender(newHandle);
+		};
+
+		if (current?.duration) {
+			onDuration(current.src as string, current.duration);
+			continueRender(newHandle);
+		} else {
+			current?.addEventListener('loadedmetadata', didLoad, {once: true});
+		}
+
+		// If tag gets unmounted, clear pending handles because video metadata is not going to load
+		return () => {
+			current?.removeEventListener('loadedmetadata', didLoad);
+			continueRender(newHandle);
+		};
+	}, [src, onDuration, needsToRenderAudioTag]);
+
+	if (!needsToRenderAudioTag) {
+		return null;
 	}
 
 	return <audio ref={audioRef} {...nativeProps} />;
 };
 
 export const AudioForRendering = forwardRef(
-	AudioForRenderingRefForwardingFunction
+	AudioForRenderingRefForwardingFunction,
 ) as ForwardRefExoticComponent<
 	AudioForRenderingProps & RefAttributes<HTMLAudioElement>
 >;

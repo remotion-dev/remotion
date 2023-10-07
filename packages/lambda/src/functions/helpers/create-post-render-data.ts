@@ -13,7 +13,6 @@ import {
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
-import {getCurrentArchitecture} from './get-current-architecture';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
@@ -41,12 +40,12 @@ export const createPostRenderData = ({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 }): PostRenderData => {
-	const initializedKeys = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
+	const initializedKeys = contents.filter(
+		(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
 	);
 
 	const parsedTimings = initializedKeys.map(({Key}) =>
-		parseLambdaTimingsKey(Key as string)
+		parseLambdaTimingsKey(Key as string),
 	);
 
 	const times = parsedTimings
@@ -54,10 +53,9 @@ export const createPostRenderData = ({
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
-		durationInMiliseconds: times,
+		durationInMilliseconds: times,
 		memorySizeInMb,
 		region,
-		architecture: getCurrentArchitecture(),
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
@@ -83,7 +81,10 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const retriesInfo = getRetryStats({contents, renderId});
+	const retriesInfo = getRetryStats({
+		contents,
+		renderId,
+	});
 
 	return {
 		cost: {
@@ -119,7 +120,9 @@ export const createPostRenderData = ({
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
 			parsedTimings,
 			renderMetadata.framesPerLambda,
-			renderMetadata.frameRange[1]
+			renderMetadata.frameRange[0],
+			renderMetadata.frameRange[1],
 		),
+		deleteAfter: renderMetadata.deleteAfter,
 	};
 };

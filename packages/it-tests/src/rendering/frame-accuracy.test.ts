@@ -31,13 +31,12 @@ const getMissedFramesforCodec = async (
       outputPath,
       "--image-format",
       "jpeg",
-      "--quality",
+      "--jpeg-quality",
       "100",
       "--sequence",
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      reject: false,
     }
   );
 

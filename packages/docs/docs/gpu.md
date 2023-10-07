@@ -10,9 +10,9 @@ Some types of content in Remotion can benefit from a GPU being available on the 
 
 - WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
 - 2D Canvas graphics
-- GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
+- GPU-accelerated CSS properties such as `box-shadow`, `text-shadow`, `background-image: linear-gradient()`, `background-image: radial-gradient()`, `filter: blur()`, `filter: drop-shadow()`
 
-If a GPU is available, it should be enabled by default while rendering the preview. However, in headless mode, Chromium disables the GPU, leading to a significant
+If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player. However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.
 
 ## Use `--gl=angle` for local renders
@@ -36,3 +36,7 @@ AWS Lambda instances have no GPU, so it is not possible to use it.
 ## What are your experiences?
 
 We'd love to learn and document more findings about the GPU. Let us know and we will amend this document!
+
+## See also
+
+- [OpenGL renderer backends](/docs/gl-options)

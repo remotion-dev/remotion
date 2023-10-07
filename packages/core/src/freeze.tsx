@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {SequenceContext} from './SequenceContext.js';
 import type {TimelineContextValue} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
 
 type FreezeProps = {
 	frame: number;
@@ -13,27 +14,28 @@ type FreezeProps = {
  * @see [Documentation](https://www.remotion.dev/docs/freeze)
  */
 export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
+	const videoConfig = useVideoConfig();
 	if (typeof frame === 'undefined') {
 		throw new Error(
-			`The <Freeze /> component requires a 'frame' prop, but none was passed.`
+			`The <Freeze /> component requires a 'frame' prop, but none was passed.`,
 		);
 	}
 
 	if (typeof frame !== 'number') {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frame}`
+			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frame}`,
 		);
 	}
 
 	if (Number.isNaN(frame)) {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a real number, but it is NaN.`
+			`The 'frame' prop of <Freeze /> must be a real number, but it is NaN.`,
 		);
 	}
 
 	if (!Number.isFinite(frame)) {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frame}.`
+			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frame}.`,
 		);
 	}
 
@@ -45,9 +47,11 @@ export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 			imperativePlaying: {
 				current: false,
 			},
-			frame,
+			frame: {
+				[videoConfig.id]: frame,
+			},
 		};
-	}, [context, frame]);
+	}, [context, frame, videoConfig.id]);
 
 	return (
 		<TimelineContext.Provider value={value}>

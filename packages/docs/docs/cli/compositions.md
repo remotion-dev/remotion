@@ -57,14 +57,6 @@ If you don't feel like passing command line flags every time, consider creating 
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--ffmpeg-executable`
-
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable`
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
-
 ### `--timeout`
 
 Define how long it may take to resolve all [`delayRender()`](/docs/delay-render) calls before the composition fetching times out in milliseconds. Default: `30000`.
@@ -87,17 +79,36 @@ This will most notably disable CORS in Chrome among other security features.
 
 Opens an actual browser to observe the composition fetching.
 
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
 
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
+
 ## See also
 
-- [`getCompositions()`](/docs/cli/compositions)
-- [`npx remotion compositions`](/docs/cli/compositions)
+- [`getCompositions()`](/docs/renderer/get-compositions)
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
 - [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

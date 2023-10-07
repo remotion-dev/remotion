@@ -6,7 +6,7 @@ export type THelpLink = {
 export const getHelpLink = (message: string): THelpLink | null => {
 	if (
 		message.includes(
-			'See https://www.remotion.dev/docs/the-fundamentals#defining-compositions'
+			'See https://www.remotion.dev/docs/the-fundamentals#defining-compositions',
 		)
 	) {
 		return {

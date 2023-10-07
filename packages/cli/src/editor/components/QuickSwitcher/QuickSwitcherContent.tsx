@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {INPUT_BORDER_COLOR_UNHOVERED, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -15,9 +15,12 @@ import {
 	useMenuStructure,
 } from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
+import {compositionSelectorRef} from '../CompositionSelector';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {RemotionInput} from '../NewComposition/RemInput';
 import {algoliaSearch} from './algolia-search';
 import {AlgoliaCredit} from './AlgoliaCredit';
 import {fuzzySearch} from './fuzzy-search';
@@ -27,8 +30,6 @@ import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
 
 const input: React.CSSProperties = {
-	padding: 4,
-	border: '2px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
 	width: '100%',
 };
 
@@ -190,10 +191,20 @@ export const QuickSwitcherContent: React.FC<{
 					onSelected: () => {
 						selectComposition(c, true);
 						setSelectedModal(null);
+
+						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
+
+						compositionSelectorRef.current?.expandComposition(c.id);
+						waitForElm(selector).then(() => {
+							document
+								.querySelector(selector)
+
+								?.scrollIntoView({block: 'center'});
+						});
 					},
 					compositionType: isCompositionStill(c) ? 'still' : 'composition',
 				};
-			})
+			}),
 		);
 	}, [
 		mode,
@@ -231,6 +242,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -279,6 +292,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -290,12 +305,12 @@ export const QuickSwitcherContent: React.FC<{
 		(e) => {
 			setState({query: e.target.value, selectedIndex: 0});
 		},
-		[]
+		[],
 	);
 
 	const selectedIndexRounded = loopIndex(
 		state.selectedIndex,
-		resultsArray.length
+		resultsArray.length,
 	);
 
 	const onActionsSelected = useCallback(() => {
@@ -337,6 +352,7 @@ export const QuickSwitcherContent: React.FC<{
 		if (showKeyboardShortcuts) {
 			return {
 				maxHeight: 600,
+				overflowY: 'auto',
 			};
 		}
 
@@ -374,14 +390,16 @@ export const QuickSwitcherContent: React.FC<{
 				</button>
 			</div>
 			<div style={content}>
-				<input
+				<RemotionInput
 					ref={inputRef}
 					type="text"
 					style={input}
 					autoFocus
+					status="ok"
 					value={state.query}
 					onChange={onTextChange}
 					placeholder="Search compositions..."
+					rightAlign={false}
 				/>
 				{showKeyboardShortcuts ? (
 					<>
@@ -389,7 +407,7 @@ export const QuickSwitcherContent: React.FC<{
 					</>
 				) : null}
 			</div>
-			<div style={results}>
+			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{showKeyboardShortcuts ? (
 					<KeyboardShortcutsExplainer />
 				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
@@ -409,3 +427,24 @@ export const QuickSwitcherContent: React.FC<{
 		</div>
 	);
 };
+
+function waitForElm(selector: string) {
+	return new Promise((resolve) => {
+		if (document.querySelector(selector)) {
+			resolve(document.querySelector(selector));
+			return;
+		}
+
+		const observer = new MutationObserver(() => {
+			if (document.querySelector(selector)) {
+				resolve(document.querySelector(selector));
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	});
+}

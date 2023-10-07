@@ -29,14 +29,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+npm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+pnpm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
@@ -44,14 +44,14 @@ pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
   <TabItem value="yarn">
 
 ```bash
-yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+yarn add babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
 </Tabs>
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 

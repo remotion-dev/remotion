@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import execa from 'execa';
+import path from 'node:path';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
@@ -29,7 +30,7 @@ const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 export const checkGitAvailability = async (
 	cwd: string,
 	commandToCheck: string,
-	argsToCheck: string[]
+	argsToCheck: string[],
 ): Promise<
 	| {type: 'no-git-repo'}
 	| {type: 'is-git-repo'; location: string}
@@ -77,7 +78,7 @@ export const init = async () => {
 	]);
 	if (result.type === 'git-not-installed') {
 		Log.error(
-			'Git is not installed or not in the path. Install Git to continue.'
+			'Git is not installed or not in the path. Install Git to continue.',
 		);
 		process.exit(1);
 	}
@@ -85,7 +86,9 @@ export const init = async () => {
 	if (result.type === 'is-git-repo') {
 		const should = await yesOrNo({
 			defaultValue: false,
-			question: `You are already inside a Git repo (${result.location}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+			question: `You are already inside a Git repo (${path.resolve(
+				result.location,
+			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
 		});
 		if (!should) {
 			Log.error('Aborting.');
@@ -126,8 +129,8 @@ export const init = async () => {
 
 	Log.info(
 		`Copied ${chalk.blueBright(
-			selectedTemplate.shortName
-		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`
+			selectedTemplate.shortName,
+		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`,
 	);
 
 	createYarnYmlFile({
@@ -156,6 +159,16 @@ export const init = async () => {
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
 		await promise;
+	} else if (pkgManager === 'bun') {
+		Log.info('> bun install');
+		const promise = execa('bun', ['install'], {
+			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
 	} else {
 		Log.info('> npm install');
 		const promise = execa('npm', ['install', '--no-fund'], {
@@ -173,7 +186,7 @@ export const init = async () => {
 	Log.info();
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
 	Log.info(
-		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`
+		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`,
 	);
 	await openInEditorFlow(projectRoot);
 
@@ -183,12 +196,12 @@ export const init = async () => {
 	Log.info('');
 	Log.info('To render a video, run');
 	Log.info(
-		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate))
+		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate)),
 	);
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',
-		chalk.underline('https://www.remotion.dev/docs/the-fundamentals')
+		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
 	Log.info('Enjoy Remotion!');
 };

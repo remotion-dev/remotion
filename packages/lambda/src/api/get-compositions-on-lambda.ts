@@ -1,25 +1,33 @@
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
-import type {TCompMetadata} from 'remotion';
+import type {ChromiumOptions, LogLevel, ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {VideoConfig} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	region: AwsRegion;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	functionName: string;
 	serveUrl: string;
 	envVariables?: Record<string, string>;
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
-export type GetCompositionsOnLambdaOutput = TCompMetadata[];
+export type GetCompositionsOnLambdaOutput = VideoConfig[];
 
 /**
  * @description Returns the compositions from a serveUrl
@@ -32,7 +40,6 @@ export type GetCompositionsOnLambdaOutput = TCompMetadata[];
  * @param params.logLevel The log level of the Lambda function
  * @param params.timeoutInMilliseconds The timeout of the Lambda function
  * @param params.chromiumOptions The options to pass to Chromium
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns The compositions
  */
 export const getCompositionsOnLambda = async ({
@@ -46,12 +53,18 @@ export const getCompositionsOnLambda = async ({
 	timeoutInMilliseconds,
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
+	offthreadVideoCacheSizeInBytes,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
+	const serializedInputProps = await compressInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'still',
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 	});
 
 	try {
@@ -63,19 +76,22 @@ export const getCompositionsOnLambda = async ({
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
+				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 			},
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return res.compositions;
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 

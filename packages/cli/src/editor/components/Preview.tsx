@@ -1,17 +1,81 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import type {CanvasContent} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
+import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+import {RenderPreview} from './RenderPreview';
+import {Spinner} from './Spinner';
+import {StaticFilePreview} from './StaticFilePreview';
 
-export const checkerboardSize = 49;
+const centeredContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	justifyContent: 'center',
+	alignItems: 'center',
+};
+
+const label: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	color: LIGHT_TEXT,
+};
+
+export type AssetFileType =
+	| 'audio'
+	| 'video'
+	| 'image'
+	| 'json'
+	| 'txt'
+	| 'other';
+export const getPreviewFileType = (fileName: string | null): AssetFileType => {
+	if (!fileName) {
+		return 'other';
+	}
+
+	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
+	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'webm'];
+	const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+
+	const fileExtension = fileName.split('.').pop()?.toLowerCase();
+	if (fileExtension === undefined) {
+		throw new Error('File extension is undefined');
+	}
+
+	if (audioExtensions.includes(fileExtension)) {
+		return 'audio';
+	}
+
+	if (videoExtensions.includes(fileExtension)) {
+		return 'video';
+	}
+
+	if (imageExtensions.includes(fileExtension)) {
+		return 'image';
+	}
+
+	if (fileExtension === 'json') {
+		return 'json';
+	}
+
+	if (fileExtension === 'txt') {
+		return 'txt';
+	}
+
+	return 'other';
+};
+
+const checkerboardSize = 49;
 
 const containerStyle = (options: {
 	scale: number;
@@ -35,49 +99,132 @@ const containerStyle = (options: {
 			getCheckerboardBackgroundSize(checkerboardSize) /* Must be a square */,
 		backgroundPosition:
 			getCheckerboardBackgroundPos(
-				checkerboardSize
+				checkerboardSize,
 			) /* Must be half of one side of the square */,
 	};
 };
 
-const Inner: React.FC<{
+export const VideoPreview: React.FC<{
 	canvasSize: Size;
-}> = ({canvasSize}) => {
+	contentDimensions: Dimensions | 'none' | null;
+	canvasContent: CanvasContent;
+	assetMetadata: AssetMetadata | null;
+}> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
+	if (assetMetadata && assetMetadata.type === 'not-found') {
+		return (
+			<div style={centeredContainer}>
+				<div style={label}>File does not exist</div>
+			</div>
+		);
+	}
+
+	if (contentDimensions === null) {
+		return (
+			<div style={centeredContainer}>
+				<Spinner duration={0.5} size={24} />
+			</div>
+		);
+	}
+
+	return (
+		<CompWhenItHasDimensions
+			contentDimensions={contentDimensions}
+			canvasSize={canvasSize}
+			canvasContent={canvasContent}
+			assetMetadata={assetMetadata}
+		/>
+	);
+};
+
+const CompWhenItHasDimensions: React.FC<{
+	contentDimensions: Dimensions | 'none';
+	canvasSize: Size;
+	canvasContent: CanvasContent;
+	assetMetadata: AssetMetadata | null;
+}> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
 
-	const portalContainer = useRef<HTMLDivElement>(null);
+	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
+		if (contentDimensions === 'none') {
+			return {
+				centerX: 0,
+				centerY: 0,
+				yCorrection: 0,
+				xCorrection: 0,
+				scale: 1,
+			};
+		}
 
-	const config = useVideoConfig();
-	const {checkerboard} = useContext(CheckerboardContext);
-
-	const {centerX, centerY, yCorrection, xCorrection, scale} =
-		PlayerInternals.calculateCanvasTransformation({
+		return PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
+			compositionHeight: contentDimensions.height,
+			compositionWidth: contentDimensions.width,
 			previewSize: previewSize.size,
 		});
+	}, [canvasSize, contentDimensions, previewSize.size]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
-			width: config.width * scale,
-			height: config.height * scale,
+			width:
+				contentDimensions === 'none' ? '100%' : contentDimensions.width * scale,
+			height:
+				contentDimensions === 'none'
+					? '100%'
+					: contentDimensions.height * scale,
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
+			justifyContent: canvasContent.type === 'asset' ? 'center' : 'flex-start',
+			alignItems:
+				canvasContent.type === 'asset' &&
+				getPreviewFileType(canvasContent.asset) === 'audio'
+					? 'center'
+					: 'normal',
 		};
 	}, [
+		contentDimensions,
+		scale,
 		centerX,
-		centerY,
-		config.height,
-		config.width,
 		previewSize.translation.x,
 		previewSize.translation.y,
-		scale,
+		centerY,
+		canvasContent,
 	]);
+
+	return (
+		<div style={outer}>
+			{canvasContent.type === 'asset' ? (
+				<StaticFilePreview
+					assetMetadata={assetMetadata}
+					currentAsset={canvasContent.asset}
+				/>
+			) : canvasContent.type === 'output' ? (
+				<RenderPreview
+					path={canvasContent.path}
+					assetMetadata={assetMetadata}
+				/>
+			) : (
+				<PortalContainer
+					contentDimensions={contentDimensions as Dimensions}
+					scale={scale}
+					xCorrection={xCorrection}
+					yCorrection={yCorrection}
+				/>
+			)}
+		</div>
+	);
+};
+
+const PortalContainer: React.FC<{
+	scale: number;
+	xCorrection: number;
+	yCorrection: number;
+	contentDimensions: Dimensions;
+}> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
+	const {checkerboard} = useContext(CheckerboardContext);
 
 	const style = useMemo((): React.CSSProperties => {
 		return containerStyle({
@@ -85,13 +232,13 @@ const Inner: React.FC<{
 			scale,
 			xCorrection,
 			yCorrection,
-			width: config.width,
-			height: config.height,
+			width: contentDimensions.width,
+			height: contentDimensions.height,
 		});
 	}, [
 		checkerboard,
-		config.height,
-		config.width,
+		contentDimensions.height,
+		contentDimensions.width,
 		scale,
 		xCorrection,
 		yCorrection,
@@ -105,21 +252,7 @@ const Inner: React.FC<{
 		};
 	}, []);
 
-	return (
-		<div style={outer}>
-			<div ref={portalContainer} style={style} />
-		</div>
-	);
-};
+	const portalContainer = useRef<HTMLDivElement>(null);
 
-export const VideoPreview: React.FC<{
-	canvasSize: Size;
-}> = ({canvasSize}) => {
-	const config = Internals.useUnsafeVideoConfig();
-
-	if (!config) {
-		return null;
-	}
-
-	return <Inner canvasSize={canvasSize} />;
+	return <div ref={portalContainer} style={style} />;
 };

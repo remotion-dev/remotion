@@ -21,13 +21,13 @@ export const parse = (
 		signal,
 	}: {
 		signal: AbortController['signal'];
-	}
+	},
 ) =>
 	fetch(src, {signal})
 		.then((resp) => {
 			if (!resp.headers.get('Content-Type')?.includes('image/gif'))
 				throw Error(
-					`Wrong content type: "${resp.headers.get('Content-Type')}"`
+					`Wrong content type: "${resp.headers.get('Content-Type')}"`,
 				);
 			return resp.arrayBuffer();
 		})
@@ -40,7 +40,7 @@ export const parse = (
 			Promise.all([
 				decompressFrames(gif),
 				{width: gif.lsd.width, height: gif.lsd.height},
-			])
+			]),
 		)
 		.then(([frames, options]) => {
 			const readyFrames: Uint8ClampedArray[] = [];
@@ -89,7 +89,7 @@ const putPixels = (
 	gifSize: {
 		width: number;
 		height: number;
-	}
+	},
 ) => {
 	const {width, height, top: dy, left: dx} = frame.dims;
 	const offset = dy * gifSize.width + dx;

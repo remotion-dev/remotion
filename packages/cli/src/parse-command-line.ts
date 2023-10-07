@@ -2,26 +2,26 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	FfmpegExecutable,
-	ImageFormat,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
-import {resolve} from 'path';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
-export type CommandLineOptions = {
+type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
-	['ffmpeg-executable']: FfmpegExecutable;
-	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
-	['image-format']: ImageFormat;
+	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
+	['x264-preset']: X264Preset;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -29,6 +29,11 @@ export type CommandLineOptions = {
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
 	['number-of-shared-audio-tags']: number;
+	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
+		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.colorSpaceOption
+		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
+	version: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -39,10 +44,12 @@ export type CommandLineOptions = {
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
+	output: string;
 	overwrite: boolean;
 	png: boolean;
 	props: string;
 	quality: number;
+	['jpeg-quality']: number;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -67,6 +74,9 @@ export type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
+	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
+	[BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag]: boolean;
 };
 
 export const BooleanFlags = [
@@ -104,24 +114,12 @@ export const parseCommandLine = () => {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
-	if (parsedCli['image-format']) {
-		Config.setImageFormat(parsedCli['image-format']);
-	}
-
 	if (parsedCli['browser-executable']) {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['ffmpeg-executable']) {
-		Config.setFfmpegExecutable(resolve(parsedCli['ffmpeg-executable']));
-	}
-
 	if (parsedCli['number-of-gif-loops']) {
 		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
-	}
-
-	if (parsedCli['ffprobe-executable']) {
-		Config.setFfprobeExecutable(resolve(parsedCli['ffprobe-executable']));
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
@@ -150,7 +148,7 @@ export const parseCommandLine = () => {
 			Log.error(
 				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)
-					.join(', ')}.`
+					.join(', ')}.`,
 			);
 			process.exit(1);
 		}
@@ -183,11 +181,9 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.png) {
-		Log.warn(
-			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
+		throw new Error(
+			'The --png flag has been removed. Use --sequence --image-format=png from now on.',
 		);
-		Config.setImageSequence(true);
-		Config.setImageFormat('png');
 	}
 
 	if (parsedCli.sequence) {
@@ -208,8 +204,12 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
-			String(parsedCli['prores-profile']) as ProResProfile
+			String(parsedCli['prores-profile']) as ProResProfile,
 		);
+	}
+
+	if (parsedCli['x264-preset']) {
+		Config.setX264Preset(String(parsedCli['x264-preset']) as X264Preset);
 	}
 
 	if (parsedCli.overwrite) {
@@ -217,7 +217,12 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Config.setQuality(parsedCli.quality);
+		Log.warn('The --quality flag has been renamed to --jpeg-quality instead.');
+		Config.setJpegQuality(parsedCli.quality);
+	}
+
+	if (typeof parsedCli['jpeg-quality'] !== 'undefined') {
+		Config.setJpegQuality(parsedCli['jpeg-quality']);
 	}
 
 	if (typeof parsedCli.scale !== 'undefined') {
@@ -234,7 +239,7 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
 		Config.setKeyboardShortcutsEnabled(
-			!parsedCli['disable-keyboard-shortcuts']
+			!parsedCli['disable-keyboard-shortcuts'],
 		);
 	}
 
@@ -256,6 +261,38 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
 		Config.setVideoBitrate(parsedCli['video-bitrate']);
+	}
+
+	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {
+		Config.setOffthreadVideoCacheSizeInBytes(
+			parsedCli['offthreadvideo-cache-size-in-bytes'],
+		);
+	}
+
+	if (typeof parsedCli['delete-after'] !== 'undefined') {
+		Config.setDeleteAfter(
+			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
+		);
+	}
+
+	if (typeof parsedCli['color-space'] !== 'undefined') {
+		Config.setColorSpace(parsedCli['color-space']);
+	}
+
+	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
+		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
+	}
+
+	if (
+		typeof parsedCli[
+			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+		] !== 'undefined'
+	) {
+		Config.setEnableFolderExpiry(
+			parsedCli[
+				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
+			],
+		);
 	}
 };
 

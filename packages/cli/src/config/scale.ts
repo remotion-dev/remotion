@@ -1,4 +1,4 @@
-export type Scale = number;
+type Scale = number;
 
 let currentScale: Scale = 1;
 

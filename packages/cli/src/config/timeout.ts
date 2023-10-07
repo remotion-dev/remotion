@@ -6,7 +6,7 @@ export const setPuppeteerTimeout = (newPuppeteerTimeout: number) => {
 	if (typeof newPuppeteerTimeout !== 'number') {
 		throw new Error(
 			'--timeout flag / setDelayRenderTimeoutInMilliseconds() must be a number, but got ' +
-				JSON.stringify(newPuppeteerTimeout)
+				JSON.stringify(newPuppeteerTimeout),
 		);
 	}
 

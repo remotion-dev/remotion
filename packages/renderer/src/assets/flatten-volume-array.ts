@@ -21,7 +21,7 @@ export const flattenVolumeArray = (volume: AssetVolume): AssetVolume => {
 };
 
 export const convertAssetToFlattenedVolume = (
-	asset: MediaAsset
+	asset: MediaAsset,
 ): MediaAsset => {
 	return {
 		...asset,

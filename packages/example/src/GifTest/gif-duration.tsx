@@ -9,10 +9,10 @@ const GifTest: React.FC = () => {
 		Promise.all([
 			getGifDurationInSeconds(giphy),
 			getGifDurationInSeconds(
-				'https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif'
+				'https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif',
 			),
 			getGifDurationInSeconds(
-				'https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif'
+				'https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif',
 			),
 		]).then((d) => {
 			setDurations(d);

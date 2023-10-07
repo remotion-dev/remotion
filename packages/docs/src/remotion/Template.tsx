@@ -8,7 +8,7 @@ export const TemplateComp: React.FC<{
   templateId: string;
 }> = ({ templateId }) => {
   const template = CreateVideoInternals.FEATURED_TEMPLATES.find(
-    (t) => t.cliId === templateId
+    (t) => t.cliId === templateId,
   );
   return (
     <AbsoluteFill
@@ -67,13 +67,19 @@ export const TemplateComp: React.FC<{
               alignItems: "center",
             }}
           >
-            <IconForTemplate scale={1.6} template={template} />{" "}
-            <div
-              style={{
-                width: 25,
-                display: "inline-block",
-              }}
-            />
+            {template.cliId === "next" ||
+            template.cliId === "next-pages-dir" ? null : (
+              <>
+                <IconForTemplate scale={1.6} template={template} />{" "}
+                <div
+                  style={{
+                    width: 25,
+                    display: "inline-block",
+                  }}
+                />
+              </>
+            )}
+
             {template.shortName}
           </div>
         </div>
@@ -104,7 +110,7 @@ export const TemplateComp: React.FC<{
           >
             <div>
               <div style={{ opacity: 0.7 }}>Install this template</div>
-              <div>npx create-video --template {template.cliId}</div>
+              <div>npx create-video@latest --template {template.cliId}</div>
             </div>
           </div>
           <div

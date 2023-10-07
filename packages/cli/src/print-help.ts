@@ -1,5 +1,4 @@
 import {chalk} from './chalk';
-import {INSTALL_COMMAND} from './install';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
 
@@ -15,13 +14,13 @@ export const printHelp = () => {
 	Log.info(
 		`@remotion/cli ${
 			packagejson.version
-		} © ${new Date().getFullYear()} The Remotion developers`
+		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
 	Log.info();
 	Log.info('Available commands:');
 	Log.info('');
-	Log.info('remotion preview <entry-point.ts>');
-	Log.info(chalk.gray('Start the preview server.'));
+	Log.info('remotion studio <entry-point.ts>');
+	Log.info(chalk.gray('Start the Remotion studio.'));
 	printFlags([['--props', 'Pass input props as filename or as JSON']]);
 	Log.info();
 	Log.info('remotion render <entry-point.ts> <comp-id> <output-file.mp4>');
@@ -29,10 +28,10 @@ export const printHelp = () => {
 	printFlags([
 		['--props', 'Pass input props as filename or as JSON'],
 		['--concurrency', 'How many frames to render in parallel'],
-		['--image-format', 'Format to render the frames in, "jpeg" or "png"'],
+		['--image-format', 'Format to render the video/still in'],
 		['--pixel-format', 'Custom pixel format, see docs for available values'],
 		['--config', 'Custom location for a Remotion config file'],
-		['--quality', 'Quality for rendered frames, JPEG only, 0-100'],
+		['--jpeg-quality', 'Quality for rendered frames, JPEG only, 0-100'],
 		['--overwrite', 'Overwrite if file exists, default true'],
 		['--sequence', 'Output as an image sequence'],
 		['--codec', 'Video of audio codec'],
@@ -51,10 +50,10 @@ export const printHelp = () => {
 	Log.info(chalk.gray('Render a still frame and save it as an image.'));
 	printFlags([
 		['--frame', 'Which frame to render (default 0)'],
-		['--image-format', 'Format to render the frames in, "jpeg" or "png"'],
+		['--image-format', 'Format to render the video/still in'],
 		['--props', 'Pass input props as filename or as JSON'],
 		['--config', 'Custom location for a Remotion config file'],
-		['--quality', 'Quality for rendered frames, JPEG only, 0-100'],
+		['--jpeg-quality', 'Quality for rendered frames, JPEG only, 0-100'],
 		['--overwrite', 'Overwrite if file exists, default true'],
 		['--browser-executable', 'Custom path for browser executable'],
 		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
@@ -69,17 +68,14 @@ export const printHelp = () => {
 	Log.info('remotion benchmark <index-file.ts> <list-of-compositions>');
 	Log.info(
 		chalk.gray(
-			'Benchmarks rendering a composition. Same options as for render.'
-		)
+			'Benchmarks rendering a composition. Same options as for render.',
+		),
 	);
 	Log.info();
 	Log.info('remotion ' + VERSIONS_COMMAND);
 	Log.info(
-		chalk.gray('Prints and validates versions of all Remotion packages.')
+		chalk.gray('Prints and validates versions of all Remotion packages.'),
 	);
-	Log.info();
-	Log.info(`remotion ${INSTALL_COMMAND} <ffmpeg|ffprobe>`);
-	Log.info(chalk.gray('Installs dependencies of Remotion'));
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
@@ -91,6 +87,6 @@ export const printHelp = () => {
 	]);
 	Log.info();
 	Log.info(
-		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.'
+		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.',
 	);
 };

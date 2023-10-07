@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {getEtagOfFile} from './get-etag';
 
 // Function to recursively read a directory and return a list of files
@@ -32,13 +32,11 @@ export async function readDirectory({
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 
-			etags[path.relative(originalDir, filePath)] = await getEtagOfFile(
-				realPath
-			);
+			etags[path.relative(originalDir, filePath)] =
+				await getEtagOfFile(realPath);
 		} else {
-			etags[path.relative(originalDir, filePath)] = await getEtagOfFile(
-				filePath
-			);
+			etags[path.relative(originalDir, filePath)] =
+				await getEtagOfFile(filePath);
 		}
 	}
 

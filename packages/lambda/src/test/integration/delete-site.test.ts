@@ -12,7 +12,7 @@ test('Return 0 total size if site did not exist', async () => {
 			bucketName,
 			region: 'eu-west-1',
 			siteName: 'non existent',
-		})
+		}),
 	).toEqual({totalSizeInBytes: 0});
 });
 test('Return more than 0 total size if site did not exist', async () => {
@@ -31,6 +31,6 @@ test('Return more than 0 total size if site did not exist', async () => {
 				region: 'eu-west-1',
 				siteName,
 			})
-		).totalSizeInBytes
+		).totalSizeInBytes,
 	).toBeGreaterThan(0);
 });

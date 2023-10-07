@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import type {BrowserConnectOptions} from './BrowserConnector';
 import type {ProductLauncher} from './Launcher';
 import {ChromeLauncher} from './Launcher';
@@ -22,37 +22,23 @@ import type {
 	BrowserLaunchArgumentOptions,
 	LaunchOptions,
 } from './LaunchOptions';
-import type {Product} from './Product';
-import {PUPPETEER_REVISIONS} from './revisions';
 
 interface PuppeteerLaunchOptions
 	extends LaunchOptions,
 		BrowserLaunchArgumentOptions,
 		BrowserConnectOptions {
-	product?: Product;
 	extraPrefsFirefox?: Record<string, unknown>;
 }
 
 export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
-	#productName?: Product;
 
-	_preferredRevision: string;
-
-	constructor(settings: {preferredRevision: string; productName?: Product}) {
-		const {preferredRevision, productName} = settings;
-		this.#productName = productName;
-		this._preferredRevision = preferredRevision;
-
+	constructor() {
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
 	}
 
-	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
-		if (options.product) {
-			this.#productName = options.product;
-		}
-
+	launch(options: PuppeteerLaunchOptions): Promise<HeadlessBrowser> {
 		return this._launcher.launch(options);
 	}
 
@@ -61,23 +47,10 @@ export class PuppeteerNode {
 	}
 
 	get _launcher(): ProductLauncher {
-		if (
-			!this.#lazyLauncher ||
-			this.#lazyLauncher.product !== this.#productName
-		) {
-			switch (this.#productName) {
-				case 'chrome':
-				default:
-					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
-			}
-
-			this.#lazyLauncher = new ChromeLauncher(this._preferredRevision);
+		if (!this.#lazyLauncher) {
+			this.#lazyLauncher = new ChromeLauncher();
 		}
 
 		return this.#lazyLauncher;
-	}
-
-	get product(): string {
-		return this._launcher.product;
 	}
 }

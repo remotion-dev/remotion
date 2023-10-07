@@ -1,24 +1,24 @@
 import {describe, expect, test} from 'vitest';
-import {getQuality, setQuality} from '../config/quality';
+import {getJpegQuality, setJpegQuality} from '../config/jpeg-quality';
 import {expectToThrow} from './expect-to-throw';
 
 describe('Test valid setQuality inputs', () => {
 	test('Integers within accepted range', () => {
 		const validInputes = [1, 50, 100];
 		validInputes.forEach((entry) => {
-			setQuality(entry);
-			expect(getQuality()).toEqual(entry);
+			setJpegQuality(entry);
+			expect(getJpegQuality()).toEqual(entry);
 		});
 	});
 
 	test('Undefined input', () => {
-		setQuality(undefined);
-		expect(getQuality()).toEqual(undefined);
+		setJpegQuality(undefined);
+		expect(getJpegQuality()).toEqual(80);
 	});
 
 	test('0 input', () => {
-		setQuality(0);
-		expect(getQuality()).toEqual(undefined);
+		setJpegQuality(0);
+		expect(getJpegQuality()).toEqual(80);
 	});
 });
 
@@ -28,11 +28,11 @@ describe('Test invalid setQuality inputs ', () => {
 		invalidInputQuality.forEach((entry) =>
 			expectToThrow(
 				// @ts-expect-error
-				() => setQuality(entry),
+				() => setJpegQuality(entry),
 				new RegExp(
-					`Quality option must be a number or undefined. Got ${typeof entry}`
-				)
-			)
+					`Quality option must be a number or undefined. Got ${typeof entry}`,
+				),
+			),
 		);
 	});
 
@@ -40,9 +40,9 @@ describe('Test invalid setQuality inputs ', () => {
 		const outOfRangeInput = [-1, 101, 150];
 		outOfRangeInput.forEach((entry) =>
 			expectToThrow(
-				() => setQuality(entry),
-				/Quality option must be between 0 and 100./
-			)
+				() => setJpegQuality(entry),
+				/Quality option must be between 0 and 100./,
+			),
 		);
 	});
 });

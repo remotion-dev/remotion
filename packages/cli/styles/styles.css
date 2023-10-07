@@ -1,5 +1,5 @@
 html {
-	--blue: #4290f5;
+	--remotion-cli-internals-blue: #0b84f3;
 }
 
 body {
@@ -17,7 +17,7 @@ body {
 
 .remotion-splitter:hover,
 .remotion-splitter-active {
-	background-color: var(--blue);
+	background-color: var(--remotion-cli-internals-blue);
 }
 
 input::-webkit-outer-spin-button,
@@ -27,9 +27,61 @@ input::-webkit-inner-spin-button {
 }
 
 input:focus,
+textarea:focus,
 button:focus,
 a:focus {
 	outline: none;
-	box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.35);
+	box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555,
+		inset -1px 1px #555;
+	border-radius: 0 !important;
+}
+
+input[type='color'].__remotion_color_picker::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+input[type='color'].__remotion_color_picker::-webkit-color-swatch {
+	border: none;
+}
+
+.__remotion_thumb,
+.__remotion_thumb::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.__remotion_thumb {
+	pointer-events: none;
+	position: absolute;
+	height: 0;
+	outline: none;
+	top: 15.5px;
+	width: 221px;
+	margin-left: -2px;
+	z-index: 2;
+}
+
+/* For Firefox browsers */
+.__remotion_thumb::-moz-range-thumb {
+	border: 1px solid black;
 	border-radius: 2px;
+	cursor: pointer;
+	height: 37px;
+	width: 10px;
+	pointer-events: all;
+	border-color: black;
+	background-color: white;
+	position: relative;
+}
+
+/* For Chrome browsers */
+.__remotion_thumb::-webkit-slider-thumb {
+	border: 1px solid black;
+	border-radius: 2px;
+	cursor: pointer;
+	height: 39px;
+	width: 10px;
+	pointer-events: all;
+	border-color: black;
+	background-color: white;
+	position: relative;
 }

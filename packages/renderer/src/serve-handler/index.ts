@@ -1,9 +1,9 @@
 // Native
-import type {Stats} from 'fs';
-import {createReadStream, promises} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import url from 'url';
+import type {Stats} from 'node:fs';
+import {createReadStream, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import path from 'node:path';
+import url from 'node:url';
 import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';
@@ -78,16 +78,16 @@ const sendError = (
 		statusCode: number;
 		code: string;
 		message: string;
-	}
+	},
 ) => {
 	const {message, statusCode} = spec;
 
-	response.statusCode = statusCode;
-
 	const headers = getHeaders(absolutePath, null);
 
-	response.writeHead(statusCode, headers);
-	response.setHeader('content-type', 'application/json');
+	response.writeHead(statusCode, {
+		...headers,
+		'Content-Type': 'application/json',
+	});
 	response.end(JSON.stringify({statusCode, message}));
 };
 
@@ -104,7 +104,7 @@ export const serveHandler = async (
 	response: ServerResponse,
 	config: {
 		public: string;
-	}
+	},
 ) => {
 	const cwd = process.cwd();
 	const current = path.resolve(cwd, config.public);
@@ -113,7 +113,7 @@ export const serveHandler = async (
 
 	try {
 		relativePath = decodeURIComponent(
-			url.parse(request.url as string).pathname as string
+			url.parse(request.url as string).pathname as string,
 		);
 	} catch (err) {
 		return sendError('/', response, {
@@ -167,7 +167,8 @@ export const serveHandler = async (
 			const related = await findRelated(current, relativePath);
 
 			if (related) {
-				({stats, absolutePath} = related);
+				stats = related.stats;
+				absolutePath = related.absolutePath;
 			}
 		} catch (err) {
 			if (
@@ -221,7 +222,7 @@ export const serveHandler = async (
 		return sendError(absolutePath, response, {
 			statusCode: 404,
 			code: 'not_found',
-			message: 'The requested path could not be found',
+			message: 'The requested path (' + absolutePath + ') could not be found',
 		});
 	}
 
