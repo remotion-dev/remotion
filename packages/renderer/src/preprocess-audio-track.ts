@@ -24,7 +24,7 @@ export type PreprocessedAudioTrack = {
 
 const preprocessAudioTrackUnlimited = async ({
 	outName,
-	asset, // Receive toneFrequency from options as MediaAsset type
+	asset,
 	expectedFrames,
 	fps,
 	downloadMap,
