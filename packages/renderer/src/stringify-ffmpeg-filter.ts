@@ -44,6 +44,20 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
+	if (
+		toneFrequency === null ||
+		toneFrequency <= 0 ||
+		toneFrequency > 2 ||
+		toneFrequency % 0.01 !== 0
+	) {
+		throw new Error(
+			'toneFrequency must be a positive number between 0.01 and 2 with up to two decimal places & if toneFrequency is null, it will be set to 1 (default pitch)',
+		);
+	}
+
+	// If toneFrequency is null, set it to 1 (default pitch)
+	toneFrequency = parseFloat(toneFrequency.toFixed(2)) || 1;
+
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
 		fps,
