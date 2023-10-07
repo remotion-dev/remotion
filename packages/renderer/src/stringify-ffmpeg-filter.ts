@@ -84,7 +84,7 @@ export const stringifyFfmpegFilter = ({
 				volumeFilter.value === '1'
 					? null
 					: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
-				toneFrequency
+				toneFrequency && toneFrequency !== 1
 					? `asetrate=${DEFAULT_SAMPLE_RATE}*${toneFrequency},aresample=${DEFAULT_SAMPLE_RATE},atempo=1/${toneFrequency}`
 					: null,
 				// For n channels, we delay n + 1 channels.

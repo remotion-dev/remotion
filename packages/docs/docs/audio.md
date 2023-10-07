@@ -127,21 +127,9 @@ export const MyVideo = () => {
 
 ### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
-The `toneFrequency` property allows you to adjust the pitch of the audio. It accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-For example, a `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by `50%`.
+Allows you to adjust the pitch of the audio. It accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+For example, a `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 `toneFrequency` should be a positive number between `0.01` (representing the lowest assignable pitch) and `2` (representing the highest assignable pitch). If `toneFrequency` is not specified or null, it defaults to `1`, maintaining the original pitch.
-
-```tsx twoslash
-import { AbsoluteFill, Audio, staticFile } from "remotion";
-
-export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile("audio.mp3")} toneFrequency={0.5} />
-    </AbsoluteFill>
-  );
-};
-```
 
 ## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
