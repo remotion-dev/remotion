@@ -81,7 +81,7 @@ const MyVideo: React.FC = () => {
 ### `step0()`
 
 ```jsx
-static step0(n)
+static step0(n): number
 ```
 
 A stepping function, returns 1 for any positive value of `n`.
@@ -91,7 +91,7 @@ A stepping function, returns 1 for any positive value of `n`.
 ### `step1()`
 
 ```jsx
-static step1(n)
+static step1(n): number
 ```
 
 A stepping function, returns 1 if `n` is greater than or equal to 1.
@@ -101,7 +101,7 @@ A stepping function, returns 1 if `n` is greater than or equal to 1.
 ### `linear()`
 
 ```jsx
-static linear(t)
+static linear(t): number
 ```
 
 A linear function, `f(t) = t`. Position correlates to elapsed time one to one.
@@ -113,7 +113,7 @@ http://cubic-bezier.com/#0,0,1,1
 ### `ease()`
 
 ```jsx
-static ease(t)
+static ease(t): number
 ```
 
 A basic inertial interaction, similar to an object slowly accelerating to speed.
@@ -125,7 +125,7 @@ http://cubic-bezier.com/#.42,0,1,1
 ### `quad()`
 
 ```jsx
-static quad(t)
+static quad(t): number
 ```
 
 A quadratic function, `f(t) = t * t`. Position equals the square of elapsed time.
@@ -137,7 +137,7 @@ http://easings.net/#easeInQuad
 ### `cubic()`
 
 ```jsx
-static cubic(t)
+static cubic(t): number
 ```
 
 A cubic function, `f(t) = t * t * t`. Position equals the cube of elapsed time.
@@ -149,7 +149,7 @@ http://easings.net/#easeInCubic
 ### `poly()`
 
 ```jsx
-static poly(n)
+static poly(n): number
 ```
 
 A power function. Position is equal to the Nth power of elapsed time.
@@ -161,7 +161,7 @@ n = 4: http://easings.net/#easeInQuart n = 5: http://easings.net/#easeInQuint
 ### `sin()`
 
 ```jsx
-static sin(t)
+static sin(t): number
 ```
 
 A sinusoidal function.
@@ -173,7 +173,7 @@ http://easings.net/#easeInSine
 ### `circle()`
 
 ```jsx
-static circle(t)
+static circle(t): number
 ```
 
 A circular function.
@@ -185,7 +185,7 @@ http://easings.net/#easeInCirc
 ### `exp()`
 
 ```jsx
-static exp(t)
+static exp(t): number
 ```
 
 An exponential function.
@@ -197,7 +197,7 @@ http://easings.net/#easeInExpo
 ### `elastic()`
 
 ```jsx
-static elastic(bounciness)
+static elastic(bounciness): number
 ```
 
 A basic elastic interaction, similar to a spring oscillating back and forth.
@@ -211,7 +211,7 @@ http://easings.net/#easeInElastic
 ### `back()`
 
 ```jsx
-static back(s)
+static back(s): number
 ```
 
 Use with `Animated.parallel()` to create a basic effect where the object animates back slightly as the animation starts.
@@ -264,7 +264,7 @@ Sometimes, you might end up misplacing the usage of `bounce()` and `beizer()`. W
 
 <!-- prettier-ignore-start -->
 ```jsx
-static in(easing);
+static in(easing): number;
 ```
 <!-- prettier-ignore-end -->
 
@@ -275,7 +275,7 @@ Runs an easing function forwards.
 ### `out()`
 
 ```jsx
-static out(easing)
+static out(easing): number
 ```
 
 Runs an easing function backwards.
@@ -285,7 +285,7 @@ Runs an easing function backwards.
 ### `inOut()`
 
 ```jsx
-static inOut(easing)
+static inOut(easing): number
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
