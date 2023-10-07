@@ -119,6 +119,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const {src} = props;
 
+	// The <audio> tag is only rendered if the duration needs to be calculated for the `loop`
+	// attribute to work, or if the user assigns a ref to it.
 	const needsToRenderAudioTag =
 		ref || _remotionInternalNeedsDurationCalculation;
 
@@ -161,8 +163,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	// The <audio> tag is only rendered if the duration needs to be calculated for the `loop`
-	// attribute to work, or if the user assigns a ref to it.
 	return <audio ref={audioRef} {...nativeProps} />;
 };
 
