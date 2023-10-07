@@ -78,7 +78,7 @@ const MyVideo: React.FC = () => {
 
 ## Methods
 
-### `step0()`
+### `step0`
 
 ```jsx
 static step0(n): number
@@ -88,7 +88,7 @@ A stepping function, returns 1 for any positive value of `n`.
 
 ---
 
-### `step1()`
+### `step1`
 
 ```jsx
 static step1(n): number
@@ -98,7 +98,7 @@ A stepping function, returns 1 if `n` is greater than or equal to 1.
 
 ---
 
-### `linear()`
+### `linear`
 
 ```jsx
 static linear(t): number
@@ -110,7 +110,7 @@ http://cubic-bezier.com/#0,0,1,1
 
 ---
 
-### `ease()`
+### `ease`
 
 ```jsx
 static ease(t): number
@@ -122,7 +122,7 @@ http://cubic-bezier.com/#.42,0,1,1
 
 ---
 
-### `quad()`
+### `quad`
 
 ```jsx
 static quad(t): number
@@ -134,7 +134,7 @@ http://easings.net/#easeInQuad
 
 ---
 
-### `cubic()`
+### `cubic`
 
 ```jsx
 static cubic(t): number
@@ -149,7 +149,7 @@ http://easings.net/#easeInCubic
 ### `poly()`
 
 ```jsx
-static poly(n): number
+static poly(n): (t) => number
 ```
 
 A power function. Position is equal to the Nth power of elapsed time.
@@ -158,7 +158,7 @@ n = 4: http://easings.net/#easeInQuart n = 5: http://easings.net/#easeInQuint
 
 ---
 
-### `sin()`
+### `sin`
 
 ```jsx
 static sin(t): number
@@ -170,7 +170,7 @@ http://easings.net/#easeInSine
 
 ---
 
-### `circle()`
+### `circle`
 
 ```jsx
 static circle(t): number
@@ -182,7 +182,7 @@ http://easings.net/#easeInCirc
 
 ---
 
-### `exp()`
+### `exp`
 
 ```jsx
 static exp(t): number
@@ -197,7 +197,7 @@ http://easings.net/#easeInExpo
 ### `elastic()`
 
 ```jsx
-static elastic(bounciness): number
+static elastic(bounciness): (t) =>  number
 ```
 
 A basic elastic interaction, similar to a spring oscillating back and forth.
@@ -211,14 +211,14 @@ http://easings.net/#easeInElastic
 ### `back()`
 
 ```jsx
-static back(s): number
+static back(s): (t) => number
 ```
 
 Use with `Animated.parallel()` to create a basic effect where the object animates back slightly as the animation starts.
 
 ---
 
-### `bounce()`
+### `bounce`
 
 ```jsx
 static bounce(t): number
@@ -250,42 +250,56 @@ A useful tool to visualize cubic bezier curves can be found at http://cubic-bezi
 
 ```jsx
 interpolate(0.5, [0, 1], [0, 1], {
-  easing: Easing.beizer(0.5, 0.01, 0.5, 1),
+  easing: Easing.bezier(0.5, 0.01, 0.5, 1),
 });
 ```
 
-:::info
-Sometimes, you might end up misplacing the usage of `bounce()` and `beizer()`. Whenever you're stuck, remember that, to use the `beizer()` easing function, you need to call it and pass the params like so `Easing.beizer(x1, x2, x3, x4)`. for `bounce()` you don't have to.
-:::
-
 ---
 
-### `in()`
+### `in(easing)`
 
 <!-- prettier-ignore-start -->
 ```jsx
-static in(easing): number;
+static in(easing: (t: number) => number): (t: number) => number;
 ```
 <!-- prettier-ignore-end -->
 
 Runs an easing function forwards.
+
+```jsx
+{
+  easing: Easing.in(Easing.ease);
+}
+```
 
 ---
 
 ### `out()`
 
 ```jsx
-static out(easing): number
+static out(easing: (t: number) => number): (t: number) => number;
 ```
 
 Runs an easing function backwards.
+
+```jsx
+{
+  easing: Easing.out(Easing.ease);
+}
+```
 
 ---
 
 ### `inOut()`
 
 ```jsx
-static inOut(easing): number
+static inOut(easing: (t: number) => number): (t: number) => number;
+```
+
+```jsx
+{
+  easing: Easing.inOut(Easing.ease);
+}
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
