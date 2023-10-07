@@ -7,7 +7,7 @@ test('Disk size tests', () => {
 	expect(() => {
 		validateDiskSizeInMb(0);
 	}).toThrow(
-		/parameter 'diskSizeInMb' must be between 512 and 10240, but got 0/
+		/parameter 'diskSizeInMb' must be between 512 and 10240, but got 0/,
 	);
 	expect(() => {
 		validateDiskSizeInMb({});

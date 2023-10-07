@@ -52,13 +52,13 @@ const Series: FC<{
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`,
 				);
 			}
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`,
 				);
 			}
 
@@ -66,7 +66,7 @@ const Series: FC<{
 
 			if (!castedChild?.props.children) {
 				throw new TypeError(
-					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
+					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`,
 				);
 			}
 
@@ -82,8 +82,7 @@ const Series: FC<{
 				i !== flattenedChildren.length - 1 ||
 				durationInFramesProp !== Infinity
 			) {
-				validateDurationInFrames({
-					durationInFrames: durationInFramesProp,
+				validateDurationInFrames(durationInFramesProp, {
 					component: `of a <Series.Sequence /> component`,
 					allowFloats: true,
 				});
@@ -92,19 +91,19 @@ const Series: FC<{
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`,
 				);
 			}
 
 			if (!Number.isFinite(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
 				);
 			}
 
 			if (offset % 1 !== 0) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
 				);
 			}
 

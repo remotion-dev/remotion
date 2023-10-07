@@ -1,5 +1,5 @@
-import fs from 'fs';
-import {tmpdir} from 'os';
+import fs from 'node:fs';
+import {tmpdir} from 'node:os';
 import {expect, test} from 'vitest';
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 import {downloadFile} from '../assets/download-file';
@@ -37,6 +37,6 @@ test('Should fail to download invalid files', async () => {
 			},
 			url: 'https://thisdomain.doesnotexist',
 			onProgress: () => undefined,
-		})
+		}),
 	).rejects.toThrow(/ENOTFOUND/);
 });

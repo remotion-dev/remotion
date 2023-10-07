@@ -2,11 +2,11 @@ import type {Codec} from './codec';
 
 export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
-export type AudioCodec = typeof validAudioCodecs[number];
+export type AudioCodec = (typeof validAudioCodecs)[number];
 
 export const supportedAudioCodecs = {
-	h264: ['aac', 'pcm-16'] as const,
-	'h264-mkv': ['pcm-16'] as const,
+	h264: ['aac', 'pcm-16', 'mp3'] as const,
+	'h264-mkv': ['pcm-16', 'mp3'] as const,
 	aac: ['aac', 'pcm-16'] as const,
 	gif: [] as const,
 	h265: ['aac', 'pcm-16'] as const,
@@ -23,20 +23,20 @@ if (_satisfies) {
 	// Just for type checking
 }
 
-export const audioCodecNames = [
+const audioCodecNames = [
 	'pcm_s16le',
-	'aac',
+	'libfdk_aac',
 	'libmp3lame',
 	'libopus',
 ] as const;
 
-export type FfmpegAudioCodecName = typeof audioCodecNames[number];
+type FfmpegAudioCodecName = (typeof audioCodecNames)[number];
 
 export const mapAudioCodecToFfmpegAudioCodecName = (
-	audioCodec: AudioCodec
+	audioCodec: AudioCodec,
 ): FfmpegAudioCodecName => {
 	if (audioCodec === 'aac') {
-		return 'aac';
+		return 'libfdk_aac';
 	}
 
 	if (audioCodec === 'mp3') {
@@ -57,7 +57,7 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 export const defaultAudioCodecs: {
 	[key in Codec]: {
 		[k in 'compressed' | 'lossless']:
-			| typeof supportedAudioCodecs[key][number]
+			| (typeof supportedAudioCodecs)[key][number]
 			| null;
 	};
 } = {
@@ -87,8 +87,7 @@ export const defaultAudioCodecs: {
 	},
 	prores: {
 		lossless: 'pcm-16',
-		// V4.0: Make pcm the default
-		compressed: 'aac',
+		compressed: 'pcm-16',
 	},
 	vp8: {
 		lossless: 'pcm-16',

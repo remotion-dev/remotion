@@ -12,7 +12,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 18; // FFMPEG default 23
 	}
 
-	if (codec === 'h265' || codec === 'gif') {
+	if (codec === 'h265') {
 		return 23; // FFMPEG default 28
 	}
 
@@ -28,6 +28,10 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
+	if (codec === 'gif') {
+		return 0;
+	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
@@ -40,11 +44,15 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [0, 0];
 	}
 
+	if (codec === 'gif') {
+		return [0, 0];
+	}
+
 	if (codec === 'h264' || codec === 'h264-mkv') {
 		return [1, 51];
 	}
 
-	if (codec === 'h265' || codec === 'gif') {
+	if (codec === 'h265') {
 		return [0, 51];
 	}
 
@@ -70,7 +78,7 @@ export const validateQualitySettings = ({
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
-			'"crf" and "videoBitrate" can not both be set. Choose one of either.'
+			'"crf" and "videoBitrate" can not both be set. Choose one of either.',
 		);
 	}
 
@@ -96,26 +104,26 @@ export const validateQualitySettings = ({
 
 	if (typeof crf !== 'number') {
 		throw new TypeError(
-			'Expected CRF to be a number, but is ' + JSON.stringify(crf)
+			'Expected CRF to be a number, but is ' + JSON.stringify(crf),
 		);
 	}
 
 	const range = getValidCrfRanges(codec);
 	if (crf === 0 && (codec === 'h264' || codec === 'h264-mkv')) {
 		throw new TypeError(
-			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably do not want. Set CRF to a higher value to fix this error."
+			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably do not want. Set CRF to a higher value to fix this error.",
 		);
 	}
 
 	if (crf < range[0] || crf > range[1]) {
 		if (range[0] === 0 && range[1] === 0) {
 			throw new TypeError(
-				`The "${codec}" codec does not support the --crf option.`
+				`The "${codec}" codec does not support the --crf option.`,
 			);
 		}
 
 		throw new TypeError(
-			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`
+			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`,
 		);
 	}
 

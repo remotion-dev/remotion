@@ -16,7 +16,7 @@ export const updateAllElementsSizes = () => {
 };
 
 export const useElementSize = (
-	ref: React.RefObject<HTMLElement>
+	ref: React.RefObject<HTMLElement>,
 ): Size | null => {
 	const [size, setSize] = useState<Size | null>(null);
 	const observer = useMemo(() => {
@@ -30,7 +30,7 @@ export const useElementSize = (
 			// The clientRect returns the size with `scale()` being applied.
 			const newSize = entries[0].target.getClientRects();
 
-			if (!newSize || !newSize[0]) {
+			if (!newSize?.[0]) {
 				setSize(null);
 				return;
 			}

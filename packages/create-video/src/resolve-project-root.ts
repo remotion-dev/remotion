@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {Log} from './log';
 import {mkdirp} from './mkdirp';
 import prompts from './prompts';
@@ -11,8 +11,8 @@ function assertValidName(folderName: string) {
 	if (typeof validation === 'string') {
 		throw new Error(
 			`Cannot create an app named ${chalk.red(
-				`"${folderName}"`
-			)}. ${validation}`
+				`"${folderName}"`,
+			)}. ${validation}`,
 		);
 	}
 }

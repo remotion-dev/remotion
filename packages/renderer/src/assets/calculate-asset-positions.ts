@@ -1,15 +1,15 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {resolveAssetSrc} from '../resolve-asset-src';
 import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
 import {uncompressMediaAsset} from './types';
 
-const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
+const areEqual = (a: TRenderAsset | UnsafeAsset, b: TRenderAsset) => {
 	return a.id === b.id;
 };
 
-const findFrom = (target: TAsset[], asset: TAsset) => {
-	const index = target.findIndex((a) => areEqual(a, asset));
+const findFrom = (target: TRenderAsset[], renderAsset: TRenderAsset) => {
+	const index = target.findIndex((a) => areEqual(a, renderAsset));
 	if (index === -1) {
 		return false;
 	}
@@ -18,18 +18,18 @@ const findFrom = (target: TAsset[], asset: TAsset) => {
 	return true;
 };
 
-const copyAndDeduplicateAssets = (assets: TAsset[]) => {
-	const deduplicated: TAsset[] = [];
-	for (const asset of assets) {
-		if (!deduplicated.find((d) => d.id === asset.id)) {
-			deduplicated.push(asset);
+const copyAndDeduplicateAssets = (renderAssets: TRenderAsset[]) => {
+	const deduplicated: TRenderAsset[] = [];
+	for (const renderAsset of renderAssets) {
+		if (!deduplicated.find((d) => d.id === renderAsset.id)) {
+			deduplicated.push(renderAsset);
 		}
 	}
 
 	return deduplicated;
 };
 
-export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
+export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
 	const assets: UnsafeAsset[] = [];
 
 	for (let frame = 0; frame < frames.length; frame++) {
@@ -49,11 +49,12 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					volume: [],
 					playbackRate: asset.playbackRate,
 					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+					toneFrequency: asset.toneFrequency,
 				});
 			}
 
 			const found = assets.find(
-				(a) => a.duration === null && areEqual(a, asset)
+				(a) => a.duration === null && areEqual(a, asset),
 			);
 			if (!found) throw new Error('something wrong');
 			if (!findFrom(next, asset)) {

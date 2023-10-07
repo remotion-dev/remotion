@@ -10,6 +10,7 @@ import staticFileNoRemote from "./rules/staticfile-no-remote";
 import useGifComponent from "./rules/use-gif-component";
 import volumeCallback from "./rules/volume-callback";
 import warnNativeMediaTag from "./rules/warn-native-media-tag";
+import v4Import from "./rules/v4-import";
 
 const rules = {
   "no-mp4-import": nomp4Import,
@@ -24,6 +25,7 @@ const rules = {
   "staticfile-no-relative": staticFileNoRelative,
   "staticfile-no-remote": staticFileNoRemote,
   "no-background-image": noBackgroundImage,
+  "v4-config-import": v4Import,
 };
 
 export = {
@@ -43,6 +45,7 @@ export = {
         "@remotion/staticfile-no-relative": "error",
         "@remotion/staticfile-no-remote": "error",
         "@remotion/no-background-image": "error",
+        "@remotion/v4-config-import": "error",
       },
     },
   },

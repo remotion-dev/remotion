@@ -1,4 +1,5 @@
 import type {render} from 'react-dom';
+import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import '../styles/styles.css';
@@ -8,7 +9,7 @@ import {ServerDisconnected} from './editor/components/Notifications/ServerDiscon
 import {openEventSource} from './event-source';
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428')
+	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
 );
 
 const getServerDisconnectedDomElement = () => {
@@ -19,25 +20,22 @@ const content = (
 	<Internals.RemotionRoot numberOfAudioTags={window.remotion_numberOfAudioTags}>
 		<EditorContexts>
 			<Editor />
+			{createPortal(
+				<ServerDisconnected />,
+				getServerDisconnectedDomElement() as HTMLElement,
+			)}
 		</EditorContexts>
 	</Internals.RemotionRoot>
 );
 
 if (ReactDOM.createRoot) {
 	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
-		content
-	);
-	ReactDOM.createRoot(getServerDisconnectedDomElement() as HTMLElement).render(
-		<ServerDisconnected />
+		content,
 	);
 } else {
 	(ReactDOM as unknown as {render: typeof render}).render(
 		content,
-		Internals.getPreviewDomElement()
-	);
-	(ReactDOM as unknown as {render: typeof render}).render(
-		<ServerDisconnected />,
-		getServerDisconnectedDomElement()
+		Internals.getPreviewDomElement(),
 	);
 }
 

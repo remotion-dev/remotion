@@ -137,5 +137,5 @@ const RemotionRoot = () => {
 
 ## See also
 
-- [Parametrized rendering](/docs/parametrized-rendering)
+- [Parameterized rendering](/docs/parameterized-rendering)
 - [`<Composition>`](/docs/composition)

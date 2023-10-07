@@ -1,26 +1,31 @@
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
+import type {LogLevel} from './log-level';
 
 export type BrowserReplacer = {
-	getBrowser: () => Browser;
+	getBrowser: () => HeadlessBrowser;
 	replaceBrowser: (
-		make: () => Promise<Browser>,
-		makeNewPages: () => Promise<void>
-	) => Promise<Browser>;
+		make: () => Promise<HeadlessBrowser>,
+		makeNewPages: () => Promise<void>,
+	) => Promise<HeadlessBrowser>;
 };
 
-export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
+export const handleBrowserCrash = (
+	instance: HeadlessBrowser,
+	logLevel: LogLevel,
+	indent: boolean,
+): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {
-		resolve: (br: Browser) => void;
+		resolve: (br: HeadlessBrowser) => void;
 		reject: (err: Error) => void;
 	}[] = [];
 	let replacing = false;
 
 	return {
 		getBrowser: () => _instance,
-		replaceBrowser: async (make, makeNewPages): Promise<Browser> => {
+		replaceBrowser: async (make, makeNewPages): Promise<HeadlessBrowser> => {
 			if (replacing) {
-				const waiter = new Promise<Browser>((resolve, reject) => {
+				const waiter = new Promise<HeadlessBrowser>((resolve, reject) => {
 					waiters.push({
 						resolve,
 						reject,
@@ -32,7 +37,7 @@ export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 			try {
 				replacing = true;
 				await _instance
-					.close(true)
+					.close(true, logLevel, indent)
 					.then(() => {
 						console.log('Killed previous browser and making new one');
 					})

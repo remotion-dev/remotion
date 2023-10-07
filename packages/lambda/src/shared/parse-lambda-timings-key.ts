@@ -7,11 +7,11 @@ export type ParsedTiming = {
 
 export const parseLambdaTimingsKey = (key: string): ParsedTiming => {
 	const match = key.match(
-		/^renders\/(.*)\/lambda-timings\/chunk:([0-9]+)-start:([0-9]+)-rendered:([0-9]+).txt$/
+		/^renders\/(.*)\/lambda-timings\/chunk:([0-9]+)-start:([0-9]+)-rendered:([0-9]+).txt$/,
 	);
 	if (!match) {
 		throw new Error(
-			`Cannot parse filename ${key} into timing information. Malformed data.`
+			`Cannot parse filename ${key} into timing information. Malformed data.`,
 		);
 	}
 

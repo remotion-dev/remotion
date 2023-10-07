@@ -5,7 +5,7 @@ import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
-export const cleanItems = async ({
+export const cleanItems = ({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
@@ -29,13 +29,13 @@ export const cleanItems = async ({
 					new DeleteObjectCommand({
 						Bucket: bucket,
 						Key: object,
-					})
+					}),
 				);
 				onAfterItemDeleted({
 					bucketName: bucket,
 					itemName: object,
 				});
-			})
-		)
+			}),
+		),
 	);
 };

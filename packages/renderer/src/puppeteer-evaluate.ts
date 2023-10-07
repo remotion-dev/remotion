@@ -2,7 +2,6 @@
 import type {Page} from './browser/BrowserPage';
 import type {
 	CallArgument,
-	CallFunctionOnResponse,
 	DevtoolsRemoteObject,
 } from './browser/devtools-types';
 import {JSHandle} from './browser/JSHandle';
@@ -10,7 +9,6 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 
 const EVALUATION_SCRIPT_URL = '__puppeteer_evaluation_script__';
-const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 
 function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	if (remoteObject.unserializableValue) {
@@ -28,7 +26,7 @@ function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 			default:
 				throw new Error(
 					'Unsupported unserializable value: ' +
-						remoteObject.unserializableValue
+						remoteObject.unserializableValue,
 				);
 		}
 	}
@@ -36,8 +34,38 @@ function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	return remoteObject.value;
 }
 
-function isString(obj: unknown): obj is string {
-	return typeof obj === 'string' || obj instanceof String;
+type PuppeteerCatchOptions = {
+	page: Page;
+	pageFunction: Function;
+	frame: number | null;
+	args: unknown[];
+};
+
+export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
+	args,
+	frame,
+	page,
+	pageFunction,
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
+	return Promise.race([
+		new Promise<{value: ReturnType; size: number}>((_, reject) => {
+			setTimeout(() => {
+				reject(
+					new Error(
+						// This means the page is not responding anymore
+						// This error message is retryable - sync it with packages/lambda/src/shared/is-flaky-error.ts
+						`Timed out evaluating page function "${pageFunction.toString()}"`,
+					),
+				);
+			}, 5000);
+		}),
+		puppeteerEvaluateWithCatch<ReturnType>({
+			args,
+			frame,
+			page,
+			pageFunction,
+		}),
+	]);
 }
 
 export async function puppeteerEvaluateWithCatch<ReturnType>({
@@ -45,53 +73,15 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	pageFunction,
 	frame,
 	args,
-}: {
-	page: Page;
-	pageFunction: Function | string;
-	frame: number | null;
-	args: unknown[];
-}): Promise<ReturnType> {
+}: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
 	const suffix = `//# sourceURL=${EVALUATION_SCRIPT_URL}`;
 
-	if (isString(pageFunction)) {
-		const expression = pageFunction;
-		const expressionWithSourceUrl = SOURCE_URL_REGEX.test(expression)
-			? expression
-			: expression + '\n' + suffix;
-
-		const {exceptionDetails: exceptDetails, result: remotObject} =
-			(await client.send('Runtime.evaluate', {
-				expression: expressionWithSourceUrl,
-				contextId,
-				returnByValue: true,
-				awaitPromise: true,
-				userGesture: true,
-			})) as CallFunctionOnResponse;
-
-		if (exceptDetails?.exception) {
-			const err = new SymbolicateableError({
-				stack: exceptDetails.exception.description as string,
-				name: exceptDetails.exception.className as string,
-				message: exceptDetails.exception.description?.split(
-					'\n'
-				)?.[0] as string,
-				frame,
-				stackFrame: parseStack(
-					(exceptDetails.exception.description as string).split('\n')
-				),
-			});
-			throw err;
-		}
-
-		return valueFromRemoteObject(remotObject);
-	}
-
 	if (typeof pageFunction !== 'function')
 		throw new Error(
-			`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`
+			`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`,
 		);
 
 	let functionText = pageFunction.toString();
@@ -128,39 +118,43 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		if (
 			error instanceof TypeError &&
 			error.message.startsWith('Converting circular structure to JSON')
-		)
+		) {
 			error.message += ' Are you passing a nested JSHandle?';
+		}
+
 		throw error;
 	}
 
 	try {
-		const {exceptionDetails, result: remoteObject} =
-			await callFunctionOnPromise;
+		const {
+			value: {exceptionDetails, result: remoteObject},
+			size,
+		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
 			const err = new SymbolicateableError({
 				stack: exceptionDetails.exception?.description as string,
 				name: exceptionDetails.exception?.className as string,
 				message: exceptionDetails.exception?.description?.split(
-					'\n'
+					'\n',
 				)[0] as string,
 				frame,
 				stackFrame: parseStack(
-					(exceptionDetails.exception?.description as string).split('\n')
+					(exceptionDetails.exception?.description as string).split('\n'),
 				),
 			});
 			throw err;
 		}
 
-		return valueFromRemoteObject(remoteObject);
+		return {size, value: valueFromRemoteObject(remoteObject)};
 	} catch (error) {
 		if (
-			(error as {originalMessage: string})?.originalMessage.startsWith(
-				"Object couldn't be returned by value"
+			(error as {originalMessage: string})?.originalMessage?.startsWith(
+				"Object couldn't be returned by value",
 			)
 		) {
 			throw new Error(
-				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?'
+				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?',
 			);
 		}
 

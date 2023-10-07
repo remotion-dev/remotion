@@ -5,7 +5,7 @@ import {expectToThrow} from './expect-to-throw';
 
 // setCodec
 
-describe('Codec tests setOutputFormat', () => {
+describe('Codec tests setCodec', () => {
 	const validCodecInputs: CodecOrUndefined[] = [
 		'h264',
 		'h265',
@@ -17,13 +17,13 @@ describe('Codec tests setOutputFormat', () => {
 		test(`testing with ${entry}`, () => {
 			setCodec(entry);
 			expect(getOutputCodecOrUndefined()).toEqual(entry);
-		})
+		}),
 	);
 	test('setCodec with invalid coded', () => {
 		expectToThrow(
 			// @ts-expect-error
 			() => setCodec('invalid'),
-			/Codec must be one of the following:/
+			/Codec must be one of the following:/,
 		);
 	});
 });

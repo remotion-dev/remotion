@@ -21,7 +21,7 @@ export class HTTPResponse {
 
 	constructor(
 		responsePayload: Response,
-		extraInfo: ResponseReceivedExtraInfoEvent | null
+		extraInfo: ResponseReceivedExtraInfoEvent | null,
 	) {
 		this.#status = extraInfo ? extraInfo.statusCode : responsePayload.status;
 	}

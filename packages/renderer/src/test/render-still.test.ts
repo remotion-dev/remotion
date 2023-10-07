@@ -1,9 +1,7 @@
 import {expect, test} from 'vitest';
-import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {renderStill} from '../render-still';
 
 test('Need to pass valid metadata', async () => {
-	const downloadMap = makeDownloadMap();
 	await expect(() =>
 		renderStill({
 			composition: {
@@ -12,19 +10,19 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			downloadMap,
-		})
+			serveUrl:
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+			verbose: false,
+		}),
 	).rejects.toThrow(/not be NaN, but is NaN/);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Returns buffer in promise result', async () => {
-	const downloadMap = makeDownloadMap();
 	const {buffer} = await renderStill({
 		composition: {
 			width: 1000,
@@ -32,18 +30,18 @@ test('Returns buffer in promise result', async () => {
 			fps: 30,
 			durationInFrames: 30,
 			id: 'react-svg',
-			defaultProps: undefined,
+			defaultProps: {},
+			props: {},
 		},
 		frame: 0,
-		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-		downloadMap,
+		serveUrl:
+			'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Need to pass valid metadata', async () => {
-	const downloadMap = makeDownloadMap();
 	await expect(() =>
 		renderStill({
 			composition: {
@@ -52,17 +50,18 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			downloadMap,
-		})
+			serveUrl:
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+			verbose: false,
+		}),
 	).rejects.toThrow(
-		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
+		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/,
 	);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Catches invalid image format', () => {
@@ -74,13 +73,17 @@ test('Catches invalid image format', () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-		})
-	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
+			serveUrl:
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+		}),
+	).rejects.toThrow(
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/,
+	);
 });

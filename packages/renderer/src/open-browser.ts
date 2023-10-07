@@ -1,5 +1,5 @@
 import type {Browser} from './browser';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {
@@ -7,14 +7,21 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
+import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
 } from './validate-opengl-renderer';
 
-const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
+const validRenderers = [
+	'swangle',
+	'angle',
+	'egl',
+	'swiftshader',
+	'vulkan',
+] as const;
 
-type OpenGlRenderer = typeof validRenderers[number];
+type OpenGlRenderer = (typeof validRenderers)[number];
 
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
@@ -22,6 +29,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 	userAgent?: string | null;
+	enableMultiProcessOnLinux?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -31,6 +39,16 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
 	}
 
+	if (renderer === 'vulkan') {
+		return [
+			'--use-angle=vulkan',
+			`--use-vulkan=swiftshader`,
+			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--dignore-gpu-blocklist',
+			'--enable-features=Vulkan,UseSkiaRenderer',
+		];
+	}
+
 	if (renderer === null) {
 		return [];
 	}
@@ -38,51 +56,60 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: PuppeteerBrowser[] = [];
+const browserInstances: HeadlessBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close(true);
+			await browser.close(true, 'info', false);
 		} catch (err) {}
 	}
 };
 
-/**
- * @description Opens a Chrome or Chromium browser instance.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
- */
-export const openBrowser = async (
-	browser: Browser,
-	options?: {
-		shouldDumpIo?: boolean;
-		browserExecutable?: string | null;
-		chromiumOptions?: ChromiumOptions;
-		forceDeviceScaleFactor?: number;
-		viewport?: Viewport;
-	}
-): Promise<PuppeteerBrowser> => {
+type InternalOpenBrowserOptions = {
+	browserExecutable: string | null;
+	chromiumOptions: ChromiumOptions;
+	forceDeviceScaleFactor: number | undefined;
+	viewport: Viewport | null;
+	indent: boolean;
+	browser: Browser;
+	logLevel: LogLevel;
+};
+
+export type OpenBrowserOptions = {
+	shouldDumpIo?: boolean;
+	browserExecutable?: string | null;
+	chromiumOptions?: ChromiumOptions;
+	forceDeviceScaleFactor?: number;
+};
+
+export const internalOpenBrowser = async ({
+	browser,
+	browserExecutable,
+	chromiumOptions,
+	forceDeviceScaleFactor,
+	indent,
+	viewport,
+	logLevel,
+}: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
+	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
-			'Firefox supported is not yet turned on. Stay tuned for the future.'
+			'Firefox supported is not yet turned on. Stay tuned for the future.',
 		);
 	}
 
-	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
+	await ensureLocalBrowser(browserExecutable);
 
-	const executablePath = getLocalBrowserExecutable(
-		browser,
-		options?.browserExecutable ?? null
-	);
+	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
-	const customGlRenderer = getOpenGlRenderer(
-		options?.chromiumOptions?.gl ?? null
-	);
+	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
-		product: browser,
-		dumpio: options?.shouldDumpIo ?? false,
+		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
+		indent,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -115,12 +142,16 @@ export const openBrowser = async (
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			options?.chromiumOptions?.headless ?? true ? '--headless' : null,
+			chromiumOptions.headless ?? true ? '--headless' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
-			process.platform === 'linux' ? '--single-process' : null,
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!chromiumOptions.enableMultiProcessOnLinux
+				? '--single-process'
+				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
@@ -133,29 +164,54 @@ export const openBrowser = async (
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
-			options?.forceDeviceScaleFactor
-				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
-				: null,
-			options?.chromiumOptions?.ignoreCertificateErrors
+			typeof forceDeviceScaleFactor === 'undefined'
+				? null
+				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
+			chromiumOptions.ignoreCertificateErrors
 				? '--ignore-certificate-errors'
 				: null,
-			...(options?.chromiumOptions?.disableWebSecurity
+			...(chromiumOptions?.disableWebSecurity
 				? ['--disable-web-security']
 				: []),
-			options?.chromiumOptions?.userAgent
-				? `--user-agent="${options.chromiumOptions.userAgent}"`
+			chromiumOptions?.userAgent
+				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
 		].filter(Boolean) as string[],
-		defaultViewport: options?.viewport ?? {
+		defaultViewport: viewport ?? {
 			height: 720,
 			width: 1280,
 			deviceScaleFactor: 1,
 		},
 	});
 
-	const pages = await browserInstance.pages();
+	const pages = await browserInstance.pages(logLevel, indent);
 	await pages[0].close();
 
 	browserInstances.push(browserInstance);
 	return browserInstance;
+};
+
+/**
+ * @description Opens a Chrome or Chromium browser instance.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
+ */
+export const openBrowser = (
+	browser: Browser,
+	options?: OpenBrowserOptions,
+): Promise<HeadlessBrowser> => {
+	const {
+		browserExecutable,
+		chromiumOptions,
+		forceDeviceScaleFactor,
+		shouldDumpIo,
+	} = options ?? {};
+	return internalOpenBrowser({
+		browser,
+		browserExecutable: browserExecutable ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		forceDeviceScaleFactor,
+		indent: false,
+		viewport: null,
+		logLevel: shouldDumpIo ? 'verbose' : 'info',
+	});
 };

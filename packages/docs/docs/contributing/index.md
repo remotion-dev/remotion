@@ -7,7 +7,7 @@ crumb: How to be awesome
 
 Issues and pull requests of all sorts are welcome!
 
-For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>Jonny Burger#1111</code>) to make sure your changes get merged.
+For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>@jonnyburger</code>) to make sure your changes get merged.
 
 Please note that since we charge for Remotion when companies are using it, this is a **commercial project**.  
 By sending pull requests, you agree that we can use your code changes in a commercial context.
@@ -27,7 +27,7 @@ corepack enable
 If you don't have `corepack`, install pnpm manually:
 
 ```sh
-npm i -g pnpm@7.7.1
+npm i -g pnpm@8.5.1
 ```
 
 Prefix with `sudo` if necessary.
@@ -35,8 +35,12 @@ Prefix with `sudo` if necessary.
 <Step>2</Step> Clone the Remotion repository:<br/>
 
 ```sh
-git clone https://github.com/remotion-dev/remotion.git && cd remotion
+git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
 ```
+
+:::note
+The full Git history of Remotion is large. To save time and disk space, we recommend adding `--depth=1` to only clone the most recent `main` branch.
+:::
 
 <Step>3</Step> Install all dependencies:<br/>
 
@@ -57,6 +61,16 @@ pnpm watch
 ```
 
 <Step>6</Step> You can start making changes!
+
+## Note about browser packages
+
+Some packages need `pnpm build` in order for their changes to apply.
+
+Packages that are imported in the browser, like `remotion`, `@remotion/player`, `@remotion/gif` have ESM versions. In the Remotion Studio and Next.js, ES Modules are preferred, and they need to build separately. If you don't see changes applied, run:
+
+```sh
+cd packages/core && pnpm build
+```
 
 ## Testing your changes
 
@@ -134,3 +148,4 @@ To develop the Rust parts of Remotion, see the README in [packages/renderer/READ
 - [Implementing a new option](/docs/contributing/option)
 - [Writing documentation](/docs/contributing/docs)
 - [How to take a bounty issue](/docs/contributing/bounty)
+- [Formatting guidelines](/docs/contributing/formatting)

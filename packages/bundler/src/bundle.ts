@@ -1,13 +1,13 @@
-import fs, {promises} from 'fs';
-import os from 'os';
-import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
-import {promisify} from 'util';
+import fs, {promises} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
 import webpack from 'webpack';
-import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
+import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -19,7 +19,7 @@ const prepareOutDir = async (specified: string | null) => {
 	}
 
 	return fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-webpack-bundle-')
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-'),
 	);
 };
 
@@ -73,7 +73,7 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 15,
+		maxTimelineTracks: 90,
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
@@ -85,6 +85,7 @@ export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
+	onDirectoryCreated?: (dir: string) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -92,7 +93,7 @@ type Arguments =
 	| [
 			entryPoint: string,
 			onProgress?: (progress: number) => void,
-			options?: LegacyBundleOptions
+			options?: LegacyBundleOptions,
 	  ];
 
 const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
@@ -142,7 +143,7 @@ const validateEntryPoint = async (entryPoint: string) => {
 				'You should use the file that calls registerRoot() as the entry point.',
 				'To ignore this error, pass "ignoreRegisterRootWarning" to bundle().',
 				'This error cannot be ignored on the CLI.',
-			].join(' ')
+			].join(' '),
 		);
 	}
 };
@@ -164,6 +165,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.
@@ -222,7 +224,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 
 		symlinkWarningShown = true;
 		console.warn(
-			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`,
 		);
 	};
 
@@ -232,6 +234,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
 			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			copiedBytes: 0,
+			lastReportedProgress: 0,
 		});
 	}
 
@@ -241,18 +245,30 @@ export async function bundle(...args: Arguments): Promise<string> {
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
-		previewServerCommand: null,
+		studioServerCommand: null,
+		renderQueue: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({
 			folder: '.',
 			startPath: from,
 			staticHash,
 			limit: 1000,
+		}).map((f) => {
+			return {
+				...f,
+				name: f.name.split(path.sep).join('/'),
+			};
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
+		renderDefaults: undefined,
+		publicFolderExists: baseDir + '/public',
 	});
-	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
+	fs.writeFileSync(path.join(outDir, 'index.html'), html);
+	fs.copyFileSync(
+		path.join(__dirname, '../favicon.ico'),
+		path.join(outDir, 'favicon.ico'),
+	);
 	return outDir;
 }

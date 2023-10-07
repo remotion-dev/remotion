@@ -9,7 +9,7 @@ const shortenVector = (vector: readonly [number, number], radius: number) => {
 
 const scaleVectorToLength = (
 	vector: readonly [number, number],
-	length: number
+	length: number,
 ) => {
 	const [x, y] = vector;
 	const currentLength = Math.sqrt(x * x + y * y);
@@ -27,7 +27,7 @@ export const joinPoints = (
 		edgeRoundness: number | null;
 		cornerRadius: number;
 		roundCornerStrategy: 'arc' | 'bezier';
-	}
+	},
 ) => {
 	return points
 		.map(([x, y], i): Instruction[] => {
@@ -62,9 +62,8 @@ export const joinPoints = (
 							type: 'M',
 							x: computeRadius[0] + x,
 							y: computeRadius[1] + y,
-						}
-					]
-
+						},
+					];
 				}
 
 				return [
@@ -76,10 +75,9 @@ export const joinPoints = (
 				];
 			}
 
-
 			if (cornerRadius && edgeRoundness !== null) {
 				throw new Error(
-					`"cornerRadius" and "edgeRoundness" cannot be specified at the same time.`
+					`"cornerRadius" and "edgeRoundness" cannot be specified at the same time.`,
 				);
 			}
 
@@ -98,7 +96,7 @@ export const joinPoints = (
 				const prevVectorLength = scaleVectorToLength(prevVector, cornerRadius);
 				const nextVectorMinusRadius = scaleVectorToLength(
 					nextVector,
-					cornerRadius
+					cornerRadius,
 				);
 
 				const firstDraw = [

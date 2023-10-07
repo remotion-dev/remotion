@@ -49,7 +49,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
   return {

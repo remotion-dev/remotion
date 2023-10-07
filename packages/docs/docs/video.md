@@ -180,12 +180,18 @@ export const MyComposition = () => {
 
 ### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42" />
 
-During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
 ### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `toneFrequency`<AvailableFrom v="4.0.47"/>
+
+Allows you to adjust the pitch of the audio - will only be applied during rendering. It accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+For example, a `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+`toneFrequency` should be a positive number between `0.01` (representing the lowest assignable pitch) and `2` (representing the highest assignable pitch). If `toneFrequency` is not specified or null, it defaults to `1`, maintaining the original pitch.
 
 ### `onError`
 
@@ -197,14 +203,7 @@ Remotion will download the whole video during render in order to mix its audio. 
 
 ## Codec support
 
-Pay attention to the codec of the video that you are importing. During the render process, Chrome needs to support playing the video that you are embedding. If Remotion cannot find a preinstalled version of Chrome, it will download a Chromium executable which does not support the playback of H264 (common codec for MP4 videos). To work around this problem, you have multiple options:
-
-- Tell Remotion which path for Chrome to use by using the command line flag `--browser-executable` or [configure](/docs/config#setbrowserexecutable) `Config.setBrowserExecutable()` in a config file.
-- Convert your videos to WebM before embedding them.
-
-Prior to Remotion 1.5, Remotion will always use an internal Puppeteer binary and MP4 videos are therefore not supported.
-
-If you would like Remotion to warn you when you import an MP4 video, you can turn on the `@remotion/no-mp4-import` ESLint rule.
+See: [Which video formats does Remotion support?](/docs/miscellaneous/video-formats)
 
 ## Alternative: `<OffthreadVideo>`
 

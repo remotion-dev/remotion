@@ -58,6 +58,12 @@ execSync("pnpm exec vitest src/monorepo --run", {
 
 execSync("node build.mjs --all", {
   cwd: "packages/renderer",
+  stdio: "inherit",
+});
+
+execSync("pnpm build", {
+  cwd: "packages/cloudrun",
+  stdio: "inherit",
 });
 
 if (!noCommit) {

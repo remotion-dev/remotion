@@ -7,7 +7,7 @@ export type WarpPathFn = (point: {x: number; y: number}) => {
 
 export function svgPathInterpolate(
 	path: ReducedInstruction[],
-	threshold: number
+	threshold: number,
 ): ReducedInstruction[] {
 	let didWork = false;
 
@@ -31,7 +31,7 @@ type DeltaFunction = (points: [number, number][]) => number;
 function warpInterpolate(
 	path: ReducedInstruction[],
 	threshold: number,
-	deltaFunction: DeltaFunction
+	deltaFunction: DeltaFunction,
 ): ReducedInstruction[] {
 	let prexX = 0;
 	let prexY = 0;
@@ -66,7 +66,7 @@ function warpInterpolate(
 				segment.type === 'L'
 			) {
 				return interpolateUntil(points, threshold, deltaFunction).map(
-					(rawSegment) => createLineSegment(rawSegment)
+					(rawSegment) => createLineSegment(rawSegment),
 				);
 			}
 
@@ -77,7 +77,7 @@ function warpInterpolate(
 
 export const warpTransform = (
 	path: ReducedInstruction[],
-	transformer: WarpPathFn
+	transformer: WarpPathFn,
 ): ReducedInstruction[] => {
 	return path
 		.map((segment): ReducedInstruction[] => {
@@ -151,7 +151,7 @@ export const warpTransform = (
 
 // Add a line from second to last point to last point and then keep Z so it can be transformed as well
 export const fixZInstruction = (
-	instructions: ReducedInstruction[]
+	instructions: ReducedInstruction[],
 ): ReducedInstruction[] => {
 	let prevX = 0;
 	let prevY = 0;
@@ -197,7 +197,7 @@ const euclideanDistance = (points: [number, number][]) => {
 export function interpolateUntil(
 	points: [number, number][],
 	threshold: number,
-	deltaFunction = euclideanDistance
+	deltaFunction = euclideanDistance,
 ) {
 	const stack = [points];
 	const segments = [];
@@ -286,7 +286,7 @@ export function createLineSegment(points: number[][]): ReducedInstruction {
 			};
 		default:
 			throw new Error(
-				'Expected 2, 3 or 4 points for a line segment, got ' + points.length
+				'Expected 2, 3 or 4 points for a line segment, got ' + points.length,
 			);
 	}
 }

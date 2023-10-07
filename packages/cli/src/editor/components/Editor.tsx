@@ -1,19 +1,14 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {continueRender, delayRender, Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
-import {ModalsContext} from '../state/modals';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
-import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
-import NewComposition from './NewComposition/NewComposition';
+import {Modals} from './Modals';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
-import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
-import {UpdateModal} from './UpdateModal/UpdateModal';
-import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -27,8 +22,6 @@ const background: React.CSSProperties = {
 export const Editor: React.FC = () => {
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
 
-	const {selectedModal: modalContextType} = useContext(ModalsContext);
-
 	const [waitForRoot] = useState(() => {
 		if (Root) {
 			return 0;
@@ -36,6 +29,20 @@ export const Editor: React.FC = () => {
 
 		return delayRender('Waiting for registerRoot()');
 	});
+
+	useEffect(() => {
+		const listenToChanges = (e: BeforeUnloadEvent) => {
+			if (window.remotion_unsavedProps) {
+				e.returnValue = 'Are you sure you want to leave?';
+			}
+		};
+
+		window.addEventListener('beforeunload', listenToChanges);
+
+		return () => {
+			window.removeEventListener('beforeunload', listenToChanges);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (Root) {
@@ -47,7 +54,9 @@ export const Editor: React.FC = () => {
 			continueRender(waitForRoot);
 		});
 
-		return () => cleanup();
+		return () => {
+			cleanup();
+		};
 	}, [Root, waitForRoot]);
 
 	return (
@@ -56,30 +65,13 @@ export const Editor: React.FC = () => {
 				<div style={background}>
 					{Root === null ? null : <Root />}
 					<Internals.CanUseRemotionHooksProvider>
-						<FramePersistor />
-						<ZoomPersistor />
 						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
-
-					{modalContextType && modalContextType.type === 'quick-switcher' && (
-						// Quick switcher here because requires timeline zoom ctx
-						<QuickSwitcher
-							invocationTimestamp={modalContextType.invocationTimestamp}
-							initialMode={modalContextType.mode}
-						/>
-					)}
 				</div>
+				<Modals />
 			</TimelineZoomContext>
-
-			{modalContextType && modalContextType.type === 'new-comp' && (
-				<NewComposition initialCompType={modalContextType.compType} />
-			)}
-
-			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal info={modalContextType.info} />
-			)}
 		</HigherZIndex>
 	);
 };

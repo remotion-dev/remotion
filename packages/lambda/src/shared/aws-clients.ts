@@ -5,7 +5,7 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import {createHash} from 'crypto';
+import {createHash} from 'node:crypto';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -229,7 +229,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 };
 
 export const getCloudWatchLogsClient = (
-	region: AwsRegion
+	region: AwsRegion,
 ): CloudWatchLogsClient => {
 	return getServiceClient({
 		region,
@@ -240,12 +240,16 @@ export const getCloudWatchLogsClient = (
 
 export const getS3Client = (
 	region: AwsRegion,
-	customCredentials: CustomCredentials | null
+	customCredentials: CustomCredentials | null,
 ): S3Client => {
 	return getServiceClient({region, service: 's3', customCredentials});
 };
 
-export const getLambdaClient = (region: AwsRegion): LambdaClient => {
+export const getLambdaClient = (
+	region: AwsRegion,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	_timeoutInTest?: number,
+): LambdaClient => {
 	return getServiceClient({
 		region,
 		service: 'lambda',
@@ -258,7 +262,7 @@ export const getIamClient = (region: AwsRegion): IAMClient => {
 };
 
 export const getServiceQuotasClient = (
-	region: AwsRegion
+	region: AwsRegion,
 ): ServiceQuotasClient => {
 	return getServiceClient({
 		region,

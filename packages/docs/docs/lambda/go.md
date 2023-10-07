@@ -26,7 +26,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
-	// Match the version with the version of your deployed functions
 	"github.com/remotion-dev/lambda_go_sdk"
 )
 
@@ -68,7 +67,8 @@ func main() {
 		InputProps: map[string]interface{}{
 			"data": "Let's play",
 		},
-		Composition: "main",   // The composition to use
+		Composition: "main", // The composition to use
+
 	}
 
 	// Execute the render process
@@ -91,8 +91,9 @@ func main() {
 
 	}
 
-	// Get bucket information
-	fmt.Printf("Bucket name: %s, Render ID: %s\n", renderResponse.BucketName, renderResponse.RenderId)
+	fmt.Print(renderResponse.RenderId)
+	/// Get bucket information
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
 
 	// Render Progress request
 	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
@@ -106,13 +107,17 @@ func main() {
 
 	// Check if we have error
 	if renderProgressError != nil {
-		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
+		log.Fatalf("%s %s", "Invalid render progress response", renderProgressError)
 	}
 
 	// Get the overall render progress
-	fmt.Printf("Progress: %f", renderProgressResponse.OverallProgress)
+	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 }
 ```
+
+## Changelog
+
+`v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
 
 ## See also
 

@@ -10,9 +10,9 @@ export const SearchGithubIssues: React.FC<{
 	const openInBrowser = useCallback(() => {
 		window.open(
 			`https://github.com/remotion-dev/remotion/issues?q=${encodeURIComponent(
-				message
+				message,
 			)}`,
-			'_blank'
+			'_blank',
 		);
 	}, [message]);
 	const {registerKeybinding} = useKeybinding();
@@ -32,6 +32,7 @@ export const SearchGithubIssues: React.FC<{
 			callback: onEditor,
 			commandCtrlKey: true,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

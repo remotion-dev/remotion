@@ -1,9 +1,9 @@
-import type {TComposition} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 
 export const validateCompositionName = (
 	compName: string,
-	compositions: TComposition<unknown>[]
+	compositions: AnyComposition[],
 ): string | null => {
 	if (!Internals.isCompositionIdValid(compName)) {
 		return Internals.invalidCompositionErrorMessage;
@@ -18,7 +18,7 @@ export const validateCompositionName = (
 
 export const validateCompositionDimension = (
 	dimension: 'Width' | 'Height',
-	value: string
+	value: string,
 ): string | null => {
 	if (Number(value) % 2 !== 0) {
 		return `${dimension} should be divisible by 2, since H264 codec doesn't support odd dimensions.`;

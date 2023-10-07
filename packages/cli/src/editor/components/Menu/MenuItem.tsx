@@ -104,7 +104,7 @@ export const MenuItem: React.FC<{
 			},
 			{
 				once: true,
-			}
+			},
 		);
 	}, [id, onItemQuit, onItemSelected]);
 
@@ -121,7 +121,7 @@ export const MenuItem: React.FC<{
 				return p === null ? id : null;
 			});
 		},
-		[id, onItemSelected]
+		[id, onItemSelected],
 	);
 
 	const outerStyle = useMemo(() => {
@@ -160,11 +160,12 @@ export const MenuItem: React.FC<{
 										leaveLeftSpace={menu.leaveLeftPadding}
 										preselectIndex={false}
 										topItemCanBeUnselected
+										fixedHeight={null}
 									/>
 								</div>
 							</HigherZIndex>
 						</div>,
-						getPortal(currentZIndex)
+						getPortal(currentZIndex),
 				  )
 				: null}
 		</>

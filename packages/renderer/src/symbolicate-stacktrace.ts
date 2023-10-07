@@ -1,4 +1,10 @@
-import type {RawSourceMap} from 'source-map';
+import {readFileSync} from 'fs';
+import path from 'path';
+import type {
+	BasicSourceMapConsumer,
+	IndexedSourceMapConsumer,
+	RawSourceMap,
+} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
 import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
@@ -23,13 +29,25 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-async function getSourceMap(
-	fileUri: string,
-	fileContents: string
-): Promise<SourceMapConsumer | null> {
+export const getSourceMapFromRemoteUrl = async (url: string) => {
+	if (!url.endsWith('.js.map')) {
+		throw new Error(
+			`The URL ${url} does not seem to be a valid source map URL.`,
+		);
+	}
+
+	const obj = await fetchUrl(url);
+	return new SourceMapConsumer(obj);
+};
+
+const getSourceMap = (
+	filePath: string,
+	fileContents: string,
+	type: 'local' | 'remote',
+): Promise<AnySourceMapConsumer | null> => {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
-		return null;
+		return Promise.resolve(null);
 	}
 
 	if (sm.indexOf('data:') === 0) {
@@ -37,19 +55,33 @@ async function getSourceMap(
 		const match2 = sm.match(base64);
 		if (!match2) {
 			throw new Error(
-				'Sorry, non-base64 inline source-map encoding is not supported.'
+				'Sorry, non-base64 inline source-map encoding is not supported.',
 			);
 		}
 
 		const converted = window.atob(sm.substring(match2[0].length));
-		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
+		try {
+			const sourceMapConsumer = new SourceMapConsumer(
+				JSON.parse(converted) as RawSourceMap,
+			);
+			return Promise.resolve(sourceMapConsumer);
+		} catch {
+			return Promise.resolve(null);
+		}
 	}
 
-	const index = fileUri.lastIndexOf('/');
-	const url = fileUri.substring(0, index + 1) + sm;
-	const obj = await fetchUrl(url);
-	return new SourceMapConsumer(obj);
-}
+	if (type === 'local') {
+		// Find adjacent file: bundle.js -> bundle.js.map
+		const newFilePath = path.join(path.dirname(filePath), sm);
+		return Promise.resolve(
+			new SourceMapConsumer(readFileSync(newFilePath, 'utf8')),
+		);
+	}
+
+	const index = filePath.lastIndexOf('/');
+	const url = filePath.substring(0, index + 1) + sm;
+	return getSourceMapFromRemoteUrl(url);
+};
 
 const fetchUrl = async (url: string) => {
 	const res = await readFile(url);
@@ -83,7 +115,7 @@ export type SymbolicatedStackFrame = {
 function getLinesAround(
 	line: number,
 	count: number,
-	lines: string[]
+	lines: string[],
 ): ScriptLine[] {
 	const result: ScriptLine[] = [];
 	for (
@@ -104,7 +136,7 @@ function getLinesAround(
 const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,
-	column: number
+	column: number,
 ): {source: string | null; line: number | null; column: number | null} => {
 	const result = source_map.originalPositionFor({
 		line,
@@ -113,28 +145,35 @@ const getOriginalPosition = (
 	return {line: result.line, column: result.column, source: result.source};
 };
 
-export const symbolicateStackTrace = async (
-	frames: UnsymbolicatedStackFrame[]
+export const symbolicateStackTraceFromRemoteFrames = async (
+	frames: UnsymbolicatedStackFrame[],
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
 		...new Set(
 			frames
 				.map((f) => f.fileName)
 				.filter((f) => f.startsWith('http://') || f.startsWith('https://'))
-				.filter(truthy)
+				.filter(truthy),
 		),
 	];
 	const maps = await Promise.all(
-		uniqueFileNames.map(async (fileName) => {
-			const fileContents = await fetchUrl(fileName);
-			return getSourceMap(fileName as string, fileContents as string);
-		})
+		uniqueFileNames.map((fileName) => {
+			return getSourceMapFromRemoteFile(fileName);
+		}),
 	);
+
 	const mapValues: Record<string, SourceMapConsumer | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
 
+	return symbolicateFromSources(frames, mapValues);
+};
+
+export const symbolicateFromSources = (
+	frames: UnsymbolicatedStackFrame[],
+	mapValues: Record<string, SourceMapConsumer | null>,
+) => {
 	return frames
 		.map((frame): SymbolicatedStackFrame | null => {
 			const map = mapValues[frame.fileName];
@@ -142,28 +181,43 @@ export const symbolicateStackTrace = async (
 				return null;
 			}
 
-			const pos = getOriginalPosition(
-				map,
-				frame.lineNumber,
-				frame.columnNumber
-			);
-
-			const {functionName} = frame;
-			let hasSource: string | null = null;
-			hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
-
-			const scriptCode =
-				hasSource && pos.line
-					? getLinesAround(pos.line, 3, hasSource.split('\n'))
-					: null;
-
-			return {
-				originalColumnNumber: pos.column,
-				originalFileName: pos.source,
-				originalFunctionName: functionName,
-				originalLineNumber: pos.line ? pos.line : null,
-				originalScriptCode: scriptCode,
-			};
+			return symbolicateStackFrame(frame, map);
 		})
 		.filter(truthy);
 };
+
+export const symbolicateStackFrame = (
+	frame: UnsymbolicatedStackFrame,
+	map: SourceMapConsumer,
+) => {
+	const pos = getOriginalPosition(map, frame.lineNumber, frame.columnNumber);
+
+	const hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+
+	const scriptCode =
+		hasSource && pos.line
+			? getLinesAround(pos.line, 3, hasSource.split('\n'))
+			: null;
+
+	return {
+		originalColumnNumber: pos.column,
+		originalFileName: pos.source,
+		originalFunctionName: frame.functionName,
+		originalLineNumber: pos.line,
+		originalScriptCode: scriptCode,
+	};
+};
+
+export const getSourceMapFromRemoteFile = async (fileName: string) => {
+	const fileContents = await fetchUrl(fileName);
+	return getSourceMap(fileName, fileContents, 'remote');
+};
+
+export const getSourceMapFromLocalFile = (fileName: string) => {
+	const fileContents = readFileSync(fileName, 'utf8');
+	return getSourceMap(fileName, fileContents, 'local');
+};
+
+export type AnySourceMapConsumer =
+	| BasicSourceMapConsumer
+	| IndexedSourceMapConsumer;

@@ -20,23 +20,32 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		return nil, validationErrors
 	}
 
+	jpegQuality := 80
+	if options.JpegQuality != 0 {
+		jpegQuality = options.JpegQuality
+	}
+
 	internalParams := renderInternalOptions{
-		ServeUrl:             options.ServeUrl,
-		InputProps:           inputProps,
-		Composition:          options.Composition,
-		Version:              VERSION,
-		FrameRange:           options.FrameRange,
-		OutName:              options.OutName,
-		AudioBitrate:         options.AudioBitrate,
-		VideoBitrate:         options.VideoBitrate,
-		Webhook:              options.Webhook,
-		ForceHeight:          options.ForceHeight,
-		ForceWidth:           options.ForceWidth,
-		BucketName:           options.BucketName,
-		AudioCodec:           options.AudioCodec,
-		ForceBucketName:      options.ForceBucketName,
-		RendererFunctionName: &options.RendererFunctionName,
-		Type:                 "start",
+		ServeUrl:                       options.ServeUrl,
+		InputProps:                     inputProps,
+		Composition:                    options.Composition,
+		Version:                        VERSION,
+		FrameRange:                     options.FrameRange,
+		OutName:                        options.OutName,
+		AudioBitrate:                   options.AudioBitrate,
+		VideoBitrate:                   options.VideoBitrate,
+		Webhook:                        options.Webhook,
+		ForceHeight:                    options.ForceHeight,
+		OffthreadVideoCacheSizeInBytes: options.OffthreadVideoCacheSizeInBytes,
+		X264Preset:                     options.X264Preset,
+		ForceWidth:                     options.ForceWidth,
+		BucketName:                     options.BucketName,
+		AudioCodec:                     options.AudioCodec,
+		ForceBucketName:                options.ForceBucketName,
+		RendererFunctionName:           &options.RendererFunctionName,
+		DeleteAfter:                    options.DeleteAfter,
+		Type:                           "start",
+		JpegQuality:                    jpegQuality,
 	}
 
 	internalParams.Muted = options.Muted
@@ -66,6 +75,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Privacy = "public"
 	} else {
 		internalParams.Privacy = options.Privacy
+	}
+	if options.ColorSpace == "" {
+		internalParams.ColorSpace = "default"
+	} else {
+		internalParams.ColorSpace = options.ColorSpace
 	}
 	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"
@@ -122,7 +136,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
-	internalParams.EnvVariables = options.EnvVariables
+	if options.EnvVariables == nil {
+		internalParams.EnvVariables = map[string]interface{}{}
+	} else {
+		internalParams.EnvVariables = options.EnvVariables
+	}
 
 	return &internalParams, nil
 }
@@ -140,6 +158,7 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 		RenderId:   options.RenderId,
 		BucketName: options.BucketName,
 		Type:       "status",
+		Version:    VERSION,
 	}
 
 	return &internalParams, nil

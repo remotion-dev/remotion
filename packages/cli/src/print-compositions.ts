@@ -1,4 +1,4 @@
-import type {TCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
 
@@ -18,7 +18,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const printCompositions = (compositions: TCompMetadata[]) => {
+export const printCompositions = (compositions: VideoConfig[]) => {
 	if (!quietFlagProvided()) {
 		Log.info();
 		Log.info('The following compositions are available:');
@@ -51,6 +51,6 @@ export const printCompositions = (compositions: TCompMetadata[]) => {
 					formattedDuration,
 				].join('');
 			})
-			.join('\n')
+			.join('\n'),
 	);
 };

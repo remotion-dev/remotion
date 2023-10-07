@@ -2,16 +2,15 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import {getProgressOfChunk} from '../../shared/chunk-progress';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
-	lambdaChunkInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
+import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -19,7 +18,6 @@ import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
-import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
@@ -63,12 +61,12 @@ export const getProgress = async ({
 		const outData = getExpectedOutName(
 			postRenderData.renderMetadata,
 			bucketName,
-			customCredentials
+			customCredentials,
 		);
 
 		const totalFrameCount = RenderInternals.getFramesToRender(
 			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame
+			postRenderData.renderMetadata.everyNthFrame,
 		).length;
 
 		return {
@@ -107,6 +105,7 @@ export const getProgress = async ({
 			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
+			type: 'success',
 		};
 	}
 
@@ -118,7 +117,7 @@ export const getProgress = async ({
 	});
 
 	const renderMetadataExists = Boolean(
-		contents.find((c) => c.Key === renderMetadataKey(renderId))
+		contents.find((c) => c.Key === renderMetadataKey(renderId)),
 	);
 
 	const [renderMetadata, errorExplanations] = await Promise.all([
@@ -141,7 +140,7 @@ export const getProgress = async ({
 
 	if (renderMetadata?.type === 'still') {
 		throw new Error(
-			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉"
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
 		);
 	}
 
@@ -149,7 +148,7 @@ export const getProgress = async ({
 		contents,
 		renderId,
 		bucketName,
-		getCurrentRegionInFunction()
+		getCurrentRegionInFunction(),
 	);
 
 	const outputFile = renderMetadata
@@ -167,12 +166,11 @@ export const getProgress = async ({
 			renderMetadata,
 			memorySizeInMb,
 			outputFileMetadata: outputFile,
-			architecture: getCurrentArchitecture(),
 			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
 			// We cannot determine the ephemeral storage size, so we
 			// overestimate the price, but will only have a miniscule effect (~0.2%)
 			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		})
+		}),
 	);
 
 	const cleanup = getCleanupProgress({
@@ -197,14 +195,7 @@ export const getProgress = async ({
 				renderId,
 		  })
 		: 0;
-	console.log(
-		'etags',
-		contents
-			.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
-			.map((c) => {
-				return getProgressOfChunk(c.ETag as string);
-			})
-	);
+
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
@@ -223,7 +214,7 @@ export const getProgress = async ({
 	const frameCount = renderMetadata
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame
+				renderMetadata.everyNthFrame,
 		  ).length
 		: null;
 
@@ -242,14 +233,42 @@ export const getProgress = async ({
 		? renderMetadata?.totalChunks ?? 0
 		: chunks.length;
 
+	const availableChunks = chunks.map((c) =>
+		parseLambdaChunkKey(c.Key as string),
+	);
+
+	const missingChunks = renderMetadata
+		? new Array(renderMetadata.totalChunks)
+				.fill(true)
+				.map((_, i) => i)
+				.filter((index) => {
+					return !availableChunks.find((c) => c.chunk === index);
+				})
+		: null;
+
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
-	const isBeyondTimeout =
+
+	// 1. If we have missing chunks, we consider it timed out
+	const isBeyondTimeoutAndMissingChunks =
 		renderMetadata &&
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000;
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		missingChunks &&
+		missingChunks.length > 0;
+
+	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
+	const isBeyondTimeoutAndHasStitchTimeout =
+		renderMetadata &&
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
-		isBeyondTimeout
-			? makeTimeoutError({timeoutInMilliseconds, renderMetadata, chunks})
+		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout
+			? makeTimeoutError({
+					timeoutInMilliseconds,
+					renderMetadata,
+					chunks,
+					renderId,
+					missingChunks: missingChunks ?? [],
+			  })
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);
@@ -304,5 +323,6 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		type: 'success',
 	};
 };

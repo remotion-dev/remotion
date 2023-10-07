@@ -8,6 +8,7 @@ crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
+import {AngleChangelog} from '../../../components/AngleChangelog';
 
 Using the `npx remotion lambda render` command, you can render a video in the cloud.
 
@@ -41,6 +42,10 @@ Using the shorthand serve URL:
 npx remotion lambda render testbed my-comp
 ```
 
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
 Passing in input props:
 
 ```
@@ -73,7 +78,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--props`
 
-[React Props to pass to the root component of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
+[React Props to pass to the root component of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
 
 ### `--log`
 
@@ -106,9 +111,13 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
 
-### `--quality`
+### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--muted`<AvailableFrom v="3.2.1" />
 
@@ -116,7 +125,7 @@ By default, each Lambda function renders with concurrency 1 (one open browser ta
 
 ### `--codec`
 
-[`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
+[`h264` or `h265` (supported since v4.0.32) or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
@@ -142,6 +151,10 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
 
+### `--x264-preset`
+
+[Set the x264 preset](/docs/config#setx264Preset). This option is only valid if the [`codec`](#--codec) has been set to `h264`. Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo` Default: `medium`
+
 ### `--crf`
 
 [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size.
@@ -152,7 +165,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg`.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg`.
 
 ### `--scale`
 
@@ -224,6 +237,39 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 This will most notably disable CORS in Chrome among other security features.
 
+### `--gl`
+
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
+- `null` - Chromium's default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swangle"`.
+
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli/>
+
+### `--webhook-custom-data`<AvailableFrom v="4.0.25"/>
+
+<Options id="webhook-custom-data" cli/>
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />

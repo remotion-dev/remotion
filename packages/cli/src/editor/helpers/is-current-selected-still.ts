@@ -1,41 +1,33 @@
-import {useContext, useMemo} from 'react';
+import {useContext} from 'react';
 import {Internals} from 'remotion';
 import {isCompositionStill} from './is-composition-still';
 
-export const useIsStill = () => {
-	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
-	);
+export type Dimensions = {
+	width: number;
+	height: number;
+};
 
-	const selected = useMemo(
-		() => compositions.find((c) => c.id === currentComposition),
-		[compositions, currentComposition]
-	);
-	if (!selected) {
+export const useIsStill = () => {
+	const resolved = Internals.useResolvedVideoConfig(null);
+
+	if (!resolved || resolved.type !== 'success') {
 		return false;
 	}
 
-	return isCompositionStill(selected);
+	return isCompositionStill(resolved.result);
 };
 
-export const useDimensions = () => {
-	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
-	);
+export const useIsVideoComposition = () => {
+	const isStill = useIsStill();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	const selected = useMemo(
-		() => compositions.find((c) => c.id === currentComposition),
-		[compositions, currentComposition]
-	);
+	if (canvasContent === null) {
+		return false;
+	}
 
-	return useMemo(() => {
-		if (!selected) {
-			return null;
-		}
+	if (isStill) {
+		return false;
+	}
 
-		return {
-			width: selected.width,
-			height: selected.height,
-		};
-	}, [selected]);
+	return canvasContent.type === 'composition';
 };

@@ -1,50 +1,51 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
-import {join} from 'path';
-import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
-import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
 import {
-	CONCAT_FOLDER_TOKEN,
-	encodingProgressKey,
-	ENCODING_PROGRESS_STEP_SIZE,
-	initalizedMetadataKey,
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	PostRenderData,
+	RenderMetadata,
+	SerializedInputProps,
+} from '../shared/constants';
+import {
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
 	renderMetadataKey,
-	rendersPrefix,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
+import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 import {invokeWebhook} from '../shared/invoke-webhook';
-import {getServeUrlHash} from '../shared/make-s3-url';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
-import {concatVideosS3, getAllFilesS3} from './helpers/concat-videos';
-import {createPostRenderData} from './helpers/create-post-render-data';
-import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getFilesToDelete} from './helpers/get-files-to-delete';
-import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
-import {inspectErrors} from './helpers/inspect-errors';
-import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './helpers/io';
+import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
+import type {OnAllChunksAvailable} from './helpers/merge-chunks';
+import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
-import type {EnhancedErrorInfo} from './helpers/write-lambda-error';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {writePostRenderData} from './helpers/write-post-render-data';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -56,19 +57,19 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload:
+		| LambdaPayloads[LambdaRoutines.renderer]
+		| LambdaPayloads[LambdaRoutines.merge];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
 			}),
-			{}
 		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
@@ -90,129 +91,86 @@ const callFunctionWithRetry = async ({
 	}
 };
 
-const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
+const innerLaunchHandler = async ({
+	functionName,
+	params,
+	options,
+	onAllChunksAvailable,
+	verbose,
+}: {
+	functionName: string;
+	params: LambdaPayload;
+	options: Options;
+	onAllChunksAvailable: OnAllChunksAvailable;
+	verbose: boolean;
+}): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
-	const functionName =
-		params.rendererFunctionName ??
-		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
-
 	const startedDate = Date.now();
 
-	let webhookInvoked = false;
-	console.log(
-		`Function has ${Math.max(
-			options.getRemainingTimeInMillis() - 1000,
-			1000
-		)} before it times out`
-	);
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		params.logLevel,
-		'verbose'
-	);
-	const webhookDueToTimeout = setTimeout(async () => {
-		if (params.webhook && !webhookInvoked) {
-			try {
-				await invokeWebhook({
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'timeout',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-					},
-				});
-				webhookInvoked = true;
-			} catch (err) {
-				if (process.env.NODE_ENV === 'test') {
-					throw err;
-				}
-
-				await writeLambdaError({
-					bucketName: params.bucketName,
-					errorInfo: {
-						type: 'webhook',
-						message: (err as Error).message,
-						name: (err as Error).name as string,
-						stack: (err as Error).stack as string,
-						tmpDir: null,
-						frame: 0,
-						chunk: 0,
-						isFatal: false,
-						attempt: 1,
-						willRetry: false,
-						totalAttempts: 1,
-					},
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-				});
-				console.log('Failed to invoke webhook:');
-				console.log(err);
-			}
-		}
-	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
-
 	const browserInstance = await getBrowserInstance(
-		verbose,
-		params.chromiumOptions
+		params.logLevel,
+		false,
+		params.chromiumOptions,
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
 	});
 
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+	RenderInternals.Log.info(
+		'Validating composition, input props:',
+		serializedInputPropsWithCustomSchema,
+	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps: await inputPropsPromise,
-		envVariables: params.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
+		serializedInputPropsWithCustomSchema,
+		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
-		downloadMap,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		logLevel: params.logLevel,
+		server: undefined,
+		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 	});
-	Internals.validateDurationInFrames({
-		durationInFrames: comp.durationInFrames,
+	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
+
+	validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
 	});
-	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
-	Internals.validateDimension(
-		comp.height,
-		'height',
-		'passed to a Lambda render'
-	);
-	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
+	validateFps(comp.fps, 'passed to a Lambda render', false);
+	validateDimension(comp.height, 'height', 'passed to a Lambda render');
+	validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
-	RenderInternals.validateConcurrency(
-		params.concurrencyPerLambda,
-		'concurrencyPerLambda'
-	);
+	RenderInternals.validateConcurrency({
+		value: params.concurrencyPerLambda,
+		setting: 'concurrencyPerLambda',
+		checkIfValidForCurrentMachine: true,
+	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
-		params.frameRange
+		params.frameRange,
 	);
 
 	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
-		params.everyNthFrame
+		params.everyNthFrame,
 	);
 
 	const framesPerLambda =
@@ -222,14 +180,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesPerLambda,
 		durationInFrames: frameCount.length,
 	});
-
-	const chunkCount = Math.ceil(frameCount.length / framesPerLambda);
-
-	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
-		throw new Error(
-			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`
-		);
-	}
 
 	validateOutname(params.outName, params.codec, params.audioCodec);
 	validatePrivacy(params.privacy, true);
@@ -241,9 +191,33 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		everyNthFrame: params.everyNthFrame,
 	});
 
+	if (chunks.length > MAX_FUNCTIONS_PER_RENDER) {
+		throw new Error(
+			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
+		);
+	}
+
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
 	const reqSend = timer('sending off requests');
+
+	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
+
+	const needsToUpload = getNeedsToUpload('video-or-audio', [
+		serializedResolved.length,
+		params.inputProps.type === 'bucket-url'
+			? params.inputProps.hash.length
+			: params.inputProps.payload.length,
+	]);
+
+	const serializedResolvedProps = await compressInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		stringifiedInputProps: serializedResolved,
+		userSpecifiedBucketName: params.bucketName,
+		needsToUpload,
+	});
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -265,7 +239,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
-			quality: params.quality,
+			x264Preset: params.x264Preset,
+			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
@@ -280,14 +255,17 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
-			dumpBrowserLogs: params.dumpBrowserLogs,
+			resolvedProps: serializedResolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			deleteAfter: params.deleteAfter,
+			colorSpace: params.colorSpace,
 		};
 		return payload;
 	});
 
-	console.log(
+	RenderInternals.Log.info(
 		'Render plan: ',
-		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
 	const renderMetadata: RenderMetadata = {
@@ -302,7 +280,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		].reduce((a, b) => a + b, 0),
 		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,
-		siteId: getServeUrlHash(params.serveUrl),
+		siteId: params.serveUrl,
 		codec: params.codec,
 		type: 'video',
 		imageFormat: params.imageFormat,
@@ -317,6 +295,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
 		audioCodec: params.audioCodec,
+		deleteAfter: params.deleteAfter,
+		numberOfGifLoops: params.numberOfGifLoops,
+		downloadBehavior: params.downloadBehavior,
+		audioBitrate: params.audioBitrate,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -324,7 +306,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.s3OutputProvider ?? null
+			: params.outName?.s3OutputProvider ?? null,
 	);
 
 	const output = await findOutputFileInBucket({
@@ -339,7 +321,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			console.info(
 				'Deleting',
 				{bucketName: renderBucketName, key},
-				'because it already existed and will be overwritten'
+				'because it already existed and will be overwritten',
 			);
 			await lambdaDeleteFile({
 				bucketName: renderBucketName,
@@ -349,7 +331,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			});
 		} else {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`,
 			);
 		}
 	}
@@ -368,221 +350,211 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	await Promise.all(
 		lambdaPayloads.map(async (payload) => {
 			await callFunctionWithRetry({payload, retries: 0, functionName});
-		})
+		}),
 	);
 
 	reqSend.end();
 
-	let lastProgressUploaded = 0;
+	const fps = comp.fps / params.everyNthFrame;
+	const postRenderData = await mergeChunksAndFinishRender({
+		bucketName: params.bucketName,
+		renderId: params.renderId,
+		expectedBucketOwner: options.expectedBucketOwner,
+		frameCountLength: frameCount.length,
+		audioCodec: params.audioCodec,
+		chunkCount: chunks.length,
+		codec: params.codec,
+		customCredentials,
+		downloadBehavior: params.downloadBehavior,
+		fps,
+		key,
+		numberOfGifLoops: params.numberOfGifLoops,
+		privacy: params.privacy,
+		renderBucketName,
+		inputProps: params.inputProps,
+		serializedResolvedProps,
+		verbose,
+		renderMetadata,
+		onAllChunks: onAllChunksAvailable,
+		audioBitrate: params.audioBitrate,
+	});
 
-	const onProgress = (framesEncoded: number) => {
-		const relativeProgress = framesEncoded / frameCount.length;
-		const deltaSinceLastProgressUploaded =
-			relativeProgress - lastProgressUploaded;
+	return postRenderData;
+};
 
-		if (deltaSinceLastProgressUploaded < 0.1) {
+type AllChunksAvailable = {
+	inputProps: SerializedInputProps;
+	serializedResolvedProps: SerializedInputProps;
+};
+
+export const launchHandler = async (
+	params: LambdaPayload,
+	options: Options,
+): Promise<{
+	type: 'success';
+}> => {
+	if (params.type !== LambdaRoutines.launch) {
+		throw new Error('Expected launch type');
+	}
+
+	let allChunksAvailable: null | AllChunksAvailable = null;
+
+	const functionName =
+		params.rendererFunctionName ??
+		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
+
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		params.logLevel,
+		'verbose',
+	);
+
+	const onTimeout = async () => {
+		if (allChunksAvailable) {
+			RenderInternals.Log.info(
+				'All chunks are available, but the function is about to time out.',
+			);
+			RenderInternals.Log.info('Spawning another function to merge chunks.');
+
+			try {
+				await callFunctionWithRetry({
+					functionName,
+					payload: {
+						type: LambdaRoutines.merge,
+						renderId: params.renderId,
+						bucketName: params.bucketName,
+						verbose,
+						outName: params.outName,
+						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
+						inputProps: allChunksAvailable.inputProps,
+						logLevel: params.logLevel,
+					},
+					retries: 2,
+				});
+				RenderInternals.Log.info(
+					`New function successfully invoked. See the CloudWatch logs for it:`,
+				);
+				RenderInternals.Log.info(
+					getCloudwatchMethodUrl({
+						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+						method: LambdaRoutines.merge,
+						region: getCurrentRegionInFunction(),
+						rendererFunctionName: params.rendererFunctionName,
+						renderId: params.renderId,
+					}),
+				);
+				RenderInternals.Log.info('This function will now time out.');
+			} catch (err) {
+				if (process.env.NODE_ENV === 'test') {
+					throw err;
+				}
+
+				RenderInternals.Log.error(
+					'Failed to invoke additional function to merge videos:',
+				);
+				RenderInternals.Log.error(err);
+
+				await writeLambdaError({
+					bucketName: params.bucketName,
+					errorInfo: {
+						type: 'stitcher',
+						message: (err as Error).message,
+						name: (err as Error).name as string,
+						stack: (err as Error).stack as string,
+						tmpDir: null,
+						frame: 0,
+						chunk: 0,
+						isFatal: false,
+						attempt: 1,
+						willRetry: false,
+						totalAttempts: 1,
+					},
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
+			}
+		}
+
+		if (!params.webhook) {
 			return;
 		}
 
-		lastProgressUploaded = relativeProgress;
+		if (webhookInvoked) {
+			return;
+		}
 
-		lambdaWriteFile({
-			bucketName: params.bucketName,
-			key: encodingProgressKey(params.renderId),
-			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
-			region: getCurrentRegionInFunction(),
-			privacy: 'private',
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: null,
-			customCredentials: null,
-		}).catch((err) => {
-			writeLambdaError({
+		try {
+			await invokeWebhook({
+				url: params.webhook.url,
+				secret: params.webhook.secret,
+				payload: {
+					type: 'timeout',
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					customData: params.webhook.customData ?? null,
+				},
+			});
+			webhookInvoked = true;
+		} catch (err) {
+			if (process.env.NODE_ENV === 'test') {
+				throw err;
+			}
+
+			RenderInternals.Log.error('Failed to invoke webhook:');
+			RenderInternals.Log.error(err);
+
+			await writeLambdaError({
 				bucketName: params.bucketName,
 				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					name: (err as Error).name,
+					type: 'webhook',
 					message: (err as Error).message,
-					stack: `Could not upload stitching progress ${
-						(err as Error).stack as string
-					}`,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
 					tmpDir: null,
-					type: 'stitcher',
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
 					attempt: 1,
-					totalAttempts: 1,
 					willRetry: false,
+					totalAttempts: 1,
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
-		});
+		}
 	};
 
-	const onErrors = async (errors: EnhancedErrorInfo[]) => {
-		console.log('Found Errors', errors);
+	let webhookInvoked = false;
+	const webhookDueToTimeout = setTimeout(
+		onTimeout,
+		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
+	);
 
-		if (params.webhook) {
-			console.log('Sending webhook with errors');
-			await invokeWebhook({
-				url: params.webhook.url,
-				secret: params.webhook.secret ?? null,
-				payload: {
-					type: 'error',
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-					bucketName: params.bucketName,
-					errors: errors.slice(0, 5).map((e) => ({
-						message: e.message,
-						name: e.name as string,
-						stack: e.stack as string,
-					})),
-				},
-			});
-		} else {
-			console.log('No webhook specified');
+	RenderInternals.Log.info(
+		`Function has ${Math.max(
+			options.getRemainingTimeInMillis() - 1000,
+			1000,
+		)} before it times out`,
+	);
+
+	try {
+		const postRenderData = await innerLaunchHandler({
+			functionName,
+			params,
+			options,
+			onAllChunksAvailable: ({inputProps, serializedResolvedProps}) => {
+				allChunksAvailable = {inputProps, serializedResolvedProps};
+			},
+			verbose,
+		});
+		clearTimeout(webhookDueToTimeout);
+
+		if (!params.webhook || webhookInvoked) {
+			return {
+				type: 'success',
+			};
 		}
 
-		throw new Error(
-			'Stopping Lambda function because error occurred: ' + errors[0].stack
-		);
-	};
-
-	const fps = comp.fps / params.everyNthFrame;
-
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
-			recursive: true,
-		});
-	}
-
-	mkdirSync(outdir);
-	const files = await getAllFilesS3({
-		bucket: params.bucketName,
-		expectedFiles: chunkCount,
-		outdir,
-		renderId: params.renderId,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
-		onErrors,
-	});
-	const encodingStart = Date.now();
-	const {outfile, cleanupChunksProm} = await concatVideosS3({
-		onProgress,
-		numberOfFrames: frameCount.length,
-		codec: params.codec,
-		fps,
-		numberOfGifLoops: params.numberOfGifLoops,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
-		files,
-		outdir,
-		audioCodec: params.audioCodec,
-	});
-	const encodingStop = Date.now();
-
-	const outputSize = fs.statSync(outfile);
-
-	await lambdaWriteFile({
-		bucketName: renderBucketName,
-		key,
-		body: fs.createReadStream(outfile),
-		region: getCurrentRegionInFunction(),
-		privacy: params.privacy,
-		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: params.downloadBehavior,
-		customCredentials,
-	});
-
-	const contents = await lambdaLs({
-		bucketName: params.bucketName,
-		prefix: rendersPrefix(params.renderId),
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-	});
-	const finalEncodingProgressProm = lambdaWriteFile({
-		bucketName: params.bucketName,
-		key: encodingProgressKey(params.renderId),
-		body: String(Math.ceil(frameCount.length / ENCODING_PROGRESS_STEP_SIZE)),
-		region: getCurrentRegionInFunction(),
-		privacy: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: null,
-		customCredentials: null,
-	});
-
-	const errorExplanationsProm = inspectErrors({
-		contents,
-		renderId: params.renderId,
-		bucket: params.bucketName,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
-	});
-
-	const jobs = getFilesToDelete({
-		chunkCount,
-		renderId: params.renderId,
-	});
-
-	const deletProm = verbose
-		? Promise.resolve(0)
-		: cleanupFiles({
-				region: getCurrentRegionInFunction(),
-				bucket: params.bucketName,
-				contents,
-				jobs,
-		  });
-
-	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
-		bucketName: params.bucketName,
-		region: getCurrentRegionInFunction(),
-		serialized: params.inputProps,
-	});
-
-	const outputUrl = getOutputUrlFromMetadata(
-		renderMetadata,
-		params.bucketName,
-		customCredentials
-	);
-	const postRenderData = createPostRenderData({
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		renderId: params.renderId,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		renderMetadata,
-		contents,
-		errorExplanations: await errorExplanationsProm,
-		timeToEncode: encodingStop - encodingStart,
-		timeToDelete: (
-			await Promise.all([deletProm, cleanupSerializedInputPropsProm])
-		).reduce((a, b) => a + b, 0),
-		outputFile: {
-			lastModified: Date.now(),
-			size: outputSize.size,
-			url: outputUrl,
-		},
-	});
-	await finalEncodingProgressProm;
-	await writePostRenderData({
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		postRenderData,
-		region: getCurrentRegionInFunction(),
-		renderId: params.renderId,
-	});
-	await lambdaDeleteFile({
-		bucketName: params.bucketName,
-		key: initalizedMetadataKey(params.renderId),
-		region: getCurrentRegionInFunction(),
-		customCredentials: null,
-	});
-	RenderInternals.cleanDownloadMap(downloadMap);
-
-	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
-
-	clearTimeout(webhookDueToTimeout);
-	if (params.webhook && !webhookInvoked) {
 		try {
 			await invokeWebhook({
 				url: params.webhook.url,
@@ -592,7 +564,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 					bucketName: params.bucketName,
-					outputUrl,
+					customData: params.webhook.customData ?? null,
+					outputUrl: postRenderData.outputFile,
 					lambdaErrors: postRenderData.errors,
 					outputFile: postRenderData.outputFile,
 					timeToFinish: postRenderData.timeToFinish,
@@ -623,28 +596,19 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
-			console.log('Failed to invoke webhook:');
-			console.log(err);
+			RenderInternals.Log.error('Failed to invoke webhook:');
+			RenderInternals.Log.error(err);
 		}
-	}
-};
 
-export const launchHandler = async (
-	params: LambdaPayload,
-	options: Options
-) => {
-	if (params.type !== LambdaRoutines.launch) {
-		throw new Error('Expected launch type');
-	}
-
-	try {
-		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
 		}
 
-		console.log('Error occurred', err);
+		RenderInternals.Log.error('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
@@ -663,16 +627,19 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-		if (params.webhook?.url) {
+		RenderInternals.Log.error('Wrote error to S3');
+		clearTimeout(webhookDueToTimeout);
+		if (params.webhook && !webhookInvoked) {
 			try {
 				await invokeWebhook({
 					url: params.webhook.url,
-					secret: params.webhook.secret ?? null,
+					secret: params.webhook.secret,
 					payload: {
 						type: 'error',
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 						errors: [err as Error].map((e) => ({
 							message: e.message,
 							name: e.name as string,
@@ -680,6 +647,7 @@ export const launchHandler = async (
 						})),
 					},
 				});
+				webhookInvoked = true;
 			} catch (error) {
 				if (process.env.NODE_ENV === 'test') {
 					throw error;
@@ -703,9 +671,11 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				console.log('Failed to invoke webhook:');
-				console.log(error);
+				RenderInternals.Log.error('Failed to invoke webhook:');
+				RenderInternals.Log.error(error);
 			}
 		}
+
+		throw err;
 	}
 };

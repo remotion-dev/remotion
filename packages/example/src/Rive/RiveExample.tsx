@@ -1,5 +1,5 @@
-import {RemotionRiveCanvas} from '@remotion/rive';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
+import {RemotionRiveCanvas} from '@remotion/rive';
 
 const RiveVehicle = () => {
 	const {height, width} = useVideoConfig();

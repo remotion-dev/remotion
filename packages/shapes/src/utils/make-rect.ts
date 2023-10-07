@@ -34,7 +34,7 @@ export const makeRect = ({
 				[0, height],
 				[0, 0],
 			],
-			{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'}
+			{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'},
 		),
 		{
 			type: 'Z',

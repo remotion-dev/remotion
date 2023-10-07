@@ -67,7 +67,7 @@ Make sure no package version number has a `^` character in front of it as it can
 [Override the Webpack config](/docs/webpack) by using [`enableSkia()`](/docs/skia/enable-skia).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableSkia } from "@remotion/skia/enable";
 
 Config.overrideWebpackConfig((currentConfiguration) => {
@@ -107,14 +107,22 @@ You can find the [starter template](https://github.com/remotion-dev/template-ski
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
 
 ```bash
 npx create-video --skia
+```
+
+  </TabItem>
+    <TabItem value="bun">
+
+```bash
+bun create video --skia
 ```
 
   </TabItem>
@@ -130,7 +138,7 @@ yarn create video --skia
   <TabItem value="pnpm">
 
 ```bash
-pnpm create video -- --skia
+pnpm create video --skia
 ```
 
   </TabItem>

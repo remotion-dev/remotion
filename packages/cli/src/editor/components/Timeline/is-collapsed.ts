@@ -3,7 +3,7 @@ import type {TimelineViewState} from './timeline-state-reducer';
 
 export const isTrackCollapsed = (
 	hash: string,
-	viewState: TimelineViewState
+	viewState: TimelineViewState,
 ) => {
 	return viewState.collapsed[hash] !== false;
 };
@@ -11,17 +11,19 @@ export const isTrackCollapsed = (
 export const isTrackHidden = (
 	track: TrackWithHash,
 	allTracks: TrackWithHash[],
-	viewState: TimelineViewState
+	viewState: TimelineViewState,
 ): boolean => {
 	if (!track.sequence.parent) {
 		return false;
 	}
 
-	const parent = allTracks.find((t) => t.sequence.id === track.sequence.parent);
-	if (!parent) {
-		// TODO: Tighten up, when toggling rich timeline this case can happen right now
+	if (!track.canCollapse) {
 		return false;
 	}
+
+	const parent = allTracks.find(
+		(t) => t.sequence.id === track.sequence.parent,
+	) as TrackWithHash;
 
 	if (isTrackCollapsed(parent.hash, viewState)) {
 		return true;

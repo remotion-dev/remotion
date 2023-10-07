@@ -9,7 +9,7 @@ _available from v3.3.95_
 A function that modifies the default Webpack configuration to make the necessary changes to support TailwindCSS.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind";
 
 Config.overrideWebpackConfig((currentConfiguration) => {
@@ -20,7 +20,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 If you want to make other configuration changes, you can do so by doing them reducer-style:
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind";
 
 Config.overrideWebpackConfig((currentConfiguration) => {

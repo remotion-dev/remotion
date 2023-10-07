@@ -15,7 +15,7 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
@@ -59,7 +59,10 @@ Takes an object with the following properties:
 
 ### `composition`
 
-A video composition object, consisting of `id`, `height`, `width`, `durationInFrames` and `fps`. Use [`getCompositions()`](/docs/renderer/get-compositions) to get a list of available video configs.
+_VideoConfig_
+
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `serveUrl`
 
@@ -73,7 +76,7 @@ An absolute path to where the frame should be rendered to.
 
 _optional_
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `frame?`
 
@@ -87,7 +90,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default: "png"_
 
-Which output format the image should have, either `png` or `jpeg`.
+Which output format the image should have, either `png`, `jpeg`, `webp` or `pdf`.
 
 ### `scale?`
 
@@ -95,7 +98,7 @@ _optional_
 
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional - default: `undefined`_
 
@@ -105,7 +108,7 @@ Sets the JPEG quality - must be an integer between 0 and 100 and can only be pas
 
 _optional - default `null`_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`
 
@@ -113,11 +116,10 @@ _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
-### `dumpBrowserLogs?`
+### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-_optional - default `false`_
-
-A boolean value deciding whether Puppeteer logs should be printed to the console, useful for debugging only.
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `overwrite?`
 
@@ -165,6 +167,12 @@ _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
 #### `ignoreCertificateErrors`
 
 _boolean - default `false`_
@@ -190,6 +198,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 Default: `null`.  
@@ -198,6 +207,20 @@ Default: `null`.
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ## Return Value
 

@@ -25,7 +25,6 @@ import type {
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 import {Controls} from './PlayerControls.js';
-import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -41,7 +40,7 @@ export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
-		`Version ${reactVersion} of "react" is not supported by Remotion`
+		`Version ${reactVersion} of "react" is not supported by Remotion`,
 	);
 }
 
@@ -54,7 +53,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		allowFullscreen: boolean;
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		showVolumeControls: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
@@ -106,12 +105,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls,
 		showPlaybackRateControl,
 	},
-	ref
+	ref,
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
-	const hovered = useHoverState(container);
 	const canvasSize = useElementSize(container, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: false,
@@ -148,7 +146,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		const onFullscreenChange = () => {
 			setIsFullscreen(
 				document.fullscreenElement === current ||
-					document.webkitFullscreenElement === current
+					document.webkitFullscreenElement === current,
 			);
 		};
 
@@ -158,7 +156,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			document.removeEventListener('fullscreenchange', onFullscreenChange);
 			document.removeEventListener(
 				'webkitfullscreenchange',
-				onFullscreenChange
+				onFullscreenChange,
 			);
 		};
 	}, []);
@@ -171,7 +169,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				player.play(e);
 			}
 		},
-		[player]
+		[player],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -263,7 +261,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [player.emitter, scale]);
 
 	const {setMediaVolume, setMediaMuted} = useContext(
-		Internals.SetMediaVolumeContext
+		Internals.SetMediaVolumeContext,
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 	useEffect(() => {
@@ -282,7 +280,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		() => {
 			const methods: PlayerMethods = {
 				play: player.play,
-				pause: player.pause,
+				pause: () => {
+					// If, after .seek()-ing, the player was explicitly paused, we don't resume
+					setHasPausedToResume(false);
+					player.pause();
+				},
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
@@ -290,6 +292,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+
+					// continue playing after seeking if the player was playing before
 					if (player.isPlaying()) {
 						const pauseToResume = frameToSeekTo !== lastFrame || loop;
 						setHasPausedToResume(pauseToResume);
@@ -315,19 +319,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				setVolume: (vol: number) => {
 					if (typeof vol !== 'number') {
 						throw new TypeError(
-							`setVolume() takes a number, got value of type ${typeof vol}`
+							`setVolume() takes a number, got value of type ${typeof vol}`,
 						);
 					}
 
 					if (isNaN(vol)) {
 						throw new TypeError(
-							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
 						);
 					}
 
 					if (vol < 0 || vol > 1) {
 						throw new TypeError(
-							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
 						);
 					}
 
@@ -358,7 +362,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			setMediaVolume,
 			toggle,
 			scale,
-		]
+		],
 	);
 
 	const VideoComponent = video ? video.component : null;
@@ -381,7 +385,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			// Pay attention to `this context`
 			player.emitter.dispatchError(error);
 		},
-		[player]
+		[player],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -390,7 +394,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				e.stopPropagation();
 				requestFullscreen();
 			},
-			[requestFullscreen]
+			[requestFullscreen],
 		);
 
 	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -399,14 +403,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				e.stopPropagation();
 				exitFullscreen();
 			},
-			[exitFullscreen]
+			[exitFullscreen],
 		);
 
 	const onSingleClick = useCallback(
 		(e: SyntheticEvent) => {
 			toggle(e);
 		},
-		[toggle]
+		[toggle],
 	);
 
 	const onSeekStart = useCallback(() => {
@@ -428,7 +432,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
 		onSingleClick,
 		onDoubleClick,
-		doubleClickToFullscreen
+		doubleClickToFullscreen,
 	);
 
 	useEffect(() => {
@@ -460,7 +464,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	if (poster === undefined) {
 		throw new TypeError(
-			'renderPoster() must return a React element, but undefined was returned'
+			'renderPoster() must return a React element, but undefined was returned',
 		);
 	}
 
@@ -482,10 +486,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<VideoComponent
-								{...((video?.defaultProps as unknown as {}) ?? {})}
-								{...((inputProps as unknown as {}) ?? {})}
-							/>
+							<Internals.ClipComposition>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
 				</div>
@@ -505,8 +511,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<Controls
 					fps={config.fps}
 					durationInFrames={config.durationInFrames}
-					hovered={hovered}
 					player={player}
+					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}

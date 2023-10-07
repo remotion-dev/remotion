@@ -13,13 +13,14 @@ export type FaceType = {
   strokeWidth: number;
   strokeColor: string;
   description: string;
+  crispEdges: boolean;
 };
 
 export const translateSvgInstruction = (
   instruction: ThreeDReducedInstruction,
   x: number,
   y: number,
-  z: number
+  z: number,
 ): ThreeDReducedInstruction => {
   if (instruction.type === "M") {
     return {
@@ -104,7 +105,7 @@ export const translateSvgInstruction = (
 
 export const transformFace = (
   face: FaceType,
-  transformations: MatrixTransform4D[]
+  transformations: MatrixTransform4D[],
 ): FaceType => {
   return {
     ...face,
@@ -134,7 +135,7 @@ export const transformFaces = ({
 
 export const transformElements = (
   elements: ThreeDElement[],
-  transformations: MatrixTransform4D[]
+  transformations: MatrixTransform4D[],
 ) => {
   return elements.map((element) => {
     return transformElement(element, transformations);
@@ -147,12 +148,14 @@ export const makeFace = ({
   strokeColor,
   fill,
   description,
+  crispEdges,
 }: {
   points: string | ThreeDReducedInstruction[];
   strokeWidth: number;
   strokeColor: string;
   fill: string;
   description: string;
+  crispEdges: boolean;
 }): FaceType => {
   const centerPoint: Vector4D = [0, 0, 0, 1];
 
@@ -163,5 +166,6 @@ export const makeFace = ({
     strokeWidth,
     strokeColor,
     description,
+    crispEdges,
   };
 };

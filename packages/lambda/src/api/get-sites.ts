@@ -51,11 +51,11 @@ export const getSites = async ({
 
 		for (const file of ls) {
 			const siteKeyMatch = file.Key?.match(
-				/sites\/([0-9a-zA-Z-!_.*'()]+)\/(.*)$/
+				/sites\/([0-9a-zA-Z-!_.*'()]+)\/(.*)$/,
 			);
 			if (!siteKeyMatch) {
 				throw new Error(
-					`A file was found in the bucket "${bucket.name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`
+					`A file was found in the bucket "${bucket.name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`,
 				);
 			}
 

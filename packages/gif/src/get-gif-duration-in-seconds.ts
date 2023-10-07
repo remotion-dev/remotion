@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {getRemotionEnvironment} from 'remotion';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import type {GifState} from './props';
 import {parseGif, parseWithWorker} from './react-tools';
@@ -22,7 +22,7 @@ export const getGifDurationInSeconds = async (src: string) => {
 		return calcDuration(inCache);
 	}
 
-	if (Internals.getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		const renderingParsed = parseWithWorker(resolvedSrc);
 		const resolved = await renderingParsed.prom;
 		volatileGifCache.set(resolvedSrc, resolved);

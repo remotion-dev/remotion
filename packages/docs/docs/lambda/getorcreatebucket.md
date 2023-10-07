@@ -28,11 +28,16 @@ An object with the following property:
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
 
-### `onBucketEnsured?`
+### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
 
-_optional_
+<Options id="enable-folder-expiry"/>
 
-Allows to pass a callback after the bucket was created and before the S3 website option was enabled. This option exists so the CLI can better visualize the progress.
+### ~~`onBucketEnsured?`~~
+
+_removed in v4.0, optional_
+
+Allows to pass a callback after the bucket was created and before the S3 website option was enabled. This option exists so the CLI can better visualize the progress.  
+Removed in v4.0 since we don't use the website option anymore.
 
 ## Return value
 
@@ -42,9 +47,7 @@ A promise resolving to an object with the following properties:
 
 The name of your bucket that was found or created.
 
-### `alreadyExisted`
-
-_available from v3.3.78_
+### `alreadyExisted`<AvailableFrom v="3.3.78" />
 
 A boolean indicating whether the bucket already existed or was newly created.
 

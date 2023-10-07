@@ -1,7 +1,7 @@
 .container {
   position: relative;
-  margin-top: -5vw;
   z-index: 1;
+  margin-top: -5vw;
 }
 
 .wrapper {
@@ -135,4 +135,3 @@
   border: 2px solid black;
   margin-top: -30px;
 }
-

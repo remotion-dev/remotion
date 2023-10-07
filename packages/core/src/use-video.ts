@@ -1,27 +1,52 @@
+import type {ComponentType, LazyExoticComponent} from 'react';
 import {useContext, useMemo} from 'react';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import type {VideoConfig} from './video-config.js';
 
-export const useVideo = () => {
-	const context = useContext(CompositionManager);
+type ReturnType =
+	| (VideoConfig & {
+			component: LazyExoticComponent<ComponentType<Record<string, unknown>>>;
+	  })
+	| null;
 
-	return useMemo(() => {
-		const selected = context.compositions.find((c) => {
-			return c.id === context.currentComposition;
-		});
+export const useVideo = (): ReturnType => {
+	const {canvasContent, compositions, currentCompositionMetadata} =
+		useContext(CompositionManager);
 
-		if (selected) {
-			return {
-				...selected,
-				// We override the selected metadata with the metadata that was passed to renderMedia(),
-				// and don't allow it to be changed during render anymore
-				...(context.currentCompositionMetadata ?? {}),
-			};
+	const selected = compositions.find((c) => {
+		return (
+			canvasContent?.type === 'composition' &&
+			c.id === canvasContent.compositionId
+		);
+	});
+	const resolved = useResolvedVideoConfig(selected?.id ?? null);
+
+	return useMemo((): ReturnType => {
+		if (!resolved) {
+			return null;
 		}
 
-		return null;
-	}, [
-		context.compositions,
-		context.currentComposition,
-		context.currentCompositionMetadata,
-	]);
+		if (resolved.type === 'error') {
+			return null;
+		}
+
+		if (resolved.type === 'loading') {
+			return null;
+		}
+
+		if (!selected) {
+			return null;
+		}
+
+		return {
+			...resolved.result,
+			defaultProps: selected.defaultProps ?? {},
+			id: selected.id,
+			// We override the selected metadata with the metadata that was passed to renderMedia(),
+			// and don't allow it to be changed during render anymore
+			...(currentCompositionMetadata ?? {}),
+			component: selected.component,
+		};
+	}, [currentCompositionMetadata, resolved, selected]);
 };

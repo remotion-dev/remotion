@@ -1,20 +1,20 @@
 import {BundlerInternals} from '@remotion/bundler';
-import fs from 'fs';
-import path from 'path';
-import {isMainThread} from 'worker_threads';
+import fs from 'node:fs';
+import path from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import {Log} from './log';
 
 export const loadConfigFile = async (
 	remotionRoot: string,
 	configFileName: string,
-	isJavascript: boolean
+	isJavascript: boolean,
 ): Promise<string | null> => {
 	const resolved = path.resolve(remotionRoot, configFileName);
 
 	const tsconfigJson = path.join(remotionRoot, 'tsconfig.json');
 	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
 		Log.error(
-			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.'
+			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.',
 		);
 		Log.error('The root directory is:', remotionRoot);
 		process.exit(1);
@@ -23,7 +23,7 @@ export const loadConfigFile = async (
 	const virtualOutfile = 'bundle.js';
 	const result = await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		entryPoints: [resolved],
 		tsconfig: isJavascript ? undefined : tsconfigJson,
@@ -41,13 +41,17 @@ export const loadConfigFile = async (
 		process.exit(1);
 	}
 
-	const str = new TextDecoder().decode(result.outputFiles[0].contents);
+	let str = new TextDecoder().decode(result.outputFiles[0].contents);
 
 	const currentCwd = process.cwd();
 
 	// The config file is always executed from the Remotion root, if `process.cwd()` is being used. We cannot enforce this in worker threads used for testing
 	if (isMainThread) {
 		process.chdir(remotionRoot);
+	}
+
+	if (process.env.PATCH_BUN_DEVELOPMENT) {
+		str = str.replace('@remotion/cli/config', './config');
 	}
 
 	// Exectute the contents of the config file

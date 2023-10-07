@@ -1,7 +1,7 @@
 import type {bundle, BundleOptions} from '@remotion/bundler';
 
 const convertArgumentsIntoOptions = (
-	args: Parameters<typeof bundle>
+	args: Parameters<typeof bundle>,
 ): BundleOptions => {
 	if ((args.length as number) === 0) {
 		throw new TypeError('bundle() was called without arguments');

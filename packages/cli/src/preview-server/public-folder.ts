@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {existsSync, watch} from 'fs';
-import path from 'path';
+import {existsSync, watch} from 'node:fs';
+import path from 'node:path';
 import type {StaticFile} from 'remotion';
 import {envSupportsFsRecursive} from './env-supports-fs-recursive';
 
@@ -40,7 +40,7 @@ export const fetchFolder = ({
 	});
 };
 
-export const watchPublicFolder = ({
+const watchPublicFolder = ({
 	publicDir,
 	onUpdate,
 	staticHash,
@@ -58,6 +58,7 @@ export const watchPublicFolder = ({
 					onUpdate,
 					staticHash,
 				});
+				onUpdate();
 				watcher.close();
 			}
 		};
@@ -66,6 +67,8 @@ export const watchPublicFolder = ({
 		return;
 	}
 
+	// Known bug: If whole public folder is deleted, this will not be called on macOS.
+	// This is not severe, so a wontfix for now.
 	watch(publicDir, {recursive: envSupportsFsRecursive()}, () => {
 		fetchFolder({publicDir, staticHash});
 		onUpdate();

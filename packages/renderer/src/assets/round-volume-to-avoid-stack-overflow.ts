@@ -14,6 +14,6 @@ export const roundVolumeToAvoidStackOverflow = (volume: number): number => {
 		(
 			Math.round(volume * (MAX_FFMPEG_STACK_DEPTH - 1)) /
 			(MAX_FFMPEG_STACK_DEPTH - 1)
-		).toFixed(3)
+		).toFixed(3),
 	);
 };

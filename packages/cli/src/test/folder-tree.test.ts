@@ -1,14 +1,27 @@
 import type {ComponentType} from 'react';
 import React from 'react';
 import {expect, test} from 'vitest';
+import {getZodIfPossible} from '../editor/components/get-zod-if-possible';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
-	Promise.resolve({default: SampleComp as ComponentType<unknown>})
+	Promise.resolve({default: SampleComp as ComponentType<unknown>}),
 );
 
-test('Should create a good folder tree with 1 item inside and 1 item outside', () => {
+const getZ = async () => {
+	const z = await getZodIfPossible();
+	if (!z) {
+		throw new Error('Zod not found');
+	}
+
+	return z;
+};
+
+test('Should create a good folder tree with 1 item inside and 1 item outside', async () => {
+	const z = await getZ();
+
+	const obj = z.object({});
 	const tree = createFolderTree(
 		[
 			{
@@ -22,6 +35,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				calculateMetadata: null,
+				schema: obj,
 			},
 			{
 				component,
@@ -34,6 +49,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				calculateMetadata: null,
+				schema: obj,
 			},
 		],
 		[
@@ -42,7 +59,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				parent: null,
 			},
 		],
-		{}
+		{},
 	);
 
 	expect(tree).toEqual([
@@ -61,6 +78,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 						id: 'my-comp',
 						nonce: 0,
 						width: 1080,
+						schema: obj,
+						calculateMetadata: null,
 					},
 					key: 'my-comp',
 					type: 'composition',
@@ -83,6 +102,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				id: 'second-comp',
 				nonce: 0,
 				width: 1080,
+				schema: obj,
+				calculateMetadata: null,
 			},
 			key: 'second-comp',
 			type: 'composition',
@@ -90,7 +111,10 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 	]);
 });
 
-test('Should handle nested folders well', () => {
+test('Should handle nested folders well', async () => {
+	const z = await getZ();
+	const obj = z.object({});
+
 	const tree = createFolderTree(
 		[
 			{
@@ -104,6 +128,8 @@ test('Should handle nested folders well', () => {
 				nonce: 0,
 				width: 1080,
 				parentFolderName: 'my-third-folder/my-second-folder',
+				calculateMetadata: null,
+				schema: obj,
 			},
 		],
 		[
@@ -120,7 +146,7 @@ test('Should handle nested folders well', () => {
 				parent: 'my-third-folder/my-second-folder',
 			},
 		],
-		{}
+		{},
 	);
 
 	expect(tree).toEqual([
@@ -146,6 +172,7 @@ test('Should handle nested folders well', () => {
 							items: [
 								{
 									composition: {
+										calculateMetadata: null,
 										component,
 										defaultProps: {},
 										durationInFrames: 200,
@@ -156,6 +183,7 @@ test('Should handle nested folders well', () => {
 										id: 'my-comp',
 										nonce: 0,
 										width: 1080,
+										schema: obj,
 									},
 									key: 'my-comp',
 									type: 'composition',
@@ -184,9 +212,9 @@ test('Should throw if two folders with the same name', () => {
 					parent: null,
 				},
 			],
-			{}
-		)
+			{},
+		),
 	).toThrow(
-		/Multiple folders with the name my-folder exist. Folder names must be unique./
+		/Multiple folders with the name my-folder exist. Folder names must be unique./,
 	);
 });

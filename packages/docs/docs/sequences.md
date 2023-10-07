@@ -1,48 +1,55 @@
 ---
 image: /generated/articles-docs-sequences.png
 id: reusability
-title: Reuse components using Sequences
+title: Making components reusable
 sidebar_label: Reuse components
 crumb: "The power of React"
 ---
 
 ```twoslash include example
-import {interpolate, useCurrentFrame} from 'remotion'
+import {interpolate, useCurrentFrame, AbsoluteFill} from 'remotion'
 
 const Title: React.FC<{title: string}> = ({title}) => {
     const frame = useCurrentFrame()
     const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'})
 
     return (
-      <div style={{opacity}}>{title}</div>
-    )
+      <div style={{opacity, textAlign: "center", fontSize: "7em"}}>{title}</div>
+    );
 }
 // - Title
 ```
 
-Let's say we want to show two titles that both fade in after each other.
+React components allow us to encapsulate video logic and reuse the same visuals multiple times.
 
-In order to make a title reusable, we first factor it out into it's own component.
+Consider a title - to make it reusable, factor it out into its own component:
 
-```tsx twoslash
-// @include: example-Title
+```tsx twoslash title="MyComposition.tsx"
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+const Title: React.FC<{ title: string }> = ({ title }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 20], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <div style={{ opacity, textAlign: "center", fontSize: "7em" }}>{title}</div>
+  );
+};
 
 export const MyVideo = () => {
   return (
-    <div
-      style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-      }}
-    >
+    <AbsoluteFill>
       <Title title="Hello World" />
-    </div>
+    </AbsoluteFill>
   );
 };
 ```
 
-Now we can use the `<Sequence>` component to limit the duration of the first title and time-shift the appearance of the second title.
+To render multiple instances of the title, duplicate the `<Title>` component.
+
+You can also use the `<Sequence>` component to limit the duration of the first title and time-shift the appearance of the second title.
 
 ```tsx twoslash
 // @include: example-Title
@@ -51,27 +58,23 @@ import { Sequence } from "remotion";
 
 export const MyVideo = () => {
   return (
-    <div
-      style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-        backgroundColor: "white",
-      }}
-    >
+    <AbsoluteFill>
       <Sequence durationInFrames={40}>
         <Title title="Hello" />
       </Sequence>
       <Sequence from={40}>
         <Title title="World" />
       </Sequence>
-    </div>
+    </AbsoluteFill>
   );
 };
 ```
 
-You should see two titles appearing after each other. Sequences which are not shown during a frame are unmounted.  
-Sequences by default are absolutely positioned - you can use [`layout="none"`](/docs/sequence#layout) to disable that.
+You should see two titles appearing after each other.
+
+Note that the value of `useCurrentFrame()` has been shifted in the second instance, so that it returns `0` only when the absolute time is `40`. Before that, the sequence was not mounted at all.
+
+Sequences by default are absolutely positioned - you can use [`layout="none"`](/docs/sequence#layout) to make them render like a regular `<div>`.
 
 ## See also
 

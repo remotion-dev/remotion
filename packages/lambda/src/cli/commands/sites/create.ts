@@ -1,7 +1,10 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -24,13 +27,13 @@ export const SITES_CREATE_SUBCOMMAND = 'create';
 
 export const sitesCreateSubcommand = async (
 	args: string[],
-	remotionRoot: string
+	remotionRoot: string,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
 	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
-			'Pass an additional argument specifying the entry file of your Remotion project:'
+			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
@@ -45,9 +48,13 @@ export const sitesCreateSubcommand = async (
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -59,7 +66,6 @@ export const sitesCreateSubcommand = async (
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
 		},
 		deployProgress: {
@@ -76,23 +82,23 @@ export const sitesCreateSubcommand = async (
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false,
 		);
 	};
 
 	const bucketStart = Date.now();
 
+	const enableFolderExpiry =
+		parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag];
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
-
 	const bucketName =
 		cliBucketName ??
 		(
-			await getOrCreateBucket({
+			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
-				onBucketEnsured: () => {
-					multiProgress.bucketProgress.bucketCreated = true;
-					updateProgress();
-				},
+				enableFolderExpiry: enableFolderExpiry ?? null,
+				customCredentials: null,
 			})
 		).bucketName;
 
@@ -100,7 +106,7 @@ export const sitesCreateSubcommand = async (
 	updateProgress();
 
 	const bundleStart = Date.now();
-	const uploadStart = Date.now();
+	let uploadStart = Date.now();
 
 	const {serveUrl, siteName, stats} = await deploySite({
 		entryPoint: file,
@@ -112,6 +118,9 @@ export const sitesCreateSubcommand = async (
 					progress,
 					doneIn: progress === 100 ? Date.now() - bundleStart : null,
 				};
+				if (progress === 100) {
+					uploadStart = Date.now();
+				}
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
@@ -152,14 +161,14 @@ export const sitesCreateSubcommand = async (
 	Log.info();
 	Log.info(
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:'
-		)
+			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+		),
 	);
 	Log.info(
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
 				.filter(Internals.truthy)
-				.join(' ')
-		)
+				.join(' '),
+		),
 	);
 };

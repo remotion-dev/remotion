@@ -30,7 +30,7 @@ Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one 
 Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 // ---cut---
 
@@ -58,7 +58,7 @@ Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-error
 Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 // ---cut---
 
@@ -86,7 +86,7 @@ Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the f
 Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 // ---cut---
 
@@ -108,6 +108,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
@@ -124,7 +125,7 @@ Pass [`--gl=swiftshader`](/docs/cli) in one of the following commands: [`remotio
 ### Via config file
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 // ---cut---
 

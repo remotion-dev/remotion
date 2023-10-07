@@ -11,7 +11,7 @@ test('Should throw on wrong prefix', async () => {
 			bucketName: 'wrongprefix',
 			entryPoint: 'first',
 			region: 'us-east-1',
-		})
+		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
 
@@ -23,7 +23,7 @@ test('Should throw if invalid region was passed', () => {
 			// @ts-expect-error
 			region: 'ap-northeast-9',
 			siteName: 'testing',
-		})
+		}),
 	).rejects.toThrow(/ap-northeast-9 is not a valid AWS region/);
 });
 
@@ -34,9 +34,9 @@ test("Should throw if bucket doesn't exist", () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
-		})
+		}),
 	).rejects.toThrow(
-		/No bucket with the name remotionlambda-non-existed exists/
+		/No bucket with the name remotionlambda-non-existed exists/,
 	);
 });
 
@@ -50,7 +50,7 @@ test('Should apply name if given', async () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
-		})
+		}),
 	).toEqual({
 		siteName: 'testing',
 		serveUrl:
@@ -73,7 +73,7 @@ test('Should use a random hash if no siteName is given', async () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
-		})
+		}),
 	).toEqual({
 		siteName: 'testing',
 		serveUrl:
@@ -114,11 +114,11 @@ test('Should delete the previous site if deploying the new one', async () => {
 	expect(
 		files.map((f) => {
 			return f.Key;
-		})
+		}),
 	).toEqual(
 		getDirFiles('/path/to/bundle-2').map((f) => {
 			return 'sites/testing/' + f.name;
-		})
+		}),
 	);
 });
 
@@ -161,7 +161,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 	expect(
 		files.map((f) => {
 			return f.Key;
-		})
+		}),
 	).toEqual([
 		...getDirFiles('/path/to/bundle-1').map((f) => {
 			return 'sites/testing/' + f.name;
@@ -206,7 +206,7 @@ test('Should not delete site with same prefix', async () => {
 	expect(
 		files.map((f) => {
 			return f.Key;
-		})
+		}),
 	).toEqual([
 		// Should not delete my-site-staging (same bucket name but with suffix)
 		...getDirFiles('/path/to/bundle-2').map((f) => {

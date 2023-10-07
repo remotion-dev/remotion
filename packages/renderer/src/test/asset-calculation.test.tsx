@@ -40,6 +40,7 @@ test('Should be able to collect assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });
 
@@ -60,6 +61,7 @@ test('Should get multiple assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -70,6 +72,7 @@ test('Should get multiple assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });
 
@@ -94,6 +97,7 @@ test('Should handle jumps inbetween', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -104,6 +108,7 @@ test('Should handle jumps inbetween', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });
 
@@ -125,6 +130,7 @@ test('Should support sequencing', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });
 
@@ -152,10 +158,11 @@ test('Should calculate volumes correctly', async () => {
 		volume: new Array(60)
 			.fill(true)
 			.map((_, i) =>
-				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'})
+				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
 			)
 			.filter((f) => f > 0),
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });
 
@@ -193,9 +200,10 @@ test('Should calculate startFrom correctly', async () => {
 				interpolate(i, [0, 50, 100], [0, 1, 0], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
-				})
+				}),
 			)
 			.filter((i) => i > 0),
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
 	});
 });

@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -16,10 +17,10 @@ export const functionsRmCommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error('No function name passed.');
 		Log.error(
-			'Pass another argument which is the name of the function you would like to remove.'
+			'Pass another argument which is the name of the function you would like to remove.',
 		);
 		Log.info(
-			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`
+			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`,
 		);
 		quit(1);
 	}
@@ -32,10 +33,14 @@ export const functionsRmCommand = async (args: string[]) => {
 	const region = getAwsRegion();
 
 	for (const functionName of args) {
-		const infoOutput = CliInternals.createOverwriteableCliOutput(
-			CliInternals.quietFlagProvided()
-		);
-		infoOutput.update('Getting function info...');
+		const infoOutput = CliInternals.createOverwriteableCliOutput({
+			quiet: CliInternals.quietFlagProvided(),
+			cancelSignal: null,
+			// No browser logs
+			updatesDontOverwrite: false,
+			indent: false,
+		});
+		infoOutput.update('Getting function info...', false);
 		const info = await getFunctionInfo({
 			region,
 			functionName,
@@ -47,16 +52,26 @@ export const functionsRmCommand = async (args: string[]) => {
 				'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySizeInMb + 'MB',
 				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
-			].join('\n')
+			].join('\n'),
+			true,
 		);
-		Log.info();
 
-		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
-		const output = CliInternals.createOverwriteableCliOutput(
-			CliInternals.quietFlagProvided()
-		);
-		output.update('Deleting...');
+		if (
+			!(await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true}))
+		) {
+			quit(1);
+		}
+
+		const output = CliInternals.createOverwriteableCliOutput({
+			quiet: CliInternals.quietFlagProvided(),
+			cancelSignal: null,
+			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+				logLevel: RenderInternals.getLogLevel(),
+			}),
+			indent: false,
+		});
+		output.update('Deleting...', false);
 		await deleteFunction({region, functionName});
-		output.update('Deleted!\n');
+		output.update('Deleted!', true);
 	}
 };

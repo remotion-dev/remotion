@@ -28,8 +28,22 @@
   flex-direction: column;
   align-items: center;
   background-color: var(--ifm-navbar-background-color);
+  transition: all 0.3s ease-in-out;
 }
 
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px 0 rgb(84, 84, 84);
+}
+
+.docsButton {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.docsButton:hover {
+  transform: scale(0.987);
+}
 
 .profile {
   height: 200px;
@@ -70,5 +84,26 @@
   .pagetitle,
   .tagline {
     text-align: left;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .card .buttonsInColumn {
+    flex-direction: column !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .cardContent {
+    flex-direction: column !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .profile {
+    width: 150px;
+    height: auto;
   }
 }

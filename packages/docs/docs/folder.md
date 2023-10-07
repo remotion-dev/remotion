@@ -49,9 +49,9 @@ will create a tree structure in the sidebar that looks like this:
 
 ## Folder behavior
 
+- They only visually change the sidebar in the Remotion Studio and have no further behavior.
 - Folder names can only contain `a-z`, `A-Z`, `0-9` and `-`.
 - Folders can be nested.
-- They only visually change the sidebar in the preview.
 
 ## See also
 

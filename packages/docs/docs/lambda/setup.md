@@ -8,6 +8,14 @@ crumb: "Lambda"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import { YouTube } from "../../components/YouTube";
+
+<YouTube
+  minutes={18}
+  href="https://www.youtube.com/watch?v=kFVd3KnfwYY"
+  thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ"
+  title="How to set up Remotion Lambda"
+/>
 
 ## 1. Install `@remotion/lambda`
 
@@ -119,7 +127,11 @@ REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 
 ## 7. Optional: Validate the permission setup
 
-- Run `npx remotion lambda policies validate`
+Check all user permissions and validate them against the AWS Policy simulator by executing the following command:
+
+```bash
+npx remotion lambda policies validate
+```
 
 <hr/>
 
@@ -158,7 +170,6 @@ const { functionName } = await deployFunction({
   timeoutInSeconds: 120,
   memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
-  architecture: "arm64",
 });
 ```
 

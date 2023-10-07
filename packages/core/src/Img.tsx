@@ -5,6 +5,7 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
 
@@ -12,24 +13,34 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
-const ImgRefForwarding: React.ForwardRefRenderFunction<
-	HTMLImageElement,
+export type ImgProps = Omit<
 	React.DetailedHTMLProps<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
-	> & {
-		maxRetries?: number;
-	}
+	>,
+	'src'
+> & {
+	maxRetries?: number;
+	src: string;
+};
+
+const ImgRefForwarding: React.ForwardRefRenderFunction<
+	HTMLImageElement,
+	ImgProps
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
 
 	useImperativeHandle(
 		ref,
 		() => {
 			return imageRef.current as HTMLImageElement;
 		},
-		[]
+		[],
 	);
 
 	const actualSrc = usePreload(src as string);
@@ -77,26 +88,23 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
 			) {
 				const backoff = exponentialBackoff(
-					errors.current[imageRef.current?.src as string] ?? 0
+					errors.current[imageRef.current?.src as string] ?? 0,
 				);
 				console.warn(
 					`Could not load image with source ${
 						imageRef.current?.src as string
-					}, retrying again in ${backoff}ms`
+					}, retrying again in ${backoff}ms`,
 				);
 
 				retryIn(backoff);
 				return;
 			}
 
-			console.error(
-				'Error loading image with src:',
-				imageRef.current?.src,
-				e,
-				'Handle the event using the onError() prop to make this message disappear.'
+			cancelRender(
+				'Error loading image with src: ' + (imageRef.current?.src as string),
 			);
 		},
-		[maxRetries, onError, retryIn]
+		[maxRetries, onError, retryIn],
 	);
 
 	if (typeof window !== 'undefined') {
@@ -106,7 +114,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + src);
+			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
 			const {current} = imageRef;
 
 			const onComplete = () => {
@@ -115,7 +123,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					console.info(
 						`Retry successful - ${
 							imageRef.current?.src as string
-						} is now loaded`
+						} is now loaded`,
 					);
 				}
 
@@ -137,7 +145,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				current?.removeEventListener('load', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src]);
+		}, [actualSrc]);
 	}
 
 	return (

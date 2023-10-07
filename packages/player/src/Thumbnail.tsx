@@ -7,35 +7,42 @@ import type {
 import {
 	forwardRef,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
+import type {AnyZodObject} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
-import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<T> = PropsIfHasProps<T> &
-	CompProps<T> & {
+type ThumbnailProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = PropsIfHasProps<Schema, Props> &
+	CompProps<Props> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
 		compositionWidth: number;
 		compositionHeight: number;
-		inputProps?: unknown;
 		fps: number;
 		errorFallback?: ErrorFallback;
 		renderLoading?: RenderLoading;
 		className?: string;
 	};
 
-export const ThumbnailFn = <T,>(
+export const ThumbnailFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
 	{
 		frameToDisplay,
 		style,
@@ -48,16 +55,25 @@ export const ThumbnailFn = <T,>(
 		errorFallback = () => '⚠️',
 		renderLoading,
 		...componentProps
-	}: ThumbnailProps<T>,
-	ref: MutableRefObject<ThumbnailMethods>
+	}: ThumbnailProps<Schema, Props>,
+	ref: MutableRefObject<ThumbnailMethods>,
 ) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_isPlayer = true;
+		}, []);
+	}
+
 	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
-		return {
+		const value: TimelineContextValue = {
 			playing: false,
-			frame: frameToDisplay,
+			frame: {
+				[PLAYER_COMP_ID]: frameToDisplay,
+			},
 			rootId: thumbnailId,
 			imperativePlaying: {
 				current: false,
@@ -68,12 +84,14 @@ export const ThumbnailFn = <T,>(
 			},
 			audioAndVideoTags: {current: []},
 		};
+
+		return value;
 	}, [frameToDisplay, thumbnailId]);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
 	const Component = Internals.useLazyComponent(
-		componentProps
+		componentProps,
 	) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
@@ -91,7 +109,6 @@ export const ThumbnailFn = <T,>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={inputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>
@@ -112,8 +129,8 @@ export const ThumbnailFn = <T,>(
 const forward = forwardRef as <T, P = {}>(
 	render: (
 		props: P,
-		ref: React.MutableRefObject<T>
-	) => React.ReactElement | null
+		ref: React.MutableRefObject<T>,
+	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**

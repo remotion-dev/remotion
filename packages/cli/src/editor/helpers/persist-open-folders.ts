@@ -1,20 +1,30 @@
 export const openFolderKey = (
 	folderName: string,
-	parentName: string | null
+	parentName: string | null,
 ) => {
 	return [parentName ?? 'no-parent', folderName].join('/');
 };
 
 export type ExpandedFoldersState = Record<string, boolean>;
 
-const localStorageKey = 'remotion.expandedFolders';
+const localStorageKey = (type: PersistanceType) =>
+	type === 'compositions'
+		? 'remotion.expandedFolders'
+		: 'remotion.expandedAssetFolders';
 
-export const persistExpandedFolders = (state: ExpandedFoldersState) => {
-	window.localStorage.setItem(localStorageKey, JSON.stringify(state));
+type PersistanceType = 'assets' | 'compositions';
+
+export const persistExpandedFolders = (
+	type: PersistanceType,
+	state: ExpandedFoldersState,
+) => {
+	window.localStorage.setItem(localStorageKey(type), JSON.stringify(state));
 };
 
-export const loadExpandedFolders = (): ExpandedFoldersState => {
-	const item = window.localStorage.getItem(localStorageKey);
+export const loadExpandedFolders = (
+	type: PersistanceType,
+): ExpandedFoldersState => {
+	const item = window.localStorage.getItem(localStorageKey(type));
 	if (item === null) {
 		return {};
 	}

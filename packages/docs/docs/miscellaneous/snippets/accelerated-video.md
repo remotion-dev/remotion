@@ -53,7 +53,7 @@ export const AcceleratedVideo: React.FC = () => {
 };
 ```
 
-Note that the timeline in the Remotion Preview might move as you play the video because we reposition the sequence over time. This is okay as long as we calculate the frame in an idempotent way.
+Note that the timeline in the Remotion Studio might move as you play the video because we reposition the sequence over time. This is okay as long as we calculate the frame in an idempotent way.
 
 ## Demo
 

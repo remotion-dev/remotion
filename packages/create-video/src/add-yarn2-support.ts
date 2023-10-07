@@ -1,5 +1,5 @@
-import {writeFileSync} from 'fs';
-import path from 'path';
+import {writeFileSync} from 'node:fs';
+import path from 'node:path';
 import {Log} from './log';
 import type {PackageManager} from './pkg-managers';
 
@@ -28,7 +28,7 @@ export const createYarnYmlFile = ({
 	}
 
 	Log.info(
-		'Remotion has no support for automatically installing the Yarn PnP modules yet.'
+		'Remotion has no support for automatically installing the Yarn PnP modules yet.',
 	);
 	Log.info('Creating .yarnrc.yml file to disable Yarn PnP.');
 

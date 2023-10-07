@@ -119,12 +119,16 @@ registerRoot(RemotionRoot);
 
 The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion **entrypoint**.
 
-## Starting the preview
+:::note
+Watch out for import aliases in your `tsconfig.json` that will resolve `import {...} from "remotion"` to the `remotion` folder. We recommend to not use `paths` without a prefix.
+:::
 
-Start the preview server using the following command:
+## Starting the Studio
+
+Start the Remotion Studio using the following command:
 
 ```
-npx remotion preview remotion/index.ts
+npx remotion studio remotion/index.ts
 ```
 
 Replace `remotion/index.ts` with your entrypoint if necessary.

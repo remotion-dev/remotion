@@ -12,14 +12,14 @@ export const validateDownloadBehavior = (downloadBehavior: unknown) => {
 	const behavior = downloadBehavior as DownloadBehavior;
 	if (behavior.type !== 'download' && behavior.type !== 'play-in-browser') {
 		throw new Error(
-			'Download behavior must be either "download" or "play-in-browser"'
+			'Download behavior must be either "download" or "play-in-browser"',
 		);
 	}
 
 	if (behavior.type === 'download') {
 		if (typeof behavior.fileName !== 'string' && behavior.fileName !== null) {
 			throw new Error(
-				'If "downloadBehavior.type" is "download", then fileName must be "null" or a string'
+				'If "downloadBehavior.type" is "download", then fileName must be "null" or a string',
 			);
 		}
 	}

@@ -1,2 +1,4 @@
 packages:
   - "packages/**"
+  - "!packages/lambda-php-example/vendor/remotion/lambda"
+  - "!packages/bugs"

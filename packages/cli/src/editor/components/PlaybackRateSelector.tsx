@@ -1,4 +1,5 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {persistPlaybackRate} from '../state/playbackrate';
@@ -6,11 +7,11 @@ import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPlaybackRates: number[] = [
-	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 2, 4,
+const commonPlaybackRates: number[] = [
+	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 1.5, 2, 4,
 ];
 
-export const getPlaybackRateLabel = (playbackRate: number) => {
+const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
 };
 
@@ -22,6 +23,7 @@ export const PlaybackRateSelector: React.FC<{
 	playbackRate: number;
 	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 }> = ({playbackRate, setPlaybackRate}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const style = useMemo(() => {
 		return {
@@ -59,7 +61,7 @@ export const PlaybackRateSelector: React.FC<{
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
-	if (isStill) {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 

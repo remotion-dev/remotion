@@ -1,19 +1,26 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
+	ColorSpace,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	ToOptions,
+	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {PureJSAPIs} from '@remotion/renderer/pure';
+import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
+import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
@@ -21,22 +28,27 @@ export type RenderMediaOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	codec: LambdaCodec;
-	imageFormat?: ImageFormat;
+	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	privacy?: Privacy;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
+	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
@@ -46,23 +58,68 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	webhook?: {
-		url: string;
-		secret: string | null;
-	};
+	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
-};
+	colorSpace?: ColorSpace;
+	deleteAfter?: DeleteAfter | null;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
 	folderInS3Console: string;
+};
+
+export const internalRenderMediaOnLambdaRaw = async (
+	input: InnerRenderMediaOnLambdaInput,
+): Promise<RenderMediaOnLambdaOutput> => {
+	const {functionName, region, rendererFunctionName} = input;
+
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.start,
+			payload: await makeLambdaRenderMediaPayload(input),
+			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
+		});
+
+		return {
+			renderId: res.renderId,
+			bucketName: res.bucketName,
+			cloudWatchLogs: getCloudwatchRendererUrl({
+				functionName,
+				region,
+				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
+				chunk: null,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
+			}),
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
+			);
+		}
+
+		throw err;
+	}
 };
 
 /**
@@ -77,52 +134,67 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
-
-export const renderMediaOnLambda = async (
-	input: RenderMediaOnLambdaInput
+export const renderMediaOnLambda = (
+	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const {functionName, region, rendererFunctionName} = input;
-
-	try {
-		const res = await callLambda({
-			functionName,
-			type: LambdaRoutines.start,
-			payload: await makeLambdaRenderMediaPayload(input),
-			region,
-		});
-		return {
-			renderId: res.renderId,
-			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchStreamUrl({
-				functionName,
-				method: LambdaRoutines.renderer,
-				region,
-				renderId: res.renderId,
-				rendererFunctionName: rendererFunctionName ?? null,
-			}),
-			folderInS3Console: getS3RenderUrl({
-				bucketName: res.bucketName,
-				renderId: res.renderId,
-				region,
-			}),
-		};
-	} catch (err) {
-		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
-			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
-			);
-		}
-
-		throw err;
+	const wrapped = PureJSAPIs.wrapWithErrorHandling(
+		internalRenderMediaOnLambdaRaw,
+	);
+	if (options.quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.',
+		);
 	}
+
+	return wrapped({
+		audioBitrate: options.audioBitrate ?? null,
+		audioCodec: options.audioCodec ?? null,
+		chromiumOptions: options.chromiumOptions ?? {},
+		codec: options.codec,
+		colorSpace: options.colorSpace ?? 'default',
+		composition: options.composition,
+		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
+		crf: options.crf,
+		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		envVariables: options.envVariables ?? {},
+		everyNthFrame: options.everyNthFrame ?? 1,
+		forceBucketName: options.forceBucketName ?? null,
+		forceHeight: options.forceHeight ?? null,
+		forceWidth: options.forceWidth ?? null,
+		frameRange: options.frameRange ?? null,
+		framesPerLambda: options.framesPerLambda ?? null,
+		functionName: options.functionName,
+		imageFormat: options.imageFormat ?? 'jpeg',
+		inputProps: options.inputProps ?? {},
+		jpegQuality: options.jpegQuality ?? 80,
+		logLevel: options.logLevel ?? 'info',
+		maxRetries: options.maxRetries ?? 1,
+		muted: options.muted ?? false,
+		numberOfGifLoops: options.numberOfGifLoops ?? 0,
+		offthreadVideoCacheSizeInBytes:
+			options.offthreadVideoCacheSizeInBytes ?? null,
+		outName: options.outName ?? null,
+		overwrite: options.overwrite ?? false,
+		pixelFormat: options.pixelFormat ?? undefined,
+		privacy: options.privacy ?? 'public',
+		proResProfile: options.proResProfile ?? undefined,
+		region: options.region,
+		rendererFunctionName: options.rendererFunctionName ?? null,
+		scale: options.scale ?? 1,
+		serveUrl: options.serveUrl,
+		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
+		videoBitrate: options.videoBitrate ?? null,
+		webhook: options.webhook ?? null,
+		x264Preset: options.x264Preset ?? null,
+		deleteAfter: options.deleteAfter ?? null,
+	});
 };
 
 /**

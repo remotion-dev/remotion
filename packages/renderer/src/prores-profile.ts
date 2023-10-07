@@ -1,6 +1,6 @@
 import type {Codec} from './codec';
 
-const proResProfileOptions = [
+export const proResProfileOptions = [
 	'4444-xq',
 	'4444',
 	'hq',
@@ -9,7 +9,7 @@ const proResProfileOptions = [
 	'proxy',
 ] as const;
 
-export type ProResProfile = typeof proResProfileOptions[number];
+export type ProResProfile = (typeof proResProfileOptions)[number];
 
 export const validateSelectedCodecAndProResCombination = ({
 	codec,
@@ -20,7 +20,7 @@ export const validateSelectedCodecAndProResCombination = ({
 }) => {
 	if (typeof proResProfile !== 'undefined' && codec !== 'prores') {
 		throw new TypeError(
-			`You have set a ProRes profile but the codec is "${codec}". Set the codec to "prores" or remove the ProRes profile.`
+			`You have set a ProRes profile but the codec is "${codec}". Set the codec to "prores" or remove the ProRes profile.`,
 		);
 	}
 
@@ -31,7 +31,7 @@ export const validateSelectedCodecAndProResCombination = ({
 		throw new TypeError(
 			`The ProRes profile "${proResProfile}" is not valid. Valid options are ${proResProfileOptions
 				.map((p) => `"${p}"`)
-				.join(', ')}`
+				.join(', ')}`,
 		);
 	}
 };

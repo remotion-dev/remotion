@@ -57,7 +57,7 @@ export const Overlay: React.FC = () => {
 		() => {
 			return {setErrors, addError};
 		},
-		[addError]
+		[addError],
 	);
 
 	if (errors.type === 'clear') {
@@ -83,6 +83,9 @@ export const Overlay: React.FC = () => {
 							key={err.stack}
 							keyboardShortcuts={i === 0}
 							error={err}
+							onRetry={null}
+							canHaveDismissButton
+							calculateMetadata={false}
 						/>
 					);
 				})}

@@ -21,7 +21,7 @@ or, inside a player:
 
 ## Solution
 
-### In the Remotion Preview
+### In the Remotion Studio
 
 The cause for the error is that a [`<Composition>`](/docs/composition) was nested inside the `component` that was passed to another `<Composition>`.
 
@@ -111,7 +111,7 @@ const Index: React.FC = () => {
 ```
 
 :::note
-There is no use for compositions in `<Player>`. Only use them during rendering and when using the Remotion Preview.
+There is no use for compositions in `<Player>`. Only use them during rendering and when using the Remotion Studio.
 :::
 
 To fix it, pass the component directly to the player's [`component`](/docs/player/player#component) prop and provide the [`durationInFrames`](/docs/player/player#durationinframes), [`fps`](/docs/player/player#fps), [`compositionHeight`](/docs/player/player#compositionheight) and [`compositionWidth`](/docs/player/player#compositionwidth) props to the player.

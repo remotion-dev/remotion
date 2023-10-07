@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {EditorPropsProvider} from './EditorProps.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import type {TNonceContext} from './nonce.js';
 import {NonceContext} from './nonce.js';
@@ -34,24 +35,28 @@ export const RemotionRoot: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
+	const [frame, setFrame] = useState<Record<string, number>>({});
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
-			window.remotion_setFrame = (f: number) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_setFrame = (f: number, composition: string) => {
 				const id = delayRender(`Setting the current frame to ${f}`);
-				setFrame(f);
+				setFrame((s) => ({
+					...s,
+					[composition]: f,
+				}));
 				requestAnimationFrame(() => continueRender(id));
 			};
 
 			window.remotion_isPlayer = false;
-		}
-	}, []);
+		}, []);
+	}
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
@@ -81,7 +86,6 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		// TODO: This can be moved to renderer?
 		if (typeof __webpack_module__ !== 'undefined') {
 			if (__webpack_module__.hot) {
 				__webpack_module__.hot.addStatusHandler((status) => {
@@ -97,13 +101,19 @@ export const RemotionRoot: React.FC<{
 		<NonceContext.Provider value={nonceContext}>
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<PrefetchProvider>
-						<NativeLayersProvider>
-							<CompositionManagerProvider numberOfAudioTags={numberOfAudioTags}>
-								<DurationsContextProvider>{children}</DurationsContextProvider>
-							</CompositionManagerProvider>
-						</NativeLayersProvider>
-					</PrefetchProvider>
+					<EditorPropsProvider>
+						<PrefetchProvider>
+							<NativeLayersProvider>
+								<CompositionManagerProvider
+									numberOfAudioTags={numberOfAudioTags}
+								>
+									<DurationsContextProvider>
+										{children}
+									</DurationsContextProvider>
+								</CompositionManagerProvider>
+							</NativeLayersProvider>
+						</PrefetchProvider>
+					</EditorPropsProvider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonceContext.Provider>

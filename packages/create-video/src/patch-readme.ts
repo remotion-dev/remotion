@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type {PackageManager} from './pkg-managers';
 import {
 	getDevCommand,
@@ -12,7 +12,7 @@ import type {Template} from './templates';
 export const patchReadmeMd = (
 	projectRoot: string,
 	packageManager: PackageManager,
-	template: Template
+	template: Template,
 ) => {
 	const fileName = path.join(projectRoot, 'README.md');
 

@@ -1,10 +1,10 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {compressAsset} from '../compress-assets';
 
 test('Should compress and uncompress assets', () => {
-	const uncompressed: TAsset[] = [
+	const uncompressed: TRenderAsset[] = [
 		[
 			{
 				frame: 0,
@@ -15,6 +15,7 @@ test('Should compress and uncompress assets', () => {
 				type: 'video' as const,
 				volume: 1,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 		],
 		[
@@ -27,6 +28,7 @@ test('Should compress and uncompress assets', () => {
 				type: 'video' as const,
 				volume: 1,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 		],
 	].flat(1);
@@ -50,6 +52,7 @@ test('Should compress and uncompress assets', () => {
 			type: 'video',
 			volume: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 	]);
 });

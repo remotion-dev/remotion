@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
@@ -10,8 +11,13 @@ const noop = () => undefined;
 
 export const EditorContent: React.FC = () => {
 	const isStill = useIsStill();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	if (isStill) {
+	if (
+		canvasContent === null ||
+		isStill ||
+		canvasContent.type !== 'composition'
+	) {
 		return <TopPanel />;
 	}
 
@@ -26,7 +32,7 @@ export const EditorContent: React.FC = () => {
 			<SplitterElement type="flexer">
 				<TopPanel />
 			</SplitterElement>
-			<SplitterHandle allowToCollapse={false} onCollapse={noop} />
+			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 			<SplitterElement type="anti-flexer">
 				<Timeline />
 			</SplitterElement>

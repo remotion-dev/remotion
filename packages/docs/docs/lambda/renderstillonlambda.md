@@ -85,7 +85,49 @@ _optional - default `"png"`_
 
 See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
-### `quality?`
+### `onInit?`<AvailableFrom v="4.0.6" />
+
+A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
+
+It receives an object with the following properties:
+
+- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+- `renderId`: The ID of the render.
+
+Example usage:
+
+```tsx twoslash
+// @module: esnext
+// @target: es2022
+
+import {
+  renderStillOnLambda,
+  RenderStillOnLambdaInput,
+} from "@remotion/lambda/client";
+
+const otherParameters: RenderStillOnLambdaInput = {
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  composition: "MyVideo",
+  inputProps: {},
+  imageFormat: "png",
+  maxRetries: 1,
+  privacy: "public",
+  envVariables: {},
+  frame: 10,
+};
+await renderStillOnLambda({
+  ...otherParameters,
+  onInit: ({ cloudWatchLogs, renderId }) => {
+    console.log(console.log(`Render invoked with ID = ${renderId}`));
+    console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+  },
+});
+```
+
+### `jpegQuality?`
 
 _optional_
 
@@ -93,11 +135,19 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
 
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
 ### `maxRetries?`
 
 _optional - default `1`_
 
 How often a frame render may be retried until it fails.
+
+:::note
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+:::
 
 ### `envVariables?`
 
@@ -149,6 +199,14 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `deleteAfter?`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after"/>
+
 ### `chromiumOptions?`
 
 _optional_
@@ -178,6 +236,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
+- `"vulkan"` (_from Remotion v4.0.41_)
 - `null` - Chromiums default
 
 :::note
@@ -200,13 +259,11 @@ _optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+### ~~`dumpBrowserLogs?`~~
 
-### `dumpBrowserLogs?`
+_optional - default `false`, deprecated in v4.0_
 
-_optional, available since v3.3.83_
-
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 
@@ -216,7 +273,7 @@ Returns a promise resolving to an object with the following properties:
 
 The S3 bucket in which the video was saved.
 
-### `output`
+### `url`
 
 An AWS S3 URL where the output is available.
 

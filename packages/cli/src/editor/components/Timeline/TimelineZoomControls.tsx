@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
@@ -15,6 +16,7 @@ const container: React.CSSProperties = {
 	color: 'black',
 	flexDirection: 'row',
 	display: 'flex',
+	alignItems: 'center',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -26,12 +28,8 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
-const slider: React.CSSProperties = {
-	width: 60,
-	accentColor: 'var(--blue)',
-};
-
 export const TimelineZoomControls: React.FC = () => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
 
@@ -47,12 +45,12 @@ export const TimelineZoomControls: React.FC = () => {
 		(e) => {
 			setZoom(() => Number(e.target.value));
 		},
-		[setZoom]
+		[setZoom],
 	);
 
 	const isStill = useIsStill();
 
-	if (isStill) {
+	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
 
@@ -78,7 +76,7 @@ export const TimelineZoomControls: React.FC = () => {
 				value={zoom}
 				max={TIMELINE_MAX_ZOOM}
 				onChange={onChange}
-				style={slider}
+				className="__remotion-timeline-slider"
 				tabIndex={tabIndex}
 			/>
 			<Spacing x={0.5} />
@@ -90,7 +88,7 @@ export const TimelineZoomControls: React.FC = () => {
 				type="button"
 				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
-				<Plus style={iconStyle} />
+				<Plus color="currentcolor" style={iconStyle} />
 			</ControlButton>
 		</div>
 	);

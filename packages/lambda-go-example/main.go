@@ -72,8 +72,9 @@ func main() {
 
 	}
 
-	// Get bucket information
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
+	fmt.Print(renderResponse.RenderId)
+	/// Get bucket information
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
 
 	// Render Progress request
 	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
@@ -87,10 +88,9 @@ func main() {
 
 	// Check if we have error
 	if renderProgressError != nil {
-		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
+		log.Fatalf("%s %s", "Invalid render progress response", renderProgressError)
 	}
 
 	// Get the overall render progress
 	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
-
 }

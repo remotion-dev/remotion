@@ -14,7 +14,11 @@ import type {CompType} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
-import {ModalContainer} from '../ModalContainer';
+import {
+	getMaxModalHeight,
+	getMaxModalWidth,
+	ModalContainer,
+} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
@@ -36,12 +40,12 @@ const left: React.CSSProperties = {
 };
 
 const panelRight: React.CSSProperties = {
-	width: 400,
 	backgroundColor: 'black',
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	position: 'relative',
+	width: 400,
 };
 
 const pre: React.CSSProperties = {
@@ -69,7 +73,7 @@ const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	const {initialCompType} = props;
 	const [selectedFrameRate, setFrameRate] = useState<string>(
-		String(commonFrameRates[0])
+		String(commonFrameRates[0]),
 	);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
@@ -83,13 +87,17 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		return {
 			flexDirection: 'row',
 			display: 'flex',
-			width: 950,
-			height: type === 'composition' ? 450 : 300,
+			width: getMaxModalWidth(950),
+			height:
+				type === 'composition'
+					? getMaxModalHeight(490)
+					: getMaxModalHeight(340),
+			overflow: 'hidden',
 		};
 	}, [type]);
 
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
-		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null
+		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
 	);
 	const [durationInFrames, setDurationInFrames] = useState('150');
 
@@ -97,10 +105,10 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		(option: boolean) => {
 			persistAspectRatioOption(option);
 			setLockedAspectRatio(
-				option ? Number(size.width) / Number(size.height) : null
+				option ? Number(size.width) / Number(size.height) : null,
 			);
 		},
-		[size.height, size.width]
+		[size.height, size.width],
 	);
 
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -127,7 +135,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onWidthDirectlyChanged = useCallback(
@@ -144,7 +152,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onHeightDirectlyChanged = useCallback(
@@ -161,7 +169,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 
 	const onHeightChanged = useCallback(
@@ -178,13 +186,13 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				};
 			});
 		},
-		[lockedAspectRatio]
+		[lockedAspectRatio],
 	);
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setName(e.target.value);
 		},
-		[]
+		[],
 	);
 	const onFpsChange = useCallback((newFps: number) => {
 		setFrameRate(String(newFps));
@@ -211,7 +219,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
 	const compHeightErrMessage = validateCompositionDimension(
 		'Height',
-		size.height
+		size.height,
 	);
 
 	const typeValues: ComboboxValue[] = useMemo(() => {
@@ -261,7 +269,6 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								</div>
 							</Row>
 							<Spacing y={1} />
-
 							<Row align="center">
 								<div style={leftLabel}>Name</div>
 								<div style={inputArea}>
@@ -270,9 +277,18 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										onChange={onNameChange}
 										type="text"
 										placeholder="Composition name"
+										status="ok"
+										rightAlign={false}
 									/>
 									{compNameErrMessage ? (
-										<ValidationMessage message={compNameErrMessage} />
+										<>
+											<Spacing y={1} block />
+											<ValidationMessage
+												align="flex-start"
+												message={compNameErrMessage}
+												type="error"
+											/>
+										</>
 									) : null}
 								</div>
 							</Row>
@@ -288,17 +304,27 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												<InputDragger
 													type="number"
 													value={size.width}
-													placeholder="Width (px)"
+													placeholder="Width"
 													onTextChange={onWidthChanged}
 													name="width"
 													step={2}
 													min={2}
 													required
+													status="ok"
+													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
+													rightAlign={false}
 												/>
 												{compWidthErrMessage ? (
-													<ValidationMessage message={compWidthErrMessage} />
+													<>
+														<Spacing y={1} block />
+														<ValidationMessage
+															align="flex-start"
+															message={compWidthErrMessage}
+															type="error"
+														/>
+													</>
 												) : null}
 											</div>
 										</Row>
@@ -315,16 +341,26 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												type="number"
 												value={size.height}
 												onTextChange={onHeightChanged}
-												placeholder="Height (px)"
+												placeholder="Height"
 												name="height"
 												step={2}
 												required
+												formatter={(h) => `${h}px`}
 												min={2}
+												status="ok"
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
+												rightAlign={false}
 											/>
 											{compHeightErrMessage ? (
-												<ValidationMessage message={compHeightErrMessage} />
+												<>
+													<Spacing y={1} block />
+													<ValidationMessage
+														align="flex-start"
+														message={compHeightErrMessage}
+														type="error"
+													/>
+												</>
 											) : null}
 										</div>
 									</Row>
@@ -399,7 +435,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 							}
 						/>
 					</Row>
-				</div>
+				</div>{' '}
 			</div>
 		</ModalContainer>
 	);
