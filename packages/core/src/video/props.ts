@@ -17,6 +17,7 @@ export type RemotionVideoProps = Omit<
 	playbackRate?: number;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
+	toneFrequency?: number;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -37,6 +38,7 @@ export type OffthreadVideoProps = {
 	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
+	toneFrequency?: number;
 	transparent?: boolean;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
