@@ -89,13 +89,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (
-			toneFrequency !== undefined &&
-			(toneFrequency < 0 || toneFrequency > 1)
-		) {
-			throw new Error('Tone frequency must be between 0 and 1'); // Stabilizing a min and max value for toneFrequecny
-		}
-
 		registerRenderAsset({
 			type: 'audio',
 			src: getAbsoluteSrc(props.src),
@@ -168,6 +161,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
+	// The <audio> tag is only rendered if the duration needs to be calculated for the `loop`
+	// attribute to work, or if the user assigns a ref to it.
 	return <audio ref={audioRef} {...nativeProps} />;
 };
 
