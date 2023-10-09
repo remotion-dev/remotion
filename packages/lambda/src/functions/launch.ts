@@ -355,10 +355,7 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
-	(await browserInstance).close(true, params.logLevel, verbose).catch((err) => {
-		RenderInternals.Log.error('Failed to close browser instance:');
-		RenderInternals.Log.error(err);
-	});
+	(await browserInstance).forgetEventLoop();
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({

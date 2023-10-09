@@ -268,9 +268,7 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
-		browserInstance.close(true, params.logLevel, false).catch((err) => {
-			console.log('Could not close browser instance', err);
-		}),
+		browserInstance.forgetEventLoop(),
 	]);
 	RenderInternals.Log.verbose('Done!');
 	return {};
