@@ -15,6 +15,33 @@ type RemoteData<T> =
 
 type Bounty = AlgoraOutput["bounty"]["list"]["items"][number];
 
+const BountyCard = (props: { bounty: Bounty }) => (
+  <a
+    href={props.bounty.task.url}
+    target="_blank"
+    rel="noopener"
+    className="bounty-card"
+  >
+    <div className="bounty-content">
+      <div className="bounty-reward">{props.bounty.reward_formatted}</div>
+      <div className="bounty-issue">
+        {props.bounty.task.repo_name}#{props.bounty.task.number}
+      </div>
+      <div className="bounty-title">{props.bounty.task.title}</div>
+    </div>
+  </a>
+);
+
+const BountyCardSkeleton = () => (
+  <div className="bounty-skeleton">
+    <div className="bounty-content">
+      <div className="bounty-reward" />
+      <div className="bounty-issue" />
+      <div className="bounty-title" />
+    </div>
+  </div>
+);
+
 export const Bounties = () => {
   const { isDarkTheme } = useColorMode();
 
@@ -50,30 +77,3 @@ export const Bounties = () => {
     </div>
   );
 };
-
-const BountyCard = (props: { bounty: Bounty }) => (
-  <a
-    href={props.bounty.task.url}
-    target="_blank"
-    rel="noopener"
-    className="bounty-card"
-  >
-    <div className="bounty-content">
-      <div className="bounty-reward">{props.bounty.reward_formatted}</div>
-      <div className="bounty-issue">
-        {props.bounty.task.repo_name}#{props.bounty.task.number}
-      </div>
-      <div className="bounty-title">{props.bounty.task.title}</div>
-    </div>
-  </a>
-);
-
-const BountyCardSkeleton = () => (
-  <div className="bounty-skeleton">
-    <div className="bounty-content">
-      <div className="bounty-reward" />
-      <div className="bounty-issue" />
-      <div className="bounty-title" />
-    </div>
-  </div>
-);

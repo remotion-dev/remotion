@@ -33,7 +33,7 @@ const ConnectionEmittedEvents = {
 } as const;
 
 export class Connection extends EventEmitter {
-	#transport: NodeWebSocketTransport;
+	transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
@@ -42,9 +42,9 @@ export class Connection extends EventEmitter {
 	constructor(transport: NodeWebSocketTransport) {
 		super();
 
-		this.#transport = transport;
-		this.#transport.onmessage = this.#onMessage.bind(this);
-		this.#transport.onclose = this.#onClose.bind(this);
+		this.transport = transport;
+		this.transport.onmessage = this.#onMessage.bind(this);
+		this.transport.onclose = this.#onClose.bind(this);
 	}
 
 	static fromSession(session: CDPSession): Connection | undefined {
@@ -82,7 +82,7 @@ export class Connection extends EventEmitter {
 	_rawSend(message: Record<string, unknown>): number {
 		const id = ++this.#lastId;
 		const stringifiedMessage = JSON.stringify({...message, id});
-		this.#transport.send(stringifiedMessage);
+		this.transport.send(stringifiedMessage);
 		return id;
 	}
 
@@ -142,8 +142,8 @@ export class Connection extends EventEmitter {
 			return;
 		}
 
-		this.#transport.onmessage = undefined;
-		this.#transport.onclose = undefined;
+		this.transport.onmessage = undefined;
+		this.transport.onclose = undefined;
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
@@ -164,7 +164,7 @@ export class Connection extends EventEmitter {
 
 	dispose(): void {
 		this.#onClose();
-		this.#transport.close();
+		this.transport.close();
 	}
 
 	/**

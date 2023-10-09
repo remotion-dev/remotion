@@ -51,6 +51,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		onDuration,
+		toneFrequency,
 		_remotionInternalNeedsDurationCalculation,
 		acceptableTimeShiftInSeconds,
 		...nativeProps
@@ -97,6 +98,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: toneFrequency ?? null,
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -112,6 +114,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		allowAmplificationDuringRender,
+		toneFrequency,
 	]);
 
 	const {src} = props;

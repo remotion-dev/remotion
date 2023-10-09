@@ -14,6 +14,7 @@ export type UnsafeAsset = Omit<
 	id: string;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 // Volume can either be static, for all frames the same,
