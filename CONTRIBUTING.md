@@ -9,3 +9,4 @@ Watch the contributing video tutorial: [Click here](https://www.youtube.com/watc
 - [General information](https://remotion.dev/docs/contributing)
 - [Implementing a new feature](https://remotion.dev/docs/contributing/feature)
 - [Implementing a new option](https://remotion.dev/docs/contributing/option)
+- [Implementing a new package/component-library](https://remotion.dev/docs/contributing/library-template)
