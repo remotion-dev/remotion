@@ -46,7 +46,7 @@ The function has between [512MB and 10GB of storage space](/docs/lambda/disk-siz
 
 ## Core count / vCPUs
 
-The amount of cores inside a Lambda is dependent on the amount of memory you give it. According to [this research](https://www.sentiatechblog.com/aws-re-invent-2020-day-3-optimizing-lambda-cost-with-multi-threading?utm_source=reddit&utm_medium=social&utm_campaign=day3_lambda), these are the tiers:
+The amount of cores inside a Lambda is dependent on the amount of memory you give it. According to [this research](https://web.archive.org/web/20230331040434/https://www.sentiatechblog.com/aws-re-invent-2020-day-3-optimizing-lambda-cost-with-multi-threading), these are the tiers:
 
 | Memory         | vCPUs |
 | -------------- | ----- |

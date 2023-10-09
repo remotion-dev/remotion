@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {pLimit} from './p-limit';
 
 const limit = pLimit(3);

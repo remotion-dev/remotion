@@ -75,25 +75,25 @@ const innerStillHandler = async ({
 
 	const start = Date.now();
 
-	const [bucketName, browserInstance] = await Promise.all([
+	const browserInstancePromise = getBrowserInstance(
+		lambdaParams.logLevel,
+		false,
+		lambdaParams.chromiumOptions,
+	);
+	const bucketNamePromise =
 		lambdaParams.bucketName ??
-			internalGetOrCreateBucket({
-				region: getCurrentRegionInFunction(),
-				enableFolderExpiry: null,
-				customCredentials: null,
-			}).then((b) => b.bucketName),
-		getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions ?? {},
-		),
-	]);
+		internalGetOrCreateBucket({
+			region: getCurrentRegionInFunction(),
+			enableFolderExpiry: null,
+			customCredentials: null,
+		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	const outputPath = path.join(outputDir, 'output');
 
 	const region = getCurrentRegionInFunction();
+	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner,
@@ -118,9 +118,10 @@ const innerStillHandler = async ({
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
+	const browserInstance = await browserInstancePromise;
 	const composition = await validateComposition({
 		serveUrl,
-		browserInstance,
+		browserInstance: browserInstance.instance,
 		composition: lambdaParams.composition,
 		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
@@ -184,7 +185,7 @@ const innerStillHandler = async ({
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		serializedInputPropsWithCustomSchema,
 		overwrite: false,
-		puppeteerInstance: browserInstance,
+		puppeteerInstance: browserInstance.instance,
 		jpegQuality:
 			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions: lambdaParams.chromiumOptions,
@@ -244,6 +245,8 @@ const innerStillHandler = async ({
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
+
+	browserInstance.instance.forgetEventLoop();
 
 	return {
 		type: 'success' as const,

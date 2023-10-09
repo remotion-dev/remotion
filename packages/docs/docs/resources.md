@@ -55,7 +55,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
-- [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
+- [MapSnap](https://remotion.pro) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
@@ -106,6 +106,8 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 - [Integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
+- [DVD Screensaver Tutorial](https://www.youtube.com/watch?v=n69siyttEwM)
+- [Remotion Tutorial by Alfonso Graziano](https://www.youtube.com/watch?v=r4v1J7ozxIg)
 
 ## Tooling
 

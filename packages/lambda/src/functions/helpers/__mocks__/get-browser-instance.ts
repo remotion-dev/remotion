@@ -6,5 +6,5 @@ let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 
 export const getBrowserInstance: typeof original = async () => {
 	_browserInstance = await openBrowser('chrome');
-	return _browserInstance;
+	return {instance: _browserInstance, configurationString: 'chrome'};
 };

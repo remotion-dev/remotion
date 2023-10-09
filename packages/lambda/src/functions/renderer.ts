@@ -67,7 +67,7 @@ const renderHandler = async (
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
-		params.chromiumOptions ?? {},
+		params.chromiumOptions,
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -172,7 +172,7 @@ const renderHandler = async (
 					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},
-			puppeteerInstance: browserInstance,
+			puppeteerInstance: browserInstance.instance,
 			serveUrl: params.serveUrl,
 			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			envVariables: params.envVariables ?? {},
@@ -269,6 +269,8 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
+	browserInstance.instance.forgetEventLoop();
+	RenderInternals.Log.verbose('Done!');
 	return {};
 };
 
