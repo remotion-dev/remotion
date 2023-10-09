@@ -64,7 +64,11 @@ const renderHandler = async (
 		propsType: 'resolved-props',
 	});
 
-	const browserInstance = await getBrowserInstance(params.chromiumOptions);
+	const browserInstance = await getBrowserInstance(
+		params.logLevel,
+		false,
+		params.chromiumOptions,
+	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 

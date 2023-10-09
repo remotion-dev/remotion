@@ -111,7 +111,11 @@ const innerLaunchHandler = async ({
 
 	const startedDate = Date.now();
 
-	const browserInstance = getBrowserInstance(params.chromiumOptions);
+	const browserInstance = getBrowserInstance(
+		params.logLevel,
+		false,
+		params.chromiumOptions,
+	);
 
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,

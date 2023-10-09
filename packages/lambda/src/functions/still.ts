@@ -76,6 +76,8 @@ const innerStillHandler = async ({
 	const start = Date.now();
 
 	const browserInstancePromise = getBrowserInstance(
+		lambdaParams.logLevel,
+		false,
 		lambdaParams.chromiumOptions,
 	);
 	const bucketNamePromise =
