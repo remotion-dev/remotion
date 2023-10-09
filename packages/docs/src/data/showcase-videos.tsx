@@ -1443,7 +1443,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      url: "https://twitter.com/delba_oliveira",
+      url: "https://delba.dev/",
       name: "Delba Oliveira",
     },
   },
