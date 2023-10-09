@@ -111,7 +111,7 @@ const innerLaunchHandler = async ({
 
 	const startedDate = Date.now();
 
-	const browserInstance = await getBrowserInstance(params.chromiumOptions);
+	const browserInstance = getBrowserInstance(params.chromiumOptions);
 
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
@@ -129,7 +129,7 @@ const innerLaunchHandler = async ({
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance,
+		browserInstance: await browserInstance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -351,7 +351,7 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
-	browserInstance.close(true, params.logLevel, verbose).catch((err) => {
+	(await browserInstance).close(true, params.logLevel, verbose).catch((err) => {
 		RenderInternals.Log.error('Failed to close browser instance:');
 		RenderInternals.Log.error(err);
 	});

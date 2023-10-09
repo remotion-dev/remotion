@@ -75,21 +75,23 @@ const innerStillHandler = async ({
 
 	const start = Date.now();
 
-	const [bucketName, browserInstance] = await Promise.all([
+	const browserInstancePromise = getBrowserInstance(
+		lambdaParams.chromiumOptions,
+	);
+	const bucketNamePromise =
 		lambdaParams.bucketName ??
-			internalGetOrCreateBucket({
-				region: getCurrentRegionInFunction(),
-				enableFolderExpiry: null,
-				customCredentials: null,
-			}).then((b) => b.bucketName),
-		getBrowserInstance(lambdaParams.chromiumOptions),
-	]);
+		internalGetOrCreateBucket({
+			region: getCurrentRegionInFunction(),
+			enableFolderExpiry: null,
+			customCredentials: null,
+		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	const outputPath = path.join(outputDir, 'output');
 
 	const region = getCurrentRegionInFunction();
+	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner,
@@ -114,6 +116,7 @@ const innerStillHandler = async ({
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
+	const browserInstance = await browserInstancePromise;
 	const composition = await validateComposition({
 		serveUrl,
 		browserInstance,
