@@ -34,22 +34,22 @@ export const compositionsHandler = async (
 
 	const region = getCurrentRegionInFunction();
 
-	const [bucketName, browserInstance] = await Promise.all([
-		lambdaParams.bucketName ??
-			internalGetOrCreateBucket({
+	const browserInstancePromise = getBrowserInstance(
+		lambdaParams.logLevel,
+		false,
+		lambdaParams.chromiumOptions,
+	);
+	const bucketNamePromise = lambdaParams.bucketName
+		? Promise.resolve(lambdaParams.bucketName)
+		: internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: null,
 				customCredentials: null,
-			}).then((b) => b.bucketName),
-		getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions,
-		),
-	]);
+		  }).then((b) => b.bucketName);
 
+	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
-		bucketName,
+		bucketName: await bucketNamePromise,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: lambdaParams.inputProps,
@@ -64,7 +64,7 @@ export const compositionsHandler = async (
 
 	const compositions = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: realServeUrl,
-		puppeteerInstance: browserInstance,
+		puppeteerInstance: await browserInstancePromise,
 		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
@@ -78,7 +78,7 @@ export const compositionsHandler = async (
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
-	browserInstance.close(true, lambdaParams.logLevel, false);
+	(await browserInstancePromise).close(true, lambdaParams.logLevel, false);
 
 	return Promise.resolve({
 		compositions,
