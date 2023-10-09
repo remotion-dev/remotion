@@ -169,11 +169,23 @@ export class BrowserRunner {
 	forgetEventLoop(): void {
 		assert(this.proc, 'BrowserRunner not started.');
 		this.proc.unref();
+		// @ts-expect-error
+		this.proc.stdout?.unref();
+		// @ts-expect-error
+		this.proc.stderr?.unref();
+		assert(this.connection, 'BrowserRunner not connected.');
+		this.connection.transport.forgetEventLoop();
 	}
 
 	rememberEventLoop(): void {
 		assert(this.proc, 'BrowserRunner not started.');
 		this.proc.ref();
+		// @ts-expect-error
+		this.proc.stdout?.ref();
+		// @ts-expect-error
+		this.proc.stderr?.ref();
+		assert(this.connection, 'BrowserRunner not connected.');
+		this.connection.transport.rememberEventLoop();
 	}
 
 	kill(): void {
