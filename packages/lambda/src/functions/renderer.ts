@@ -268,8 +268,8 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
-		browserInstance.forgetEventLoop(),
 	]);
+	browserInstance.forgetEventLoop();
 	RenderInternals.Log.verbose('Done!');
 	return {};
 };

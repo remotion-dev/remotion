@@ -38,6 +38,8 @@ export const getBrowserInstance = async (
 	}
 
 	if (_browserInstance) {
+		RenderInternals.Log.info('Warm Lambda function, reusing browser instance');
+		_browserInstance.rememberEventLoop();
 		return _browserInstance;
 	}
 
