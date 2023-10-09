@@ -23,6 +23,7 @@ const validRenderers = [
 
 type OpenGlRenderer = (typeof validRenderers)[number];
 
+// ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;

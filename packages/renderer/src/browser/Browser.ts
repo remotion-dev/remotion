@@ -44,16 +44,22 @@ export class HeadlessBrowser extends EventEmitter {
 		connection,
 		defaultViewport,
 		closeCallback,
+		forgetEventLoop,
+		rememberEventLoop,
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
 		closeCallback: BrowserCloseCallback;
+		forgetEventLoop: () => void;
+		rememberEventLoop: () => void;
 	}): Promise<HeadlessBrowser> {
-		const browser = new HeadlessBrowser(
+		const browser = new HeadlessBrowser({
 			connection,
 			defaultViewport,
 			closeCallback,
-		);
+			forgetEventLoop,
+			rememberEventLoop,
+		});
 		await connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
 	}
@@ -65,23 +71,30 @@ export class HeadlessBrowser extends EventEmitter {
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
 
+	forgetEventLoop: () => void;
+	rememberEventLoop: () => void;
+
 	get _targets(): Map<string, Target> {
 		return this.#targets;
 	}
 
-	constructor(
-		connection: Connection,
-		defaultViewport: Viewport,
-		closeCallback?: BrowserCloseCallback,
-	) {
+	constructor({
+		closeCallback,
+		connection,
+		defaultViewport,
+		forgetEventLoop,
+		rememberEventLoop,
+	}: {
+		connection: Connection;
+		defaultViewport: Viewport;
+		closeCallback: BrowserCloseCallback;
+		forgetEventLoop: () => void;
+		rememberEventLoop: () => void;
+	}) {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
-		this.#closeCallback =
-			closeCallback ||
-			function () {
-				return undefined;
-			};
+		this.#closeCallback = closeCallback;
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
@@ -96,6 +109,8 @@ export class HeadlessBrowser extends EventEmitter {
 			'Target.targetInfoChanged',
 			this.#targetInfoChanged.bind(this),
 		);
+		this.forgetEventLoop = forgetEventLoop;
+		this.rememberEventLoop = rememberEventLoop;
 	}
 
 	browserContexts(): BrowserContext[] {
