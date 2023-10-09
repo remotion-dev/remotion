@@ -111,11 +111,7 @@ const innerLaunchHandler = async ({
 
 	const startedDate = Date.now();
 
-	const browserInstance = await getBrowserInstance(
-		params.logLevel,
-		false,
-		params.chromiumOptions,
-	);
+	const browserInstance = await getBrowserInstance(params.chromiumOptions);
 
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
@@ -355,6 +351,10 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
+	browserInstance.close(true, params.logLevel, verbose).catch((err) => {
+		RenderInternals.Log.error('Failed to close browser instance:');
+		RenderInternals.Log.error(err);
+	});
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({

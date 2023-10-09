@@ -64,11 +64,7 @@ const renderHandler = async (
 		propsType: 'resolved-props',
 	});
 
-	const browserInstance = await getBrowserInstance(
-		params.logLevel,
-		false,
-		params.chromiumOptions ?? {},
-	);
+	const browserInstance = await getBrowserInstance(params.chromiumOptions);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 
@@ -268,7 +264,11 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
+		browserInstance.close(true, params.logLevel, false).catch((err) => {
+			console.log('Could not close browser instance', err);
+		}),
 	]);
+	RenderInternals.Log.verbose('Done!');
 	return {};
 };
 

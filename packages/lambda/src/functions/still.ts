@@ -82,11 +82,7 @@ const innerStillHandler = async ({
 				enableFolderExpiry: null,
 				customCredentials: null,
 			}).then((b) => b.bucketName),
-		getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions ?? {},
-		),
+		getBrowserInstance(lambdaParams.chromiumOptions),
 	]);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
@@ -243,6 +239,10 @@ const innerStillHandler = async ({
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+	});
+
+	browserInstance.close(true, lambdaParams.logLevel, false).catch((err) => {
+		console.error('Failed to close browser instance', err);
 	});
 
 	return {

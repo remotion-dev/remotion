@@ -41,11 +41,7 @@ export const compositionsHandler = async (
 				enableFolderExpiry: null,
 				customCredentials: null,
 			}).then((b) => b.bucketName),
-		getBrowserInstance(
-			lambdaParams.logLevel,
-			false,
-			lambdaParams.chromiumOptions ?? {},
-		),
+		getBrowserInstance(lambdaParams.chromiumOptions),
 	]);
 
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
@@ -77,6 +73,8 @@ export const compositionsHandler = async (
 		onBrowserLog: null,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
+
+	browserInstance.close(true, lambdaParams.logLevel, false);
 
 	return Promise.resolve({
 		compositions,
