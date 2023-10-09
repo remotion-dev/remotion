@@ -121,7 +121,7 @@ const innerStillHandler = async ({
 	const browserInstance = await browserInstancePromise;
 	const composition = await validateComposition({
 		serveUrl,
-		browserInstance,
+		browserInstance: browserInstance.instance,
 		composition: lambdaParams.composition,
 		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
@@ -185,7 +185,7 @@ const innerStillHandler = async ({
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		serializedInputPropsWithCustomSchema,
 		overwrite: false,
-		puppeteerInstance: browserInstance,
+		puppeteerInstance: browserInstance.instance,
 		jpegQuality:
 			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions: lambdaParams.chromiumOptions,
@@ -246,7 +246,7 @@ const innerStillHandler = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
-	browserInstance.forgetEventLoop();
+	browserInstance.instance.forgetEventLoop();
 
 	return {
 		type: 'success' as const,

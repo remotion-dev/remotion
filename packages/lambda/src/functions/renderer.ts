@@ -172,7 +172,7 @@ const renderHandler = async (
 					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},
-			puppeteerInstance: browserInstance,
+			puppeteerInstance: browserInstance.instance,
 			serveUrl: params.serveUrl,
 			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			envVariables: params.envVariables ?? {},
@@ -269,7 +269,7 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
-	browserInstance.forgetEventLoop();
+	browserInstance.instance.forgetEventLoop();
 	RenderInternals.Log.verbose('Done!');
 	return {};
 };

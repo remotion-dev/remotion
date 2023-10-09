@@ -64,7 +64,7 @@ export const compositionsHandler = async (
 
 	const compositions = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: realServeUrl,
-		puppeteerInstance: await browserInstancePromise,
+		puppeteerInstance: (await browserInstancePromise).instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
@@ -78,7 +78,7 @@ export const compositionsHandler = async (
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
-	(await browserInstancePromise).forgetEventLoop();
+	(await browserInstancePromise).instance.forgetEventLoop();
 
 	return Promise.resolve({
 		compositions,
