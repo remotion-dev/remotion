@@ -485,7 +485,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={900}
+					durationInFrames={30 * 60 * 60}
 					defaultProps={{
 						src: 'variablefps.webm',
 					}}
@@ -496,7 +496,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={1000}
+					durationInFrames={30 * 60 * 60}
 				/>
 				<Composition
 					id="video-testing-webm"

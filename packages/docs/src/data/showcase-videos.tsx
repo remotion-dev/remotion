@@ -1424,6 +1424,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "BarGPT.app",
     },
   },
+  {
+    title: "Next.js Filesystem Routing",
+    type: "mux_video",
+    muxId: "dWxzp02gvlUM42a6GSQ02g006qiW2T43QGeuszqimY0200AE",
+    description: "Delba Oliveira visually explains Next.js and React concepts.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("10-09-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/delba_oliveira/status/1707439537054535867",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/@Delba",
+      },
+    ],
+    author: {
+      url: "https://delba.dev/",
+      name: "Delba Oliveira",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>

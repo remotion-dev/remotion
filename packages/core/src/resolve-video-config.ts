@@ -6,6 +6,54 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
+const validateCalculated = ({
+	composition,
+	calculated,
+}: {
+	composition: TCompMetadataWithCalcFunction<
+		AnyZodObject,
+		Record<string, unknown>
+	>;
+	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
+}) => {
+	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
+	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
+
+	const width = calculated?.width ?? composition.width ?? undefined;
+
+	validateDimension(
+		width,
+		'width',
+		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
+	);
+
+	const height = calculated?.height ?? composition.height ?? undefined;
+
+	validateDimension(
+		height,
+		'height',
+		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
+	);
+
+	const fps = calculated?.fps ?? composition.fps ?? null;
+
+	validateFps(
+		fps,
+		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
+		false,
+	);
+
+	const durationInFrames =
+		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
+
+	validateDurationInFrames(durationInFrames, {
+		allowFloats: false,
+		component: `of the "<Composition />" component with the id "${composition.id}"`,
+	});
+
+	return {width, height, fps, durationInFrames};
+};
+
 export const resolveVideoConfig = ({
 	composition,
 	editorProps: editorPropsOrUndefined,
@@ -79,52 +127,4 @@ export const resolveVideoConfig = ({
 		defaultProps: composition.defaultProps ?? {},
 		props: calculatedProm.props ?? composition.defaultProps ?? {},
 	};
-};
-
-const validateCalculated = ({
-	composition,
-	calculated,
-}: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
-	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
-}) => {
-	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
-	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
-
-	const width = calculated?.width ?? composition.width ?? undefined;
-
-	validateDimension(
-		width,
-		'width',
-		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
-	);
-
-	const height = calculated?.height ?? composition.height ?? undefined;
-
-	validateDimension(
-		height,
-		'height',
-		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
-	);
-
-	const fps = calculated?.fps ?? composition.fps ?? null;
-
-	validateFps(
-		fps,
-		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
-		false,
-	);
-
-	const durationInFrames =
-		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
-
-	validateDurationInFrames(durationInFrames, {
-		allowFloats: false,
-		component: `of the "<Composition />" component with the id "${composition.id}"`,
-	});
-
-	return {width, height, fps, durationInFrames};
 };

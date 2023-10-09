@@ -94,6 +94,27 @@ export type StillProps<
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
+export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+	const {clipRegion} = useContext(NativeLayersContext);
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			flexDirection: 'row',
+			opacity: clipRegion === 'hide' ? 0 : 1,
+			clipPath:
+				clipRegion && clipRegion !== 'hide'
+					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+					: undefined,
+		};
+	}, [clipRegion]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+};
+
 export type CompositionProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -243,25 +264,4 @@ export const Composition = <
 	}
 
 	return null;
-};
-
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
-	const {clipRegion} = useContext(NativeLayersContext);
-	const style: React.CSSProperties = useMemo(() => {
-		return {
-			display: 'flex',
-			flexDirection: 'row',
-			opacity: clipRegion === 'hide' ? 0 : 1,
-			clipPath:
-				clipRegion && clipRegion !== 'hide'
-					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
-					: undefined,
-		};
-	}, [clipRegion]);
-
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };

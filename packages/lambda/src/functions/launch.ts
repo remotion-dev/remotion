@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
