@@ -12,6 +12,51 @@ import { translateZ } from "./matrix";
 import { subdivideInstructions } from "./subdivide-instruction";
 import { truthy } from "./truthy";
 
+const inverseInstruction = (
+  instruction: ThreeDReducedInstruction,
+  comingFrom: Vector4D,
+): ThreeDReducedInstruction => {
+  if (instruction.type === "M") {
+    return {
+      type: "M",
+      point: comingFrom,
+    };
+  }
+
+  if (instruction.type === "L") {
+    return {
+      type: "L",
+      point: comingFrom,
+    };
+  }
+
+  if (instruction.type === "C") {
+    return {
+      type: "C",
+      point: comingFrom,
+      cp1: instruction.cp2,
+      cp2: instruction.cp1,
+    };
+  }
+
+  if (instruction.type === "Q") {
+    return {
+      type: "Q",
+      point: comingFrom,
+      cp: instruction.cp,
+    };
+  }
+
+  if (instruction.type === "Z") {
+    return {
+      type: "L",
+      point: comingFrom,
+    };
+  }
+
+  throw new Error("Unknown instruction type");
+};
+
 export const extrudeElement = ({
   depth,
   sideColor,
@@ -127,49 +172,4 @@ export const extrudeElement = ({
     [centerX, centerY, 0, 1],
     description,
   );
-};
-
-const inverseInstruction = (
-  instruction: ThreeDReducedInstruction,
-  comingFrom: Vector4D,
-): ThreeDReducedInstruction => {
-  if (instruction.type === "M") {
-    return {
-      type: "M",
-      point: comingFrom,
-    };
-  }
-
-  if (instruction.type === "L") {
-    return {
-      type: "L",
-      point: comingFrom,
-    };
-  }
-
-  if (instruction.type === "C") {
-    return {
-      type: "C",
-      point: comingFrom,
-      cp1: instruction.cp2,
-      cp2: instruction.cp1,
-    };
-  }
-
-  if (instruction.type === "Q") {
-    return {
-      type: "Q",
-      point: comingFrom,
-      cp: instruction.cp,
-    };
-  }
-
-  if (instruction.type === "Z") {
-    return {
-      type: "L",
-      point: comingFrom,
-    };
-  }
-
-  throw new Error("Unknown instruction type");
 };

@@ -2,54 +2,6 @@ import type { Instruction } from "@remotion/paths";
 import type { ThreeDReducedInstruction } from "./3d-svg";
 import type { Vector2D, Vector4D } from "./matrix";
 
-export const subdivideInstructions = (
-  instructions: ThreeDReducedInstruction[],
-): ThreeDReducedInstruction[] => {
-  const newInstructions: ThreeDReducedInstruction[] = [];
-  instructions.forEach((instruction, i) => {
-    if (instruction.type === "M") {
-      newInstructions.push(instruction);
-      return;
-    }
-
-    if (instruction.type === "Z") {
-      newInstructions.push(instruction);
-      return;
-    }
-
-    const previousInstruction = instructions[i - 1];
-    const subdivided = subdivideInstruction(
-      previousInstruction.point,
-      instruction,
-    );
-    newInstructions.push(...subdivided);
-  });
-  return newInstructions;
-};
-
-const subdivideInstruction = (
-  from: Vector4D,
-  instruction: ThreeDReducedInstruction,
-): ThreeDReducedInstruction[] => {
-  if (instruction.type === "C") {
-    return subdivide3DCInstruction(from, instruction);
-  }
-
-  if (instruction.type === "L" || instruction.type === "M") {
-    return subdivideLOrMInstruction(from, instruction);
-  }
-
-  if (instruction.type === "Q") {
-    return subdivideQInstruction(from, instruction);
-  }
-
-  if (instruction.type === "Z") {
-    return [instruction];
-  }
-
-  throw new Error("Cannot subdivide instruction");
-};
-
 const subdivideLOrMInstruction = (
   from: Vector4D,
   instruction: ThreeDReducedInstruction,
@@ -234,5 +186,53 @@ const subdivideQInstruction = (
       { type: "Q", point: instruction.point, cp: q1 },
     ];
 
+  return newInstructions;
+};
+
+const subdivideInstruction = (
+  from: Vector4D,
+  instruction: ThreeDReducedInstruction,
+): ThreeDReducedInstruction[] => {
+  if (instruction.type === "C") {
+    return subdivide3DCInstruction(from, instruction);
+  }
+
+  if (instruction.type === "L" || instruction.type === "M") {
+    return subdivideLOrMInstruction(from, instruction);
+  }
+
+  if (instruction.type === "Q") {
+    return subdivideQInstruction(from, instruction);
+  }
+
+  if (instruction.type === "Z") {
+    return [instruction];
+  }
+
+  throw new Error("Cannot subdivide instruction");
+};
+
+export const subdivideInstructions = (
+  instructions: ThreeDReducedInstruction[],
+): ThreeDReducedInstruction[] => {
+  const newInstructions: ThreeDReducedInstruction[] = [];
+  instructions.forEach((instruction, i) => {
+    if (instruction.type === "M") {
+      newInstructions.push(instruction);
+      return;
+    }
+
+    if (instruction.type === "Z") {
+      newInstructions.push(instruction);
+      return;
+    }
+
+    const previousInstruction = instructions[i - 1];
+    const subdivided = subdivideInstruction(
+      previousInstruction.point,
+      instruction,
+    );
+    newInstructions.push(...subdivided);
+  });
   return newInstructions;
 };

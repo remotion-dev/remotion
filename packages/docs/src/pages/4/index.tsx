@@ -19,6 +19,64 @@ const errorStyle: React.CSSProperties = {
   textAlign: "center",
 };
 
+export const EventComp: React.FC<{
+  date: string;
+  title: string;
+  description: string;
+  youtubeId?: string;
+}> = ({ date, title, description, youtubeId }) => {
+  return (
+    <div
+      style={{
+        border: "2px solid var(--ifm-font-color-base)",
+        borderBottomWidth: 4,
+        borderRadius: 8,
+        padding: 10,
+      }}
+    >
+      <p className={styles.date}>{date}</p>
+      <p className={styles.eventtitle}>{title}</p>
+      <p>{description}</p>
+      {youtubeId ? (
+        <iframe
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+          }}
+          src={`https://www.youtube.com/embed/${youtubeId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+            backgroundColor: "var(--ifm-out-of-focus)",
+            borderRadius: 5,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              color: "var(--ifm-subtitle)",
+              justifyContent: "center",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Check back {date}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const V4: React.FC = () => {
   const context = useDocusaurusContext();
 
@@ -180,64 +238,6 @@ const V4: React.FC = () => {
         </div>
       </div>
     </Layout>
-  );
-};
-
-export const EventComp: React.FC<{
-  date: string;
-  title: string;
-  description: string;
-  youtubeId?: string;
-}> = ({ date, title, description, youtubeId }) => {
-  return (
-    <div
-      style={{
-        border: "2px solid var(--ifm-font-color-base)",
-        borderBottomWidth: 4,
-        borderRadius: 8,
-        padding: 10,
-      }}
-    >
-      <p className={styles.date}>{date}</p>
-      <p className={styles.eventtitle}>{title}</p>
-      <p>{description}</p>
-      {youtubeId ? (
-        <iframe
-          style={{
-            width: "100%",
-            aspectRatio: "16 / 9",
-          }}
-          src={`https://www.youtube.com/embed/${youtubeId}`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      ) : (
-        <div
-          style={{
-            width: "100%",
-            aspectRatio: "16 / 9",
-            backgroundColor: "var(--ifm-out-of-focus)",
-            borderRadius: 5,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              color: "var(--ifm-subtitle)",
-              justifyContent: "center",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
-            Check back {date}
-          </div>
-        </div>
-      )}
-    </div>
   );
 };
 

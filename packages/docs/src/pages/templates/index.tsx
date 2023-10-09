@@ -24,6 +24,54 @@ const lowerpara: React.CSSProperties = {
   color: "var(--light-text-color)",
 };
 
+const outer: React.CSSProperties = {
+  display: "flex",
+  cursor: "pointer",
+  color: "var(--text-color)",
+  textDecoration: "none",
+};
+
+const icon: React.CSSProperties = {
+  display: "flex",
+  margin: 0,
+  marginRight: 10,
+  height: 30,
+  width: 30,
+  justifyContent: "center",
+  alignItems: "center",
+};
+
+const labelStyle: React.CSSProperties = {
+  fontWeight: "bold",
+};
+
+const descriptionStyle: React.CSSProperties = {
+  fontSize: 14,
+  marginTop: 10,
+  color: "var(--light-text-color)",
+  marginBottom: 10,
+};
+
+const Item: React.FC<{
+  label: string;
+  description: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ children, label, description }) => {
+  return (
+    <div>
+      <div
+        style={{ flexDirection: "row", display: "flex", alignItems: "center" }}
+      >
+        <div style={icon}>{children}</div>
+        <div style={labelStyle}>{label}</div>
+      </div>
+      <div>
+        <p style={descriptionStyle}>{description}</p>
+      </div>
+    </div>
+  );
+};
+
 export default () => {
   const imgSrc = `/generated/template-all.png`;
   const context = useDocusaurusContext();
@@ -74,52 +122,4 @@ export default () => {
       <br />
     </Layout>
   );
-};
-
-const Item: React.FC<{
-  label: string;
-  description: React.ReactNode;
-  children: React.ReactNode;
-}> = ({ children, label, description }) => {
-  return (
-    <div>
-      <div
-        style={{ flexDirection: "row", display: "flex", alignItems: "center" }}
-      >
-        <div style={icon}>{children}</div>
-        <div style={labelStyle}>{label}</div>
-      </div>
-      <div>
-        <p style={descriptionStyle}>{description}</p>
-      </div>
-    </div>
-  );
-};
-
-const outer: React.CSSProperties = {
-  display: "flex",
-  cursor: "pointer",
-  color: "var(--text-color)",
-  textDecoration: "none",
-};
-
-const icon: React.CSSProperties = {
-  display: "flex",
-  margin: 0,
-  marginRight: 10,
-  height: 30,
-  width: 30,
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const labelStyle: React.CSSProperties = {
-  fontWeight: "bold",
-};
-
-const descriptionStyle: React.CSSProperties = {
-  fontSize: 14,
-  marginTop: 10,
-  color: "var(--light-text-color)",
-  marginBottom: 10,
 };
