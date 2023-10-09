@@ -100,25 +100,6 @@ function isReactRefreshBoundary(moduleExports: unknown) {
 	return hasExports && areAllExportsComponents;
 }
 
-function shouldInvalidateReactRefreshBoundary(
-	prevExports: unknown,
-	nextExports: unknown,
-) {
-	const prevSignature = getRefreshBoundarySignature(prevExports);
-	const nextSignature = getRefreshBoundarySignature(nextExports);
-	if (prevSignature.length !== nextSignature.length) {
-		return true;
-	}
-
-	for (let i = 0; i < nextSignature.length; i++) {
-		if (prevSignature[i] !== nextSignature[i]) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function getRefreshBoundarySignature(moduleExports: unknown) {
 	const signature = [];
 	signature.push(RefreshRuntime.getFamilyByType(moduleExports));
@@ -144,6 +125,25 @@ function getRefreshBoundarySignature(moduleExports: unknown) {
 	}
 
 	return signature;
+}
+
+function shouldInvalidateReactRefreshBoundary(
+	prevExports: unknown,
+	nextExports: unknown,
+) {
+	const prevSignature = getRefreshBoundarySignature(prevExports);
+	const nextSignature = getRefreshBoundarySignature(nextExports);
+	if (prevSignature.length !== nextSignature.length) {
+		return true;
+	}
+
+	for (let i = 0; i < nextSignature.length; i++) {
+		if (prevSignature[i] !== nextSignature[i]) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 function scheduleUpdate() {
