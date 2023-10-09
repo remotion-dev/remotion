@@ -72,16 +72,12 @@ export class HeadlessBrowser extends EventEmitter {
 	constructor(
 		connection: Connection,
 		defaultViewport: Viewport,
-		closeCallback?: BrowserCloseCallback,
+		closeCallback: BrowserCloseCallback,
 	) {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
-		this.#closeCallback =
-			closeCallback ||
-			function () {
-				return undefined;
-			};
+		this.#closeCallback = closeCallback;
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
