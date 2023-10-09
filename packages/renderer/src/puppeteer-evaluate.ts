@@ -47,9 +47,10 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 	page,
 	pageFunction,
 }: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
+	let timeout: NodeJS.Timeout | null = null;
 	return Promise.race([
 		new Promise<{value: ReturnType; size: number}>((_, reject) => {
-			setTimeout(() => {
+			timeout = setTimeout(() => {
 				reject(
 					new Error(
 						// This means the page is not responding anymore
@@ -65,7 +66,13 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 			page,
 			pageFunction,
 		}),
-	]);
+	]).then((data) => {
+		if (timeout !== null) {
+			clearTimeout(timeout);
+		}
+
+		return data;
+	});
 }
 
 export async function puppeteerEvaluateWithCatch<ReturnType>({
