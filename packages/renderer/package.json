@@ -34,7 +34,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@testing-library/dom": "^8.16.0",
 		"@testing-library/react": "13.3.0",
 		"@types/node": "18.14.6",
