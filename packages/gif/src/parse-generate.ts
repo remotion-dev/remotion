@@ -15,6 +15,35 @@ const validateAndFix = (gif: ParsedGif) => {
 	}
 };
 
+const putPixels = (
+	typedArray: Uint8ClampedArray,
+	frame: ParsedFrameWithoutPatch,
+	gifSize: {
+		width: number;
+		height: number;
+	},
+) => {
+	const {width, height, top: dy, left: dx} = frame.dims;
+	const offset = dy * gifSize.width + dx;
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const pPos = y * width + x;
+			const colorIndex = frame.pixels[pPos];
+			if (colorIndex !== frame.transparentIndex) {
+				const taPos = offset + y * gifSize.width + x;
+				const color = frame.colorTable[colorIndex];
+				typedArray[taPos * 4] = color[0];
+				typedArray[taPos * 4 + 1] = color[1];
+				typedArray[taPos * 4 + 2] = color[2];
+				typedArray[taPos * 4 + 3] =
+					colorIndex === frame.transparentIndex ? 0 : 255;
+			}
+		}
+	}
+
+	return typedArray;
+};
+
 export const parse = (
 	src: string,
 	{
@@ -82,35 +111,6 @@ export const parse = (
 				frames: readyFrames,
 			};
 		});
-
-const putPixels = (
-	typedArray: Uint8ClampedArray,
-	frame: ParsedFrameWithoutPatch,
-	gifSize: {
-		width: number;
-		height: number;
-	},
-) => {
-	const {width, height, top: dy, left: dx} = frame.dims;
-	const offset = dy * gifSize.width + dx;
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++) {
-			const pPos = y * width + x;
-			const colorIndex = frame.pixels[pPos];
-			if (colorIndex !== frame.transparentIndex) {
-				const taPos = offset + y * gifSize.width + x;
-				const color = frame.colorTable[colorIndex];
-				typedArray[taPos * 4] = color[0];
-				typedArray[taPos * 4 + 1] = color[1];
-				typedArray[taPos * 4 + 2] = color[2];
-				typedArray[taPos * 4 + 3] =
-					colorIndex === frame.transparentIndex ? 0 : 255;
-			}
-		}
-	}
-
-	return typedArray;
-};
 
 type ParserCallbackArgs = {
 	width: number;

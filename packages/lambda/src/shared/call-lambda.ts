@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
 import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
@@ -16,6 +17,60 @@ type Options<T extends LambdaRoutines> = {
 	region: AwsRegion;
 	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
 	timeoutInTest: number;
+};
+
+const parseJsonWithErrorSurfacing = (input: string) => {
+	try {
+		return JSON.parse(input);
+	} catch {
+		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
+	}
+};
+
+const parseJson = <T extends LambdaRoutines>(input: string) => {
+	let json = parseJsonWithErrorSurfacing(input) as
+		| OrError<Awaited<LambdaReturnValues[T]>>
+		| {
+				errorType: string;
+				errorMessage: string;
+				trace: string[];
+		  }
+		| {
+				statusCode: string;
+				body: string;
+		  };
+
+	if ('statusCode' in json) {
+		json = parseJsonWithErrorSurfacing(json.body) as
+			| OrError<Awaited<LambdaReturnValues[T]>>
+			| {
+					errorType: string;
+					errorMessage: string;
+					trace: string[];
+			  };
+	}
+
+	if ('errorMessage' in json) {
+		const err = new Error(json.errorMessage);
+		err.name = json.errorType;
+		err.stack = (json.trace ?? []).join('\n');
+		throw err;
+	}
+
+	// This will not happen, it is for narrowing purposes
+	if ('statusCode' in json) {
+		throw new Error(
+			`Lambda function failed with status code ${json.statusCode}`,
+		);
+	}
+
+	if (json.type === 'error') {
+		const err = new Error(json.message);
+		err.stack = json.stack;
+		throw err;
+	}
+
+	return json;
 };
 
 export const callLambda = async <T extends LambdaRoutines>(
@@ -102,60 +157,6 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 
 	const json = parseJson<T>(responsePayload.trim());
-
-	return json;
-};
-
-const parseJsonWithErrorSurfacing = (input: string) => {
-	try {
-		return JSON.parse(input);
-	} catch {
-		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
-	}
-};
-
-const parseJson = <T extends LambdaRoutines>(input: string) => {
-	let json = parseJsonWithErrorSurfacing(input) as
-		| OrError<Awaited<LambdaReturnValues[T]>>
-		| {
-				errorType: string;
-				errorMessage: string;
-				trace: string[];
-		  }
-		| {
-				statusCode: string;
-				body: string;
-		  };
-
-	if ('statusCode' in json) {
-		json = parseJsonWithErrorSurfacing(json.body) as
-			| OrError<Awaited<LambdaReturnValues[T]>>
-			| {
-					errorType: string;
-					errorMessage: string;
-					trace: string[];
-			  };
-	}
-
-	if ('errorMessage' in json) {
-		const err = new Error(json.errorMessage);
-		err.name = json.errorType;
-		err.stack = (json.trace ?? []).join('\n');
-		throw err;
-	}
-
-	// This will not happen, it is for narrowing purposes
-	if ('statusCode' in json) {
-		throw new Error(
-			`Lambda function failed with status code ${json.statusCode}`,
-		);
-	}
-
-	if (json.type === 'error') {
-		const err = new Error(json.message);
-		err.stack = json.stack;
-		throw err;
-	}
 
 	return json;
 };
