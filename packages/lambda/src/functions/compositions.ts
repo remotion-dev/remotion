@@ -78,7 +78,7 @@ export const compositionsHandler = async (
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
-	(await browserInstancePromise).close(true, lambdaParams.logLevel, false);
+	(await browserInstancePromise).forgetEventLoop();
 
 	return Promise.resolve({
 		compositions,

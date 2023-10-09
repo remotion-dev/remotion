@@ -246,9 +246,7 @@ const innerStillHandler = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
-	browserInstance.close(true, lambdaParams.logLevel, false).catch((err) => {
-		console.error('Failed to close browser instance', err);
-	});
+	browserInstance.forgetEventLoop();
 
 	return {
 		type: 'success' as const,
