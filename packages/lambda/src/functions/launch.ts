@@ -133,7 +133,7 @@ const innerLaunchHandler = async ({
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance: await browserInstance,
+		browserInstance: (await browserInstance).instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -355,7 +355,7 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
-	(await browserInstance).forgetEventLoop();
+	(await browserInstance).instance.forgetEventLoop();
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
