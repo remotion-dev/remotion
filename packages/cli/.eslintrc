@@ -8,6 +8,7 @@
 				"patterns": ["@remotion/*/src/*"]
 			}
 		],
+		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-restricted-imports": [
 			"error",
 			{
