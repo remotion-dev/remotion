@@ -193,6 +193,12 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct ExtractAudio {
+        pub input_path: String,
+        pub output_path: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum CliInputCommandPayload {
         ExtractFrame(ExtractFrameCommand),
@@ -206,6 +212,7 @@ pub mod payloads {
         GetVideoMetadata(GetVideoMetadata),
         CopyImageToClipboard(CopyImageToClipboard),
         GetSilences(GetSilences),
+        ExtractAudio(ExtractAudio),
     }
 
     #[derive(Serialize, Deserialize, Debug)]

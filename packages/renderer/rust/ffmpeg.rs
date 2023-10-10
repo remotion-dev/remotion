@@ -6,6 +6,7 @@ use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, V
 use std::fs::File;
 use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
+use remotionffmpeg::{codec, encoder, format, media, Rational};
 
 pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
@@ -272,4 +273,52 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             "The codec is not a video codec",
         ))?;
     }
+}
+
+pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWithBacktrace> {
+    remotionffmpeg::init().map_err(|e| e.to_string())?;
+
+    let mut ictx = format::input(&input_path).unwrap();
+    let mut octx = format::output(&output_path).unwrap();
+
+    let mut stream_mapping = vec![-1; ictx.nb_streams() as _];
+    let mut ist_time_bases = vec![Rational(0, 1); ictx.nb_streams() as _];
+    let mut ost_index = 0;
+    for (ist_index, ist) in ictx.streams().enumerate() {
+        if ist.parameters().medium() != media::Type::Audio {
+            continue;
+        }
+        stream_mapping[ist_index] = ost_index;
+        ist_time_bases[ist_index] = ist.time_base();
+        ost_index += 1;
+        let mut ost = octx.add_stream(encoder::find(codec::Id::None)).unwrap();
+        ost.set_parameters(ist.parameters());
+        unsafe {
+            (*ost.parameters().as_mut_ptr()).codec_tag = 0;
+        }
+    }
+
+    octx.write_header()?;
+
+    loop {
+        match ictx.get_next_packet() {
+            Ok((stream, mut packet)) => {
+                let ist_index = stream.index();
+                let ost_index = stream_mapping[ist_index];
+                if ost_index < 0 {
+                    continue;
+                }
+                let ost = octx.stream(ost_index as _).unwrap();
+                packet.rescale_ts(ist_time_bases[ist_index], ost.time_base());
+                packet.set_position(-1);
+                packet.set_stream(ost_index as _);
+                packet.write_interleaved(&mut octx)?;
+            }
+            Err(remotionffmpeg::Error::Eof) => break, // Break on end of file.
+            Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
+        };
+    }
+
+    octx.write_trailer()?;
+    Ok(())
 }
