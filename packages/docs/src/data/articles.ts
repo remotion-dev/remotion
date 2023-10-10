@@ -539,6 +539,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "authoring-packages",
+    title: "Authoring a Remotion library",
+    relativePath: "docs/creating-a-library.md",
+    compId: "articles-docs-creating-a-library",
+    crumb: "How to",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
