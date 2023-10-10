@@ -18,7 +18,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Skia](https://github.com/remotion-dev/template-skia)
 - [Tailwind](https://github.com/remotion-dev/template-tailwind)
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
-- [Library starter template with best practices](https://github.com/remotion-dev/library-template)
+- [Library starter template with best practices](https://github.com/remotion-dev/library-starter)
 
 ## SaaS starter Kits
 
