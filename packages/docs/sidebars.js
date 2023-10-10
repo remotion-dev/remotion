@@ -459,7 +459,7 @@ module.exports = {
         "overlay",
         "docker",
         "javascript",
-        "creating-a-library",
+        "authoring-packages",
       ],
     },
 
