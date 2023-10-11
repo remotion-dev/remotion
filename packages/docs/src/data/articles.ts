@@ -539,6 +539,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "authoring-packages",
+    title: "Authoring a Remotion library",
+    relativePath: "docs/creating-a-library.md",
+    compId: "articles-docs-creating-a-library",
+    crumb: "How to",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -558,6 +565,13 @@ export const articles = [
     relativePath: "docs/delay-render.md",
     compId: "articles-docs-delay-render",
     crumb: "How to",
+  },
+  {
+    id: "deploy-studio",
+    title: "Deploy the Remotion Studio",
+    relativePath: "docs/deploy-remotion-studio.md",
+    compId: "articles-docs-deploy-remotion-studio",
+    crumb: "Building video apps",
   },
   {
     id: "docker",

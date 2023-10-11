@@ -460,6 +460,7 @@ module.exports = {
         "overlay",
         "docker",
         "javascript",
+        "authoring-packages",
       ],
     },
 
@@ -628,6 +629,7 @@ module.exports = {
         "buffer-state",
         "presigned-urls",
         "font-picker",
+        "deploy-studio",
       ],
     },
     {
