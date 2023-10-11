@@ -117,7 +117,7 @@ export const startServer = async (options: {
 					desiredPort,
 					from: 3000,
 					to: 3100,
-					host,
+					hostsToTry: ['127.0.0.1', '0.0.0.0'],
 				})
 					.then(({port, didUsePort}) => {
 						server.listen({
