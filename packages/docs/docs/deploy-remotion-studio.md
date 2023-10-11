@@ -73,10 +73,6 @@ Answer Yes when asking if you want to deploy:
 
 You should get a URL where the Studio was deployed!
 
-## DigitalOcean App Platform
-
-Is not working at the moment. The Render Button is disabled, because the DigitalOcean HTTP Proxy [does not support server-sent events](https://www.digitalocean.com/community/questions/does-app-platform-support-sse-server-sent-events-application).
-
 ## Render.com
 
 To deploy the Remotion Studio to [Render.com](https://render.com):
@@ -85,6 +81,12 @@ To deploy the Remotion Studio to [Render.com](https://render.com):
 - Create a new "Web Service" and link your repository.
 - Choose at least the "Standard" plan (2GB Memory).
 - Deploy!
+
+## DigitalOcean App Platform
+
+Is not working at the moment. The Render Button is disabled, because the DigitalOcean HTTP Proxy [does not support server-sent events](https://www.digitalocean.com/community/questions/does-app-platform-support-sse-server-sent-events-application).
+
+A normal DigitalOcean droplet does work, though.
 
 ## See also
 
