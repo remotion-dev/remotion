@@ -103,7 +103,10 @@ export const startServer = async (options: {
 			});
 	});
 
-	const desiredPort = options?.port ?? undefined;
+	const desiredPort =
+		options?.port ??
+		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
+		undefined;
 
 	const maxTries = 5;
 	for (let i = 0; i < maxTries; i++) {
