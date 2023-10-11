@@ -109,12 +109,24 @@ export const startServer = async (options: {
 		undefined;
 
 	const maxTries = 5;
+
+	// Default Node.js host, but explicity
+	const host = '0.0.0.0';
+
 	for (let i = 0; i < maxTries; i++) {
 		try {
 			const selectedPort = await new Promise<number>((resolve, reject) => {
-				RenderInternals.getDesiredPort(desiredPort, 3000, 3100)
+				RenderInternals.getDesiredPort({
+					desiredPort,
+					from: 3000,
+					to: 3100,
+					hostsToTry: ['127.0.0.1', '0.0.0.0'],
+				})
 					.then(({port, didUsePort}) => {
-						server.listen(port);
+						server.listen({
+							port,
+							host,
+						});
 						server.on('listening', () => {
 							resolve(port);
 							return didUsePort();
