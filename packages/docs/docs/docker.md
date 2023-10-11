@@ -8,10 +8,10 @@ crumb: "Building video apps"
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM debian:bookworm
+FROM node:20-bookworm
 
 RUN apt-get update
-RUN apt-get install -y nodejs npm chromium
+RUN apt-get install -y chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
@@ -204,6 +204,8 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 - If a new version of Chrome gets released in the registry, you might be unable to downgrade because old versions are not kept and breaking changes can not be ruled out.
 
 ## Changelog
+
+**October 11th, 2023**: Used the node:20-bookworm, which is faster to deploy and also Debian.
 
 **September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.
 

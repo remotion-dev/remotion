@@ -16,7 +16,7 @@ You can deploy the Remotion Studio to a long-running server in the cloud and mak
 
 ## Dockerizing the Remotion Studio
 
-```Dockerfile
+```docker title="Dockerfile"
 FROM node:20-bookworm
 
 RUN apt-get update
