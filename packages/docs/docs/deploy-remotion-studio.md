@@ -25,7 +25,7 @@ RUN apt-get update
 RUN apt-get install -y chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* .prettierrc* ./
 COPY src ./src
 
 # If you have a public folder:
@@ -72,6 +72,15 @@ Answer Yes when asking if you want to deploy:
 ```
 
 You should get a URL where the Studio was deployed!
+
+## Render.com
+
+To deploy the Remotion Studio to [Render.com](https://render.com):
+
+- First add the above `Dockerfile` to the repo.
+- Create a new "Web Service" and link your repository.
+- Choose at least the "Standard" plan (2GB Memory).
+- Deploy!
 
 ## See also
 
