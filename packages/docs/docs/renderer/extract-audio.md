@@ -4,7 +4,8 @@ id: extract-audio
 title: extractAudio()
 crumb: "@remotion/renderer"
 ---
-# extractAudio()`<AvailableFrom v="4.0.46" />`
+
+# extractAudio()`<AvailableFrom v="4.0.48" />`
 
 :::note
 This function is meant to be used **in Node.js applications**. It cannot run in the browser.
@@ -19,10 +20,7 @@ Extracts the audio from a video source and saves it to the specified output path
 // @target: ESNext
 import { extractAudio } from "@remotion/renderer";
 
-await extractAudio(
-  "./path-to-video.mp4",
-  "./output-audio-path.aac"
-);
+await extractAudio("./path-to-video.mp4", "./output-audio-path.aac");
 ```
 
 ## Arguments
