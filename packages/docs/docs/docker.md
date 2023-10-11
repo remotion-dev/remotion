@@ -212,3 +212,7 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 **April 15th, 2023**: Unpinning the versions in Debian since it would cause breakage.
 
 **April 3rd, 2023**: Changed the Alpine Docker image to a Debian one, since the versions of Alpine packages cannot be pinned. This makes the Debian one less likely to break.
+
+## See also
+
+- [Deploying the Remotion Studio](/docs/deploy-studio)

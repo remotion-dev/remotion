@@ -567,6 +567,13 @@ export const articles = [
     crumb: "How to",
   },
   {
+    id: "deploy-studio",
+    title: "Deploy the Remotion Studio",
+    relativePath: "docs/deploy-remotion-studio.md",
+    compId: "articles-docs-deploy-remotion-studio",
+    crumb: "Building video apps",
+  },
+  {
     id: "docker",
     title: "Dockerizing a Remotion app",
     relativePath: "docs/docker.md",
