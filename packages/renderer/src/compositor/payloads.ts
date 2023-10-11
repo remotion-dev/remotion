@@ -113,6 +113,10 @@ export type CompositorCommand = {
 	};
 	GetVideoMetadata: {src: string};
 	VideoMetadata: VideoMetadata;
+	ExtractAudio: {
+		input_path: string;
+		output_path: string;
+	};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
