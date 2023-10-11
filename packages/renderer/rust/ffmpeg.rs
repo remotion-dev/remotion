@@ -278,6 +278,10 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
 pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWithBacktrace> {
     remotionffmpeg::init().map_err(|e| e.to_string())?;
 
+    _print_verbose(&format!(
+        "Extracting audio from {} {}",
+        input_path, output_path
+    ))?;
     let mut ictx = format::input(&input_path).unwrap();
     let mut octx = format::output(&output_path).unwrap();
 
