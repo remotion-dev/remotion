@@ -73,6 +73,15 @@ Answer Yes when asking if you want to deploy:
 
 You should get a URL where the Studio was deployed!
 
+## DigitalOcean App Platform
+
+To deploy the Remotion Studio to [DigitalOcean App Platform](https://cloud.digitalocean.com/apps):
+
+- First add the above `Dockerfile` to the repo.
+- Create a new app and link your repository in the console.
+- DigitalOcean might want to create two resources. Only keep the `Dockerfile` one.
+- Choose the Pro plan and assign at least 2GB of memory.
+
 ## Render.com
 
 To deploy the Remotion Studio to [Render.com](https://render.com):
