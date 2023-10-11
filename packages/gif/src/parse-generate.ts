@@ -15,6 +15,34 @@ const validateAndFix = (gif: ParsedGif) => {
 	}
 };
 
+const resetPixels = ({
+	typedArray,
+	dx,
+	dy,
+	width,
+	height,
+	gifWidth,
+}: {
+	typedArray: Uint8ClampedArray;
+	dx: number;
+	dy: number;
+	width: number;
+	height: number;
+	gifWidth: number;
+}) => {
+	const offset = dy * gifWidth + dx;
+
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const taPos = offset + y * gifWidth + x;
+			typedArray[taPos * 4] = 0;
+			typedArray[taPos * 4 + 1] = 0;
+			typedArray[taPos * 4 + 2] = 0;
+			typedArray[taPos * 4 + 3] = 0;
+		}
+	}
+};
+
 const putPixels = (
 	typedArray: Uint8ClampedArray,
 	frame: ParsedFrameWithoutPatch,
@@ -25,6 +53,7 @@ const putPixels = (
 ) => {
 	const {width, height, top: dy, left: dx} = frame.dims;
 	const offset = dy * gifSize.width + dx;
+
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
 			const pPos = y * width + x;
@@ -40,8 +69,6 @@ const putPixels = (
 			}
 		}
 	}
-
-	return typedArray;
 };
 
 export const parse = (
@@ -84,11 +111,19 @@ export const parse = (
 				// https://giflib.sourceforge.net/whatsinagif/animation_and_transparency.html
 				const prevCanvas = frames[i].disposalType === 3 ? canvas.slice() : null;
 
-				readyFrames.push(putPixels(canvas, frame, options));
+				putPixels(canvas, frame, options);
+				readyFrames.push(canvas.slice());
 
 				// Disposal type 2: The canvas should be restored to the background color
 				if (frames[i].disposalType === 2) {
-					canvas = new Uint8ClampedArray(size);
+					resetPixels({
+						typedArray: canvas,
+						dx: frame.dims.left,
+						dy: frame.dims.top,
+						width: frame.dims.width,
+						height: frame.dims.height,
+						gifWidth: options.width,
+					});
 				}
 				// Disposal type 3: The decoder should restore the canvas to its previous state before the current image was drawn
 				else if (frames[i].disposalType === 3) {
