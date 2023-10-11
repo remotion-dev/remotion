@@ -112,6 +112,7 @@ export type CompositorCommand = {
 		remaining_bytes: number;
 	};
 	GetVideoMetadata: {src: string};
+	ExtractAudio: {src: string; outputPath: string};
 	VideoMetadata: VideoMetadata;
 };
 
