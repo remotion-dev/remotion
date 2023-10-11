@@ -55,7 +55,4 @@ The function returns a `Promise<void>`, which resolves once the audio extraction
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/extract-audio.ts)
-- [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/renderer/get-compositions)
-- [renderStill()](/docs/renderer/stitch-frames-to-video)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
+- [getVideoMetadata()](/docs/renderer/get-video-metadata)
