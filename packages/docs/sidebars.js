@@ -628,6 +628,7 @@ module.exports = {
         "buffer-state",
         "presigned-urls",
         "font-picker",
+        "deploy-studio",
       ],
     },
     {
