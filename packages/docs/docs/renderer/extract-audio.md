@@ -15,17 +15,22 @@ Extracts the audio from a video source and saves it to the specified output path
 
 ## Example
 
-```ts
+```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import { extractAudio } from "@remotion/renderer";
 
-await extractAudio("./path-to-video.mp4", "./output-audio-path.aac");
+await extractAudio({
+  videoSource: "./path-to-video.mp4",
+  audioOutput: "./output-audio-path.aac",
+});
 ```
 
 ## Arguments
 
-### `videoSourcePath`
+An object containing the following properties:
+
+### `videoSource`
 
 _string_
 
@@ -36,6 +41,12 @@ The path to the video source from which the audio will be extracted.
 _string_
 
 The path where the extracted audio will be saved.
+
+### `logLevel`
+
+_optional_
+
+One of `verbose`, `info`, `warn`, `error`.
 
 ## Return Value
 
