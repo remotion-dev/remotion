@@ -80,7 +80,7 @@ export const serveStatic = async (
 					desiredPort: options?.port ?? undefined,
 					from: 3000,
 					to: 3100,
-					host,
+					hostsToTry: ['0.0.0.0', '127.0.0.1'],
 				})
 					.then(({port, didUsePort}) => {
 						server.listen({port, host});

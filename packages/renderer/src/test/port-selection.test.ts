@@ -8,13 +8,13 @@ test('Port selection should only be freed once the previous result has been used
 		desiredPort: undefined,
 		from: 3100,
 		to: 3200,
-		host: '0.0.0.0',
+		hostsToTry: ['0.0.0.0', '127.0.0.1'],
 	});
 	const secondPort = getDesiredPort({
 		desiredPort: port,
 		from: 3100,
 		to: 3200,
-		host: '0.0.0.0',
+		hostsToTry: ['0.0.0.0', '127.0.0.1'],
 	}).then(() => ports++);
 
 	await new Promise<void>((resolve) => {
