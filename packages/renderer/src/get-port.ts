@@ -1,11 +1,10 @@
 import net from 'net';
 import {createLock} from './locks';
 
-const getAvailablePort = (portToTry: number) =>
+const getAvailablePort = (portToTry: number, host: string) =>
 	new Promise<'available' | 'unavailable'>((resolve) => {
 		let status: 'available' | 'unavailable' = 'unavailable';
 
-		const host = '127.0.0.1';
 		const socket = new net.Socket();
 
 		socket.on('connect', () => {
@@ -29,11 +28,19 @@ const getAvailablePort = (portToTry: number) =>
 		socket.connect(portToTry, host);
 	});
 
-const getPort = async (from: number, to: number) => {
+const getPort = async ({
+	from,
+	to,
+	host,
+}: {
+	from: number;
+	to: number;
+	host: string;
+}) => {
 	const ports = makeRange(from, to);
 
 	for (const port of ports) {
-		if ((await getAvailablePort(port)) === 'available') {
+		if ((await getAvailablePort(port, host)) === 'available') {
 			return port;
 		}
 	}
@@ -43,22 +50,28 @@ const getPort = async (from: number, to: number) => {
 
 const portLocks = createLock({timeout: 10000});
 
-export const getDesiredPort = async (
-	desiredPort: number | undefined,
-	from: number,
-	to: number,
-) => {
+export const getDesiredPort = async ({
+	desiredPort,
+	from,
+	host,
+	to,
+}: {
+	desiredPort: number | undefined;
+	from: number;
+	to: number;
+	host: string;
+}) => {
 	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
 	const didUsePort = () => portLocks.unlock(lockPortSelection);
 	if (
 		typeof desiredPort !== 'undefined' &&
-		(await getAvailablePort(desiredPort)) === 'available'
+		(await getAvailablePort(desiredPort, host)) === 'available'
 	) {
 		return {port: desiredPort, didUsePort};
 	}
 
-	const actualPort = await getPort(from, to);
+	const actualPort = await getPort({from, to, host});
 
 	// If did specify a port but did not get that one, fail hard.
 	if (desiredPort && desiredPort !== actualPort) {
