@@ -302,7 +302,7 @@ pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWit
         }
     }
 
-    octx.write_header()?;
+    octx.write_header().unwrap();
 
     loop {
         match ictx.get_next_packet() {
