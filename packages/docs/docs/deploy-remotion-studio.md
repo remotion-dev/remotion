@@ -75,12 +75,7 @@ You should get a URL where the Studio was deployed!
 
 ## DigitalOcean App Platform
 
-To deploy the Remotion Studio to [DigitalOcean App Platform](https://cloud.digitalocean.com/apps):
-
-- First add the above `Dockerfile` to the repo.
-- Create a new app and link your repository in the console.
-- DigitalOcean might want to create two resources. Only keep the `Dockerfile` one.
-- Choose the Pro plan and assign at least 2GB of memory.
+Is not working at the moment. The Render Button is disabled, because the DigitalOcean HTTP Proxy [does not support server-sent events](https://www.digitalocean.com/community/questions/does-app-platform-support-sse-server-sent-events-application).
 
 ## Render.com
 
