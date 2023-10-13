@@ -4,8 +4,8 @@ import { Demo } from "../../components/demos";
 import { ExperimentalBadge } from "../../components/Experimental";
 import { InlineStep, Step } from "../../components/InlineStep";
 import { AvailableFrom } from "../components/AvailableFrom";
+import { Credits } from "../components/Credits";
 import { Options } from "../components/Options";
-import { Credits } from '../components/Credits'
 
 export default {
   ...MDXComponents,
@@ -15,5 +15,5 @@ export default {
   Demo,
   AvailableFrom,
   Options,
-  Credits
+  Credits: () => <Credits contributors={ContributorsData} />,
 };
