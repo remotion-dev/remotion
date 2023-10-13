@@ -418,6 +418,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		serializedResolvedProps: SerializedInputProps;
 		verbose: boolean;
+		logLevel: LogLevel;
 	};
 };
 
@@ -459,6 +460,7 @@ export type RenderMetadata = Discriminated & {
 	everyNthFrame: number;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;
+	audioBitrate: string | null;
 	downloadBehavior: DownloadBehavior;
 };
 

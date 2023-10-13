@@ -47,4 +47,4 @@ The default timeout for your Lambda function is <DefaultTimeout /> seconds which
 
 ### Valid Company license
 
-Companies with more than 3 people need to buy cloud rendering seats in order to use Remotion Lambda. Please familiarize yourself with the [license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and [buy the necessary cloud seats](https://companies.remotion.dev/) before launching.
+Companies with more than 3 people need to buy cloud rendering seats in order to use Remotion Lambda. Please familiarize yourself with the [license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and [buy the necessary cloud seats](https://www.remotion.pro/) before launching.

@@ -1,3 +1,4 @@
+import {getProjectId} from '../functions/helpers/is-in-cloud-task';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type DeleteServiceInput = {
@@ -19,6 +20,8 @@ export const deleteService = async (
 
 	// Run request
 	await cloudRunClient.deleteService({
-		name: `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${params.region}/services/${params.serviceName}`,
+		name: `projects/${getProjectId()}/locations/${params.region}/services/${
+			params.serviceName
+		}`,
 	});
 };

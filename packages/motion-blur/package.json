@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "4.0.44",
+	"version": "4.0.48",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -38,7 +38,7 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/react": "18.0.26",
 		"eslint": "8.42.0",

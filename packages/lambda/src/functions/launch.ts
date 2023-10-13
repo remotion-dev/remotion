@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
@@ -110,7 +111,7 @@ const innerLaunchHandler = async ({
 
 	const startedDate = Date.now();
 
-	const browserInstance = await getBrowserInstance(
+	const browserInstance = getBrowserInstance(
 		params.logLevel,
 		false,
 		params.chromiumOptions,
@@ -132,7 +133,7 @@ const innerLaunchHandler = async ({
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance,
+		browserInstance: (await browserInstance).instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -298,6 +299,7 @@ const innerLaunchHandler = async ({
 		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
+		audioBitrate: params.audioBitrate,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -353,6 +355,7 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
+	(await browserInstance).instance.forgetEventLoop();
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
@@ -375,6 +378,7 @@ const innerLaunchHandler = async ({
 		verbose,
 		renderMetadata,
 		onAllChunks: onAllChunksAvailable,
+		audioBitrate: params.audioBitrate,
 	});
 
 	return postRenderData;
@@ -424,6 +428,7 @@ export const launchHandler = async (
 						outName: params.outName,
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
+						logLevel: params.logLevel,
 					},
 					retries: 2,
 				});
@@ -624,6 +629,7 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
+		RenderInternals.Log.error('Wrote error to S3');
 		clearTimeout(webhookDueToTimeout);
 		if (params.webhook && !webhookInvoked) {
 			try {

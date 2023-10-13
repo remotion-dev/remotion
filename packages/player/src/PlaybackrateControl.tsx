@@ -44,6 +44,58 @@ export const Checkmark = () => (
 	</svg>
 );
 
+const PlaybackrateOption: React.FC<{
+	rate: number;
+	selectedRate: number;
+	onSelect: (rate: number) => void;
+	keyboardSelectedRate: number;
+}> = ({rate, onSelect, selectedRate, keyboardSelectedRate}) => {
+	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+			e.preventDefault();
+			onSelect(rate);
+		},
+		[onSelect, rate],
+	);
+
+	const [hovered, setHovered] = useState(false);
+
+	const onMouseEnter: React.MouseEventHandler<HTMLDivElement> =
+		useCallback(() => {
+			setHovered(true);
+		}, []);
+
+	const onMouseLeave: React.MouseEventHandler<HTMLDivElement> =
+		useCallback(() => {
+			setHovered(false);
+		}, []);
+
+	const actualStyle = useMemo(() => {
+		return {
+			...rateDiv,
+			backgroundColor:
+				hovered || keyboardSelectedRate === rate ? '#eee' : 'transparent',
+		};
+	}, [hovered, keyboardSelectedRate, rate]);
+
+	return (
+		<div
+			key={rate}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			tabIndex={0}
+			style={actualStyle}
+			onClick={onClick}
+		>
+			<div style={checkmarkContainer}>
+				{rate === selectedRate ? <Checkmark /> : null}
+			</div>
+			{rate.toFixed(1)}x
+		</div>
+	);
+};
+
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	playbackRates: number[];
@@ -139,58 +191,6 @@ const PlaybackPopup: React.FC<{
 					/>
 				);
 			})}
-		</div>
-	);
-};
-
-const PlaybackrateOption: React.FC<{
-	rate: number;
-	selectedRate: number;
-	onSelect: (rate: number) => void;
-	keyboardSelectedRate: number;
-}> = ({rate, onSelect, selectedRate, keyboardSelectedRate}) => {
-	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			e.preventDefault();
-			onSelect(rate);
-		},
-		[onSelect, rate],
-	);
-
-	const [hovered, setHovered] = useState(false);
-
-	const onMouseEnter: React.MouseEventHandler<HTMLDivElement> =
-		useCallback(() => {
-			setHovered(true);
-		}, []);
-
-	const onMouseLeave: React.MouseEventHandler<HTMLDivElement> =
-		useCallback(() => {
-			setHovered(false);
-		}, []);
-
-	const actualStyle = useMemo(() => {
-		return {
-			...rateDiv,
-			backgroundColor:
-				hovered || keyboardSelectedRate === rate ? '#eee' : 'transparent',
-		};
-	}, [hovered, keyboardSelectedRate, rate]);
-
-	return (
-		<div
-			key={rate}
-			onMouseEnter={onMouseEnter}
-			onMouseLeave={onMouseLeave}
-			tabIndex={0}
-			style={actualStyle}
-			onClick={onClick}
-		>
-			<div style={checkmarkContainer}>
-				{rate === selectedRate ? <Checkmark /> : null}
-			</div>
-			{rate.toFixed(1)}x
 		</div>
 	);
 };

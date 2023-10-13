@@ -6,14 +6,18 @@ import {InlineAction} from '../InlineAction';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 
-export const RenderQueueOpenInFinderItem: React.FC<{job: RenderJob}> = ({
-	job,
-}) => {
-	const onClick = useCallback(() => {
-		openInFileExplorer({directory: job.outName}).catch((err) => {
-			sendErrorNotification(`Could not open file: ${err.message}`);
-		});
-	}, [job.outName]);
+export const RenderQueueOpenInFinderItem: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			e.stopPropagation();
+			openInFileExplorer({directory: job.outName}).catch((err) => {
+				sendErrorNotification(`Could not open file: ${err.message}`);
+			});
+		},
+		[job.outName],
+	);
 
 	const icon: React.CSSProperties = useMemo(() => {
 		return {

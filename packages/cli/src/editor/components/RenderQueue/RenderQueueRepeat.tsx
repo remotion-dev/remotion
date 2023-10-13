@@ -5,13 +5,19 @@ import {ModalsContext} from '../../state/modals';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 
-export const RenderQueueRepeatItem: React.FC<{job: RenderJob}> = ({job}) => {
+export const RenderQueueRepeatItem: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
-	const onClick = useCallback(() => {
-		const retryPayload = makeRetryPayload(job);
-		setSelectedModal(retryPayload);
-	}, [job, setSelectedModal]);
+	const onClick: React.MouseEventHandler = useCallback(
+		(e) => {
+			e.stopPropagation();
+			const retryPayload = makeRetryPayload(job);
+			setSelectedModal(retryPayload);
+		},
+		[job, setSelectedModal],
+	);
 
 	const icon: React.CSSProperties = useMemo(() => {
 		return {

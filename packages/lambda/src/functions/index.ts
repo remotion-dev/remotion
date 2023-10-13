@@ -163,6 +163,8 @@ const innerHandler = async (
 			isWarm,
 		});
 
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const response = await mergeHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
@@ -207,12 +209,6 @@ const routine = async (
 
 		responseStream.write(JSON.stringify(res));
 		responseStream.end();
-	} finally {
-		responseStream.on('close', () => {
-			if (!process.env.VITEST) {
-				process.exit(0);
-			}
-		});
 	}
 };
 

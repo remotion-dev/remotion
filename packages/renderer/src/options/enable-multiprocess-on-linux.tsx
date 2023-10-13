@@ -1,4 +1,4 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
 
 export const enableMultiprocessOnLinuxOption = {
 	name: 'Enable Multiprocess on Linux',

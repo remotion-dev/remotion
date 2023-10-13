@@ -30,7 +30,9 @@ const getShouldOpenBrowser = (): {
 	shouldOpenBrowser: boolean;
 	reasonForBrowserDecision: string;
 } => {
-	if (parsedCli['no-open']) {
+	// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
+	// @ts-expect-error
+	if (parsedCli.open === false) {
 		return {
 			shouldOpenBrowser: false,
 			reasonForBrowserDecision: '--no-open specified',
@@ -108,8 +110,13 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const hashPrefix = '/static-';
-	const staticHash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
+	const hash = crypto.randomBytes(6).toString('hex');
+
+	const outputHashPrefix = '/outputs-';
+	const outputHash = `${outputHashPrefix}${hash}`;
+
+	const staticHashPrefix = '/static-';
+	const staticHash = `${staticHashPrefix}${hash}`;
 
 	initPublicFolderWatch({
 		publicDir,
@@ -129,7 +136,6 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 				});
 			});
 		},
-
 		staticHash,
 	});
 
@@ -148,8 +154,10 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
 		userPassedPublicDir: ConfigInternals.getPublicDir(),
-		hash: staticHash,
-		hashPrefix,
+		staticHash,
+		staticHashPrefix,
+		outputHash,
+		outputHashPrefix,
 	});
 
 	setLiveEventsListener(liveEventsServer);
