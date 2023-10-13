@@ -1,11 +1,74 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const contributors = [
-  // Add your contributors here
   {
     id: 1,
+    name: "Sahil Bhardwaj",
     username: "evoxf1",
     avatarUrl: "https://github.com/evoxf1.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 2,
+    name: "Jonny Burger",
+    username: "jonnyburger",
+    avatarUrl: "https://github.com/jonnyburger.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 1,
+    name: "Sahil Bhardwaj",
+    username: "evoxf1",
+    avatarUrl: "https://github.com/evoxf1.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 2,
+    name: "Jonny Burger",
+    username: "jonnyburger",
+    avatarUrl: "https://github.com/jonnyburger.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 1,
+    name: "Sahil Bhardwaj",
+    username: "evoxf1",
+    avatarUrl: "https://github.com/evoxf1.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 2,
+    name: "Jonny Burger",
+    username: "jonnyburger",
+    avatarUrl: "https://github.com/jonnyburger.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 1,
+    name: "Sahil Bhardwaj",
+    username: "evoxf1",
+    avatarUrl: "https://github.com/evoxf1.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 2,
+    name: "Jonny Burger",
+    username: "jonnyburger",
+    avatarUrl: "https://github.com/jonnyburger.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 1,
+    name: "Sahil Bhardwaj",
+    username: "evoxf1",
+    avatarUrl: "https://github.com/evoxf1.png",
+    contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
+  },
+  {
+    id: 2,
+    name: "Jonny Burger",
+    username: "jonnyburger",
+    avatarUrl: "https://github.com/jonnyburger.png",
     contributionType: "creitsad pasfojafpsn asnfansfoasnf asfn akjsfn ",
   },
 ];
@@ -47,7 +110,7 @@ const infoStyle: React.CSSProperties = {
 const linkStyle: React.CSSProperties = {
   textDecoration: "none",
   fontSize: "1.2em",
-  color: "#0366d6",
+  color: "#000000",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -57,33 +120,11 @@ const labelStyle: React.CSSProperties = {
 };
 
 const Credits = () => {
-  const [contributorsWithNames, setContributorsWithNames] = useState([]);
-
-  useEffect(() => {
-    const fetchContributorNames = async () => {
-      const contributorsData = await Promise.all(
-        contributors.map(async (contributor) => {
-          const response = await fetch(
-            `https://api.github.com/users/${contributor.username}`,
-          );
-          const userData = await response.json();
-          return {
-            ...contributor,
-            name: userData.name || contributor.username,
-          };
-        }),
-      );
-      setContributorsWithNames(contributorsData);
-    };
-
-    fetchContributorNames();
-  }, []);
-
   return (
     <div style={containerStyle}>
-      <h3 style={{ fontSize: "2.5em", marginBottom: "20px" }}>Credits</h3>
+      <h3 style={{ fontSize: "2em", marginBottom: "20px" }}>Credits</h3>
       <div style={cardContainerStyle}>
-        {contributorsWithNames.map((contributor) => (
+        {contributors.map((contributor) => (
           <div key={contributor.id} style={cardStyle}>
             <img
               src={contributor.avatarUrl}
