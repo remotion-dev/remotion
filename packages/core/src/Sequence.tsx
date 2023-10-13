@@ -171,7 +171,9 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 	]);
 
-	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
+	// Ceil to support floats
+	// https://github.com/remotion-dev/remotion/issues/2958
+	const endThreshold = Math.ceil(cumulatedFrom + from + durationInFrames - 1);
 	const content =
 		absoluteFrame < cumulatedFrom + from
 			? null

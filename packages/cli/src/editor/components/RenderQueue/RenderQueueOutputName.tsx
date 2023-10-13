@@ -1,37 +1,25 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
-import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
-	const onClick = useCallback(() => {
-		if (job.deletedOutputLocation) return;
-
-		openInFileExplorer({directory: job.outName}).catch((err) => {
-			sendErrorNotification(err.message);
-		});
-	}, [job]);
-
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...renderQueueItemSubtitleStyle,
-			cursor: job.deletedOutputLocation ? 'inherit' : 'pointer',
 			textDecoration: job.deletedOutputLocation ? 'line-through' : 'none',
+			color: renderQueueItemSubtitleStyle.color,
+			cursor: 'inherit',
 		};
 	}, [job.deletedOutputLocation]);
 
 	return (
-		<button
-			onClick={onClick}
-			type="button"
+		<span
 			style={style}
-			disabled={job.deletedOutputLocation}
 			title={job.deletedOutputLocation ? 'File was deleted' : job.outName}
 		>
 			{job.outName}
-		</button>
+		</span>
 	);
 };

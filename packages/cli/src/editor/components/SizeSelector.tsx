@@ -6,6 +6,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
+import type {AssetFileType} from './Preview';
 import {getPreviewFileType} from './Preview';
 
 const commonPreviewSizes: PreviewSize[] = [
@@ -74,8 +75,9 @@ export const getUniqueSizes = (size: PreviewSize) => {
 	});
 };
 
+const zoomableFileTypes: AssetFileType[] = ['video', 'image'];
+
 export const SizeSelector: React.FC = () => {
-	const zoomableFileTypes = ['video', 'image'];
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const style = useMemo(() => {
@@ -85,14 +87,30 @@ export const SizeSelector: React.FC = () => {
 	}, []);
 
 	const zoomable = useMemo(() => {
-		if (canvasContent?.type === 'asset') {
-			if (zoomableFileTypes.includes(getPreviewFileType(canvasContent.asset))) {
-				return true;
-			}
+		if (!canvasContent) {
+			return null;
+		}
+
+		if (canvasContent.type === 'composition') {
+			return true;
+		}
+
+		if (
+			canvasContent.type === 'asset' &&
+			zoomableFileTypes.includes(getPreviewFileType(canvasContent.asset))
+		) {
+			return true;
+		}
+
+		if (
+			canvasContent.type === 'output' &&
+			zoomableFileTypes.includes(getPreviewFileType(canvasContent.path))
+		) {
+			return true;
 		}
 
 		return false;
-	}, [canvasContent, zoomableFileTypes]);
+	}, [canvasContent]);
 
 	const items: ComboboxValue[] = useMemo(() => {
 		return getUniqueSizes(size).map((newSize): ComboboxValue => {

@@ -1,3 +1,4 @@
+import {useContext} from 'react';
 import {Internals} from 'remotion';
 import {isCompositionStill} from './is-composition-still';
 
@@ -14,4 +15,19 @@ export const useIsStill = () => {
 	}
 
 	return isCompositionStill(resolved.result);
+};
+
+export const useIsVideoComposition = () => {
+	const isStill = useIsStill();
+	const {canvasContent} = useContext(Internals.CompositionManager);
+
+	if (canvasContent === null) {
+		return false;
+	}
+
+	if (isStill) {
+		return false;
+	}
+
+	return canvasContent.type === 'composition';
 };

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "4.0.44",
+	"version": "4.0.48",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -37,7 +37,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@types/node": "18.14.6",
 		"bun-types": "0.8.0",
 		"@types/react": "18.0.26",

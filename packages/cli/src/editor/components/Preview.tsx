@@ -2,45 +2,42 @@ import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import type {CanvasContent} from 'remotion';
-import {getStaticFiles, Internals, staticFile} from 'remotion';
-import {formatBytes} from '../../format-bytes';
+import {Internals} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
-import {JSONViewer} from './JSONViewer';
-import {Spacing} from './layout';
+import {RenderPreview} from './RenderPreview';
 import {Spinner} from './Spinner';
-import {TextViewer} from './TextViewer';
+import {StaticFilePreview} from './StaticFilePreview';
 
-const spinnerContainer: React.CSSProperties = {
+const centeredContainer: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	justifyContent: 'center',
 	alignItems: 'center',
 };
 
-const msgStyle: React.CSSProperties = {
-	fontSize: 13,
-	color: 'white',
+const label: React.CSSProperties = {
 	fontFamily: 'sans-serif',
-	display: 'flex',
-	justifyContent: 'center',
-};
-
-const errMsgStyle: React.CSSProperties = {
-	...msgStyle,
+	fontSize: 14,
 	color: LIGHT_TEXT,
 };
 
-type AssetFileType = 'audio' | 'video' | 'image' | 'json' | 'txt' | 'other';
+export type AssetFileType =
+	| 'audio'
+	| 'video'
+	| 'image'
+	| 'json'
+	| 'txt'
+	| 'other';
 export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	if (!fileName) {
 		return 'other';
@@ -107,92 +104,23 @@ const containerStyle = (options: {
 	};
 };
 
-const AssetComponent: React.FC<{currentAsset: string}> = ({currentAsset}) => {
-	const fileType = getPreviewFileType(currentAsset);
-	const staticFileSrc = staticFile(currentAsset);
-	const staticFiles = getStaticFiles();
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
-
-	const exists = staticFiles.find((file) => file.name === currentAsset);
-
-	if (connectionStatus === 'disconnected') {
-		return <div style={errMsgStyle}>Studio server disconnected</div>;
-	}
-
-	if (!exists) {
-		return (
-			<div style={errMsgStyle}>
-				{currentAsset} does not exist in your public folder.
-			</div>
-		);
-	}
-
-	const fileSize = () => {
-		const fileFromStaticFiles = staticFiles.find(
-			(file) => file.name === currentAsset,
-		);
-		if (fileFromStaticFiles) {
-			return formatBytes(fileFromStaticFiles?.sizeInBytes);
-		}
-	};
-
-	if (!currentAsset) {
-		return null;
-	}
-
-	if (fileType === 'audio') {
-		try {
-			return (
-				<div>
-					<audio src={staticFileSrc} controls />
-				</div>
-			);
-		} catch (err) {
-			return <div style={errMsgStyle}>The audio could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'video') {
-		try {
-			return <video src={staticFileSrc} controls />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The video could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'image') {
-		try {
-			return <img src={staticFileSrc} />;
-		} catch (err) {
-			return <div style={errMsgStyle}>The image could not be loaded</div>;
-		}
-	}
-
-	if (fileType === 'json') {
-		return <JSONViewer src={staticFileSrc} />;
-	}
-
-	if (fileType === 'txt') {
-		return <TextViewer src={staticFileSrc} />;
-	}
-
-	return (
-		<>
-			<div style={msgStyle}>{currentAsset}</div>
-			<Spacing y={1} />
-			<div style={msgStyle}>Size: {fileSize()} </div>
-		</>
-	);
-};
-
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
 	contentDimensions: Dimensions | 'none' | null;
 	canvasContent: CanvasContent;
-}> = ({canvasSize, contentDimensions, canvasContent}) => {
-	if (!contentDimensions) {
+	assetMetadata: AssetMetadata | null;
+}> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
+	if (assetMetadata && assetMetadata.type === 'not-found') {
 		return (
-			<div style={spinnerContainer}>
+			<div style={centeredContainer}>
+				<div style={label}>File does not exist</div>
+			</div>
+		);
+	}
+
+	if (contentDimensions === null) {
+		return (
+			<div style={centeredContainer}>
 				<Spinner duration={0.5} size={24} />
 			</div>
 		);
@@ -203,6 +131,7 @@ export const VideoPreview: React.FC<{
 			contentDimensions={contentDimensions}
 			canvasSize={canvasSize}
 			canvasContent={canvasContent}
+			assetMetadata={assetMetadata}
 		/>
 	);
 };
@@ -211,7 +140,8 @@ const CompWhenItHasDimensions: React.FC<{
 	contentDimensions: Dimensions | 'none';
 	canvasSize: Size;
 	canvasContent: CanvasContent;
-}> = ({contentDimensions, canvasSize, canvasContent}) => {
+	assetMetadata: AssetMetadata | null;
+}> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
@@ -267,7 +197,15 @@ const CompWhenItHasDimensions: React.FC<{
 	return (
 		<div style={outer}>
 			{canvasContent.type === 'asset' ? (
-				<AssetComponent currentAsset={canvasContent.asset} />
+				<StaticFilePreview
+					assetMetadata={assetMetadata}
+					currentAsset={canvasContent.asset}
+				/>
+			) : canvasContent.type === 'output' ? (
+				<RenderPreview
+					path={canvasContent.path}
+					assetMetadata={assetMetadata}
+				/>
 			) : (
 				<PortalContainer
 					contentDimensions={contentDimensions as Dimensions}

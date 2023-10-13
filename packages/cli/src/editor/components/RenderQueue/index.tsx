@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
@@ -37,6 +38,7 @@ const renderQueue: React.CSSProperties = {
 export const RenderQueue: React.FC = () => {
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {jobs} = useContext(RenderQueueContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const previousJobCount = React.useRef(jobs.length);
 	const jobCount = jobs.length;
 
@@ -57,6 +59,24 @@ export const RenderQueue: React.FC = () => {
 
 		previousJobCount.current = jobCount;
 	}, [jobCount]);
+
+	const selectedJob = useMemo(() => {
+		let selectedIndex = -1;
+		for (let i = 0; i < jobs.length; i++) {
+			const job = jobs[i];
+
+			if (
+				canvasContent &&
+				canvasContent.type === 'output' &&
+				canvasContent.path === `/${job.outName}` &&
+				job.status === 'done'
+			) {
+				selectedIndex = i;
+			}
+		}
+
+		return selectedIndex;
+	}, [canvasContent, jobs]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -90,7 +110,7 @@ export const RenderQueue: React.FC = () => {
 						key={j.id}
 						style={index === jobs.length - 1 ? undefined : separatorStyle}
 					>
-						<RenderQueueItem job={j} />
+						<RenderQueueItem selected={selectedJob === index} job={j} />
 					</div>
 				);
 			})}

@@ -192,7 +192,7 @@
   border-radius: 0.5rem;
   background-color: rgb(var(--gray-200));
   animation: bounty-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  height: 122px;
+  height: 143px;
 }
 
 .bounty-grid.dark .bounty-skeleton {
