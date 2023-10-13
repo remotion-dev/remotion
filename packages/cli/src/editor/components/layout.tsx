@@ -1,3 +1,4 @@
+import type {HTMLAttributes} from 'react';
 import React, {useMemo} from 'react';
 
 export const SPACING_UNIT = 8;
@@ -25,14 +26,16 @@ export const Flex: React.FC<{
 	children?: React.ReactNode;
 }> = ({children}) => <div style={flexCss}>{children}</div>;
 
-export const Row: React.FC<{
-	justify?: 'center' | 'flex-start' | 'flex-end';
-	align?: 'center';
-	style?: React.CSSProperties;
-	flex?: number;
-	className?: string;
-	children: React.ReactNode;
-}> = ({children, justify, className, align, flex, style = {}}) => {
+export const Row: React.FC<
+	{
+		justify?: 'center' | 'flex-start' | 'flex-end';
+		align?: 'center';
+		style?: React.CSSProperties;
+		flex?: number;
+		className?: string;
+		children: React.ReactNode;
+	} & HTMLAttributes<HTMLDivElement>
+> = ({children, justify, className, align, flex, style = {}, ...other}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
@@ -43,8 +46,9 @@ export const Row: React.FC<{
 			flex: flex ?? undefined,
 		};
 	}, [align, flex, justify, style]);
+
 	return (
-		<div className={className} style={finalStyle}>
+		<div className={className} style={finalStyle} {...other}>
 			{children}
 		</div>
 	);

@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {extractMemoryFromURL} from '../../api/helpers/extract-mem-from-url';
 import {extractTimeoutFromURL} from '../../api/helpers/extract-time-from-url';
 import {getCloudLoggingClient} from '../../api/helpers/get-cloud-logging-client';
+import {getProjectId} from '../../functions/helpers/is-in-cloud-task';
 import type {CloudRunCrashResponse} from '../../functions/helpers/payloads';
 import {Log} from '../log';
 
@@ -24,14 +25,16 @@ export const displayCrashLogs = async (res: CloudRunCrashResponse) => {
 	Log.error(
 		`Error rendering on Cloud Run. The Cloud Run service did not return a response.\n
 ${timeoutPreMsg}The crash may be due to the service exceeding its memory limit of ${memoryLimit}.
-Full logs are available at https://console.cloud.google.com/run?project=${process.env.REMOTION_GCP_PROJECT_ID}\n`,
+Full logs are available at https://console.cloud.google.com/run?project=${getProjectId()}\n`,
 	);
 
 	const cloudLoggingClient = getCloudLoggingClient();
 
 	const listLogEntriesRequest = {
-		resourceNames: [`projects/${process.env.REMOTION_GCP_PROJECT_ID}`],
-		filter: `logName=projects/${process.env.REMOTION_GCP_PROJECT_ID}/logs/run.googleapis.com%2Fvarlog%2Fsystem AND (severity=WARNING OR severity=ERROR) AND timestamp >= "${res.requestStartTime}"`,
+		resourceNames: [`projects/${getProjectId()}`],
+		filter: `logName=projects/${getProjectId()}/logs/run.googleapis.com%2Fvarlog%2Fsystem AND (severity=WARNING OR severity=ERROR) AND timestamp >= "${
+			res.requestStartTime
+		}"`,
 	};
 
 	const logCheckCountdown = CliInternals.createOverwriteableCliOutput({

@@ -1,4 +1,4 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
 
 export const deleteAfterOption = {
 	name: 'Lambda render expiration',

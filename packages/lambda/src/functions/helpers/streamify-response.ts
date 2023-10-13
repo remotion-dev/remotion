@@ -31,6 +31,16 @@ export class ResponseStream extends Stream.Writable {
 		this._isBase64Encoded = isBase64Encoded;
 	}
 }
+
+function patchArgs(argList: unknown[]): ResponseStream {
+	if (!(argList[1] instanceof ResponseStream)) {
+		const responseStream = new ResponseStream();
+		argList.splice(1, 0, responseStream);
+	}
+
+	return argList[1] as ResponseStream;
+}
+
 export const HANDLER_STREAMING = Symbol.for(
 	'aws.lambda.runtime.handler.streaming',
 );
@@ -75,13 +85,4 @@ export function streamifyResponse(handler: Function): Function {
 			};
 		},
 	});
-}
-
-function patchArgs(argList: unknown[]): ResponseStream {
-	if (!(argList[1] instanceof ResponseStream)) {
-		const responseStream = new ResponseStream();
-		argList.splice(1, 0, responseStream);
-	}
-
-	return argList[1] as ResponseStream;
 }

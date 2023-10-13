@@ -35,6 +35,7 @@ const start = async () => {
 			numberOfGifLoops: null,
 			everyNthFrame: 1,
 			verbose: false,
+			enforceAudioTrack: true,
 		});
 		console.log({i});
 	}

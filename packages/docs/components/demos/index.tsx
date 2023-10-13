@@ -58,13 +58,15 @@ export const Demo: React.FC<{
           [
             o.name,
             o.optional === "default-disabled" ? null : o.default,
-          ] as const
+          ] as const,
       )
       .reduce((a, b) => {
         a[b[0]] = b[1];
         return a;
       }, {});
   }, [demo.options]);
+
+  const [state, setState] = useState(() => initialState);
 
   const restart = useCallback(() => {
     setState(initialState);
@@ -74,8 +76,6 @@ export const Demo: React.FC<{
   if (!demo) {
     throw new Error("Demo not found");
   }
-
-  const [state, setState] = useState(() => initialState);
 
   return (
     <div style={container}>
