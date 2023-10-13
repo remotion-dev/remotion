@@ -31,6 +31,17 @@ export function fetch(url: string, dest: string) {
 	});
 }
 
+function untar(file: string, dest: string) {
+	return tar.extract(
+		{
+			file,
+			strip: 1,
+			C: dest,
+		},
+		[],
+	);
+}
+
 export const degit = async ({
 	repoOrg,
 	repoName,
@@ -52,14 +63,3 @@ export const degit = async ({
 	await untar(file, dest);
 	fs.unlinkSync(file);
 };
-
-function untar(file: string, dest: string) {
-	return tar.extract(
-		{
-			file,
-			strip: 1,
-			C: dest,
-		},
-		[],
-	);
-}

@@ -459,6 +459,7 @@ module.exports = {
         "overlay",
         "docker",
         "javascript",
+        "authoring-packages",
       ],
     },
 
@@ -627,6 +628,7 @@ module.exports = {
         "buffer-state",
         "presigned-urls",
         "font-picker",
+        "deploy-studio",
       ],
     },
     {
@@ -676,6 +678,7 @@ module.exports = {
         "contributing/feature",
         "contributing/option",
         "contributing/docs",
+        "contributing/formatting",
         "contributing/bounty",
         "contributing/rust",
       ],

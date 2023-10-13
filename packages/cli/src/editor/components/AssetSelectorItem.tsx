@@ -87,6 +87,7 @@ export const AssetFolderItem: React.FC<{
 			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
 		};
 	}, [hovered, level]);
+
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
