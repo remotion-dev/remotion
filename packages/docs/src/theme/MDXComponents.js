@@ -6,7 +6,6 @@ import { InlineStep, Step } from "../../components/InlineStep";
 import { AvailableFrom } from "../components/AvailableFrom";
 import { Credits } from "../components/Credits";
 import { Options } from "../components/Options";
-
 export default {
   ...MDXComponents,
   InlineStep,
@@ -15,5 +14,5 @@ export default {
   Demo,
   AvailableFrom,
   Options,
-  Credits: () => <Credits contributors={ContributorsData} />,
+  Credits,
 };
