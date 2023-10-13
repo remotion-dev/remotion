@@ -1448,10 +1448,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Meet New Books - one of many book recommendation videos",
+    title: "Meet New Books - One of many book recommendation videos",
     type: "mux_video",
     muxId: "601PVDW5t02VqRWd4XXDUUBM41t66JVBEO5f00VrGCUXE00",
-    description: "Add a description here",
+    description:
+      "An automated book recommendation video showcasing popular books.",
     height: 1920,
     width: 1080,
     submittedOn: new Date("10-12-2023"),
