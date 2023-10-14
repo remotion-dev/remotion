@@ -25,6 +25,18 @@ You have three options to publish your library:
 - **Sell it yourself via the NPM Kiosk**: See [NPM Kiosk](https://remotion.pro/npm-kiosk) for more info.
 - **Apply to be listed in the [Remotion Store](https://www.remotion.pro/store)**: E-Mail [hi@remotion.dev](mailto:hi@remotion.dev) to pitch.
 
+## Credits
+
+<Credits contributors={[
+{
+id: 1,
+name: "Mohit Yadav",
+username: "Just-Moh-it",
+avatarUrl: "https://github.com/Just-Moh-it.png",
+contributionType: "Added library starter template docs."
+},
+]} />
+
 ## See also
 
 - [Contributing to Remotion](/docs/contributing)

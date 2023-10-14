@@ -13,11 +13,10 @@ const cardContainerStyle: React.CSSProperties = {
 const cardStyle: React.CSSProperties = {
   maxWidth: "300px",
   width: "100%",
-  border: "1px solid #e1e4e8",
   borderRadius: "10px",
   overflow: "hidden",
   margin: "10px",
-  padding: "20px",
+  padding: "10px",
   display: "flex",
 };
 
@@ -41,9 +40,9 @@ const linkStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: "1em",
+  fontSize: "0.9em",
   color: "#586069",
-  marginTop: "10px",
+  marginTop: "5px",
 };
 
 interface Contributor {
@@ -58,10 +57,9 @@ interface CreditsProps {
   contributors: Contributor[];
 }
 
-const Credits: React.FC<CreditsProps> = ({ contributors }) => {
+export const Credits: React.FC<CreditsProps> = ({ contributors }) => {
   return (
     <div style={containerStyle}>
-      <h3 style={{ fontSize: "2em", marginBottom: "20px" }}>Credits</h3>
       <div style={cardContainerStyle}>
         {contributors.map((contributor) => (
           <div key={contributor.id} style={cardStyle}>
@@ -87,5 +85,3 @@ const Credits: React.FC<CreditsProps> = ({ contributors }) => {
     </div>
   );
 };
-
-export default Credits;
