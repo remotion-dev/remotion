@@ -90,5 +90,9 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok("".as_bytes().to_vec())
         }
         CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
+        CliInputCommandPayload::ExtractAudio(_command) => {
+            ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
+            Ok(vec![])
+        }
     }
 }

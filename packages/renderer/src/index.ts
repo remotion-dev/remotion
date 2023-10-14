@@ -89,12 +89,13 @@ export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata} from './get-video-metadata';
+export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,

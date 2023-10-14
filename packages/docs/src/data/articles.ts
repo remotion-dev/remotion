@@ -2011,6 +2011,13 @@ export const articles = [
     crumb: "@remotion/renderer",
   },
   {
+    id: "extract-audio",
+    title: "extractAudio()",
+    relativePath: "docs/renderer/extract-audio.md",
+    compId: "articles-docs-renderer-extract-audio",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "get-can-extract-frames-fast",
     title: "getCanExtractFramesFast()",
     relativePath: "docs/renderer/get-can-extract-frames-fast.md",
