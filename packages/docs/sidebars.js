@@ -395,7 +395,7 @@ module.exports = {
         type: "doc",
         id: "zod-types/index",
       },
-      items: ["zod-types/z-color"],
+      items: ["zod-types/z-color", "zod-types/z-textarea"],
     },
   ],
   mainSidebar: [
