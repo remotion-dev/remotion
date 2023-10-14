@@ -151,7 +151,7 @@ const fps = 30;
 const constantRotation = interpolate(
   frame,
   [0, durationInFrames],
-  [0, Math.PI * 6]
+  [0, Math.PI * 6],
 );
 
 const entranceAnimation = spring({
@@ -192,14 +192,14 @@ npm run build
 ## Credits
 
 <Credits contributors={[
-  {
-    id: 1,
-    name: "Dhroov Makwana",
-    username: "pabloescoder",
-    avatarUrl: "https://github.com/pabloescoder.png",
-    contributionType: "Added Spline tutorial on exporting a spline design and animating in remotion."
-  },
-  
+{
+id: 1,
+name: "Dhroov Makwana",
+username: "pabloescoder",
+avatarUrl: "https://github.com/pabloescoder.png",
+contributionType: "Added Spline tutorial on exporting a spline design and animating in remotion."
+},
+
 ]} />
 
 ## See also
