@@ -68,7 +68,15 @@ export const MyComposition = () => {
 
 ## Credits
 
-This technique was invented and first implemented by [@UmungoBungo](https://github.com/UmungoBungo).
+<Credits contributors={[
+{
+id: 1,
+name: "UmungoBungo",
+username: "UmungoBungo",
+avatarUrl: "https://github.com/UmungoBungo.png",
+contributionType: "Implemented Trail feature & Documentation."
+},
+]} />
 
 ## See also
 
