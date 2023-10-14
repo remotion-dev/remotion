@@ -117,6 +117,70 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub enum KnownAudioCodecs {
+        #[serde(rename = "opus")]
+        Opus,
+        #[serde(rename = "aac")]
+        Aac,
+        #[serde(rename = "mp3")]
+        Mp3,
+        #[serde(rename = "pcm-f16le")]
+        PcmF16Le,
+        #[serde(rename = "pcm-f24le")]
+        PcmF24Le,
+        #[serde(rename = "pcm-f32be")]
+        PcmF32be,
+        #[serde(rename = "pcm-s16be")]
+        PcmS16be,
+        #[serde(rename = "pcm-s16le")]
+        PcmS16le,
+        #[serde(rename = "pcm-f32le")]
+        PcmF32le,
+        #[serde(rename = "pcm-s32be")]
+        PcmS32be,
+        #[serde(rename = "pcm-s32le")]
+        PcmS32le,
+        #[serde(rename = "pcm-s64be")]
+        PcmS64be,
+        #[serde(rename = "pcm-s64le")]
+        PcmS64le,
+        #[serde(rename = "pcm-u16be")]
+        PcmU16be,
+        #[serde(rename = "pcm-u16le")]
+        PcmU16le,
+        #[serde(rename = "pcm-u24be")]
+        PcmU24be,
+        #[serde(rename = "pcm-u24le")]
+        PcmU24le,
+        #[serde(rename = "pcm-u32be")]
+        PcmU32be,
+        #[serde(rename = "pcm-u32le")]
+        PcmU32le,
+        #[serde(rename = "pcm-u8")]
+        PcmU8,
+        #[serde(rename = "pcm-f64be")]
+        PcmF64be,
+        #[serde(rename = "pcm-s24be")]
+        PcmS24be,
+        #[serde(rename = "pcm-s24le")]
+        PcmS24le,
+        #[serde(rename = "pcm-s8")]
+        PcmS8,
+        #[serde(rename = "pcm-s16be-planar")]
+        PcmS16bePlanar,
+        #[serde(rename = "pcm-s8-planar")]
+        PcmS8Planar,
+        #[serde(rename = "pcm-s24le-planar")]
+        PcmS24lePlanar,
+        #[serde(rename = "pcm-s32le-planar")]
+        PcmS32lePlanar,
+        #[serde(rename = "vorbis")]
+        Vorbis,
+        #[serde(rename = "unknown")]
+        Unknown,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub enum KnownColorSpaces {
         #[serde(rename = "rgb")]
         RGB,
@@ -161,6 +225,8 @@ pub mod payloads {
         pub canPlayInVideoTag: bool,
         pub supportsSeeking: bool,
         pub colorSpace: KnownColorSpaces,
+        pub audioCodec: Option<KnownAudioCodecs>,
+        pub audioFileExtension: Option<String>,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

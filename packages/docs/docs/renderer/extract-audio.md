@@ -5,24 +5,33 @@ title: extractAudio()
 crumb: "@remotion/renderer"
 ---
 
-# extractAudio()`<AvailableFrom v="4.0.48" />`
+# extractAudio()`<AvailableFrom v="4.0.49" />`
 
 :::note
 This function is meant to be used **in Node.js applications**. It cannot run in the browser.
 :::
 
-Extracts the audio from a video source and saves it to the specified output path.
+Extracts the audio from a video source and saves it to the specified output path. It does not convert the audio to a different format.
 
 ## Example
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { extractAudio } from "@remotion/renderer";
+import { resolve } from "node:path";
+import { extractAudio, getVideoMetadata } from "@remotion/renderer";
+
+const videoSource = path.resolve(process.cwd(), "./path-to-video.mp4");
+
+const videoMetadata = await getVideoMetadata(videoSource);
+const audioOutput = path.resolve(
+  process.cwd(),
+  `./output-audio-path.${videoMetadata.audioFileExtension}`,
+);
 
 await extractAudio({
-  videoSource: "./path-to-video.mp4",
-  audioOutput: "./output-audio-path.aac",
+  videoSource,
+  audioOutput,
 });
 ```
 
@@ -40,7 +49,7 @@ The path to the video source from which the audio will be extracted.
 
 _string_
 
-The path where the extracted audio will be saved.
+The path where the extracted audio will be saved. The file extension must match the audio codec. To find the appropriate file extension, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) to read the field `audioFileExtension`.
 
 ### `logLevel`
 

@@ -2,6 +2,8 @@ import {startLongRunningCompositor} from './compositor/compositor';
 import type {VideoMetadata} from './compositor/payloads';
 import type {LogLevel} from './log-level';
 
+export {VideoMetadata} from './compositor/payloads';
+
 export const getVideoMetadata = async (
 	videoSource: string,
 	options?: {logLevel?: LogLevel},
