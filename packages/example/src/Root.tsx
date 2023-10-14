@@ -1,9 +1,15 @@
-import {CalculateMetadataFunction} from 'remotion';
+import {
+	CalculateMetadataFunction,
+	Composition,
+	Folder,
+	getInputProps,
+	staticFile,
+	Still,
+} from 'remotion';
 import {zColor} from '@remotion/zod-types';
 import './style.css';
 import {alias} from 'lib/alias';
 import React, {useCallback} from 'react';
-import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -1065,6 +1071,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: ['Sample Item'],
+						description: 'Sample description \nOn multiple lines',
 					}}
 				/>
 				{/**
