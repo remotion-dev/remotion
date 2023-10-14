@@ -1447,6 +1447,26 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Delba Oliveira",
     },
   },
+  {
+    title: "Meet New Books - One of many book recommendation videos",
+    type: "mux_video",
+    muxId: "601PVDW5t02VqRWd4XXDUUBM41t66JVBEO5f00VrGCUXE00",
+    description:
+      "An automated book recommendation video showcasing popular books.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("10-12-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.instagram.com/p/Cx8u6pTNqCi/",
+      },
+    ],
+    author: {
+      url: "https://www.meetnewbooks.com/",
+      name: "MeetNewBooks.com",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
