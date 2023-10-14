@@ -1,4 +1,4 @@
-import {z} from "zod";
+import {z} from 'zod';
 
 export const REMOTION_TEXTAREA_BRAND = '__remotion-textarea';
 
