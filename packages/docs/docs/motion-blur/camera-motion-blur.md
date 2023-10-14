@@ -106,8 +106,22 @@ export const MyComposition = () => {
 
 ## Credits
 
-The technique was developed by [@marcusstenbeck](https://twitter.com/marcusstenbeck) and inspired by
-the `<Trail>` component developed by [@UmungoBungo](https://github.com/UmungoBungo).
+<Credits contributors={[
+{
+id: 1,
+name: "Marcus Stenbeck",
+username: "marcusstenbeck",
+avatarUrl: "https://github.com/marcusstenbeck.png",
+contributionType: "Implemented the feature & Documentation."
+},
+{
+id: 2,
+name: "UmungoBungo",
+username: "UmungoBungo",
+avatarUrl: "https://github.com/UmungoBungo.png",
+contributionType: "Feature inspired by <Trail> component."
+},
+]} />
 
 ## See also
 
