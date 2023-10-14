@@ -2,7 +2,9 @@ use crate::errors::ErrorWithBacktrace;
 use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::{KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata};
+use crate::payloads::payloads::{
+    KnownAudioCodecs, KnownCodecs, KnownColorSpaces, OpenVideoStats, VideoMetadata,
+};
 use std::fs::File;
 use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
@@ -162,7 +164,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     let input = remotionffmpeg::format::input(&file_path)?;
 
     // Find the video stream
-    let stream = match input.streams().best(remotionffmpeg::media::Type::Video) {
+    let video_stream = match input.streams().best(remotionffmpeg::media::Type::Video) {
         Some(video_stream) => video_stream,
         None => Err(std::io::Error::new(
             ErrorKind::Other,
@@ -170,10 +172,18 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         ))?,
     };
 
-    let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
-    let color_space = unsafe { (*(*(stream).as_ptr()).codecpar).color_space };
+    // Audio stream, only if has one
 
-    let codec_name = match codec_id {
+    let audio_stream = input.streams().best(remotionffmpeg::media::Type::Audio);
+
+    let video_codec_id = unsafe { (*(*(video_stream).as_ptr()).codecpar).codec_id };
+    let color_space = unsafe { (*(*(video_stream).as_ptr()).codecpar).color_space };
+    let audio_codec_id = match audio_stream {
+        Some(audio_stream) => unsafe { (*(*(audio_stream).as_ptr()).codecpar).codec_id },
+        None => remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_NONE,
+    };
+
+    let video_codec_name = match video_codec_id {
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => KnownCodecs::H264,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => KnownCodecs::H265,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP8 => KnownCodecs::Vp8,
@@ -181,6 +191,48 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AV1 => KnownCodecs::Av1,
         remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PRORES => KnownCodecs::ProRes,
         _ => KnownCodecs::Unknown,
+    };
+
+    let audio_codec_name: Option<KnownAudioCodecs> = match audio_codec_id {
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AAC => Some(KnownAudioCodecs::Aac),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_OPUS => Some(KnownAudioCodecs::Opus),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_MP3 => Some(KnownAudioCodecs::Mp3),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VORBIS => Some(KnownAudioCodecs::Vorbis),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_F16LE => Some(KnownAudioCodecs::PcmF16Le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_F24LE => Some(KnownAudioCodecs::PcmF24Le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_F32BE => Some(KnownAudioCodecs::PcmF32be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S16BE => Some(KnownAudioCodecs::PcmS16be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S16LE => Some(KnownAudioCodecs::PcmS16le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_F32LE => Some(KnownAudioCodecs::PcmF32be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_F64BE => Some(KnownAudioCodecs::PcmF64be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S24BE => Some(KnownAudioCodecs::PcmS24be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S24LE => Some(KnownAudioCodecs::PcmS24le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S32BE => Some(KnownAudioCodecs::PcmS32be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S32LE => Some(KnownAudioCodecs::PcmS32le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S64BE => Some(KnownAudioCodecs::PcmS64be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S64LE => Some(KnownAudioCodecs::PcmS64le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S8 => Some(KnownAudioCodecs::PcmS8),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U16BE => Some(KnownAudioCodecs::PcmU16be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U16LE => Some(KnownAudioCodecs::PcmU16le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U24BE => Some(KnownAudioCodecs::PcmU24be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U8 => Some(KnownAudioCodecs::PcmU8),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U24LE => Some(KnownAudioCodecs::PcmS24le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U32BE => Some(KnownAudioCodecs::PcmU32be),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_U32LE => Some(KnownAudioCodecs::PcmU32le),
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S16BE_PLANAR => {
+            Some(KnownAudioCodecs::PcmS16bePlanar)
+        }
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S8_PLANAR => {
+            Some(KnownAudioCodecs::PcmS8Planar)
+        }
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S24LE_PLANAR => {
+            Some(KnownAudioCodecs::PcmS24lePlanar)
+        }
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PCM_S32LE_PLANAR => {
+            Some(KnownAudioCodecs::PcmS32lePlanar)
+        }
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_NONE => None,
+        _ => Some(KnownAudioCodecs::Unknown),
     };
 
     #[allow(non_snake_case)]
@@ -208,7 +260,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     };
 
     #[allow(non_snake_case)]
-    let canPlayInVideoTag = match codec_name {
+    let canPlayInVideoTag = match video_codec_name {
         KnownCodecs::H264 => true,
         KnownCodecs::H265 => true,
         KnownCodecs::Vp8 => true,
@@ -218,10 +270,10 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     };
 
     // Get the frame rate
-    let fps: i32 = stream.avg_frame_rate().numerator();
+    let fps: i32 = video_stream.avg_frame_rate().numerator();
 
     // Get the codec
-    let codec = remotionffmpeg::codec::context::Context::from_parameters(stream.parameters())
+    let codec = remotionffmpeg::codec::context::Context::from_parameters(video_stream.parameters())
         .map_err(|e| e.to_string())?;
 
     // Get the duration
@@ -229,7 +281,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     let durationInSeconds = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
 
     #[allow(non_snake_case)]
-    let supportsSeeking = match codec_name {
+    let supportsSeeking = match video_codec_name {
         KnownCodecs::H264 => {
             if durationInSeconds < 5.0 {
                 true
@@ -254,6 +306,40 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         KnownCodecs::Unknown => false,
     };
 
+    let audio_file_extension: Option<String> = match audio_codec_name {
+        Some(KnownAudioCodecs::Opus) => Some("opus".to_string()),
+        Some(KnownAudioCodecs::Aac) => Some("aac".to_string()),
+        Some(KnownAudioCodecs::Mp3) => Some("mp3".to_string()),
+        Some(KnownAudioCodecs::PcmF16Le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmF24Le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmF32be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS16be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS16le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmF32le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmF64be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS24be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS24le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS32be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS32le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS64be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS64le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS8) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU16be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU16le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU24be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU8) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU24le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU32be) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmU32le) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS16bePlanar) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS8Planar) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS24lePlanar) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::PcmS32lePlanar) => Some("wav".to_string()),
+        Some(KnownAudioCodecs::Vorbis) => Some("ogg".to_string()),
+        Some(KnownAudioCodecs::Unknown) => None,
+        None => None,
+    };
+
     if let Ok(video) = codec.decoder().video() {
         // Return the video metadata
         let metadata = VideoMetadata {
@@ -261,10 +347,12 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             width: video.width(),
             height: video.height(),
             durationInSeconds,
-            codec: codec_name,
+            codec: video_codec_name,
             canPlayInVideoTag,
             supportsSeeking,
             colorSpace,
+            audioCodec: audio_codec_name,
+            audioFileExtension: audio_file_extension,
         };
         Ok(metadata)
     } else {
@@ -282,19 +370,24 @@ pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWit
         "Extracting audio from {} {}",
         input_path, output_path
     ))?;
-    
-    let mut ictx = format::input(&input_path).map_err(|e| format!("Error reading input from '{}': {}", input_path, e))?;
-    let mut octx = format::output(&output_path).map_err(|e| format!("Error setting up output to '{}': {}", output_path, e))?;
+
+    let mut ictx = format::input(&input_path)
+        .map_err(|e| format!("Error reading input from '{}': {}", input_path, e))?;
+    let mut octx = format::output(&output_path)
+        .map_err(|e| format!("Error setting up output to '{}': {}", output_path, e))?;
 
     // Determine the audio codec of the input file
     let audio_stream = match ictx.streams().best(remotionffmpeg::media::Type::Audio) {
         Some(audio_stream) => audio_stream,
         None => Err(std::io::Error::new(
             ErrorKind::Other,
-            format!("No audio stream found in '{}'. Ensure the video contains an audio track.", input_path),
+            format!(
+                "No audio stream found in '{}'. Ensure the video contains an audio track.",
+                input_path
+            ),
         ))?,
     };
-    
+
     let audio_codec_id = unsafe { (*(*(audio_stream).as_ptr()).codecpar).codec_id };
 
     let mut stream_mapping = vec![-1; ictx.nb_streams() as _];
@@ -307,7 +400,9 @@ pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWit
         stream_mapping[ist_index] = ost_index;
         ist_time_bases[ist_index] = ist.time_base();
         ost_index += 1;
-        let mut ost = octx.add_stream(encoder::find(codec::Id::None)).map_err(|e| format!("Error adding stream: {}", e))?;
+        let mut ost = octx
+            .add_stream(encoder::find(codec::Id::None))
+            .map_err(|e| format!("Error adding stream: {}", e))?;
         ost.set_parameters(ist.parameters());
         unsafe {
             (*ost.parameters().as_mut_ptr()).codec_tag = 0;
@@ -315,10 +410,18 @@ pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWit
     }
 
     octx.write_header().map_err(|e| {
-        if e.to_string().contains("ADTS muxer") && audio_codec_id != remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AAC {
-            format!("Error: The audio format in '{}' is not AAC, and cannot be saved as an .aac file.", input_path)
+        if e.to_string().contains("ADTS muxer")
+            && audio_codec_id != remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AAC
+        {
+            format!(
+                "Error: The audio format in '{}' is not AAC, and cannot be saved as an .aac file.",
+                input_path
+            )
         } else {
-            format!("Error writing header to '{}'. Input audio codec: '{:?}'. Error: {}", output_path, audio_codec_id, e)
+            format!(
+                "Error writing header to '{}'. Input audio codec: '{:?}'. Error: {}",
+                output_path, audio_codec_id, e
+            )
         }
     })?;
 
@@ -334,14 +437,21 @@ pub fn extract_audio(input_path: &str, output_path: &str) -> Result<(), ErrorWit
                 packet.rescale_ts(ist_time_bases[ist_index], ost.time_base());
                 packet.set_position(-1);
                 packet.set_stream(ost_index as _);
-                packet.write_interleaved(&mut octx).map_err(|e| format!("Error writing packet: {}", e))?;
+                packet
+                    .write_interleaved(&mut octx)
+                    .map_err(|e| format!("Error writing packet: {}", e))?;
             }
             Err(remotionffmpeg::Error::Eof) => break, // Break on end of file.
-            Err(err) => return Err(ErrorWithBacktrace::from(format!("Error processing packet: {}", err))),
+            Err(err) => {
+                return Err(ErrorWithBacktrace::from(format!(
+                    "Error processing packet: {}",
+                    err
+                )))
+            }
         };
     }
 
-    octx.write_trailer().map_err(|e| format!("Error writing trailer: {}", e))?;
+    octx.write_trailer()
+        .map_err(|e| format!("Error writing trailer: {}", e))?;
     Ok(())
 }
-

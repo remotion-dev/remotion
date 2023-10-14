@@ -95,7 +95,7 @@ export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata} from './get-video-metadata';
+export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,

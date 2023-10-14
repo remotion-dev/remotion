@@ -57,6 +57,38 @@ export type VideoMetadata = {
 		| 'chroma-derived-cl'
 		| 'ictcp'
 		| 'unknown';
+	audioCodec:
+		| null
+		| 'opus'
+		| 'aac'
+		| 'mp3'
+		| 'pcm-f16le'
+		| 'pcm-f24le'
+		| 'pcm-f32be'
+		| 'pcm-s16be'
+		| 'pcm-s16le'
+		| 'pcm-f32le'
+		| 'pcm-s32be'
+		| 'pcm-s32le'
+		| 'pcm-s64be'
+		| 'pcm-s64le'
+		| 'pcm-u16be'
+		| 'pcm-u16le'
+		| 'pcm-u24be'
+		| 'pcm-u24le'
+		| 'pcm-u32be'
+		| 'pcm-u32le'
+		| 'pcm-u8'
+		| 'pcm-f64be'
+		| 'pcm-s24be'
+		| 'pcm-s24le'
+		| 'pcm-s8'
+		| 'pcm-s16be-planar'
+		| 'pcm-s8-planar'
+		| 'pcm-s24le-planar'
+		| 'pcm-s32le-planar'
+		| 'unknown';
+	audioFileExtension: string | null;
 };
 
 type SilentPart = {
