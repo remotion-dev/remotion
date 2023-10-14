@@ -19,7 +19,7 @@ test('Should be able to extract the audio from a mp4 format video', async () => 
 test('Should not be able to extract the audio with the wrong audio format', async () => {
 	const audioOutput = exampleVideos.bigBuckBunny.replace(
 		'bigbuckbunny.mp4',
-		'bigbuckbunny.opus',
+		'bigbuckbunny.aac',
 	);
 	await expect(() => {
 		return extractAudio({
