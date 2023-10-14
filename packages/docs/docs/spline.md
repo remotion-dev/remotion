@@ -199,7 +199,6 @@ username: "pabloescoder",
 avatarUrl: "https://github.com/pabloescoder.png",
 contributionType: "Added Spline tutorial on exporting a spline design and animating in remotion."
 },
-
 ]} />
 
 ## See also
