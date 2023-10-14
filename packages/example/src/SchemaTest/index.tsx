@@ -1,4 +1,4 @@
-import {zColor} from '@remotion/zod-types';
+import {zColor, zTextarea} from '@remotion/zod-types';
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
@@ -8,6 +8,7 @@ export const schemaTestSchema = z.object({
 	delay: z.number().min(0).max(1000).step(0.1),
 	color: zColor(),
 	list: z.array(z.string()),
+	description: zTextarea().nullable(),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());
@@ -29,6 +30,7 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 	title,
 	color,
 	list,
+	description,
 }) => {
 	return (
 		<AbsoluteFill
@@ -48,6 +50,8 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 						</li>
 					))}
 				</ul>
+
+				<p style={{whiteSpace: 'pre-line', color}}>{description}</p>
 			</Sequence>
 		</AbsoluteFill>
 	);

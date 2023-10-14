@@ -38,7 +38,7 @@ export const ZodStringEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const z = useZodIfPossible();
+  const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
