@@ -1,3 +1,4 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 
 const containerStyle: React.CSSProperties = {
@@ -10,39 +11,19 @@ const cardContainerStyle: React.CSSProperties = {
   justifyContent: "flex-start",
 };
 
-const cardStyle: React.CSSProperties = {
-  maxWidth: "300px",
-  width: "100%",
-  borderRadius: "10px",
-  overflow: "hidden",
-  margin: "10px",
-  padding: "10px",
-  display: "flex",
-};
-
 const avatarStyle: React.CSSProperties = {
   width: "100px",
   height: "100px",
   borderRadius: "50%",
   marginRight: "20px",
   flexShrink: 0,
-};
-
-const infoStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
+  border: "2px solid #D6D6D6",
 };
 
 const linkStyle: React.CSSProperties = {
   textDecoration: "none",
   fontSize: "1.2em",
   color: "#000000",
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: "0.9em",
-  color: "#586069",
-  marginTop: "5px",
 };
 
 interface Contributor {
@@ -58,6 +39,23 @@ interface CreditsProps {
 }
 
 export const Credits: React.FC<CreditsProps> = ({ contributors }) => {
+  const { colorMode } = useColorMode();
+
+  const textColor = colorMode === "dark" ? "#ffffff" : "#000000";
+  const backgroundColor = colorMode === "dark" ? "#333333" : "#ffffff";
+
+  const cardStyle: React.CSSProperties = {
+    maxWidth: "300px",
+    width: "100%",
+    borderRadius: "10px",
+    overflow: "hidden",
+    margin: "10px",
+    padding: "10px",
+    display: "flex",
+    color: textColor,
+    backgroundColor,
+  };
+
   return (
     <div style={containerStyle}>
       <div style={cardContainerStyle}>
@@ -68,16 +66,30 @@ export const Credits: React.FC<CreditsProps> = ({ contributors }) => {
               alt={contributor.username}
               style={avatarStyle}
             />
-            <div style={infoStyle}>
+            <div
+              style={{
+                color: textColor,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <a
                 href={`https://github.com/${contributor.username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={linkStyle}
+                style={{ ...linkStyle, color: textColor }}
               >
                 <strong>{contributor.name}</strong>
               </a>
-              <p style={labelStyle}>{contributor.contributionType}</p>
+              <p
+                style={{
+                  color: textColor,
+                  fontSize: "0.9em",
+                  marginTop: "5px",
+                }}
+              >
+                {contributor.contributionType}
+              </p>
             </div>
           </div>
         ))}
