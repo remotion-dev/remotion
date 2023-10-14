@@ -21,10 +21,10 @@ Extracts the audio from a video source and saves it to the specified output path
 import { resolve } from "node:path";
 import { extractAudio, getVideoMetadata } from "@remotion/renderer";
 
-const videoSource = path.resolve(process.cwd(), "./path-to-video.mp4");
+const videoSource = resolve(process.cwd(), "./path-to-video.mp4");
 
 const videoMetadata = await getVideoMetadata(videoSource);
-const audioOutput = path.resolve(
+const audioOutput = resolve(
   process.cwd(),
   `./output-audio-path.${videoMetadata.audioFileExtension}`,
 );
