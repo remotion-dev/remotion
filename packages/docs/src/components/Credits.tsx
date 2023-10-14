@@ -1,5 +1,4 @@
 import React from "react";
-import contributorsData from "../data/contributorsData";
 
 const containerStyle: React.CSSProperties = {
   margin: "20px 0",
@@ -47,32 +46,42 @@ const labelStyle: React.CSSProperties = {
   marginTop: "10px",
 };
 
-const ContributorCard = ({ name, username, avatarUrl, contributionType }) => {
-  return (
-    <div style={cardStyle}>
-      <img src={avatarUrl} alt={username} style={avatarStyle} />
-      <div style={infoStyle}>
-        <a
-          href={`https://github.com/${username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={linkStyle}
-        >
-          <strong>{name}</strong>
-        </a>
-        <p style={labelStyle}>{contributionType}</p>
-      </div>
-    </div>
-  );
-};
+interface Contributor {
+  id: number;
+  name: string;
+  username: string;
+  avatarUrl: string;
+  contributionType: string;
+}
 
-const Credits = () => {
+interface CreditsProps {
+  contributors: Contributor[];
+}
+
+const Credits: React.FC<CreditsProps> = ({ contributors }) => {
   return (
     <div style={containerStyle}>
       <h3 style={{ fontSize: "2em", marginBottom: "20px" }}>Credits</h3>
       <div style={cardContainerStyle}>
-        {contributorsData.map((contributor) => (
-          <ContributorCard key={contributor.id} {...contributor} />
+        {contributors.map((contributor) => (
+          <div key={contributor.id} style={cardStyle}>
+            <img
+              src={contributor.avatarUrl}
+              alt={contributor.username}
+              style={avatarStyle}
+            />
+            <div style={infoStyle}>
+              <a
+                href={`https://github.com/${contributor.username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={linkStyle}
+              >
+                <strong>{contributor.name}</strong>
+              </a>
+              <p style={labelStyle}>{contributor.contributionType}</p>
+            </div>
+          </div>
         ))}
       </div>
     </div>
