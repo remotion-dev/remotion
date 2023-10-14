@@ -189,6 +189,19 @@ npm run build
 
 <SplineVideo />
 
+## Credits
+
+<Credits contributors={[
+  {
+    id: 1,
+    name: "Dhroov Makwana",
+    username: "pabloescoder",
+    avatarUrl: "https://github.com/pabloescoder.png",
+    contributionType: "Added Spline tutorial on exporting a spline design and animating in remotion."
+  },
+  
+]} />
+
 ## See also
 
 - [`@remotion/three`](/docs/three)

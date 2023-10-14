@@ -140,6 +140,25 @@ In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
 
+## Credits
+
+<Credits contributors={[
+{
+id: 1,
+name: "Sahil Bhardwaj",
+username: "evoxf1",
+avatarUrl: "https://github.com/evoxf1.png",
+contributionType: "Tone Frequency Prop & Documentation."
+},
+ {
+id: 2,
+name: "Jonny Burger",
+username: "jonnyburger",
+avatarUrl: "https://github.com/jonnyburger.png",
+contributionType: "Tone Frequency Prop & Documentation."
+},
+]} />
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
