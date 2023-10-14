@@ -74,7 +74,7 @@ id: 1,
 name: "UmungoBungo",
 username: "UmungoBungo",
 avatarUrl: "https://github.com/UmungoBungo.png",
-contributionType: "Implemented Trail feature & Documentation."
+contributionType: "Implemented Trail feature & Docs."
 },
 ]} />
 

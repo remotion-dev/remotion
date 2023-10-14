@@ -119,7 +119,7 @@ id: 2,
 name: "UmungoBungo",
 username: "UmungoBungo",
 avatarUrl: "https://github.com/UmungoBungo.png",
-contributionType: "Feature inspired by <Trail> component."
+contributionType: "Inspired the Camera Motion Blur feature."
 },
 ]} />
 
