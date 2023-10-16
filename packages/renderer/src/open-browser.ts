@@ -49,6 +49,10 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 			'--enable-features=Vulkan,UseSkiaRenderer',
 		];
 	}
+	
+	if (renderer === 'angle') {
+		return [`--use-gl=angle`, `--use-angle=gl-egl`];
+	}
 
 	if (renderer === null) {
 		return [];
