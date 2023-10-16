@@ -286,6 +286,6 @@ See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 <Credits contributors={[
 {
 username: "Slashgear",
-contribution: "Implementd the featurea & updated the documentation."
+contribution: "Implementation"
 },
 ]} />

@@ -32,6 +32,6 @@ You have three options to publish your library:
 <Credits contributors={[
 {
 username: "Just-Moh-it",
-contribution: "Added library starter template docs."
+contribution: "Template and docs"
 },
 ]} />

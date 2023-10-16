@@ -97,6 +97,7 @@ const titleContainer: React.CSSProperties = {
   flexDirection: "row",
   alignItems: "center",
   marginBottom: 15,
+  marginTop: 15,
 };
 
 const titleLine: React.CSSProperties = {
