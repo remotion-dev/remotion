@@ -28,3 +28,10 @@ You have three options to publish your library:
 ## See also
 
 - [Contributing to Remotion](/docs/contributing)
+
+<Credits contributors={[
+{
+username: "Just-Moh-it",
+contribution: "Template and docs"
+},
+]} />
