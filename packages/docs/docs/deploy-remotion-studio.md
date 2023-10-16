@@ -6,6 +6,15 @@ sidebar_label: Deploy Remotion Studio
 crumb: "Building video apps"
 ---
 
+import { YouTube } from "../components/YouTube";
+
+<YouTube
+  minutes={3}
+  href="https://www.youtube.com/watch?v=430B9xSs06U"
+  thumb="https://i.ytimg.com/vi/430B9xSs06U/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFJ4FoC-8enbWW4aU8uo9NLhEl6w"
+  title="Deploy the Remotion Studio"
+/>
+
 _available from v4.0.46_
 
 You can deploy the Remotion Studio to a long-running server in the cloud and make it accessible to your team. To do so, you need to:
