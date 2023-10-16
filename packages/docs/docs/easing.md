@@ -308,10 +308,8 @@ Makes any easing function symmetrical. The easing function will run forwards for
 
 <Credits contributors={[
 {
-id: 1,
 name: "Alubọsa",
 username: "kaf-lamed-beyt",
-avatarUrl: "https://github.com/kaf-lamed-beyt.png",
 contributionType: "Updated Easing Documentation."
 },
 ]} />
