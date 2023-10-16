@@ -97,6 +97,10 @@ Is not working at the moment. The Render Button is disabled, because the Digital
 
 A normal DigitalOcean droplet does work, though.
 
+## Example for deployment
+
+A test project to deploy the Remotion Studio is available [here](https://github.com/remotion-dev/shorts-customizer).
+
 ## See also
 
 - [Dockerizing an Remotion app](/docs/docker)
