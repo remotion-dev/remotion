@@ -149,11 +149,11 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 
 <Credits contributors={[
 {
-username: "evoxf1",
-contribution: "Tone Frequency Prop & Documentation."
+username: "JonnyBurger",
+contribution: "Implementation"
 },
 {
-username: "JonnyBurger",
-contribution: "Tone Frequency Prop & Documentation."
+username: "evoxf1",
+contribution: <><code>toneFrequency</code> prop</>
 },
 ]} />
