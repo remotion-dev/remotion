@@ -27,10 +27,8 @@ const linkStyle: React.CSSProperties = {
 };
 
 interface Contributor {
-  id: number;
   name: string;
   username: string;
-  avatarUrl: string;
   contributionType: string;
 }
 
@@ -60,9 +58,9 @@ export const Credits: React.FC<CreditsProps> = ({ contributors }) => {
     <div style={containerStyle}>
       <div style={cardContainerStyle}>
         {contributors.map((contributor) => (
-          <div key={contributor.id} style={cardStyle}>
+          <div key={contributor.username} style={cardStyle}>
             <img
-              src={contributor.avatarUrl}
+              src={`https://github.com/${contributor.username}.png`}
               alt={contributor.username}
               style={avatarStyle}
             />

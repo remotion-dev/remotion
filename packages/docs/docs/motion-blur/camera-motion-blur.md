@@ -108,17 +108,13 @@ export const MyComposition = () => {
 
 <Credits contributors={[
 {
-id: 1,
 name: "Marcus Stenbeck",
 username: "marcusstenbeck",
-avatarUrl: "https://github.com/marcusstenbeck.png",
 contributionType: "Implemented the feature & Documentation."
 },
 {
-id: 2,
 name: "UmungoBungo",
 username: "UmungoBungo",
-avatarUrl: "https://github.com/UmungoBungo.png",
 contributionType: "Inspired the Camera Motion Blur feature."
 },
 ]} />

@@ -281,10 +281,8 @@ See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 
 <Credits contributors={[
 {
-id: 1,
 name: "Antoine Caron",
 username: "Slashgear",
-avatarUrl: "https://github.com/Slashgear.png",
 contributionType: "Implementd the featurea & updated the documentation."
 },
 ]} />

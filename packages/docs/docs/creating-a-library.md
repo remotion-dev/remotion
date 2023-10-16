@@ -29,10 +29,8 @@ You have three options to publish your library:
 
 <Credits contributors={[
 {
-id: 1,
 name: "Mohit Yadav",
 username: "Just-Moh-it",
-avatarUrl: "https://github.com/Just-Moh-it.png",
 contributionType: "Added library starter template docs."
 },
 ]} />
