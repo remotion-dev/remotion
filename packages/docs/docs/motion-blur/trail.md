@@ -66,13 +66,10 @@ export const MyComposition = () => {
 
 <TrailExample />
 
-## Credits
-
 <Credits contributors={[
 {
-name: "UmungoBungo",
 username: "UmungoBungo",
-contributionType: "Implemented Trail feature & Docs."
+contribution: "Implemented Trail feature & Docs."
 },
 ]} />
 
