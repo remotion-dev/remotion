@@ -69,7 +69,7 @@ export const MyComposition = () => {
 <Credits contributors={[
 {
 username: "UmungoBungo",
-contribution: "Implemented Trail feature & Docs."
+contribution: "Implementation"
 },
 ]} />
 

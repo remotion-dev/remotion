@@ -311,6 +311,6 @@ Makes any easing function symmetrical. The easing function will run forwards for
 <Credits contributors={[
 {
 username: "kaf-lamed-beyt",
-contribution: "Updated Easing Documentation."
+contribution: "Improved function signatures"
 },
 ]} />

@@ -194,7 +194,7 @@ npm run build
 <Credits contributors={[
 {
 username: "pabloescoder",
-contribution: "Added Spline tutorial on exporting a spline design and animating in remotion."
+contribution: "Author"
 },
 ]} />
 
