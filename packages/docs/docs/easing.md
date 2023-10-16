@@ -304,16 +304,13 @@ static inOut(easing: (t: number) => number): (t: number) => number;
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
 
-## Credits
-
-<Credits contributors={[
-{
-name: "Alubọsa",
-username: "kaf-lamed-beyt",
-contributionType: "Updated Easing Documentation."
-},
-]} />
-
 ## See also
 
 - [Source code for this helper](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/easing.ts)
+
+<Credits contributors={[
+{
+username: "kaf-lamed-beyt",
+contribution: "Updated Easing Documentation."
+},
+]} />

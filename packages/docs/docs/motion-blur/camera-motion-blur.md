@@ -104,21 +104,17 @@ export const MyComposition = () => {
 
 <CameraMotionBlurExample />
 
-## Credits
-
-<Credits contributors={[
-{
-name: "Marcus Stenbeck",
-username: "marcusstenbeck",
-contributionType: "Implemented the feature & Documentation."
-},
-{
-name: "UmungoBungo",
-username: "UmungoBungo",
-contributionType: "Inspired the Camera Motion Blur feature."
-},
-]} />
-
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/motion-blur/src/CameraMotionBlur.tsx)
+
+<Credits contributors={[
+{
+username: "marcusstenbeck",
+contribution: "Implemented the feature & Documentation."
+},
+{
+username: "UmungoBungo",
+contribution: "Inspired the Camera Motion Blur feature."
+},
+]} />

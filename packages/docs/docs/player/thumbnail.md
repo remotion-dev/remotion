@@ -277,18 +277,15 @@ ref.current?.addEventListener("error", (e) => {
 
 See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 
-## Credits
-
-<Credits contributors={[
-{
-name: "Antoine Caron",
-username: "Slashgear",
-contributionType: "Implementd the featurea & updated the documentation."
-},
-]} />
-
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Thumbnail.tsx)
 - [`<Composition>`](/docs/composition)
 - [`<Player>`](/docs/player)
+
+<Credits contributors={[
+{
+username: "Slashgear",
+contribution: "Implementd the featurea & updated the documentation."
+},
+]} />
