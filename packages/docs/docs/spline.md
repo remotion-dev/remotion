@@ -151,7 +151,7 @@ const fps = 30;
 const constantRotation = interpolate(
   frame,
   [0, durationInFrames],
-  [0, Math.PI * 6]
+  [0, Math.PI * 6],
 );
 
 const entranceAnimation = spring({
@@ -188,6 +188,15 @@ npm run build
 ## Final Result / Generated Video
 
 <SplineVideo />
+
+## Credits
+
+<Credits contributors={[
+{
+username: "pabloescoder",
+contribution: "Author"
+},
+]} />
 
 ## See also
 
