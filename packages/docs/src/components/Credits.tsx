@@ -1,7 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
-
-const containerStyle: React.CSSProperties = {};
+import "./credits.css";
 
 const cardContainerStyle: React.CSSProperties = {
   display: "flex",
@@ -40,9 +39,7 @@ const ContributorComp: React.FC<{
   const textColor = colorMode === "dark" ? "#ffffff" : "#000000";
 
   const cardStyle: React.CSSProperties = {
-    maxWidth: "300px",
-    width: "100%",
-    borderRadius: "10px",
+    width: "300px",
     overflow: "hidden",
     display: "flex",
     color: textColor,
@@ -64,6 +61,7 @@ const ContributorComp: React.FC<{
       href={`https://github.com/${contributor.username}`}
       target="_blank"
       rel="noopener noreferrer"
+      className="credits-contributors"
       style={{ ...linkStyle, color: textColor }}
     >
       <div key={contributor.username} style={cardStyle}>
@@ -115,7 +113,7 @@ const title: React.CSSProperties = {
 
 export const Credits: React.FC<CreditsProps> = ({ contributors }) => {
   return (
-    <div style={containerStyle}>
+    <div>
       <div style={titleContainer}>
         <div style={title}>CONTRIBUTORS</div>
         <div style={titleLine} />
