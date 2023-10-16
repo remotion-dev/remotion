@@ -2605,4 +2605,11 @@ export const articles = [
     compId: "articles-docs-zod-types-z-color",
     crumb: null,
   },
+  {
+    id: "zod-types/z-textarea",
+    title: "zTextarea()",
+    relativePath: "docs/zod-types/z-textarea.md",
+    compId: "articles-docs-zod-types-z-textarea",
+    crumb: null,
+  },
 ];
