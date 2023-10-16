@@ -146,3 +146,14 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
+
+<Credits contributors={[
+{
+username: "JonnyBurger",
+contribution: "Implementation"
+},
+{
+username: "evoxf1",
+contribution: <><code>toneFrequency</code> prop</>
+},
+]} />
