@@ -111,7 +111,7 @@ export const startServer = async (options: {
 	const maxTries = 5;
 
 	// Default Node.js host, but explicity
-	const host = '0.0.0.0';
+	const host = '::';
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
@@ -120,7 +120,7 @@ export const startServer = async (options: {
 					desiredPort,
 					from: 3000,
 					to: 3100,
-					hostsToTry: ['127.0.0.1', '0.0.0.0'],
+					hostsToTry: ['::1', '::'],
 				})
 					.then(({port, didUsePort}) => {
 						server.listen({
