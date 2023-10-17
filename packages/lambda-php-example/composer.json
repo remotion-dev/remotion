@@ -19,6 +19,6 @@
   ],
   "require": {
     "vlucas/phpdotenv": "^5.5",
-    "remotion/lambda": "4.0.49"
+    "remotion/lambda": "4.0.50"
   }
 }
