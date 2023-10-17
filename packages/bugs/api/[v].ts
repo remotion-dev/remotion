@@ -9,8 +9,8 @@ type Bug = {
 const bugs: Bug[] = [
   {
     title: "Broken Lambda",
-    description: "Lambda rendering fails due to no IPv6 support on Lambda.",
-    link: "https://github.com/remotion-dev/remotion/issues/3018",
+    description: "Lambda rendering fails witg no IPv6 error.",
+    link: "https://github.com/remotion-dev/remotion/pull/3019",
     versions: ["4.0.49"],
   },
   {
