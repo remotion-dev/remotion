@@ -45,6 +45,7 @@ import {
 	validVideoImageFormats,
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
+import {isIpV6Supported} from './is-ipv6-supported';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -215,6 +216,7 @@ export const RenderInternals = {
 	internalRenderMedia,
 	validOpenGlRenderers,
 	copyImageToClipboard,
+	isIpV6Supported,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
