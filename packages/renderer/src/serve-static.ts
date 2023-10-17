@@ -3,6 +3,7 @@ import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
+import {isIpV6Supported} from './is-ipv6-supported';
 import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
@@ -71,8 +72,11 @@ export const serveStatic = async (
 
 	const maxTries = 5;
 
-	// Default Node.js host, but explicity
-	const host = '::';
+	const host = isIpV6Supported() ? '::' : '0.0.0.0';
+	const hostsToTry = isIpV6Supported()
+		? ['::', '::1']
+		: ['0.0.0.0', '127.0.0.1'];
+
 	for (let i = 0; i < maxTries; i++) {
 		try {
 			selectedPort = await new Promise<number>((resolve, reject) => {
@@ -80,7 +84,7 @@ export const serveStatic = async (
 					desiredPort: options?.port ?? undefined,
 					from: 3000,
 					to: 3100,
-					hostsToTry: ['::', '::1'],
+					hostsToTry,
 				})
 					.then(({port, didUsePort}) => {
 						server.listen({port, host});
