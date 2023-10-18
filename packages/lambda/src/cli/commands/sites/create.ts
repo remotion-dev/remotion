@@ -121,6 +121,8 @@ export const sitesCreateSubcommand = async (
 				if (progress === 100) {
 					uploadStart = Date.now();
 				}
+
+				updateProgress();
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
