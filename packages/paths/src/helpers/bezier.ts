@@ -1,6 +1,6 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
-import type {Point} from './types';
+import type {Point, Properties} from './types';
 
 import {
 	cubicDerivative,
@@ -30,7 +30,10 @@ export const makeBezier = ({
 	cy: number;
 	dx: number | null;
 	dy: number | null;
-}) => {
+}): Properties & {
+	getC: () => Point;
+	getD: () => Point;
+} => {
 	let d: Point;
 	let getArcLength: (xs: number[], ys: number[], t: number) => number;
 	let getPoint: (xs: number[], ys: number[], t: number) => Point;
@@ -85,26 +88,6 @@ export const makeBezier = ({
 		return tangent;
 	};
 
-	const getPropertiesAtLength = (len: number) => {
-		const xs = [a.x, b.x, c.x, d.x];
-		const xy = [a.y, b.y, c.y, d.y];
-		const t = t2length(len, len, (i) => getArcLength(xs, xy, i));
-
-		const derivative = getDerivative(xs, xy, t);
-		const mdl = Math.sqrt(
-			derivative.x * derivative.x + derivative.y * derivative.y,
-		);
-		let tangent: Point;
-		if (mdl > 0) {
-			tangent = {x: derivative.x / mdl, y: derivative.y / mdl};
-		} else {
-			tangent = {x: 0, y: 0};
-		}
-
-		const point = getPoint(xs, xy, t);
-		return {x: point.x, y: point.y, tangentX: tangent.x, tangentY: tangent.y};
-	};
-
 	const getC = () => {
 		return c;
 	};
@@ -115,10 +98,10 @@ export const makeBezier = ({
 
 	return {
 		getPointAtLength,
-		getPropertiesAtLength,
 		getTangentAtLength,
 		getTotalLength,
 		getC,
 		getD,
+		type: 'bezier',
 	};
 };
