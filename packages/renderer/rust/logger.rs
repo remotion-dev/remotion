@@ -28,11 +28,7 @@ pub fn print_message(level: c_int, message: &str) {
         return;
     }
 
-    if level <= ffmpeg_next::log::Level::Info.into() {
-        _print_debug(&format!("[FFmpeg] {}", message)).unwrap();
-    } else if level <= ffmpeg_next::log::Level::Verbose.into() {
-        _print_verbose(&format!("[FFmpeg] {}", message)).unwrap();
-    }
+    _print_verbose(&format!("[FFmpeg] {}", message)).unwrap();
 }
 
 pub unsafe extern "C" fn log_callback(
