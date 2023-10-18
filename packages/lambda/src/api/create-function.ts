@@ -7,8 +7,10 @@ import {
 	GetFunctionCommand,
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
+	TagResourceCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'node:fs';
+import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
@@ -68,7 +70,7 @@ export const createFunction = async ({
 
 	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
 
-	const {FunctionName} = await getLambdaClient(region).send(
+	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
 				ZipFile: readFileSync(zipFile),
@@ -89,6 +91,24 @@ export const createFunction = async ({
 			},
 		}),
 	);
+
+	try {
+		await getLambdaClient(region).send(
+			new TagResourceCommand({
+				Resource: FunctionArn,
+				Tags: {
+					'remotion-lambda': 'true',
+					'remotion-version': VERSION,
+				},
+			}),
+		);
+	} catch (err) {
+		// Previous Lambda versions had no permission to tag the function
+		if (!(err as Error).name.includes('AccessDenied')) {
+			throw err;
+		}
+	}
+
 	await getLambdaClient(region).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,
