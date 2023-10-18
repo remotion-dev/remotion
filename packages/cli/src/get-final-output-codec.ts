@@ -21,18 +21,21 @@ const deriveCodecsFromFilename = (
 };
 
 export const getFinalOutputCodec = ({
-	cliFlag,
-	configFile,
-	downloadName,
-	outName,
-	uiCodec,
-}: {
-	cliFlag: CodecOrUndefined;
-	outName: string | null;
-	downloadName: string | null;
-	configFile: Codec | null;
-	uiCodec: Codec | null;
-}): {codec: Codec; reason: string} => {
+		cliFlag,
+		configFile,
+		downloadName,
+		outName,
+		uiCodec,
+		defaultCodec,
+	}: {
+		cliFlag: CodecOrUndefined;
+		outName: string | null;
+		downloadName: string | null;
+		configFile: Codec | null;
+		uiCodec: Codec | null;
+		defaultCodec?: Codec | null;
+	}
+): {codec: Codec; reason: string} => {
 	if (uiCodec) {
 		return {codec: uiCodec, reason: 'via UI'};
 	}
@@ -93,6 +96,10 @@ export const getFinalOutputCodec = ({
 			codec: derivedOutNameCodecs.default as Codec,
 			reason: 'derived from out name',
 		};
+	}
+
+	if (defaultCodec) {
+		return {codec: defaultCodec, reason: 'default codec'};
 	}
 
 	if (configFile) {

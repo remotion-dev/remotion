@@ -74,7 +74,7 @@ export const RenderButton: React.FC = () => {
 
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
+				defaultCodec: video.defaultCodec ?? defaults.codec as Codec,
 				renderType: isVideo ? 'video' : 'still',
 			});
 
