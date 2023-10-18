@@ -5,6 +5,7 @@ import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
+import { validateDefaultCodec } from './validation/validate-default-codec.js';
 
 const validateCalculated = ({
 	composition,
@@ -51,7 +52,10 @@ const validateCalculated = ({
 		component: `of the "<Composition />" component with the id "${composition.id}"`,
 	});
 
-	return {width, height, fps, durationInFrames};
+	const defaultCodec = calculated?.defaultCodec;
+	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+
+	return {width, height, fps, durationInFrames, defaultCodec};
 };
 
 export const resolveVideoConfig = ({
@@ -91,7 +95,7 @@ export const resolveVideoConfig = ({
 		'then' in calculatedProm
 	) {
 		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps} = validateCalculated({
+			const {height, width, durationInFrames, fps, defaultCodec} = validateCalculated({
 				calculated: c,
 				composition,
 			});
@@ -103,6 +107,7 @@ export const resolveVideoConfig = ({
 				id: composition.id,
 				defaultProps: composition.defaultProps ?? {},
 				props: c.props ?? fallbackProps,
+				defaultCodec,
 			};
 		});
 	}
