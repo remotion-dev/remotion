@@ -145,10 +145,6 @@ jobs:
         run: |
           choco install mingw --version=11.2.0 --allow-downgrade
         if: matrix.os == 'windows-latest'
-      - name: Downgrade Rust
-        run: |
-          rustup install 1.72
-          rustup default 1.72
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
