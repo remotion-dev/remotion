@@ -99,6 +99,9 @@ export const createFunction = async ({
 				Tags: {
 					'remotion-lambda': 'true',
 					'remotion-version': VERSION,
+					'remotion-memory-in-mb': String(memorySizeInMb),
+					'remotion-timeout-in-seconds': String(timeoutInSeconds),
+					'remotion-ephemereal-storage-in-mb': String(ephemerealStorageInMb),
 				},
 			}),
 		);
