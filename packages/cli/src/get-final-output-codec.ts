@@ -98,7 +98,7 @@ export const getFinalOutputCodec = ({
 	}
 
 	if (compositionCodec) {
-		return {codec: compositionCodec, reason: 'default codec'};
+		return {codec: compositionCodec, reason: 'via calculateMetadata'};
 	}
 
 	if (configFile) {
