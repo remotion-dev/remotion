@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
       <Grid>
         <TOCItem link="/docs/layout-utils/measure-text">
           <strong>measureText()</strong>
-          <div>Create measure text</div>
+          <div>Get dimensions of text</div>
         </TOCItem>
       </Grid>
     </div>
