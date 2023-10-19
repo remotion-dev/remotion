@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
 import {startLongRunningCompositor} from '../compositor/compositor';
@@ -38,9 +37,10 @@ test('Handle panics', async () => {
 		await compositor.executeCommand('DeliberatePanic', {});
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
-		expect((err as Error).message).toContain(
-			path.join('rust', 'commands', 'mod'),
-		);
+		expect(
+			(err as Error).message.includes(['rust', 'commands', 'mod'].join('/')) ||
+				(err as Error).message.includes(['rust', 'commands', 'mod'].join('\\')),
+		).toBeTruthy();
 	}
 
 	try {
