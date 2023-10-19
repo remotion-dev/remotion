@@ -44,10 +44,6 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 		];
 	}
 
-	if (renderer === 'angle') {
-		return [`--use-gl=angle`, `--use-angle=gl-egl`];
-	}
-
 	if (renderer === null) {
 		return [];
 	}
