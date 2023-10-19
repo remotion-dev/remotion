@@ -1,5 +1,5 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
-import type {Point, PointProperties} from './types';
+import type {Point, Properties} from './types';
 
 export const makeLinearPosition = ({
 	x0,
@@ -11,7 +11,7 @@ export const makeLinearPosition = ({
 	x1: number;
 	y0: number;
 	y1: number;
-}) => {
+}): Properties => {
 	const getTotalLength = () => {
 		return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
 	};
@@ -31,15 +31,10 @@ export const makeLinearPosition = ({
 		return {x: (x1 - x0) / module, y: (y1 - y0) / module};
 	};
 
-	const getPropertiesAtLength = (): PointProperties => {
-		const tangent = getTangentAtLength();
-		return {tangentX: tangent.x, tangentY: tangent.y};
-	};
-
 	return {
 		getTotalLength,
 		getPointAtLength,
 		getTangentAtLength,
-		getPropertiesAtLength,
+		type: 'linear',
 	};
 };
