@@ -124,6 +124,7 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
+				defaultCodec: null,
 			},
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,

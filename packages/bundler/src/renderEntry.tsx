@@ -88,6 +88,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				fps: state.compositionFps,
 				height: state.compositionHeight,
 				width: state.compositionWidth,
+				defaultCodec: state.compositionDefaultCodec,
 			});
 		}
 	}, [compositions, compositions.compositions, state, video]);

@@ -282,8 +282,6 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 		});
 
-	const defaultCodec = config.defaultCodec;
-
 	const {codec, reason: codecReason} = getFinalOutputCodec({
 		cliFlag: parsedCli.codec,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
@@ -293,7 +291,7 @@ export const renderVideoFlow = async ({
 			outputLocationFromUI,
 		),
 		uiCodec,
-		defaultCodec,
+		compositionCodec: config.defaultCodec,
 	});
 
 	RenderInternals.validateEvenDimensionsWithCodec({
