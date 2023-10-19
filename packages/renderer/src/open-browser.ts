@@ -8,20 +8,10 @@ import {
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-} from './validate-opengl-renderer';
+import type {validOpenGlRenderers} from './options/gl';
+import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
 
-const validRenderers = [
-	'swangle',
-	'angle',
-	'egl',
-	'swiftshader',
-	'vulkan',
-] as const;
-
-type OpenGlRenderer = (typeof validRenderers)[number];
+type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
@@ -38,6 +28,10 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+	}
+
+	if (renderer === 'angle-egl') {
+		return [`--use-gl=angle`, `--use-angle=egl`];
 	}
 
 	if (renderer === 'vulkan') {
