@@ -130,6 +130,7 @@ jobs:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -141,10 +142,6 @@ jobs:
           - os: ubuntu-latest
             node_version: 20.5
     steps:
-      - name: Downgrade MinGW
-        run: |
-          choco install mingw --version=11.2.0 --allow-downgrade
-        if: matrix.os == 'windows-latest'
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
