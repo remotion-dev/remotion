@@ -228,11 +228,17 @@ declare global {
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle' and 'vulkan'.
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle', 'vulkan' and 'angle-egl'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader' | 'vulkan',
+			renderer:
+				| 'swangle'
+				| 'angle'
+				| 'egl'
+				| 'swiftshader'
+				| 'vulkan'
+				| 'angle-egl',
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.

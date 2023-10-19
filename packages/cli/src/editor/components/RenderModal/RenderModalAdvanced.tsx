@@ -84,7 +84,15 @@ export const RenderModalAdvanced: React.FC<{
 	setChromiumMultiProcessOnLinux,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
-		return ['angle', 'egl', 'swangle', 'swiftshader', 'vulkan', 'default'];
+		return [
+			'angle',
+			'egl',
+			'swangle',
+			'swiftshader',
+			'vulkan',
+			'angle-egl',
+			'default',
+		];
 	}, []);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {

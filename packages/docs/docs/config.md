@@ -276,7 +276,7 @@ The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enab
 
 ## setChromiumOpenGlRenderer
 
-Select the OpenGL renderer backend for Chromium.
+<Options id="gl" />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -285,18 +285,6 @@ import { Config } from "@remotion/cli/config";
 
 Config.setChromiumOpenGlRenderer("angle");
 ```
-
-<AngleChangelog/>
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
 
 The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
 
