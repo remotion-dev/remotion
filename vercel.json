@@ -203,6 +203,11 @@
       "permanent": false
     },
     {
+      "source": "/layout-utils",
+      "destination": "https://www.remotion.dev/docs/layout-utils",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
