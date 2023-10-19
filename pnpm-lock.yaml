@@ -567,6 +567,9 @@ importers:
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/layout-utils':
+        specifier: workspace:*
+        version: link:../layout-utils
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
@@ -792,6 +795,9 @@ importers:
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/layout-utils':
+        specifier: workspace:*
+        version: link:../layout-utils
       '@remotion/lottie':
         specifier: workspace:*
         version: link:../lottie
@@ -1154,6 +1160,37 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+
+  packages/layout-utils:
+    dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.276
+        version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
+      '@rollup/plugin-typescript':
+        specifier: ^8.2.0
+        version: 8.5.0(rollup@2.76.0)(typescript@4.9.5)
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      prettier:
+        specifier: 3.0.2
+        version: 3.0.2
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.2
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
+      rollup:
+        specifier: ^2.70.1
+        version: 2.76.0
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
 
   packages/lottie:
     dependencies:
@@ -8734,7 +8771,7 @@ packages:
       chalk: 4.1.2
       dom-accessibility-api: 0.5.14
       lz-string: 1.4.4
-      pretty-format: 27.2.4
+      pretty-format: 27.5.1
     dev: true
 
   /@testing-library/react@13.1.1(react-dom@18.0.0)(react@18.0.0):
@@ -11370,7 +11407,7 @@ packages:
     dev: false
 
   /concat-map@0.0.1:
-    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
+    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
   /concordance@5.0.4:
     resolution: {integrity: sha512-OAcsnTEYu1ARJqWVGwf4zh4JDfHZEaSNlNccFmt8YjB2l/n19/PF2viLINHc57vO4FKIAFl2FWASIGZZWZ2Kxw==}
