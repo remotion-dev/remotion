@@ -6,6 +6,15 @@ sidebar_label: Deploy Remotion Studio
 crumb: "Building video apps"
 ---
 
+import { YouTube } from "../components/YouTube";
+
+<YouTube
+  minutes={3}
+  href="https://www.youtube.com/watch?v=430B9xSs06U"
+  thumb="https://i.ytimg.com/vi/430B9xSs06U/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFJ4FoC-8enbWW4aU8uo9NLhEl6w"
+  title="Deploy the Remotion Studio"
+/>
+
 _available from v4.0.46_
 
 You can deploy the Remotion Studio to a long-running server in the cloud and make it accessible to your team. To do so, you need to:
@@ -87,6 +96,10 @@ To deploy the Remotion Studio to [Render.com](https://render.com):
 Is not working at the moment. The Render Button is disabled, because the DigitalOcean HTTP Proxy [does not support server-sent events](https://www.digitalocean.com/community/questions/does-app-platform-support-sse-server-sent-events-application).
 
 A normal DigitalOcean droplet does work, though.
+
+## Example for deployment
+
+A test project to deploy the Remotion Studio is available [here](https://github.com/remotion-dev/shorts-customizer).
 
 ## See also
 

@@ -23,6 +23,7 @@ export const symbolicateError = async (
 		frame: symbolicateableError.frame,
 		name: symbolicateableError.name,
 		delayRenderCall: delayRenderFrames,
+		stack: symbolicateableError.stack,
 	});
 
 	return symbolicatedErr;

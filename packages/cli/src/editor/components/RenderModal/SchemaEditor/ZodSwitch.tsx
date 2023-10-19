@@ -20,6 +20,7 @@ import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodOptionalEditor} from './ZodOptionalEditor';
 import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
+import {ZodTextareaEditor} from './ZodTextareaEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
@@ -93,6 +94,28 @@ export const ZodSwitch: React.FC<{
 					schema={schema}
 					defaultValue={defaultValue as string}
 					onSave={onSave as (newValue: (oldVal: string) => string) => void}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad={mayPad}
+				/>
+			);
+		}
+
+		if (
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_TEXTAREA_BRAND
+		) {
+			return (
+				<ZodTextareaEditor
+					value={value as string}
+					setValue={setValue as UpdaterFunction<string>}
+					jsonPath={jsonPath}
+					schema={schema}
+					onSave={onSave as UpdaterFunction<string>}
+					defaultValue={defaultValue as string}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
 					saving={saving}
