@@ -99,20 +99,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumHeadlessM
 
 ## `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" />
 
 ### Via Node.JS APIs
 

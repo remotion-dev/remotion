@@ -16,16 +16,18 @@ const line: React.CSSProperties = {
 export const inPointerHandle = createRef<HTMLDivElement>();
 export const outPointerHandle = createRef<HTMLDivElement>();
 
-export const TimelineInOutPointerHandle: React.FC<{
+type Props = {
 	dragging: boolean;
 	type: 'in' | 'out';
 	atFrame: number;
-}> = ({dragging, type, atFrame}) => {
-	const timelineWidth = useContext(TimelineWidthContext);
-	const videoConfig = useVideoConfig();
-	if (timelineWidth === null) {
-		throw new Error('Timeline width is null');
+};
+
+const InnerTimelineInOutPointerHandle: React.FC<
+	Props & {
+		timelineWidth: number;
 	}
+> = ({atFrame, dragging, timelineWidth, type}) => {
+	const videoConfig = useVideoConfig();
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -45,6 +47,29 @@ export const TimelineInOutPointerHandle: React.FC<{
 		<div
 			ref={type === 'in' ? inPointerHandle : outPointerHandle}
 			style={style}
+		/>
+	);
+};
+
+export const TimelineInOutPointerHandle: React.FC<Props> = ({
+	dragging,
+	type,
+	atFrame,
+}) => {
+	const timelineWidth = useContext(TimelineWidthContext);
+
+	// When switching from a content which has no timeline (still or asset preview)
+	// the timeline first needs to mount, so we need to wait for the timeline width
+	if (timelineWidth === null) {
+		return null;
+	}
+
+	return (
+		<InnerTimelineInOutPointerHandle
+			atFrame={atFrame}
+			dragging={dragging}
+			timelineWidth={timelineWidth}
+			type={type}
 		/>
 	);
 };
