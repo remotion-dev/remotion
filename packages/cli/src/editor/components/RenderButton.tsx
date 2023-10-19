@@ -8,13 +8,10 @@ import type {
 	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {getDefaultOutLocation} from '../../get-default-out-name';
 import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
-import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
@@ -64,19 +61,11 @@ export const RenderButton: React.FC = () => {
 			return null;
 		}
 
-		const isVideo = video.durationInFrames > 1;
-
 		const defaults = window.remotion_renderDefaults;
 
 		if (!defaults) {
 			throw new TypeError('Expected defaults');
 		}
-
-		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
-			getDefaultCodecs({
-				defaultCodec: video.defaultCodec ?? defaults.codec as Codec,
-				renderType: isVideo ? 'video' : 'still',
-			});
 
 		setSelectedModal({
 			type: 'render',
@@ -84,22 +73,9 @@ export const RenderButton: React.FC = () => {
 			initialFrame: frame,
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: defaults.videoImageFormat,
-			initialOutName: getDefaultOutLocation({
-				compositionName: video.id,
-				defaultExtension: isVideo
-					? BrowserSafeApis.getFileExtensionFromCodec(
-							initialVideoCodec,
-							defaults.audioCodec as AudioCodec,
-					  )
-					: defaults.stillImageFormat,
-				type: 'asset',
-			}),
 			initialJpegQuality: defaults.jpegQuality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
-			initialVideoCodecForAudioTab: initialAudioCodec,
-			initialRenderType,
-			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
@@ -113,7 +89,7 @@ export const RenderButton: React.FC = () => {
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: defaults.delayRenderTimeout,
-			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
+			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: window.process.env as Record<string, string>,
 			initialDisableWebSecurity: defaults.disableWebSecurity,
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
@@ -126,6 +102,7 @@ export const RenderButton: React.FC = () => {
 			outFrameMark: outFrame,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
+			defaultConfigurationVideoCodec: defaults.codec as Codec,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

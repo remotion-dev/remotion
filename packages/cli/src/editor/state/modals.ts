@@ -12,7 +12,6 @@ import type {
 import type React from 'react';
 import {createContext} from 'react';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
-import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type CompType = 'composition' | 'still';
@@ -24,13 +23,8 @@ export type RenderModalState = {
 	initialStillImageFormat: StillImageFormat;
 	initialVideoImageFormat: VideoImageFormat;
 	initialJpegQuality: number;
-	initialOutName: string;
 	initialScale: number;
 	initialVerbose: boolean;
-	initialRenderType: RenderType;
-	initialVideoCodecForAudioTab: Codec;
-	initialVideoCodecForVideoTab: Codec;
-	initialAudioCodec: AudioCodec | null;
 	initialConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
@@ -55,6 +49,8 @@ export type RenderModalState = {
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	defaultConfigurationVideoCodec: Codec;
+	defaultConfigurationAudioCodec: AudioCodec | null;
 };
 
 export type ModalState =

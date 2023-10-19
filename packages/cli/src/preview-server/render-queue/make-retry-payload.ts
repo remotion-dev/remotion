@@ -8,7 +8,6 @@ import type {
 } from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {RenderModalState} from '../../editor/state/modals';
-import {getDefaultCodecs} from './get-default-video-contexts';
 import type {RenderJob} from './job';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
@@ -18,11 +17,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	}
 
 	if (job.type === 'still') {
-		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
-			getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
-				renderType: 'still',
-			});
 		return {
 			type: 'render',
 			compositionId: job.compositionId,
@@ -30,12 +24,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialStillImageFormat: job.imageFormat,
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
-			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
-			initialVideoCodecForAudioTab: initialAudioCodec,
-			initialRenderType,
-			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
@@ -49,7 +39,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: job.delayRenderTimeout,
-			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
+			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
@@ -64,27 +54,19 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
+			defaultConfigurationVideoCodec: defaults.codec as Codec,
 		};
 	}
 
 	if (job.type === 'sequence') {
-		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
-			getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
-				renderType: 'sequence',
-			});
 		return {
 			type: 'render',
 			initialFrame: 0,
 			compositionId: job.compositionId,
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
-			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
-			initialVideoCodecForAudioTab: initialAudioCodec,
-			initialRenderType,
-			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
@@ -98,7 +80,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: job.delayRenderTimeout,
-			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
@@ -114,22 +95,18 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
+			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
 		};
 	}
 
 	if (job.type === 'video') {
-		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
-			getDefaultCodecs({
-				defaultCodec: job.codec,
-				renderType: 'video',
-			});
 		return {
 			type: 'render',
 			compositionId: job.compositionId,
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: job.imageFormat,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
-			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
 			initialFrame: 0,
@@ -137,10 +114,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: job.muted,
-			initialVideoCodecForAudioTab: initialAudioCodec,
 			initialEnforceAudioTrack: job.enforceAudioTrack,
-			initialRenderType,
-			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialProResProfile:
 				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
 			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as X264Preset),
@@ -150,7 +124,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEveryNthFrame: job.everyNthFrame,
 			initialNumberOfGifLoops: job.numberOfGifLoops,
 			initialDelayRenderTimeout: job.delayRenderTimeout,
-			initialAudioCodec: job.audioCodec,
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
@@ -165,6 +138,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: job.colorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
+			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			defaultConfigurationAudioCodec: job.audioCodec,
 		};
 	}
 
