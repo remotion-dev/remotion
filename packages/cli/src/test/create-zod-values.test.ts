@@ -322,3 +322,10 @@ test('Should create a color', async () => {
 
 	expect(createZodValues(zodTypes.zColor(), z, zodTypes)).toBe('#ffffff');
 });
+
+test('Should create a textarea', async () => {
+	const z = await getZ();
+	const zodTypes = await getZodTypes();
+
+	expect(createZodValues(zodTypes.zTextarea(), z, zodTypes)).toBe('');
+});

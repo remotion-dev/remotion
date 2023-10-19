@@ -125,6 +125,6 @@ export const resolveVideoConfig = ({
 		...data,
 		id: composition.id,
 		defaultProps: composition.defaultProps ?? {},
-		props: calculatedProm.props ?? composition.defaultProps ?? {},
+		props: calculatedProm.props ?? fallbackProps,
 	};
 };

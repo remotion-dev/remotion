@@ -98,7 +98,7 @@ export const getDesiredPort = async ({
 		typeof desiredPort !== 'undefined' &&
 		(await testPortAvailableOnMultipleHosts({
 			port: desiredPort,
-			hosts: ['0.0.0.0', '127.0.0.1'],
+			hosts: ['::', '::1'],
 		})) === 'available'
 	) {
 		return {port: desiredPort, didUsePort};
