@@ -307,6 +307,7 @@ export const makeArc = ({
 		getPointAtLength,
 		getTangentAtLength,
 		getTotalLength,
+		type: 'arc',
 	};
 };
 
