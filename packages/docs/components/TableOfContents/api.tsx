@@ -90,7 +90,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/layout-utils">
           <strong>@remotion/layout-utils</strong>
-          <div>Utility functions</div>
+          <div>Layout helpers</div>
         </TOCItem>
       </Grid>
     </div>
