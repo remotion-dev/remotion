@@ -52,6 +52,11 @@ import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	validateOpenGlRenderer,
+	validOpenGlRenderers,
+} from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
@@ -69,18 +74,6 @@ import {
 	validateConcurrency,
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-	validOpenGlRenderers,
-} from './validate-opengl-renderer';
-import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {validateBitrate} from './validate-videobitrate';
-import {
-	registerErrorSymbolicationLock,
-	unlockErrorSymbolicationLock,
-} from './wait-for-symbolication-error-to-be-done';
-
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -108,6 +101,7 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
+export {OpenGlRenderer} from './options/gl';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
@@ -132,9 +126,15 @@ export {
 } from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
-export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
 export {X264Preset} from './x264-preset';
+
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateBitrate} from './validate-videobitrate';
+import {
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+} from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
 	ensureLocalBrowser,
