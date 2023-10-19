@@ -603,6 +603,19 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
+				<Composition
+					id="default-codec"
+					component={ColorInterpolation}
+					width={1280}
+					height={720}
+					fps={30}
+					calculateMetadata={() => {
+						return {
+							defaultCodec: 'aac',
+						};
+					}}
+					durationInFrames={100}
+				/>
 				<Still
 					id="static-demo"
 					component={StaticDemo}
