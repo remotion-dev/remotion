@@ -18,6 +18,7 @@ test("Cancelling after success should not throw error", async () => {
       width: 1280,
       defaultProps: {},
       props: {},
+      defaultCodec: null,
     },
     concurrency: 1,
     outputLocation,
