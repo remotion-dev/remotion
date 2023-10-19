@@ -29,6 +29,7 @@
 		{"path": "../shapes"},
 		{"path": "../skia"},
 		{"path": "../three"},
-		{"path": "../zod-types"}
+		{"path": "../zod-types"},
+		{"path": "../layout-utils"},
 	]
 }

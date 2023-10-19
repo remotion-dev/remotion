@@ -2640,4 +2640,18 @@ export const articles = [
     compId: "articles-docs-zod-types-z-textarea",
     crumb: null,
   },
+  {
+    id: "layout-utils/index",
+    title: "@remotion/layout-utils",
+    relativePath: "docs/layout-utils/index.md",
+    compId: "articles-docs-layout-utils-index",
+    crumb: null,
+  },
+  {
+    id: "layout-utils/measure-text",
+    title: "measureText()",
+    relativePath: "docs/layout-utils/measure-text.md",
+    compId: "articles-docs-layout-utils-measure-text",
+    crumb: "Make some",
+  },
 ];
