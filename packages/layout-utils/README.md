@@ -1,3 +1,3 @@
-This package a layout utils for Remotion.
+This package contains layout utilities for Remotion.
 
 **Documentation: https://remotion.dev/layout-utils**
