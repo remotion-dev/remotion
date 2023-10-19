@@ -124,7 +124,7 @@ const innerGetCompositions = async ({
 	>;
 
 	return res.map((r) => {
-	const {width, durationInFrames, fps, height, id, defaultCodec} = r;
+		const {width, durationInFrames, fps, height, id, defaultCodec} = r;
 
 		return {
 			id,
