@@ -6,13 +6,13 @@ crumb: "Make some"
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
 
-Creates measure text get the true width and height of the text.
+Calculates the width and height of specified text to be used for layout calculations. Only works in the browser, not in Node.js or Bun.
 
 ## API
 
-This function has a cache. If there are two duplicate arguments inputs, the second one will return the first result without repeating the calculation
+This function has a cache. If there are two duplicate arguments inputs, the second one will return the first result without repeating the calculation.
 
-The function takes five arguments:
+The function takes the following options:
 
 ### `text`
 
@@ -53,13 +53,19 @@ An object with `height` and `width`
 ```tsx twoslash
 import { measureText } from "@remotion/layout-utils";
 
-const text = 'remotion';
-const fontFamily = 'Arial';
-const fontWeight = '500';
+const text = "remotion";
+const fontFamily = "Arial";
+const fontWeight = "500";
 const fontSize = 12;
-const letterSpacing = '1px';
+const letterSpacing = "1px";
 
-console.log(measureText({ text, fontFamily, fontWeight, fontSize, letterSpacing })); // { height: 14, width: 20 }
+measureText({
+  text,
+  fontFamily,
+  fontWeight,
+  fontSize,
+  letterSpacing,
+}); // { height: 14, width: 20 }
 ```
 
 ## See also
