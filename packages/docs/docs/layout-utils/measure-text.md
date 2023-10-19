@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-layout-utils-measure-text.png
+title: measureText()
+crumb: "Make some"
+---
+
+_Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
+
+Creates measure text get the true width and height of the text.
+
+## API
+
+This function has a cache. If there are two duplicate arguments inputs, the second one will return the first result without repeating the calculation
+
+The function takes five arguments:
+
+### `text`
+
+_Required_ _string_
+
+Any string.
+
+### `fontFamily`
+
+_Required_ _string_
+
+Same as CSS style `font-family`
+
+### `fontSize`
+
+_Required_ _number_
+
+Same as CSS style `font-size`. Only _numbers_ allowed, unit `px`
+
+### `fontWeight`
+
+_string_
+
+Same as CSS style `font-weight`
+
+### `letterSpacing`
+
+_string_
+
+Same as CSS style `font-spacing`.
+
+## Return value
+
+An object with `height` and `width`
+
+## Example
+
+```tsx twoslash
+import { measureText } from "@remotion/layout-utils";
+
+const text = 'remotion';
+const fontFamily = 'Arial';
+const fontWeight = '500';
+const fontSize = 12;
+const letterSpacing = '1px';
+
+console.log(measureText({ text, fontFamily, fontWeight, fontSize, letterSpacing })); // { height: 14, width: 20 }
+```
+
+## See also
+
+- [`@remotion/layout-utils`](/docs/layout-utils)
