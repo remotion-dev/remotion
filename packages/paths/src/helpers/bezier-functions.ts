@@ -1,5 +1,6 @@
 import {binomialCoefficients, cValues, tValues} from './bezier-values';
 import type {Point} from './types';
+
 export const cubicPoint = (xs: number[], ys: number[], t: number): Point => {
 	const x =
 		(1 - t) * (1 - t) * (1 - t) * xs[0] +
@@ -54,7 +55,15 @@ function bFunc(xs: number[], ys: number[], t: number) {
 	return Math.sqrt(combined);
 }
 
-export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
+export const getCubicArcLength = ({
+	sx,
+	sy,
+	t,
+}: {
+	sx: number[];
+	sy: number[];
+	t: number;
+}) => {
 	let correctedT: number;
 
 	const n = 20;
@@ -63,7 +72,7 @@ export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
 	let sum = 0;
 	for (let i = 0; i < n; i++) {
 		correctedT = z * tValues[n][i] + z;
-		sum += cValues[n][i] * bFunc(xs, ys, correctedT);
+		sum += cValues[n][i] * bFunc(sx, sy, correctedT);
 	}
 
 	return z * sum;
@@ -131,11 +140,15 @@ export const quadraticDerivative = (xs: number[], ys: number[], t: number) => {
 	};
 };
 
-export const t2length = (
-	length: number,
-	totalLength: number,
-	func: (t: number) => number,
-): number => {
+export const t2length = ({
+	length,
+	totalLength,
+	func,
+}: {
+	length: number;
+	totalLength: number;
+	func: (t: number) => number;
+}): number => {
 	let error = 1;
 	let t = length / totalLength;
 	let step = (length - func(t)) / totalLength;
