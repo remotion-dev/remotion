@@ -37,8 +37,8 @@ export const Title: React.FC<{
 	const {width, height} = measureText({
 		text: line1,
 		fontFamily: fontStyle.fontFamily,
-		fontSize: fontStyle.fontSize
-	})
+		fontSize: fontStyle.fontSize,
+	});
 	return (
 		<div
 			style={{
@@ -50,9 +50,7 @@ export const Title: React.FC<{
 				textAlign: 'center',
 			}}
 		>
-			<div
-				style={fontStyle}
-			>
+			<div style={fontStyle}>
 				<span
 					style={{
 						display: 'inline-block',
