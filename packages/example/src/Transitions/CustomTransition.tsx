@@ -1,13 +1,20 @@
 import {getBoundingBox, translatePath} from '@remotion/paths';
 import {makeStar} from '@remotion/shapes';
 import {
-	springTiming,
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
 	TransitionSeries,
+	TransitionTiming,
 } from '@remotion/transitions';
 import React, {useMemo, useState} from 'react';
-import {AbsoluteFill, random, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	measureSpring,
+	random,
+	spring,
+	SpringConfig,
+	useVideoConfig,
+} from 'remotion';
 import {Letter} from './BasicTransition';
 
 type CustomPresentationProps = {
@@ -73,25 +80,51 @@ const customTransition = (
 	return {component: SlidePresentation, props};
 };
 
+const customTiming = ({
+	pauseDuration,
+}: {
+	pauseDuration: number;
+}): TransitionTiming => {
+	const firstHalf: Partial<SpringConfig> = {};
+	const secondPush: Partial<SpringConfig> = {
+		damping: 200,
+	};
+
+	return {
+		getDurationInFrames: ({fps}) => {
+			return (
+				measureSpring({fps, config: firstHalf}) +
+				measureSpring({fps, config: secondPush}) +
+				pauseDuration
+			);
+		},
+		getProgress({fps, frame}) {
+			const first = spring({fps, frame, config: firstHalf});
+			const second = spring({
+				fps,
+				frame,
+				config: secondPush,
+				delay: pauseDuration + measureSpring({fps, config: firstHalf}),
+			});
+
+			return first / 2 + second / 2;
+		},
+	};
+};
+
 export const CustomTransition: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
 		<TransitionSeries>
-			<TransitionSeries.Sequence durationInFrames={70}>
+			<TransitionSeries.Sequence durationInFrames={80}>
 				<Letter color="orange">A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={customTransition({shape: 'star', width, height})}
-				timing={springTiming({
-					durationInFrames: 45,
-					config: {
-						damping: 200,
-					},
-					durationRestThreshold: 0.0001,
-				})}
+				timing={customTiming({pauseDuration: 10})}
 			/>
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.Sequence durationInFrames={200}>
 				<Letter color="pink">B</Letter>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>

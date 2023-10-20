@@ -1,3 +1,6 @@
+import {zColor} from '@remotion/zod-types';
+import {alias} from 'lib/alias';
+import React, {useCallback} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
@@ -6,9 +9,6 @@ import {
 	staticFile,
 	Still,
 } from 'remotion';
-import {zColor} from '@remotion/zod-types';
-import {alias} from 'lib/alias';
-import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';

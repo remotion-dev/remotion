@@ -1,4 +1,5 @@
 import {
+  CustomTimingDemo,
   CustomTransitionDemo,
   FadeDemo,
   SlideDemo,
@@ -553,6 +554,17 @@ export const customPresentationDemo: DemoType = {
   durationInFrames: 60,
   fps: 30,
   id: "custom-presentation",
+  autoPlay: true,
+  options: [],
+};
+
+export const customTimingDemo: DemoType = {
+  comp: CustomTimingDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "custom-timing",
   autoPlay: true,
   options: [],
 };
