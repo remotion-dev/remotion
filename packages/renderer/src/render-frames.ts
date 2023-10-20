@@ -453,6 +453,8 @@ const innerRenderFrames = async ({
 				renderAsset,
 				onDownload,
 				downloadMap,
+				indent,
+				logLevel,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`),
