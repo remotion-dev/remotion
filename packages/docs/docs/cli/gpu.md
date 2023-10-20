@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-gpu.png
 crumb: CLI Reference
 sidebar_label: gpu
 title: npx remotion gpu
