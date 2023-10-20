@@ -84,7 +84,7 @@ sudo apt-get install nodejs -y
 git clone https://github.com/remotion-dev/gpu-scene
 cd gpu-scene
 npm i
-npx remotion render --browser-executable=/usr/bin/google-chrome-stable --gl=angle-egl
+npx remotion render --browser-executable=/usr/bin/google-chrome-stable --gl=angle-egl --enable-multiprocess-on-linux
 ```
 
 ## See also
