@@ -201,10 +201,12 @@ const makeStitchingProgress = ({
 	stitchingProgress,
 	steps,
 	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	stitchingProgress: StitchingProgressInput;
 	steps: number;
 	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }) => {
 	const {frames, totalFrames, doneIn, stage, codec} = stitchingProgress;
 	const progress = frames / totalFrames;
@@ -218,7 +220,7 @@ const makeStitchingProgress = ({
 	return [
 		`(${stitchingStep + 1}/${steps})`,
 		makeProgressBar(progress),
-		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+		stage === 'muxing' && isUsingParallelEncoding
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
@@ -231,10 +233,12 @@ export const makeRenderingAndStitchingProgress = ({
 	prog,
 	steps,
 	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	prog: AggregateRenderProgress;
 	steps: number;
 	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }): {
 	output: string;
 	progress: number;
@@ -250,6 +254,7 @@ export const makeRenderingAndStitchingProgress = ({
 					stitchingProgress: stitching,
 					steps,
 					stitchingStep,
+					isUsingParallelEncoding,
 			  }),
 	]
 		.filter(truthy)

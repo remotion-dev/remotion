@@ -191,8 +191,12 @@ Callback function that gets called once the renderer has prepared to start rende
 ```tsx twoslash
 import { OnStartData } from "@remotion/renderer";
 
-const onStart = ({ frameCount }: OnStartData) => {
+const onStart = ({ frameCount, parallelEncoding }: OnStartData) => {
   console.log(`Beginning to render ${frameCount}.`);
+  // From Remotion v4.0.52
+  if (parallelEncoding) {
+    console.log("Parallel encoding is enabled.");
+  }
 };
 ```
 

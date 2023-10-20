@@ -392,17 +392,17 @@ const internalRenderMediaRaw = ({
 	);
 
 	const callUpdate = () => {
+		const encoded = Math.round(0.5 * encodedFrames + 0.5 * muxedFrames);
+
 		onProgress?.({
 			encodedDoneIn,
-			encodedFrames: Math.round(0.5 * encodedFrames + 0.5 * muxedFrames),
+			encodedFrames: encoded,
 			renderedDoneIn,
 			renderedFrames,
 			stitchStage,
 			progress:
-				Math.round(
-					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						totalFramesToRender,
-				) / 100,
+				Math.round((70 * renderedFrames + 30 * encoded) / totalFramesToRender) /
+				100,
 		});
 	};
 
@@ -590,6 +590,7 @@ const internalRenderMediaRaw = ({
 					server,
 					serializedResolvedPropsWithCustomSchema,
 					offthreadVideoCacheSizeInBytes,
+					parallelEncodingEnabled: parallelEncoding,
 				});
 
 				return renderFramesProc;
