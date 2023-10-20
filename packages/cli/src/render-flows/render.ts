@@ -162,6 +162,8 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
+	let isUsingParallelEncoding = false;
+
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
@@ -207,6 +209,7 @@ export const renderVideoFlow = async ({
 			prog: aggregateRenderProgress,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
+			isUsingParallelEncoding,
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
@@ -244,6 +247,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 		updateRenderProgress,
 		updatesDontOverwrite,
+		isUsingParallelEncoding,
 	});
 
 	const puppeteerInstance = await browserInstance;
@@ -378,7 +382,9 @@ export const renderVideoFlow = async ({
 				(renderingProgress as RenderingProgressInput).frames = rendered;
 				updateRenderProgress({newline: false, printToConsole: true});
 			},
-			onStart: () => undefined,
+			onStart: ({parallelEncoding}) => {
+				isUsingParallelEncoding = parallelEncoding;
+			},
 			onDownload,
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
@@ -407,6 +413,7 @@ export const renderVideoFlow = async ({
 				data: config.props,
 			}).serializedString,
 			offthreadVideoCacheSizeInBytes,
+			parallelEncodingEnabled: isUsingParallelEncoding,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
