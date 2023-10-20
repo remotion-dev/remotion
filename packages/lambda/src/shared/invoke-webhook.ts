@@ -50,6 +50,11 @@ export type WebhookPayload = {
 	customData: Record<string, unknown> | null;
 } & DynamicWebhookPayload;
 
+export const mockableHttpClients = {
+	http: http.request,
+	https: https.request,
+};
+
 const getWebhookClient = (url: string) => {
 	if (url.startsWith('https://')) {
 		return mockableHttpClients.https;
@@ -60,11 +65,6 @@ const getWebhookClient = (url: string) => {
 	}
 
 	throw new Error('Can only request URLs starting with http:// or https://');
-};
-
-export const mockableHttpClients = {
-	http: http.request,
-	https: https.request,
 };
 
 type InvokeWebhookOptions = {

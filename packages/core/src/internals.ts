@@ -89,13 +89,12 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
-const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
 	useUnsafeVideoConfig,
-	Timeline,
+	Timeline: TimelinePosition,
 	CompositionManager,
 	SequenceManager,
 	RemotionRoot,
@@ -159,7 +158,7 @@ export const Internals = {
 
 export type {
 	TComposition,
-	Timeline,
+	TimelinePosition as Timeline,
 	TCompMetadata,
 	TSequence,
 	TRenderAsset as TAsset,

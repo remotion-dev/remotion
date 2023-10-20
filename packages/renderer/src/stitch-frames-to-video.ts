@@ -140,6 +140,8 @@ const getAssetsData = async ({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
 		downloadMap,
+		indent,
+		logLevel,
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);
@@ -366,9 +368,8 @@ const innerStitchFramesToVideo = async (
 				audio,
 				'-c:a',
 				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				// Set bitrate up to 320k, for aac it might effectively be lower
 				'-b:a',
-				audioBitrate ?? '320k',
+				audioBitrate ? audioBitrate : '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(Internals.truthy),
@@ -431,8 +432,9 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec
 			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
 			: null,
-		// Set max bitrate up to 1024kbps, will choose lower if that's too much
-		resolvedAudioCodec ? ['-b:a', audioBitrate || '512K'] : null,
+		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
+		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
+		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[

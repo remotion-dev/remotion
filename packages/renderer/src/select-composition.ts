@@ -147,7 +147,7 @@ const innerSelectComposition = async ({
 		ReturnType<typeof window.remotion_calculateComposition>
 	>;
 
-	const {width, durationInFrames, fps, height} = res;
+	const {width, durationInFrames, fps, height, defaultCodec} = res;
 	return {
 		metadata: {
 			id,
@@ -161,6 +161,7 @@ const innerSelectComposition = async ({
 			defaultProps: Internals.deserializeJSONWithCustomFields(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
+			defaultCodec,
 		},
 		propsSize: size,
 	};

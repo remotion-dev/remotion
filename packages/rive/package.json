@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/rive",
-	"version": "4.0.45",
+	"version": "4.0.51",
 	"description": "Remotion Rive",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -29,7 +29,7 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^3.0.273",
+		"@jonny/eslint-config": "3.0.276",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"@types/react": "^18.0.28",

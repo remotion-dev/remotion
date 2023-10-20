@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {calculateNextFrame} from './calculate-next-frame.js';

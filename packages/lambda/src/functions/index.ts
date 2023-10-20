@@ -209,12 +209,6 @@ const routine = async (
 
 		responseStream.write(JSON.stringify(res));
 		responseStream.end();
-	} finally {
-		responseStream.on('close', () => {
-			if (!process.env.VITEST) {
-				process.exit(0);
-			}
-		});
 	}
 };
 

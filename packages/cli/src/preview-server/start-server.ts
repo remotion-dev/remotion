@@ -103,15 +103,32 @@ export const startServer = async (options: {
 			});
 	});
 
-	const desiredPort = options?.port ?? undefined;
+	const desiredPort =
+		options?.port ??
+		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
+		undefined;
 
 	const maxTries = 5;
+
+	const host = RenderInternals.isIpV6Supported() ? '::' : '0.0.0.0';
+	const hostsToTry = RenderInternals.isIpV6Supported()
+		? ['::', '::1']
+		: ['0.0.0.0', '127.0.0.1'];
+
 	for (let i = 0; i < maxTries; i++) {
 		try {
 			const selectedPort = await new Promise<number>((resolve, reject) => {
-				RenderInternals.getDesiredPort(desiredPort, 3000, 3100)
+				RenderInternals.getDesiredPort({
+					desiredPort,
+					from: 3000,
+					to: 3100,
+					hostsToTry,
+				})
 					.then(({port, didUsePort}) => {
-						server.listen(port);
+						server.listen({
+							port,
+							host,
+						});
 						server.on('listening', () => {
 							resolve(port);
 							return didUsePort();

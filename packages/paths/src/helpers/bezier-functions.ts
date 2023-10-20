@@ -1,5 +1,6 @@
 import {binomialCoefficients, cValues, tValues} from './bezier-values';
 import type {Point} from './types';
+
 export const cubicPoint = (xs: number[], ys: number[], t: number): Point => {
 	const x =
 		(1 - t) * (1 - t) * (1 - t) * xs[0] +
@@ -15,16 +16,54 @@ export const cubicPoint = (xs: number[], ys: number[], t: number): Point => {
 	return {x, y};
 };
 
-export const cubicDerivative = (xs: number[], ys: number[], t: number) => {
-	const derivative = quadraticPoint(
-		[3 * (xs[1] - xs[0]), 3 * (xs[2] - xs[1]), 3 * (xs[3] - xs[2])],
-		[3 * (ys[1] - ys[0]), 3 * (ys[2] - ys[1]), 3 * (ys[3] - ys[2])],
-		t,
-	);
-	return derivative;
+/**
+ * Compute the curve derivative (hodograph) at t.
+ */
+const getDerivative = (derivative: number, t: number, vs: number[]): number => {
+	// the derivative of any 't'-less function is zero.
+	const n = vs.length - 1;
+	let value;
+
+	if (n === 0) {
+		return 0;
+	}
+
+	// direct values? compute!
+	if (derivative === 0) {
+		value = 0;
+		for (let k = 0; k <= n; k++) {
+			value += binomialCoefficients[n][k] * (1 - t) ** (n - k) * t ** k * vs[k];
+		}
+
+		return value;
+	}
+
+	// Still some derivative? go down one order, then try
+	// for the lower order curve's.
+	const _vs = new Array(n);
+	for (let k = 0; k < n; k++) {
+		_vs[k] = n * (vs[k + 1] - vs[k]);
+	}
+
+	return getDerivative(derivative - 1, t, _vs);
 };
 
-export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
+function bFunc(xs: number[], ys: number[], t: number) {
+	const xbase = getDerivative(1, t, xs);
+	const ybase = getDerivative(1, t, ys);
+	const combined = xbase * xbase + ybase * ybase;
+	return Math.sqrt(combined);
+}
+
+export const getCubicArcLength = ({
+	sx,
+	sy,
+	t,
+}: {
+	sx: number[];
+	sy: number[];
+	t: number;
+}) => {
 	let correctedT: number;
 
 	const n = 20;
@@ -33,7 +72,7 @@ export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
 	let sum = 0;
 	for (let i = 0; i < n; i++) {
 		correctedT = z * tValues[n][i] + z;
-		sum += cValues[n][i] * bFunc(xs, ys, correctedT);
+		sum += cValues[n][i] * bFunc(sx, sy, correctedT);
 	}
 
 	return z * sum;
@@ -47,6 +86,15 @@ export const quadraticPoint = (
 	const x = (1 - t) * (1 - t) * xs[0] + 2 * (1 - t) * t * xs[1] + t * t * xs[2];
 	const y = (1 - t) * (1 - t) * ys[0] + 2 * (1 - t) * t * ys[1] + t * t * ys[2];
 	return {x, y};
+};
+
+export const cubicDerivative = (xs: number[], ys: number[], t: number) => {
+	const derivative = quadraticPoint(
+		[3 * (xs[1] - xs[0]), 3 * (xs[2] - xs[1]), 3 * (xs[3] - xs[2])],
+		[3 * (ys[1] - ys[0]), 3 * (ys[2] - ys[1]), 3 * (ys[3] - ys[2])],
+		t,
+	);
+	return derivative;
 };
 
 export const getQuadraticArcLength = (
@@ -92,50 +140,15 @@ export const quadraticDerivative = (xs: number[], ys: number[], t: number) => {
 	};
 };
 
-function bFunc(xs: number[], ys: number[], t: number) {
-	const xbase = getDerivative(1, t, xs);
-	const ybase = getDerivative(1, t, ys);
-	const combined = xbase * xbase + ybase * ybase;
-	return Math.sqrt(combined);
-}
-
-/**
- * Compute the curve derivative (hodograph) at t.
- */
-const getDerivative = (derivative: number, t: number, vs: number[]): number => {
-	// the derivative of any 't'-less function is zero.
-	const n = vs.length - 1;
-	let value;
-
-	if (n === 0) {
-		return 0;
-	}
-
-	// direct values? compute!
-	if (derivative === 0) {
-		value = 0;
-		for (let k = 0; k <= n; k++) {
-			value += binomialCoefficients[n][k] * (1 - t) ** (n - k) * t ** k * vs[k];
-		}
-
-		return value;
-	}
-
-	// Still some derivative? go down one order, then try
-	// for the lower order curve's.
-	const _vs = new Array(n);
-	for (let k = 0; k < n; k++) {
-		_vs[k] = n * (vs[k + 1] - vs[k]);
-	}
-
-	return getDerivative(derivative - 1, t, _vs);
-};
-
-export const t2length = (
-	length: number,
-	totalLength: number,
-	func: (t: number) => number,
-): number => {
+export const t2length = ({
+	length,
+	totalLength,
+	func,
+}: {
+	length: number;
+	totalLength: number;
+	func: (t: number) => number;
+}): number => {
 	let error = 1;
 	let t = length / totalLength;
 	let step = (length - func(t)) / totalLength;

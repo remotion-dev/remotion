@@ -7,6 +7,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
+import type {Codec} from './codec.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
@@ -39,6 +40,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	width?: number;
 	height?: number;
 	props?: T;
+	defaultCodec?: Codec;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -93,6 +95,27 @@ export type StillProps<
 } & StillCalculateMetadataOrExplicit<Schema, Props> &
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
+
+export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+	const {clipRegion} = useContext(NativeLayersContext);
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			flexDirection: 'row',
+			opacity: clipRegion === 'hide' ? 0 : 1,
+			clipPath:
+				clipRegion && clipRegion !== 'hide'
+					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+					: undefined,
+		};
+	}, [clipRegion]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+};
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
@@ -243,25 +266,4 @@ export const Composition = <
 	}
 
 	return null;
-};
-
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
-	const {clipRegion} = useContext(NativeLayersContext);
-	const style: React.CSSProperties = useMemo(() => {
-		return {
-			display: 'flex',
-			flexDirection: 'row',
-			opacity: clipRegion === 'hide' ? 0 : 1,
-			clipPath:
-				clipRegion && clipRegion !== 'hide'
-					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
-					: undefined,
-		};
-	}, [clipRegion]);
-
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };

@@ -137,6 +137,7 @@ module.exports = {
         "renderer/get-can-extract-frames-fast",
         "renderer/get-video-metadata",
         "renderer/get-silent-parts",
+        "renderer/extract-audio",
       ],
     },
     {
@@ -433,7 +434,16 @@ module.exports = {
         type: "doc",
         id: "zod-types/index",
       },
-      items: ["zod-types/z-color"],
+      items: ["zod-types/z-color", "zod-types/z-textarea"],
+    },
+    {
+      type: "category",
+      label: "@remotion/layout-utils",
+      link: {
+        type: "doc",
+        id: "layout-utils/index",
+      },
+      items: ["layout-utils/measure-text"],
     },
   ],
   mainSidebar: [
@@ -497,6 +507,7 @@ module.exports = {
         "overlay",
         "docker",
         "javascript",
+        "authoring-packages",
       ],
     },
 
@@ -665,6 +676,7 @@ module.exports = {
         "buffer-state",
         "presigned-urls",
         "font-picker",
+        "deploy-studio",
       ],
     },
     {

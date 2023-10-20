@@ -169,6 +169,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
+			logLevel,
 		});
 		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 	} else {

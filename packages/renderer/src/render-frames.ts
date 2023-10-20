@@ -14,6 +14,7 @@ import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -279,6 +280,7 @@ const innerRenderFrames = async ({
 				fps: number,
 				height: number,
 				width: number,
+				defaultCodec: Codec,
 			) => {
 				window.remotion_setBundleMode({
 					type: 'composition',
@@ -288,6 +290,7 @@ const innerRenderFrames = async ({
 					compositionFps: fps,
 					compositionHeight: height,
 					compositionWidth: width,
+					compositionDefaultCodec: defaultCodec,
 				});
 			},
 			args: [
@@ -297,6 +300,7 @@ const innerRenderFrames = async ({
 				composition.fps,
 				composition.height,
 				composition.width,
+				composition.defaultCodec,
 			],
 			frame: null,
 			page,
@@ -449,6 +453,8 @@ const innerRenderFrames = async ({
 				renderAsset,
 				onDownload,
 				downloadMap,
+				indent,
+				logLevel,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`),

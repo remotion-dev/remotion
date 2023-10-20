@@ -66,9 +66,12 @@ export const MyComposition = () => {
 
 <TrailExample />
 
-## Credits
-
-This technique was invented and first implemented by [@UmungoBungo](https://github.com/UmungoBungo).
+<Credits contributors={[
+{
+username: "UmungoBungo",
+contribution: "Implementation"
+},
+]} />
 
 ## See also
 

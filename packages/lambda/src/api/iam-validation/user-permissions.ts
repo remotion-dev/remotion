@@ -75,6 +75,7 @@ export const requiredPermissions: {
 			lambda.DeleteFunction,
 			lambda.PutFunctionEventInvokeConfig,
 			'lambda:PutRuntimeManagementConfig',
+			lambda.TagResource,
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},

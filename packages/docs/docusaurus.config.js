@@ -66,7 +66,7 @@ const config = (mode) => ({
             }
           : null,
         {
-          to: "https://companies.remotion.dev/",
+          to: "https://www.remotion.pro/license",
           label: "Pricing",
           position: "left",
         },
@@ -85,6 +85,7 @@ const config = (mode) => ({
             { to: "learn", label: "Learn" },
             { to: "about", label: "About" },
             { to: "success-stories", label: "Success Stories" },
+            { to: "https://remotion.pro/store", label: "Store" },
             { to: "/docs/support", label: "Support" },
           ],
         },
@@ -92,22 +93,16 @@ const config = (mode) => ({
           to: "https://github.com/remotion-dev/remotion",
           label: "GitHub",
           position: "right",
-          "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "GitHub",
         },
         {
           to: "https://remotion.dev/discord",
           label: "Discord",
           position: "right",
-          "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "Discord",
         },
         {
           to: "https://x.com/remotion",
           label: "X",
           position: "right",
-          "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "X",
         },
       ].filter(Boolean),
     },
@@ -138,14 +133,16 @@ const config = (mode) => ({
               to: "/learn",
             },
             {
+              label: "Store",
+              href: "https://remotion.pro/store",
+            },
+            {
               label: "Changelog",
-              href: "https://github.com/remotion-dev/remotion/releases",
+              href: "https://remotion.dev/changelog",
             },
             {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "GitHub",
             },
           ],
         },
@@ -213,8 +210,8 @@ const config = (mode) => ({
               href: "https://remotion.dev/license",
             },
             {
-              label: "For companies",
-              href: "https://companies.remotion.dev",
+              label: "Remotion Pro",
+              href: "https://remotion.pro",
             },
             {
               label: "Brand",

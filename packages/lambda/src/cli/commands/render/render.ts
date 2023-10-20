@@ -29,6 +29,15 @@ import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame,
+		  ).length
+		: null;
+}
+
 export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -134,6 +143,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		outName: outName ?? null,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
+		compositionCodec: null,
 	});
 
 	const imageFormat = CliInternals.getVideoImageFormat({
@@ -291,6 +301,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
+					logLevel,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
@@ -398,12 +409,3 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		}
 	}
 };
-
-function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata
-		? RenderInternals.getFramesToRender(
-				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame,
-		  ).length
-		: null;
-}

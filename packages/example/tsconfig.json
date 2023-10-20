@@ -30,6 +30,7 @@
 		{"path": "../skia"},
 		{"path": "../three"},
 		{"path": "../transitions"},
-		{"path": "../zod-types"}
+		{"path": "../zod-types"},
+		{"path": "../layout-utils"}
 	]
 }

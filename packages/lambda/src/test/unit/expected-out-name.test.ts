@@ -32,6 +32,7 @@ const testRenderMetadata: RenderMetadata = {
 		id: 'react-svg',
 		width: 1080,
 		props: {},
+		defaultCodec: null,
 	},
 	privacy: 'public',
 	everyNthFrame: 1,
@@ -40,6 +41,7 @@ const testRenderMetadata: RenderMetadata = {
 	deleteAfter: null,
 	numberOfGifLoops: null,
 	downloadBehavior: {type: 'play-in-browser'},
+	audioBitrate: null,
 };
 
 test('Should get a custom outname', () => {

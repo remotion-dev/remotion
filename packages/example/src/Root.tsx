@@ -1,6 +1,3 @@
-import {zColor} from '@remotion/zod-types';
-import {alias} from 'lib/alias';
-import React, {useCallback} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
@@ -9,6 +6,9 @@ import {
 	staticFile,
 	Still,
 } from 'remotion';
+import {zColor} from '@remotion/zod-types';
+import {alias} from 'lib/alias';
+import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -69,7 +69,6 @@ import {WarpDemo2} from './WarpText/demo2';
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
-
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
@@ -488,7 +487,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={900}
+					durationInFrames={30 * 60 * 60}
 					defaultProps={{
 						src: 'variablefps.webm',
 					}}
@@ -499,7 +498,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={1000}
+					durationInFrames={30 * 60}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -598,6 +597,19 @@ export const Index: React.FC = () => {
 					width={1280}
 					height={720}
 					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="default-codec"
+					component={ColorInterpolation}
+					width={1280}
+					height={720}
+					fps={30}
+					calculateMetadata={() => {
+						return {
+							defaultCodec: 'aac',
+						};
+					}}
 					durationInFrames={100}
 				/>
 				<Still
@@ -1076,6 +1088,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: ['Sample Item'],
+						description: 'Sample description \nOn multiple lines',
 					}}
 				/>
 				{/**

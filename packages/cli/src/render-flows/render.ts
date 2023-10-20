@@ -291,6 +291,7 @@ export const renderVideoFlow = async ({
 			outputLocationFromUI,
 		),
 		uiCodec,
+		compositionCodec: config.defaultCodec,
 	});
 
 	RenderInternals.validateEvenDimensionsWithCodec({

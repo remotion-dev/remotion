@@ -16,6 +16,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		],
 		memorySizeInMb: 1024,
 		renderMetadata: {
+			audioBitrate: null,
 			codec: 'h264',
 			compositionId: 'react-svg',
 			estimatedRenderLambdaInvokations: 10,
@@ -43,6 +44,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				width: 1080,
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			outName: 'out.mp4',
 			privacy: 'public',
