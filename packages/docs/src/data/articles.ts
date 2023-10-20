@@ -175,6 +175,13 @@ export const articles = [
     crumb: "@remotion/cli",
   },
   {
+    id: "cli/gpu",
+    title: "npx remotion gpu",
+    relativePath: "docs/cli/gpu.md",
+    compId: "articles-docs-cli-gpu",
+    crumb: "CLI Reference",
+  },
+  {
     id: "cli/help",
     title: "npx remotion help",
     relativePath: "docs/cli/help.md",
