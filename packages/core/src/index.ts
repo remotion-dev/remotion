@@ -1,5 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
+import type {Codec} from './codec.js';
 import type {TRenderAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -72,6 +73,7 @@ export type BundleState =
 			compositionDurationInFrames: number;
 			compositionWidth: number;
 			compositionFps: number;
+			compositionDefaultCodec: Codec;
 	  };
 
 checkMultipleRemotionVersions();

@@ -164,7 +164,7 @@ export const PricingTable: React.FC<{}> = () => {
               ) : null}
               <a
                 className={styles.pricinga}
-                href="https://companies.remotion.dev"
+                href="https://www.remotion.pro"
                 target="_blank"
               >
                 <div>

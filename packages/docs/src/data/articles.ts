@@ -539,6 +539,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "authoring-packages",
+    title: "Authoring a Remotion library",
+    relativePath: "docs/creating-a-library.md",
+    compId: "articles-docs-creating-a-library",
+    crumb: "How to",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -558,6 +565,13 @@ export const articles = [
     relativePath: "docs/delay-render.md",
     compId: "articles-docs-delay-render",
     crumb: "How to",
+  },
+  {
+    id: "deploy-studio",
+    title: "Deploy the Remotion Studio",
+    relativePath: "docs/deploy-remotion-studio.md",
+    compId: "articles-docs-deploy-remotion-studio",
+    crumb: "Building video apps",
   },
   {
     id: "docker",
@@ -1344,6 +1358,20 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "layout-utils/index",
+    title: "@remotion/layout-utils",
+    relativePath: "docs/layout-utils/index.md",
+    compId: "articles-docs-layout-utils-index",
+    crumb: null,
+  },
+  {
+    id: "layout-utils/measure-text",
+    title: "measureText()",
+    relativePath: "docs/layout-utils/measure-text.md",
+    compId: "articles-docs-layout-utils-measure-text",
+    crumb: "Make some",
+  },
+  {
     id: "legacy-babel",
     title: "Using legacy Babel transpilation",
     relativePath: "docs/legacy-babel-loader.md",
@@ -1994,6 +2022,13 @@ export const articles = [
     title: "ensureFfprobe()",
     relativePath: "docs/renderer/ensure-ffprobe.md",
     compId: "articles-docs-renderer-ensure-ffprobe",
+    crumb: "@remotion/renderer",
+  },
+  {
+    id: "extract-audio",
+    title: "extractAudio()",
+    relativePath: "docs/renderer/extract-audio.md",
+    compId: "articles-docs-renderer-extract-audio",
     crumb: "@remotion/renderer",
   },
   {
@@ -2687,6 +2722,13 @@ export const articles = [
     title: "zColor()",
     relativePath: "docs/zod-types/z-color.md",
     compId: "articles-docs-zod-types-z-color",
+    crumb: null,
+  },
+  {
+    id: "zod-types/z-textarea",
+    title: "zTextarea()",
+    relativePath: "docs/zod-types/z-textarea.md",
+    compId: "articles-docs-zod-types-z-textarea",
     crumb: null,
   },
 ];

@@ -1,4 +1,5 @@
 import {makeConsoleUrl} from '../cli/helpers/make-console-url';
+import {getProjectId} from '../functions/helpers/is-in-cloud-task';
 import type {GcpRegion} from '../pricing/gcp-regions';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import {parseServiceName} from './helpers/parse-service-name';
@@ -33,7 +34,7 @@ export const getServiceInfo = async ({
 	const cloudRunClient = getCloudRunClient();
 
 	const [service] = await cloudRunClient.getService({
-		name: `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${region}/services/${serviceName}`,
+		name: `projects/${getProjectId()}/locations/${region}/services/${serviceName}`,
 	});
 
 	if (!service) {

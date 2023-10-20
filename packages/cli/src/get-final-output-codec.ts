@@ -26,12 +26,14 @@ export const getFinalOutputCodec = ({
 	downloadName,
 	outName,
 	uiCodec,
+	compositionCodec,
 }: {
 	cliFlag: CodecOrUndefined;
 	outName: string | null;
 	downloadName: string | null;
 	configFile: Codec | null;
 	uiCodec: Codec | null;
+	compositionCodec: Codec | null;
 }): {codec: Codec; reason: string} => {
 	if (uiCodec) {
 		return {codec: uiCodec, reason: 'via UI'};
@@ -93,6 +95,10 @@ export const getFinalOutputCodec = ({
 			codec: derivedOutNameCodecs.default as Codec,
 			reason: 'derived from out name',
 		};
+	}
+
+	if (compositionCodec) {
+		return {codec: compositionCodec, reason: 'via calculateMetadata'};
 	}
 
 	if (configFile) {

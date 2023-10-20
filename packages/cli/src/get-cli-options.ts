@@ -2,6 +2,7 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	FrameRange,
+	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
@@ -76,10 +77,22 @@ const getx264Preset = () => {
 	return x264Preset;
 };
 
-const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
+const getAndValidateBrowser = async ({
+	browserExecutable,
+	indent,
+	logLevel,
+}: {
+	browserExecutable: BrowserExecutable;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(browserExecutable);
+		await RenderInternals.ensureLocalBrowser({
+			preferredBrowserExecutable: browserExecutable,
+			indent,
+			logLevel,
+		});
 	} catch (err) {
 		Log.error('Could not download a browser for rendering frames.');
 		Log.error(err);
@@ -140,6 +153,8 @@ export const getCliOptions = async (options: {
 		checkIfValidForCurrentMachine: false,
 	});
 
+	const logLevel = ConfigInternals.Logging.getLogLevel();
+
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		concurrency,
@@ -148,7 +163,11 @@ export const getCliOptions = async (options: {
 		inputProps: getInputProps(null),
 		envVariables: await getEnvironmentVariables(null),
 		jpegQuality: ConfigInternals.getJpegQuality(),
-		browser: await getAndValidateBrowser(browserExecutable),
+		browser: await getAndValidateBrowser({
+			browserExecutable,
+			indent: false,
+			logLevel,
+		}),
 		crf,
 		pixelFormat,
 		proResProfile,

@@ -49,6 +49,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		// @ts-expect-error
 		acceptableTimeShift,
 		acceptableTimeShiftInSeconds,
+		toneFrequency,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {

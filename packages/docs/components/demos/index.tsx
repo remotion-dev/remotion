@@ -76,6 +76,8 @@ export const Demo: React.FC<{
       }, {});
   }, [demo.options]);
 
+  const [state, setState] = useState(() => initialState);
+
   const restart = useCallback(() => {
     setState(initialState);
     setKey((k) => k + 1);
@@ -84,8 +86,6 @@ export const Demo: React.FC<{
   if (!demo) {
     throw new Error("Demo not found");
   }
-
-  const [state, setState] = useState(() => initialState);
 
   return (
     <div style={container}>

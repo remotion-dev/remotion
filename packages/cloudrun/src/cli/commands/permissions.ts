@@ -3,6 +3,7 @@ import {
 	logPermissionOutput,
 	testPermissions,
 } from '../../api/iam-validation/testPermissions';
+import {getProjectId} from '../../functions/helpers/is-in-cloud-task';
 import {Log} from '../log';
 
 export const PERMISSIONS_COMMAND = 'permissions';
@@ -11,7 +12,9 @@ export const permissionsCommand = async () => {
 	try {
 		Log.info(
 			CliInternals.chalk.blueBright(
-				`Checking permissions for ${process.env.REMOTION_GCP_CLIENT_EMAIL} in project ${process.env.REMOTION_GCP_PROJECT_ID}.`,
+				`Checking permissions for ${
+					process.env.REMOTION_GCP_CLIENT_EMAIL
+				} in project ${getProjectId()}.`,
 			),
 		);
 		Log.info();

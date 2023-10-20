@@ -84,6 +84,14 @@ export const createZodValues = (
 				return '#ffffff';
 			}
 
+			if (
+				zodTypes &&
+				schema._def.description ===
+					zodTypes.ZodZypesInternals.REMOTION_TEXTAREA_BRAND
+			) {
+				return '';
+			}
+
 			return createZodValues(
 				(def as z.ZodEffectsDef).schema,
 				zodRuntime,

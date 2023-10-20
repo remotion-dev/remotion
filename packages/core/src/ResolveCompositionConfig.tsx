@@ -43,6 +43,10 @@ type VideoConfigState =
 			error: Error;
 	  };
 
+export const needsResolution = (composition: AnyComposition) => {
+	return Boolean(composition.calculateMetadata);
+};
+
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
@@ -232,10 +236,6 @@ export const ResolveCompositionConfig: React.FC<
 	);
 };
 
-export const needsResolution = (composition: AnyComposition) => {
-	return Boolean(composition.calculateMetadata);
-};
-
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
@@ -268,6 +268,7 @@ export const useResolvedVideoConfig = (
 					id: composition.id,
 					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
+					defaultCodec: currentCompositionMetadata.defaultCodec,
 				},
 			};
 		}
@@ -290,6 +291,7 @@ export const useResolvedVideoConfig = (
 							? {}
 							: getInputProps() ?? {}),
 					},
+					defaultCodec: null,
 				},
 			};
 		}

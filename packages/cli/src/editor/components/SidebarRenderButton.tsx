@@ -8,13 +8,10 @@ import type {
 	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
-import {getDefaultOutLocation} from '../../get-default-out-name';
-import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
@@ -38,11 +35,6 @@ export const SidebarRenderButton: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
-	const isVideo =
-		typeof composition.durationInFrames === 'undefined'
-			? true
-			: composition.durationInFrames > 1;
-
 	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
 			const defaults = window.remotion_renderDefaults;
@@ -51,11 +43,6 @@ export const SidebarRenderButton: React.FC<{
 			}
 
 			e.stopPropagation();
-			const {initialAudioCodec, initialRenderType, initialVideoCodec} =
-				getDefaultCodecs({
-					defaultCodec: defaults.codec as Codec,
-					renderType: isVideo ? 'video' : 'still',
-				});
 			setSelectedModal({
 				type: 'render',
 				compositionId: composition.id,
@@ -65,19 +52,6 @@ export const SidebarRenderButton: React.FC<{
 				initialJpegQuality: defaults.jpegQuality,
 				initialScale: defaults.scale,
 				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
-				initialOutName: getDefaultOutLocation({
-					compositionName: composition.id,
-					defaultExtension: isVideo
-						? BrowserSafeApis.getFileExtensionFromCodec(
-								initialVideoCodec,
-								defaults.audioCodec as AudioCodec,
-						  )
-						: defaults.stillImageFormat,
-					type: 'asset',
-				}),
-				initialVideoCodecForAudioTab: initialAudioCodec,
-				initialRenderType,
-				initialVideoCodecForVideoTab: initialVideoCodec,
 				initialConcurrency: defaults.concurrency,
 				maxConcurrency: defaults.maxConcurrency,
 				minConcurrency: defaults.minConcurrency,
@@ -91,7 +65,7 @@ export const SidebarRenderButton: React.FC<{
 				initialEveryNthFrame: defaults.everyNthFrame,
 				initialNumberOfGifLoops: defaults.numberOfGifLoops,
 				initialDelayRenderTimeout: defaults.delayRenderTimeout,
-				initialAudioCodec: defaults.audioCodec as AudioCodec,
+				defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec,
 				initialEnvVariables: window.process.env as Record<string, string>,
 				initialDisableWebSecurity: defaults.disableWebSecurity,
 				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
@@ -104,15 +78,10 @@ export const SidebarRenderButton: React.FC<{
 				outFrameMark: null,
 				initialColorSpace: defaults.colorSpace as ColorSpace,
 				initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
+				defaultConfigurationVideoCodec: defaults.codec as Codec,
 			});
 		},
-		[
-			composition.defaultProps,
-			composition.id,
-			isVideo,
-			props,
-			setSelectedModal,
-		],
+		[composition.defaultProps, composition.id, props, setSelectedModal],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(

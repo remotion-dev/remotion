@@ -12,8 +12,7 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-To use Remotion, you need at least Node 16.  
-[Install Node.js here.](https://nodejs.org/en/download/)
+To use Remotion, you need at least [Node](https://nodejs.org/en/download/) 16 or [Bun](https://bun.sh) 1.0.3.
 
 ## Scaffolding a new project
 

@@ -10,6 +10,7 @@ import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -286,6 +287,7 @@ const innerRenderStill = async ({
 			fps: number,
 			height: number,
 			width: number,
+			defaultCodec: Codec,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -295,6 +297,7 @@ const innerRenderStill = async ({
 				compositionFps: fps,
 				compositionHeight: height,
 				compositionWidth: width,
+				compositionDefaultCodec: defaultCodec,
 			});
 		},
 		args: [
@@ -304,6 +307,7 @@ const innerRenderStill = async ({
 			composition.fps,
 			composition.height,
 			composition.width,
+			composition.defaultCodec,
 		],
 		frame: null,
 		page,

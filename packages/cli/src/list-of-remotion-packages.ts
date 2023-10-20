@@ -1,5 +1,6 @@
 // Keep in sync with create-video
 export const listOfRemotionPackages = [
+	'@remotion/layout-utils',
 	'@remotion/bundler',
 	'@remotion/cli',
 	'@remotion/cloudrun',

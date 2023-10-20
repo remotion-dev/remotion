@@ -24,6 +24,7 @@ type Options = {
 	fps: number;
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
+	audioBitrate: string | null;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -37,6 +38,7 @@ export const combineVideos = async (options: Options) => {
 		fps,
 		numberOfGifLoops,
 		audioCodec,
+		audioBitrate,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -67,9 +69,10 @@ export const combineVideos = async (options: Options) => {
 		resolvedAudioCodec
 			? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
 			: null,
-		// Set max bitrate up to 512kbps, will choose lower if that's too much
+		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
+		resolvedAudioCodec === 'aac' ? '18000' : null,
 		'-b:a',
-		'512K',
+		audioBitrate ? audioBitrate : '320k',
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
 		'-y',
@@ -86,7 +89,7 @@ export const combineVideos = async (options: Options) => {
 				if (parsed === undefined) {
 					Log.verbose(data.toString('utf8'));
 				} else {
-					Log.verbose(parsed);
+					Log.verbose(`Combined ${parsed} frames`);
 					onProgress(parsed);
 				}
 			}

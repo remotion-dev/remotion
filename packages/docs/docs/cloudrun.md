@@ -83,7 +83,7 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Se
 
 The standard Remotion license applies. https://github.com/remotion-dev/remotion/blob/main/LICENSE.md
 
-Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://companies.remotion.dev/
+Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://remotion.pro
 
 ## Uninstalling
 

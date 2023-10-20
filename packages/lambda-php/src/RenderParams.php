@@ -12,22 +12,6 @@ class RenderMediaOnLambdaResponse
     public string $renderId;
 }
 
-class GetRenderProgressResponse
-{
-    public int $chunks;
-    public bool $done;
-    public float $overallProgress;
-    public string $type;
-    public ?string $outputFile;
-    public int $lambdasInvoked;
-    public int $renderSize;
-    public int $currentTime;
-    public bool $fatalErrorEncountered;
-    public ?int $timeToFinish;
-    public ?string $outBucket;
-    public ?string $outKey;
-    public ?string $bucket;
-}
 
 class RenderParams
 {
@@ -91,7 +75,7 @@ class RenderParams
         ?string $frameRange = null,
         ?string $outName = null,
         ?int $timeoutInMilliseconds = 30000,
-        ?object $chromiumOptions = new stdClass(), 
+        ?object $chromiumOptions = null, 
         ?int $scale = 1, 
         ?int $everyNthFrame = 1, 
         ?int $numberOfGifLoops = 0, 
@@ -114,6 +98,11 @@ class RenderParams
         ?string $deleteAfter = null
         )
     {
+        if ($chromiumOptions === null) {
+            $this->chromiumOptions = new stdClass();
+        } else {
+            $this->chromiumOptions = $chromiumOptions;
+        }
         $this->data = $data;
         $this->composition = $composition;
         $this->codec = $codec;
@@ -129,7 +118,6 @@ class RenderParams
         $this->frameRange = $frameRange;
         $this->outName = $outName;
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
-        $this->chromiumOptions = $chromiumOptions;
         $this->scale = $scale;
         $this->everyNthFrame = $everyNthFrame;
         $this->numberOfGifLoops = $numberOfGifLoops;

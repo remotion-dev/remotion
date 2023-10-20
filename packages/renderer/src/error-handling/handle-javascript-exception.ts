@@ -17,18 +17,22 @@ export class ErrorWithStackFrame extends Error {
 		frame,
 		name,
 		delayRenderCall,
+		stack,
 	}: {
 		message: string;
 		symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 		frame: number | null;
 		name: string;
 		delayRenderCall: SymbolicatedStackFrame[] | null;
+		stack: string | undefined;
 	}) {
 		super(message);
 		this.symbolicatedStackFrames = symbolicatedStackFrames;
 		this.frame = frame;
 		this.name = name;
 		this.delayRenderCall = delayRenderCall;
+		// If error symbolication did not yield any stack frames, we print the original stack
+		this.stack = stack;
 	}
 }
 
