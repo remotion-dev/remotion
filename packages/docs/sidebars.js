@@ -675,6 +675,7 @@ module.exports = {
         "miscellaneous/render-on-edge",
         "miscellaneous/thorium-browser",
         "miscellaneous/linux-single-process",
+        "miscellaneous/cloud-gpu",
         "compare/motion-canvas",
         "gl-options",
         "bun",
