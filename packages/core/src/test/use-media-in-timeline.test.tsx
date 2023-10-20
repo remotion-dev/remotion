@@ -25,6 +25,7 @@ beforeAll(() => {
 			id: 'hithere',
 			defaultProps: {},
 			props: {},
+			defaultCodec: null,
 		}));
 });
 afterAll(() => {
