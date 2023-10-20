@@ -31,7 +31,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	}
 
 	if (renderer === 'angle-egl') {
-		return [`--use-gl=angle`, `--use-angle=egl`];
+		return [`--use-gl=angle`, `--use-angle=gl-egl`];
 	}
 
 	if (renderer === 'vulkan') {
