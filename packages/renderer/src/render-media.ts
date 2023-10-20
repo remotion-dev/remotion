@@ -283,11 +283,15 @@ const internalRenderMediaRaw = ({
 
 	const renderStart = Date.now();
 
-	const {estimatedUsage, freeMemory} = shouldUseParallelEncoding({
-		height: composition.height,
-		width: composition.width,
-	});
-	const parallelEncoding = true;
+	const {estimatedUsage, freeMemory, hasEnoughMemory} =
+		shouldUseParallelEncoding({
+			height: composition.height,
+			width: composition.width,
+		});
+	const parallelEncoding =
+		!disallowParallelEncoding &&
+		hasEnoughMemory &&
+		canUseParallelEncoding(codec);
 
 	Log.verboseAdvanced(
 		{
