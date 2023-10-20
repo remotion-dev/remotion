@@ -4,7 +4,7 @@
   "description": "Transition presets for Remotion",
   "sideEffects": false,
   "type": "module",
-  "main": "dist-cjs/index.js",
+  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
