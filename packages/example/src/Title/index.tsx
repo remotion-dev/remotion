@@ -1,5 +1,6 @@
 import React from 'react';
 import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
+import {measureText} from '@remotion/layout-utils';
 
 export const Title: React.FC<{
 	line1: string;
@@ -28,6 +29,16 @@ export const Title: React.FC<{
 		to: 1,
 		fps,
 	});
+	const fontStyle = {
+		fontSize: 110,
+		fontWeight: 'bold',
+		fontFamily: 'SF Pro Text',
+	};
+	const {width, height} = measureText({
+		text: line1,
+		fontFamily: fontStyle.fontFamily,
+		fontSize: fontStyle.fontSize,
+	});
 	return (
 		<div
 			style={{
@@ -39,17 +50,13 @@ export const Title: React.FC<{
 				textAlign: 'center',
 			}}
 		>
-			<div
-				style={{
-					fontSize: 110,
-					fontWeight: 'bold',
-					fontFamily: 'SF Pro Text',
-				}}
-			>
+			<div style={fontStyle}>
 				<span
 					style={{
 						display: 'inline-block',
 						transform: `scale(${firstWord})`,
+						width,
+						height,
 					}}
 				>
 					{line1}

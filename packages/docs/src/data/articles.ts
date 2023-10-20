@@ -1358,6 +1358,20 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "layout-utils/index",
+    title: "@remotion/layout-utils",
+    relativePath: "docs/layout-utils/index.md",
+    compId: "articles-docs-layout-utils-index",
+    crumb: null,
+  },
+  {
+    id: "layout-utils/measure-text",
+    title: "measureText()",
+    relativePath: "docs/layout-utils/measure-text.md",
+    compId: "articles-docs-layout-utils-measure-text",
+    crumb: "Make some",
+  },
+  {
     id: "legacy-babel",
     title: "Using legacy Babel transpilation",
     relativePath: "docs/legacy-babel-loader.md",
