@@ -7,6 +7,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
+import type {Codec} from './codec.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
@@ -39,6 +40,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	width?: number;
 	height?: number;
 	props?: T;
+	defaultCodec?: Codec;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =

@@ -1,6 +1,7 @@
 import type {AnyZodObject} from 'zod';
 import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
+import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -51,7 +52,10 @@ const validateCalculated = ({
 		component: `of the "<Composition />" component with the id "${composition.id}"`,
 	});
 
-	return {width, height, fps, durationInFrames};
+	const defaultCodec = calculated?.defaultCodec;
+	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+
+	return {width, height, fps, durationInFrames, defaultCodec};
 };
 
 export const resolveVideoConfig = ({
@@ -91,10 +95,11 @@ export const resolveVideoConfig = ({
 		'then' in calculatedProm
 	) {
 		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps} = validateCalculated({
-				calculated: c,
-				composition,
-			});
+			const {height, width, durationInFrames, fps, defaultCodec} =
+				validateCalculated({
+					calculated: c,
+					composition,
+				});
 			return {
 				width,
 				height,
@@ -103,6 +108,7 @@ export const resolveVideoConfig = ({
 				id: composition.id,
 				defaultProps: composition.defaultProps ?? {},
 				props: c.props ?? fallbackProps,
+				defaultCodec: defaultCodec ?? null,
 			};
 		});
 	}
@@ -118,6 +124,7 @@ export const resolveVideoConfig = ({
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
 			props: fallbackProps,
+			defaultCodec: null,
 		};
 	}
 
@@ -126,5 +133,6 @@ export const resolveVideoConfig = ({
 		id: composition.id,
 		defaultProps: composition.defaultProps ?? {},
 		props: calculatedProm.props ?? fallbackProps,
+		defaultCodec: calculatedProm.defaultCodec ?? null,
 	};
 };

@@ -40,6 +40,8 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
+import {getDefaultOutLocation} from '../../../get-default-out-name';
+import {getDefaultCodecs} from '../../../preview-server/render-queue/get-default-video-contexts';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -201,11 +203,6 @@ type RenderModalProps = {
 	initialJpegQuality: number;
 	initialScale: number;
 	initialVerbose: boolean;
-	initialOutName: string;
-	initialRenderType: RenderType;
-	initialVideoCodecForAudioTab: Codec;
-	initialVideoCodecForVideoTab: Codec;
-	initialAudioCodec: AudioCodec | null;
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
@@ -230,6 +227,8 @@ type RenderModalProps = {
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 	initialMultiProcessOnLinux: boolean;
+	defaultConfigurationVideoCodec: Codec | null;
+	defaultConfigurationAudioCodec: AudioCodec | null;
 };
 
 const RenderModal: React.FC<
@@ -237,6 +236,7 @@ const RenderModal: React.FC<
 		onClose: () => void;
 		resolvedComposition: VideoConfig;
 		unresolvedComposition: AnyComposition;
+		defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
 	initialFrame,
@@ -245,10 +245,6 @@ const RenderModal: React.FC<
 	initialJpegQuality,
 	initialScale,
 	initialVerbose,
-	initialOutName,
-	initialRenderType,
-	initialVideoCodecForAudioTab,
-	initialVideoCodecForVideoTab,
 	initialConcurrency,
 	maxConcurrency,
 	minConcurrency,
@@ -263,7 +259,6 @@ const RenderModal: React.FC<
 	initialNumberOfGifLoops,
 	initialDelayRenderTimeout,
 	initialOffthreadVideoCacheSizeInBytes,
-	initialAudioCodec,
 	initialEnvVariables,
 	initialDisableWebSecurity,
 	initialGl,
@@ -277,8 +272,33 @@ const RenderModal: React.FC<
 	unresolvedComposition,
 	initialColorSpace,
 	initialMultiProcessOnLinux,
+	defaultConfigurationAudioCodec,
+	defaultConfigurationVideoCodec,
 }) => {
 	const isMounted = useRef(true);
+
+	const [isVideo] = useState(() => {
+		return typeof resolvedComposition.durationInFrames === 'undefined'
+			? true
+			: resolvedComposition.durationInFrames > 1;
+	});
+
+	const [
+		{
+			initialAudioCodec,
+			initialRenderType,
+			initialVideoCodec,
+			initialVideoCodecForAudioTab,
+			initialVideoCodecForVideoTab,
+		},
+	] = useState(() => {
+		return getDefaultCodecs({
+			defaultConfigurationVideoCodec,
+			compositionDefaultVideoCodec: resolvedComposition.defaultCodec,
+			defaultConfigurationAudioCodec,
+			renderType: isVideo ? 'video' : 'still',
+		});
+	});
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
@@ -305,6 +325,20 @@ const RenderModal: React.FC<
 			([key]) => key !== 'NODE_ENV',
 		),
 	);
+
+	const [initialOutName] = useState(() => {
+		return getDefaultOutLocation({
+			compositionName: resolvedComposition.id,
+			defaultExtension: isVideo
+				? BrowserSafeApis.getFileExtensionFromCodec(
+						initialVideoCodec,
+						initialAudioCodec,
+				  )
+				: initialStillImageFormat,
+			type: 'asset',
+		});
+	});
+
 	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
 		() => initialVideoCodecForAudioTab,
 	);
