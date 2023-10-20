@@ -283,15 +283,11 @@ const internalRenderMediaRaw = ({
 
 	const renderStart = Date.now();
 
-	const {estimatedUsage, freeMemory, hasEnoughMemory} =
-		shouldUseParallelEncoding({
-			height: composition.height,
-			width: composition.width,
-		});
-	const parallelEncoding =
-		!disallowParallelEncoding &&
-		hasEnoughMemory &&
-		canUseParallelEncoding(codec);
+	const {estimatedUsage, freeMemory} = shouldUseParallelEncoding({
+		height: composition.height,
+		width: composition.width,
+	});
+	const parallelEncoding = true;
 
 	Log.verboseAdvanced(
 		{
@@ -392,7 +388,7 @@ const internalRenderMediaRaw = ({
 	);
 
 	const callUpdate = () => {
-		const encoded = Math.round(0.5 * encodedFrames + 0.5 * muxedFrames);
+		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
 
 		onProgress?.({
 			encodedDoneIn,
