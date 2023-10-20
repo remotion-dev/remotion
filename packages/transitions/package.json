@@ -25,7 +25,7 @@
     "remotion": "workspace:*"
   },
   "devDependencies": {
-    "@jonny/eslint-config": "3.0.273",
+    "@jonny/eslint-config": "3.0.276",
     "eslint": "8.42.0",
     "prettier": "3.0.2",
     "prettier-plugin-organize-imports": "^3.2.2",
