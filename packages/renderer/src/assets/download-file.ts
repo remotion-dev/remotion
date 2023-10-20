@@ -1,5 +1,7 @@
 import {createWriteStream} from 'node:fs';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import type {LogLevel} from '../log-level';
+import {Log} from '../logger';
 import {readFile} from './read-file';
 
 type Response = {sizeInBytes: number; to: string};
@@ -14,6 +16,8 @@ type Options = {
 				totalSize: number | null;
 		  }) => void)
 		| undefined;
+	logLevel: LogLevel;
+	indent: boolean;
 };
 
 const incorrectContentLengthToken = 'Download finished with';
@@ -140,6 +144,10 @@ export const downloadFile = async (
 				throw err;
 			}
 
+			Log.warnAdvanced(
+				{indent: options.indent, logLevel: options.logLevel},
+				`Downloading ${options.url} failed (will retry): ${message}`,
+			);
 			const backoffInSeconds = (attempt + 1) ** 2;
 			await new Promise<void>((resolve) => {
 				setTimeout(() => resolve(), backoffInSeconds * 1000);

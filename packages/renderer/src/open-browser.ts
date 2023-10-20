@@ -94,7 +94,11 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser(browserExecutable);
+	await ensureLocalBrowser({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+	});
 
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 

@@ -140,6 +140,8 @@ const getAssetsData = async ({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
 		downloadMap,
+		indent,
+		logLevel,
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);
