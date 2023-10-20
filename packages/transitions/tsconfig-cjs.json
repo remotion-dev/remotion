@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
-    "outDir": "dist-cjs",
+    "outDir": "xxxx",
   },
   "include": ["src"],
   "references": [{ "path": "../core" }, { "path": "../test-utils" }]
