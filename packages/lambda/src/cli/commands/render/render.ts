@@ -300,6 +300,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
+					logLevel,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
