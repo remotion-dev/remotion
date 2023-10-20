@@ -96,6 +96,7 @@ export type InternalRenderFramesOptions = {
 	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -135,6 +136,7 @@ type InnerRenderFramesOptions = {
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 };
 
 export type RenderFramesOptions = {
@@ -212,6 +214,7 @@ const innerRenderFrames = async ({
 	sourcemapContext,
 	logLevel,
 	indent,
+	parallelEncodingEnabled,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -336,6 +339,7 @@ const innerRenderFrames = async ({
 
 	onStart?.({
 		frameCount: framesToRender.length,
+		parallelEncoding: parallelEncodingEnabled,
 	});
 
 	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
@@ -610,6 +614,7 @@ const internalRenderFramesRaw = ({
 	serializedInputPropsWithCustomSchema,
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
+	parallelEncodingEnabled,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -725,6 +730,7 @@ const internalRenderFramesRaw = ({
 					indent,
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
+					parallelEncodingEnabled,
 				});
 			}),
 		])
@@ -865,5 +871,6 @@ export const renderFrames = (
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		parallelEncodingEnabled: false,
 	});
 };
