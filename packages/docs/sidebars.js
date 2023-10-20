@@ -398,6 +398,15 @@ module.exports = {
       },
       items: ["zod-types/z-color", "zod-types/z-textarea"],
     },
+    {
+      type: "category",
+      label: "@remotion/layout-utils",
+      link: {
+        type: "doc",
+        id: "layout-utils/index",
+      },
+      items: ["layout-utils/measure-text"],
+    },
   ],
   mainSidebar: [
     {

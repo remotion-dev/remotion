@@ -1,5 +1,6 @@
 // Keep in sync with cli
 export const listOfRemotionPackages = [
+	'@remotion/layout-utils',
 	'@remotion/bundler',
 	'@remotion/cli',
 	'@remotion/cloudrun',
