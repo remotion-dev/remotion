@@ -30,3 +30,7 @@ On version: 3.0.19
 
 ✅ Great! All packages have the same version.
 ```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/versions.ts)
