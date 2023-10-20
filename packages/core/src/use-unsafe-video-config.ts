@@ -13,8 +13,16 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			return null;
 		}
 
-		const {id, durationInFrames, fps, height, width, defaultProps, props, defaultCodec} =
-			video;
+		const {
+			id,
+			durationInFrames,
+			fps,
+			height,
+			width,
+			defaultProps,
+			props,
+			defaultCodec,
+		} = video;
 
 		return {
 			id,
