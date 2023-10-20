@@ -25,6 +25,7 @@ import {promisify} from 'node:util';
 import {assert} from './assert';
 
 import {downloadFile} from '../assets/download-file';
+import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {getDownloadsCacheDir} from './get-download-destination';
 
@@ -84,9 +85,10 @@ const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
-export const downloadBrowser = async (): Promise<
-	BrowserFetcherRevisionInfo | undefined
-> => {
+export const downloadBrowser = async (options: {
+	logLevel: LogLevel;
+	indent: boolean;
+}): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
 	const downloadURL = getThoriumDownloadUrl(platform);
 	const fileName = downloadURL.split('/').pop();
@@ -130,6 +132,8 @@ export const downloadBrowser = async (): Promise<
 					);
 				}
 			},
+			indent: options.indent,
+			logLevel: options.logLevel,
 		});
 		await install({archivePath, folderPath: outputPath});
 	} finally {
