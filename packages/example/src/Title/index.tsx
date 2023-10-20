@@ -1,6 +1,6 @@
+import {measureText} from '@remotion/layout-utils';
 import React from 'react';
 import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
-import {measureText} from '@remotion/layout-utils';
 
 export const Title: React.FC<{
 	line1: string;

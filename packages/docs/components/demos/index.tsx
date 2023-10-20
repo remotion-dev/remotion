@@ -8,6 +8,7 @@ import type { DemoType } from "./types";
 import {
   circleDemo,
   customPresentationDemo,
+  customTimingDemo,
   ellipseDemo,
   fadePresentationDemo,
   noiseDemo,
@@ -51,6 +52,7 @@ const demos: DemoType[] = [
   slidePresentationDemo,
   slidePresentationDemoLongThreshold,
   customPresentationDemo,
+  customTimingDemo,
 ];
 
 export const Demo: React.FC<{
