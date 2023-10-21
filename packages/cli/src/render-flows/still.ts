@@ -114,14 +114,17 @@ export const renderStillFlow = async ({
 	const updateRenderProgress = ({
 		newline,
 		printToConsole,
+		isUsingParallelEncoding,
 	}: {
 		newline: boolean;
 		printToConsole: boolean;
+		isUsingParallelEncoding: boolean;
 	}) => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
+			isUsingParallelEncoding,
 		});
 		if (printToConsole) {
 			renderProgress.update(updatesDontOverwrite ? message : output, newline);
@@ -157,7 +160,11 @@ export const renderStillFlow = async ({
 			onProgress: ({copying, bundling}) => {
 				aggregate.bundling = bundling;
 				aggregate.copyingState = copying;
-				updateRenderProgress({newline: false, printToConsole: true});
+				updateRenderProgress({
+					newline: false,
+					printToConsole: true,
+					isUsingParallelEncoding: false,
+				});
 			},
 			indentOutput: indent,
 			logLevel,
@@ -260,7 +267,11 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 
-	updateRenderProgress({newline: false, printToConsole: true});
+	updateRenderProgress({
+		newline: false,
+		printToConsole: true,
+		isUsingParallelEncoding: false,
+	});
 
 	const onDownload: RenderMediaOnDownload = makeOnDownload({
 		downloads: aggregate.downloads,
@@ -268,6 +279,7 @@ export const renderStillFlow = async ({
 		logLevel,
 		updateRenderProgress,
 		updatesDontOverwrite,
+		isUsingParallelEncoding: false,
 	});
 
 	await RenderInternals.internalRenderStill({
@@ -307,7 +319,11 @@ export const renderStillFlow = async ({
 		steps,
 		totalFrames: 1,
 	};
-	updateRenderProgress({newline: true, printToConsole: true});
+	updateRenderProgress({
+		newline: true,
+		printToConsole: true,
+		isUsingParallelEncoding: false,
+	});
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`),
