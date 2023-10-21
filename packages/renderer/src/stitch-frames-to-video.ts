@@ -334,10 +334,8 @@ const innerStitchFramesToVideo = async (
 
 	const expectedFrames = assetsInfo.assets.length;
 
-	const updateProgress = (preStitchProgress: number, muxProgress: number) => {
-		const totalFrameProgress =
-			0.5 * preStitchProgress * expectedFrames + muxProgress * 0.5;
-		onProgress?.(Math.round(totalFrameProgress));
+	const updateProgress = (muxProgress: number) => {
+		onProgress?.(muxProgress);
 	};
 
 	const audio = shouldRenderAudio
@@ -347,7 +345,7 @@ const innerStitchFramesToVideo = async (
 				fps,
 				expectedFrames,
 				logLevel,
-				onProgress: (prog) => updateProgress(prog, 0),
+				onProgress: () => updateProgress(0),
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
@@ -495,7 +493,7 @@ const innerStitchFramesToVideo = async (
 					}
 				}
 
-				updateProgress(1, parsed);
+				updateProgress(parsed);
 			}
 		}
 	});

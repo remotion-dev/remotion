@@ -67,6 +67,7 @@ import {internalRenderStill} from './render-still';
 import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
+import {getChromiumGpuInformation} from './test-gpu';
 import {tmpDir} from './tmp-dir';
 import {
 	getMaxConcurrency,
@@ -217,6 +218,7 @@ export const RenderInternals = {
 	validOpenGlRenderers,
 	copyImageToClipboard,
 	isIpV6Supported,
+	getChromiumGpuInformation,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

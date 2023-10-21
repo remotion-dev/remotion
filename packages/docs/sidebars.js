@@ -54,6 +54,7 @@ module.exports = {
         "cli/upgrade",
         "cli/ffmpeg",
         "cli/ffprobe",
+        "cli/gpu",
         "cli/help",
       ],
     },
