@@ -7,3 +7,8 @@ jest.config.js
 *.tgz
 .turbo
 .rollup.cache
+tsconfig-cjs.tsbuildinfo
+tsconfig-cjs.json
+tsconfig.json
+vitest.config.ts
+.prettierrc.mjs
