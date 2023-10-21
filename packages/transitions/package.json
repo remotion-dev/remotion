@@ -1,6 +1,6 @@
 {
   "name": "@remotion/transitions",
-  "version": "4.0.52",
+  "version": "4.0.53",
   "description": "Transition presets for Remotion",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
@@ -56,7 +56,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "require": "./dist/cjs/index.js"
-
     },
     "./fade": {
       "module": "./dist/presentations/fade.js",
