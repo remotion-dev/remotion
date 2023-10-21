@@ -4,7 +4,7 @@ sidebar_label: Overview
 title: "@remotion/transitions"
 ---
 
-_available from v4.0.26_
+_available from v4.0.52_
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
