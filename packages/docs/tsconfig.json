@@ -41,6 +41,7 @@
     { "path": "../lambda" },
     { "path": "../bundler" },
     { "path": "../renderer" },
+    { "path": "../transitions" },
     { "path": "../cli" }
   ]
 }

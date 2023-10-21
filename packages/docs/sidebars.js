@@ -392,6 +392,44 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/transitions",
+      link: {
+        type: "doc",
+        id: "transitions/index",
+      },
+      items: [
+        "transitions/transitionseries",
+        {
+          type: "category",
+          label: "Timings",
+          link: {
+            type: "doc",
+            id: "transitions/timings/index",
+          },
+          items: [
+            "transitions/timings/springtiming",
+            "transitions/timings/lineartiming",
+            "transitions/timings/custom",
+          ],
+        },
+        {
+          type: "category",
+          label: "Presentations",
+          link: {
+            type: "doc",
+            id: "transitions/presentations/index",
+          },
+          items: [
+            "transitions/presentations/fade",
+            "transitions/presentations/slide",
+            "transitions/presentations/wipe",
+            "transitions/presentations/custom",
+          ],
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "@remotion/zod-types",
       link: {
         type: "doc",

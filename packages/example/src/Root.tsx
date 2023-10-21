@@ -1,3 +1,6 @@
+import {zColor} from '@remotion/zod-types';
+import {alias} from 'lib/alias';
+import React, {useCallback} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
@@ -6,10 +9,6 @@ import {
 	staticFile,
 	Still,
 } from 'remotion';
-import {zColor} from '@remotion/zod-types';
-import './style.css';
-import {alias} from 'lib/alias';
-import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -18,11 +17,13 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {
@@ -51,26 +52,21 @@ import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillZoom} from './StillZoom';
+import './style.css';
+import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {Timeout} from './Timeout';
+import {BasicTransition} from './Transitions/BasicTransition';
+import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import {Tailwind} from './Tailwind';
-import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
-import {HugePayload, hugePayloadSchema} from './HugePayload';
-import {Timeout} from './Timeout';
-import {PageTransition} from './Transitions/PageTransition';
-import {_props} from './typechecks';
 
 if (alias !== 'alias') {
-	throw new Error('should support TS aliases');
-}
-
-if (!_props) {
 	throw new Error('should support TS aliases');
 }
 
@@ -1063,7 +1059,15 @@ export const Index: React.FC = () => {
 			<Folder name="Transitions">
 				<Composition
 					id="transition"
-					component={PageTransition}
+					component={BasicTransition}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="custom-transition"
+					component={CustomTransition}
 					fps={30}
 					height={1080}
 					durationInFrames={300}

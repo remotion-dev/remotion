@@ -9,6 +9,7 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
+		className?: string;
 	} & Pick<SequenceProps, 'layout' | 'name'> &
 		LayoutAndStyle
 >;
@@ -52,13 +53,13 @@ const Series: FC<{
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but you passed a string "${castedChild}"`,
 				);
 			}
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but got ${castedChild} instead`,
 				);
 			}
 
