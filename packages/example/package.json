@@ -47,6 +47,7 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
+		"@remotion/transitions": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@types/express": "^4.17.11",
@@ -75,7 +76,8 @@
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.4.0"
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier-plugin-organize-imports": "^3.2.2"
 	},
 	"publishConfig": {
 		"access": "public"

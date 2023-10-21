@@ -1,3 +1,11 @@
+import {
+  CustomTimingDemo,
+  CustomTransitionDemo,
+  FadeDemo,
+  SlideDemo,
+  SlideDemoLongDurationRest,
+  WipeDemo,
+} from "../transitions/previews";
 import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
@@ -468,4 +476,95 @@ export const noiseDemo: DemoType = {
       optional: "no",
     },
   ],
+};
+
+export const fadePresentationDemo: DemoType = {
+  comp: FadeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "fade",
+  autoPlay: true,
+  options: [],
+};
+
+export const slidePresentationDemo: DemoType = {
+  comp: SlideDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "slide",
+  autoPlay: true,
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: ["from-left", "from-bottom", "from-right", "from-top"],
+    },
+  ],
+};
+
+export const slidePresentationDemoLongThreshold: DemoType = {
+  comp: SlideDemoLongDurationRest,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 90,
+  fps: 30,
+  id: "slide-long-duration-rest",
+  autoPlay: true,
+  options: [],
+};
+
+export const wipePresentationDemo: DemoType = {
+  comp: WipeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "wipe",
+  autoPlay: true,
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: [
+        "from-left",
+        "from-top-left",
+        "from-top",
+        "from-top-right",
+        "from-right",
+        "from-bottom-right",
+        "from-bottom",
+        "from-bottom-left",
+      ],
+    },
+  ],
+};
+
+export const customPresentationDemo: DemoType = {
+  comp: CustomTransitionDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "custom-presentation",
+  autoPlay: true,
+  options: [],
+};
+
+export const customTimingDemo: DemoType = {
+  comp: CustomTimingDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "custom-timing",
+  autoPlay: true,
+  options: [],
 };

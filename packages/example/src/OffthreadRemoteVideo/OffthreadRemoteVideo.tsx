@@ -1,5 +1,4 @@
-import {Loop} from 'remotion';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Loop, OffthreadVideo, staticFile} from 'remotion';
 
 export const OffthreadRemoteVideo: React.FC = () => {
 	return (

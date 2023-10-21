@@ -21,18 +21,17 @@ import {useVideoConfig} from './use-video-config.js';
 
 export type LayoutAndStyle =
 	| {
-			layout: 'none';
-	  }
-	| {
 			layout?: 'absolute-fill';
 			style?: React.CSSProperties;
 			className?: string;
+	  }
+	| {
+			layout: 'none';
 	  };
 
-export type SequenceProps = {
+export type SequencePropsWithoutDuration = {
 	children: React.ReactNode;
 	from?: number;
-	durationInFrames?: number;
 	name?: string;
 	/**
 	 * @deprecated For internal use only.
@@ -43,6 +42,10 @@ export type SequenceProps = {
 	 */
 	loopDisplay?: LoopDisplay;
 } & LayoutAndStyle;
+
+export type SequenceProps = {
+	durationInFrames?: number;
+} & SequencePropsWithoutDuration;
 
 const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,

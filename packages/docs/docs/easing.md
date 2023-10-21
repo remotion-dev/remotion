@@ -5,10 +5,6 @@ title: Easing
 crumb: "API"
 ---
 
-:::info
-The Easing API is the exact same as the one from [React Native](https://reactnative.dev/docs/easing) and the documentation has been copied over. Credit goes to them for this excellent API.
-:::
-
 The `Easing` module implements common easing functions. You can use it with the [`interpolate()`](/docs/interpolate) API.
 
 You can find a visualization of some common easing functions at http://easings.net/
@@ -303,6 +299,10 @@ static inOut(easing: (t: number) => number): (t: number) => number;
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
+
+## Credits
+
+The Easing API is the exact same as the one from [React Native](https://reactnative.dev/docs/easing) and the documentation has been copied over. Credit goes to them for this excellent API.
 
 ## See also
 
