@@ -3,7 +3,6 @@
   "version": "4.0.51",
   "description": "Transition presets for Remotion",
   "sideEffects": false,
-  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +10,6 @@
     "lint": "eslint src --ext ts,tsx",
     "watch": "tsc -w",
     "build": "rollup --config rollup.config.js && tsc -d"
-
   },
   "author": "Jonny Burger",
   "contributors": [],
