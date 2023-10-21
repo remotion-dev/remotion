@@ -258,6 +258,7 @@ const composition = {
   id: "hi",
   defaultProps: {},
   props: {},
+  defaultCodec: null,
 };
 const bundleLocation = "xxx";
 // ---cut---
