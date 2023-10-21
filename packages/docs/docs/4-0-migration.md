@@ -339,6 +339,7 @@ const composition = {
   durationInFrames: 30 * 5,
   id: "comp-name",
   defaultProps: {},
+  defaultCodec: null,
 } as const;
 
 // ---cut---
