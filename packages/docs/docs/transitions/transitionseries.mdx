@@ -7,16 +7,28 @@ title: "<TransitionSeries>"
 
 _available from v4.0.26_
 
+import { TransitionsDuration } from "../../components/TransitionsDuration";
+
 The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for `<TransitionSeries.Transition>` components to be rendered between `<TransitionSeries.Sequence>` components.
 
 Each transition consists of two parts:
 
-<Step>1</Step> <code>presentation</code>: The effect that is being used, for example <a href="/docs/transitions/presentations/fade"><code>fade()</code></a> or <a href="/docs/transitions/presentations/wipe"><code>wipe()</code></a>.<br/>
+<Step>1</Step> <code>presentation</code>: The effect that is being used, for
+example <a href="/docs/transitions/presentations/fade">
+  <code>fade()</code>
+</a> or <a href="/docs/transitions/presentations/wipe">
+  <code>wipe()</code>
+</a>.<br />
 
-<Step>2</Step> <code>timing</code>: The duration and the progress curve, for example <a href="/docs/transitions/timings/springtiming"><code>springTiming()</code></a> or <a href="/docs/transitions/timings/lineartiming"><code>linearTiming()</code></a>
+<Step>2</Step> <code>timing</code>: The duration and the progress curve, for
+example <a href="/docs/transitions/timings/springtiming">
+  <code>springTiming()</code>
+</a> or <a href="/docs/transitions/timings/lineartiming">
+  <code>linearTiming()</code>
+</a>
 
-<br/>
-<br/>
+<br />
+<br />
 
 This package has some presentations and timings built-in, but custom ones can be created as well.
 
@@ -85,6 +97,20 @@ Takes two props:
 Must be a direct child of `<TransitionSeries>`.  
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.  
 It is not allowed for two `<TransitionSeries.Transition>` components to be next to each other.
+
+## Duration
+
+In the above example, `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
+During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30`.
+
+<TransitionsDuration />
+
+## Rules
+
+<Step>1</Step> It is forbidden to have a transition duration that is longer than
+the duration of the previous or next sequence. <br />
+<Step>2</Step> There can be no two transitions next to each other. <br />
+<Step>3</Step> There must be at least one sequence before or after a transition.
 
 ## See also
 
