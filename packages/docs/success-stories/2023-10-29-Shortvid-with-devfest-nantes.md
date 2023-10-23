@@ -1,22 +1,17 @@
 ---
 slug: shortvid-video-conf
 title: Generating conference event assets with Remotion
-image: /img/yarx-image.png
 ---
 
 import {MuxVideo} from '../src/components/MuxVideo';
 
-[Shortvid.io](https://shortvid.io) is an open source project that expose a set of remotion customisable composition for event communication assets under MIT license.
-
-<MuxVideo muxId="hQodJfIe701qG8AAiaLttVl8SVxo9W012fXHJPIsdVFIg" style={{
-width: '100%'
-}} controls muted autoPlay poster="/img/yarx-image.png"/>
+[Shortvid.io](https://shortvid.io) is an open source project that expose a set of Remotion customisable composition for event communication assets under MIT license.
 
 We are talking to Antoine Caron and Mickael Alves about how they are using Remotion to generate video content to let them communicate about there meetup events.
 
 **Hi! Tell us about Shortvid, how does this project start and why?**
 
-- Authors were remotion users and contributors
+- Authors were Remotion users and contributors
 - At first, it was just a project for the LyonJS meetup
 - We are often speaking at conferences and sometime about Remotion
 - Maybe those videos template could be useful for other conferences event
@@ -46,5 +41,4 @@ We are talking to Antoine Caron and Mickael Alves about how they are using Remot
 - Mickael is working on integrating Zod scheme
 - Antoine is looking to deploy directly playground of Remotion under shortvid website
 - Next year will be bigger for Shortvid and Devfest Nantes
-- We will try to motivate Jonny to come to Nantes to talk about Remotion Adventure maybe ! 
-
+- We will try to motivate Jonny to come to Nantes to talk about Remotion Adventure maybe !
