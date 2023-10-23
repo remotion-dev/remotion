@@ -357,21 +357,7 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `"angle-egl"` (_from Remotion v4.0.51_)
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl"  />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
