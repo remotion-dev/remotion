@@ -84,7 +84,7 @@ export const UpdateModal: React.FC<{
 						<div style={text}>To upgrade, run the following command:</div>
 					</>
 				) : (
-					<div style={text}>
+					<div style={title}>
 						A new update for Remotion is available! Run the following command:
 					</div>
 				)}
