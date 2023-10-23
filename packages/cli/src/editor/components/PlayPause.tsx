@@ -17,6 +17,11 @@ import {
 } from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
+const backStyle = {
+	height: 18,
+	color: 'white',
+};
+
 const forwardBackStyle = {
 	height: 16,
 	color: 'white',
@@ -238,7 +243,7 @@ export const PlayPause: React.FC<{
 				disabled={!videoConfig || isFirstFrame}
 				onClick={jumpToStart}
 			>
-				<JumpToStart style={forwardBackStyle} />
+				<JumpToStart style={backStyle} />
 			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
