@@ -98,23 +98,125 @@ Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.  
 It is not allowed for two `<TransitionSeries.Transition>` components to be next to each other.
 
-## Duration
+## Enter and exit animations
 
-In the above example, `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
-During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30`.
+You don't necessarily have to use `<TransitionSeries>` for transitions between scenes. You can also use it to animate the entrace or exit of a scene by putting a transition first or last in the `<TransitionSeries>`.
+
+```tsx twoslash title="SlideTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { slide } from "@remotion/transitions/slide";
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={linearTiming({ durationInFrames: 30 })}
+      />
+    </TransitionSeries>
+  );
+};
+```
+
+## Duration of a `<TransitionSeries>`
+
+Consider this example:
+
+```tsx twoslash title="SlideTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { slide } from "@remotion/transitions/slide";
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={linearTiming({ durationInFrames: 30 })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+`A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
+During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
 
+## Getting the duration of a transition
+
+You can get the duration of a transition by calling `getDurationInFrames()` on the timing:
+
+```tsx twoslash title="Assuming a framerate of 30fps"
+import { springTiming } from "@remotion/transitions";
+
+springTiming({ config: { damping: 200 } }).getDurationInFrames({ fps: 30 }); // 23
+```
+
 ## Rules
 
-<Step>1</Step> It is forbidden to have a transition duration that is longer than
-the duration of the previous or next sequence. <br />
+<Step>1</Step> It is forbidden to have a transition that is longer than the duration
+of the previous or next sequence. <br />
 <Step>2</Step> There can be no two transitions next to each other. <br />
 <Step>3</Step> There must be at least one sequence before or after a transition.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/TransitionSeries.tsx)
+- [Transitions](/docs/transitioning)
 - [Timings](/docs/transitions/timings)
 - [Presentations](/docs/transitions/presentations)
 - [`<Series>`](/docs/series)

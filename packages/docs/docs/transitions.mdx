@@ -55,10 +55,16 @@ const BasicTransition = () => {
 
 <Demo type="slide" />
 
+## Enter and exit animations
+
+You don't necessarily have to use `<TransitionSeries>` for transitions between scenes. You can also use it to animate the entrace or exit of a scene by putting a transition first or last in the `<TransitionSeries>`.
+
+[See example](/docs/transitions/transitionseries#enter-and-exit-animations)
+
 ## Duration
 
 In the above example, `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
-During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30`.
+During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
 
