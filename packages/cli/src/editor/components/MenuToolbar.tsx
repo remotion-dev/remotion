@@ -97,7 +97,7 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row justify="center" align="center" className="css-reset" style={row}>
+		<Row align="center" className="css-reset" style={row}>
 			<div style={fixedWidthLeft}>
 				{structure.map((s) => {
 					return (
