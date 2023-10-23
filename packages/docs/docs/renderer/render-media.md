@@ -367,6 +367,7 @@ Accepted values:
 - `"swiftshader"`
 - `"swangle"`
 - `"vulkan"` (_from Remotion v4.0.41_)
+- `"angle-egl"` (_from Remotion v4.0.51_)
 - `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
