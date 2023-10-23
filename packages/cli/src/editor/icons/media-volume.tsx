@@ -1,6 +1,7 @@
 import {BLUE} from '../helpers/colors';
 
-const size = 25;
+const size = 22;
+
 export const VolumeOffIcon: React.FC = () => {
 	return (
 		<svg width={size} height={size} viewBox="0 0 24 24">

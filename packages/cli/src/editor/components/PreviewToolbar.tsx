@@ -80,9 +80,12 @@ export const PreviewToolbar: React.FC = () => {
 					<PlayPause loop={loop} playbackRate={playbackRate} />
 					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
-					<CheckboardToggle />
-					<TimelineInOutPointToggle />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+					<Spacing x={2} />
+					<TimelineInOutPointToggle />
+					<Spacing x={2} />
+					<CheckboardToggle />
+					<Spacing x={1} />
 				</>
 			) : null}
 			{isFullscreenSupported && <FullScreenToggle />}
