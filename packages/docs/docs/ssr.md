@@ -3,6 +3,7 @@ image: /generated/articles-docs-ssr.png
 id: ssr
 title: Server-Side Rendering
 crumb: "The power of"
+sidebar_label: Overview
 ---
 
 import {TableOfContents} from '../components/TableOfContents/renderer';
@@ -76,7 +77,7 @@ This flow is highly customizable. Click on one of the SSR APIs to read about it'
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for improved performance.
 
 :::note
-If you are using Next.js, you will not be able to use `@remotion/bundler` because of the limitations explained in [Can I render videos in Next.js?](https://www.remotion.dev/docs/miscellaneous/vercel-functions#can-i-render-videos-in-nextjs) Refer to the page for possible alternatives. 
+If you are using Next.js, you will not be able to use `@remotion/bundler` because of the limitations explained in [Can I render videos in Next.js?](https://www.remotion.dev/docs/miscellaneous/vercel-functions#can-i-render-videos-in-nextjs) Refer to the page for possible alternatives.
 :::
 
 ## Render using GitHub Actions
@@ -98,9 +99,9 @@ See also: [Passing input props in GitHub Actions](/docs/parameterized-rendering#
 
 See: [Dockerizing a Remotion project](/docs/docker)
 
-## Render a video using GCP Cloud Run
+## Render a video using GCP Cloud Run (Alpha)
 
-An official Remotion package for Cloud Run is in development. Register your interest in [Discord](https://remotion.dev/discord) if you want to be a beta tester.
+Check out the experimental [Cloud Run](/docs/cloudrun-alpha) package.
 
 ## API reference
 

@@ -7,7 +7,7 @@ id: get-help
 To receive help, either:
 
 <Step>1</Step> File an issue under <a href="https://remotion.dev/issue">remotion.dev/issue</a> <br/>
-<Step>2</Step> Write in the <code>#help</code> channel on <a href="https://remotion.dev/discord">remotion.dev/discord</a>
+<Step>2</Step> Write in the <code>#help</code> channel or <code>#help-forum</code> on <a href="https://remotion.dev/discord">remotion.dev/discord</a>
 
 ## Provide information
 
@@ -51,6 +51,17 @@ The following might also be useful information to us:
 
 <Step error>1</Step> Ask for support using email or direct messages. <br/>
 <Step error>2</Step> Ask without <a href="/search">searching</a> the docs first. <br/>
+
+## Paid support
+
+Our [Remotion Experts](/experts) are available for technical advice and guidance. With their extensive experience in creating Remotion projects, they will surely be of great help.
+
+You can also request a consultation session with Remotion's creator [here](https://cal.com/remotion/consulting).  
+This is the only way to receive support via video call fom the Remotion team.
+
+## Support policy
+
+See our [policy](/docs/support) on providing support.
 
 ## See also
 
