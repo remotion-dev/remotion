@@ -20,7 +20,10 @@ import {
 } from '../helpers/persist-open-folders';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
-import {CurrentComposition} from './CurrentComposition';
+import {
+	CurrentComposition,
+	CURRENT_COMPOSITION_HEIGHT,
+} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
@@ -29,11 +32,6 @@ const container: React.CSSProperties = {
 	flex: 1,
 	overflow: 'hidden',
 	backgroundColor: BACKGROUND,
-};
-
-const list: React.CSSProperties = {
-	height: 'calc(100% - 80px)',
-	overflowY: 'auto',
 };
 
 export const getKeysToExpand = (
@@ -136,11 +134,21 @@ export const CompositionSelector: React.FC = () => {
 		return createFolderTree(compositions, folders, foldersExpanded);
 	}, [compositions, folders, foldersExpanded]);
 
+	const showCurrentComposition =
+		canvasContent && canvasContent.type === 'composition';
+
+	const list: React.CSSProperties = useMemo(() => {
+		return {
+			height: showCurrentComposition
+				? `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px)`
+				: '100%',
+			overflowY: 'auto',
+		};
+	}, [showCurrentComposition]);
+
 	return (
 		<div style={container}>
-			{canvasContent && canvasContent.type === 'composition' ? (
-				<CurrentComposition />
-			) : null}
+			{showCurrentComposition ? <CurrentComposition /> : null}
 			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
@@ -148,9 +156,7 @@ export const CompositionSelector: React.FC = () => {
 							key={c.key + c.type}
 							level={0}
 							currentComposition={
-								canvasContent && canvasContent.type === 'composition'
-									? canvasContent.compositionId
-									: null
+								showCurrentComposition ? canvasContent.compositionId : null
 							}
 							selectComposition={selectComposition}
 							toggleFolder={toggleFolder}
