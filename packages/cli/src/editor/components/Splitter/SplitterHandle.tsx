@@ -146,7 +146,12 @@ export const SplitterHandle: React.FC<{
 	return (
 		<div
 			ref={ref}
-			className="remotion-splitter"
+			className={[
+				'remotion-splitter',
+				context.orientation === 'horizontal'
+					? 'remotion-splitter-horizontal'
+					: 'remotion-splitter-vertical',
+			].join(' ')}
 			style={
 				context.orientation === 'horizontal' ? containerRow : containerColumn
 			}

@@ -10,14 +10,47 @@ body {
 }
 
 .remotion-splitter {
-	background-color: black;
-	transition: background-color 0.2s ease;
 	user-select: none;
 }
 
-.remotion-splitter:hover,
-.remotion-splitter-active {
-	background-color: var(--remotion-cli-internals-blue);
+.remotion-splitter-horizontal {
+	transform: scaleY(2);
+	background: linear-gradient(
+		to bottom,
+		transparent 25%,
+		black 25%,
+		black 75%,
+		transparent
+	);
+}
+
+.remotion-splitter-horizontal:hover,
+.remotion-splitter-horizontal.remotion-splitter-active {
+	background: linear-gradient(
+		to bottom,
+		var(--remotion-cli-internals-blue),
+		var(--remotion-cli-internals-blue)
+	);
+}
+
+.remotion-splitter-vertical {
+	transform: scaleX(2);
+	background: linear-gradient(
+		to right,
+		transparent 25%,
+		black 25%,
+		black 75%,
+		transparent
+	);
+}
+
+.remotion-splitter-vertical:hover,
+.remotion-splitter-vertical.remotion-splitter-active {
+	background: linear-gradient(
+		to right,
+		var(--remotion-cli-internals-blue),
+		var(--remotion-cli-internals-blue)
+	);
 }
 
 input::-webkit-outer-spin-button,
@@ -31,7 +64,10 @@ textarea:focus,
 button:focus,
 a:focus {
 	outline: none;
-	box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555,
+	box-shadow:
+		inset 1px 1px #555,
+		inset -1px -1px #555,
+		inset 1px -1px #555,
 		inset -1px 1px #555;
 	border-radius: 0 !important;
 }
