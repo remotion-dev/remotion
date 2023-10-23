@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-performance.png
 id: performance
-sidebar_label: Render speed
+sidebar_label: Performance
 title: Performance Tips
 crumb: "Need for Speed"
 ---

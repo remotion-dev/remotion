@@ -2,7 +2,7 @@
 image: /generated/articles-docs-creating-a-library.png
 id: authoring-packages
 title: Authoring a Remotion library
-sidebar_label: Author a library
+sidebar_label: Authoring a library
 crumb: "How to"
 ---
 
