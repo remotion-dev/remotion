@@ -26,9 +26,9 @@ const Flip: React.FC<
 }) => {
 	const style: React.CSSProperties = useMemo(() => {
 		const startRotationEntering =
-			direction === 'from-left' || direction === 'from-bottom' ? 180 : -180;
+			direction === 'from-right' || direction === 'from-top' ? 180 : -180;
 		const endRotationEntering =
-			direction === 'from-left' || direction === 'from-bottom' ? -180 : 180;
+			direction === 'from-right' || direction === 'from-top' ? -180 : 180;
 
 		const rotation =
 			presentationDirection === 'entering'
