@@ -1,9 +1,15 @@
-
 import React, {useMemo} from 'react';
 import {AbsoluteFill, interpolate} from 'remotion';
-import type { TransitionPresentation, TransitionPresentationComponentProps } from '../types.js';
+import type {
+	TransitionPresentation,
+	TransitionPresentationComponentProps,
+} from '../types.js';
 
-export type FlipDirection = 'from-left' | 'from-right' | 'from-top' | 'from-bottom'
+export type FlipDirection =
+	| 'from-left'
+	| 'from-right'
+	| 'from-top'
+	| 'from-bottom';
 
 type FlipPresentationProps = {
 	direction?: FlipDirection;
@@ -12,21 +18,17 @@ type FlipPresentationProps = {
 
 const Flip: React.FC<
 	TransitionPresentationComponentProps<FlipPresentationProps>
-> = ({children, presentationDirection, presentationProgress, passedProps: {
-  direction = "from-left",
-  perspective= 1000,
-}}) => {
+> = ({
+	children,
+	presentationDirection,
+	presentationProgress,
+	passedProps: {direction = 'from-left', perspective = 1000},
+}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		const startRotationEntering =
-			direction === 'from-left' ||
-			direction === 'from-bottom'
-				? 180
-				: -180;
+			direction === 'from-left' || direction === 'from-bottom' ? 180 : -180;
 		const endRotationEntering =
-			direction === 'from-left' ||
-			direction === 'from-bottom'
-				? -180
-				: 180;
+			direction === 'from-left' || direction === 'from-bottom' ? -180 : 180;
 
 		const rotation =
 			presentationDirection === 'entering'
@@ -34,8 +36,7 @@ const Flip: React.FC<
 				: interpolate(presentationProgress, [0, 1], [0, endRotationEntering]);
 
 		const rotateProperty =
-			direction === 'from-top' ||
-			direction === 'from-bottom'
+			direction === 'from-top' || direction === 'from-bottom'
 				? 'rotateX'
 				: 'rotateY';
 
@@ -48,25 +49,23 @@ const Flip: React.FC<
 		};
 	}, [direction, presentationDirection, presentationProgress]);
 
-  const outer: React.CSSProperties = useMemo(() => {
-    return {
-      perspective,
-      // Make children also their backface hidden
-      transformStyle: 'preserve-3d',
-    }
-  }, [perspective])
+	const outer: React.CSSProperties = useMemo(() => {
+		return {
+			perspective,
+			// Make children also their backface hidden
+			transformStyle: 'preserve-3d',
+		};
+	}, [perspective]);
 
 	return (
-		<AbsoluteFill
-			style={outer}
-		>
+		<AbsoluteFill style={outer}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };
 
 export const flip = (
-	props: FlipPresentationProps
+	props?: FlipPresentationProps,
 ): TransitionPresentation<FlipPresentationProps> => {
-	return {component: Flip, props};
+	return {component: Flip, props: props ?? {}};
 };

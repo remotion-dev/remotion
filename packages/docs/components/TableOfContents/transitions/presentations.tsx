@@ -1,4 +1,5 @@
 import { fade } from "@remotion/transitions/fade";
+import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
@@ -53,6 +54,17 @@ export const Presentations: React.FC = () => {
               <code>{"wipe()"}</code>
             </strong>
             <div>Slide over the previous scene</div>
+          </div>
+        </div>
+      </TOCItem>
+      <TOCItem link="/docs/transitions/presentations/flip">
+        <div style={row}>
+          <PresentationPreview durationRestThreshold={0.001} effect={flip()} />
+          <div style={{ flex: 1, marginLeft: 10 }}>
+            <strong>
+              <code>{"flip()"}</code>
+            </strong>
+            <div>Rotate the previous scene</div>
           </div>
         </div>
       </TOCItem>

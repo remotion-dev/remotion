@@ -6,6 +6,8 @@ import type {
 } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
+import type { FlipDirection } from "@remotion/transitions/flip";
+import { flip } from "@remotion/transitions/flip";
 import type { SlideDirection } from "@remotion/transitions/slide";
 import { slide } from "@remotion/transitions/slide";
 import type { WipeDirection } from "@remotion/transitions/wipe";
@@ -91,6 +93,17 @@ export const SlideDemo: React.FC<{
   return (
     <SampleTransition
       effect={slide({ direction })}
+      durationRestThreshold={0.001}
+    />
+  );
+};
+
+export const FlipDemo: React.FC<{
+  direction: FlipDirection;
+}> = ({ direction }) => {
+  return (
+    <SampleTransition
+      effect={flip({ direction })}
       durationRestThreshold={0.001}
     />
   );

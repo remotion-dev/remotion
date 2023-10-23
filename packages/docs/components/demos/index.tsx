@@ -11,6 +11,7 @@ import {
   customTimingDemo,
   ellipseDemo,
   fadePresentationDemo,
+  flipPresentationDemo,
   noiseDemo,
   opacityDemo,
   pieDemo,
@@ -51,6 +52,7 @@ const demos: DemoType[] = [
   wipePresentationDemo,
   slidePresentationDemo,
   slidePresentationDemoLongThreshold,
+  flipPresentationDemo,
   customPresentationDemo,
   customTimingDemo,
 ];

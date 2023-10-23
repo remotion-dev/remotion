@@ -2,6 +2,7 @@ import {
   CustomTimingDemo,
   CustomTransitionDemo,
   FadeDemo,
+  FlipDemo,
   SlideDemo,
   SlideDemoLongDurationRest,
   WipeDemo,
@@ -496,6 +497,24 @@ export const slidePresentationDemo: DemoType = {
   durationInFrames: 60,
   fps: 30,
   id: "slide",
+  autoPlay: true,
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: ["from-left", "from-bottom", "from-right", "from-top"],
+    },
+  ],
+};
+export const flipPresentationDemo: DemoType = {
+  comp: FlipDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "flip",
   autoPlay: true,
   options: [
     {
