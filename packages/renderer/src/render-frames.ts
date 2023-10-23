@@ -14,6 +14,7 @@ import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -95,6 +96,7 @@ export type InternalRenderFramesOptions = {
 	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -134,6 +136,7 @@ type InnerRenderFramesOptions = {
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 };
 
 export type RenderFramesOptions = {
@@ -211,6 +214,7 @@ const innerRenderFrames = async ({
 	sourcemapContext,
 	logLevel,
 	indent,
+	parallelEncodingEnabled,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -279,6 +283,7 @@ const innerRenderFrames = async ({
 				fps: number,
 				height: number,
 				width: number,
+				defaultCodec: Codec,
 			) => {
 				window.remotion_setBundleMode({
 					type: 'composition',
@@ -288,6 +293,7 @@ const innerRenderFrames = async ({
 					compositionFps: fps,
 					compositionHeight: height,
 					compositionWidth: width,
+					compositionDefaultCodec: defaultCodec,
 				});
 			},
 			args: [
@@ -297,6 +303,7 @@ const innerRenderFrames = async ({
 				composition.fps,
 				composition.height,
 				composition.width,
+				composition.defaultCodec,
 			],
 			frame: null,
 			page,
@@ -332,6 +339,7 @@ const innerRenderFrames = async ({
 
 	onStart?.({
 		frameCount: framesToRender.length,
+		parallelEncoding: parallelEncodingEnabled,
 	});
 
 	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
@@ -449,6 +457,8 @@ const innerRenderFrames = async ({
 				renderAsset,
 				onDownload,
 				downloadMap,
+				indent,
+				logLevel,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`),
@@ -604,6 +614,7 @@ const internalRenderFramesRaw = ({
 	serializedInputPropsWithCustomSchema,
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
+	parallelEncodingEnabled,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -719,6 +730,7 @@ const internalRenderFramesRaw = ({
 					indent,
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
+					parallelEncodingEnabled,
 				});
 			}),
 		])
@@ -859,5 +871,6 @@ export const renderFrames = (
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		parallelEncodingEnabled: false,
 	});
 };

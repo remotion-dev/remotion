@@ -29,14 +29,18 @@ npm i @remotion/rive
 
 </TabItem>
 <TabItem value="yarn">
+
 ```bash
 yarn add @remotion/rive
 ```
+
 </TabItem>
 <TabItem value="pnpm">
+
 ```bash
 pnpm i @remotion/rive
 ```
+
 </TabItem>
 </Tabs>
 

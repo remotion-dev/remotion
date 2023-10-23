@@ -15,6 +15,7 @@ import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
+import {gpuCommand} from './gpu';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
@@ -91,6 +92,8 @@ export const cli = async () => {
 			await still(remotionRoot, args);
 		} else if (command === 'ffmpeg') {
 			ffmpegCommand(remotionRoot, process.argv.slice(3));
+		} else if (command === 'gpu') {
+			await gpuCommand(remotionRoot);
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {

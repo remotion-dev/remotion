@@ -23,18 +23,10 @@ export const Modals: React.FC = () => {
 					compositionId={modalContextType.compositionId}
 					initialVideoImageFormat={modalContextType.initialVideoImageFormat}
 					initialJpegQuality={modalContextType.initialJpegQuality}
-					initialOutName={modalContextType.initialOutName}
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
-					initialRenderType={modalContextType.initialRenderType}
 					initialOffthreadVideoCacheSizeInBytes={
 						modalContextType.initialOffthreadVideoCacheSizeInBytes
-					}
-					initialVideoCodecForAudioTab={
-						modalContextType.initialVideoCodecForAudioTab
-					}
-					initialVideoCodecForVideoTab={
-						modalContextType.initialVideoCodecForVideoTab
 					}
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
@@ -50,7 +42,6 @@ export const Modals: React.FC = () => {
 					initialEveryNthFrame={modalContextType.initialEveryNthFrame}
 					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
 					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
-					initialAudioCodec={modalContextType.initialAudioCodec}
 					initialEnvVariables={modalContextType.initialEnvVariables}
 					initialDisableWebSecurity={modalContextType.initialDisableWebSecurity}
 					initialGl={modalContextType.initialOpenGlRenderer}
@@ -64,6 +55,12 @@ export const Modals: React.FC = () => {
 					initialColorSpace={modalContextType.initialColorSpace}
 					initialMultiProcessOnLinux={
 						modalContextType.initialMultiProcessOnLinux
+					}
+					defaultConfigurationAudioCodec={
+						modalContextType.defaultConfigurationAudioCodec
+					}
+					defaultConfigurationVideoCodec={
+						modalContextType.defaultConfigurationVideoCodec
 					}
 				/>
 			)}

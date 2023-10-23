@@ -7,4 +7,5 @@ export type RenderFramesOutput = {
 
 export type OnStartData = {
 	frameCount: number;
+	parallelEncoding: boolean;
 };

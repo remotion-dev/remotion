@@ -339,6 +339,7 @@ const composition = {
   durationInFrames: 30 * 5,
   id: "comp-name",
   defaultProps: {},
+  defaultCodec: null,
 } as const;
 
 // ---cut---
@@ -398,7 +399,7 @@ The recommended way is to get the `composition` object using [`selectComposition
 - **@remotion/cli** Allow open of the project in editor from the Remotion Studio
 - **@remotion/cli**: `Date` objects now work properly in `defaultProps`
 - **@remotion/cli**: Remotion Studio is tested to work well offline.
-- **@remotion/cli**: "Remotion Preview" has been renamed to ["Remotion Studio"](/docs/timeline)
+- **@remotion/cli**: "Remotion Preview" has been renamed to ["Remotion Studio"](/docs/studio)
 - **@remotion/eslint-config**: `eslint-plugin-react` has been updated to `7.32.2`
 - **@remotion/eslint-config**: `eslint-plugin-react-hooks` has been updated to `4.6.0`
 - **@remotion/eslint-plugin**: New ESLint rule: Use the right import in the config file

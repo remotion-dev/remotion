@@ -33,7 +33,9 @@ export const getTimelineSequenceSequenceSortKey = (
 
 	const parent = tracks.find((t) => t.sequence.id === track.sequence.parent);
 	if (!parent) {
-		throw new Error('Cannot find parent');
+		// Due to effects and conditional `showInTimeline`, a parent
+		// may not exist in the `allTracks` array.
+		return id;
 	}
 
 	const firstParentWithSameHash = tracks.find((a) => {

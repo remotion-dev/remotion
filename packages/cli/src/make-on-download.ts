@@ -9,14 +9,17 @@ export const makeOnDownload = ({
 	updatesDontOverwrite,
 	downloads,
 	updateRenderProgress,
+	isUsingParallelEncoding,
 }: {
 	indent: boolean;
 	logLevel: LogLevel;
 	updatesDontOverwrite: boolean;
 	downloads: DownloadProgress[];
+	isUsingParallelEncoding: boolean;
 	updateRenderProgress: (progress: {
 		newline: boolean;
 		printToConsole: boolean;
+		isUsingParallelEncoding: boolean;
 	}) => void;
 }): RenderMediaOnDownload => {
 	return (src) => {
@@ -39,6 +42,7 @@ export const makeOnDownload = ({
 		updateRenderProgress({
 			newline: false,
 			printToConsole: !updatesDontOverwrite,
+			isUsingParallelEncoding,
 		});
 		let lastUpdate = Date.now();
 		return ({percent, downloaded, totalSize}) => {
@@ -59,6 +63,7 @@ export const makeOnDownload = ({
 			updateRenderProgress({
 				newline: false,
 				printToConsole: !updatesDontOverwrite,
+				isUsingParallelEncoding,
 			});
 		};
 	};

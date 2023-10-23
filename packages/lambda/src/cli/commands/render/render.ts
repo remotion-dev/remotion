@@ -143,6 +143,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		outName: outName ?? null,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
+		compositionCodec: null,
 	});
 
 	const imageFormat = CliInternals.getVideoImageFormat({
@@ -300,6 +301,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
+					logLevel,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({

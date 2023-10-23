@@ -85,21 +85,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
-
-:::note
-The default for Lambda is `"swangle"`, but `null` elsewhere.
-:::
+<Options id="gl"  />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 

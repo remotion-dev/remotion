@@ -14,6 +14,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					id: 'hithere',
 					defaultProps: {},
 					props: {},
+					defaultCodec: null,
 				},
 			}),
 		).rejects.toMatch(
@@ -32,6 +33,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					id: 'hithere',
 					defaultProps: {},
 					props: {},
+					defaultCodec: null,
 				},
 			}),
 		).rejects.toMatch(
@@ -50,6 +52,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					id: 'hithere',
 					defaultProps: {},
 					props: {},
+					defaultCodec: null,
 				},
 			}),
 		).rejects.toMatch(
@@ -68,6 +71,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					id: 'hithere',
 					defaultProps: {},
 					props: {},
+					defaultCodec: null,
 				},
 			}),
 		).rejects.toMatch(

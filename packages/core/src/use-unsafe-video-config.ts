@@ -13,8 +13,16 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			return null;
 		}
 
-		const {id, durationInFrames, fps, height, width, defaultProps, props} =
-			video;
+		const {
+			id,
+			durationInFrames,
+			fps,
+			height,
+			width,
+			defaultProps,
+			props,
+			defaultCodec,
+		} = video;
 
 		return {
 			id,
@@ -24,6 +32,7 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			durationInFrames: ctxDuration ?? durationInFrames,
 			defaultProps,
 			props,
+			defaultCodec,
 		};
 	}, [ctxDuration, video]);
 };

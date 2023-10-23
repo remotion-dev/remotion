@@ -4,18 +4,18 @@ import {openInEditor} from '../helpers/open-in-editor';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
 const svgStyle: React.CSSProperties = {
-	width: '11px',
-	height: '11px',
+	width: 11,
+	height: 11,
 };
 
 const buttonStyle: React.CSSProperties = {
 	border: 'none',
-	width: '20px',
 	height: '20px',
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 };
+
 export const OpenEditorButton: React.FC<{}> = () => {
 	const [hovered, setHovered] = useState<boolean>(false);
 

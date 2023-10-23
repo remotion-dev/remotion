@@ -136,17 +136,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
+<Options id="gl"  />
 
 ### `forceWidth?`
 

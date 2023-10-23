@@ -151,7 +151,7 @@ export const MyComposition = () => {
 
 ## Use audio from `<Video />` tags
 
-Audio from [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo) tags are also included in the output. You may use the [`startFrom`, `endAt`](/docs/video/#startfrom--endat), [`volume`](/docs/video/#volume) and [`muted`](/docs/video/#muted) props in the same way.
+Audio from [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo) tags are also included in the output. You may use the [`startFrom`, `endAt`](/docs/video/#startfrom), [`volume`](/docs/video/#volume) and [`muted`](/docs/video/#muted) props in the same way.
 
 ## Controlling playback speed
 

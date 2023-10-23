@@ -267,15 +267,15 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {codec, reason: codecReason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		downloadName: null,
-		outName: null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-	});
-
 	for (const composition of compositions) {
+		const {codec, reason: codecReason} = getFinalOutputCodec({
+			cliFlag: parsedCli.codec,
+			downloadName: null,
+			outName: null,
+			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+			uiCodec: null,
+			compositionCodec: composition.defaultCodec ?? null,
+		});
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};

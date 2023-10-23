@@ -1,5 +1,5 @@
-import path from 'node:path';
 import {enableTailwind} from '@remotion/tailwind';
+import path from 'node:path';
 
 const WEBPACK_OR_ESBUILD = 'esbuild';
 

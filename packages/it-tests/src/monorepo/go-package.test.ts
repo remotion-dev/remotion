@@ -24,6 +24,7 @@ test("Set the right version for gotest", () => {
 test("Go package should create the same payload as normal Lambda package", async () => {
   const goOutput = execSync("go test", {
     cwd: path.join(process.cwd(), "..", "lambda-go"),
+    stdio: "inherit",
   });
   const firstLine = goOutput.toString().split("\n")[0];
   const parsed = JSON.parse(firstLine);

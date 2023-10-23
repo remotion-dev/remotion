@@ -112,6 +112,7 @@ const composition = {
   id: "my-video",
   defaultProps: {},
   props: {},
+  defaultCodec: null,
 };
 const serveUrl = "/path/to/bundle";
 const outputLocation = "/path/to/frames";

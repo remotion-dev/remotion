@@ -7,7 +7,10 @@ import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import {
   circleDemo,
+  customPresentationDemo,
+  customTimingDemo,
   ellipseDemo,
+  fadePresentationDemo,
   noiseDemo,
   opacityDemo,
   pieDemo,
@@ -15,9 +18,12 @@ import {
   rotateDemo,
   scaleDemo,
   skewDemo,
+  slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
   starDemo,
   translateDemo,
   triangleDemo,
+  wipePresentationDemo,
 } from "./types";
 
 const container: React.CSSProperties = {
@@ -41,6 +47,12 @@ const demos: DemoType[] = [
   rotateDemo,
   scaleDemo,
   opacityDemo,
+  fadePresentationDemo,
+  wipePresentationDemo,
+  slidePresentationDemo,
+  slidePresentationDemoLongThreshold,
+  customPresentationDemo,
+  customTimingDemo,
 ];
 
 export const Demo: React.FC<{
@@ -89,7 +101,10 @@ export const Demo: React.FC<{
         style={{
           width: "100%",
           aspectRatio: demo.compWidth / demo.compHeight,
-          borderBottom: "1px solid var(--ifm-color-emphasis-300)",
+          borderBottom:
+            demo.options.length > 0
+              ? "1px solid var(--ifm-color-emphasis-300)"
+              : 0,
         }}
         errorFallback={({ error }) => {
           return (

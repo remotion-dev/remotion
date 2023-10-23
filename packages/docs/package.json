@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.51",
+  "version": "4.0.53",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -47,10 +47,11 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/skia": "workspace:*",
     "@remotion/tailwind": "workspace:*",
+    "@remotion/transitions": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@shopify/react-native-skia": "^0.1.191",
-    "@swc/core": "^1.3.27",
+    "@swc/core": "^1.3.80",
     "@types/uuid": "^8.3.4",
     "chalk": "4.1.2",
     "clipboard": "^2.0.8",

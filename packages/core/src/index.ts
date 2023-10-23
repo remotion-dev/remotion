@@ -1,5 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
+import type {Codec} from './codec.js';
 import type {TRenderAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -72,6 +73,7 @@ export type BundleState =
 			compositionDurationInFrames: number;
 			compositionWidth: number;
 			compositionFps: number;
+			compositionDefaultCodec: Codec;
 	  };
 
 checkMultipleRemotionVersions();
@@ -115,7 +117,12 @@ export {ClipRegion} from './NativeLayers.js';
 export {prefetch} from './prefetch.js';
 export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
-export {Sequence} from './Sequence.js';
+export {
+	LayoutAndStyle,
+	Sequence,
+	SequenceProps,
+	SequencePropsWithoutDuration,
+} from './Sequence.js';
 export {Series} from './series/index.js';
 export * from './spring/index.js';
 export {staticFile} from './static-file.js';
