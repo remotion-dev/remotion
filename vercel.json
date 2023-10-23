@@ -256,6 +256,16 @@
       "source": "/repro",
       "destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
       "permanent": false
+    },
+    {
+      "source": "/docs/timeline",
+      "destination": "/docs/studio",
+      "permanent": false
+    },
+    {
+      "source": "/studio",
+      "destination": "/docs/studio",
+      "permanent": false
     }
   ]
 }
