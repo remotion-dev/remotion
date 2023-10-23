@@ -1477,6 +1477,13 @@ export const articles = [
     crumb: "Advanced configuration",
   },
   {
+    id: "miscellaneous/cloud-gpu",
+    title: "Using the GPU in the cloud",
+    relativePath: "docs/miscellaneous/cloud-gpu.md",
+    compId: "articles-docs-miscellaneous-cloud-gpu",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/linux-single-process",
     title: "Multiple cores on Linux",
     relativePath: "docs/miscellaneous/linux-single-process.md",

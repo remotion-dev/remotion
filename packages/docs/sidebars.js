@@ -526,6 +526,7 @@ module.exports = {
         "deploy-studio",
         "miscellaneous/linux-single-process",
         "gpu",
+        "miscellaneous/cloud-gpu",
       ],
     },
     {
