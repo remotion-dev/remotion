@@ -65,7 +65,7 @@ Bun as a runtime is mostly supported. [Read more here](/docs/bun).
 
 Choose the template that is most suitable for you. For your first project, we recommend the [Hello World](/templates/hello-world) template.
 
-After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/timeline):
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/studio):
 
 ```bash
 npm start
