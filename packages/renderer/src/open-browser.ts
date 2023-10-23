@@ -27,17 +27,17 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
-		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+		return ['--use-gl=angle', '--use-angle=swiftshader'];
 	}
 
 	if (renderer === 'angle-egl') {
-		return [`--use-gl=angle`, `--use-angle=gl-egl`];
+		return ['--use-gl=angle', '--use-angle=gl-egl'];
 	}
 
 	if (renderer === 'vulkan') {
 		return [
 			'--use-angle=vulkan',
-			`--use-vulkan=swiftshader`,
+			'--use-vulkan=swiftshader',
 			'--disable-vulkan-fallback-to-gl-for-testing',
 			'--dignore-gpu-blocklist',
 			'--enable-features=Vulkan,UseSkiaRenderer',
