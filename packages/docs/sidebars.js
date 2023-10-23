@@ -467,6 +467,7 @@ module.exports = {
       items: [
         "transforms",
         "assets",
+        "transitioning",
         "use-img-and-iframe",
         "using-audio",
         "fonts",

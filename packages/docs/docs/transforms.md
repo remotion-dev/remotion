@@ -166,7 +166,3 @@ These are just some of the basic transformations. Here are some more transformat
 - The weight and slant of a [dynamic font](https://twitter.com/JNYBGR/status/1598983409367683072)
 - The stops of a `linear-gradient`
 - The values of a CSS `filter()`
-
-<hr/>
-
-Ready for the next step? Let's animate some properties!

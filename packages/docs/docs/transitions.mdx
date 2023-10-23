@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-transitions.png
+id: transitioning
+title: Transitions
+crumb: "Techniques"
+---
+
+import { TransitionsDuration } from "../components/TransitionsDuration";
+
+To transition between two types of absolutely positioned content, you can use the [`<TransitionSeries>`](/docs/transitions/transitionseries) component.
+
+```tsx twoslash title="SlideTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { slide } from "@remotion/transitions/slide";
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide()}
+        timing={linearTiming({ durationInFrames: 30 })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+<Demo type="slide" />
+
+## Enter and exit animations
+
+You don't necessarily have to use `<TransitionSeries>` for transitions between scenes. You can also use it to animate the entrace or exit of a scene by putting a transition first or last in the `<TransitionSeries>`.
+
+[See example](/docs/transitions/transitionseries#enter-and-exit-animations)
+
+## Duration
+
+In the above example, `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
+During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
+
+<TransitionsDuration />
+
+## Presentations and timings
+
+A presentation determines the visual of animation.  
+[Click here](/docs/transitions/presentations) to see the available presentations and how to create custom ones.
+
+A timing determines how long the animation takes and the animation curve.  
+[Click here](/docs/transitions/timings) to see the available timing presets and how to create custom ones.
+
+## See also
+
+- [`@remotion/transitions`](/docs/transitions)
+- [`<TransitionSeries>`](/docs/transitions/transitionseries)

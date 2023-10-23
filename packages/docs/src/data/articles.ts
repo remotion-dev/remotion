@@ -2557,6 +2557,13 @@ export const articles = [
     crumb: "@remotion/transitions",
   },
   {
+    id: "transitioning",
+    title: "Transitions",
+    relativePath: "docs/transitions.mdx",
+    compId: "articles-docs-transitions",
+    crumb: "Techniques",
+  },
+  {
     id: "transparent-videos",
     title: "Transparent videos",
     relativePath: "docs/transparent-videos.md",
