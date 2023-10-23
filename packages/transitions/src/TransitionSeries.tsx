@@ -164,9 +164,15 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
         transitionOffsets -= duration;
       }
 
-      const actualStartFrame = currentStartFrame + transitionOffsets;
+      let actualStartFrame = currentStartFrame + transitionOffsets;
 
       startFrame += durationInFramesProp + offset;
+
+      // Handle the case where the first item is a transition
+      if (actualStartFrame < 0) {
+        startFrame -= actualStartFrame;
+        actualStartFrame = 0;
+      }
 
       const inner = (
         <Sequence
