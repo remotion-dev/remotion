@@ -25,6 +25,12 @@ export const isTrackHidden = (
 		(t) => t.sequence.id === track.sequence.parent,
 	) as TrackWithHash;
 
+	// Due to effects and conditional `showInTimeline`, a parent
+	// may not exist in the `allTracks` array.
+	if (!parent) {
+		return true;
+	}
+
 	if (isTrackCollapsed(parent.hash, viewState)) {
 		return true;
 	}
