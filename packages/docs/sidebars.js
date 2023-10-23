@@ -517,11 +517,7 @@ module.exports = {
       },
       items: [
         "ssr",
-        {
-          type: "link",
-          href: "/docs/renderer",
-          label: "@remotion/renderer API",
-        },
+        "ssr-node",
         "docker",
         "deploy-studio",
         "miscellaneous/linux-single-process",
