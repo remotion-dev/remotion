@@ -57,7 +57,7 @@ export const MenuBuildIndicator: React.FC = () => {
 			)}
 			{showButton ? <Spacing x={0.5} /> : null}
 			{window.remotion_projectName}
-			{showButton ? <Spacing x={0.5} /> : null}
+			{showButton ? <Spacing x={0.25} /> : null}
 			{showButton ? <OpenEditorButton /> : null}
 		</div>
 	);

@@ -22,14 +22,14 @@ const row: React.CSSProperties = {
 };
 
 const fixedWidthRight: React.CSSProperties = {
-	minWidth: '350px',
+	width: '330px',
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-end',
 };
 
 const fixedWidthLeft: React.CSSProperties = {
-	minWidth: '350px',
+	minWidth: '330px',
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-start',
@@ -97,7 +97,7 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row justify="center" align="center" className="css-reset" style={row}>
+		<Row align="center" className="css-reset" style={row}>
 			<div style={fixedWidthLeft}>
 				{structure.map((s) => {
 					return (
