@@ -6,28 +6,42 @@ sidebar_label: Using the GPU
 crumb: "Need for Speed"
 ---
 
-Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering. That is:
+Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering.  
+By default in many cases, the GPU is disabled in headless mode, which can lead to a significant slowdown in rendering time.
+
+## Content accelerated by the GPU
 
 - WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
-- 2D Canvas graphics
-- GPU-accelerated CSS properties such as `box-shadow`, `text-shadow`, `background-image: linear-gradient()`, `background-image: radial-gradient()`, `filter: blur()`, `filter: drop-shadow()`
+- `box-shadow`
+- `text-shadow`
+- `background-image: linear-gradient()`
+- `background-image: radial-gradient()`
+- `filter: blur()`
+- `filter: drop-shadow()`
+- `transform`
+- Many 2D Canvas operations
 
-If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player. However, in headless mode, Chromium disables the GPU, leading to a significant
+If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player.  
+However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.
 
-## Use `--gl=angle` for local renders
+## Content not accelerated by the GPU
 
-Since Chrome 98, the GPU can be used in headless mode. Adding `--gl=angle` (or `{chromiumOptions: {gl: "angle"}}` for the Node.JS APIs), we find that a video rendered on a `<canvas>` on macOS is many times faster compared to rendering without the flag.
+Contrary to popular belief, the following content is not accelerated by the GPU:
 
-However, there seems to be memory leak from Chrome that may kill a long render, therefore we don't set `angle` as default. We recommend to render long videos that use the GPU in multiple parts.
+- `<Video>`
+- `<OffthreadVideo>`
+- [Canvas pixel manipulation](/docs/video-manipulation)
 
-## Use `--gl=swangle` for Lambda
+Furthermore, the encoding of the video is not accelerated by the GPU at this point.
 
-Since Lambda does not have a GPU, the content has to be rendered using software. You can still render all types of content without having a GPU, it will just be slower. The best way to do so is by passing `--gl=swangle` if you are rendering using the CLI, or passing `{chromiumOptions: {gl: "swangle"}}` if using the Node.JS APIs.
+## Use the `--gl` flag to enable the GPU during rendering
 
-## Considerations
+See [here](/docs/gl-options) for recommendations which OpenGL backend you should use during rendering.
 
-For rendering content that can benefit from a GPU, you might want to choose a cloud rendering solution to which a GPU can be attached to over AWS Lambda (which does not have a GPU). Most bigger cloud providers have some GPU-enabled VPS offerings. Apple M1 VPS instances might also be able to accelerate graphics rendering and be more economical than VPS instances with desktop graphic cards.
+## GPU for server-side rendering
+
+[See here](/docs/miscellaneous/cloud-gpu) for an example on how to use the GPU during server-side rendering.
 
 ## Using the GPU on Lambda
 
