@@ -711,6 +711,7 @@ module.exports = {
       label: "API Reference",
     },
     "terminology",
+    "resources",
     {
       type: "category",
       label: "Migration guides",
