@@ -4,8 +4,10 @@ import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
+export const CURRENT_COMPOSITION_HEIGHT = 80;
+
 const container: React.CSSProperties = {
-	height: 80,
+	height: CURRENT_COMPOSITION_HEIGHT,
 	display: 'block',
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 	padding: 12,
