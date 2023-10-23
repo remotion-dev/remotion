@@ -127,15 +127,17 @@ export const MyVideo = () => {
 
 ### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
-Allows you to adjust the pitch of the audio - will only be applied during rendering. It accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-For example, a `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
-`toneFrequency` should be a positive number between `0.01` (representing the lowest assignable pitch) and `2` (representing the highest assignable pitch). If `toneFrequency` is not specified or null, it defaults to `1`, maintaining the original pitch.
+Adjust the pitch of the audio - will only be applied during rendering.
 
-## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
 In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-## `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
+### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.

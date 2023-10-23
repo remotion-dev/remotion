@@ -456,7 +456,7 @@ module.exports = {
         "the-fundamentals",
         "animating-properties",
         "reusability",
-        "timeline",
+        "studio",
         "render",
       ],
     },
