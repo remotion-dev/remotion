@@ -2635,7 +2635,7 @@ export const articles = [
   },
   {
     id: "use-img-and-iframe",
-    title: "<Img> and <IFrame> tags",
+    title: "<Img>, <Video> and <Audio>",
     relativePath: "docs/use-img-and-iframe.md",
     compId: "articles-docs-use-img-and-iframe",
     crumb: "Best practices",
