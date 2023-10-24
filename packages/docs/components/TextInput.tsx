@@ -13,7 +13,7 @@ const inputStyle: React.CSSProperties = {
 
 const backgroundStyle = (
   focused: boolean,
-  fullWidth: boolean
+  fullWidth: boolean,
 ): React.CSSProperties => {
   return {
     padding: 2,
@@ -24,7 +24,7 @@ const backgroundStyle = (
     transition: "0.2s background-color",
     borderRadius: 7,
     overflow: "hidden",
-    width: "100%",
+    width: fullWidth ? "100%" : undefined,
   };
 };
 

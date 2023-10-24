@@ -547,6 +547,7 @@ module.exports = {
         "player/current-time",
         "player/preloading",
         "player/best-practices",
+        "troubleshooting/player-flicker",
       ],
     },
     {
@@ -643,6 +644,11 @@ module.exports = {
       type: "category",
       label: "Building apps",
       items: [
+        {
+          type: "link",
+          href: "/docs/player",
+          label: "Player",
+        },
         "brownfield",
         "video-uploads",
         "buffer-state",
@@ -690,7 +696,6 @@ module.exports = {
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
-        "troubleshooting/player-flicker",
         "troubleshooting/broken-fast-refresh",
       ],
     },
