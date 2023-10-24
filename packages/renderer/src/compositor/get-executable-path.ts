@@ -3,13 +3,19 @@
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 
+let warned = false;
+
 function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
 	// @ts-expect-error bun no types
 	if (process.report && typeof Bun !== 'undefined') {
-		Log.warnAdvanced(
-			{indent, logLevel},
-			'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
-		);
+		if (!warned) {
+			Log.warnAdvanced(
+				{indent, logLevel},
+				'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
+			);
+		}
+
+		warned = true;
 		return false;
 	}
 
