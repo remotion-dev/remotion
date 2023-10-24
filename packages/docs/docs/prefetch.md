@@ -89,7 +89,7 @@ Use `base64` in Safari if you notice that your audio file plays with hickups eve
 
 Files loaded from the internet should be served with a proper content type, e.g. `video/mp4` for an MP4 file. When the file gets loaded into a blob URL, the file extension gets removed and the browser loses the information about the content type.
 
-This can lead to the video file not playing correctly in the browser. If you cannot influence the servre, you can also set the content type manually using the [`contentType`](#contenttype) option.
+This can lead to the video file not playing correctly in the browser. If you cannot influence the server, you can also set the content type manually using the [`contentType`](#contenttype) option.
 
 ## See also
 
