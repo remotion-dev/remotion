@@ -2,6 +2,7 @@
 image: /generated/articles-docs-troubleshooting-video-flicker.png
 id: player-flicker
 title: "Avoiding flickering in <Player>"
+sidebar_label: Avoiding flickers
 crumb: "Frame-perfection"
 ---
 
@@ -32,7 +33,7 @@ This is a design tradeoff of Remotion, but can be fought with different levels o
 
 <strong><Step>1</Step>Option 1: Ignore</strong><br/>
 
-It should be mentioned that this effect is only happening in the Remotion Studio and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
+This effect is only happening in the Remotion Studio and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
 
 <strong><Step>2</Step>Option 2: Pause the <code>{"<Player/>"}</code> when media is buffering</strong><br/>
 
@@ -77,25 +78,25 @@ export const Premount: React.FC<PremountProps> = ({
   const { id } = useVideoConfig();
   if (typeof premountFor === "undefined") {
     throw new Error(
-      `The <Premount /> component requires a 'for' prop, but none was passed.`
+      `The <Premount /> component requires a 'for' prop, but none was passed.`,
     );
   }
 
   if (typeof premountFor !== "number") {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a number, but is of type ${typeof premountFor}`
+      `The 'for' prop of <Premount /> must be a number, but is of type ${typeof premountFor}`,
     );
   }
 
   if (Number.isNaN(premountFor)) {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a real number, but it is NaN.`
+      `The 'for' prop of <Premount /> must be a real number, but it is NaN.`,
     );
   }
 
   if (!Number.isFinite(premountFor)) {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a finite number, but it is ${premountFor}.`
+      `The 'for' prop of <Premount /> must be a finite number, but it is ${premountFor}.`,
     );
   }
 
@@ -152,25 +153,25 @@ export const Premount: React.FC<PremountProps> = ({
   const sequenceContext = useContext(Internals.SequenceContext);
   if (typeof premountFor === "undefined") {
     throw new Error(
-      `The <Premount /> component requires a 'for' prop, but none was passed.`
+      `The <Premount /> component requires a 'for' prop, but none was passed.`,
     );
   }
 
   if (typeof premountFor !== "number") {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a number, but is of type ${typeof premountFor}`
+      `The 'for' prop of <Premount /> must be a number, but is of type ${typeof premountFor}`,
     );
   }
 
   if (Number.isNaN(premountFor)) {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a real number, but it is NaN.`
+      `The 'for' prop of <Premount /> must be a real number, but it is NaN.`,
     );
   }
 
   if (!Number.isFinite(premountFor)) {
     throw new Error(
-      `The 'for' prop of <Premount /> must be a finite number, but it is ${premountFor}.`
+      `The 'for' prop of <Premount /> must be a finite number, but it is ${premountFor}.`,
     );
   }
 
