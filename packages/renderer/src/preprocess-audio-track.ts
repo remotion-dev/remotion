@@ -4,6 +4,7 @@ import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
+import type {LogLevel} from './log-level';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
@@ -15,6 +16,8 @@ type Options = {
 	expectedFrames: number;
 	fps: number;
 	downloadMap: DownloadMap;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 export type PreprocessedAudioTrack = {
@@ -28,10 +31,14 @@ const preprocessAudioTrackUnlimited = async ({
 	expectedFrames,
 	fps,
 	downloadMap,
+	indent,
+	logLevel,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
 		resolveAssetSrc(asset.src),
+		indent,
+		logLevel,
 	);
 
 	const filter = calculateFfmpegFilter({
@@ -57,7 +64,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await callFf('ffmpeg', args);
+	await callFf('ffmpeg', args, indent, logLevel);
 
 	cleanup();
 	return {outName, filter};

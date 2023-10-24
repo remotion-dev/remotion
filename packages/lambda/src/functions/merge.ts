@@ -72,6 +72,7 @@ export const mergeHandler = async (
 			RenderInternals.Log.info('All chunks have been downloaded now.');
 		},
 		audioBitrate: renderMetadata.audioBitrate,
+		logLevel: params.logLevel,
 	});
 
 	return {type: 'success' as const, postRenderData};

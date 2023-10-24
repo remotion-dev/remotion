@@ -10,6 +10,7 @@ import {
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
@@ -25,6 +26,8 @@ type Options = {
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	audioBitrate: string | null;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -82,7 +85,7 @@ export const combineVideos = async (options: Options) => {
 	Log.verbose('Combining command: ', command);
 
 	try {
-		const task = callFf('ffmpeg', command);
+		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));

@@ -97,6 +97,11 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.callFf('ffprobe', ['gif.gif']);
+	const probe = await RenderInternals.callFf(
+		'ffprobe',
+		['gif.gif'],
+		false,
+		'info',
+	);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

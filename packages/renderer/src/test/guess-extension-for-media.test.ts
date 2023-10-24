@@ -13,6 +13,8 @@ test('Guess extension for media - H264', async () => {
 			'public',
 			'framermp4withoutfileextension',
 		),
+		indent: false,
+		logLevel: 'info',
 	});
 
 	expect(extension).toBe('mp4');
@@ -29,6 +31,8 @@ test('Guess extension for media - WebM', async () => {
 			'public',
 			'framer.webm',
 		),
+		indent: false,
+		logLevel: 'info',
 	});
 
 	expect(extension).toBe('webm');
@@ -45,6 +49,8 @@ test('Guess extension for media - WAV', async () => {
 			'public',
 			'22khz.wav',
 		),
+		indent: false,
+		logLevel: 'info',
 	});
 
 	expect(extension).toBe('wav');
@@ -61,6 +67,8 @@ test('Guess extension for media - MP3', async () => {
 			'public',
 			'music.mp3',
 		),
+		indent: false,
+		logLevel: 'info',
 	});
 
 	expect(extension).toBe('mp3');

@@ -171,6 +171,8 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
+					indent,
+					logLevel,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -187,6 +189,8 @@ const getAssetsData = async ({
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
 		remotionRoot,
+		indent,
+		logLevel,
 	});
 
 	onProgress(1);
@@ -371,6 +375,8 @@ const innerStitchFramesToVideo = async (
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(Internals.truthy),
+			indent,
+			logLevel,
 		);
 
 		cancelSignal?.(() => {
@@ -468,7 +474,7 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, {
+	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel, {
 		cwd: dir,
 	});
 	cancelSignal?.(() => {
