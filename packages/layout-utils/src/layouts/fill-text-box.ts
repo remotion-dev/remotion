@@ -31,7 +31,7 @@ export const fillTextBox = ({
       exceedsBox: boolean;
       newLine: boolean;
     } => {
-      const lastLineIndex = lines.findLastIndex(l => l.length > 0);
+      const lastLineIndex = lines.reverse().findIndex(l => l.length > 0);
       const currentlyAt = lastLineIndex === -1 ? 0 : lastLineIndex;
       const lineToUse = lines[currentlyAt];
 
