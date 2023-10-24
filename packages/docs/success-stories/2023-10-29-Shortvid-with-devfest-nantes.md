@@ -16,7 +16,9 @@ The primary goal was to simplify and streamline the process of video creation, m
 **And somehow, it became bigger than what you thought at first?**
 
 Shortvid's growth has indeed exceeded our initial expectations. What began as a solution to address a specific need for creating event announcement videos for LyonJS meetups evolved into a versatile, community-driven platform.
+
 The positive reception and enthusiastic support from associations and event organizers further emphasized Shortvid's value. Our project resonated with those seeking efficient video creation solutions for their events, and its adoption continued to soar.
+
 Collaborations with prominent French conferences, such as [Touraine Tech](https://touraine.tech/) and [Devfest Nantes](https://devfest.gdgnantes.com/), played a pivotal role in elevating Shortvid's status. These partnerships expanded its user base and led to the development of new templates to meet the diverse needs of event organizers.
 
 **What is Devfest Nantes conference?**
@@ -34,7 +36,6 @@ By leveraging Shortvid's free templates and customizable options, the GDG Nantes
 They even used the generated videos for the TV screens all over the place in the _Cité des Congrès_ to indicate to attendees the upcoming sessions and where the conference rooms were located.
 
 **What are the next steps for Shortvid.io?**
-
 
 Shortvid is dedicated to enhancing its offering by continually adding more templates. This expansion will give users even more options to create compelling videos for their events. We aim to collaborate with tech events that share our vision and could benefit from our services. The platform will continue to support and empower these events through its user-friendly approach.
 
