@@ -25,7 +25,6 @@ Collaborations with prominent French conferences, such as [Touraine Tech](https:
 
 The conference typically features a wide range of technical talks, workshops, and sessions covering various aspects of software development, including web and mobile development, cloud computing, artificial intelligence, and more. 
 
-Devfest Nantes is known for its dynamic and vibrant atmosphere, making it a hub for fostering collaboration and innovation within the tech community. 
 With Shortvid, we contributed to the conference's success by creating and distributing videos that played a crucial role in promoting the event and enhancing the overall experience for attendees.
 
 **How did the GDG Nantes team use Shortvid.io?**
