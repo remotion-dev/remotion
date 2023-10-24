@@ -379,6 +379,7 @@ const innerLaunchHandler = async ({
 		renderMetadata,
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
+		logLevel: params.logLevel,
 	});
 
 	return postRenderData;

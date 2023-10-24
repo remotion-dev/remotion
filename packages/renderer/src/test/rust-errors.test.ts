@@ -69,7 +69,7 @@ test('Non-long running task panics should be handled', async () => {
 	const command = serializeCommand('DeliberatePanic', {});
 
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
@@ -85,7 +85,7 @@ test('Long running task failures should be handled', async () => {
 		transparent: false,
 	});
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain(
@@ -104,7 +104,7 @@ test('Invalid payloads will be handled', async () => {
 		original_src: 'fsdfds',
 	});
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 	} catch (err) {
 		expect((err as Error).message).toContain(
 			'Compositor error: missing field `time`',

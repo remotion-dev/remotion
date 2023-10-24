@@ -127,7 +127,12 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = callFf('ffmpeg', finalFfmpegString);
+	const task = callFf(
+		'ffmpeg',
+		finalFfmpegString,
+		options.indent,
+		options.logLevel,
+	);
 
 	options.signal(() => {
 		task.kill();
