@@ -7,7 +7,7 @@ let warned = false;
 
 function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
 	// @ts-expect-error bun no types
-	if (process.report && typeof Bun !== 'undefined') {
+	if (!process.report && typeof Bun !== 'undefined') {
 		if (!warned) {
 			Log.warnAdvanced(
 				{indent, logLevel},
