@@ -5,7 +5,7 @@ title: extractAudio()
 crumb: "@remotion/renderer"
 ---
 
-# extractAudio()`<AvailableFrom v="4.0.49" />`
+# extractAudio()<AvailableFrom v="4.0.49" />
 
 :::note
 This function is meant to be used **in Node.js applications**. It cannot run in the browser.
