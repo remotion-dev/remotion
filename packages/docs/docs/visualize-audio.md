@@ -61,7 +61,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={music} />
+      <Audio src={staticFile("music.mp3")} />
       {visualization.map((v) => {
         return (
           <div
