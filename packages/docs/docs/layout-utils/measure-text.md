@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-layout-utils-measure-text.png
 title: measureText()
-crumb: "Make some"
+crumb: "@remotion/layout-utils"
 ---
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._

@@ -336,13 +336,6 @@ export const articles = [
     crumb: "Cloud Run",
   },
   {
-    id: "getserviceinfo",
-    title: "getServiceInfo()",
-    relativePath: "docs/cloudrun/getServiceinfo.md",
-    compId: "articles-docs-cloudrun-getServiceinfo",
-    crumb: "Cloud Run API",
-  },
-  {
     id: "getorcreatebucket",
     title: "getOrCreateBucket()",
     relativePath: "docs/cloudrun/getorcreatebucket.md",
@@ -354,6 +347,13 @@ export const articles = [
     title: "getRegions()",
     relativePath: "docs/cloudrun/getregions.md",
     compId: "articles-docs-cloudrun-getregions",
+    crumb: "Cloud Run API",
+  },
+  {
+    id: "getserviceinfo",
+    title: "getServiceInfo()",
+    relativePath: "docs/cloudrun/getServiceinfo.md",
+    compId: "articles-docs-cloudrun-getServiceinfo",
     crumb: "Cloud Run API",
   },
   {
@@ -1365,6 +1365,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "layout-utils/fill-text-box",
+    title: "fillTextBox()",
+    relativePath: "docs/layout-utils/fill-text-box.md",
+    compId: "articles-docs-layout-utils-fill-text-box",
+    crumb: "@remotion/layout-utils",
+  },
+  {
     id: "layout-utils/index",
     title: "@remotion/layout-utils",
     relativePath: "docs/layout-utils/index.md",
@@ -1376,14 +1383,7 @@ export const articles = [
     title: "measureText()",
     relativePath: "docs/layout-utils/measure-text.md",
     compId: "articles-docs-layout-utils-measure-text",
-    crumb: "Make some",
-  },
-  {
-    id: "layout-utils/fill-text-box",
-    title: "fillTextBox()",
-    relativePath: "docs/layout-utils/fill-text-box.md",
-    compId: "articles-docs-layout-utils-fill-text-box",
-    crumb: "Make some",
+    crumb: "@remotion/layout-utils",
   },
   {
     id: "legacy-babel",
