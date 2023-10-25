@@ -146,7 +146,7 @@ const DropDots: React.FC<{
 									marginLeft: d.size * 0.05,
 									opacity: 0.55,
 								}}
-								src="https://github.com/remotion-dev/logo/blob/main/monochromatic/element-0.png?raw=true"
+								src="https://github.com/remotion-dev/brand/blob/main/withouttitle/element-0.png?raw=true"
 							/>
 						</div>
 					</div>
