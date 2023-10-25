@@ -39,13 +39,12 @@ In this example, we render a bar chart visualizing the audio spectrum of an audi
 
 ```tsx twoslash
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
-import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import music from "./music.mp3";
+import { Audio, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const audioData = useAudioData(music);
+  const audioData = useAudioData(staticFile("music.mp3"));
 
   if (!audioData) {
     return null;
