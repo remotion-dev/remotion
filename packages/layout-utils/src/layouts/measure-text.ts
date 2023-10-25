@@ -3,6 +3,14 @@ type Dimensions = {
 	height: number;
 };
 
+export type Word = {
+	text: string;
+	fontFamily: string;
+	fontSize: number;
+	fontWeight?: number | string;
+	letterSpacing?: string;
+};
+
 const wordCache = new Map<string, Dimensions>();
 
 export const measureText = ({
@@ -11,13 +19,7 @@ export const measureText = ({
 	fontSize,
 	fontWeight,
 	letterSpacing,
-}: {
-	text: string;
-	fontFamily: string;
-	fontSize: number;
-	fontWeight?: number | string;
-	letterSpacing?: string;
-}): Dimensions => {
+}: Word): Dimensions => {
 	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
 
 	if (wordCache.has(key)) {

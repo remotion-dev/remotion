@@ -1,11 +1,4 @@
-import {measureText} from './measure-text';
-
-type Word = {
-	text: string;
-	fontFamily: string;
-	fontSize: number;
-	fontWeight?: string | number;
-};
+import {measureText, type Word} from './measure-text';
 
 export const fillTextBox = ({
 	maxBoxWidth,
@@ -22,12 +15,8 @@ export const fillTextBox = ({
 			fontFamily,
 			fontWeight,
 			fontSize,
-		}: {
-			text: string;
-			fontFamily: string;
-			fontWeight: string | number;
-			fontSize: number;
-		}): {
+			letterSpacing,
+		}: Word): {
 			exceedsBox: boolean;
 			newLine: boolean;
 		} => {
@@ -43,7 +32,7 @@ export const fillTextBox = ({
 
 			const lineWithWord: Word[] = [
 				...lineToUse,
-				{text, fontFamily, fontWeight, fontSize},
+				{text, fontFamily, fontWeight, fontSize, letterSpacing},
 			];
 
 			const widths = lineWithWord.map((w) => measureText(w).width);
@@ -55,6 +44,7 @@ export const fillTextBox = ({
 					fontFamily,
 					fontWeight,
 					fontSize,
+					letterSpacing,
 				});
 
 				return {exceedsBox: false, newLine: false};
@@ -65,7 +55,13 @@ export const fillTextBox = ({
 			}
 
 			lines[currentlyAt + 1] = [
-				{text: text.trimStart(), fontFamily, fontWeight, fontSize},
+				{
+					text: text.trimStart(),
+					fontFamily,
+					fontWeight,
+					fontSize,
+					letterSpacing,
+				},
 			];
 			return {exceedsBox: false, newLine: true};
 		},

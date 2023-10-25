@@ -12,7 +12,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/layout-utils/fill-text-box">
           <strong>fillTextBox()</strong>
-          <div>Calculate text is fill the box</div>
+          <div>Calculate if the text fills the box</div>
         </TOCItem>
       </Grid>
     </div>
