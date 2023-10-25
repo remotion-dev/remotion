@@ -31,6 +31,8 @@ An object with the following arguments:
 
 ```tsx twoslash
 // @module: ESNext
+// @target: ESNext
+
 // ---cut---
 import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
 import { staticFile } from "remotion";
