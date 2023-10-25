@@ -1379,6 +1379,13 @@ export const articles = [
     crumb: "Make some",
   },
   {
+    id: "layout-utils/fill-text-box",
+    title: "fillTextBox()",
+    relativePath: "docs/layout-utils/fill-text-box.md",
+    compId: "articles-docs-layout-utils-fill-text-box",
+    crumb: "Make some",
+  },
+  {
     id: "legacy-babel",
     title: "Using legacy Babel transpilation",
     relativePath: "docs/legacy-babel-loader.md",

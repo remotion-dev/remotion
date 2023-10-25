@@ -4,6 +4,8 @@ title: fillTextBox()
 crumb: "Make some"
 ---
 
+_Available from v4.0.54_
+
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
 
 Calculate whether the text exceeds the box and wraps within the container. Only works in the browser, not in Node.js or Bun.
@@ -30,7 +32,7 @@ An object with an `add` method, which can be used to add words to the text box.
 
 ### `add`
 
-The function takes the following options:
+Arguments:
 
 #### `text`
 
@@ -61,23 +63,26 @@ Same as CSS style `font-weight`.
 The add method returns an object with two properties:
 
 + `exceedsBox`:
- Boolean value, indicating whether adding the word would cause the text to exceed the width of the box (`maxBoxWidth`).
+ _Boolean_, whether adding the word would cause the text to exceed the width of the box.
 + `newLine`:
- Boolean value, indicating whether adding the word would require starting a new line in the text box.
+ _Boolean_, whether adding the word would require starting a new line in the text box.
 
 ## Example
 
 ```tsx twoslash
 import { fillTextBox } from "@remotion/layout-utils";
 
+const fontFamily = "Arial";
+const fontSize = 12;
+
 const box = fillTextBox({maxLines: 4, maxBoxWidth: 100})
-box.add({text: 'Hello'}) // {exceedsBox: false, newLine: false}
-box.add({text: 'World!'}) // {exceedsBox: false, newLine: false}
+box.add({text: 'Hello', fontFamily, fontSize}) // {exceedsBox: false, newLine: false}
+box.add({text: 'World!', fontFamily, fontSize}) // {exceedsBox: false, newLine: false}
 // Doesn't fit on the previous line anymore
-box.add({text: 'How'}) // {exceedsBox: false, newLine: true}
+box.add({text: 'How', fontFamily, fontSize}) // {exceedsBox: false, newLine: true}
 // ...
 // Doesn't fix in the box anymore
-box.add({text: 'the end'}) // {exceedsBox: true, newLine: false}
+box.add({text: 'the end', fontFamily, fontSize}) // {exceedsBox: true, newLine: false}
 ```
 
 ## See also
