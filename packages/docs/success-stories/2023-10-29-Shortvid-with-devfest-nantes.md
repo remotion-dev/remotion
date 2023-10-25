@@ -9,6 +9,8 @@ import {MuxVideo} from '../src/components/MuxVideo';
 
 **Hi! Tell us about Shortvid.io. How did this project start, and why?**
 
+![Shortvid.io logo](/img/success-stories/shortvid-logo.png)
+
 Shortvid was initiated by [Mickael Alves](https://github.com/CruuzAzul) and [Antoine Caron](https://github.com/Slashgear). The project began as a solution to create announcement videos for our [LyonJS meetup](https://lyonjs.org) events. Since we had prior experience contributing to Remotion, Shortvid's foundation, leveraging our knowledge of this technology made sense.
 
 The primary goal was to simplify and streamline the process of video creation, making it accessible and user-friendly. By offering it for free and providing ready-made templates, we aimed to empower individuals and organizations looking to promote their events, such as meetups, conferences, and associations.
@@ -23,6 +25,8 @@ Collaborations with prominent French conferences, such as [Touraine Tech](https:
 
 **What is Devfest Nantes conference?**
 
+![Pictures of Devfest Nantes](/img/success-stories/devfest-nantes-pictures.jpg)
+
 [Devfest Nantes](https://devfest.gdgnantes.com/) is a renowned annual developer conference held in Nantes, France organized by GDG Nantes team. It serves as a platform for technology enthusiasts, developers, and industry professionals to come together, exchange knowledge, and explore the latest trends in software development and technology.
 
 The conference typically features a wide range of technical talks, workshops, and sessions covering various aspects of software development, including web and mobile development, cloud computing, artificial intelligence, and more. 
@@ -31,9 +35,13 @@ With Shortvid, we contributed to the conference's success by creating and distri
 
 **How did the GDG Nantes team use Shortvid.io?**
 
+![Picture of GDG Nantes team](/img/success-stories/devfest-nantes-team.jpg)
+
 By leveraging Shortvid's free templates and customizable options, the GDG Nantes team was able to tailor video content to suit their specific needs. They could quickly generate videos that showcased event details, speaker information, and key highlights. 
 
 They even used the generated videos for the TV screens all over the place in the _Cité des Congrès_ to indicate to attendees the upcoming sessions and where the conference rooms were located.
+
+   
 
 **What are the next steps for Shortvid.io?**
 
