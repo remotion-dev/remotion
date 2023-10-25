@@ -47,13 +47,12 @@ A string pointing to an audio asset.
 ## Example
 
 ```tsx twoslash
-import { Audio } from "remotion";
 // ---cut---
 import { useAudioData } from "@remotion/media-utils";
-import music from "./music.mp3";
+import { staticFile } from "remotion";
 
 export const MyComponent: React.FC = () => {
-  const audioData = useAudioData(music);
+  const audioData = useAudioData(staticFile("music.mp3"));
 
   if (!audioData) {
     return null;

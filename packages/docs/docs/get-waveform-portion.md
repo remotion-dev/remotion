@@ -32,12 +32,12 @@ An object with the following arguments:
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+
 // ---cut---
 import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
-import music from "./music.mp3";
+import { staticFile } from "remotion";
 
-const audioData = await getAudioData(music); /* {
+const audioData = await getAudioData(staticFile("music.mp3")); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
