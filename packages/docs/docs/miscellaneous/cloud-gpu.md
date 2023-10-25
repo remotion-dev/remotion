@@ -89,7 +89,7 @@ npx remotion render --browser-executable=/usr/bin/google-chrome-stable --gl=angl
 
 ## See also
 
-- [Supercharging Headless Browsers with GPU Hardware Acceleration on AWS EC2](https://mirzabilal.com/preview/652483659af357000f76e11d), on which this document is based on.
+- [How To Enable Hardware Acceleration on Chrome, Chromium & Puppeteer on AWS in Headless mode](https://mirzabilal.com/how-to-enable-hardware-acceleration-on-chrome-chromium-puppeteer-on-aws-in-headless-mode), on which this document is based on.
 
 <Credits contributors={[
 {
