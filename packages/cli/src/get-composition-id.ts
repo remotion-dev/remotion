@@ -99,7 +99,7 @@ export const getCompositionId = async ({
 			});
 
 		if (propsSize > 10_000_000) {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,

@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderVideoFlow} from '../../render-flows/render';
@@ -9,12 +10,14 @@ export const processVideoJob = async ({
 	entryPoint,
 	onProgress,
 	addCleanupCallback,
+	logLevel,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
+	logLevel: LogLevel;
 }) => {
 	if (job.type !== 'video' && job.type !== 'sequence') {
 		throw new Error('Expected video job');
@@ -25,6 +28,7 @@ export const processVideoJob = async ({
 			isLambda: false,
 			type: 'still',
 			remotionRoot,
+			logLevel,
 		});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({
@@ -47,7 +51,7 @@ export const processVideoJob = async ({
 		scale: job.scale,
 		width: null,
 		compositionIdFromUi: job.compositionId,
-		logLevel: job.verbose ? 'verbose' : 'info',
+		logLevel: job.logLevel,
 		onProgress,
 		indent: true,
 		concurrency: job.concurrency,

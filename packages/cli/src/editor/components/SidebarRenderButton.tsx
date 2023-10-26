@@ -51,7 +51,7 @@ export const SidebarRenderButton: React.FC<{
 				initialStillImageFormat: defaults.stillImageFormat,
 				initialJpegQuality: defaults.jpegQuality,
 				initialScale: defaults.scale,
-				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
+				initialLogLevel: defaults.logLevel as LogLevel,
 				initialConcurrency: defaults.concurrency,
 				maxConcurrency: defaults.maxConcurrency,
 				minConcurrency: defaults.minConcurrency,

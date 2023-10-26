@@ -105,7 +105,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		options.outputLocation,
 	];
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent: options.indent,
 			logLevel: options.logLevel,
@@ -113,7 +113,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		},
 		'Generated FFMPEG command:',
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent: options.indent,
 			logLevel: options.logLevel,

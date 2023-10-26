@@ -145,11 +145,7 @@ export const renderVideoFlow = async ({
 }) => {
 	const downloads: DownloadProgress[] = [];
 	if (browserExecutable) {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			'Browser executable: ',
-			browserExecutable,
-		);
+		Log.verbose({indent, logLevel}, 'Browser executable: ', browserExecutable);
 	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -319,7 +315,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
@@ -373,7 +369,7 @@ export const renderVideoFlow = async ({
 					path.join(os.tmpdir(), 'react-motion-render'),
 			  );
 
-		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
+		Log.verbose({indent, logLevel}, 'Output dir', outputDir);
 
 		await RenderInternals.internalRenderFrames({
 			imageFormat,
@@ -503,15 +499,12 @@ export const renderVideoFlow = async ({
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
 
-	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
+	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			`  Frame ${frame} (${time.toFixed(3)}ms)`,
-		);
+		Log.verbose({indent, logLevel}, `  Frame ${frame} (${time.toFixed(3)}ms)`);
 	});
 
 	for (const line of RenderInternals.perf.getPerf()) {
-		Log.verboseAdvanced({indent, logLevel}, line);
+		Log.verbose({indent, logLevel}, line);
 	}
 };

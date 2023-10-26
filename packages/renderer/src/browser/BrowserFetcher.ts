@@ -125,7 +125,8 @@ export const downloadBrowser = async (options: {
 				if (progress.downloaded > lastProgress + 10_000_000) {
 					lastProgress = progress.downloaded;
 
-					Log.info(
+					Log.infoAdvanced(
+						{indent: options.indent, logLevel: options.logLevel},
 						`Downloading Thorium - ${toMegabytes(
 							progress.downloaded,
 						)}/${toMegabytes(progress.totalSize as number)}`,

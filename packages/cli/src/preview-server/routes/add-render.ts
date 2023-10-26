@@ -7,6 +7,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	input,
 	entryPoint,
 	remotionRoot,
+	logLevel,
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
 	if (input.type === 'video') {
@@ -27,7 +28,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				jpegQuality: input.jpegQuality,
 				scale: input.scale,
 				startedAt: Date.now(),
-				verbose: input.verbose,
+				logLevel: input.logLevel,
 				cancelToken: makeCancelSignal(),
 				concurrency: input.concurrency,
 				crf: input.crf,
@@ -52,6 +53,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				colorSpace: input.colorSpace,
 				multiProcessOnLinux: input.multiProcessOnLinux,
 			},
+			logLevel,
 		});
 	}
 
@@ -71,7 +73,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				jpegQuality: input.jpegQuality,
 				scale: input.scale,
 				startedAt: Date.now(),
-				verbose: input.verbose,
+				logLevel: input.logLevel,
 				cancelToken: makeCancelSignal(),
 				concurrency: input.concurrency,
 				endFrame: input.endFrame,
@@ -84,6 +86,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 				multiProcessOnLinux: input.multiProcessOnLinux,
 			},
+			logLevel,
 		});
 	}
 
@@ -102,7 +105,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				scale: input.scale,
 				cleanup: [],
 				deletedOutputLocation: false,
-				verbose: input.verbose,
+				logLevel: input.logLevel,
 				cancelToken: makeCancelSignal(),
 				chromiumOptions: input.chromiumOptions,
 				delayRenderTimeout: input.delayRenderTimeout,
@@ -114,6 +117,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 			},
 			entryPoint,
 			remotionRoot,
+			logLevel,
 		});
 	}
 

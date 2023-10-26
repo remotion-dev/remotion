@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadFile} from '../../../api/download-file';
@@ -13,7 +14,11 @@ import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
 
-export const renderCommand = async (args: string[], remotionRoot: string) => {
+export const renderCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -22,7 +27,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		downloadName,
 		privacy,
 		region,
-	} = await renderArgsCheck(RENDER_COMMAND, args);
+	} = await renderArgsCheck(RENDER_COMMAND, args, logLevel);
 
 	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
 		cliFlag: CliInternals.parsedCli.codec,
@@ -43,7 +48,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		frameRange,
 		inputProps,
-		logLevel,
 		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
@@ -66,6 +70,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition: string = args[1];

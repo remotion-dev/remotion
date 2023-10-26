@@ -67,7 +67,6 @@ export const mergeHandler = async (
 		renderId: params.renderId,
 		renderMetadata,
 		serializedResolvedProps: params.serializedResolvedProps,
-		verbose: params.verbose,
 		onAllChunks: () => {
 			RenderInternals.Log.info('All chunks have been downloaded now.');
 		},

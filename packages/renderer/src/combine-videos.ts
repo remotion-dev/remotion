@@ -42,6 +42,8 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops,
 		audioCodec,
 		audioBitrate,
+		indent,
+		logLevel,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -82,7 +84,7 @@ export const combineVideos = async (options: Options) => {
 		output,
 	].filter(truthy);
 
-	Log.verbose('Combining command: ', command);
+	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
 		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
@@ -90,9 +92,9 @@ export const combineVideos = async (options: Options) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
 				if (parsed === undefined) {
-					Log.verbose(data.toString('utf8'));
+					Log.verbose({indent, logLevel}, data.toString('utf8'));
 				} else {
-					Log.verbose(`Combined ${parsed} frames`);
+					Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
 					onProgress(parsed);
 				}
 			}

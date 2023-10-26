@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	ColorSpace,
+	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
@@ -24,7 +25,7 @@ export type RenderModalState = {
 	initialVideoImageFormat: VideoImageFormat;
 	initialJpegQuality: number;
 	initialScale: number;
-	initialVerbose: boolean;
+	initialLogLevel: LogLevel;
 	initialConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;

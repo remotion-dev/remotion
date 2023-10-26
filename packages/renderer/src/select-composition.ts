@@ -115,9 +115,15 @@ const innerSelectComposition = async ({
 		args: [],
 	});
 
-	await waitForReady({page, timeoutInMilliseconds, frame: null});
+	await waitForReady({
+		page,
+		timeoutInMilliseconds,
+		frame: null,
+		logLevel,
+		indent,
+	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',
@@ -134,7 +140,7 @@ const innerSelectComposition = async ({
 		page,
 		args: [id],
 	});
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',

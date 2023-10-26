@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
@@ -7,12 +8,16 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
 
-export const still = async (remotionRoot: string, args: string[]) => {
+export const still = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	const {
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot);
+	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -47,12 +52,12 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		scale,
 		stillFrame,
 		width,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
 		remotionRoot,
+		logLevel,
 	});
 
 	await renderStillFlow({

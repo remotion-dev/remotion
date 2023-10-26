@@ -147,7 +147,7 @@ const getAssetsData = async ({
 	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel, tag: 'audio'},
 		'asset positions',
 		JSON.stringify(assetPositions),
@@ -283,7 +283,7 @@ const innerStitchFramesToVideo = async (
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 		  );
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -292,7 +292,7 @@ const innerStitchFramesToVideo = async (
 		'audioCodec',
 		resolvedAudioCodec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -301,7 +301,7 @@ const innerStitchFramesToVideo = async (
 		'pixelFormat',
 		pixelFormat,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -310,7 +310,7 @@ const innerStitchFramesToVideo = async (
 		'codec',
 		codec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -319,7 +319,7 @@ const innerStitchFramesToVideo = async (
 		'shouldRenderAudio',
 		shouldRenderAudio,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -457,7 +457,7 @@ const innerStitchFramesToVideo = async (
 		? ffmpegOverride({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent: indent ?? false,
 			logLevel,
@@ -465,7 +465,7 @@ const innerStitchFramesToVideo = async (
 		},
 		'Generated final FFMPEG command:',
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,

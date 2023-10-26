@@ -392,11 +392,16 @@ const innerRenderFrames = async ({
 			page: freePage,
 			composition: compId,
 			timeoutInMilliseconds,
+			indent,
+			logLevel,
 		});
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
-			Log.verbose(`Seeking to frame ${frame} took ${timeToSeek}ms`);
+			Log.verbose(
+				{indent, logLevel},
+				`Seeking to frame ${frame} took ${timeToSeek}ms`,
+			);
 		}
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {

@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
 import {getServiceInfo} from '../../../../api/get-service-info';
 import {getServices} from '../../../../api/get-services';
@@ -14,7 +15,11 @@ import {Log} from '../../../log';
 import {SERVICES_COMMAND} from '../../services';
 import {CLOUD_RUN_DEPLOY_SUBCOMMAND} from '../../services/deploy';
 
-export const renderArgsCheck = async (subcommand: string, args: string[]) => {
+export const renderArgsCheck = async (
+	subcommand: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	let region = getGcpRegion();
 	let remotionBucket;
 
@@ -33,7 +38,10 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
-		Log.verbose('Remotion site-name passed, constructing serve url...');
+		Log.verbose(
+			{indent: false, logLevel},
+			'Remotion site-name passed, constructing serve url...',
+		);
 		region = region ?? getGcpRegion();
 		remotionBucket = (await getOrCreateBucket({region})).bucketName;
 		serveUrl = convertToServeUrl({

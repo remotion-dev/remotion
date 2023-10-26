@@ -98,6 +98,7 @@ export {
 	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
+export {LogOptions} from './logger';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';

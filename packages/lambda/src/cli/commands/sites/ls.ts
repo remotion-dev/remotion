@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
@@ -16,12 +17,13 @@ const logRow = (data: [string, string, string, string]) => {
 	].join('');
 };
 
-export const sitesLsSubcommand = async () => {
+export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const {sites, buckets} = await getSites({region});
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided()) {
 		CliInternals.Log.warn(
+			{indent: false, logLevel},
 			'Warning: You have more than one Remotion S3 bucket, but only one is needed. This can lead to conflicts. Remove all but one of them.',
 		);
 	}

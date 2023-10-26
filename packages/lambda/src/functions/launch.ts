@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -97,13 +98,11 @@ const innerLaunchHandler = async ({
 	params,
 	options,
 	onAllChunksAvailable,
-	verbose,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
 	onAllChunksAvailable: OnAllChunksAvailable;
-	verbose: boolean;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -125,8 +124,13 @@ const innerLaunchHandler = async ({
 		propsType: 'input-props',
 	});
 
+	const logOptions: LogOptions = {
+		indent: false,
+		logLevel: params.logLevel,
+	};
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
-	RenderInternals.Log.info(
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		'Validating composition, input props:',
 		serializedInputPropsWithCustomSchema,
 	);
@@ -145,7 +149,11 @@ const innerLaunchHandler = async ({
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 	});
-	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
+		'Composition validated, resolved props',
+		comp.props,
+	);
 
 	validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
@@ -264,7 +272,8 @@ const innerLaunchHandler = async ({
 		return payload;
 	});
 
-	RenderInternals.Log.info(
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		'Render plan: ',
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
@@ -375,7 +384,6 @@ const innerLaunchHandler = async ({
 		renderBucketName,
 		inputProps: params.inputProps,
 		serializedResolvedProps,
-		verbose,
 		renderMetadata,
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
@@ -406,17 +414,21 @@ export const launchHandler = async (
 		params.rendererFunctionName ??
 		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		params.logLevel,
-		'verbose',
-	);
+	const logOptions: LogOptions = {
+		indent: false,
+		logLevel: params.logLevel,
+	};
 
 	const onTimeout = async () => {
 		if (allChunksAvailable) {
-			RenderInternals.Log.info(
+			RenderInternals.Log.infoAdvanced(
+				logOptions,
 				'All chunks are available, but the function is about to time out.',
 			);
-			RenderInternals.Log.info('Spawning another function to merge chunks.');
+			RenderInternals.Log.infoAdvanced(
+				logOptions,
+				'Spawning another function to merge chunks.',
+			);
 
 			try {
 				await callFunctionWithRetry({
@@ -425,7 +437,6 @@ export const launchHandler = async (
 						type: LambdaRoutines.merge,
 						renderId: params.renderId,
 						bucketName: params.bucketName,
-						verbose,
 						outName: params.outName,
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
@@ -433,10 +444,12 @@ export const launchHandler = async (
 					},
 					retries: 2,
 				});
-				RenderInternals.Log.info(
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
 					`New function successfully invoked. See the CloudWatch logs for it:`,
 				);
-				RenderInternals.Log.info(
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
 					getCloudwatchMethodUrl({
 						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 						method: LambdaRoutines.merge,
@@ -445,7 +458,10 @@ export const launchHandler = async (
 						renderId: params.renderId,
 					}),
 				);
-				RenderInternals.Log.info('This function will now time out.');
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
+					'This function will now time out.',
+				);
 			} catch (err) {
 				if (process.env.NODE_ENV === 'test') {
 					throw err;
@@ -533,7 +549,8 @@ export const launchHandler = async (
 		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
 	);
 
-	RenderInternals.Log.info(
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		`Function has ${Math.max(
 			options.getRemainingTimeInMillis() - 1000,
 			1000,
@@ -548,7 +565,6 @@ export const launchHandler = async (
 			onAllChunksAvailable: ({inputProps, serializedResolvedProps}) => {
 				allChunksAvailable = {inputProps, serializedResolvedProps};
 			},
-			verbose,
 		});
 		clearTimeout(webhookDueToTimeout);
 

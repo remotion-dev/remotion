@@ -23,11 +23,19 @@ export const renderStillSingleThread = async (
 	const renderId = randomHash({randomInTests: true});
 
 	try {
-		Log.verbose('Rendering still frame', body);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Rendering still frame',
+			body,
+		);
 
 		const composition = await getCompositionFromBody(body);
 
-		Log.verbose('Composition loaded', composition);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Composition loaded',
+			composition,
+		);
 
 		const tempFilePath = '/tmp/still.png';
 

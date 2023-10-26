@@ -98,10 +98,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		data: Buffer,
 	) => {
 		if (nonce === '0') {
-			Log.verboseAdvanced(
-				{indent, logLevel, tag: 'compositor'},
-				data.toString('utf8'),
-			);
+			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
 		}
 
 		if (waiters.has(nonce)) {

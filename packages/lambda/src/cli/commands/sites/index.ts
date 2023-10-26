@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
@@ -42,9 +43,13 @@ const printSitesHelp = () => {
 	);
 };
 
-export const sitesCommand = (args: string[], remotionRoot: string) => {
+export const sitesCommand = (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
-		return sitesLsSubcommand();
+		return sitesLsSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {
@@ -56,7 +61,7 @@ export const sitesCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
-		return sitesCreateSubcommand(args.slice(1), remotionRoot);
+		return sitesCreateSubcommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0]) {

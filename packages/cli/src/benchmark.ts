@@ -1,4 +1,4 @@
-import type {InternalRenderMediaOptions} from '@remotion/renderer';
+import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
@@ -131,16 +131,27 @@ const makeBenchmarkProgressBar = ({
 export const benchmarkCommand = async (
 	remotionRoot: string,
 	args: string[],
+	logLevel: LogLevel,
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
+	const {file, reason, remainingArgs} = findEntryPoint(
+		args,
+		remotionRoot,
+		logLevel,
+	);
 
 	if (!file) {
 		Log.error('No entry file passed.');
-		Log.info('Pass an additional argument specifying the entry file');
-		Log.info();
-		Log.info(`$ remotion benchmark <entry file>`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Pass an additional argument specifying the entry file',
+		);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`$ remotion benchmark <entry file>`,
+		);
 		process.exit(1);
 	}
 
@@ -174,16 +185,22 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
+		logLevel,
 	});
 
-	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		fullEntryPoint,
+		'reason:',
+		reason,
+	);
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -286,8 +303,9 @@ export const benchmarkCommand = async (
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
 			});
-			Log.info();
-			Log.info(
+			Log.infoAdvanced({indent: false, logLevel});
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
 				)}`,
@@ -371,5 +389,5 @@ export const benchmarkCommand = async (
 		}
 	}
 
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 };

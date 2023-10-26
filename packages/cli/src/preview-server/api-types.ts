@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {
 	AddRenderRequest,
@@ -23,6 +24,7 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	remotionRoot: string;
 	request: IncomingMessage;
 	response: ServerResponse;
+	logLevel: LogLevel;
 }) => Promise<ResData>;
 
 type ReqAndRes<A, B> = {

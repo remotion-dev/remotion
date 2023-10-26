@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
@@ -66,10 +67,20 @@ const getPort = () => {
 	return null;
 };
 
-export const studioCommand = async (remotionRoot: string, args: string[]) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot);
+export const studioCommand = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
+	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
 
-	Log.verbose('Entry point:', file, 'reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'reason:',
+		reason,
+	);
 
 	if (!file) {
 		Log.error(
@@ -94,7 +105,7 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 				newProps,
 			});
 		});
-	});
+	}, logLevel);
 	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
 		waitForLiveEventsListener().then((listener) => {
 			envVariables = newEnvVariables;
@@ -103,7 +114,7 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 				newEnvVariables,
 			});
 		});
-	});
+	}, logLevel);
 
 	const publicDir = getAbsolutePublicDir({
 		userPassedPublicDir: ConfigInternals.getPublicDir(),
@@ -158,6 +169,7 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 		staticHashPrefix,
 		outputHash,
 		outputHashPrefix,
+		logLevel,
 	});
 
 	setLiveEventsListener(liveEventsServer);
@@ -183,7 +195,10 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 			browserFlag: parsedCli.browser,
 		});
 	} else {
-		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
+		Log.verbose(
+			{indent: false, logLevel},
+			`Not opening browser, reason: ${reasonForBrowserDecision}`,
+		);
 	}
 
 	await new Promise(noop);
