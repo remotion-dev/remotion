@@ -113,7 +113,7 @@ export const stillCommand = async (
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);

@@ -143,9 +143,15 @@ export const benchmarkCommand = async (
 
 	if (!file) {
 		Log.error('No entry file passed.');
-		Log.info('Pass an additional argument specifying the entry file');
-		Log.info();
-		Log.info(`$ remotion benchmark <entry file>`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Pass an additional argument specifying the entry file',
+		);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`$ remotion benchmark <entry file>`,
+		);
 		process.exit(1);
 	}
 
@@ -297,8 +303,9 @@ export const benchmarkCommand = async (
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
 			});
-			Log.info();
-			Log.info(
+			Log.infoAdvanced({indent: false, logLevel});
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
 				)}`,
@@ -382,5 +389,5 @@ export const benchmarkCommand = async (
 		}
 	}
 
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 };

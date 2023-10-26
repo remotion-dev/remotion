@@ -38,7 +38,7 @@ export const compositionsCommand = async (
 
 	const region = getAwsRegion();
 	validateServeUrl(serveUrl);
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const comps = await getCompositionsOnLambda({
 		functionName,

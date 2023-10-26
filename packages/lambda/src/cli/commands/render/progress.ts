@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {
@@ -213,7 +214,7 @@ export const makeProgressString = ({
 	steps,
 	downloadInfo,
 	retriesInfo,
-	verbose,
+	logLevel,
 	timeToEncode,
 	totalFrames,
 }: {
@@ -221,7 +222,7 @@ export const makeProgressString = ({
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
-	verbose: boolean;
+	logLevel: LogLevel;
 	timeToEncode: number | null;
 	totalFrames: number | null;
 }) => {
@@ -238,7 +239,7 @@ export const makeProgressString = ({
 			timeToEncode,
 			totalFrames,
 		}),
-		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
+		makeCleanupProgress(progress.cleanupInfo, steps, logLevel === 'verbose'),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
 		.filter(Internals.truthy)

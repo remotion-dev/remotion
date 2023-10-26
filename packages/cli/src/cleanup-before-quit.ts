@@ -34,7 +34,7 @@ export const handleCtrlC = ({
 	logLevel: LogLevel;
 }) => {
 	process.on('SIGINT', () => {
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
 		cleanupBeforeQuit({indent, logLevel});
 		process.exit(0);
 	});

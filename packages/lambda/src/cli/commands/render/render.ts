@@ -156,7 +156,7 @@ export const renderCommand = async (
 		uiImageFormat: null,
 	});
 
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -236,10 +236,6 @@ export const renderCommand = async (
 			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
 		),
 	);
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		ConfigInternals.Logging.getLogLevel(),
-		'verbose',
-	);
 
 	Log.verboseAdvanced(
 		{indent: false, logLevel},
@@ -262,7 +258,7 @@ export const renderCommand = async (
 			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
-			verbose,
+			logLevel,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
 		}),
@@ -285,7 +281,7 @@ export const renderCommand = async (
 				steps: totalSteps,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
-				verbose,
+				logLevel,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
 			}),
@@ -299,7 +295,7 @@ export const renderCommand = async (
 					steps: totalSteps,
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
-					verbose,
+					logLevel,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
 				}),
@@ -324,7 +320,7 @@ export const renderCommand = async (
 									downloaded,
 									totalSize,
 								},
-								verbose,
+								logLevel,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
 							}),
@@ -342,7 +338,7 @@ export const renderCommand = async (
 							downloaded: sizeInBytes,
 							totalSize: sizeInBytes,
 						},
-						verbose,
+						logLevel,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
 					}),
