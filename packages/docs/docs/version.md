@@ -2,19 +2,28 @@
 image: /generated/articles-docs-version.png
 id: version
 title: VERSION
-crumb: "Tips and Tricks"
+crumb: "API"
 ---
 
-In Remotion, you can import the `VERSION` variable from `remotion/version` to access the current version number of the Remotion library without including the entire Remotion library and its dependencies (such as React). This can be useful for displaying the Remotion version number in your application or for other version-specific operations. This gives you the current Remotion version which is being used at the moment. You can also check it by importing the same and logging it in the console.
+You may import this constant from `remotion` to get the current version of Remotion.  
+This can be useful for displaying the Remotion version number in your application or for other version-specific operations.
 
-```ts twoslash title="Importing VERSION from remotion/version"
+If you have a version mismatch, this will report the version of the `remotion` NPM package.
+
+```ts twoslash title="version.ts"
+import { VERSION } from "remotion";
+
+console.log(`Using Remotion version ${VERSION}`); // "4.0.57";
+```
+
+You can also import it from `remotion/version` to avoid importing the rest of Remotion and avoiding the React dependency:
+
+```ts twoslash title="version.ts"
 import { VERSION } from "remotion/version";
 
-console.log(`Using Remotion version ${VERSION}`);
-
+console.log(`Using Remotion version ${VERSION}`); // "4.0.57";
 ```
+
 ## See also
 
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/version.ts)
-
-
+- [Source code for this constant](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/version.ts)
