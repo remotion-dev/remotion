@@ -27,7 +27,7 @@ import { getCompositions, renderStill } from "@remotion/renderer";
 const compositionId = "HelloWorld";
 
 const bundleLocation = await bundle({
-  entryPoint: require.resolve("./src/index"),
+  entryPoint: require.resolve("./src/index.ts"),
 });
 
 const comps = await getCompositions(bundleLocation, {
