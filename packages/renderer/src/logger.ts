@@ -6,7 +6,7 @@ import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
 
-type LogOptions = {
+export type LogOptions = {
 	indent: boolean;
 	logLevel: LogLevel;
 };
@@ -50,11 +50,7 @@ export const Log = {
 			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
 	},
-	warn: (...args: Parameters<typeof console.log>) => {
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'warn')) {
-			Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-		}
-	},
+
 	warnAdvanced: (
 		options: LogOptions,
 		...args: Parameters<typeof console.log>

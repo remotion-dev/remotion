@@ -12,14 +12,21 @@ import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
 
-const getAndValidateFrameRange = () => {
+const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
-		Log.warn('Selected a single frame. Assuming you want to output an image.');
-		Log.warn(
+		Log.warnAdvanced(
+			{logLevel, indent},
+			'Selected a single frame. Assuming you want to output an image.',
+		);
+		Log.warnAdvanced(
+			{logLevel, indent},
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
-		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
+		Log.warnAdvanced(
+			{indent, logLevel},
+			"To dismiss this message, add the '--sequence' flag explicitly.",
+		);
 	}
 
 	return frameRange;
@@ -108,7 +115,7 @@ export const getCliOptions = async (options: {
 	remotionRoot: string;
 	logLevel: LogLevel;
 }) => {
-	const frameRange = getAndValidateFrameRange();
+	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
 	const shouldOutputImageSequence =
 		options.type === 'still'
@@ -159,8 +166,8 @@ export const getCliOptions = async (options: {
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		inputProps: getInputProps(null),
-		envVariables: await getEnvironmentVariables(null),
+		inputProps: getInputProps(null, options.logLevel),
+		envVariables: await getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
 		browser: await getAndValidateBrowser({
 			browserExecutable,

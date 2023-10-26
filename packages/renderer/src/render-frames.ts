@@ -392,6 +392,8 @@ const innerRenderFrames = async ({
 			page: freePage,
 			composition: compId,
 			timeoutInMilliseconds,
+			indent,
+			logLevel,
 		});
 
 		const timeToSeek = Date.now() - startSeeking;

@@ -49,7 +49,7 @@ export const sitesCommand = (
 	logLevel: LogLevel,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
-		return sitesLsSubcommand();
+		return sitesLsSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {

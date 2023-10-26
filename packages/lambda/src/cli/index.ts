@@ -74,7 +74,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
-		return quotasCommand(args.slice(1));
+		return quotasCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === POLICIES_COMMAND) {

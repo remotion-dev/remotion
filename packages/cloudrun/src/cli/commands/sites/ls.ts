@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {displaySiteInfo} from '.';
 import {getSites} from '../../../api/get-sites';
 import {parsedCloudrunCli} from '../../args';
@@ -7,7 +8,7 @@ import {Log} from '../../log';
 
 export const SITES_LS_SUBCOMMAND = 'ls';
 
-export const sitesLsSubcommand = async () => {
+export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	// check if --allRegions flag is provided
 	// if so, list all sites
 	// else, list only the sites that are in the current project
@@ -18,7 +19,8 @@ export const sitesLsSubcommand = async () => {
 	const {sites, buckets} = await getSites(region);
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided() && !allRegions) {
-		Log.warn(
+		Log.warnAdvanced(
+			{indent: false, logLevel},
 			`Warning: You have more than one Remotion Cloud Storage bucket in ${region}, but only one is needed. This can lead to conflicts. Remove all but one of them.`,
 		);
 	}

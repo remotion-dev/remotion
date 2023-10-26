@@ -1,9 +1,10 @@
-import {RenderInternals} from '.';
 import {BrowserEmittedEvents} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {PageEmittedEvents} from './browser/BrowserPage';
 import type {JSHandle} from './browser/JSHandle';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {parseStack} from './parse-browser-error-stack';
 import {
 	puppeteerEvaluateWithCatch,
@@ -14,10 +15,14 @@ export const waitForReady = ({
 	page,
 	timeoutInMilliseconds,
 	frame,
+	indent,
+	logLevel,
 }: {
 	page: Page;
 	timeoutInMilliseconds: number;
 	frame: number | null;
+	indent: boolean;
+	logLevel: LogLevel;
 }) => {
 	const waitForReadyProm = new Promise<JSHandle>((resolve, reject) => {
 		page
@@ -69,7 +74,8 @@ export const waitForReady = ({
 							);
 						})
 						.catch((newErr) => {
-							RenderInternals.Log.warn(
+							Log.warnAdvanced(
+								{indent, logLevel},
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
 								newErr,
 							);
@@ -148,13 +154,23 @@ export const seekToFrame = async ({
 	page,
 	composition,
 	timeoutInMilliseconds,
+	logLevel,
+	indent,
 }: {
 	frame: number;
 	composition: string;
 	page: Page;
 	timeoutInMilliseconds: number;
+	logLevel: LogLevel;
+	indent: boolean;
 }) => {
-	await waitForReady({page, timeoutInMilliseconds, frame: null});
+	await waitForReady({
+		page,
+		timeoutInMilliseconds,
+		frame: null,
+		indent,
+		logLevel,
+	});
 	await puppeteerEvaluateWithCatchAndTimeout({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
@@ -163,6 +179,6 @@ export const seekToFrame = async ({
 		frame,
 		page,
 	});
-	await waitForReady({page, timeoutInMilliseconds, frame});
+	await waitForReady({page, timeoutInMilliseconds, frame, indent, logLevel});
 	await page.evaluateHandle('document.fonts.ready');
 };

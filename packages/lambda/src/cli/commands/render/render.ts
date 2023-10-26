@@ -166,7 +166,7 @@ export const renderCommand = async (
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
-	const webhookCustomData = getWebhookCustomData();
+	const webhookCustomData = getWebhookCustomData(logLevel);
 
 	const res = await internalRenderMediaOnLambdaRaw({
 		functionName,

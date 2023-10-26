@@ -317,6 +317,8 @@ const innerRenderStill = async ({
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,
+		indent,
+		logLevel,
 	});
 
 	const {buffer} = await takeFrameAndCompose({

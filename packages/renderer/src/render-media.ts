@@ -287,6 +287,7 @@ const internalRenderMediaRaw = ({
 		shouldUseParallelEncoding({
 			height: composition.height,
 			width: composition.width,
+			logLevel,
 		});
 	const parallelEncoding =
 		!disallowParallelEncoding &&

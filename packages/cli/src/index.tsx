@@ -47,7 +47,7 @@ export const cli = async () => {
 
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	if (command !== VERSIONS_COMMAND) {
-		await validateVersionsBeforeCommand(remotionRoot);
+		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
 
 	const isBun = typeof Bun !== 'undefined';

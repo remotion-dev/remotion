@@ -105,7 +105,7 @@ export const studioCommand = async (
 				newProps,
 			});
 		});
-	});
+	}, logLevel);
 	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
 		waitForLiveEventsListener().then((listener) => {
 			envVariables = newEnvVariables;
@@ -114,7 +114,7 @@ export const studioCommand = async (
 				newEnvVariables,
 			});
 		});
-	});
+	}, logLevel);
 
 	const publicDir = getAbsolutePublicDir({
 		userPassedPublicDir: ConfigInternals.getPublicDir(),

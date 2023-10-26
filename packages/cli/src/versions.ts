@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import {ConfigInternals} from './config';
@@ -48,7 +48,10 @@ const getAllVersions = async (
 
 export const VERSIONS_COMMAND = 'versions';
 
-export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
+export const validateVersionsBeforeCommand = async (
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);
@@ -59,27 +62,30 @@ export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
 		return;
 	}
 
-	Log.warn('-------------');
-	Log.warn('Version mismatch:');
+	const logOptions: LogOptions = {indent: false, logLevel};
+	Log.warnAdvanced(logOptions, '-------------');
+	Log.warnAdvanced(logOptions, 'Version mismatch:');
 	for (const version of installedVersions) {
-		Log.warn(`- On version: ${version}`);
+		Log.warnAdvanced(logOptions, `- On version: ${version}`);
 		for (const pkg of grouped[version]) {
-			Log.warn(`  - ${pkg}`);
+			Log.warnAdvanced(logOptions, `  - ${pkg}`);
 		}
 
 		Log.info();
 	}
 
-	Log.warn('You may experience breakages such as:');
-	Log.warn('- React context and hooks not working');
-	Log.warn('- Type errors and feature incompatibilities');
-	Log.warn('- Failed renders and unclear errors');
-	Log.warn();
-	Log.warn('To resolve:');
-	Log.warn(
+	Log.warnAdvanced(logOptions, 'You may experience breakages such as:');
+	Log.warnAdvanced(logOptions, '- React context and hooks not working');
+	Log.warnAdvanced(logOptions, '- Type errors and feature incompatibilities');
+	Log.warnAdvanced(logOptions, '- Failed renders and unclear errors');
+	Log.warnAdvanced(logOptions);
+	Log.warnAdvanced(logOptions, 'To resolve:');
+	Log.warnAdvanced(
+		logOptions,
 		'- Make sure your package.json has all Remotion packages pointing to the same version.',
 	);
-	Log.warn(
+	Log.warnAdvanced(
+		logOptions,
 		'- Remove the `^` character in front of a version to pin a package.',
 	);
 	if (
@@ -88,12 +94,13 @@ export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
 			'verbose',
 		)
 	) {
-		Log.warn(
+		Log.warnAdvanced(
+			logOptions,
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.',
 		);
 	}
 
-	Log.warn('-------------');
+	Log.warnAdvanced(logOptions, '-------------');
 	Log.info();
 };
 

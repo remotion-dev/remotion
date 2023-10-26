@@ -18,7 +18,8 @@ export const initializeCli = async (
 		remotionRoot,
 	);
 	if (remotionRoot !== process.cwd()) {
-		Log.warn(
+		Log.warnAdvanced(
+			{indent: false, logLevel},
 			`Warning: The root directory of your project is ${remotionRoot}, but you are executing this command from ${process.cwd()}. The recommendation is to execute commands from the root directory.`,
 		);
 	}
