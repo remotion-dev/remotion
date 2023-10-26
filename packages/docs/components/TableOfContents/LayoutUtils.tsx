@@ -12,7 +12,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/layout-utils/fill-text-box">
           <strong>fillTextBox()</strong>
-          <div>Find line breaks and overflows of a text box</div>
+          <div>Find line breaks and overflows in a text box</div>
         </TOCItem>
       </Grid>
     </div>
