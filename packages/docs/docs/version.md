@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-version.png
 id: version
 title: VERSION
 crumb: "API"

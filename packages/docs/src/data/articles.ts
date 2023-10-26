@@ -2701,7 +2701,7 @@ export const articles = [
     title: "VERSION",
     relativePath: "docs/version.md",
     compId: "articles-docs-version",
-    crumb: "Tips and Tricks",
+    crumb: "API",
   },
   {
     id: "video-manipulation",
