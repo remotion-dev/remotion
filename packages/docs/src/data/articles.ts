@@ -562,7 +562,7 @@ export const articles = [
   {
     id: "dataset-render",
     title: "Render videos programmatically from a dataset",
-    relativePath: "docs/dataset-render.md",
+    relativePath: "docs/dataset-render.mdx",
     compId: "articles-docs-dataset-render",
     crumb: "Tutorials",
   },
@@ -2695,6 +2695,13 @@ export const articles = [
     relativePath: "docs/version-mismatch.md",
     compId: "articles-docs-version-mismatch",
     crumb: "How to fix a",
+  },
+  {
+    id: "version",
+    title: "VERSION",
+    relativePath: "docs/version.md",
+    compId: "articles-docs-version",
+    crumb: "Tips and Tricks",
   },
   {
     id: "video-manipulation",
