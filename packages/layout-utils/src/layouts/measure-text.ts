@@ -9,6 +9,7 @@ export type Word = {
 	fontSize: number;
 	fontWeight?: number | string;
 	letterSpacing?: string;
+	fontVariantNumeric?: string;
 };
 
 const wordCache = new Map<string, Dimensions>();
@@ -19,6 +20,7 @@ export const measureText = ({
 	fontSize,
 	fontWeight,
 	letterSpacing,
+	fontVariantNumeric,
 }: Word): Dimensions => {
 	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
 
@@ -33,13 +35,18 @@ export const measureText = ({
 	node.style.position = 'absolute';
 	node.style.top = `-10000px`;
 	node.style.whiteSpace = 'pre';
+	node.style.fontSize = `${fontSize}px`;
+
 	if (fontWeight) {
 		node.style.fontWeight = fontWeight.toString();
 	}
 
-	node.style.fontSize = `${fontSize}px`;
 	if (letterSpacing) {
 		node.style.letterSpacing = letterSpacing;
+	}
+
+	if (fontVariantNumeric) {
+		node.style.fontVariantNumeric = fontVariantNumeric;
 	}
 
 	node.innerText = text;

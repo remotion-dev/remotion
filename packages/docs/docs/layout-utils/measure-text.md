@@ -44,6 +44,12 @@ _string_
 
 Same as CSS style `font-spacing`.
 
+### `fontVariantNumeric`<AvailableFrom v="4.0.57"/>
+
+_string_
+
+Same as CSS style `font-variant-numeric`.
+
 ## Return value
 
 An object with `height` and `width`
