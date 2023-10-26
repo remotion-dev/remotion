@@ -161,7 +161,7 @@ export const TableOfContents: React.FC = () => {
       <Grid>
         <TOCItem link="/docs/version">
           <strong>{"VERSION"}</strong>
-          <div>Importing VERSION from remotion/version</div>
+          <div>Get the current version of Remotion</div>
         </TOCItem>
       </Grid>
     </div>
