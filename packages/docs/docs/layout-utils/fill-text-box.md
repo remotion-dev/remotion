@@ -62,10 +62,10 @@ Same as CSS style `font-weight`.
 
 The add method returns an object with two properties:
 
-+ `exceedsBox`:
- _Boolean_, whether adding the word would cause the text to exceed the width of the box.
-+ `newLine`:
- _Boolean_, whether adding the word would require starting a new line in the text box.
+- `exceedsBox`:
+  _Boolean_, whether adding the word would cause the text to exceed the width of the box.
+- `newLine`:
+  _Boolean_, whether adding the word would require starting a new line in the text box.
 
 ## Example
 
@@ -75,14 +75,14 @@ import { fillTextBox } from "@remotion/layout-utils";
 const fontFamily = "Arial";
 const fontSize = 12;
 
-const box = fillTextBox({maxLines: 4, maxBoxWidth: 100})
-box.add({text: 'Hello', fontFamily, fontSize}) // {exceedsBox: false, newLine: false}
-box.add({text: 'World!', fontFamily, fontSize}) // {exceedsBox: false, newLine: false}
+const box = fillTextBox({ maxLines: 4, maxBoxWidth: 100 });
+box.add({ text: "Hello", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
+box.add({ text: "World!", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
 // Doesn't fit on the previous line anymore
-box.add({text: 'How', fontFamily, fontSize}) // {exceedsBox: false, newLine: true}
+box.add({ text: "How", fontFamily, fontSize }); // {exceedsBox: false, newLine: true}
 // ...
 // Doesn't fix in the box anymore
-box.add({text: 'the end', fontFamily, fontSize}) // {exceedsBox: true, newLine: false}
+box.add({ text: "the end", fontFamily, fontSize }); // {exceedsBox: true, newLine: false}
 ```
 
 ## See also
