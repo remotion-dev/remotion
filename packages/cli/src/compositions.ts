@@ -26,7 +26,7 @@ export const listCompositionsCommand = async (
 		process.exit(1);
 	}
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		'Entry point:',
 		file,

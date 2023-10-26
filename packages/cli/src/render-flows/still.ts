@@ -134,11 +134,7 @@ export const renderStillFlow = async ({
 	};
 
 	if (browserExecutable) {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			'Browser executable: ',
-			browserExecutable,
-		);
+		Log.verbose({indent, logLevel}, 'Browser executable: ', browserExecutable);
 	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -246,7 +242,7 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);

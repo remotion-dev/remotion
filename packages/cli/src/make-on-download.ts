@@ -33,7 +33,7 @@ export const makeOnDownload = ({
 		};
 		const nextDownloadIndex = downloads.length;
 		downloads.push(download);
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent, logLevel},
 			`Starting download [${nextDownloadIndex}]:`,
 			src,
@@ -55,7 +55,7 @@ export const makeOnDownload = ({
 
 			lastUpdate = Date.now();
 
-			Log.verboseAdvanced(
+			Log.verbose(
 				{indent, logLevel},
 				`Download [${nextDownloadIndex}]:`,
 				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded),

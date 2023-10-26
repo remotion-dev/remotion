@@ -38,20 +38,17 @@ export const getWebhookCustomData = (
 				indent: false,
 				logLevel,
 			};
-			Log.warnAdvanced(
+			Log.warn(
 				logOptions,
 				'Note: Windows handles escaping of quotes very weirdly in the command line.',
 			);
-			Log.warnAdvanced(
-				logOptions,
-				'This might have led to you having this problem.',
-			);
-			Log.warnAdvanced(
+			Log.warn(logOptions, 'This might have led to you having this problem.');
+			Log.warn(
 				logOptions,
 				'Consider using the alternative API for --props which is to pass',
 			);
-			Log.warnAdvanced(logOptions, 'a path to a JSON file:');
-			Log.warnAdvanced(logOptions, `  --${flagName}=path/to/props.json`);
+			Log.warn(logOptions, 'a path to a JSON file:');
+			Log.warn(logOptions, `  --${flagName}=path/to/props.json`);
 		}
 
 		process.exit(1);

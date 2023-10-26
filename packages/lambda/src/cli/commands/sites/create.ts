@@ -47,7 +47,7 @@ export const sitesCreateSubcommand = async (
 		return;
 	}
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		'Entry point:',
 		file,

@@ -19,7 +19,7 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	const {sites, buckets} = await getSites(region);
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided() && !allRegions) {
-		Log.warnAdvanced(
+		Log.warn(
 			{indent: false, logLevel},
 			`Warning: You have more than one Remotion Cloud Storage bucket in ${region}, but only one is needed. This can lead to conflicts. Remove all but one of them.`,
 		);

@@ -80,7 +80,7 @@ const renderHandler = async (
 		throw new Error('must pass framerange');
 	}
 
-	RenderInternals.Log.verboseAdvanced(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
 	);
@@ -147,7 +147,7 @@ const renderHandler = async (
 						return reject(err);
 					});
 				} else {
-					RenderInternals.Log.verboseAdvanced(
+					RenderInternals.Log.verbose(
 						{indent: false, logLevel: params.logLevel},
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
@@ -234,7 +234,7 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
-	RenderInternals.Log.verboseAdvanced(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Writing chunk to S3',
 	);
@@ -252,14 +252,14 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-	RenderInternals.Log.verboseAdvanced(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Wrote chunk to S3',
 		{
 			time: Date.now() - writeStart,
 		},
 	);
-	RenderInternals.Log.verboseAdvanced(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',
 	);
@@ -283,7 +283,7 @@ const renderHandler = async (
 		}),
 	]);
 	browserInstance.instance.forgetEventLoop();
-	RenderInternals.Log.verboseAdvanced(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Done!',
 	);

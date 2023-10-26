@@ -47,7 +47,7 @@ export const prepareServer = async ({
 	offthreadVideoCacheSizeInBytes,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		'Created directory for temporary files',
 		downloadMap.assetDir,
@@ -79,7 +79,7 @@ export const prepareServer = async ({
 			sourceMap: getSourceMapFromRemoteUrl(
 				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
 			).catch((err) => {
-				Log.verboseAdvanced(
+				Log.verbose(
 					{indent, logLevel},
 					'Could not fetch sourcemap for ',
 					webpackConfigOrServeUrl,

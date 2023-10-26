@@ -63,28 +63,28 @@ export const validateVersionsBeforeCommand = async (
 	}
 
 	const logOptions: LogOptions = {indent: false, logLevel};
-	Log.warnAdvanced(logOptions, '-------------');
-	Log.warnAdvanced(logOptions, 'Version mismatch:');
+	Log.warn(logOptions, '-------------');
+	Log.warn(logOptions, 'Version mismatch:');
 	for (const version of installedVersions) {
-		Log.warnAdvanced(logOptions, `- On version: ${version}`);
+		Log.warn(logOptions, `- On version: ${version}`);
 		for (const pkg of grouped[version]) {
-			Log.warnAdvanced(logOptions, `  - ${pkg}`);
+			Log.warn(logOptions, `  - ${pkg}`);
 		}
 
 		Log.info();
 	}
 
-	Log.warnAdvanced(logOptions, 'You may experience breakages such as:');
-	Log.warnAdvanced(logOptions, '- React context and hooks not working');
-	Log.warnAdvanced(logOptions, '- Type errors and feature incompatibilities');
-	Log.warnAdvanced(logOptions, '- Failed renders and unclear errors');
-	Log.warnAdvanced(logOptions);
-	Log.warnAdvanced(logOptions, 'To resolve:');
-	Log.warnAdvanced(
+	Log.warn(logOptions, 'You may experience breakages such as:');
+	Log.warn(logOptions, '- React context and hooks not working');
+	Log.warn(logOptions, '- Type errors and feature incompatibilities');
+	Log.warn(logOptions, '- Failed renders and unclear errors');
+	Log.warn(logOptions);
+	Log.warn(logOptions, 'To resolve:');
+	Log.warn(
 		logOptions,
 		'- Make sure your package.json has all Remotion packages pointing to the same version.',
 	);
-	Log.warnAdvanced(
+	Log.warn(
 		logOptions,
 		'- Remove the `^` character in front of a version to pin a package.',
 	);
@@ -94,13 +94,13 @@ export const validateVersionsBeforeCommand = async (
 			'verbose',
 		)
 	) {
-		Log.warnAdvanced(
+		Log.warn(
 			logOptions,
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.',
 		);
 	}
 
-	Log.warnAdvanced(logOptions, '-------------');
+	Log.warn(logOptions, '-------------');
 	Log.info();
 };
 
@@ -121,7 +121,7 @@ export const versionsCommand = async (
 		Log.info(`On version: ${version}`);
 		for (const pkg of grouped[version]) {
 			Log.info(`- ${pkg}`);
-			Log.verboseAdvanced(
+			Log.verbose(
 				{indent: false, logLevel},
 				`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`,
 			);

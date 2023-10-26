@@ -105,7 +105,7 @@ export const stillCommand = async (
 			configImageFormat:
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		`Image format: (${imageFormat}), ${imageFormatReason}`,
 	);

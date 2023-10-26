@@ -74,7 +74,7 @@ export const waitForReady = ({
 							);
 						})
 						.catch((newErr) => {
-							Log.warnAdvanced(
+							Log.warn(
 								{indent, logLevel},
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
 								newErr,

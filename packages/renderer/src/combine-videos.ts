@@ -84,7 +84,7 @@ export const combineVideos = async (options: Options) => {
 		output,
 	].filter(truthy);
 
-	Log.verboseAdvanced({indent, logLevel}, 'Combining command: ', command);
+	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
 		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
@@ -92,9 +92,9 @@ export const combineVideos = async (options: Options) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
 				if (parsed === undefined) {
-					Log.verboseAdvanced({indent, logLevel}, data.toString('utf8'));
+					Log.verbose({indent, logLevel}, data.toString('utf8'));
 				} else {
-					Log.verboseAdvanced({indent, logLevel}, `Combined ${parsed} frames`);
+					Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
 					onProgress(parsed);
 				}
 			}

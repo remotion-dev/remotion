@@ -15,15 +15,15 @@ import {Log} from './log';
 const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
-		Log.warnAdvanced(
+		Log.warn(
 			{logLevel, indent},
 			'Selected a single frame. Assuming you want to output an image.',
 		);
-		Log.warnAdvanced(
+		Log.warn(
 			{logLevel, indent},
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
-		Log.warnAdvanced(
+		Log.warn(
 			{indent, logLevel},
 			"To dismiss this message, add the '--sequence' flag explicitly.",
 		);

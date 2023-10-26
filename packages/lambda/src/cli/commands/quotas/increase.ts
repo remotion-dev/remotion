@@ -61,11 +61,11 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 			indent: false,
 			logLevel,
 		};
-		Log.warnAdvanced(
+		Log.warn(
 			logOptions,
 			`A request to increase it to ${openCase.DesiredValue} is already pending:`,
 		);
-		Log.warnAdvanced(
+		Log.warn(
 			logOptions,
 			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
 		);

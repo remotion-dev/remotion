@@ -97,7 +97,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verboseAdvanced(
+					Log.verbose(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);
@@ -112,7 +112,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verboseAdvanced(
+					Log.verbose(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);

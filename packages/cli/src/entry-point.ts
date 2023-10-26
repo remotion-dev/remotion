@@ -67,7 +67,7 @@ const findEntryPointInner = (
 	// 1st priority: Explicitly passed entry point
 	let file: string | null = args[0];
 	if (file) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			'Checking if',
 			file,
@@ -101,7 +101,7 @@ const findEntryPointInner = (
 	// 2nd priority: Config file
 	file = ConfigInternals.getEntryPoint();
 	if (file) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			'Entry point from config file is',
 			file,
@@ -119,7 +119,7 @@ const findEntryPointInner = (
 
 	if (found) {
 		const absolutePath = path.resolve(remotionRoot, found);
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			'Selected',
 			absolutePath,

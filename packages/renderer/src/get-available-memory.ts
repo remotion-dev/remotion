@@ -43,11 +43,11 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 		try {
 			getFreeMemoryFromProcMeminfo();
 		} catch (err) {
-			Log.warnAdvanced(
+			Log.warn(
 				{indent: false, logLevel},
 				'Tried to get available memory from /proc/meminfo but failed. Falling back to os.freemem(). Error:',
 			);
-			Log.warnAdvanced({indent: false, logLevel}, err);
+			Log.warn({indent: false, logLevel}, err);
 		}
 	}
 

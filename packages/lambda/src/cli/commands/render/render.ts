@@ -237,11 +237,11 @@ export const renderCommand = async (
 		),
 	);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		`Render folder: ${res.folderInS3Console}`,
 	);
@@ -367,11 +367,8 @@ export const renderCommand = async (
 					.join(', '),
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
-				Log.verboseAdvanced(
-					{indent: false, logLevel},
-					'Most expensive frame ranges:',
-				);
-				Log.verboseAdvanced(
+				Log.verbose({indent: false, logLevel}, 'Most expensive frame ranges:');
+				Log.verbose(
 					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {

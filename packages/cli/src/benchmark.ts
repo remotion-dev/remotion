@@ -194,7 +194,7 @@ export const benchmarkCommand = async (
 		logLevel,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		'Entry point:',
 		fullEntryPoint,

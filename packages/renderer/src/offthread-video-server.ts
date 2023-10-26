@@ -163,7 +163,7 @@ export const startOffthreadVideoServer = ({
 						const timeToExtract = extractEnd - extractStart;
 
 						if (timeToExtract > 1000) {
-							Log.verboseAdvanced(
+							Log.verbose(
 								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);

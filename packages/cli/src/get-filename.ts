@@ -45,7 +45,7 @@ export const getOutputFilename = ({
 	}
 
 	if (extension === null && !imageSequence) {
-		Log.warnAdvanced(
+		Log.warn(
 			{indent, logLevel},
 			`No file extension specified, adding ${defaultExtension} automatically.`,
 		);

@@ -47,10 +47,7 @@ const watchEnvFile = ({
 		onChange: async (type) => {
 			try {
 				if (type === 'deleted') {
-					Log.warnAdvanced(
-						{indent: false, logLevel},
-						`${envFile} was deleted.`,
-					);
+					Log.warn({indent: false, logLevel}, `${envFile} was deleted.`);
 				} else if (type === 'changed') {
 					await updateFile();
 					Log.info(chalk.blueBright(`Updated env file ${envFile}`));
@@ -78,7 +75,7 @@ const getEnvForEnvFile = async (
 		const envFileData = await fs.promises.readFile(envFile);
 		if (onUpdate) {
 			if (typeof fs.watchFile === 'undefined') {
-				Log.warnAdvanced(
+				Log.warn(
 					{indent: false, logLevel},
 					'Unsupported feature (fs.watchFile): .env file will not hot reload.',
 				);
@@ -137,7 +134,7 @@ export const getEnvironmentVariables = (
 	if (!fs.existsSync(defaultEnvFile)) {
 		if (onUpdate) {
 			if (typeof fs.watchFile === 'undefined') {
-				Log.warnAdvanced(
+				Log.warn(
 					{indent: false, logLevel},
 					'Unsupported Bun feature: .env file will not hot reload.',
 				);

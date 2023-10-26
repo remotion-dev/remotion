@@ -74,7 +74,7 @@ export const studioCommand = async (
 ) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		'Entry point:',
 		file,
@@ -195,7 +195,7 @@ export const studioCommand = async (
 			browserFlag: parsedCli.browser,
 		});
 	} else {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			`Not opening browser, reason: ${reasonForBrowserDecision}`,
 		);

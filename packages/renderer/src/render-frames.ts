@@ -398,7 +398,7 @@ const innerRenderFrames = async ({
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
-			Log.verboseAdvanced(
+			Log.verbose(
 				{indent, logLevel},
 				`Seeking to frame ${frame} took ${timeToSeek}ms`,
 			);

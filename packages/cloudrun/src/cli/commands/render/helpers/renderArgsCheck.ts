@@ -38,7 +38,7 @@ export const renderArgsCheck = async (
 
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			'Remotion site-name passed, constructing serve url...',
 		);

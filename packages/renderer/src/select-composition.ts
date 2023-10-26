@@ -123,7 +123,7 @@ const innerSelectComposition = async ({
 		indent,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',
@@ -140,7 +140,7 @@ const innerSelectComposition = async ({
 		page,
 		args: [id],
 	});
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',

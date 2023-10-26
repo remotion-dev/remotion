@@ -228,7 +228,7 @@ export class Page extends EventEmitter {
 						log.previewString,
 					);
 				} else {
-					Log.verboseAdvanced(
+					Log.verbose(
 						{
 							logLevel,
 							tag,
@@ -247,10 +247,7 @@ export class Page extends EventEmitter {
 					);
 				}
 			} else {
-				Log.verboseAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent},
-					log.text,
-				);
+				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
 			}
 		});
 	}

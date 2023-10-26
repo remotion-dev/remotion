@@ -24,7 +24,7 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
-	verboseAdvanced: (
+	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
@@ -51,10 +51,7 @@ export const Log = {
 		);
 	},
 
-	warnAdvanced: (
-		options: LogOptions,
-		...args: Parameters<typeof console.log>
-	) => {
+	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]

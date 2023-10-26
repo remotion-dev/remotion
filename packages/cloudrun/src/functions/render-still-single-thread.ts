@@ -23,7 +23,7 @@ export const renderStillSingleThread = async (
 	const renderId = randomHash({randomInTests: true});
 
 	try {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel: body.logLevel},
 			'Rendering still frame',
 			body,
@@ -31,7 +31,7 @@ export const renderStillSingleThread = async (
 
 		const composition = await getCompositionFromBody(body);
 
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel: body.logLevel},
 			'Composition loaded',
 			composition,

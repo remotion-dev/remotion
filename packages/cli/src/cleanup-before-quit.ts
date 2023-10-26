@@ -10,16 +10,13 @@ export const cleanupBeforeQuit = ({
 	indent: boolean;
 	logLevel: LogLevel;
 }) => {
-	Log.verboseAdvanced({indent, logLevel}, 'Cleaning up...');
+	Log.verbose({indent, logLevel}, 'Cleaning up...');
 	const time = Date.now();
 	for (const job of cleanupJobs) {
 		job();
 	}
 
-	Log.verboseAdvanced(
-		{indent, logLevel},
-		`Cleanup done in ${Date.now() - time}ms`,
-	);
+	Log.verbose({indent, logLevel}, `Cleanup done in ${Date.now() - time}ms`);
 };
 
 export const registerCleanupJob = (job: () => void) => {

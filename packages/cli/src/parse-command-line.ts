@@ -217,7 +217,7 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Log.warnAdvanced(
+		Log.warn(
 			{indent: false, logLevel: 'info'},
 			'The --quality flag has been renamed to --jpeg-quality instead.',
 		);

@@ -12,25 +12,25 @@ export const initializeCli = async (
 	parseCommandLine();
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	// Only now Log.verbose is available
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent: false, logLevel},
 		'Remotion root directory:',
 		remotionRoot,
 	);
 	if (remotionRoot !== process.cwd()) {
-		Log.warnAdvanced(
+		Log.warn(
 			{indent: false, logLevel},
 			`Warning: The root directory of your project is ${remotionRoot}, but you are executing this command from ${process.cwd()}. The recommendation is to execute commands from the root directory.`,
 		);
 	}
 
 	if (appliedName) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent: false, logLevel},
 			`Applied configuration from ${appliedName}.`,
 		);
 	} else {
-		Log.verboseAdvanced({indent: false, logLevel}, 'No config file loaded.');
+		Log.verbose({indent: false, logLevel}, 'No config file loaded.');
 	}
 
 	return logLevel;

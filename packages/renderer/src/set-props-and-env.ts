@@ -194,7 +194,7 @@ const innerSetPropsAndEnv = async ({
 
 	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,
@@ -208,7 +208,7 @@ const innerSetPropsAndEnv = async ({
 				].join('\n'),
 			);
 		} else {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,

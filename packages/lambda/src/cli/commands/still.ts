@@ -162,7 +162,7 @@ export const stillCommand = async (
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId}) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
-			Log.verboseAdvanced(
+			Log.verbose(
 				{indent: false, logLevel},
 				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
 			);
