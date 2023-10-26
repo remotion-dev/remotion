@@ -79,7 +79,8 @@ export const prepareServer = async ({
 			sourceMap: getSourceMapFromRemoteUrl(
 				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
 			).catch((err) => {
-				Log.verbose(
+				Log.verboseAdvanced(
+					{indent, logLevel},
 					'Could not fetch sourcemap for ',
 					webpackConfigOrServeUrl,
 					err,

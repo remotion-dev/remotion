@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
@@ -38,7 +39,11 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
-export const renderCommand = async (args: string[], remotionRoot: string) => {
+export const renderCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
@@ -60,7 +65,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		frameRange,
 		inputProps,
-		logLevel,
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
@@ -84,6 +88,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition: string = args[1];
@@ -236,8 +241,14 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		'verbose',
 	);
 
-	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
-	Log.verbose(`Render folder: ${res.folderInS3Console}`);
+	Log.verboseAdvanced(
+		{indent: false, logLevel},
+		`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+	);
+	Log.verboseAdvanced(
+		{indent: false, logLevel},
+		`Render folder: ${res.folderInS3Console}`,
+	);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -360,8 +371,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					.join(', '),
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
-				Log.verbose('Most expensive frame ranges:');
-				Log.verbose(
+				Log.verboseAdvanced(
+					{indent: false, logLevel},
+					'Most expensive frame ranges:',
+				);
+				Log.verboseAdvanced(
+					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {
 							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;

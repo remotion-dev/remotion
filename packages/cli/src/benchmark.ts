@@ -1,4 +1,4 @@
-import type {InternalRenderMediaOptions} from '@remotion/renderer';
+import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
@@ -131,10 +131,15 @@ const makeBenchmarkProgressBar = ({
 export const benchmarkCommand = async (
 	remotionRoot: string,
 	args: string[],
+	logLevel: LogLevel,
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
+	const {file, reason, remainingArgs} = findEntryPoint(
+		args,
+		remotionRoot,
+		logLevel,
+	);
 
 	if (!file) {
 		Log.error('No entry file passed.');
@@ -174,16 +179,22 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
+		logLevel,
 	});
 
-	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
+	Log.verboseAdvanced(
+		{indent: false, logLevel},
+		'Entry point:',
+		fullEntryPoint,
+		'reason:',
+		reason,
+	);
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,

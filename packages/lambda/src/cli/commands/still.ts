@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
@@ -21,7 +22,11 @@ import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[], remotionRoot: string) => {
+export const stillCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -40,7 +45,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		chromiumOptions,
 		envVariables,
 		inputProps,
-		logLevel,
 		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
@@ -54,6 +58,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	const region = getAwsRegion();
@@ -157,7 +162,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId}) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
-			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+			Log.verboseAdvanced(
+				{indent: false, logLevel},
+				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
+			);
 		},
 		deleteAfter,
 	});

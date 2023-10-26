@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	ColorSpace,
+	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
@@ -202,7 +203,7 @@ type RenderModalProps = {
 	initialStillImageFormat: StillImageFormat;
 	initialJpegQuality: number;
 	initialScale: number;
-	initialVerbose: boolean;
+	initialLogLevel: LogLevel;
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
@@ -244,7 +245,7 @@ const RenderModal: React.FC<
 	initialStillImageFormat,
 	initialJpegQuality,
 	initialScale,
-	initialVerbose,
+	initialLogLevel,
 	initialConcurrency,
 	maxConcurrency,
 	minConcurrency,
@@ -354,7 +355,7 @@ const RenderModal: React.FC<
 		() => initialJpegQuality,
 	);
 	const [scale, setScale] = useState(() => initialScale);
-	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
+	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
 		useState(false);
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
@@ -688,7 +689,7 @@ const RenderModal: React.FC<
 			jpegQuality,
 			frame,
 			scale,
-			verbose,
+			logLevel,
 			chromiumOptions,
 			delayRenderTimeout,
 			envVariables: envVariablesArrayToObject(envVariables),
@@ -712,7 +713,7 @@ const RenderModal: React.FC<
 		jpegQuality,
 		frame,
 		scale,
-		verbose,
+		logLevel,
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
@@ -747,7 +748,7 @@ const RenderModal: React.FC<
 			imageFormat: videoImageFormat,
 			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
 			scale,
-			verbose,
+			logLevel,
 			codec,
 			concurrency,
 			crf: qualityControlType === 'crf' ? crf : null,
@@ -788,7 +789,7 @@ const RenderModal: React.FC<
 		stillImageFormat,
 		jpegQuality,
 		scale,
-		verbose,
+		logLevel,
 		codec,
 		concurrency,
 		qualityControlType,
@@ -826,7 +827,7 @@ const RenderModal: React.FC<
 			outName,
 			imageFormat: sequenceImageFormat,
 			scale,
-			verbose,
+			logLevel,
 			concurrency,
 			endFrame,
 			jpegQuality,
@@ -853,7 +854,7 @@ const RenderModal: React.FC<
 		outName,
 		sequenceImageFormat,
 		scale,
-		verbose,
+		logLevel,
 		concurrency,
 		endFrame,
 		jpegQuality,
@@ -1271,8 +1272,8 @@ const RenderModal: React.FC<
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							setVerboseLogging={setVerboseLogging}
-							verbose={verbose}
+							setVerboseLogging={setLogLevel}
+							logLevel={logLevel}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}

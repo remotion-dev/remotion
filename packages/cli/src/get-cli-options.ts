@@ -106,6 +106,7 @@ export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
 	remotionRoot: string;
+	logLevel: LogLevel;
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -153,8 +154,6 @@ export const getCliOptions = async (options: {
 		checkIfValidForCurrentMachine: false,
 	});
 
-	const logLevel = ConfigInternals.Logging.getLogLevel();
-
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		concurrency,
@@ -166,7 +165,7 @@ export const getCliOptions = async (options: {
 		browser: await getAndValidateBrowser({
 			browserExecutable,
 			indent: false,
-			logLevel,
+			logLevel: options.logLevel,
 		}),
 		crf,
 		pixelFormat,

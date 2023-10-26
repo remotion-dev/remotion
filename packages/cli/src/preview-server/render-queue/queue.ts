@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import path from 'node:path';
 import {chalk} from '../../chalk';
 import {ConfigInternals} from '../../config';
@@ -49,12 +50,14 @@ const processJob = async ({
 	entryPoint,
 	onProgress,
 	addCleanupCallback,
+	logLevel,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
+	logLevel: LogLevel;
 }) => {
 	if (job.type === 'still') {
 		await processStill({
@@ -74,6 +77,7 @@ const processJob = async ({
 			entryPoint,
 			onProgress,
 			addCleanupCallback,
+			logLevel,
 		});
 		return;
 	}
@@ -85,13 +89,15 @@ export const addJob = ({
 	job,
 	entryPoint,
 	remotionRoot,
+	logLevel,
 }: {
 	job: RenderJobWithCleanup;
 	entryPoint: string;
 	remotionRoot: string;
+	logLevel: LogLevel;
 }) => {
 	jobQueue.push(job);
-	processJobIfPossible({entryPoint, remotionRoot});
+	processJobIfPossible({entryPoint, remotionRoot, logLevel});
 
 	notifyClientsOfJobUpdate();
 };
@@ -126,9 +132,11 @@ export const cancelJob = (jobId: string) => {
 const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
+	logLevel,
 }: {
 	remotionRoot: string;
 	entryPoint: string;
+	logLevel: LogLevel;
 }) => {
 	const runningJob = jobQueue.find((q) => {
 		return q.status === 'running';
@@ -204,6 +212,7 @@ const processJobIfPossible = async ({
 			addCleanupCallback: (cleanup) => {
 				jobCleanups.push(cleanup);
 			},
+			logLevel,
 		});
 		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
 
@@ -264,5 +273,5 @@ const processJobIfPossible = async ({
 		await Promise.all(jobCleanups.map((c) => c()));
 	}
 
-	processJobIfPossible({remotionRoot, entryPoint});
+	processJobIfPossible({remotionRoot, entryPoint, logLevel});
 };

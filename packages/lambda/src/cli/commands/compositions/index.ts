@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {getCompositionsOnLambda} from '../../..';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
@@ -13,6 +14,7 @@ export const COMPOSITIONS_COMMAND = 'compositions';
 export const compositionsCommand = async (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ) => {
 	const serveUrl = args[0];
 
@@ -26,17 +28,13 @@ export const compositionsCommand = async (
 		quit(1);
 	}
 
-	const {
-		chromiumOptions,
-		envVariables,
-		inputProps,
-		logLevel,
-		puppeteerTimeout,
-	} = await CliInternals.getCliOptions({
-		type: 'get-compositions',
-		isLambda: true,
-		remotionRoot,
-	});
+	const {chromiumOptions, envVariables, inputProps, puppeteerTimeout} =
+		await CliInternals.getCliOptions({
+			type: 'get-compositions',
+			isLambda: true,
+			remotionRoot,
+			logLevel,
+		});
 
 	const region = getAwsRegion();
 	validateServeUrl(serveUrl);

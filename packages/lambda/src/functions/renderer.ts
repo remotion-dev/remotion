@@ -80,7 +80,8 @@ const renderHandler = async (
 		throw new Error('must pass framerange');
 	}
 
-	RenderInternals.Log.verbose(
+	RenderInternals.Log.verboseAdvanced(
+		{indent: false, logLevel: params.logLevel},
 		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
 	);
 
@@ -146,7 +147,8 @@ const renderHandler = async (
 						return reject(err);
 					});
 				} else {
-					RenderInternals.Log.verbose(
+					RenderInternals.Log.verboseAdvanced(
+						{indent: false, logLevel: params.logLevel},
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
@@ -232,7 +234,10 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
-	RenderInternals.Log.verbose('Writing chunk to S3');
+	RenderInternals.Log.verboseAdvanced(
+		{indent: false, logLevel: params.logLevel},
+		'Writing chunk to S3',
+	);
 	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -247,10 +252,17 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-	RenderInternals.Log.verbose('Wrote chunk to S3', {
-		time: Date.now() - writeStart,
-	});
-	RenderInternals.Log.verbose('Cleaning up and writing timings');
+	RenderInternals.Log.verboseAdvanced(
+		{indent: false, logLevel: params.logLevel},
+		'Wrote chunk to S3',
+		{
+			time: Date.now() - writeStart,
+		},
+	);
+	RenderInternals.Log.verboseAdvanced(
+		{indent: false, logLevel: params.logLevel},
+		'Cleaning up and writing timings',
+	);
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
@@ -271,7 +283,10 @@ const renderHandler = async (
 		}),
 	]);
 	browserInstance.instance.forgetEventLoop();
-	RenderInternals.Log.verbose('Done!');
+	RenderInternals.Log.verboseAdvanced(
+		{indent: false, logLevel: params.logLevel},
+		'Done!',
+	);
 	return {};
 };
 

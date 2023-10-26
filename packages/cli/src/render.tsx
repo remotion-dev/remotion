@@ -1,4 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
+import type {LogLevel} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -10,12 +11,16 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
 
-export const render = async (remotionRoot: string, args: string[]) => {
+export const render = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	const {
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot);
+	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -69,6 +74,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
+		logLevel,
 	});
 
 	const audioCodec = getResolvedAudioCodec();

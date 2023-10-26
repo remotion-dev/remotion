@@ -24,9 +24,6 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
-	verbose: (...args: Parameters<typeof console.log>) => {
-		Log.verboseAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-	},
 	verboseAdvanced: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>

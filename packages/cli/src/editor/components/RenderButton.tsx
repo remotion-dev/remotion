@@ -75,7 +75,7 @@ export const RenderButton: React.FC = () => {
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialJpegQuality: defaults.jpegQuality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
-			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
+			initialLogLevel: defaults.logLevel as LogLevel,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,

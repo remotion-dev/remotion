@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import {ConfigInternals} from './config';
@@ -96,7 +97,10 @@ export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
 	Log.info();
 };
 
-export const versionsCommand = async (remotionRoot: string) => {
+export const versionsCommand = async (
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	parseCommandLine();
 	const versions = await getAllVersions(remotionRoot);
 
@@ -110,7 +114,10 @@ export const versionsCommand = async (remotionRoot: string) => {
 		Log.info(`On version: ${version}`);
 		for (const pkg of grouped[version]) {
 			Log.info(`- ${pkg}`);
-			Log.verbose(`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`);
+			Log.verboseAdvanced(
+				{indent: false, logLevel},
+				`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`,
+			);
 		}
 
 		Log.info();

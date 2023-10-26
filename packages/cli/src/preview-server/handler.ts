@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {ApiHandler} from './api-types';
 import {parseRequestBody} from './parse-body';
@@ -8,12 +9,14 @@ export const handleRequest = async <Req, Res>({
 	response,
 	entryPoint,
 	handler,
+	logLevel,
 }: {
 	remotionRoot: string;
 	request: IncomingMessage;
 	response: ServerResponse;
 	entryPoint: string;
 	handler: ApiHandler<Req, Res>;
+	logLevel: LogLevel;
 }) => {
 	if (request.method === 'OPTIONS') {
 		response.statusCode = 200;
@@ -33,6 +36,7 @@ export const handleRequest = async <Req, Res>({
 			request,
 			response,
 			input: body,
+			logLevel,
 		});
 
 		response.end(

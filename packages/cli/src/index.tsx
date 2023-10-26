@@ -74,26 +74,26 @@ export const cli = async () => {
 		? 0
 		: RenderInternals.registerErrorSymbolicationLock();
 
-	handleCtrlC();
+	const logLevel = await initializeCli(remotionRoot);
+	handleCtrlC({indent: false, logLevel});
 
-	await initializeCli(remotionRoot);
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand(remotionRoot, args);
+			await listCompositionsCommand(remotionRoot, args, logLevel);
 		} else if (isStudio) {
-			await studioCommand(remotionRoot, args);
+			await studioCommand(remotionRoot, args, logLevel);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'cloudrun') {
 			await cloudrunCommand(remotionRoot, args);
 		} else if (command === 'render') {
-			await render(remotionRoot, args);
+			await render(remotionRoot, args, logLevel);
 		} else if (command === 'still') {
-			await still(remotionRoot, args);
+			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
 			ffmpegCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'gpu') {
-			await gpuCommand(remotionRoot);
+			await gpuCommand(remotionRoot, logLevel);
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
@@ -103,9 +103,9 @@ export const cli = async () => {
 				parsedCli.version,
 			);
 		} else if (command === VERSIONS_COMMAND) {
-			await versionsCommand(remotionRoot);
+			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === 'benchmark') {
-			await benchmarkCommand(remotionRoot, args);
+			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
@@ -120,15 +120,13 @@ export const cli = async () => {
 	} catch (err) {
 		Log.info();
 		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
-		cleanupBeforeQuit();
+		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
-		cleanupBeforeQuit();
+		cleanupBeforeQuit({indent: false, logLevel});
 	}
 };
-
-export * from './render';
 
 export const CliInternals = {
 	createOverwriteableCliOutput,
