@@ -4,7 +4,7 @@ title: fillTextBox()
 crumb: "@remotion/layout-utils"
 ---
 
-_Available from v4.0.54_
+## fillTextBox()<AvailableFrom v="4.0.57"/>
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
 
@@ -28,11 +28,9 @@ The max lines of the box.
 
 ## Return value
 
-An object with an `add` method, which can be used to add words to the text box.
+An object with an `add()` method, which can be used to add words to the text box.
 
-### `add`
-
-Arguments:
+### Arguments
 
 #### `text`
 
@@ -57,6 +55,12 @@ Same as CSS style `font-size`. Only _numbers_ allowed, unit `px`.
 _string_
 
 Same as CSS style `font-weight`.
+
+#### `fontVariantNumeric`
+
+_string_
+
+Same as CSS style `font-variant-numeric`.
 
 ### Return value
 

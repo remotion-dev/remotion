@@ -16,6 +16,7 @@ export const fillTextBox = ({
 			fontWeight,
 			fontSize,
 			letterSpacing,
+			fontVariantNumeric,
 		}: Word): {
 			exceedsBox: boolean;
 			newLine: boolean;
@@ -32,7 +33,14 @@ export const fillTextBox = ({
 
 			const lineWithWord: Word[] = [
 				...lineToUse,
-				{text, fontFamily, fontWeight, fontSize, letterSpacing},
+				{
+					text,
+					fontFamily,
+					fontWeight,
+					fontSize,
+					letterSpacing,
+					fontVariantNumeric,
+				},
 			];
 
 			const widths = lineWithWord.map((w) => measureText(w).width);
@@ -45,6 +53,7 @@ export const fillTextBox = ({
 					fontWeight,
 					fontSize,
 					letterSpacing,
+					fontVariantNumeric,
 				});
 
 				return {exceedsBox: false, newLine: false};
@@ -61,6 +70,7 @@ export const fillTextBox = ({
 					fontWeight,
 					fontSize,
 					letterSpacing,
+					fontVariantNumeric,
 				},
 			];
 			return {exceedsBox: false, newLine: true};
