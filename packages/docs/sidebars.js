@@ -445,7 +445,10 @@ module.exports = {
         type: "doc",
         id: "layout-utils/index",
       },
-      items: ["layout-utils/measure-text"],
+      items: [
+        "layout-utils/measure-text",
+        "layout-utils/fill-text-box",
+      ],
     },
   ],
   mainSidebar: [
