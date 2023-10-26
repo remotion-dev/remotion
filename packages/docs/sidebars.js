@@ -106,6 +106,7 @@ module.exports = {
         "null",
         "clipper",
         "get-remotion-environment",
+        "version",
       ],
     },
     {
