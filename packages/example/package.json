@@ -26,7 +26,7 @@
 	"dependencies": {
 		"@mdx-js/loader": "^2.3.0",
 		"@mdx-js/react": "^2.3.0",
-		"@react-three/drei": "9.79.4",
+		"@react-three/drei": "9.88.7",
 		"@react-three/fiber": "8.13.5",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
