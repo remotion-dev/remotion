@@ -130,8 +130,8 @@ export const DoMoreHero: React.FC = () => {
       };
 
   const inputProps = useMemo(() => {
-    return { dark: theme.isDarkTheme };
-  }, [theme.isDarkTheme]);
+    return { dark: theme.colorMode === "dark" };
+  }, [theme.colorMode]);
 
   return (
     <div

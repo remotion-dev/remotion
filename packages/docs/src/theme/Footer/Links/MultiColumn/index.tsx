@@ -47,16 +47,16 @@ const copyright: React.CSSProperties = {
 };
 
 export default ({ columns }) => {
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
   const [src, setSrc] = useState("/img/new-logo.png");
 
   useEffect(() => {
-    if (isDarkTheme) {
+    if (colorMode === "dark") {
       setSrc("/img/remotion-white.png");
     } else {
       setSrc("/img/new-logo.png");
     }
-  }, [isDarkTheme]);
+  }, [colorMode]);
 
   return (
     <div className="row footer__links">
@@ -67,7 +67,7 @@ export default ({ columns }) => {
         }}
       >
         <img
-          key={String(isDarkTheme)}
+          key={colorMode}
           src={src}
           style={{
             height: 32,
