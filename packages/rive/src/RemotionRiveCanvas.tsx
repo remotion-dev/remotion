@@ -18,13 +18,18 @@ import type {
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
+type onLoadCallback = (rive: RiveCanvas) => void
+
 interface RiveProps {
 	src: string;
 	fit?: RemotionRiveCanvasFit;
 	alignment?: RemotionRiveCanvasAlignment;
 	artboard?: string | number;
 	animation?: string | number;
+	onLoad?: onLoadCallback | null;
 }
+
+
 
 export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 	src,
@@ -32,6 +37,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 	alignment = 'center',
 	artboard: artboardName,
 	animation: animationIndex,
+	onLoad = null,
 }) => {
 	const {width, fps, height} = useVideoConfig();
 	const frame = useCurrentFrame();
@@ -96,12 +102,15 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 						artboard,
 						renderer,
 					});
+					if (onLoad) {
+						onLoad(riveCanvasInstance);
+					}
 				});
 			})
 			.catch((newErr) => {
 				setError(newErr);
 			});
-	}, [animationIndex, artboardName, riveCanvasInstance, src]);
+	}, [animationIndex, artboardName, riveCanvasInstance, src, onLoad]);
 
 	React.useEffect(() => {
 		if (!riveCanvasInstance) {
