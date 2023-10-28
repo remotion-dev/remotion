@@ -23,7 +23,7 @@
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.1",
-		"react": "18.0.0",
+		"react": "18.2.0",
 		"tar": "6.1.11"
 	},
 	"devDependencies": {

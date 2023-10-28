@@ -2,11 +2,11 @@ import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 
 export const SplineVideo: React.FC = () => {
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
   return (
     <video
       src={
-        isDarkTheme
+        colorMode === "dark"
           ? "/img/spline-guide/spline-dark.mp4"
           : "/img/spline-guide/spline-light.mp4"
       }

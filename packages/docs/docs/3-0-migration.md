@@ -35,8 +35,8 @@ You need to upgrade both `react` and `react-dom`:
 ```diff
 - "react": "17.0.1"
 - "react-dom": "17.0.1"
-+ "react": "18.0.0"
-+ "react-dom": "18.0.0"
++ "react": "18.2.0"
++ "react-dom": "18.2.0"
 ```
 
 If you use TypeScript, update to the newest types as well:

@@ -61,7 +61,7 @@ export const Demo: React.FC<{
   type: string;
 }> = ({ type }) => {
   const demo = demos.find((d) => d.id === type);
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   const [key, setKey] = useState(() => 0);
 
@@ -133,7 +133,7 @@ export const Demo: React.FC<{
             </AbsoluteFill>
           );
         }}
-        inputProps={{ ...state, darkMode: isDarkTheme }}
+        inputProps={{ ...state, darkMode: colorMode === "dark" }}
         autoPlay={demo.autoPlay}
         loop
       />
