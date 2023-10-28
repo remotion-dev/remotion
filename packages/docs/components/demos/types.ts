@@ -11,6 +11,7 @@ import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
 import { PieDemo } from "./Pie";
+import { PolygonDemo } from "./Polygon";
 import { RectDemo } from "./Rect";
 import { StarDemo } from "./Star";
 import {
@@ -379,6 +380,53 @@ export const ellipseDemo: DemoType = {
       type: "numeric",
       name: "ry",
       optional: "no",
+    },
+  ],
+};
+export const polygonDemo: DemoType = {
+  comp: PolygonDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "polygon",
+  autoPlay: false,
+  options: [
+    {
+      default: 3,
+      max: 12,
+      step: 1,
+      min: 3,
+      type: "numeric",
+      name: "points",
+      optional: "no",
+    },
+    {
+      default: 100,
+      max: 400,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "radius",
+      optional: "no",
+    },
+    {
+      name: "cornerRadius",
+      default: 0,
+      max: 140,
+      min: 0,
+      step: 1,
+      type: "numeric",
+      optional: "no",
+    },
+    {
+      name: "edgeRoundness",
+      default: 0,
+      max: 2,
+      min: -2,
+      step: 0.01,
+      type: "numeric",
+      optional: "default-disabled",
     },
   ],
 };
