@@ -225,7 +225,8 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 					<Sequence
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						{...passedProps}
+						layout="none"
+						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -241,7 +242,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								{child}
+								<Sequence {...passedProps}>{child}</Sequence>
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -257,7 +258,8 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 					<Sequence
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						{...passedProps}
+						layout="none"
+						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -266,7 +268,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							{child}
+							<Sequence {...passedProps}>{child}</Sequence>
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -281,7 +283,8 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 					<Sequence
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						{...passedProps}
+						layout="none"
+						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -290,7 +293,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							{child}
+							<Sequence {...passedProps}>{child}</Sequence>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
