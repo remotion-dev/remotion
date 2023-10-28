@@ -1,4 +1,5 @@
 import net from 'net';
+import {isIpV6Supported} from './is-ipv6-supported';
 import {createLock} from './locks';
 
 type PortStatus = 'available' | 'unavailable';
@@ -80,6 +81,15 @@ const getPort = async ({
 
 const portLocks = createLock({timeout: 10000});
 
+export const getPortConfig = () => {
+	const host = isIpV6Supported() ? '::' : '0.0.0.0';
+	const hostsToTry = isIpV6Supported()
+		? ['::', '::1', '0.0.0.0', '127.0.0.1']
+		: ['0.0.0.0', '127.0.0.1'];
+
+	return {host, hostsToTry};
+};
+
 export const getDesiredPort = async ({
 	desiredPort,
 	from,
@@ -98,7 +108,7 @@ export const getDesiredPort = async ({
 		typeof desiredPort !== 'undefined' &&
 		(await testPortAvailableOnMultipleHosts({
 			port: desiredPort,
-			hosts: ['::', '::1'],
+			hosts: hostsToTry,
 		})) === 'available'
 	) {
 		return {port: desiredPort, didUsePort};
