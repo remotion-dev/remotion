@@ -32,6 +32,7 @@ export function addSound<T extends Record<string, unknown>>(
 
 import {springTiming, TransitionSeries} from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
+import {wipe} from '@remotion/transitions/wipe';
 import {AbsoluteFill} from 'remotion';
 
 export const Letter: React.FC<{
@@ -56,18 +57,24 @@ export const Letter: React.FC<{
 export const AudioTransition: React.FC = () => {
 	return (
 		<TransitionSeries>
-			<TransitionSeries.Sequence style={{opacity: 0.5}} durationInFrames={100}>
+			<TransitionSeries.Sequence
+				style={{backgroundColor: 'green', opacity: 0.5}}
+				durationInFrames={100}
+			>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={addSound(
-					slide({direction: 'from-bottom'}),
+					wipe({direction: 'from-bottom'}),
 					staticFile('whip.mp3'),
 				)}
 				timing={springTiming()}
 			/>
-			<TransitionSeries.Sequence style={{opacity: 0.5}} durationInFrames={100}>
-				<Letter color="orange">A</Letter>
+			<TransitionSeries.Sequence
+				style={{backgroundColor: 'orange'}}
+				durationInFrames={100}
+			>
+				<Letter color="transparent">A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={addSound(
