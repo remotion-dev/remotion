@@ -57,6 +57,7 @@ import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {Timeout} from './Timeout';
+import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
@@ -1060,6 +1061,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="transition"
 					component={BasicTransition}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="audio-transition"
+					component={AudioTransition}
 					fps={30}
 					height={1080}
 					durationInFrames={300}
