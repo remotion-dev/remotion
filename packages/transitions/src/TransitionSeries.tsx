@@ -174,16 +174,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				actualStartFrame = 0;
 			}
 
-			const inner = (
-				<Sequence
-					from={Math.floor(actualStartFrame)}
-					durationInFrames={durationInFramesProp}
-					{...passedProps}
-				>
-					{child}
-				</Sequence>
-			);
-
 			const nextProgress = next
 				? next.props.timing.getProgress({
 						frame:
@@ -232,22 +222,29 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					// @ts-expect-error
-					<UppercaseNextPresentation
-						passedProps={nextPresentation.props ?? {}}
-						presentationDirection="exiting"
-						presentationProgress={nextProgress}
+					<Sequence
+						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
+						{...passedProps}
 					>
 						{/**
 						// @ts-expect-error	*/}
-						<UppercasePrevPresentation
-							passedProps={prevPresentation.props ?? {}}
-							presentationDirection="entering"
-							presentationProgress={prevProgress}
+						<UppercaseNextPresentation
+							passedProps={nextPresentation.props ?? {}}
+							presentationDirection="exiting"
+							presentationProgress={nextProgress}
 						>
-							{inner}
-						</UppercasePrevPresentation>
-					</UppercaseNextPresentation>
+							{/**
+						// @ts-expect-error	*/}
+							<UppercasePrevPresentation
+								passedProps={prevPresentation.props ?? {}}
+								presentationDirection="entering"
+								presentationProgress={prevProgress}
+							>
+								{child}
+							</UppercasePrevPresentation>
+						</UppercaseNextPresentation>
+					</Sequence>
 				);
 			}
 
@@ -257,14 +254,21 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					// @ts-expect-error
-					<UppercasePrevPresentation
-						passedProps={prevPresentation.props ?? {}}
-						presentationDirection="entering"
-						presentationProgress={prevProgress}
+					<Sequence
+						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
+						{...passedProps}
 					>
-						{inner}
-					</UppercasePrevPresentation>
+						{/**
+						// @ts-expect-error	*/}
+						<UppercasePrevPresentation
+							passedProps={prevPresentation.props ?? {}}
+							presentationDirection="entering"
+							presentationProgress={prevProgress}
+						>
+							{child}
+						</UppercasePrevPresentation>
+					</Sequence>
 				);
 			}
 
@@ -274,18 +278,33 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercaseNextPresentation = nextPresentation.component;
 
 				return (
-					// @ts-expect-error
-					<UppercaseNextPresentation
-						passedProps={nextPresentation.props ?? {}}
-						presentationDirection="exiting"
-						presentationProgress={nextProgress}
+					<Sequence
+						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
+						{...passedProps}
 					>
-						{inner}
-					</UppercaseNextPresentation>
+						{/**
+						// @ts-expect-error	*/}
+						<UppercaseNextPresentation
+							passedProps={nextPresentation.props ?? {}}
+							presentationDirection="exiting"
+							presentationProgress={nextProgress}
+						>
+							{child}
+						</UppercaseNextPresentation>
+					</Sequence>
 				);
 			}
 
-			return inner;
+			return (
+				<Sequence
+					from={Math.floor(actualStartFrame)}
+					durationInFrames={durationInFramesProp}
+					{...passedProps}
+				>
+					{child}
+				</Sequence>
+			);
 		});
 	}, [children, fps, frame]);
 
@@ -297,8 +316,7 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 } = ({children, ...otherProps}) => {
-	const frame = useCurrentFrame();
-	const showInTimeline = frame < (otherProps.from ?? 0);
+	const showInTimeline = (otherProps.from ?? 0) !== 0;
 
 	return (
 		<Sequence showInTimeline={showInTimeline} {...otherProps}>
