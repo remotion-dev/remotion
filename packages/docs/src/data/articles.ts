@@ -2480,6 +2480,13 @@ export const articles = [
     crumb: "The fundamentals",
   },
   {
+    id: "transitions/audio-transitions",
+    title: "Transitioning with audio",
+    relativePath: "docs/transitions/audio-transitions.mdx",
+    compId: "articles-docs-transitions-audio-transitions",
+    crumb: "@remotion/transitions",
+  },
+  {
     id: "transitions/index",
     title: "@remotion/transitions",
     relativePath: "docs/transitions/index.mdx",

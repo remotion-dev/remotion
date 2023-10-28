@@ -8,6 +8,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier src --check",
 		"watch": "tsc -w",
 		"build": "rollup --config rollup.config.js && tsc -d"
 	},

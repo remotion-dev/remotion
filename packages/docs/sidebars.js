@@ -426,6 +426,7 @@ module.exports = {
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
             "transitions/presentations/custom",
+            "transitions/audio-transitions",
           ],
         },
       ],
@@ -446,10 +447,7 @@ module.exports = {
         type: "doc",
         id: "layout-utils/index",
       },
-      items: [
-        "layout-utils/measure-text",
-        "layout-utils/fill-text-box",
-      ],
+      items: ["layout-utils/measure-text", "layout-utils/fill-text-box"],
     },
   ],
   mainSidebar: [

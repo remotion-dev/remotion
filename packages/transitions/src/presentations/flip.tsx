@@ -11,14 +11,12 @@ export type FlipDirection =
 	| 'from-top'
 	| 'from-bottom';
 
-type FlipPresentationProps = {
+export type FlipProps = {
 	direction?: FlipDirection;
 	perspective?: number;
 };
 
-const Flip: React.FC<
-	TransitionPresentationComponentProps<FlipPresentationProps>
-> = ({
+const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	children,
 	presentationDirection,
 	presentationProgress,
@@ -64,8 +62,6 @@ const Flip: React.FC<
 	);
 };
 
-export const flip = (
-	props?: FlipPresentationProps,
-): TransitionPresentation<FlipPresentationProps> => {
+export const flip = (props?: FlipProps): TransitionPresentation<FlipProps> => {
 	return {component: Flip, props: props ?? {}};
 };
