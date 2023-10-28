@@ -18,7 +18,7 @@ import type {
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
-type onLoadCallback = (rive: RiveCanvas) => void
+type onLoadCallback = (rive: RiveCanvas) => void;
 
 interface RiveProps {
 	src: string;
@@ -28,8 +28,6 @@ interface RiveProps {
 	animation?: string | number;
 	onLoad?: onLoadCallback | null;
 }
-
-
 
 export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 	src,
