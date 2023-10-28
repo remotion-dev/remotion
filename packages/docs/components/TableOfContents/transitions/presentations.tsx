@@ -68,6 +68,14 @@ export const Presentations: React.FC = () => {
           </div>
         </div>
       </TOCItem>
+      <TOCItem link="/docs/transitions/audio-transitions">
+        <div style={row}>
+          <div style={{ flex: 1 }}>
+            <strong>Audio transitions</strong>
+            <div>Add a sound effect to a transition</div>
+          </div>
+        </div>
+      </TOCItem>
     </Grid>
   );
 };
