@@ -113,10 +113,7 @@ export const startServer = async (options: {
 
 	const maxTries = 5;
 
-	const host = RenderInternals.isIpV6Supported() ? '::' : '0.0.0.0';
-	const hostsToTry = RenderInternals.isIpV6Supported()
-		? ['::', '::1']
-		: ['0.0.0.0', '127.0.0.1'];
+	const portConfig = RenderInternals.getPortConfig();
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
@@ -125,12 +122,12 @@ export const startServer = async (options: {
 					desiredPort,
 					from: 3000,
 					to: 3100,
-					hostsToTry,
+					hostsToTry: portConfig.hostsToTry,
 				})
 					.then(({port, didUsePort}) => {
 						server.listen({
 							port,
-							host,
+							host: portConfig.host,
 						});
 						server.on('listening', () => {
 							resolve(port);
