@@ -6,7 +6,7 @@ import {parseCommandLine} from './parse-command-line';
 
 export const initializeCli = async (
 	remotionRoot: string,
-	command: string
+	command: string,
 ): Promise<LogLevel> => {
 	const appliedName = await loadConfig(remotionRoot);
 
