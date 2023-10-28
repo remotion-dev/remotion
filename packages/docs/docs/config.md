@@ -73,7 +73,12 @@ Config.setCachingEnabled(false);
 
 The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
-## setPort()
+## ~~setPort()~~
+
+:::note
+The setPort method is deprecated. Please use [`setStudioPort()`](/docs/config#setStudioPort)
+and [`setRendererPort()`](/docs/config#setRendererPort) instead.
+:::note
 
 Define on which port Remotion should start it's HTTP servers.  
 HTTP servers
@@ -89,6 +94,30 @@ During rendering, a HTTP server is also started in the background to serve the W
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setPort(3003);
+```
+
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
+
+## setStudioPort()<AvailableFrom v="4.0.57" />
+
+To set the port for Studio.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStudioPort(3003);
+```
+
+The [command line flag](/docs/cli/studio#--port) `--port` will take precedence over this option.
+
+## setRendererPort()<AvailableFrom v="4.0.57" />
+
+To set the port for Renderer.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStudioPort(3004);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.

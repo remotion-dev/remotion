@@ -135,7 +135,7 @@ export const getCliOptions = async (options: {
 	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
-	const port = ConfigInternals.getServerPort();
+	const port = ConfigInternals.getRendererPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),

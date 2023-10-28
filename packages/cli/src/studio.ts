@@ -59,7 +59,7 @@ const getPort = () => {
 		return parsedCli.port;
 	}
 
-	const serverPort = ConfigInternals.getServerPort();
+	const serverPort = ConfigInternals.getStudioPort();
 	if (serverPort) {
 		return serverPort;
 	}

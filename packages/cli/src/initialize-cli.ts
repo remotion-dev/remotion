@@ -6,10 +6,11 @@ import {parseCommandLine} from './parse-command-line';
 
 export const initializeCli = async (
 	remotionRoot: string,
+	command: string
 ): Promise<LogLevel> => {
 	const appliedName = await loadConfig(remotionRoot);
 
-	parseCommandLine();
+	parseCommandLine(command);
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	// Only now Log.verbose is available
 	Log.verbose(

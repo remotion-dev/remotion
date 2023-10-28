@@ -33,7 +33,7 @@ import {
 } from './override-webpack';
 import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
-import {getServerPort} from './preview-server';
+import {getRendererPort, getStudioPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
@@ -106,7 +106,7 @@ import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
-import {setPort} from './preview-server';
+import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {setScale} from './scale';
@@ -139,8 +139,23 @@ declare global {
 		 * Define on which port Remotion should start it's HTTP servers.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 * @deprecated
 		 */
 		readonly setPort: (port: number | undefined) => void;
+
+		/**
+		 * Set Studio Port. Define on which port Remotion Studio should start it's HTTP servers.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		readonly setStudioPort: (port: number | undefined) => void;
+
+		/**
+		 * Set Renderer Port. Define on which port Remotion should Renderer start it's HTTP servers.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		readonly setRendererPort: (port: number | undefined) => void;
 		/**
 		 * Define the location of the public/ directory.
 		 * By default it is a folder named "public" inside the current working directory.
@@ -509,6 +524,8 @@ export const Config: FlatConfig = {
 	overrideWebpackConfig,
 	setCachingEnabled: setWebpackCaching,
 	setPort,
+	setStudioPort,
+	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
 	setLevel: setLogLevel,
@@ -572,7 +589,8 @@ export const ConfigInternals = {
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,
-	getServerPort,
+	getStudioPort,
+	getRendererPort,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
