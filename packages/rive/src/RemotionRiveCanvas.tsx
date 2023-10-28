@@ -1,6 +1,7 @@
 import type {
 	Artboard,
 	CanvasRenderer,
+	File,
 	LinearAnimationInstance,
 	RiveCanvas,
 } from '@rive-app/canvas-advanced';
@@ -18,7 +19,7 @@ import type {
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
-type onLoadCallback = (rive: RiveCanvas) => void;
+type onLoadCallback = (file: File) => void;
 
 interface RiveProps {
 	src: string;
@@ -101,7 +102,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 						renderer,
 					});
 					if (onLoad) {
-						onLoad(riveCanvasInstance);
+						onLoad(file);
 					}
 				});
 			})

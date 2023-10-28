@@ -33,7 +33,7 @@ Either a `string` specifying the animation name, a `number` specifying the anima
 
 ### `onLoad?`<AvailableFrom v="4.0.58" />
 
-A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type `RiveCanvas`
+A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type Rive `File`
 
 ## Basic Example
 
@@ -52,12 +52,12 @@ more information about Text Runs on Rive.
 
 ```tsx twoslash
 import { RemotionRiveCanvas } from "@remotion/rive";
-import { RiveCanvas } from "@rive-app/canvas-advanced";
+import { File } from "@rive-app/canvas-advanced";
 import { useCallback } from "react";
 
 // Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
-const onLoadHandler = useCallback((rive: RiveCanvas) => {
-  const artboard = rive.defaultArtboard();
+const onLoadHandler = useCallback((file: File) => {
+  const artboard = file.defaultArtboard();
   const textRun = artboard.textRun("city");
   textRun.text = "Tokyo";
 }, []);
