@@ -2235,6 +2235,13 @@ export const articles = [
     crumb: "@remotion/shapes",
   },
   {
+    id: "shapes/make-polygon",
+    title: "makePolygon()",
+    relativePath: "docs/shapes/make-polygon.md",
+    compId: "articles-docs-shapes-make-polygon",
+    crumb: "@remotion/shapes",
+  },
+  {
     id: "shapes/make-rect",
     title: "makeRect()",
     relativePath: "docs/shapes/make-rect.md",
@@ -2256,17 +2263,17 @@ export const articles = [
     crumb: "@remotion/shapes",
   },
   {
-    id: "shapes/make-polygon",
-    title: "makePolygon()",
-    relativePath: "docs/shapes/make-polygon.md",
-    compId: "articles-docs-shapes-make-polygon",
-    crumb: "@remotion/shapes",
-  },
-  {
     id: "shapes/pie",
     title: "<Pie />",
     relativePath: "docs/shapes/pie.md",
     compId: "articles-docs-shapes-pie",
+    crumb: "@remotion/shapes",
+  },
+  {
+    id: "shapes/polygon",
+    title: "<Polygon />",
+    relativePath: "docs/shapes/polygon.md",
+    compId: "articles-docs-shapes-polygon",
     crumb: "@remotion/shapes",
   },
   {
@@ -2288,13 +2295,6 @@ export const articles = [
     title: "<Triangle />",
     relativePath: "docs/shapes/triangle.md",
     compId: "articles-docs-shapes-triangle",
-    crumb: "@remotion/shapes",
-  },
-  {
-    id: "shapes/polygon",
-    title: "<Polygon />",
-    relativePath: "docs/shapes/polyon.md",
-    compId: "articles-docs-shapes-polyon",
     crumb: "@remotion/shapes",
   },
   {

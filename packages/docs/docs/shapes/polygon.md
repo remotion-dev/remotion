@@ -42,5 +42,3 @@ export const MyComposition = () => {
 ## See also
 
 <ShapeSeeAlso shape="polygon"/>
-
-

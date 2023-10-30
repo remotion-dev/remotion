@@ -374,12 +374,14 @@ module.exports = {
         "shapes/ellipse",
         "shapes/star",
         "shapes/pie",
+        "shapes/polygon",
         "shapes/make-rect",
         "shapes/make-triangle",
         "shapes/make-circle",
         "shapes/make-ellipse",
         "shapes/make-star",
         "shapes/make-pie",
+        "shapes/make-polygon",
       ],
     },
     {
@@ -446,10 +448,7 @@ module.exports = {
         type: "doc",
         id: "layout-utils/index",
       },
-      items: [
-        "layout-utils/measure-text",
-        "layout-utils/fill-text-box",
-      ],
+      items: ["layout-utils/measure-text", "layout-utils/fill-text-box"],
     },
   ],
   mainSidebar: [
