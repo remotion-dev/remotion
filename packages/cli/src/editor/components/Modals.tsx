@@ -24,7 +24,7 @@ export const Modals: React.FC = () => {
 					initialVideoImageFormat={modalContextType.initialVideoImageFormat}
 					initialJpegQuality={modalContextType.initialJpegQuality}
 					initialScale={modalContextType.initialScale}
-					initialVerbose={modalContextType.initialVerbose}
+					initialLogLevel={modalContextType.initialLogLevel}
 					initialOffthreadVideoCacheSizeInBytes={
 						modalContextType.initialOffthreadVideoCacheSizeInBytes
 					}

@@ -25,6 +25,7 @@ export const processStill = async ({
 			isLambda: false,
 			type: 'still',
 			remotionRoot,
+			logLevel: job.logLevel,
 		});
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
@@ -51,7 +52,7 @@ export const processStill = async ({
 		width: null,
 		compositionIdFromUi: job.compositionId,
 		imageFormatFromUi: job.imageFormat,
-		logLevel: job.verbose ? 'verbose' : 'info',
+		logLevel: job.logLevel,
 		onProgress,
 		indent: true,
 		addCleanupCallback,

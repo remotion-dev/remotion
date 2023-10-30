@@ -157,6 +157,13 @@ export const TableOfContents: React.FC = () => {
           <div>Position content absolutely and in full size</div>
         </TOCItem>
       </Grid>
+      <h2>Version</h2>
+      <Grid>
+        <TOCItem link="/docs/version">
+          <strong>{"VERSION"}</strong>
+          <div>Get the current version of Remotion</div>
+        </TOCItem>
+      </Grid>
     </div>
   );
 };

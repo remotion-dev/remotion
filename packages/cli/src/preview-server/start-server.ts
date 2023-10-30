@@ -1,5 +1,6 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
@@ -29,6 +30,7 @@ export const startServer = async (options: {
 	staticHashPrefix: string;
 	outputHash: string;
 	outputHashPrefix: string;
+	logLevel: LogLevel;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -84,6 +86,7 @@ export const startServer = async (options: {
 					remotionRoot: options.remotionRoot,
 					entryPoint: options.userDefinedComponent,
 					publicDir: options.publicDir,
+					logLevel: options.logLevel,
 				});
 			})
 			.catch((err) => {

@@ -27,6 +27,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 
 	if (propsSize > 10_000_000) {
 		RenderInternals.Log.warn(
+			{indent: false, logLevel: body.logLevel},
 			`The props of your composition are large (${propsSize} bytes). This may cause slowdown.`,
 		);
 	}

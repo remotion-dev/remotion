@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
 import {displaySiteInfo} from '.';
@@ -27,8 +28,13 @@ export const SITES_CREATE_SUBCOMMAND = 'create';
 export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
+	const {file, reason} = CliInternals.findEntryPoint(
+		args,
+		remotionRoot,
+		logLevel,
+	);
 	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
@@ -40,7 +46,13 @@ export const sitesCreateSubcommand = async (
 		return;
 	}
 
-	Log.verbose('Entry point:', file, 'Reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'Reason:',
+		reason,
+	);
 
 	if (!existsSync(file)) {
 		Log.error(

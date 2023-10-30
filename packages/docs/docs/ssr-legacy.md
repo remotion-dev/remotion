@@ -37,7 +37,7 @@ const start = async () => {
   const compositionId = "HelloWorld";
 
   // Create a webpack bundle of the entry file.
-  const bundleLocation = await bundle(require.resolve("./src/index"));
+  const bundleLocation = await bundle(require.resolve("./src/index.ts"));
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
@@ -60,7 +60,7 @@ const start = async () => {
 
   // We create a temporary directory for storing the frames
   const framesDir = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), "remotion-")
+    path.join(os.tmpdir(), "remotion-"),
   );
 
   // We create JPEGs for all frames

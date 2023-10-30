@@ -287,13 +287,14 @@ const internalRenderMediaRaw = ({
 		shouldUseParallelEncoding({
 			height: composition.height,
 			width: composition.width,
+			logLevel,
 		});
 	const parallelEncoding =
 		!disallowParallelEncoding &&
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -305,7 +306,7 @@ const internalRenderMediaRaw = ({
 		estimatedUsage,
 	);
 	const actualConcurrency = getActualConcurrency(concurrency);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -314,7 +315,7 @@ const internalRenderMediaRaw = ({
 		'Using concurrency:',
 		actualConcurrency,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -324,7 +325,7 @@ const internalRenderMediaRaw = ({
 		canUseParallelEncoding(codec),
 	);
 	if (disallowParallelEncoding) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -335,7 +336,7 @@ const internalRenderMediaRaw = ({
 	}
 
 	if (parallelEncoding) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -344,7 +345,7 @@ const internalRenderMediaRaw = ({
 			'Parallel encoding is enabled.',
 		);
 	} else {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -605,7 +606,7 @@ const internalRenderMediaRaw = ({
 				renderedDoneIn = Date.now() - renderStart;
 
 				callUpdate();
-				Log.verboseAdvanced(
+				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
 					renderedDoneIn + 'ms',
@@ -662,7 +663,7 @@ const internalRenderMediaRaw = ({
 				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
-				Log.verboseAdvanced(
+				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
 					encodedDoneIn + 'ms',

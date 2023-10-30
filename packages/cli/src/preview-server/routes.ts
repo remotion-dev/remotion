@@ -1,4 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
@@ -266,6 +267,7 @@ export const handleRoutes = ({
 	remotionRoot,
 	entryPoint,
 	publicDir,
+	logLevel,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -279,6 +281,7 @@ export const handleRoutes = ({
 	remotionRoot: string;
 	entryPoint: string;
 	publicDir: string;
+	logLevel: LogLevel;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -310,6 +313,7 @@ export const handleRoutes = ({
 				>,
 				request,
 				response,
+				logLevel,
 			});
 		}
 	}

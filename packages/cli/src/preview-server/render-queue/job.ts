@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	ColorSpace,
+	LogLevel,
 	makeCancelSignal,
 	PixelFormat,
 	ProResProfile,
@@ -93,7 +94,7 @@ export type RenderJob = {
 	id: string;
 	outName: string;
 	deletedOutputLocation: boolean;
-	verbose: boolean;
+	logLevel: LogLevel;
 	delayRenderTimeout: number;
 	cancelToken: ReturnType<typeof makeCancelSignal>;
 	chromiumOptions: RequiredChromiumOptions;
@@ -113,14 +114,14 @@ type AddRenderRequestDynamicFields =
 			jpegQuality: number;
 			frame: number;
 			scale: number;
-			verbose: boolean;
+			logLevel: LogLevel;
 	  }
 	| {
 			type: 'sequence';
 			imageFormat: VideoImageFormat;
 			jpegQuality: number | null;
 			scale: number;
-			verbose: boolean;
+			logLevel: LogLevel;
 			concurrency: number;
 			startFrame: number;
 			endFrame: number;
@@ -133,7 +134,7 @@ type AddRenderRequestDynamicFields =
 			imageFormat: VideoImageFormat;
 			jpegQuality: number | null;
 			scale: number;
-			verbose: boolean;
+			logLevel: LogLevel;
 			concurrency: number;
 			crf: number | null;
 			startFrame: number;

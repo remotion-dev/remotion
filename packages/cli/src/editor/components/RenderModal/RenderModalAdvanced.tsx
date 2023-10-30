@@ -1,4 +1,4 @@
-import type {Codec, X264Preset} from '@remotion/renderer';
+import type {Codec, LogLevel, X264Preset} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
@@ -28,8 +28,8 @@ export const RenderModalAdvanced: React.FC<{
 	maxConcurrency: number;
 	setConcurrency: React.Dispatch<React.SetStateAction<number>>;
 	concurrency: number;
-	setVerboseLogging: React.Dispatch<React.SetStateAction<boolean>>;
-	verbose: boolean;
+	setVerboseLogging: React.Dispatch<React.SetStateAction<LogLevel>>;
+	logLevel: LogLevel;
 	delayRenderTimeout: number;
 	setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 	disallowParallelEncoding: boolean;
@@ -60,7 +60,7 @@ export const RenderModalAdvanced: React.FC<{
 	setConcurrency,
 	concurrency,
 	setVerboseLogging,
-	verbose,
+	logLevel,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
 	disallowParallelEncoding,
@@ -96,7 +96,7 @@ export const RenderModalAdvanced: React.FC<{
 	}, []);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			setVerboseLogging(e.target.checked);
+			setVerboseLogging(e.target.checked ? 'verbose' : 'info');
 		},
 		[setVerboseLogging],
 	);
@@ -273,7 +273,7 @@ export const RenderModalAdvanced: React.FC<{
 				<div style={label}>Verbose logging</div>
 				<div style={rightRow}>
 					<Checkbox
-						checked={verbose}
+						checked={logLevel === 'verbose'}
 						onChange={onVerboseLoggingChanged}
 						name="verbose-logging"
 					/>

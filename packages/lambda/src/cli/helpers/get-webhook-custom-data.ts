@@ -1,3 +1,4 @@
+import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -5,7 +6,9 @@ import path from 'node:path';
 import {parsedLambdaCli} from '../args';
 import {Log} from '../log';
 
-export const getWebhookCustomData = (): Record<string, unknown> | null => {
+export const getWebhookCustomData = (
+	logLevel: LogLevel,
+): Record<string, unknown> | null => {
 	const flagName = BrowserSafeApis.options.webhookCustomDataOption.cliFlag;
 	const webhookFlag = parsedLambdaCli[flagName];
 
@@ -31,15 +34,21 @@ export const getWebhookCustomData = (): Record<string, unknown> | null => {
 			'Check that your input is parseable using `JSON.parse` and try again.',
 		);
 		if (os.platform() === 'win32') {
+			const logOptions: LogOptions = {
+				indent: false,
+				logLevel,
+			};
 			Log.warn(
+				logOptions,
 				'Note: Windows handles escaping of quotes very weirdly in the command line.',
 			);
-			Log.warn('This might have led to you having this problem.');
+			Log.warn(logOptions, 'This might have led to you having this problem.');
 			Log.warn(
+				logOptions,
 				'Consider using the alternative API for --props which is to pass',
 			);
-			Log.warn('a path to a JSON file:');
-			Log.warn(`  --${flagName}=path/to/props.json`);
+			Log.warn(logOptions, 'a path to a JSON file:');
+			Log.warn(logOptions, `  --${flagName}=path/to/props.json`);
 		}
 
 		process.exit(1);

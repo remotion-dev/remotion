@@ -562,7 +562,7 @@ export const articles = [
   {
     id: "dataset-render",
     title: "Render videos programmatically from a dataset",
-    relativePath: "docs/dataset-render.md",
+    relativePath: "docs/dataset-render.mdx",
     compId: "articles-docs-dataset-render",
     crumb: "Tutorials",
   },
@@ -1365,6 +1365,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "layout-utils/fill-text-box",
+    title: "fillTextBox()",
+    relativePath: "docs/layout-utils/fill-text-box.md",
+    compId: "articles-docs-layout-utils-fill-text-box",
+    crumb: "@remotion/layout-utils",
+  },
+  {
     id: "layout-utils/index",
     title: "@remotion/layout-utils",
     relativePath: "docs/layout-utils/index.md",
@@ -1376,7 +1383,7 @@ export const articles = [
     title: "measureText()",
     relativePath: "docs/layout-utils/measure-text.md",
     compId: "articles-docs-layout-utils-measure-text",
-    crumb: "Make some",
+    crumb: "@remotion/layout-utils",
   },
   {
     id: "legacy-babel",
@@ -2709,6 +2716,13 @@ export const articles = [
     relativePath: "docs/version-mismatch.md",
     compId: "articles-docs-version-mismatch",
     crumb: "How to fix a",
+  },
+  {
+    id: "version",
+    title: "VERSION",
+    relativePath: "docs/version.md",
+    compId: "articles-docs-version",
+    crumb: "API",
   },
   {
     id: "video-manipulation",

@@ -11,33 +11,59 @@ Takes bulky waveform data (for example fetched by [`getAudioData()`](/docs/get-a
 
 ## Arguments
 
-### `options`
-
 An object with the following arguments:
 
-- `audioData`: `AudioData` - information about the audio. Use [`getAudioData()`](/docs/get-audio-data) to fetch it.
-- `startTimeInSeconds`: `number` - trim the waveform to exclude all data before `startTimeInSeconds`.
-- `durationInSeconds`: `number` - trim the waveform to exclude all data after `startTimeInSeconds + durationInSeconds`.
-- `numberOfSamples`: `number` - how big you want the result array to be. The function will compress the waveform to fit in `numberOfSamples` data points.
+### `audioData`
+
+_AudioData_
+
+Information about the audio. Use [`getAudioData()`](/docs/get-audio-data) to fetch it.
+
+### `startTimeInSeconds`
+
+_number_
+
+Trim the waveform to exclude all data before `startTimeInSeconds`.
+
+### `durationInSeconds`
+
+_number_
+
+trim the waveform to exclude all data after `startTimeInSeconds + durationInSeconds`.
+
+### `numberOfSamples`
+
+_number_
+
+How big you want the result array to be. The function will compress the waveform to fit in `numberOfSamples` data points.
 
 ## Return value
 
 `Bar[]` - An array of objects with the following properties:
 
-- `index`: `number` - the index of the datapoint, starting at 0. Useful for specifying as React `key` attribute without getting a warning.
-- `amplitude`: `number` - a value describing the amplitude / volume / loudness of the audio.
+### `index`
+
+_number_
+
+The index of the datapoint, starting at 0. Useful for specifying as React `key` attribute without getting a warning.
+
+### `amplitude`
+
+_number_
+
+A value describing the amplitude / volume / loudness of the audio. Values range between 0 and 1.
 
 ## Example
 
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+
 // ---cut---
 import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
-import music from "./music.mp3";
+import { staticFile } from "remotion";
 
-const audioData = await getAudioData(music); /* {
+const audioData = await getAudioData(staticFile("music.mp3")); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
@@ -52,7 +78,7 @@ const waveformPortion = await getWaveformPortion({
   startTimeInSeconds: 20,
   durationInSeconds: 20,
   numberOfSamples: 10,
-}); // [{index: 0, amplitude: 1.2203}, ... {index: 9, amplitude: 3.2211}]
+}); // [{index: 0, amplitude: 0.14}, ... {index: 9, amplitude: 0.79}]
 
 console.log(waveformPortion.length); // 10
 ```

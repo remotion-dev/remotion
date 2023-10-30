@@ -55,7 +55,7 @@ const data = files.find((f) => {
 
 ## API
 
-Takes no arguments and returns an array of object, each of which have three entries:
+Takes no arguments and returns an array of object, each of which have four entries:
 
 - `name`: The path relative to the public folder.
   :::note

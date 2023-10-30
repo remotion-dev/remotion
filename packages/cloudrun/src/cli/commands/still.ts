@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {downloadFile} from '../../api/download-file';
@@ -11,7 +12,11 @@ import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[], remotionRoot: string) => {
+export const stillCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -20,7 +25,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		privacy,
 		downloadName,
 		region,
-	} = await renderArgsCheck(STILL_COMMAND, args);
+	} = await renderArgsCheck(STILL_COMMAND, args, logLevel);
 
 	const {
 		chromiumOptions,
@@ -34,12 +39,12 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		width,
 		browserExecutable,
 		port,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition = args[1];
@@ -100,7 +105,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			configImageFormat:
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
-	Log.verbose(`Image format: (${imageFormat}), ${imageFormatReason}`);
+	Log.verbose(
+		{indent: false, logLevel},
+		`Image format: (${imageFormat}), ${imageFormatReason}`,
+	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(

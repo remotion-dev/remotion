@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	ColorSpace,
+	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
@@ -59,7 +60,7 @@ export const addStillRenderJob = ({
 	jpegQuality,
 	frame,
 	scale,
-	verbose,
+	logLevel,
 	chromiumOptions,
 	delayRenderTimeout,
 	envVariables,
@@ -73,7 +74,7 @@ export const addStillRenderJob = ({
 	jpegQuality: number;
 	frame: number;
 	scale: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	chromiumOptions: RequiredChromiumOptions;
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
@@ -89,7 +90,7 @@ export const addStillRenderJob = ({
 		jpegQuality,
 		frame,
 		scale,
-		verbose,
+		logLevel,
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
@@ -110,7 +111,7 @@ export const addSequenceRenderJob = ({
 	startFrame,
 	endFrame,
 	scale,
-	verbose,
+	logLevel,
 	chromiumOptions,
 	delayRenderTimeout,
 	envVariables,
@@ -128,7 +129,7 @@ export const addSequenceRenderJob = ({
 	startFrame: number;
 	endFrame: number;
 	scale: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	chromiumOptions: RequiredChromiumOptions;
 	concurrency: number;
 	delayRenderTimeout: number;
@@ -147,7 +148,7 @@ export const addSequenceRenderJob = ({
 		scale,
 		startFrame,
 		endFrame,
-		verbose,
+		logLevel,
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
@@ -169,7 +170,7 @@ export const addVideoRenderJob = ({
 	imageFormat,
 	jpegQuality,
 	scale,
-	verbose,
+	logLevel,
 	codec,
 	concurrency,
 	crf,
@@ -199,7 +200,7 @@ export const addVideoRenderJob = ({
 	imageFormat: VideoImageFormat;
 	jpegQuality: number | null;
 	scale: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	codec: Codec;
 	concurrency: number;
 	crf: number | null;
@@ -231,7 +232,7 @@ export const addVideoRenderJob = ({
 		imageFormat,
 		jpegQuality,
 		scale,
-		verbose,
+		logLevel,
 		codec,
 		concurrency,
 		crf,

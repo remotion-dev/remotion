@@ -7,9 +7,9 @@ let warned = false;
 
 function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
 	// @ts-expect-error bun no types
-	if (process.report && typeof Bun !== 'undefined') {
+	if (!process.report && typeof Bun !== 'undefined') {
 		if (!warned) {
-			Log.warnAdvanced(
+			Log.warn(
 				{indent, logLevel},
 				'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
 			);

@@ -12,14 +12,21 @@ import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
 
-const getAndValidateFrameRange = () => {
+const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
-		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
+			{logLevel, indent},
+			'Selected a single frame. Assuming you want to output an image.',
+		);
+		Log.warn(
+			{logLevel, indent},
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
-		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
+		Log.warn(
+			{indent, logLevel},
+			"To dismiss this message, add the '--sequence' flag explicitly.",
+		);
 	}
 
 	return frameRange;
@@ -106,8 +113,9 @@ export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
 	remotionRoot: string;
+	logLevel: LogLevel;
 }) => {
-	const frameRange = getAndValidateFrameRange();
+	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
 	const shouldOutputImageSequence =
 		options.type === 'still'
@@ -153,20 +161,18 @@ export const getCliOptions = async (options: {
 		checkIfValidForCurrentMachine: false,
 	});
 
-	const logLevel = ConfigInternals.Logging.getLogLevel();
-
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		inputProps: getInputProps(null),
-		envVariables: await getEnvironmentVariables(null),
+		inputProps: getInputProps(null, options.logLevel),
+		envVariables: await getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
 		browser: await getAndValidateBrowser({
 			browserExecutable,
 			indent: false,
-			logLevel,
+			logLevel: options.logLevel,
 		}),
 		crf,
 		pixelFormat,

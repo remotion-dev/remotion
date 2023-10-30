@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-layout-utils-measure-text.png
 title: measureText()
-crumb: "Make some"
+crumb: "@remotion/layout-utils"
 ---
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
@@ -43,6 +43,12 @@ Same as CSS style `font-weight`
 _string_
 
 Same as CSS style `font-spacing`.
+
+### `fontVariantNumeric`<AvailableFrom v="4.0.57"/>
+
+_string_
+
+Same as CSS style `font-variant-numeric`.
 
 ## Return value
 

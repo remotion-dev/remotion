@@ -144,7 +144,7 @@ export const downloadFile = async (
 				throw err;
 			}
 
-			Log.warnAdvanced(
+			Log.warn(
 				{indent: options.indent, logLevel: options.logLevel},
 				`Downloading ${options.url} failed (will retry): ${message}`,
 			);
