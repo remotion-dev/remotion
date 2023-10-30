@@ -60,7 +60,7 @@ You can synchronize animations with Remotions time using the `animation-play-sta
 
 ## GreenSock
 
-See: [How to integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
+See: [How to integrate GreenSock with Remotion](https://archive.ph/dGQ19e4eee6f5a41f)
 
 ## Other libraries
 
