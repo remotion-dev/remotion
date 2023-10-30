@@ -24,6 +24,8 @@ import {
   PresignUrlInput,
   getSites,
   speculateFunctionName,
+  getServiceClient, // available from v4.0.60
+  CustomCredentials, // available from v4.0.60
 } from "@remotion/lambda/client";
 ```
 
