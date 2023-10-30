@@ -41,6 +41,8 @@ By leveraging Shortvid's free templates and customizable options, the GDG Nantes
 
 They even used the generated videos for the TV screens all over the place in the _Cité des Congrès_ to indicate to attendees the upcoming sessions and where the conference rooms were located.
 
+[devfest-nantes.mp4](/img/blog/success-stories/devfest-nantes.mp4)
+
 **What are the next steps for Shortvid.io?**
 
 Shortvid is dedicated to enhancing its offering by continually adding more templates. This expansion will give users even more options to create compelling videos for their events. We aim to collaborate with tech events that share our vision and could benefit from our services. The platform will continue to support and empower these events through its user-friendly approach. The project is open source and is always open to contributions and suggestions for improvement !
