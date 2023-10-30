@@ -93,6 +93,7 @@ export const BooleanFlags = [
 	'disable-chunk-optimization',
 	'save-browser-logs',
 	'disable-cloudwatch',
+	'enable-lambda-insights',
 	'yes',
 	'y',
 	'disable-web-security',

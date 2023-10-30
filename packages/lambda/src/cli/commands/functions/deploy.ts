@@ -23,6 +23,8 @@ export const functionsDeploySubcommand = async () => {
 	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 	const customRoleArn = parsedLambdaCli['custom-role-arn'] ?? undefined;
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
+	const enableLambdaInsights =
+		parsedLambdaCli['enable-lambda-insights'] ?? false;
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
 
@@ -41,6 +43,7 @@ Timeout = ${timeoutInSeconds}sec
 Version = ${VERSION}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
+Lambda Insights Enabled = ${enableLambdaInsights}
 				`.trim(),
 			),
 		);
@@ -62,6 +65,7 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		cloudWatchLogRetentionPeriodInDays,
 		diskSizeInMb,
 		customRoleArn,
+		enableLambdaInsights,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info(functionName);
