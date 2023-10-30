@@ -1,5 +1,5 @@
 import type {Instruction} from '@remotion/paths';
-import {resetPath, serializeInstructions} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -69,7 +69,7 @@ export const makePolygon = ({
 		edgeRoundness,
 	});
 	return {
-		path: resetPath(serializeInstructions(polygonPathInstructions)),
+		path: serializeInstructions(polygonPathInstructions),
 		width,
 		height,
 		transformOrigin: `${centerX} ${centerY}`,
