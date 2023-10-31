@@ -13,6 +13,9 @@ import {
 
 type Fn = () => void;
 
+const cancelledToken = 'cancelled';
+const readyToken = 'ready';
+
 export const waitForReady = ({
 	page,
 	timeoutInMilliseconds,
@@ -28,12 +31,38 @@ export const waitForReady = ({
 }) => {
 	const cleanups: Fn[] = [];
 
+	const retrieveErrorAndReject = () => {
+		return new Promise((_, reject) => {
+			puppeteerEvaluateWithCatch({
+				pageFunction: () => window.remotion_cancelledError,
+				args: [],
+				frame: null,
+				page,
+			}).then(({value: val}) => {
+				if (typeof val !== 'string') {
+					reject(val);
+					return;
+				}
+
+				reject(
+					new SymbolicateableError({
+						frame: null,
+						stack: val,
+						name: 'CancelledError',
+						message: val.split('\n')[0],
+						stackFrame: parseStack(val.split('\n')),
+					}),
+				);
+			});
+		});
+	};
+
 	const waitForReadyProm = new Promise<JSHandle>((resolve, reject) => {
 		const waitTask = page.mainFrame()._mainWorld.waitForFunction({
 			browser: page.browser,
 			// Increase timeout so the delayRender() timeout fires earlier
 			timeout: timeoutInMilliseconds + 3000,
-			pageFunction: 'window.remotion_renderReady === true',
+			pageFunction: `window.remotion_renderReady === true ? "${readyToken}" : window.remotion_cancelledError !== undefined ? "${cancelledToken}" : false`,
 			title:
 				frame === null
 					? 'the page to render the React component'
@@ -46,7 +75,16 @@ export const waitForReady = ({
 
 		waitTask.promise
 			.then((a) => {
-				return resolve(a);
+				const token = a.toString() as typeof cancelledToken | typeof readyToken;
+				if (token === cancelledToken) {
+					return retrieveErrorAndReject();
+				}
+
+				if (token === readyToken) {
+					return resolve(a);
+				}
+
+				reject(new Error('Unexpected token ' + token));
 			})
 			.catch((err) => {
 				if (
@@ -96,57 +134,6 @@ export const waitForReady = ({
 			});
 	});
 
-	const waitForErrorProm = new Promise((_shouldNeverResolve, reject) => {
-		const waitTask = page.mainFrame()._mainWorld.waitForFunction({
-			browser: page.browser,
-			timeout: null,
-			pageFunction: 'window.remotion_cancelledError !== undefined',
-			title: 'remotion_cancelledError variable to appear on the page',
-		});
-
-		const cleanup = () => {
-			waitTask.terminate(new Error('cleanup'));
-		};
-
-		cleanups.push(() => cleanup());
-
-		waitTask.promise
-			.then(() => {
-				return puppeteerEvaluateWithCatch({
-					pageFunction: () => window.remotion_cancelledError,
-					args: [],
-					frame: null,
-					page,
-				});
-			})
-			.then(({value: val}) => {
-				if (typeof val !== 'string') {
-					reject(val);
-					return;
-				}
-
-				reject(
-					new SymbolicateableError({
-						frame: null,
-						stack: val,
-						name: 'CancelledError',
-						message: val.split('\n')[0],
-						stackFrame: parseStack(val.split('\n')),
-					}),
-				);
-			})
-			.catch((err) => {
-				if (
-					(err as Error).message.includes('timeout') &&
-					(err as Error).message.includes('exceeded')
-				) {
-					// Don't care if a error never appeared
-				} else {
-					reject(err);
-				}
-			});
-	});
-
 	return Promise.race([
 		new Promise((_, reject) => {
 			page.on(PageEmittedEvents.Disposed, () => {
@@ -159,7 +146,6 @@ export const waitForReady = ({
 			});
 		}),
 		waitForReadyProm,
-		waitForErrorProm,
 	]).finally(() => {
 		cleanups.forEach((cleanup) => {
 			cleanup();
