@@ -90,7 +90,7 @@ export class JSHandle {
 			return 'JSHandle@' + type;
 		}
 
-		return 'JSHandle:' + valueFromRemoteObject(this.#remoteObject);
+		return valueFromRemoteObject(this.#remoteObject);
 	}
 }
 
