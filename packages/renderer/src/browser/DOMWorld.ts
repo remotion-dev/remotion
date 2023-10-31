@@ -330,6 +330,10 @@ class WaitTask {
 			this.onBrowserCloseSilent,
 		);
 
+		if (this.#domWorld._waitTasks.size > 100) {
+			throw new Error('Leak detected: Too many WaitTasks');
+		}
+
 		this.#domWorld._waitTasks.delete(this);
 	}
 }
