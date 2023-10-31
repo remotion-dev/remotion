@@ -127,7 +127,7 @@ export class DOMWorld {
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
-	}): Promise<JSHandle> {
+	}): WaitTask {
 		return new WaitTask({
 			domWorld: this,
 			predicateBody: pageFunction,
@@ -135,12 +135,6 @@ export class DOMWorld {
 			timeout,
 			args: [],
 			browser,
-		}).promise;
-	}
-
-	title(): Promise<string> {
-		return this.evaluate(() => {
-			return document.title;
 		});
 	}
 }
