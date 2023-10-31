@@ -1,3 +1,5 @@
+import fs from 'fs';
+import net from 'net';
 import {spawn} from 'node:child_process';
 import {chmodSync} from 'node:fs';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
@@ -127,6 +129,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	} = null;
 
 	const processInput = () => {
+		console.log('processing');
 		let separatorIndex = outputBuffer.indexOf(separator);
 		if (separatorIndex === -1) {
 			return;
@@ -208,28 +211,40 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 	let unprocessedBuffers: Buffer[] = [];
 
-	child.stdout.on('data', (data) => {
-		unprocessedBuffers.push(data);
-		const separatorIndex = data.indexOf(separator);
-		if (separatorIndex === -1) {
-			if (missingData) {
-				missingData.dataMissing -= data.length;
+	console.log('FIFO');
+
+	fs.open('/tmp/remotionfifo', fs.constants.O_RDONLY, (_, fd) => {
+		const pipe = new net.Socket({fd});
+		pipe.on('end', () => {
+			console.log('end');
+		});
+		pipe.on('close', () => {
+			console.log('close');
+		});
+		pipe.on('data', (data) => {
+			console.log({data: data.length});
+			unprocessedBuffers.push(data);
+			const separatorIndex = data.indexOf(separator);
+			if (separatorIndex === -1) {
+				if (missingData) {
+					missingData.dataMissing -= data.length;
+				}
+
+				if (!missingData || missingData.dataMissing > 0) {
+					console.log('return ', missingData);
+					return;
+				}
 			}
 
-			if (!missingData || missingData.dataMissing > 0) {
-				return;
-			}
-		}
+			unprocessedBuffers.unshift(outputBuffer);
 
-		unprocessedBuffers.unshift(outputBuffer);
-
-		outputBuffer = Buffer.concat(unprocessedBuffers);
-		unprocessedBuffers = [];
-		processInput();
-	});
-
-	child.stderr.on('data', (data) => {
-		stderrChunks.push(data);
+			outputBuffer = Buffer.concat(unprocessedBuffers);
+			unprocessedBuffers = [];
+			processInput();
+		});
+		pipe.on('error', (err) => {
+			console.log(err);
+		});
 	});
 
 	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;

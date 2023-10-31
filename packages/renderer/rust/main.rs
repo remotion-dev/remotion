@@ -19,7 +19,7 @@ use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
 use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
-use std::env;
+use std::{env, fs::OpenOptions};
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 
@@ -93,7 +93,10 @@ fn start_long_running_process(
         let opts: CliInputCommand = parse_cli(&input)?;
         pool.install(move || {
             match execute_command(opts.payload) {
-                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
+                Ok(res) => {
+                    _print_verbose(&format!("writing frame {}", res.len()));
+                    global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap()
+                }
                 Err(err) => global_printer::synchronized_write_buf(
                     1,
                     &opts.nonce,
