@@ -74,7 +74,7 @@ export const cli = async () => {
 		? 0
 		: RenderInternals.registerErrorSymbolicationLock();
 
-	const logLevel = await initializeCli(remotionRoot, command);
+	const logLevel = await initializeCli(remotionRoot);
 	handleCtrlC({indent: false, logLevel});
 
 	try {
