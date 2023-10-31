@@ -51,6 +51,10 @@ export const openEventSource = () => {
 		}
 
 		if (newEvent.type === 'new-public-folder') {
+			const updatedFilesEvent = new CustomEvent('watch_remotion_staticFiles', {
+				detail: { files: newEvent.files },
+			});			
+			window.dispatchEvent(updatedFilesEvent);
 			window.remotion_staticFiles = newEvent.files;
 			window.remotion_publicFolderExists = newEvent.folderExists;
 		}

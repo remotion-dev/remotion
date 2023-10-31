@@ -107,6 +107,7 @@ module.exports = {
         "clipper",
         "get-remotion-environment",
         "version",
+        "watchstaticfile",
       ],
     },
     {
