@@ -133,6 +133,7 @@ export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
 export * from './video/index.js';
+export {watchStaticFile} from './watch-static-file.js';
 
 export const Experimental = {
 	/**
