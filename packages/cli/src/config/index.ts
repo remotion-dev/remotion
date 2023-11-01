@@ -140,22 +140,20 @@ declare global {
 		 */
 		readonly setCachingEnabled: (flag: boolean) => void;
 		/**
-		 * Define on which port Remotion should start it's HTTP servers.
-		 * By default, Remotion will try to find a free port.
-		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 * @deprecated
+		 * Use `setStudioPort()` and `setRendererPort()` instead.
 		 */
 		readonly setPort: (port: number | undefined) => void;
 
 		/**
-		 * Set Studio Port. Define on which port Remotion Studio should start it's HTTP servers.
+		 * Set the HTTP port used by the Studio.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
 		readonly setStudioPort: (port: number | undefined) => void;
 
 		/**
-		 * Set Renderer Port. Define on which port Remotion should Renderer start it's HTTP servers.
+		 * Set the HTTP port used to host the Webpack bundle.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
