@@ -107,3 +107,4 @@ Note that two types of timeouts come into play in Remotion:
 - [Optimizing for speed](/docs/lambda/optimizing-cost)
 - [Rate limits](/docs/lambda/troubleshooting/rate-limit)
 - [Lambda Limits](/docs/lambda/limits)
+- [Lambda insights](/docs/lambda/insights)
