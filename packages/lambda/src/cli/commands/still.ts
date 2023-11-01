@@ -160,11 +160,15 @@ export const stillCommand = async (
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		onInit: ({cloudWatchLogs, renderId}) => {
+		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
 			Log.verbose(
 				{indent: false, logLevel},
 				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
+			);
+			Log.verbose(
+				{indent: false, logLevel},
+				`Lambda Insights (if enabled): ${lambdaInsightsUrl}`,
 			);
 		},
 		deleteAfter,

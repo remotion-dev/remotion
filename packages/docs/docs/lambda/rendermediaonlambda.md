@@ -366,15 +366,15 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 
 The S3 bucket name in which all files are being saved.
 
-### `cloudWatchLogs`
-
-_available from v3.2.10_
+### `cloudWatchLogs`<AvailableFrom v="3.2.10"/>
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `folderInS3Console`
+### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
 
-_available from v3.2.43_
+A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
+
+### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 
 A link to the folder in the AWS console where each chunk and render is located.
 
