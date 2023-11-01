@@ -59,7 +59,7 @@ const getPort = () => {
 		return parsedCli.port;
 	}
 
-	const serverPort = ConfigInternals.getServerPort();
+	const serverPort = ConfigInternals.getStudioPort();
 	if (serverPort) {
 		return serverPort;
 	}
@@ -106,7 +106,7 @@ export const studioCommand = async (
 			});
 		});
 	}, logLevel);
-	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
+	let envVariables = getEnvironmentVariables((newEnvVariables) => {
 		waitForLiveEventsListener().then((listener) => {
 			envVariables = newEnvVariables;
 			listener.sendEventToClient({

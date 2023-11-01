@@ -159,7 +159,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--port`
 
-[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setport). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setrendererport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 

@@ -2,6 +2,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
@@ -40,7 +41,6 @@ export const listCompositionsCommand = async (
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
-		port,
 		publicDir,
 		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
@@ -79,7 +79,7 @@ export const listCompositionsCommand = async (
 			indent: undefined,
 		}).serializedString,
 		timeoutInMilliseconds: puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,

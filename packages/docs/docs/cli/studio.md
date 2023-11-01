@@ -43,7 +43,7 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--port`
 
-[Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port to start the server on](/docs/config#setstudioport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 

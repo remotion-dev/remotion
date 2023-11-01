@@ -135,7 +135,6 @@ export const getCliOptions = async (options: {
 	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
-	const port = ConfigInternals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
@@ -167,7 +166,7 @@ export const getCliOptions = async (options: {
 		frameRange,
 		shouldOutputImageSequence,
 		inputProps: getInputProps(null, options.logLevel),
-		envVariables: await getEnvironmentVariables(null, options.logLevel),
+		envVariables: getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
 		browser: await getAndValidateBrowser({
 			browserExecutable,
@@ -186,7 +185,6 @@ export const getCliOptions = async (options: {
 		scale,
 		chromiumOptions,
 		overwrite,
-		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),

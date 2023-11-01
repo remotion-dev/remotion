@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -45,7 +46,6 @@ export const still = async (
 		height,
 		inputProps,
 		overwrite,
-		port,
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality,
@@ -76,7 +76,7 @@ export const still = async (
 			staticBase: null,
 		}).serializedString,
 		overwrite,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality,

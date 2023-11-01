@@ -232,10 +232,6 @@ export const parseCommandLine = () => {
 		Config.setScale(parsedCli.scale);
 	}
 
-	if (typeof parsedCli.port !== 'undefined') {
-		Config.setPort(parsedCli.port);
-	}
-
 	if (typeof parsedCli.muted !== 'undefined') {
 		Config.setMuted(parsedCli.muted);
 	}

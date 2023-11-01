@@ -3,6 +3,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getResolvedAudioCodec} from './get-audio-codec';
@@ -52,7 +53,6 @@ export const render = async (
 		browserExecutable,
 		scale,
 		chromiumOptions,
-		port,
 		everyNthFrame,
 		puppeteerTimeout,
 		publicDir,
@@ -97,7 +97,7 @@ export const render = async (
 			data: inputProps,
 		}).serializedString,
 		puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		height,
 		width,
 		remainingArgs,
