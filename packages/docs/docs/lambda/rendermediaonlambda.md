@@ -372,7 +372,7 @@ A link to CloudWatch (if you haven't disabled it) that you can visit to see the 
 
 ### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
 
-A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
+A link to the [Lambda Insights](/docs/lambda/insights), if you enabled it.
 
 ### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 

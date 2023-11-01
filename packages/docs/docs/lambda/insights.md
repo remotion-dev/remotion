@@ -5,7 +5,7 @@ title: Enable Lambda Insights
 crumb: "Lambda"
 ---
 
-# Enable Lambda insights<AvailableFrom v="4.0.61"/>
+# Enable Lambda Insights<AvailableFrom v="4.0.61"/>
 
 You may enable [AWS Lambda Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights.html) for your Remotion Lambda function.
 
@@ -14,7 +14,7 @@ You may enable [AWS Lambda Insights](https://docs.aws.amazon.com/AmazonCloudWatc
 <Step>1</Step> Ensure you are on at least Remotion v4.0.61. <br/>
 <Step>2</Step> If you started using Remotion before v4.0.61, update both your <a href="/docs/lambda/permissions#user-permissions">AWS user permission</a> and <a href="/docs/lambda/permissions#role-permissions">AWS role permission</a>, since now more permissions are needed.
 
-## Enable Lambda insights
+## Enable Lambda Insights
 
 **Via CLI**:
 
