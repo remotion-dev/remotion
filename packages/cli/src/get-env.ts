@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import dotenv from 'dotenv';
-import fs from 'node:fs';
+import fs, {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -65,14 +65,14 @@ const watchEnvFile = ({
 	return unwatch;
 };
 
-const getEnvForEnvFile = async (
+const getEnvForEnvFile = (
 	processEnv: ReturnType<typeof getProcessEnv>,
 	envFile: string,
 	onUpdate: null | ((newProps: Record<string, string>) => void),
 	logLevel: LogLevel,
 ) => {
 	try {
-		const envFileData = await fs.promises.readFile(envFile);
+		const envFileData = readFileSync(envFile);
 		if (onUpdate) {
 			if (typeof fs.watchFile === 'undefined') {
 				Log.warn(
@@ -98,7 +98,7 @@ const getEnvForEnvFile = async (
 export const getEnvironmentVariables = (
 	onUpdate: null | ((newProps: Record<string, string>) => void),
 	logLevel: LogLevel,
-): Promise<Record<string, string>> => {
+): Record<string, string> => {
 	const processEnv = getProcessEnv();
 
 	if (parsedCli['env-file']) {
@@ -148,7 +148,7 @@ export const getEnvironmentVariables = (
 			}
 		}
 
-		return Promise.resolve(processEnv);
+		return processEnv;
 	}
 
 	return getEnvForEnvFile(processEnv, defaultEnvFile, onUpdate, logLevel);

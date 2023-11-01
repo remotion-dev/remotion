@@ -166,7 +166,7 @@ export const getCliOptions = async (options: {
 		frameRange,
 		shouldOutputImageSequence,
 		inputProps: getInputProps(null, options.logLevel),
-		envVariables: await getEnvironmentVariables(null, options.logLevel),
+		envVariables: getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
 		browser: await getAndValidateBrowser({
 			browserExecutable,
