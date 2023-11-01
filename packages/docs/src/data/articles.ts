@@ -1134,6 +1134,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "lambda/insights",
+    title: "Enable Lambda Insights",
+    relativePath: "docs/lambda/insights.md",
+    compId: "articles-docs-lambda-insights",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/light-client",
     title: "Light client",
     relativePath: "docs/lambda/light-client.md",

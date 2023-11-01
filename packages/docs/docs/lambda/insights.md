@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-insights.png
 sidebar_label: Insights
 title: Enable Lambda Insights
 crumb: "Lambda"
