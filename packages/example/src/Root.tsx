@@ -65,6 +65,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -583,13 +584,17 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="features">
-				<Composition
+				<Still
 					id="mdx-test"
 					lazyComponent={() => import('./MdxTest')}
 					width={1080}
 					height={1080}
-					fps={30}
-					durationInFrames={30 * 30}
+				/>
+				<Still
+					id="watch-static"
+					component={WatchStaticDemo}
+					width={1080}
+					height={1080}
 				/>
 				<Composition
 					id="color-interpolation"
