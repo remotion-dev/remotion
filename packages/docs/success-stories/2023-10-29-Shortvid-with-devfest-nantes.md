@@ -7,9 +7,17 @@ import {MuxVideo} from '../src/components/MuxVideo';
 
 [Shortvid.io](https://shortvid.io) is an open-source project that exposes a set of Remotion customizable compositions for event communication assets under MIT license.
 
-**Hi! Tell us about Shortvid.io. How did this project start, and why?**
+<MuxVideo muxId="Fy2affKrTwxQHYm8vLL6xxKNHeEXGA7vq2VVUICBxLQ" style={{
+  width: '100%'
+}} controls poster="/img/blog/success-stories/shortvid.png"/>
+
+<br/>
 
 ![Shortvid.io logo](/img/blog/success-stories/shortvid-logo.png)
+
+<p align="center"><em style={{fontSize: "0.9em"}}>Antoine Caron and Mickael Alves have developed an event communication tool called Shortvid.</em></p>
+
+**Hi! Tell us about Shortvid.io. How did this project start, and why?**
 
 Shortvid was initiated by [Mickael Alves](https://github.com/CruuzAzul) and [Antoine Caron](https://github.com/Slashgear). The project began as a solution to create announcement videos for our [LyonJS meetup](https://lyonjs.org) events. Since we had prior experience contributing to Remotion, Shortvid's foundation, leveraging our knowledge of this technology made sense.
 
@@ -25,23 +33,21 @@ Collaborations with prominent French conferences, such as [Touraine Tech](https:
 
 **What is Devfest Nantes conference?**
 
-![Pictures of Devfest Nantes](/img/blog/success-stories/devfest-nantes-pictures.jpg)
-
 [Devfest Nantes](https://devfest.gdgnantes.com/) is a renowned annual developer conference held in Nantes, France organized by GDG Nantes team. It serves as a platform for technology enthusiasts, developers, and industry professionals to come together, exchange knowledge, and explore the latest trends in software development and technology.
 
 The conference typically features a wide range of technical talks, workshops, and sessions covering various aspects of software development, including web and mobile development, cloud computing, artificial intelligence, and more.
 
 With Shortvid, we contributed to the conference's success by creating and distributing videos that played a crucial role in promoting the event and enhancing the overall experience for attendees.
 
-**How did the GDG Nantes team use Shortvid.io?**
+![Pictures of Devfest Nantes](/img/blog/success-stories/devfest-nantes-pictures.jpg)
 
-![Picture of GDG Nantes team](/img/blog/success-stories/devfest-nantes-team.jpg)
+**How did the GDG Nantes team use Shortvid.io?**
 
 By leveraging Shortvid's free templates and customizable options, the GDG Nantes team was able to tailor video content to suit their specific needs. They could quickly generate videos that showcased event details, speaker information, and key highlights.
 
 They even used the generated videos for the TV screens all over the place in the _Cité des Congrès_ to indicate to attendees the upcoming sessions and where the conference rooms were located.
 
-![devfest-nantes.mp4](/img/blog/success-stories/devfest-nantes.mp4)
+![Picture of GDG Nantes team](/img/blog/success-stories/devfest-nantes-team.jpg)
 
 **What are the next steps for Shortvid.io?**
 
