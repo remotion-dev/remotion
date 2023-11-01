@@ -1,3 +1,5 @@
+import {parsedCli} from '../parse-command-line';
+
 let studioPort: number | undefined;
 let rendererPort: number | undefined;
 
@@ -24,14 +26,12 @@ const validatePort = (port: number | undefined) => {
 /**
  *
  * @param port
- * @deprecated Use the `setStudioPort` and `setRendererPort` prop instead
+ * @deprecated Use the `setStudioPort` and `setRendererPort` functions instead
  * @returns
  */
 export const setPort = (port: number | undefined) => {
-	validatePort(port);
-
-	studioPort = port;
-	rendererPort = port;
+	setStudioPort(port);
+	setRendererPort(port);
 };
 
 export const setStudioPort = (port: number | undefined) => {
@@ -47,4 +47,11 @@ export const setRendererPort = (port: number | undefined) => {
 };
 
 export const getStudioPort = () => studioPort;
-export const getRendererPort = () => rendererPort;
+
+export const getRendererPortFromConfigFile = () => {
+	return rendererPort ?? null;
+};
+
+export const getRendererPortFromConfigFileAndCliFlag = (): number | null => {
+	return parsedCli.port ?? rendererPort ?? null;
+};

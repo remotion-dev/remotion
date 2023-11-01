@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {
-	getRendererPort,
+	getRendererPortFromConfigFile,
 	getStudioPort,
 	setPort,
 	setRendererPort,
@@ -12,14 +12,14 @@ describe('setting preview server port', () => {
 	test.each<number>([2, 3, 3450, 8700])('accept only valid port %s', (port) => {
 		setPort(port);
 		expect(getStudioPort()).toBe(port);
-		expect(getRendererPort()).toBe(port);
+		expect(getRendererPortFromConfigFile()).toBe(port);
 	});
 
 	test.each<number>([2, 3, 3450, 8700])('accept only valid port %s', (port) => {
 		setRendererPort(port);
 		setStudioPort(port);
 		expect(getStudioPort()).toBe(port);
-		expect(getRendererPort()).toBe(port);
+		expect(getRendererPortFromConfigFile()).toBe(port);
 	});
 
 	test.each<[number | string, string]>([

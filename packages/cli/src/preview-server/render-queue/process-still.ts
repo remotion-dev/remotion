@@ -1,3 +1,4 @@
+import {getRendererPortFromConfigFile} from '../../config/preview-server';
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderStillFlow} from '../../render-flows/still';
@@ -20,7 +21,7 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {publicDir, browserExecutable, port, browser, puppeteerTimeout} =
+	const {publicDir, browserExecutable, browser, puppeteerTimeout} =
 		await getCliOptions({
 			isLambda: false,
 			type: 'still',
@@ -42,7 +43,7 @@ export const processStill = async ({
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
-		port,
+		port: getRendererPortFromConfigFile(),
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality: job.jpegQuality,

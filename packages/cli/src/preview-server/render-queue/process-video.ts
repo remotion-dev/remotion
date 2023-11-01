@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {getRendererPortFromConfigFile} from '../../config/preview-server';
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderVideoFlow} from '../../render-flows/render';
@@ -23,7 +24,7 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, port, browser, ffmpegOverride} =
+	const {publicDir, browserExecutable, browser, ffmpegOverride} =
 		await getCliOptions({
 			isLambda: false,
 			type: 'still',
@@ -43,7 +44,7 @@ export const processVideoJob = async ({
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
-		port,
+		port: getRendererPortFromConfigFile(),
 		publicDir,
 		puppeteerTimeout: job.delayRenderTimeout,
 		jpegQuality: job.jpegQuality ?? undefined,

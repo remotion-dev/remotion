@@ -33,7 +33,11 @@ import {
 } from './override-webpack';
 import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
-import {getRendererPort, getStudioPort} from './preview-server';
+import {
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
+	getStudioPort,
+} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
@@ -590,7 +594,8 @@ export const ConfigInternals = {
 	getBrowserExecutable,
 	getScale,
 	getStudioPort,
-	getRendererPort,
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,

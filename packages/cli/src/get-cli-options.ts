@@ -135,7 +135,6 @@ export const getCliOptions = async (options: {
 	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
-	const port = ConfigInternals.getRendererPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
@@ -186,7 +185,6 @@ export const getCliOptions = async (options: {
 		scale,
 		chromiumOptions,
 		overwrite,
-		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),

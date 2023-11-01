@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -162,7 +163,6 @@ export const benchmarkCommand = async (
 		envVariables,
 		browserExecutable,
 		chromiumOptions,
-		port,
 		puppeteerTimeout,
 		browser,
 		scale,
@@ -244,7 +244,7 @@ export const benchmarkCommand = async (
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		puppeteerInstance,
 		browserExecutable,
 		indent: false,
@@ -336,7 +336,7 @@ export const benchmarkCommand = async (
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 					scale: configFileScale,
-					port,
+					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
 					everyNthFrame,
 					logLevel,

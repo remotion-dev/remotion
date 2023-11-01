@@ -52,7 +52,6 @@ export const stillCommand = async (
 		height,
 		width,
 		browserExecutable,
-		port,
 		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
@@ -77,7 +76,7 @@ export const stillCommand = async (
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
@@ -99,7 +98,7 @@ export const stillCommand = async (
 					staticBase: null,
 					data: inputProps,
 				}).serializedString,
-				port,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,

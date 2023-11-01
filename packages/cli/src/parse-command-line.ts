@@ -110,8 +110,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 };
 
 export const parseCommandLine = () => {
-	const command = parsedCli._[0];
-
 	if (parsedCli['pixel-format']) {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -232,14 +230,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.setScale(parsedCli.scale);
-	}
-
-	if (typeof parsedCli.port !== 'undefined') {
-		if (command === 'studio' || command === 'preview') {
-			Config.setStudioPort(parsedCli.port);
-		} else {
-			Config.setRendererPort(parsedCli.port);
-		}
 	}
 
 	if (typeof parsedCli.muted !== 'undefined') {
