@@ -85,6 +85,8 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from './volume-position-state.js';
+import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
+import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -154,6 +156,7 @@ export const Internals = {
 	NativeLayersProvider,
 	ClipComposition,
 	isIosSafari,
+	WATCH_REMOTION_STATIC_FILES,
 } as const;
 
 export type {
@@ -170,4 +173,5 @@ export type {
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
+	WatchRemotionStaticFilesPayload,
 };

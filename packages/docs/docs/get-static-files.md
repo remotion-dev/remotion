@@ -74,3 +74,4 @@ For performance, only the first 1000 items are fetched and displayed.
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-static-files.ts)
 - [`staticFile()`](/docs/staticfile)
+- [`watchStaticFile()`](/docs/watchstaticfile)

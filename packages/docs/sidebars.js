@@ -90,6 +90,9 @@ module.exports = {
         "staticfile",
         "getstaticfiles",
         "prefetch",
+        "get-remotion-environment",
+        "version",
+        "watchstaticfile",
         "audio",
         "sequence",
         "loop",
@@ -105,8 +108,6 @@ module.exports = {
         "easing",
         "null",
         "clipper",
-        "get-remotion-environment",
-        "version",
       ],
     },
     {

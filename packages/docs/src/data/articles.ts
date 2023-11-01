@@ -2781,6 +2781,13 @@ export const articles = [
     crumb: "@remotion/media-utils",
   },
   {
+    id: "watchstaticfile",
+    title: "watchStaticFile()",
+    relativePath: "docs/watch-static-file.md",
+    compId: "articles-docs-watch-static-file",
+    crumb: "API",
+  },
+  {
     id: "wrong-composition-mount",
     title: "Wrongly mounted <Composition>",
     relativePath: "docs/wrong-composition-mount.md",
