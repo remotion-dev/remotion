@@ -33,6 +33,10 @@ export const rolePermissions: {
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
+		actions: [logs.CreateLogGroup],
+		resource: [`arn:aws:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}`],
+	},
+	{
 		actions: [logs.CreateLogStream, logs.PutLogEvents],
 		resource: [
 			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
