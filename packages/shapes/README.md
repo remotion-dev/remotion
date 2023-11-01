@@ -12,10 +12,12 @@ No dependencies are needed, meaning this package can be used independently of Re
 - [`makeCircle()`](https://remotion.dev/docs/shapes/make-circle)
 - [`makeTriangle()`](https://remotion.dev/docs/shapes/make-triangle)
 - [`makeEllipse()`](https://remotion.dev/docs/shapes/make-ellipse)
+- [`makePolygon()`](https://remotion.dev/docs/shapes/make-polygon)
 - [`<Circle />`](https://remotion.dev/docs/shapes/circle)
 - [`<Rect />`](https://remotion.dev/shapes/shapes/rect)
 - [`<Triangle />`](https://remotion.dev/shapes/shapes/triangle)
 - [`<Ellipse />`](https://remotion.dev/shapes/shapes/ellipse)
+- [`<Polygon />`](https://remotion.dev/shapes/shapes/polygon)
 
 ## License
 

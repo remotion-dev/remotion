@@ -37,7 +37,7 @@ import {
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
-import {getDesiredPort} from './get-port';
+import {getDesiredPort, getPortConfig} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -220,6 +220,7 @@ export const RenderInternals = {
 	copyImageToClipboard,
 	isIpV6Supported,
 	getChromiumGpuInformation,
+	getPortConfig,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

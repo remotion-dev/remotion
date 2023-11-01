@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.57",
+	"version": "4.0.60",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/cjs/index.js",
@@ -8,6 +8,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier src --check",
 		"watch": "tsc -w",
 		"build": "rollup --config rollup.config.js && tsc -d"
 	},

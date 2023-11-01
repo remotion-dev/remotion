@@ -31,13 +31,44 @@ Either a `string` specifying the artboard name, a `number` specifying the artboa
 
 Either a `string` specifying the animation name, a `number` specifying the animation index, otherwise the default animation is being used.
 
-## Example
+### `onLoad?`<AvailableFrom v="4.0.58" />
+
+A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type Rive `File`
+
+## Basic Example
 
 ```tsx twoslash
 import { RemotionRiveCanvas } from "@remotion/rive";
 
 function App() {
   return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
+}
+```
+
+## Set Text Run at Runtime Example
+
+This example assumes that your Rive animation has a text run named "city". See [here](https://help.rive.app/runtimes/text#low-level-api-usage) for
+more information about Text Runs on Rive.
+
+```tsx twoslash
+import { RemotionRiveCanvas } from "@remotion/rive";
+import { File } from "@rive-app/canvas-advanced";
+import { useCallback } from "react";
+
+// Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
+const onLoadHandler = useCallback((file: File) => {
+  const artboard = file.defaultArtboard();
+  const textRun = artboard.textRun("city");
+  textRun.text = "Tokyo";
+}, []);
+
+function App() {
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      onLoad={onLoadHandler}
+    />
+  );
 }
 ```
 

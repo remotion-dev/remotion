@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Log} from '../logger';
 import {assert} from './assert';
 import type {Commands} from './devtools-commands';
 import type {TargetInfo} from './devtools-types';
@@ -26,6 +27,8 @@ interface ConnectionCallback {
 	reject: Function;
 	method: string;
 	returnSize: boolean;
+	stack: string;
+	fn: string;
 }
 
 const ConnectionEmittedEvents = {
@@ -74,6 +77,8 @@ export class Connection extends EventEmitter {
 					reject,
 					method,
 					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
 				});
 			},
 		);
@@ -124,6 +129,7 @@ export class Connection extends EventEmitter {
 			// Callbacks could be all rejected if someone has called `.dispose()`.
 			if (callback) {
 				this.#callbacks.delete(object.id);
+
 				if (object.error) {
 					callback.reject(createProtocolError(callback.method, object));
 				} else if (callback.returnSize) {
@@ -241,11 +247,21 @@ export class CDPSession extends EventEmitter {
 
 		return new Promise<{value: Commands[T]['returnType']; size: number}>(
 			(resolve, reject) => {
+				if (this.#callbacks.size > 100) {
+					for (const callback of this.#callbacks.values()) {
+						Log.info(callback.fn);
+					}
+
+					throw new Error('Leak detected: Too many callbacks');
+				}
+
 				this.#callbacks.set(id, {
 					resolve,
 					reject,
 					method,
 					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
 				});
 			},
 		);

@@ -1,5 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import { Internals } from "remotion";
+import {Internals} from 'remotion';
 
 export const validateDurationInFrames: typeof Internals.validateDurationInFrames =
-  Internals.validateDurationInFrames;
+	Internals.validateDurationInFrames;
