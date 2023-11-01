@@ -242,6 +242,10 @@ export const renderCommand = async (
 	);
 	Log.verbose(
 		{indent: false, logLevel},
+		`Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+	);
+	Log.verbose(
+		{indent: false, logLevel},
 		`Render folder: ${res.folderInS3Console}`,
 	);
 	const status = await getRenderProgress({

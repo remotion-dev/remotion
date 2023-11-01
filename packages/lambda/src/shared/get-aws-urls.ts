@@ -35,6 +35,16 @@ export const getCloudwatchMethodUrl = ({
 	return cloudWatchUrlWithQuery({region, functionNameToUse, query});
 };
 
+export const getLambdaInsightsUrl = ({
+	region,
+	functionName,
+}: {
+	region: AwsRegion;
+	functionName: string;
+}) => {
+	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
+};
+
 export const getCloudwatchRendererUrl = ({
 	region,
 	functionName,

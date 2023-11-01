@@ -710,6 +710,10 @@ const completionSpec: Fig.Spec = {
                   exclusiveOn: ["--retention-period"],
                 },
                 {
+                  name: "--enable-lambda-insights",
+                  description: "Enable Lambda Insights",
+                },
+                {
                   name: "--custom-role-arn",
                   description:
                     "Set a custom role ARN to be used instead of the default",

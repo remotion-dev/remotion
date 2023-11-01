@@ -18,7 +18,10 @@ import {
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
+import {
+	getCloudwatchMethodUrl,
+	getLambdaInsightsUrl,
+} from '../shared/get-aws-urls';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -49,7 +52,11 @@ export type RenderStillOnLambdaInput = {
 	 * @deprecated Renamed to `dumpBrowserLogs`
 	 */
 	dumpBrowserLogs?: boolean;
-	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
+	onInit?: (data: {
+		renderId: string;
+		cloudWatchLogs: string;
+		lambdaInsightsUrl: string;
+	}) => void;
 	deleteAfter?: DeleteAfter | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
@@ -144,6 +151,10 @@ const renderStillOnLambdaRaw = async ({
 							region,
 							rendererFunctionName: null,
 							renderId: payload.renderId,
+						}),
+						lambdaInsightsUrl: getLambdaInsightsUrl({
+							functionName,
+							region,
 						}),
 					});
 				}
