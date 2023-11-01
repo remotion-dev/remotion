@@ -69,11 +69,9 @@ _optional_
 
 Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
-### `enableLambdaInsights`
+### `enableLambdaInsights`<AvailableFrom v="4.0.61" />
 
-_optional_
-
-Whether to enable AWS Lambda Insights for the function. Lambda Insights is a tool that provides visibility into the performance and behavior of Lambda functions. If set to true, it will enable the collection of additional metrics and logs for the function.
+<Options id="enable-lambda-insights" />
 
 ## Return value
 

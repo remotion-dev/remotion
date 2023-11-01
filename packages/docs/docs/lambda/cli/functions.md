@@ -78,9 +78,9 @@ Does not create a CloudWatch log group.
 
 Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention /> days.
 
-### `--enable-lambda-insights`
+### `--enable-lambda-insights`<AvailableFrom v="4.0.61" />
 
-Enable AWS Lambda Insights for the lambda function
+<Options id="enable-lambda-insights" />
 
 ### `--custom-role-arn`
 

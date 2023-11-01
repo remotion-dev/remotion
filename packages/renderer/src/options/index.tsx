@@ -2,6 +2,7 @@ import {audioBitrateOption} from './audio-bitrate';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
+import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
@@ -30,4 +31,5 @@ export const allOptions = {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	enableLambdaInsights,
 };
