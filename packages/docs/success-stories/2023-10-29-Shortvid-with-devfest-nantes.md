@@ -33,7 +33,7 @@ Collaborations with prominent French conferences, such as [Touraine Tech](https:
 
 **What is Devfest Nantes conference?**
 
-[Devfest Nantes](https://devfest.gdgnantes.com/) is a renowned annual developer conference held in Nantes, France organized by GDG Nantes team. It serves as a platform for technology enthusiasts, developers, and industry professionals to come together, exchange knowledge, and explore the latest trends in software development and technology.
+Devfest Nantes is a renowned annual developer conference held in Nantes, France organized by GDG Nantes team. It serves as a platform for technology enthusiasts, developers, and industry professionals to come together, exchange knowledge, and explore the latest trends in software development and technology.
 
 The conference typically features a wide range of technical talks, workshops, and sessions covering various aspects of software development, including web and mobile development, cloud computing, artificial intelligence, and more.
 
