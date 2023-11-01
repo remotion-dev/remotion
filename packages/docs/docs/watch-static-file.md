@@ -5,28 +5,33 @@ title: watchStaticFile()
 crumb: "API"
 ---
 
-_Available from v4.0.60._
+# watchStaticFile()<AvailableFrom v="4.0.61"/>
 
-Watches for changes in a specific static file and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
+Watches for changes in a specific [static file](/docs/staticfile) and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
 
 :::warning
-This feature is only available within the Remotion Studio environment.
+This feature is only available within the Remotion Studio environment. In the Player, events will never fire.
 :::
 
-## Function Signature
+## Example
 
-```ts twoslash
-import { watchStaticFile } from "remotion";
-import type {StaticFile} from './get-static-files';
+```tsx twoslash title="example.tsx"
+import { StaticFile, watchStaticFile } from "remotion";
 
-type WatcherCallback = (newData: StaticFile | null) => void;
+// Watch for changes in a specific static file
+const { cancel } = watchStaticFile(
+  "your-static-file.jpg",
+  (newData: StaticFile | null) => {
+    if (newData) {
+      console.log(`File ${newData.name} has been added or modified.`);
+    } else {
+      console.log("File has been deleted.");
+    }
+  },
+);
 
-const cancel = watchStaticFile(
-  filename: string,
-  callback: WatcherCallback
-): () => void;
-
-//cancel()
+// To stop watching for changes, call the cancel function
+cancel();
 ```
 
 ## Arguments
@@ -39,29 +44,10 @@ A name of the file in `/public` folder to watch for changes.
 
 ### `callback`
 
-A callback function that will be called when the file is modified.
-
-### Example
-
-```tsx twoslash title="example.tsx"
-import { StaticFile, watchStaticFile } from "remotion";
-
-// Watch for changes in a specific static file
-const cancelWatcher = watchStaticFile(
-  "your-static-file.jpg",
-  (newData: StaticFile | null) => {
-    if (newData) {
-      console.log(`File ${newData.name} has been added or modified.`);
-    } else {
-      console.log("File has been deleted.");
-    }
-  },
-);
-
-// To stop watching for changes, call the cancel function
-// cancelWatcher();
-```
+A callback function that will be called when the file is modified. As an argument, a [`StaticFile`](/docs/getstaticfiles#api) or `null` is passed.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/watch-static-file.ts)
+- [`staticFile()`](/docs/staticfile)
+- [`getStaticFiles()`](/docs/getstaticfiles)
