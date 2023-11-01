@@ -2,9 +2,10 @@ import type {Socket} from 'net';
 import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
-import {getDesiredPort, getPortConfig} from './get-port';
+import {getDesiredPort} from './get-port';
 import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {getPortConfig} from './port-config';
 import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (

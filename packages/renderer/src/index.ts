@@ -37,7 +37,7 @@ import {
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
-import {getDesiredPort, getPortConfig} from './get-port';
+import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -45,7 +45,6 @@ import {
 	validVideoImageFormats,
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
-import {isIpV6Supported} from './is-ipv6-supported';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -60,6 +59,7 @@ import {
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {getPortConfig, isIpV6Supported} from './port-config';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderFrames} from './render-frames';
 import {internalRenderMedia} from './render-media';
