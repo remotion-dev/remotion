@@ -11,7 +11,6 @@ import {
 } from "../../data/showcase-videos";
 import { chunk } from "../../helpers/chunk";
 import { useMobileLayout } from "../../helpers/mobile-layout";
-import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
 
@@ -41,11 +40,7 @@ const container: React.CSSProperties = {
 };
 
 const Showcase = () => {
-  const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body,
-  );
   const mobileLayout = useMobileLayout();
-  const mobileHeight = mobileLayout ? containerSize.width : null;
 
   const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
     useState(false);
@@ -124,7 +119,7 @@ const Showcase = () => {
       flexDirection: mobileLayout ? "column" : "row",
       textAlign: "left",
       justifyContent: "center",
-      alignItems: "center",
+      gap: 10,
     };
   }, [mobileLayout]);
 
@@ -164,12 +159,10 @@ const Showcase = () => {
                     return (
                       <div key={vid.muxId} style={flex1}>
                         <VideoPreview
-                          mobileHeight={mobileHeight}
                           onClick={() => {
                             setVideo(vid);
                             setUserHasInteractedWithPage(true);
                           }}
-                          mobileLayout={mobileLayout}
                           {...vid}
                         />
                       </div>

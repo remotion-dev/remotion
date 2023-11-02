@@ -27,7 +27,6 @@ const padding: React.CSSProperties = {
 };
 
 const containerTitleDescription: React.CSSProperties = {
-  width: "300px",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -39,19 +38,8 @@ export const VideoPreview: React.FC<
     title: string;
     description: React.ReactNode;
     onClick: () => void;
-    mobileLayout: boolean;
-    mobileHeight: number;
   }
-> = ({
-  title,
-  description,
-  onClick,
-  muxId,
-  mobileLayout,
-  mobileHeight,
-  width,
-  height,
-}) => {
+> = ({ title, description, onClick, muxId, width, height }) => {
   const [hover, setHover] = useState(false);
 
   const container = useRef<HTMLAnchorElement>(null);
@@ -82,52 +70,36 @@ export const VideoPreview: React.FC<
     };
   }, []);
 
-  const givenAspectRatio = width / height;
-  const maxFrameSize = 300;
-
-  const frameWidth = Math.min(maxFrameSize, maxFrameSize * givenAspectRatio);
-  const frameHeight = frameWidth / givenAspectRatio;
-
   const a: React.CSSProperties = useMemo(() => {
     return {
       color: "inherit",
       cursor: "pointer",
       margin: "auto",
-      width: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
-      maxWidth: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
       display: "block",
       flex: 1,
     };
-  }, [mobileHeight, mobileLayout, givenAspectRatio, frameWidth]);
+  }, []);
 
   const style = useMemo(() => {
     return {
-      width: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
-      height: mobileLayout ? mobileHeight : frameHeight,
+      width: "100%",
+      aspectRatio: `${width} / ${height}`,
       backgroundImage: `url(${hover ? animated : thumbnail})`,
       backgroundSize: "cover",
       backgroundPosition: "50% 50%",
     };
-  }, [
-    animated,
-    hover,
-    mobileHeight,
-    mobileLayout,
-    thumbnail,
-    givenAspectRatio,
-    frameWidth,
-    frameHeight,
-  ]);
+  }, [width, height, hover, animated, thumbnail]);
 
   const placeholder: React.CSSProperties = useMemo(() => {
     return {
       backgroundColor: "rgba(0, 0, 0, 0.05)",
+      aspectRatio: `${width} / ${height}`,
     };
-  }, []);
+  }, [height, width]);
 
   return (
     <a ref={container} style={a} className={clsx(videoStyle)} onClick={onClick}>
-      <div className="text--center" style={placeholder}>
+      <div style={placeholder}>
         <div style={style} />
       </div>
       <div style={{ ...padding, ...containerTitleDescription }}>
