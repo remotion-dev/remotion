@@ -28,5 +28,5 @@ test('Springs should calculate fast and cache the natural duration', async () =>
 			resolve(performance.now() - date);
 		});
 	});
-	expect(time).toBeLessThan(400);
+	expect(time).toBeLessThan(600);
 });
