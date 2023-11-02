@@ -1540,6 +1540,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "hls",
+    title: "HLS support (HTTP Live Streaming)",
+    relativePath: "docs/miscellaneous/snippets/hls.md",
+    compId: "articles-docs-miscellaneous-snippets-hls",
+    crumb: "Video",
+  },
+  {
     id: "miscellaneous/snippets/offthread-video-while-rendering",
     title: "<OffthreadVideo /> while rendering",
     relativePath:
