@@ -23,7 +23,7 @@ Note the following caveats:
 
 <Step>1</Step> This code only shows how to connect the video tag to the HLS stream, it has not been tested on a real project. <br/>
 <Step>2</Step> Videos with audio will not render using this code. Use an alternative source during rendering. See <a href="/docs/miscellaneous/snippets/offthread-video-while-rendering">&lt;OffthreadVideo&gt; while rendering
-</a> and <a href="/docs/getremotionenvironment"><code>getRemotionEnvironment()</code></a> for how to use different components based on whether you are rendering or previewing.<br/><br/>
+</a> and <a href="/docs/get-remotion-environment"><code>getRemotionEnvironment()</code></a> for how to use different components based on whether you are rendering or previewing.<br/><br/>
 
 ```tsx twoslash title="HlsDemo.tsx"
 import Hls from "hls.js";
