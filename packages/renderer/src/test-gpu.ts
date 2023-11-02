@@ -24,7 +24,6 @@ export const getChromiumGpuInformation = async ({
 		passedInInstance: undefined,
 		browserExecutable,
 		chromiumOptions,
-		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,

@@ -203,7 +203,6 @@ export const internalSelectCompositionRaw = async (
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
-		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
@@ -238,7 +237,7 @@ export const internalSelectCompositionRaw = async (
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
-				page.setBrowserSourceMapContext(sourceMap);
+				page.setBrowserSourceMapGetter(sourceMap);
 				cleanup.push(() => cleanupServer(true));
 
 				return innerSelectComposition({

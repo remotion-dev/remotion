@@ -5,6 +5,7 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Compositor} from './compositor/compositor';
 import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
@@ -23,7 +24,7 @@ export type RemotionServer = {
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
-	sourceMap: Promise<AnySourceMapConsumer | null>;
+	sourceMap: SourceMapGetter;
 	downloadMap: DownloadMap;
 };
 
@@ -68,25 +69,34 @@ export const prepareServer = async ({
 			offthreadVideoCacheSizeInBytes,
 		});
 
-		return Promise.resolve({
-			serveUrl: webpackConfigOrServeUrl,
-			closeServer: () => {
-				cleanDownloadMap(downloadMap);
-				return closeProxy();
-			},
-			offthreadPort,
-			compositor: comp,
-			sourceMap: getSourceMapFromRemoteUrl(
-				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
-			).catch((err) => {
+		let remoteSourceMap: AnySourceMapConsumer | null = null;
+
+		getSourceMapFromRemoteUrl(
+			getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
+		)
+			.then((s) => {
+				remoteSourceMap = s;
+			})
+			.catch((err) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Could not fetch sourcemap for ',
 					webpackConfigOrServeUrl,
 					err,
 				);
-				return null;
-			}),
+			});
+
+		return Promise.resolve({
+			serveUrl: webpackConfigOrServeUrl,
+			closeServer: () => {
+				cleanDownloadMap(downloadMap);
+				remoteSourceMap?.destroy();
+				remoteSourceMap = null;
+				return closeProxy();
+			},
+			offthreadPort,
+			compositor: comp,
+			sourceMap: () => remoteSourceMap,
 			downloadMap,
 		});
 	}
@@ -100,9 +110,22 @@ export const prepareServer = async ({
 		);
 	}
 
-	const sourceMap = getSourceMapFromLocalFile(
+	let localSourceMap: AnySourceMapConsumer | null = null;
+
+	getSourceMapFromLocalFile(
 		path.join(webpackConfigOrServeUrl, Internals.bundleName),
-	);
+	)
+		.then((s) => {
+			localSourceMap = s;
+		})
+		.catch((err) => {
+			Log.verbose(
+				{indent, logLevel},
+				'Could not fetch sourcemap for ',
+				webpackConfigOrServeUrl,
+				err,
+			);
+		});
 
 	const {
 		port: serverPort,
@@ -120,7 +143,8 @@ export const prepareServer = async ({
 
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {
-			sourceMap.then((s) => s?.destroy());
+			localSourceMap?.destroy();
+			localSourceMap = null;
 			cleanDownloadMap(downloadMap);
 			if (!force) {
 				await waitForSymbolicationToBeDone();
@@ -131,7 +155,7 @@ export const prepareServer = async ({
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
-		sourceMap,
+		sourceMap: () => localSourceMap,
 		downloadMap,
 	});
 };

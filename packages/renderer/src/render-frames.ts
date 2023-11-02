@@ -13,6 +13,7 @@ import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
@@ -48,7 +49,6 @@ import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -130,7 +130,7 @@ type InnerRenderFramesOptions = {
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: Promise<AnySourceMapConsumer | null>;
+	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -211,7 +211,7 @@ const innerRenderFrames = async ({
 	makeBrowser,
 	browserReplacer,
 	compositor,
-	sourcemapContext,
+	sourceMapGetter,
 	logLevel,
 	indent,
 	parallelEncodingEnabled,
@@ -234,7 +234,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: Promise<AnySourceMapConsumer | null>) => {
+	const makePage = async (context: SourceMapGetter) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -314,7 +314,7 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
-	const getPool = async (context: Promise<AnySourceMapConsumer | null>) => {
+	const getPool = async (context: SourceMapGetter) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));
@@ -335,7 +335,7 @@ const innerRenderFrames = async ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool(sourcemapContext);
+	const poolPromise = getPool(sourceMapGetter);
 
 	onStart?.({
 		frameCount: framesToRender.length,
@@ -542,7 +542,7 @@ const innerRenderFrames = async ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
-					.map(() => makePage(sourcemapContext));
+					.map(() => makePage(sourceMapGetter));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
@@ -715,7 +715,7 @@ const internalRenderFramesRaw = ({
 					makeBrowser,
 					browserReplacer,
 					compositor,
-					sourcemapContext: sourceMap,
+					sourceMapGetter: sourceMap,
 					downloadMap,
 					cancelSignal,
 					envVariables,
