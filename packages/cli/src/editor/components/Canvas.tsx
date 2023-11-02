@@ -23,8 +23,10 @@ import {
 } from '../helpers/get-effective-translation';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
+import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
+import {EditorRulers} from './EditorRuler';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
@@ -52,6 +54,7 @@ export const Canvas: React.FC<{
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
+	const {editorShowRulers} = useContext(EditorShowRulersContext);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -310,20 +313,30 @@ export const Canvas: React.FC<{
 	}, [fetchMetadata]);
 
 	return (
-		<div ref={ref} style={container}>
-			{size ? (
-				<VideoPreview
-					canvasContent={canvasContent}
+		<>
+			<div ref={ref} style={container}>
+				{size ? (
+					<VideoPreview
+						canvasContent={canvasContent}
+						contentDimensions={contentDimensions}
+						canvasSize={size}
+						assetMetadata={assetResolution}
+					/>
+				) : null}
+				{isFit ? null : (
+					<div style={resetZoom} className="css-reset">
+						<ResetZoomButton onClick={onReset} />
+					</div>
+				)}
+			</div>
+			{editorShowRulers && (
+				<EditorRulers
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}
+					containerRef={ref}
 				/>
-			) : null}
-			{isFit ? null : (
-				<div style={resetZoom} className="css-reset">
-					<ResetZoomButton onClick={onReset} />
-				</div>
 			)}
-		</div>
+		</>
 	);
 };

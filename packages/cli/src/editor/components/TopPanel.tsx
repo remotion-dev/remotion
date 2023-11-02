@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
+import {EditorShowRulersContext, RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasOrLoading} from './CanvasOrLoading';
 import {
@@ -30,11 +31,6 @@ const row: React.CSSProperties = {
 	minHeight: 0,
 };
 
-const canvasContainer: React.CSSProperties = {
-	flex: 1,
-	display: 'flex',
-};
-
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
 	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
@@ -57,6 +53,7 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC = () => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
+	const {editorShowRulers} = useContext(EditorShowRulersContext);
 
 	const actualStateLeft = useResponsiveSidebarStatus();
 
@@ -67,6 +64,16 @@ export const TopPanel: React.FC = () => {
 
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
+
+	const canvasContainerStyle: React.CSSProperties = useMemo(
+		() => ({
+			flex: 1,
+			display: 'flex',
+			paddingTop: editorShowRulers ? RULER_WIDTH : 0,
+			paddingLeft: editorShowRulers ? RULER_WIDTH : 0,
+		}),
+		[editorShowRulers],
+	);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedState({left: 'collapsed', right: null});
@@ -108,7 +115,7 @@ export const TopPanel: React.FC = () => {
 							orientation="vertical"
 						>
 							<SplitterElement type="flexer">
-								<div style={canvasContainer}>
+								<div style={canvasContainerStyle}>
 									<CanvasOrLoading />
 								</div>
 							</SplitterElement>
