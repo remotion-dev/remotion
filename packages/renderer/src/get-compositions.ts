@@ -170,7 +170,6 @@ const internalGetCompositionsRaw = async ({
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
-		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
@@ -206,7 +205,7 @@ const internalGetCompositionsRaw = async ({
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
-				page.setBrowserSourceMapContext(sourceMap);
+				page.setBrowserSourceMapGetter(sourceMap);
 
 				cleanup.push(() => cleanupServer(true));
 
