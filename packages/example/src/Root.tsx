@@ -23,6 +23,7 @@ import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {HlsDemo} from './Hls/HlsDemo';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
@@ -459,6 +460,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-tests">
+				<Composition
+					id="hls"
+					component={HlsDemo}
+					width={1920}
+					height={1080}
+					durationInFrames={100}
+					fps={30}
+				/>
 				<Composition
 					id="video-testing-mp4"
 					component={VideoTesting}
