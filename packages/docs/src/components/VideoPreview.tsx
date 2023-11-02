@@ -4,6 +4,7 @@ import type { ShowcaseVideo } from "../data/showcase-videos";
 
 const videoStyle: React.CSSProperties = {
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
   padding: "2rem 0",
   width: "100%",
@@ -11,11 +12,28 @@ const videoStyle: React.CSSProperties = {
 
 const videoTitle: React.CSSProperties = {
   marginTop: "1rem",
+  textAlign: "center",
+  alignSelf: "center",
+};
+
+const videoDescription: React.CSSProperties = {
+  textAlign: "center",
 };
 
 const padding: React.CSSProperties = {
-  padding: "0 var(--ifm-spacing-horizontal)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
 };
+
+const containerTitleDescription: React.CSSProperties = {
+  width: "300px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  textAlign: "center",
+};
+
 export const VideoPreview: React.FC<
   ShowcaseVideo & {
     title: string;
@@ -24,7 +42,16 @@ export const VideoPreview: React.FC<
     mobileLayout: boolean;
     mobileHeight: number;
   }
-> = ({ title, description, onClick, muxId, mobileLayout, mobileHeight }) => {
+> = ({
+  title,
+  description,
+  onClick,
+  muxId,
+  mobileLayout,
+  mobileHeight,
+  width,
+  height,
+}) => {
   const [hover, setHover] = useState(false);
 
   const container = useRef<HTMLAnchorElement>(null);
@@ -55,27 +82,42 @@ export const VideoPreview: React.FC<
     };
   }, []);
 
+  const givenAspectRatio = width / height;
+  const maxFrameSize = 300;
+
+  const frameWidth = Math.min(maxFrameSize, maxFrameSize * givenAspectRatio);
+  const frameHeight = frameWidth / givenAspectRatio;
+
   const a: React.CSSProperties = useMemo(() => {
     return {
       color: "inherit",
       cursor: "pointer",
       margin: "auto",
-      width: mobileLayout ? mobileHeight : 300,
-      maxWidth: mobileLayout ? mobileHeight : 300,
+      width: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
+      maxWidth: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
       display: "block",
       flex: 1,
     };
-  }, [mobileHeight, mobileLayout]);
+  }, [mobileHeight, mobileLayout, givenAspectRatio, frameWidth]);
 
   const style = useMemo(() => {
     return {
-      width: mobileLayout ? mobileHeight : 300,
-      height: mobileLayout ? mobileHeight : 300,
+      width: mobileLayout ? mobileHeight * givenAspectRatio : frameWidth,
+      height: mobileLayout ? mobileHeight : frameHeight,
       backgroundImage: `url(${hover ? animated : thumbnail})`,
       backgroundSize: "cover",
       backgroundPosition: "50% 50%",
     };
-  }, [animated, hover, mobileHeight, mobileLayout, thumbnail]);
+  }, [
+    animated,
+    hover,
+    mobileHeight,
+    mobileLayout,
+    thumbnail,
+    givenAspectRatio,
+    frameWidth,
+    frameHeight,
+  ]);
 
   const placeholder: React.CSSProperties = useMemo(() => {
     return {
@@ -84,18 +126,13 @@ export const VideoPreview: React.FC<
   }, []);
 
   return (
-    <a
-      ref={container}
-      style={a}
-      className={clsx("col col--4", videoStyle)}
-      onClick={onClick}
-    >
+    <a ref={container} style={a} className={clsx(videoStyle)} onClick={onClick}>
       <div className="text--center" style={placeholder}>
         <div style={style} />
       </div>
-      <div style={padding}>
+      <div style={{ ...padding, ...containerTitleDescription }}>
         <h3 style={videoTitle}>{title}</h3>
-        <p>{description}</p>
+        <p style={videoDescription}>{description}</p>
       </div>
     </a>
   );

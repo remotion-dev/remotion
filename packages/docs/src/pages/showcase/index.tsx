@@ -121,8 +121,10 @@ const Showcase = () => {
 
     return {
       display: "flex",
-      flexDirection: "row",
+      flexDirection: mobileLayout ? "column" : "row",
       textAlign: "left",
+      justifyContent: "center",
+      alignItems: "center",
     };
   }, [mobileLayout]);
 
