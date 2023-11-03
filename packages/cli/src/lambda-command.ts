@@ -1,15 +1,22 @@
+import type {LogLevel} from '@remotion/renderer';
 import {Log} from './log';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getRemotionVersion} from './preview-server/update-available';
 
-export const lambdaCommand = async (remotionRoot: string, args: string[]) => {
+export const lambdaCommand = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	try {
 		const path = require.resolve('@remotion/lambda', {
 			paths: [remotionRoot],
 		});
-		const {LambdaInternals} = require(path);
+		const {LambdaInternals} =
+			// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+			require(path) as typeof import('@remotion/lambda');
 
-		await LambdaInternals.executeCommand(args, remotionRoot);
+		await LambdaInternals.executeCommand(args, remotionRoot, logLevel);
 		process.exit(0);
 	} catch (err) {
 		const manager = getPackageManager(remotionRoot, undefined);
