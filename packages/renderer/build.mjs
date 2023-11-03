@@ -15,16 +15,6 @@ import {toolchains} from './toolchains.mjs';
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
 
-if (os.platform() === 'win32') {
-	console.log('Windows CI is broken - revisit in 14 days');
-	console.log('https://github.com/actions/runner-images/issues/8598');
-	if (Date.now() > 1698992824921) {
-		process.exit(1);
-	}
-
-	process.exit(0);
-}
-
 function isMusl() {
 	const {glibcVersionRuntime} = process.report.getReport().header;
 	return !glibcVersionRuntime;
