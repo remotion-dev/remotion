@@ -30,7 +30,10 @@ import {
 	getExpectedOutName,
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
@@ -246,8 +249,6 @@ const innerStillHandler = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
-	browserInstance.instance.forgetEventLoop();
-
 	return {
 		type: 'success' as const,
 		output: getOutputUrlFromMetadata(
@@ -339,5 +340,11 @@ export const stillHandler = async (
 		});
 
 		return res;
+	} finally {
+		forgetBrowserEventLoop(
+			options.params.type === LambdaRoutines.still
+				? options.params.logLevel
+				: 'error',
+		);
 	}
 };

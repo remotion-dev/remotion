@@ -18,7 +18,10 @@ import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -282,7 +285,6 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
-	browserInstance.instance.forgetEventLoop();
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Done!',
@@ -363,5 +365,7 @@ export const rendererHandler = async (
 		}
 
 		throw err;
+	} finally {
+		forgetBrowserEventLoop(params.logLevel);
 	}
 };
