@@ -1,4 +1,3 @@
-const log = require('why-is-node-running');
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {LogOptions} from '@remotion/renderer';
