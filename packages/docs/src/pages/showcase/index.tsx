@@ -9,7 +9,6 @@ import {
   showcaseVideos,
   shuffledShowcaseVideos,
 } from "../../data/showcase-videos";
-import { chunk } from "../../helpers/chunk";
 import { useMobileLayout } from "../../helpers/mobile-layout";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
@@ -29,14 +28,13 @@ const PageHeader: React.FC = () => {
   );
 };
 
-const flex1: React.CSSProperties = {
-  flex: 1,
-};
-
 const container: React.CSSProperties = {
   maxWidth: "var(--ifm-container-width)",
   width: "100%",
   margin: "auto",
+  marginTop: 50,
+  paddingLeft: 20,
+  paddingRight: 20,
 };
 
 const Showcase = () => {
@@ -108,22 +106,15 @@ const Showcase = () => {
   const layoutStyle: React.CSSProperties = useMemo(() => {
     if (mobileLayout) {
       return {
-        display: "flex",
-        flexDirection: "column",
-        textAlign: "left",
+        width: "100%",
+        marginBottom: 20,
       };
     }
 
     return {
-      display: "flex",
-      flexDirection: mobileLayout ? "column" : "row",
-      textAlign: "left",
-      justifyContent: "center",
-      gap: 10,
+      display: "inline-block",
     };
   }, [mobileLayout]);
-
-  const chunks = chunk(shuffledShowcaseVideos, 3);
 
   return (
     <Layout>
@@ -151,25 +142,18 @@ const Showcase = () => {
 
       <main>
         <section className={styles.videos}>
-          <div style={container}>
-            {chunks.map((c) => {
+          <div className={styles.container} style={container}>
+            {shuffledShowcaseVideos.map((vid) => {
               return (
-                <div key={c.map((c_) => c_.muxId).join("")} style={layoutStyle}>
-                  {c.map((vid) => {
-                    return (
-                      <div key={vid.muxId} style={flex1}>
-                        <VideoPreview
-                          onClick={() => {
-                            setVideo(vid);
-                            setUserHasInteractedWithPage(true);
-                          }}
-                          {...vid}
-                        />
-                      </div>
-                    );
-                  })}
-                  {c.length < 3 ? <div style={flex1} /> : null}
-                  {c.length < 2 ? <div style={flex1} /> : null}
+                // eslint-disable-next-line react/jsx-key
+                <div style={layoutStyle}>
+                  <VideoPreview
+                    onClick={() => {
+                      setVideo(vid);
+                      setUserHasInteractedWithPage(true);
+                    }}
+                    {...vid}
+                  />
                 </div>
               );
             })}
