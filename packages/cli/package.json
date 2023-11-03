@@ -64,7 +64,6 @@
 		"@types/semver": "^7.3.4",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
-		"@remotion/lambda": "workspace:*",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",

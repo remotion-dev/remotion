@@ -218,9 +218,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
-      '@remotion/lambda':
-        specifier: workspace:*
-        version: link:../lambda
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind

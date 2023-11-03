@@ -12,9 +12,7 @@ export const lambdaCommand = async (
 		const path = require.resolve('@remotion/lambda', {
 			paths: [remotionRoot],
 		});
-		const {LambdaInternals} =
-			// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-			require(path) as typeof import('@remotion/lambda');
+		const {LambdaInternals} = require(path);
 
 		await LambdaInternals.executeCommand(args, remotionRoot, logLevel);
 		process.exit(0);
