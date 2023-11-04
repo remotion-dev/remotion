@@ -15,7 +15,7 @@ const FadePresentation: React.FC<
 		return {
 			opacity: presentationDirection === 'entering' ? presentationProgress : 1,
 		};
-	}, [presentationDirection, presentationProgress]);
+	}, [presentationDirection === 'entering', presentationProgress]);
 
 	return (
 		<AbsoluteFill>

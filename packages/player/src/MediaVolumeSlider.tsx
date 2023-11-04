@@ -47,7 +47,7 @@ export const MediaVolumeSlider: React.FC<{
 		}
 
 		setMediaMuted((mute) => !mute);
-	}, [mediaVolume, setMediaMuted, setMediaVolume]);
+	}, [mediaVolume === 0, setMediaMuted, setMediaVolume]);
 
 	const parentDivStyle: React.CSSProperties = useMemo(() => {
 		return {

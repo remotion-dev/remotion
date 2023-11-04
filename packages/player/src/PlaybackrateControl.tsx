@@ -77,7 +77,7 @@ const PlaybackrateOption: React.FC<{
 			backgroundColor:
 				hovered || keyboardSelectedRate === rate ? '#eee' : 'transparent',
 		};
-	}, [hovered, keyboardSelectedRate, rate]);
+	}, [hovered, keyboardSelectedRate === rate]);
 
 	return (
 		<div
@@ -240,9 +240,9 @@ export const PlaybackrateControl: React.FC<{
 		(e) => {
 			e.stopPropagation();
 			e.preventDefault();
-			setIsComponentVisible(!isComponentVisible);
+			setIsComponentVisible((prevIsComponentVisible) => !prevIsComponentVisible);
 		},
-		[isComponentVisible, setIsComponentVisible],
+		[setIsComponentVisible],
 	);
 
 	return (

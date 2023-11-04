@@ -75,13 +75,13 @@ export const ResolveCompositionConfig: React.FC<
 		return selectedComposition
 			? allEditorProps[selectedComposition.id] ?? {}
 			: {};
-	}, [allEditorProps, selectedComposition]);
+	}, [allEditorProps[selectedComposition?.id], selectedComposition]);
 
 	const renderModalProps = useMemo(() => {
 		return renderModalComposition
 			? allEditorProps[renderModalComposition.id] ?? {}
 			: {};
-	}, [allEditorProps, renderModalComposition]);
+	}, [allEditorProps[renderModalComposition?.id], renderModalComposition]);
 
 	const doResolution = useCallback(
 		(composition: AnyComposition, editorProps: object) => {
@@ -253,7 +253,7 @@ export const useResolvedVideoConfig = (
 
 	const selectedEditorProps = useMemo(() => {
 		return composition ? allEditorProps[composition.id] ?? {} : {};
-	}, [allEditorProps, composition]);
+	}, [allEditorProps[composition?.id], composition]);
 
 	return useMemo(() => {
 		if (!composition) {
@@ -301,5 +301,5 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context, currentCompositionMetadata, selectedEditorProps]);
+	}, [composition, context[composition?.id], currentCompositionMetadata, selectedEditorProps]);
 };

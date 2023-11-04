@@ -97,7 +97,7 @@ export const PlayerSeekBar: React.FC<{
 			});
 			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing, onSeekStart],
+		[!size, size.left, durationInFrames, pause, seek, playing, onSeekStart],
 	);
 
 	const onPointerMove = useCallback(
@@ -170,7 +170,7 @@ export const PlayerSeekBar: React.FC<{
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
 		};
-	}, [barHovered, durationInFrames, frame, size]);
+	}, [barHovered, durationInFrames, frame, size?.width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
