@@ -1,5 +1,6 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
+import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 
 interface Point {
@@ -27,6 +28,16 @@ const Ruler: React.FC<RulerProps> = ({
 	orientation,
 }) => {
 	const rulerCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const {
+		shouldCreateGuideRef,
+		guidesList,
+		setGuidesList,
+		selectedGuideIndex,
+		setSelectedGuideIndex,
+	} = useContext(EditorShowGuidesContext);
+	const [cursor, setCursor] = useState<'ew-resize' | 'ns-resize' | 'no-drop'>(
+		orientation === 'vertical' ? 'ew-resize' : 'ns-resize',
+	);
 
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({
@@ -62,9 +73,16 @@ const Ruler: React.FC<RulerProps> = ({
 				: {
 						top: 0,
 				  }),
+			cursor,
 		}),
-		[orientation, rulerWidth, rulerHeight],
+		[orientation, rulerWidth, rulerHeight, cursor],
 	);
+
+	useEffect(() => {
+		if (selectedGuideIndex === -1) {
+			setCursor(orientation === 'vertical' ? 'ew-resize' : 'ns-resize');
+		}
+	}, [selectedGuideIndex, orientation]);
 
 	return (
 		<canvas
@@ -72,6 +90,33 @@ const Ruler: React.FC<RulerProps> = ({
 			width={rulerWidth * devicePixelRatio}
 			height={rulerHeight * devicePixelRatio}
 			style={rulerStyle}
+			onMouseDown={(e) => {
+				e.preventDefault();
+				shouldCreateGuideRef.current = true;
+				document.body.style.cursor = 'no-drop';
+				setSelectedGuideIndex(() => guidesList.length);
+				setGuidesList((prevState) => {
+					return [
+						...prevState,
+						{
+							orientation,
+							position: -originOffset / scale,
+						},
+					];
+				});
+			}}
+			onMouseEnter={(e) => {
+				e.preventDefault();
+				if (selectedGuideIndex !== -1) {
+					setCursor('no-drop');
+				}
+			}}
+			onMouseLeave={(e) => {
+				e.preventDefault();
+				if (selectedGuideIndex !== -1) {
+					setCursor('no-drop');
+				}
+			}}
 		/>
 	);
 };

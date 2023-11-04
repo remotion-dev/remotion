@@ -23,9 +23,11 @@ import {
 } from '../helpers/get-effective-translation';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
+import {EditorGuides} from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
@@ -55,6 +57,7 @@ export const Canvas: React.FC<{
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
 	const {editorShowRulers} = useContext(EditorShowRulersContext);
+	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -327,6 +330,13 @@ export const Canvas: React.FC<{
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />
 					</div>
+				)}
+				{editorShowGuides && (
+					<EditorGuides
+						canvasSize={size}
+						contentDimensions={contentDimensions}
+						assetMetadata={assetResolution}
+					/>
 				)}
 			</div>
 			{editorShowRulers && (

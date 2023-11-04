@@ -3,6 +3,25 @@ import {createContext} from 'react';
 type State = {
 	editorShowGuides: boolean;
 	setEditorShowGuides: (cb: (prevState: boolean) => boolean) => void;
+	guidesList: {
+		orientation: 'horizontal' | 'vertical';
+		position: number;
+	}[];
+	setGuidesList: (
+		cb: (
+			prevState: {
+				orientation: 'horizontal' | 'vertical';
+				position: number;
+			}[],
+		) => {
+			orientation: 'horizontal' | 'vertical';
+			position: number;
+		}[],
+	) => void;
+	selectedGuideIndex: number;
+	setSelectedGuideIndex: (cb: (prevState: number) => number) => void;
+	shouldCreateGuideRef: React.MutableRefObject<boolean>;
+	shouldDeleteGuideRef: React.MutableRefObject<boolean>;
 };
 
 export const persistEditorShowGuidesOption = (option: boolean) => {
@@ -17,4 +36,10 @@ export const loadEditorShowGuidesOption = (): boolean => {
 export const EditorShowGuidesContext = createContext<State>({
 	editorShowGuides: loadEditorShowGuidesOption(),
 	setEditorShowGuides: () => undefined,
+	guidesList: [],
+	setGuidesList: () => undefined,
+	selectedGuideIndex: -1,
+	setSelectedGuideIndex: () => undefined,
+	shouldCreateGuideRef: {current: false},
+	shouldDeleteGuideRef: {current: false},
 });

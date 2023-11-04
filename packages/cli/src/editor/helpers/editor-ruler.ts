@@ -35,10 +35,9 @@ export const drawMarkingOnRulerCanvas = ({
 	context.strokeStyle = '#dbe3e8';
 	context.lineWidth = 1;
 	context.beginPath();
-
-	context.strokeStyle = '#dbe3e8';
-	context.lineWidth = 1;
 	points.forEach((point) => {
+		context.strokeStyle = '#dbe3e8';
+		context.lineWidth = 1;
 		const originDistance = point.position + originOffset - startMarking * scale;
 		context.beginPath();
 		if (orientation === 'horizontal') {

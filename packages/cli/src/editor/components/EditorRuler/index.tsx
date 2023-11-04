@@ -1,15 +1,16 @@
-import {PlayerInternals, type Size} from '@remotion/player';
-import React, {useContext, useMemo} from 'react';
+import {type Size} from '@remotion/player';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
+import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
+import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {
 	MAXIMUM_PREDEFINED_RULER_SCALE_GAP,
 	MINIMUM_RULER_MARKING_GAP_PX,
 	PREDEFINED_RULER_SCALE_GAPS,
 	RULER_WIDTH,
 } from '../../state/editor-rulers';
-import {PreviewSizeContext} from '../../state/preview-size';
 import Ruler from './Ruler';
 
 const originBlockStyles: React.CSSProperties = {
@@ -29,59 +30,19 @@ export const EditorRulers: React.FC<{
 	assetMetadata: AssetMetadata | null;
 	containerRef: React.RefObject<HTMLDivElement>;
 }> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
-	const {size: previewSize} = useContext(PreviewSizeContext);
-
-	const {centerX, centerY, scale} = useMemo(() => {
-		if (
-			contentDimensions === 'none' ||
-			contentDimensions === null ||
-			(assetMetadata && assetMetadata.type === 'not-found') ||
-			!canvasSize
-		) {
-			return {
-				centerX: previewSize.translation.x,
-				centerY: previewSize.translation.y,
-				scale: 1,
-			};
-		}
-
-		return PlayerInternals.calculateCanvasTransformation({
-			canvasSize,
-			compositionHeight: contentDimensions.height,
-			compositionWidth: contentDimensions.width,
-			previewSize: previewSize.size,
-		});
-	}, [
+	const {scale, canvasDimensions} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
-		previewSize.size,
-		previewSize.translation.y,
-		previewSize.translation.x,
 		assetMetadata,
-	]);
+	});
 
-	const canvasDimensions = useMemo(() => {
-		return {
-			left: centerX - previewSize.translation.x,
-			top: centerY - previewSize.translation.y,
-			width:
-				contentDimensions === 'none' || !contentDimensions
-					? canvasSize?.width || 0
-					: contentDimensions.width * scale,
-			height:
-				contentDimensions === 'none' || !contentDimensions
-					? canvasSize?.height || 0
-					: contentDimensions.height * scale,
-		};
-	}, [
-		scale,
-		centerX,
-		previewSize.translation.x,
-		previewSize.translation.y,
-		centerY,
-		canvasSize,
-		contentDimensions,
-	]);
+	const {
+		shouldCreateGuideRef,
+		shouldDeleteGuideRef,
+		setGuidesList,
+		selectedGuideIndex,
+		setSelectedGuideIndex,
+	} = useContext(EditorShowGuidesContext);
 
 	const rulerMarkingGaps = useMemo(() => {
 		const minimumGap = MINIMUM_RULER_MARKING_GAP_PX;
@@ -135,6 +96,101 @@ export const EditorRulers: React.FC<{
 				}),
 			[verticalRulerScaleRange, rulerMarkingGaps, scale],
 		);
+
+	const onMouseMove = useCallback(
+		(e: PointerEvent) => {
+			const {clientX: mouseX, clientY: mouseY} = e;
+			const {
+				left: containerLeft = 0,
+				top: containerTop = 0,
+				right: containerRight = 0,
+				bottom: containerBottom = 0,
+			} = containerRef.current?.getBoundingClientRect() || {};
+			if (
+				mouseX < containerLeft ||
+				mouseX > containerRight ||
+				mouseY < containerTop ||
+				mouseY > containerBottom
+			) {
+				if (!shouldDeleteGuideRef.current) {
+					shouldDeleteGuideRef.current = true;
+				}
+
+				if (document.body.style.cursor !== 'no-drop') {
+					document.body.style.cursor = 'no-drop';
+				}
+			} else {
+				if (shouldDeleteGuideRef.current) {
+					shouldDeleteGuideRef.current = false;
+				}
+
+				setGuidesList((prevState) => {
+					const selectedGuide = prevState[selectedGuideIndex];
+					const desiredCursor =
+						selectedGuide?.orientation === 'vertical'
+							? 'ew-resize'
+							: 'ns-resize';
+					if (document.body.style.cursor !== desiredCursor) {
+						document.body.style.cursor = desiredCursor;
+					}
+
+					const newGuidesList = [...prevState];
+					const position =
+						selectedGuide?.orientation === 'vertical'
+							? (mouseX - containerLeft) / scale - canvasDimensions.left / scale
+							: (mouseY - containerTop) / scale - canvasDimensions.top / scale;
+					newGuidesList[selectedGuideIndex] = {
+						...newGuidesList[selectedGuideIndex],
+						position: Math.floor(position / 1.0),
+					};
+					return newGuidesList;
+				});
+			}
+		},
+		[
+			containerRef,
+			shouldDeleteGuideRef,
+			selectedGuideIndex,
+			scale,
+			setGuidesList,
+			canvasDimensions.left,
+			canvasDimensions.top,
+		],
+	);
+
+	const onMouseUp = useCallback(() => {
+		if (shouldDeleteGuideRef.current) {
+			setGuidesList((prevState) => {
+				return prevState.filter((_, index) => index !== selectedGuideIndex);
+			});
+		}
+
+		shouldDeleteGuideRef.current = false;
+		document.body.style.cursor = 'auto';
+		shouldCreateGuideRef.current = false;
+		setSelectedGuideIndex(() => -1);
+		document.removeEventListener('pointerup', onMouseUp);
+		document.removeEventListener('pointermove', onMouseMove);
+	}, [
+		selectedGuideIndex,
+		shouldCreateGuideRef,
+		shouldDeleteGuideRef,
+		setSelectedGuideIndex,
+		setGuidesList,
+		onMouseMove,
+	]);
+
+	useEffect(() => {
+		if (selectedGuideIndex !== -1) {
+			document.addEventListener('pointermove', onMouseMove);
+			document.addEventListener('pointerup', onMouseUp);
+		}
+
+		return () => {
+			document.removeEventListener('pointermove', onMouseMove);
+			document.removeEventListener('pointerup', onMouseUp);
+		};
+	}, [selectedGuideIndex, onMouseMove, onMouseUp]);
 
 	return (
 		<>
