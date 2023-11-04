@@ -222,22 +222,24 @@ const innerSetPropsAndEnv = async ({
 export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
 	let timeout: NodeJS.Timeout | null = null;
 
-	const result = await Promise.race([
-		innerSetPropsAndEnv(params),
-		new Promise((_, reject) => {
-			timeout = setTimeout(() => {
-				reject(
-					new Error(
-						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
-					),
-				);
-			}, params.timeoutInMilliseconds);
-		}),
-	]);
+	try {
+		const result = await Promise.race([
+			innerSetPropsAndEnv(params),
+			new Promise((_, reject) => {
+				timeout = setTimeout(() => {
+					reject(
+						new Error(
+							`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+						),
+					);
+				}, params.timeoutInMilliseconds);
+			}),
+		]);
 
-	if (timeout !== null) {
-		clearTimeout(timeout);
+		return result;
+	} finally {
+		if (timeout !== null) {
+			clearTimeout(timeout);
+		}
 	}
-
-	return result;
 };
