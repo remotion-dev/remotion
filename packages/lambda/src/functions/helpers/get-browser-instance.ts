@@ -43,6 +43,14 @@ const waitForLaunched = () => {
 	});
 };
 
+export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Keeping browser open for next invocation',
+	);
+	_browserInstance?.instance.forgetEventLoop();
+};
+
 export const getBrowserInstance = async (
 	logLevel: LogLevel,
 	indent: boolean,
