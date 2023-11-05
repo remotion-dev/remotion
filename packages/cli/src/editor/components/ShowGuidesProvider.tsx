@@ -12,6 +12,7 @@ export const ShowGuidesProvider: React.FC<{
 		{
 			orientation: 'horizontal' | 'vertical';
 			position: number;
+			show: boolean;
 		}[]
 	>([]);
 	const [selectedGuideIndex, setSelectedGuideIndex] = useState(-1);

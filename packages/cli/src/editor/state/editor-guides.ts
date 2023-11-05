@@ -6,16 +6,19 @@ type State = {
 	guidesList: {
 		orientation: 'horizontal' | 'vertical';
 		position: number;
+		show: boolean;
 	}[];
 	setGuidesList: (
 		cb: (
 			prevState: {
 				orientation: 'horizontal' | 'vertical';
 				position: number;
+				show: boolean;
 			}[],
 		) => {
 			orientation: 'horizontal' | 'vertical';
 			position: number;
+			show: boolean;
 		}[],
 	) => void;
 	selectedGuideIndex: number;

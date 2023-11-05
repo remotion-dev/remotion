@@ -119,6 +119,15 @@ export const EditorRulers: React.FC<{
 				if (document.body.style.cursor !== 'no-drop') {
 					document.body.style.cursor = 'no-drop';
 				}
+
+				setGuidesList((prevState) => {
+					const newGuidesList = [...prevState];
+					newGuidesList[selectedGuideIndex] = {
+						...newGuidesList[selectedGuideIndex],
+						show: false,
+					};
+					return newGuidesList;
+				});
 			} else {
 				if (shouldDeleteGuideRef.current) {
 					shouldDeleteGuideRef.current = false;
@@ -142,6 +151,7 @@ export const EditorRulers: React.FC<{
 					newGuidesList[selectedGuideIndex] = {
 						...newGuidesList[selectedGuideIndex],
 						position: Math.floor(position / 1.0),
+						show: true,
 					};
 					return newGuidesList;
 				});

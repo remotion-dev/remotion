@@ -7,6 +7,7 @@ const Guide: React.FC<{
 	guideDetails: {
 		position: number;
 		orientation: 'horizontal' | 'vertical';
+		show: boolean;
 	};
 	index: number;
 	canvasDimensions: {
@@ -46,8 +47,9 @@ const Guide: React.FC<{
 			minHeight: `${isVerticalGuide ? `calc(100% + ${RULER_WIDTH}px` : '1px'}`,
 			top: `${isVerticalGuide ? `-${RULER_WIDTH}px` : '0px'}`,
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
+			display: guideDetails.show ? 'block' : 'none',
 		};
-	}, [isVerticalGuide]);
+	}, [isVerticalGuide, guideDetails.show]);
 
 	const onMouseDown = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

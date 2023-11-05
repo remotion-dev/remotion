@@ -89,6 +89,7 @@ const Ruler: React.FC<RulerProps> = ({
 					{
 						orientation,
 						position: -originOffset,
+						show: false,
 					},
 				];
 			});
