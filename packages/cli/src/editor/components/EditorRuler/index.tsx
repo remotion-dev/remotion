@@ -1,5 +1,11 @@
 import {type Size} from '@remotion/player';
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
@@ -97,65 +103,75 @@ export const EditorRulers: React.FC<{
 			[verticalRulerScaleRange, rulerMarkingGaps, scale],
 		);
 
+	const requestAnimationFrameRef = useRef<number | null>(null);
+
 	const onMouseMove = useCallback(
 		(e: PointerEvent) => {
-			const {clientX: mouseX, clientY: mouseY} = e;
-			const {
-				left: containerLeft = 0,
-				top: containerTop = 0,
-				right: containerRight = 0,
-				bottom: containerBottom = 0,
-			} = containerRef.current?.getBoundingClientRect() || {};
-			if (
-				mouseX < containerLeft ||
-				mouseX > containerRight ||
-				mouseY < containerTop ||
-				mouseY > containerBottom
-			) {
-				if (!shouldDeleteGuideRef.current) {
-					shouldDeleteGuideRef.current = true;
-				}
+			if (requestAnimationFrameRef.current) {
+				cancelAnimationFrame(requestAnimationFrameRef.current);
+			}
 
-				if (document.body.style.cursor !== 'no-drop') {
-					document.body.style.cursor = 'no-drop';
-				}
-
-				setGuidesList((prevState) => {
-					const newGuidesList = [...prevState];
-					newGuidesList[selectedGuideIndex] = {
-						...newGuidesList[selectedGuideIndex],
-						show: false,
-					};
-					return newGuidesList;
-				});
-			} else {
-				if (shouldDeleteGuideRef.current) {
-					shouldDeleteGuideRef.current = false;
-				}
-
-				setGuidesList((prevState) => {
-					const selectedGuide = prevState[selectedGuideIndex];
-					const desiredCursor =
-						selectedGuide?.orientation === 'vertical'
-							? 'ew-resize'
-							: 'ns-resize';
-					if (document.body.style.cursor !== desiredCursor) {
-						document.body.style.cursor = desiredCursor;
+			requestAnimationFrameRef.current = requestAnimationFrame(() => {
+				const {clientX: mouseX, clientY: mouseY} = e;
+				const {
+					left: containerLeft = 0,
+					top: containerTop = 0,
+					right: containerRight = 0,
+					bottom: containerBottom = 0,
+				} = containerRef.current?.getBoundingClientRect() || {};
+				if (
+					mouseX < containerLeft ||
+					mouseX > containerRight ||
+					mouseY < containerTop ||
+					mouseY > containerBottom
+				) {
+					if (!shouldDeleteGuideRef.current) {
+						shouldDeleteGuideRef.current = true;
 					}
 
-					const newGuidesList = [...prevState];
-					const position =
-						selectedGuide?.orientation === 'vertical'
-							? (mouseX - containerLeft) / scale - canvasDimensions.left / scale
-							: (mouseY - containerTop) / scale - canvasDimensions.top / scale;
-					newGuidesList[selectedGuideIndex] = {
-						...newGuidesList[selectedGuideIndex],
-						position: Math.floor(position / 1.0),
-						show: true,
-					};
-					return newGuidesList;
-				});
-			}
+					if (document.body.style.cursor !== 'no-drop') {
+						document.body.style.cursor = 'no-drop';
+					}
+
+					setGuidesList((prevState) => {
+						const newGuidesList = [...prevState];
+						newGuidesList[selectedGuideIndex] = {
+							...newGuidesList[selectedGuideIndex],
+							show: false,
+						};
+						return newGuidesList;
+					});
+				} else {
+					if (shouldDeleteGuideRef.current) {
+						shouldDeleteGuideRef.current = false;
+					}
+
+					setGuidesList((prevState) => {
+						const selectedGuide = prevState[selectedGuideIndex];
+						const desiredCursor =
+							selectedGuide?.orientation === 'vertical'
+								? 'ew-resize'
+								: 'ns-resize';
+						if (document.body.style.cursor !== desiredCursor) {
+							document.body.style.cursor = desiredCursor;
+						}
+
+						const newGuidesList = [...prevState];
+						const position =
+							selectedGuide?.orientation === 'vertical'
+								? (mouseX - containerLeft) / scale -
+								  canvasDimensions.left / scale
+								: (mouseY - containerTop) / scale -
+								  canvasDimensions.top / scale;
+						newGuidesList[selectedGuideIndex] = {
+							...newGuidesList[selectedGuideIndex],
+							position: Math.floor(position / 1.0),
+							show: true,
+						};
+						return newGuidesList;
+					});
+				}
+			});
 		},
 		[
 			containerRef,
@@ -199,6 +215,9 @@ export const EditorRulers: React.FC<{
 		return () => {
 			document.removeEventListener('pointermove', onMouseMove);
 			document.removeEventListener('pointerup', onMouseUp);
+			if (requestAnimationFrameRef.current) {
+				cancelAnimationFrame(requestAnimationFrameRef.current);
+			}
 		};
 	}, [selectedGuideIndex, onMouseMove, onMouseUp]);
 
