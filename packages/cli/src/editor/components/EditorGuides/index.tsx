@@ -6,7 +6,7 @@ import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensi
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import Guide from './Guide';
 
-export const EditorGuides: React.FC<{
+const EditorGuides: React.FC<{
 	canvasSize: Size | null;
 	contentDimensions: Dimensions | 'none' | null;
 	assetMetadata: AssetMetadata | null;
@@ -35,3 +35,5 @@ export const EditorGuides: React.FC<{
 		</>
 	);
 };
+
+export default EditorGuides;

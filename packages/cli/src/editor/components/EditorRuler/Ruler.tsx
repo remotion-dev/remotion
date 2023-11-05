@@ -1,4 +1,11 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
@@ -28,6 +35,7 @@ const Ruler: React.FC<RulerProps> = ({
 	orientation,
 }) => {
 	const rulerCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const isVerticalRuler = orientation === 'vertical';
 	const {
 		shouldCreateGuideRef,
 		guidesList,
@@ -36,7 +44,7 @@ const Ruler: React.FC<RulerProps> = ({
 		setSelectedGuideIndex,
 	} = useContext(EditorShowGuidesContext);
 	const [cursor, setCursor] = useState<'ew-resize' | 'ns-resize' | 'no-drop'>(
-		orientation === 'vertical' ? 'ew-resize' : 'ns-resize',
+		isVerticalRuler ? 'ew-resize' : 'ns-resize',
 	);
 
 	useEffect(() => {
@@ -51,14 +59,10 @@ const Ruler: React.FC<RulerProps> = ({
 		});
 	}, [scale, points, startMarking, originOffset, markingGaps, orientation]);
 
-	const canvasContainerWidth =
-		containerRef.current?.getBoundingClientRect()?.width || 0;
-	const canvasContainerHeight =
-		containerRef.current?.getBoundingClientRect()?.height || 0;
-	const rulerWidth =
-		orientation === 'horizontal' ? canvasContainerWidth : RULER_WIDTH;
-	const rulerHeight =
-		orientation === 'horizontal' ? RULER_WIDTH : canvasContainerHeight;
+	const {width: canvasContainerWidth, height: canvasContainerHeight} =
+		containerRef.current?.getBoundingClientRect() || {width: 0, height: 0};
+	const rulerWidth = isVerticalRuler ? RULER_WIDTH : canvasContainerWidth;
+	const rulerHeight = isVerticalRuler ? canvasContainerHeight : RULER_WIDTH;
 
 	const rulerStyle: React.CSSProperties = useMemo(
 		() => ({
@@ -66,23 +70,54 @@ const Ruler: React.FC<RulerProps> = ({
 			background: '#000000',
 			width: `${rulerWidth}px`,
 			height: `${rulerHeight}px`,
-			...(orientation === 'vertical'
-				? {
-						left: 0,
-				  }
-				: {
-						top: 0,
-				  }),
+			left: isVerticalRuler ? 0 : 'unset',
+			top: isVerticalRuler ? 'unset' : 0,
 			cursor,
 		}),
-		[orientation, rulerWidth, rulerHeight, cursor],
+		[rulerWidth, rulerHeight, cursor, isVerticalRuler],
+	);
+
+	const onMouseDown = useCallback(
+		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+			e.preventDefault();
+			shouldCreateGuideRef.current = true;
+			document.body.style.cursor = 'no-drop';
+			setSelectedGuideIndex(() => guidesList.length);
+			setGuidesList((prevState) => {
+				return [
+					...prevState,
+					{
+						orientation,
+						position: -originOffset,
+					},
+				];
+			});
+		},
+		[
+			shouldCreateGuideRef,
+			setSelectedGuideIndex,
+			setGuidesList,
+			guidesList.length,
+			orientation,
+			originOffset,
+		],
+	);
+
+	const changeCursor = useCallback(
+		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+			e.preventDefault();
+			if (selectedGuideIndex !== -1) {
+				setCursor('no-drop');
+			}
+		},
+		[setCursor, selectedGuideIndex],
 	);
 
 	useEffect(() => {
 		if (selectedGuideIndex === -1) {
-			setCursor(orientation === 'vertical' ? 'ew-resize' : 'ns-resize');
+			setCursor(isVerticalRuler ? 'ew-resize' : 'ns-resize');
 		}
-	}, [selectedGuideIndex, orientation]);
+	}, [selectedGuideIndex, isVerticalRuler]);
 
 	return (
 		<canvas
@@ -90,33 +125,9 @@ const Ruler: React.FC<RulerProps> = ({
 			width={rulerWidth * devicePixelRatio}
 			height={rulerHeight * devicePixelRatio}
 			style={rulerStyle}
-			onMouseDown={(e) => {
-				e.preventDefault();
-				shouldCreateGuideRef.current = true;
-				document.body.style.cursor = 'no-drop';
-				setSelectedGuideIndex(() => guidesList.length);
-				setGuidesList((prevState) => {
-					return [
-						...prevState,
-						{
-							orientation,
-							position: -originOffset / scale,
-						},
-					];
-				});
-			}}
-			onMouseEnter={(e) => {
-				e.preventDefault();
-				if (selectedGuideIndex !== -1) {
-					setCursor('no-drop');
-				}
-			}}
-			onMouseLeave={(e) => {
-				e.preventDefault();
-				if (selectedGuideIndex !== -1) {
-					setCursor('no-drop');
-				}
-			}}
+			onMouseDown={onMouseDown}
+			onMouseEnter={changeCursor}
+			onMouseLeave={changeCursor}
 		/>
 	);
 };

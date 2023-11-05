@@ -27,7 +27,7 @@ import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
-import {EditorGuides} from './EditorGuides';
+import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
