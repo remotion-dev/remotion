@@ -60,8 +60,15 @@ const GuideComp: React.FC<{
 	);
 
 	return (
-		<div style={guideStyle} onMouseDown={onMouseDown} className="editor-guide">
-			<div style={guideContentStyle} className="editor-guide-content" />
+		<div
+			style={guideStyle}
+			onMouseDown={onMouseDown}
+			className="__remotion_editor_guide"
+		>
+			<div
+				style={guideContentStyle}
+				className="__remotion_editor_guide_content"
+			/>
 		</div>
 	);
 };

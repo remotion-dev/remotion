@@ -122,9 +122,9 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	position: relative;
 }
 
-.editor-guide-content {
+.__remotion_editor_guide_content {
 	background: #7e1219;
 }
-.editor-guide:hover .editor-guide-content {
+.__remotion_editor_guide:hover .__remotion_editor_guide_content {
 	background: #d22d3a;
 }
