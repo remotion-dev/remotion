@@ -90,8 +90,12 @@ const Ruler: React.FC<RulerProps> = ({
 		[rulerWidth, rulerHeight, cursor, isVerticalRuler],
 	);
 
-	const onMouseDown = useCallback(
+	const onMouseDown: React.PointerEventHandler<HTMLCanvasElement> = useCallback(
 		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
 			e.preventDefault();
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
@@ -142,9 +146,9 @@ const Ruler: React.FC<RulerProps> = ({
 			width={rulerWidth * devicePixelRatio}
 			height={rulerHeight * devicePixelRatio}
 			style={rulerStyle}
-			onMouseDown={onMouseDown}
-			onMouseEnter={changeCursor}
-			onMouseLeave={changeCursor}
+			onPointerDown={onMouseDown}
+			onPointerEnter={changeCursor}
+			onPointerLeave={changeCursor}
 		/>
 	);
 };
