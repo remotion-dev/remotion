@@ -71,13 +71,13 @@ const PlaybackrateOption: React.FC<{
 			setHovered(false);
 		}, []);
 
+	const isFocused = keyboardSelectedRate === rate;
 	const actualStyle = useMemo(() => {
 		return {
 			...rateDiv,
-			backgroundColor:
-				hovered || keyboardSelectedRate === rate ? '#eee' : 'transparent',
+			backgroundColor: hovered || isFocused ? '#eee' : 'transparent',
 		};
-	}, [hovered, keyboardSelectedRate, rate]);
+	}, [hovered, isFocused]);
 
 	return (
 		<div
@@ -240,9 +240,11 @@ export const PlaybackrateControl: React.FC<{
 		(e) => {
 			e.stopPropagation();
 			e.preventDefault();
-			setIsComponentVisible(!isComponentVisible);
+			setIsComponentVisible(
+				(prevIsComponentVisible) => !prevIsComponentVisible,
+			);
 		},
-		[isComponentVisible, setIsComponentVisible],
+		[setIsComponentVisible],
 	);
 
 	return (
