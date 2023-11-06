@@ -1,4 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
+import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
@@ -51,7 +52,7 @@ export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
 	id: string;
-	onActionChosen: (id: string) => void;
+	onActionChosen: (id: string, e: PointerEvent<HTMLDivElement>) => void;
 	selected: boolean;
 	onItemSelected: (id: string) => void;
 	keyHint: string | null;
@@ -91,9 +92,12 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onItemTriggered = useCallback(() => {
-		onActionChosen(id);
-	}, [id, onActionChosen]);
+	const onItemTriggered = useCallback(
+		(e: PointerEvent<HTMLDivElement>) => {
+			onActionChosen(id, e);
+		},
+		[id, onActionChosen],
+	);
 
 	const onPointerEnter = useCallback(() => {
 		onItemSelected(id);

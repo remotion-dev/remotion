@@ -820,7 +820,7 @@ const itemToSearchResult = (
 			id: item.id,
 			onSelected: () => {
 				setSelectedModal(null);
-				item.onClick(item.id);
+				item.onClick(item.id, null);
 			},
 			title: [...prefixes, getItemLabel(item)].join(': '),
 		},
