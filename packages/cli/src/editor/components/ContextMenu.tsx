@@ -107,7 +107,7 @@ export const ContextMenu: React.FC<{
 						left: opened.left,
 				  }
 				: {
-						right: size.windowSize.width - opened.left - size.width,
+						right: size.windowSize.width - opened.left,
 				  }),
 		};
 	}, [opened, spaceToBottom, spaceToTop, size]);
