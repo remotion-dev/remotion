@@ -31,7 +31,7 @@ export const fetchFolder = ({
 		folder: '.',
 		startPath: publicDir,
 		staticHash,
-		limit: 1000,
+		limit: 10000,
 	}).map((f) => {
 		return {
 			...f,
