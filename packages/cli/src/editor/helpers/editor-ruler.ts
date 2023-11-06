@@ -1,4 +1,5 @@
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
+import {RULER_COLOR} from './colors';
 
 export const drawMarkingOnRulerCanvas = ({
 	scale,
@@ -32,11 +33,11 @@ export const drawMarkingOnRulerCanvas = ({
 
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-	context.strokeStyle = '#dbe3e8';
+	context.strokeStyle = RULER_COLOR;
 	context.lineWidth = 1;
 	context.beginPath();
 	points.forEach((point) => {
-		context.strokeStyle = '#dbe3e8';
+		context.strokeStyle = RULER_COLOR;
 		context.lineWidth = 1;
 		const originDistance = point.position + originOffset - startMarking * scale;
 		context.beginPath();
@@ -61,18 +62,18 @@ export const drawMarkingOnRulerCanvas = ({
 		context.stroke();
 		context.font = '10px Arial, Helvetica, sans-serif';
 		context.textAlign = 'left';
-		context.fillStyle = '#dbe3e8';
+		context.fillStyle = RULER_COLOR;
 
 		if (orientation === 'horizontal') {
 			context.fillText(
-				point.value.toString().split('').join(String.fromCharCode(8202)),
+				point.value.toString().split('').join(''),
 				originDistance + 4,
 				16,
 			);
 		} else {
 			context.rotate(-Math.PI / 2);
 			context.fillText(
-				point.value.toString().split('').join(String.fromCharCode(8202)),
+				point.value.toString().split('').join(''),
 				-originDistance + 4,
 				16,
 			);
