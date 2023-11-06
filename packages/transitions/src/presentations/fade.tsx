@@ -11,11 +11,12 @@ export type FadeProps = Record<string, never>;
 const FadePresentation: React.FC<
 	TransitionPresentationComponentProps<FadeProps>
 > = ({children, presentationDirection, presentationProgress}) => {
+	const isEntering = presentationDirection === 'entering';
 	const style: React.CSSProperties = useMemo(() => {
 		return {
-			opacity: presentationDirection === 'entering' ? presentationProgress : 1,
+			opacity: isEntering ? presentationProgress : 1,
 		};
-	}, [presentationDirection, presentationProgress]);
+	}, [isEntering, presentationProgress]);
 
 	return (
 		<AbsoluteFill>
