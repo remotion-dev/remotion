@@ -6,6 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {Internals} from 'remotion';
 import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
@@ -47,6 +48,12 @@ const Ruler: React.FC<RulerProps> = ({
 		selectedGuideId,
 		setSelectedGuideId,
 	} = useContext(EditorShowGuidesContext);
+	const unsafeVideoConfig = Internals.useUnsafeVideoConfig();
+
+	if (!unsafeVideoConfig) {
+		throw new Error('Video config not set');
+	}
+
 	const [cursor, setCursor] = useState<'ew-resize' | 'ns-resize' | 'no-drop'>(
 		isVerticalRuler ? 'ew-resize' : 'ns-resize',
 	);
@@ -96,6 +103,7 @@ const Ruler: React.FC<RulerProps> = ({
 						position: -originOffset,
 						show: false,
 						id: guideId,
+						compositionId: unsafeVideoConfig.id,
 					},
 				];
 			});
@@ -106,6 +114,7 @@ const Ruler: React.FC<RulerProps> = ({
 			setGuidesList,
 			orientation,
 			originOffset,
+			unsafeVideoConfig.id,
 		],
 	);
 

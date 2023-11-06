@@ -1,12 +1,13 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
-import {EditorShowRulersContext, RULER_WIDTH} from '../state/editor-rulers';
+import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasOrLoading} from './CanvasOrLoading';
 import {
 	CurrentCompositionKeybindings,
 	TitleUpdater,
 } from './CurrentCompositionSideEffects';
+import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
@@ -53,7 +54,7 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC = () => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
-	const {editorShowRulers} = useContext(EditorShowRulersContext);
+	const rulersAreVisible = useIsRulerVisible();
 
 	const actualStateLeft = useResponsiveSidebarStatus();
 
@@ -69,10 +70,10 @@ export const TopPanel: React.FC = () => {
 		() => ({
 			flex: 1,
 			display: 'flex',
-			paddingTop: editorShowRulers ? RULER_WIDTH : 0,
-			paddingLeft: editorShowRulers ? RULER_WIDTH : 0,
+			paddingTop: rulersAreVisible ? RULER_WIDTH : 0,
+			paddingLeft: rulersAreVisible ? RULER_WIDTH : 0,
 		}),
-		[editorShowRulers],
+		[rulersAreVisible],
 	);
 
 	const onCollapseLeft = useCallback(() => {

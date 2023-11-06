@@ -24,11 +24,11 @@ import {
 import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
-import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
+import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
@@ -56,7 +56,7 @@ export const Canvas: React.FC<{
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
-	const {editorShowRulers} = useContext(EditorShowRulersContext);
+	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
@@ -339,7 +339,7 @@ export const Canvas: React.FC<{
 					/>
 				)}
 			</div>
-			{editorShowRulers && (
+			{areRulersVisible && (
 				<EditorRulers
 					contentDimensions={contentDimensions}
 					canvasSize={size}

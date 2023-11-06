@@ -5,6 +5,7 @@ export type Guide = {
 	position: number;
 	show: boolean;
 	id: string;
+	compositionId: string;
 };
 
 export type GuideState = {
