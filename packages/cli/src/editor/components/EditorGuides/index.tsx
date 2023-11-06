@@ -1,5 +1,6 @@
 import {type Size} from '@remotion/player';
-import {useContext} from 'react';
+import {useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
@@ -17,10 +18,23 @@ const EditorGuides: React.FC<{
 		assetMetadata,
 	});
 
+	const {canvasContent} = useContext(Internals.CompositionManager);
+
+	if (canvasContent === null || canvasContent.type !== 'composition') {
+		throw new Error('Expected to be in a composition');
+	}
+
 	const {guidesList} = useContext(EditorShowGuidesContext);
+
+	const guidesForThisComposition = useMemo(() => {
+		return guidesList.filter((guide) => {
+			return guide.compositionId === canvasContent.compositionId;
+		});
+	}, [canvasContent.compositionId, guidesList]);
+
 	return (
 		<>
-			{guidesList.map((guide) => {
+			{guidesForThisComposition.map((guide) => {
 				return (
 					<GuideComp
 						key={guide.id}
