@@ -2,6 +2,8 @@ import {memo, useCallback, useContext, useMemo} from 'react';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 
+const PADDING_FOR_EASY_DRAG = 2;
+
 const Guide: React.FC<{
 	guideDetails: {
 		position: number;
@@ -31,10 +33,12 @@ const Guide: React.FC<{
 			position: 'absolute',
 			width: `${isVerticalGuide ? '1px' : '100%'}`,
 			height: `${isVerticalGuide ? '100%' : '1px'}`,
-			left: `${isVerticalGuide ? guidePosition : 0}px`,
-			top: `${isVerticalGuide ? 0 : guidePosition}px`,
+			left: `${isVerticalGuide ? guidePosition - PADDING_FOR_EASY_DRAG : 0}px`,
+			top: `${isVerticalGuide ? 0 : guidePosition - PADDING_FOR_EASY_DRAG}px`,
 			cursor: `${isVerticalGuide ? 'ew-resize' : 'ns-resize'}`,
-			padding: isVerticalGuide ? '0 2px' : '2px 0',
+			padding: isVerticalGuide
+				? `0 ${PADDING_FOR_EASY_DRAG}px`
+				: `${PADDING_FOR_EASY_DRAG}px 0`,
 			zIndex: 1000,
 		};
 	}, [guideDetails, scale, canvasDimensions, isVerticalGuide]);
