@@ -44,9 +44,9 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 				props.src ?? '',
 			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}`,
 		[
-			props.src, 
-			sequenceContext?.relativeFrom, 
-			sequenceContext?.cumulatedFrom, 
+			props.src,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.cumulatedFrom,
 			sequenceContext?.durationInFrames,
 		],
 	);
