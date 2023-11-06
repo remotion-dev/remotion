@@ -41,6 +41,7 @@ Controls are implemented for:
 - `z.nullable()`
 - `z.enum()`
 - [`zColor()`](/docs/zod-types/z-color) (from `@remotion/zod-types`)
+- [`zTextarea()`](/docs/zod-types/z-textarea) (from `@remotion/zod-types`)
 - [`staticFile()`](/docs/staticfile) assets by typing as `z.string()` and using `staticFile()` in your code
 - `.default()`
 
