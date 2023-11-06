@@ -1,5 +1,7 @@
 html {
 	--remotion-cli-internals-blue: #0b84f3;
+	/* Copied into editor-ruler.ts */
+	--guide-selected: #d22d3a;
 }
 
 body {
@@ -127,5 +129,5 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 }
 .__remotion_editor_guide:hover .__remotion_editor_guide_content,
 .__remotion_editor_guide_selected {
-	background: #d22d3a;
+	background: var(--guide-selected);
 }

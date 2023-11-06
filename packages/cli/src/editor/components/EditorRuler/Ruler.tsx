@@ -47,6 +47,7 @@ const Ruler: React.FC<RulerProps> = ({
 		setGuidesList,
 		selectedGuideId,
 		setSelectedGuideId,
+		guidesList,
 	} = useContext(EditorShowGuidesContext);
 	const unsafeVideoConfig = Internals.useUnsafeVideoConfig();
 
@@ -58,6 +59,10 @@ const Ruler: React.FC<RulerProps> = ({
 		isVerticalRuler ? 'ew-resize' : 'ns-resize',
 	);
 
+	const selectedGuide = useMemo(() => {
+		return guidesList.find((guide) => guide.id === selectedGuideId) ?? null;
+	}, [guidesList, selectedGuideId]);
+
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({
 			scale,
@@ -67,8 +72,17 @@ const Ruler: React.FC<RulerProps> = ({
 			markingGaps,
 			orientation,
 			rulerCanvasRef,
+			selectedGuide,
 		});
-	}, [scale, points, startMarking, originOffset, markingGaps, orientation]);
+	}, [
+		scale,
+		points,
+		startMarking,
+		originOffset,
+		markingGaps,
+		orientation,
+		selectedGuide,
+	]);
 
 	const {width: canvasContainerWidth, height: canvasContainerHeight} =
 		containerRef.current?.getBoundingClientRect() || {width: 0, height: 0};

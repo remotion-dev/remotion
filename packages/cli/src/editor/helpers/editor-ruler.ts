@@ -1,5 +1,144 @@
+import type {Guide} from '../state/editor-guides';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
-import {RULER_COLOR} from './colors';
+import {
+	BACKGROUND,
+	BACKGROUND__TRANSPARENT,
+	RULER_COLOR,
+	SELECTED_GUIDE,
+} from './colors';
+
+type Orientation = 'horizontal' | 'vertical';
+
+const drawLabel = ({
+	orientation,
+	context,
+	label,
+	originDistance,
+	color,
+}: {
+	orientation: Orientation;
+	context: CanvasRenderingContext2D;
+	label: string;
+	originDistance: number;
+	color: string;
+}) => {
+	context.fillStyle = color;
+	if (orientation === 'horizontal') {
+		context.fillText(label, originDistance + 4, 16);
+	} else {
+		context.rotate(-Math.PI / 2);
+		context.fillText(label, -originDistance + 4, 16);
+		context.rotate(Math.PI / 2);
+	}
+};
+
+const drawGradient = ({
+	orientation,
+	context,
+	originDistance,
+	canvasHeight,
+	canvasWidth,
+}: {
+	orientation: Orientation;
+	context: CanvasRenderingContext2D;
+	originDistance: number;
+	canvasHeight: number;
+	canvasWidth: number;
+}) => {
+	const size = 150;
+	const startX = orientation === 'horizontal' ? originDistance - size / 2 : 0;
+	const startY = orientation === 'horizontal' ? 0 : originDistance - size / 2;
+	const endX = orientation === 'horizontal' ? originDistance + 75 : canvasWidth;
+	const endY =
+		orientation === 'horizontal' ? canvasHeight : originDistance + 75;
+	const grd = context.createLinearGradient(startX, startY, endX, endY);
+	grd.addColorStop(0, BACKGROUND__TRANSPARENT);
+	grd.addColorStop(0.25, BACKGROUND);
+	grd.addColorStop(0.75, BACKGROUND);
+	grd.addColorStop(1, BACKGROUND__TRANSPARENT);
+
+	context.fillStyle = grd;
+	context.fillRect(startX, startY, endX - startX, endY - startY);
+};
+
+export const drawGuide = ({
+	selectedGuide,
+	scale,
+	startMarking,
+	context,
+	canvasHeight,
+	canvasWidth,
+	orientation,
+	originOffset,
+}: {
+	selectedGuide: Guide;
+	scale: number;
+	startMarking: number;
+	context: CanvasRenderingContext2D;
+	canvasHeight: number;
+	canvasWidth: number;
+	orientation: Orientation;
+	originOffset: number;
+}) => {
+	const originDistance =
+		rulerValueToPosition({
+			value: selectedGuide.position,
+			startMarking,
+			scale,
+		}) +
+		originOffset -
+		startMarking * scale;
+	drawGradient({
+		canvasHeight,
+		context,
+		orientation,
+		originDistance,
+		canvasWidth,
+	});
+	context.strokeStyle = SELECTED_GUIDE;
+	context.lineWidth = 1;
+	context.beginPath();
+	if (
+		orientation === 'horizontal' &&
+		selectedGuide.orientation === 'horizontal'
+	) {
+		return;
+	}
+
+	if (orientation === 'vertical' && selectedGuide.orientation === 'vertical') {
+		return;
+	}
+
+	if (
+		orientation === 'vertical' &&
+		selectedGuide.orientation === 'horizontal'
+	) {
+		context.moveTo(0, originDistance);
+		context.lineTo(canvasWidth, originDistance);
+		drawLabel({
+			context,
+			label: selectedGuide.position.toString(),
+			originDistance,
+			orientation,
+			color: SELECTED_GUIDE,
+		});
+	} else if (
+		orientation === 'horizontal' &&
+		selectedGuide.orientation === 'vertical'
+	) {
+		context.moveTo(originDistance, 0);
+		context.lineTo(originDistance, canvasHeight);
+		drawLabel({
+			context,
+			label: selectedGuide.position.toString(),
+			originDistance,
+			orientation,
+			color: SELECTED_GUIDE,
+		});
+	}
+
+	context.stroke();
+};
 
 export const drawMarkingOnRulerCanvas = ({
 	scale,
@@ -9,6 +148,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps,
 	orientation,
 	rulerCanvasRef,
+	selectedGuide,
 }: {
 	scale: number;
 	points: Array<{position: number; value: number}>;
@@ -17,6 +157,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps: number;
 	orientation: 'horizontal' | 'vertical';
 	rulerCanvasRef: React.RefObject<HTMLCanvasElement>;
+	selectedGuide: Guide | null;
 }) => {
 	const canvas = rulerCanvasRef.current;
 	if (!canvas) return;
@@ -36,6 +177,7 @@ export const drawMarkingOnRulerCanvas = ({
 	context.strokeStyle = RULER_COLOR;
 	context.lineWidth = 1;
 	context.beginPath();
+	console.log(points);
 	points.forEach((point) => {
 		context.strokeStyle = RULER_COLOR;
 		context.lineWidth = 1;
@@ -50,12 +192,14 @@ export const drawMarkingOnRulerCanvas = ({
 		}
 
 		for (let i = 1; i < 5; i++) {
+			const markingOffsetXY = i * markingGaps * scale;
+
 			if (orientation === 'horizontal') {
-				context.moveTo(originDistance + (i * markingGaps * scale) / 5, 0);
-				context.lineTo(originDistance + (i * markingGaps * scale) / 5, 4);
+				context.moveTo(originDistance + markingOffsetXY / 5, 0);
+				context.lineTo(originDistance + markingOffsetXY / 5, 4);
 			} else {
-				context.moveTo(0, originDistance + (i * markingGaps * scale) / 5);
-				context.lineTo(4, originDistance + (i * markingGaps * scale) / 5);
+				context.moveTo(0, originDistance + markingOffsetXY / 5);
+				context.lineTo(4, originDistance + markingOffsetXY / 5);
 			}
 		}
 
@@ -64,22 +208,27 @@ export const drawMarkingOnRulerCanvas = ({
 		context.textAlign = 'left';
 		context.fillStyle = RULER_COLOR;
 
-		if (orientation === 'horizontal') {
-			context.fillText(
-				point.value.toString().split('').join(''),
-				originDistance + 4,
-				16,
-			);
-		} else {
-			context.rotate(-Math.PI / 2);
-			context.fillText(
-				point.value.toString().split('').join(''),
-				-originDistance + 4,
-				16,
-			);
-			context.rotate(Math.PI / 2);
-		}
+		drawLabel({
+			orientation,
+			context,
+			label: point.value.toString(),
+			originDistance,
+			color: RULER_COLOR,
+		});
 	});
+
+	if (selectedGuide && orientation !== selectedGuide.orientation) {
+		drawGuide({
+			canvasHeight,
+			canvasWidth,
+			context,
+			orientation,
+			originOffset,
+			scale,
+			selectedGuide,
+			startMarking,
+		});
+	}
 };
 
 export const getRulerPoints = ({
@@ -94,17 +243,35 @@ export const getRulerPoints = ({
 	const points = [];
 	const startPoint = Math.ceil(rulerScaleRange.start / rulerMarkingGaps);
 	const endPoint = Math.floor(rulerScaleRange.end / rulerMarkingGaps);
+	const startMarking = startPoint * rulerMarkingGaps;
+
 	for (let i = startPoint; i <= endPoint; i++) {
 		points.push({
 			value: i * rulerMarkingGaps,
-			position: (i * rulerMarkingGaps + startPoint * rulerMarkingGaps) * scale,
+			position: rulerValueToPosition({
+				scale,
+				startMarking,
+				value: i * rulerMarkingGaps,
+			}),
 		});
 	}
 
 	return {
 		points,
-		startMarking: startPoint * rulerMarkingGaps,
+		startMarking,
 	};
+};
+
+export const rulerValueToPosition = ({
+	value,
+	startMarking,
+	scale,
+}: {
+	value: number;
+	startMarking: number;
+	scale: number;
+}) => {
+	return (value + startMarking) * scale;
 };
 
 export const getRulerScaleRange = ({
