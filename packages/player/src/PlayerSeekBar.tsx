@@ -87,6 +87,10 @@ export const PlayerSeekBar: React.FC<{
 				throw new Error('Player has no size');
 			}
 
+			if (e.button !== 0) {
+				return;
+			}
+
 			const _frame = getFrameFromX(e.clientX - left, durationInFrames, width);
 			pause();
 			seek(_frame);
