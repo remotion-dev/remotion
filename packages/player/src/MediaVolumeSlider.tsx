@@ -39,15 +39,16 @@ export const MediaVolumeSlider: React.FC<{
 		}, 10);
 	};
 
+	const isVolume0 = mediaVolume === 0;
 	const onClick = useCallback(() => {
-		if (mediaVolume === 0) {
+		if (isVolume0) {
 			setMediaVolume(1);
 			setMediaMuted(false);
 			return;
 		}
 
 		setMediaMuted((mute) => !mute);
-	}, [mediaVolume === 0, setMediaMuted, setMediaVolume]);
+	}, [isVolume0, setMediaMuted, setMediaVolume]);
 
 	const parentDivStyle: React.CSSProperties = useMemo(() => {
 		return {

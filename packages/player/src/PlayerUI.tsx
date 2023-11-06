@@ -246,7 +246,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			compositionWidth: config.width,
 			previewSize: 'auto',
 		});
-	}, [canvasSize, !config, config.height, config.width]);
+	}, [canvasSize, config]);
 
 	const scale = layout?.scale ?? 1;
 	const initialScaleIgnored = useRef(false);
