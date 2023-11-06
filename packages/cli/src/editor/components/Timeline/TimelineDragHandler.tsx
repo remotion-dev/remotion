@@ -140,6 +140,10 @@ const Inner: React.FC = () => {
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
 			stopInterval();
 			if (!videoConfig) {
 				return;
