@@ -46,6 +46,7 @@ const Ruler: React.FC<RulerProps> = ({
 		shouldCreateGuideRef,
 		setGuidesList,
 		selectedGuideId,
+		hoveredGuideId,
 		setSelectedGuideId,
 		guidesList,
 	} = useContext(EditorShowGuidesContext);
@@ -59,9 +60,13 @@ const Ruler: React.FC<RulerProps> = ({
 		isVerticalRuler ? 'ew-resize' : 'ns-resize',
 	);
 
-	const selectedGuide = useMemo(() => {
-		return guidesList.find((guide) => guide.id === selectedGuideId) ?? null;
-	}, [guidesList, selectedGuideId]);
+	const selectedOrHoveredGuide = useMemo(() => {
+		return (
+			guidesList.find((guide) => guide.id === selectedGuideId) ??
+			guidesList.find((guide) => guide.id === hoveredGuideId) ??
+			null
+		);
+	}, [guidesList, hoveredGuideId, selectedGuideId]);
 
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({
@@ -72,7 +77,7 @@ const Ruler: React.FC<RulerProps> = ({
 			markingGaps,
 			orientation,
 			rulerCanvasRef,
-			selectedGuide,
+			selectedGuide: selectedOrHoveredGuide,
 		});
 	}, [
 		scale,
@@ -81,7 +86,7 @@ const Ruler: React.FC<RulerProps> = ({
 		originOffset,
 		markingGaps,
 		orientation,
-		selectedGuide,
+		selectedOrHoveredGuide,
 	]);
 
 	const {width: canvasContainerWidth, height: canvasContainerHeight} =

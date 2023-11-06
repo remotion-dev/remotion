@@ -45,12 +45,13 @@ const drawGradient = ({
 	canvasHeight: number;
 	canvasWidth: number;
 }) => {
-	const size = 150;
+	const size = 250;
 	const startX = orientation === 'horizontal' ? originDistance - size / 2 : 0;
 	const startY = orientation === 'horizontal' ? 0 : originDistance - size / 2;
-	const endX = orientation === 'horizontal' ? originDistance + 75 : canvasWidth;
+	const endX =
+		orientation === 'horizontal' ? originDistance + size / 2 : canvasWidth;
 	const endY =
-		orientation === 'horizontal' ? canvasHeight : originDistance + 75;
+		orientation === 'horizontal' ? canvasHeight : originDistance + size / 2;
 	const grd = context.createLinearGradient(startX, startY, endX, endY);
 	grd.addColorStop(0, BACKGROUND__TRANSPARENT);
 	grd.addColorStop(0.25, BACKGROUND);

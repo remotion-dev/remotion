@@ -15,6 +15,8 @@ export type GuideState = {
 	setGuidesList: (cb: (prevState: Guide[]) => Guide[]) => void;
 	selectedGuideId: string | null;
 	setSelectedGuideId: (cb: (prevState: string | null) => string | null) => void;
+	setHoveredGuideId: (cb: (prevState: string | null) => string | null) => void;
+	hoveredGuideId: string | null;
 	shouldCreateGuideRef: React.MutableRefObject<boolean>;
 	shouldDeleteGuideRef: React.MutableRefObject<boolean>;
 };
@@ -46,4 +48,6 @@ export const EditorShowGuidesContext = createContext<GuideState>({
 	setSelectedGuideId: () => undefined,
 	shouldCreateGuideRef: {current: false},
 	shouldDeleteGuideRef: {current: false},
+	hoveredGuideId: null,
+	setHoveredGuideId: () => undefined,
 });

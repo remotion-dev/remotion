@@ -1,5 +1,6 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
 import {truthy} from '../../../truthy';
+import {SELECTED_GUIDE, UNSELECTED_GUIDE} from '../../helpers/colors';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -9,7 +10,7 @@ import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 
-const PADDING_FOR_EASY_DRAG = 2;
+const PADDING_FOR_EASY_DRAG = 4;
 
 const GuideComp: React.FC<{
 	guide: Guide;
@@ -26,7 +27,18 @@ const GuideComp: React.FC<{
 		setGuidesList,
 		setSelectedGuideId,
 		selectedGuideId,
+		setHoveredGuideId,
+		hoveredGuideId,
 	} = useContext(EditorShowGuidesContext);
+
+	const onPointerEnter = useCallback(() => {
+		setHoveredGuideId(() => guide.id);
+	}, [guide.id, setHoveredGuideId]);
+
+	const onPointerLeave = useCallback(() => {
+		setHoveredGuideId(() => null);
+	}, [setHoveredGuideId]);
+
 	const isVerticalGuide = guide.orientation === 'vertical';
 
 	const guideStyle: React.CSSProperties = useMemo(() => {
@@ -55,8 +67,12 @@ const GuideComp: React.FC<{
 			top: `${isVerticalGuide ? `-${RULER_WIDTH}px` : '0px'}`,
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
 			display: guide.show ? 'block' : 'none',
+			backgroundColor:
+				selectedGuideId === guide.id || hoveredGuideId === guide.id
+					? SELECTED_GUIDE
+					: UNSELECTED_GUIDE,
 		};
-	}, [isVerticalGuide, guide.show]);
+	}, [isVerticalGuide, guide.show, guide.id, selectedGuideId, hoveredGuideId]);
 
 	const onMouseDown = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -102,12 +118,14 @@ const GuideComp: React.FC<{
 				style={guideStyle}
 				onMouseDown={onMouseDown}
 				className="__remotion_editor_guide"
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
 			>
 				<div
 					style={guideContentStyle}
 					className={[
 						'__remotion_editor_guide_content',
-						selectedGuideId === guide.id
+						selectedGuideId === guide.id || hoveredGuideId === guide.id
 							? '__remotion_editor_guide_selected'
 							: null,
 					]

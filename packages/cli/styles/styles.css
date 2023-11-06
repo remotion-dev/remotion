@@ -123,11 +123,3 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	background-color: white;
 	position: relative;
 }
-
-.__remotion_editor_guide_content {
-	background: #7e1219;
-}
-.__remotion_editor_guide:hover .__remotion_editor_guide_content,
-.__remotion_editor_guide_selected {
-	background: var(--guide-selected);
-}

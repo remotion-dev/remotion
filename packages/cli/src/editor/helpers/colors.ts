@@ -17,6 +17,7 @@ export const WARNING_COLOR = '#f1c40f';
 export const BLUE = '#0b84f3';
 export const BLUE_DISABLED = '#284f73';
 export const LIGHT_TRANSPARENT = 'rgba(255, 255, 255, 0.7)';
+export const UNSELECTED_GUIDE = '#7e1219';
 export const SELECTED_GUIDE = '#d22d3a';
 
 export const getBackgroundFromHoverState = ({
