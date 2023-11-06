@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {RULER_COLOR, TIMELINE_BACKGROUND} from '../../helpers/colors';
+import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
@@ -31,7 +31,7 @@ const originBlockStyles: React.CSSProperties = {
 	borderRight: '1px solid ' + RULER_COLOR,
 	width: `${RULER_WIDTH}px`,
 	height: `${RULER_WIDTH}px`,
-	background: TIMELINE_BACKGROUND,
+	background: BACKGROUND,
 };
 
 export const EditorRulers: React.FC<{
