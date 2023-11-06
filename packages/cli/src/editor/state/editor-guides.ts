@@ -1,28 +1,19 @@
 import {createContext} from 'react';
 
-type State = {
+export type Guide = {
+	orientation: 'horizontal' | 'vertical';
+	position: number;
+	show: boolean;
+	id: string;
+};
+
+export type GuideState = {
 	editorShowGuides: boolean;
 	setEditorShowGuides: (cb: (prevState: boolean) => boolean) => void;
-	guidesList: {
-		orientation: 'horizontal' | 'vertical';
-		position: number;
-		show: boolean;
-	}[];
-	setGuidesList: (
-		cb: (
-			prevState: {
-				orientation: 'horizontal' | 'vertical';
-				position: number;
-				show: boolean;
-			}[],
-		) => {
-			orientation: 'horizontal' | 'vertical';
-			position: number;
-			show: boolean;
-		}[],
-	) => void;
-	selectedGuideIndex: number;
-	setSelectedGuideIndex: (cb: (prevState: number) => number) => void;
+	guidesList: Guide[];
+	setGuidesList: (cb: (prevState: Guide[]) => Guide[]) => void;
+	selectedGuideId: string | null;
+	setSelectedGuideId: (cb: (prevState: string | null) => string | null) => void;
 	shouldCreateGuideRef: React.MutableRefObject<boolean>;
 	shouldDeleteGuideRef: React.MutableRefObject<boolean>;
 };
@@ -36,13 +27,13 @@ export const loadEditorShowGuidesOption = (): boolean => {
 	return item === 'true';
 };
 
-export const EditorShowGuidesContext = createContext<State>({
+export const EditorShowGuidesContext = createContext<GuideState>({
 	editorShowGuides: loadEditorShowGuidesOption(),
 	setEditorShowGuides: () => undefined,
 	guidesList: [],
 	setGuidesList: () => undefined,
-	selectedGuideIndex: -1,
-	setSelectedGuideIndex: () => undefined,
+	selectedGuideId: null,
+	setSelectedGuideId: () => undefined,
 	shouldCreateGuideRef: {current: false},
 	shouldDeleteGuideRef: {current: false},
 });

@@ -4,7 +4,7 @@ import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
-import Guide from './Guide';
+import GuideComp from './Guide';
 
 const EditorGuides: React.FC<{
 	canvasSize: Size | null;
@@ -20,13 +20,11 @@ const EditorGuides: React.FC<{
 	const {guidesList} = useContext(EditorShowGuidesContext);
 	return (
 		<>
-			{guidesList.map((guide, index) => {
+			{guidesList.map((guide) => {
 				return (
-					<Guide
-						// eslint-disable-next-line react/no-array-index-key
-						key={`${guide.position}${guide.orientation}${index}`}
-						guideDetails={guide}
-						index={index}
+					<GuideComp
+						key={guide.id}
+						guide={guide}
 						canvasDimensions={canvasDimensions}
 						scale={scale}
 					/>

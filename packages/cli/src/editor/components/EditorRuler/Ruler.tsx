@@ -26,6 +26,10 @@ interface RulerProps {
 	orientation: 'horizontal' | 'vertical';
 }
 
+export const makeGuideId = (): string => {
+	return Math.random().toString(36).substring(7);
+};
+
 const Ruler: React.FC<RulerProps> = ({
 	scale,
 	points,
@@ -39,10 +43,9 @@ const Ruler: React.FC<RulerProps> = ({
 	const isVerticalRuler = orientation === 'vertical';
 	const {
 		shouldCreateGuideRef,
-		guidesList,
 		setGuidesList,
-		selectedGuideIndex,
-		setSelectedGuideIndex,
+		selectedGuideId,
+		setSelectedGuideId,
 	} = useContext(EditorShowGuidesContext);
 	const [cursor, setCursor] = useState<'ew-resize' | 'ns-resize' | 'no-drop'>(
 		isVerticalRuler ? 'ew-resize' : 'ns-resize',
@@ -83,7 +86,8 @@ const Ruler: React.FC<RulerProps> = ({
 			e.preventDefault();
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
-			setSelectedGuideIndex(() => guidesList.length);
+			const guideId = makeGuideId();
+			setSelectedGuideId(() => guideId);
 			setGuidesList((prevState) => {
 				return [
 					...prevState,
@@ -91,15 +95,15 @@ const Ruler: React.FC<RulerProps> = ({
 						orientation,
 						position: -originOffset,
 						show: false,
+						id: guideId,
 					},
 				];
 			});
 		},
 		[
 			shouldCreateGuideRef,
-			setSelectedGuideIndex,
+			setSelectedGuideId,
 			setGuidesList,
-			guidesList.length,
 			orientation,
 			originOffset,
 		],
@@ -108,18 +112,18 @@ const Ruler: React.FC<RulerProps> = ({
 	const changeCursor = useCallback(
 		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			e.preventDefault();
-			if (selectedGuideIndex !== -1) {
+			if (selectedGuideId !== null) {
 				setCursor('no-drop');
 			}
 		},
-		[setCursor, selectedGuideIndex],
+		[setCursor, selectedGuideId],
 	);
 
 	useEffect(() => {
-		if (selectedGuideIndex === -1) {
+		if (selectedGuideId === null) {
 			setCursor(isVerticalRuler ? 'ew-resize' : 'ns-resize');
 		}
-	}, [selectedGuideIndex, isVerticalRuler]);
+	}, [selectedGuideId, isVerticalRuler]);
 
 	return (
 		<canvas

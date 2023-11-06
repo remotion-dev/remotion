@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {Guide, GuideState} from '../state/editor-guides';
 import {
 	EditorShowGuidesContext,
 	loadEditorShowGuidesOption,
@@ -8,14 +9,8 @@ import {
 export const ShowGuidesProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [guidesList, setGuidesList] = useState<
-		{
-			orientation: 'horizontal' | 'vertical';
-			position: number;
-			show: boolean;
-		}[]
-	>([]);
-	const [selectedGuideIndex, setSelectedGuideIndex] = useState(-1);
+	const [guidesList, setGuidesList] = useState<Guide[]>([]);
+	const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
 	const [editorShowGuides, setEditorShowGuidesState] = useState(() =>
 		loadEditorShowGuidesOption(),
 	);
@@ -33,14 +28,14 @@ export const ShowGuidesProvider: React.FC<{
 		[],
 	);
 
-	const editorShowGuidesCtx = useMemo(() => {
+	const editorShowGuidesCtx = useMemo((): GuideState => {
 		return {
 			editorShowGuides,
 			setEditorShowGuides,
 			guidesList,
 			setGuidesList,
-			selectedGuideIndex,
-			setSelectedGuideIndex,
+			selectedGuideId,
+			setSelectedGuideId,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,
 		};
@@ -49,8 +44,8 @@ export const ShowGuidesProvider: React.FC<{
 		setEditorShowGuides,
 		guidesList,
 		setGuidesList,
-		selectedGuideIndex,
-		setSelectedGuideIndex,
+		selectedGuideId,
+		setSelectedGuideId,
 		shouldCreateGuideRef,
 		shouldDeleteGuideRef,
 	]);

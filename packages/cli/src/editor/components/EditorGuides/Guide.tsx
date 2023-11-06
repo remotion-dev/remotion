@@ -1,16 +1,12 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
+import type {Guide} from '../../state/editor-guides';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 
 const PADDING_FOR_EASY_DRAG = 2;
 
-const Guide: React.FC<{
-	guideDetails: {
-		position: number;
-		orientation: 'horizontal' | 'vertical';
-		show: boolean;
-	};
-	index: number;
+const GuideComp: React.FC<{
+	guide: Guide;
 	canvasDimensions: {
 		left: number;
 		top: number;
@@ -18,17 +14,16 @@ const Guide: React.FC<{
 		height: number;
 	};
 	scale: number;
-}> = ({guideDetails, index, canvasDimensions, scale}) => {
-	const {shouldCreateGuideRef, setSelectedGuideIndex} = useContext(
-		EditorShowGuidesContext,
-	);
-	const isVerticalGuide = guideDetails.orientation === 'vertical';
+}> = ({guide, canvasDimensions, scale}) => {
+	const {shouldCreateGuideRef, setSelectedGuideId: setSelectedGuideIndex} =
+		useContext(EditorShowGuidesContext);
+	const isVerticalGuide = guide.orientation === 'vertical';
 
 	const guideStyle: React.CSSProperties = useMemo(() => {
 		const canvasPosition = isVerticalGuide
 			? canvasDimensions.left
 			: canvasDimensions.top;
-		const guidePosition = guideDetails.position * scale + canvasPosition;
+		const guidePosition = guide.position * scale + canvasPosition;
 		return {
 			position: 'absolute',
 			width: `${isVerticalGuide ? '1px' : '100%'}`,
@@ -41,7 +36,7 @@ const Guide: React.FC<{
 				: `${PADDING_FOR_EASY_DRAG}px 0`,
 			zIndex: 1000,
 		};
-	}, [guideDetails, scale, canvasDimensions, isVerticalGuide]);
+	}, [guide, scale, canvasDimensions, isVerticalGuide]);
 
 	const guideContentStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -50,18 +45,18 @@ const Guide: React.FC<{
 			minHeight: `${isVerticalGuide ? `calc(100% + ${RULER_WIDTH}px` : '1px'}`,
 			top: `${isVerticalGuide ? `-${RULER_WIDTH}px` : '0px'}`,
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
-			display: guideDetails.show ? 'block' : 'none',
+			display: guide.show ? 'block' : 'none',
 		};
-	}, [isVerticalGuide, guideDetails.show]);
+	}, [isVerticalGuide, guide.show]);
 
 	const onMouseDown = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 			e.preventDefault();
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
-			setSelectedGuideIndex(() => index);
+			setSelectedGuideIndex(() => guide.id);
 		},
-		[shouldCreateGuideRef, setSelectedGuideIndex, index],
+		[shouldCreateGuideRef, setSelectedGuideIndex, guide.id],
 	);
 
 	return (
@@ -71,4 +66,4 @@ const Guide: React.FC<{
 	);
 };
 
-export default memo(Guide);
+export default memo(GuideComp);
