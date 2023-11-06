@@ -1,8 +1,12 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
 import type {Guide} from '../../state/editor-guides';
-import {EditorShowGuidesContext} from '../../state/editor-guides';
+import {
+	EditorShowGuidesContext,
+	persistGuidesList,
+} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 
 const PADDING_FOR_EASY_DRAG = 2;
 
@@ -16,8 +20,11 @@ const GuideComp: React.FC<{
 	};
 	scale: number;
 }> = ({guide, canvasDimensions, scale}) => {
-	const {shouldCreateGuideRef, setSelectedGuideId: setSelectedGuideIndex} =
-		useContext(EditorShowGuidesContext);
+	const {
+		shouldCreateGuideRef,
+		setGuidesList,
+		setSelectedGuideId: setSelectedGuideIndex,
+	} = useContext(EditorShowGuidesContext);
 	const isVerticalGuide = guide.orientation === 'vertical';
 
 	const guideStyle: React.CSSProperties = useMemo(() => {
@@ -63,8 +70,32 @@ const GuideComp: React.FC<{
 		[shouldCreateGuideRef, setSelectedGuideIndex, guide.id],
 	);
 
+	const values = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				id: '1',
+				keyHint: null,
+				label: 'Remove guide',
+				leftItem: null,
+				onClick: () => {
+					setGuidesList((prevState) => {
+						const newGuides = prevState.filter((selected) => {
+							return selected.id !== guide.id;
+						});
+						persistGuidesList(newGuides);
+						return newGuides;
+					});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'remove',
+			},
+		];
+	}, [guide.id, setGuidesList]);
+
 	return (
-		<ContextMenu>
+		<ContextMenu values={values}>
 			<div
 				style={guideStyle}
 				onMouseDown={onMouseDown}

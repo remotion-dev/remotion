@@ -25,7 +25,8 @@ type OpenState =
 
 export const ContextMenu: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	values: ComboboxValue[];
+}> = ({children, values}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 	const {currentZIndex} = useZIndex();
@@ -113,22 +114,6 @@ export const ContextMenu: React.FC<{
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
-	}, []);
-
-	const values = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				id: '1',
-				keyHint: null,
-				label: 'Remove guide',
-				leftItem: null,
-				onClick: noop,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'remove',
-			},
-		];
 	}, []);
 
 	return (
