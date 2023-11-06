@@ -176,6 +176,10 @@ const Inner: React.FC = () => {
 				return;
 			}
 
+			if (e.button !== 0) {
+				return;
+			}
+
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
 				durationInFrames: videoConfig.durationInFrames,

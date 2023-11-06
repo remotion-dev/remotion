@@ -110,7 +110,11 @@ export const InputDragger: React.FC<Props> = ({
 
 	const onPointerDown: PointerEventHandler = useCallback(
 		(e) => {
-			const {pageX, pageY} = e;
+			const {pageX, pageY, button} = e;
+			if (button !== 0) {
+				return;
+			}
+
 			const moveListener = (ev: MouseEvent) => {
 				const xDistance = ev.pageX - pageX;
 				const distanceFromStart = Math.sqrt(

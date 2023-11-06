@@ -73,6 +73,10 @@ export const SplitterHandle: React.FC<{
 		};
 
 		const onPointerDown = (e: PointerEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+
 			context.isDragging.current = {
 				x: e.clientX,
 				y: e.clientY,

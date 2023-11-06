@@ -92,21 +92,29 @@ export const MenuItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const onPointerDown = useCallback(() => {
-		onItemSelected(id);
-
-		window.addEventListener(
-			'pointerup',
+	const onPointerDown: React.PointerEventHandler<HTMLButtonElement> =
+		useCallback(
 			(e) => {
-				if (!isMenuItem(e.target as HTMLElement)) {
-					onItemQuit();
+				if (e.button !== 0) {
+					return;
 				}
+
+				onItemSelected(id);
+
+				window.addEventListener(
+					'pointerup',
+					(evt) => {
+						if (!isMenuItem(evt.target as HTMLElement)) {
+							onItemQuit();
+						}
+					},
+					{
+						once: true,
+					},
+				);
 			},
-			{
-				once: true,
-			},
+			[id, onItemQuit, onItemSelected],
 		);
-	}, [id, onItemQuit, onItemSelected]);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
