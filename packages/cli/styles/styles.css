@@ -1,7 +1,5 @@
 html {
 	--remotion-cli-internals-blue: #0b84f3;
-	/* Copied into editor-ruler.ts */
-	--guide-selected: #d22d3a;
 }
 
 body {
