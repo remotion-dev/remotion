@@ -1,5 +1,4 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
-import '../../../../styles/editor-guides.css';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 

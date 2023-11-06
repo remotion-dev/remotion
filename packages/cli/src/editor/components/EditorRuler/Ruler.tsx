@@ -6,6 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
@@ -67,7 +68,7 @@ const Ruler: React.FC<RulerProps> = ({
 	const rulerStyle: React.CSSProperties = useMemo(
 		() => ({
 			position: 'absolute',
-			background: '#000000',
+			background: TIMELINE_BACKGROUND,
 			width: `${rulerWidth}px`,
 			height: `${rulerHeight}px`,
 			left: isVerticalRuler ? 0 : 'unset',
