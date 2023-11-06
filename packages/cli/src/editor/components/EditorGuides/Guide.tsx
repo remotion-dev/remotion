@@ -52,6 +52,10 @@ const GuideComp: React.FC<{
 	const onMouseDown = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 			e.preventDefault();
+			if (e.button !== 0) {
+				return;
+			}
+
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
 			setSelectedGuideIndex(() => guide.id);
