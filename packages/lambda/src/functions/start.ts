@@ -81,7 +81,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		logLevel: params.logLevel ?? 'info',
+		logLevel: params.logLevel,
 		frameRange: params.frameRange,
 		outName: params.outName,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
