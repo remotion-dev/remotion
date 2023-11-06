@@ -15,7 +15,10 @@ import {
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {useZIndex} from '../../state/z-index';
+import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {defaultInOutValue} from '../TimelineInOutToggle';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
@@ -48,6 +51,11 @@ const container: React.CSSProperties = {
 	top: 0,
 };
 
+const style: React.CSSProperties = {
+	width: '100%',
+	height: '100%',
+};
+
 const getClientXWithScroll = (x: number) => {
 	return x + (scrollableRef.current?.scrollLeft as number);
 };
@@ -77,6 +85,7 @@ const Inner: React.FC = () => {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const {isHighestContext} = useZIndex();
 	const setFrame = Internals.useTimelineSetFrame();
 
 	const [inOutDragging, setInOutDragging] = useState<
@@ -140,6 +149,14 @@ const Inner: React.FC = () => {
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			if (!isHighestContext) {
+				return;
+			}
+
 			stopInterval();
 			if (!videoConfig) {
 				return;
@@ -193,7 +210,18 @@ const Inner: React.FC = () => {
 			});
 			pause();
 		},
-		[videoConfig, left, width, seek, playing, pause, outFrame, get, inFrame],
+		[
+			isHighestContext,
+			videoConfig,
+			left,
+			width,
+			seek,
+			playing,
+			pause,
+			inFrame,
+			get,
+			outFrame,
+		],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -485,28 +513,78 @@ const Inner: React.FC = () => {
 		};
 	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
 
+	const inContextMenu = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				id: 'hide-in',
+				keyHint: null,
+				label: 'Clear In marker',
+				leftItem: null,
+				onClick: (_, e) => {
+					e?.stopPropagation();
+					e?.preventDefault();
+					setInAndOutFrames((prev) => ({
+						...prev,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							inFrame: null,
+						},
+					}));
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'hide-in',
+			},
+		];
+	}, [setInAndOutFrames, videoConfig.id]);
+
+	const outContextMenu = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				id: 'hide-out',
+				keyHint: null,
+				label: 'Clear Out marker',
+				leftItem: null,
+				onClick: (_, e) => {
+					e?.stopPropagation();
+					e?.preventDefault();
+					setInAndOutFrames((prev) => ({
+						...prev,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							outFrame: null,
+						},
+					}));
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'hide-out',
+			},
+		];
+	}, [setInAndOutFrames, videoConfig.id]);
+
 	return (
-		<div
-			style={{
-				width: '100%',
-				height: '100%',
-			}}
-			onPointerDown={onPointerDown}
-		>
+		<div style={style} onPointerDown={onPointerDown}>
 			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
 			{inFrame !== null && (
-				<TimelineInOutPointerHandle
-					type="in"
-					atFrame={inFrame}
-					dragging={inOutDragging.dragging === 'in'}
-				/>
+				<ContextMenu values={inContextMenu}>
+					<TimelineInOutPointerHandle
+						type="in"
+						atFrame={inFrame}
+						dragging={inOutDragging.dragging === 'in'}
+					/>
+				</ContextMenu>
 			)}
 			{outFrame !== null && (
-				<TimelineInOutPointerHandle
-					type="out"
-					dragging={inOutDragging.dragging === 'out'}
-					atFrame={outFrame}
-				/>
+				<ContextMenu values={outContextMenu}>
+					<TimelineInOutPointerHandle
+						type="out"
+						dragging={inOutDragging.dragging === 'out'}
+						atFrame={outFrame}
+					/>
+				</ContextMenu>
 			)}
 		</div>
 	);

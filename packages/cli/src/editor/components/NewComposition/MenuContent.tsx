@@ -1,4 +1,4 @@
-import type {SetStateAction} from 'react';
+import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -133,7 +133,7 @@ export const MenuContent: React.FC<{
 		}
 
 		onHide();
-		item.onClick(item.id);
+		item.onClick(item.id, null);
 	}, [onHide, selectedItem, values]);
 
 	const onArrowRight = useCallback(() => {
@@ -299,9 +299,9 @@ export const MenuContent: React.FC<{
 					return <MenuDivider key={item.id} />;
 				}
 
-				const onClick = () => {
+				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
 					onHide();
-					item.onClick(item.id);
+					item.onClick(id, e);
 				};
 
 				return (

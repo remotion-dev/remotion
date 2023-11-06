@@ -2,6 +2,7 @@ import type {AudioData} from '@remotion/media-utils';
 import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
+import {LIGHT_TRANSPARENT} from '../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -101,7 +102,7 @@ export const AudioWaveform: React.FC<{
 				context.lineTo(x, y);
 			}
 		});
-		context.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+		context.strokeStyle = LIGHT_TRANSPARENT;
 		context.stroke();
 	}, [visualizationWidth, metadata, startFrom, volume, doesVolumeChange]);
 

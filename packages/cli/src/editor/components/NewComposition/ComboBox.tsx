@@ -55,7 +55,7 @@ export type SelectionItem = {
 	id: string;
 	label: React.ReactNode;
 	value: string | number;
-	onClick: (id: string) => void;
+	onClick: (id: string, e: React.PointerEvent | null) => void;
 	keyHint: string | null;
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
