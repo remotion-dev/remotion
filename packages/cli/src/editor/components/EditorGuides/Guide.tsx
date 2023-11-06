@@ -2,6 +2,7 @@ import {memo, useCallback, useContext, useMemo} from 'react';
 import type {Guide} from '../../state/editor-guides';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
+import {ContextMenu} from '../ContextMenu';
 
 const PADDING_FOR_EASY_DRAG = 2;
 
@@ -34,7 +35,6 @@ const GuideComp: React.FC<{
 			padding: isVerticalGuide
 				? `0 ${PADDING_FOR_EASY_DRAG}px`
 				: `${PADDING_FOR_EASY_DRAG}px 0`,
-			zIndex: 1000,
 		};
 	}, [guide, scale, canvasDimensions, isVerticalGuide]);
 
@@ -64,16 +64,18 @@ const GuideComp: React.FC<{
 	);
 
 	return (
-		<div
-			style={guideStyle}
-			onMouseDown={onMouseDown}
-			className="__remotion_editor_guide"
-		>
+		<ContextMenu>
 			<div
-				style={guideContentStyle}
-				className="__remotion_editor_guide_content"
-			/>
-		</div>
+				style={guideStyle}
+				onMouseDown={onMouseDown}
+				className="__remotion_editor_guide"
+			>
+				<div
+					style={guideContentStyle}
+					className="__remotion_editor_guide_content"
+				/>
+			</div>
+		</ContextMenu>
 	);
 };
 
