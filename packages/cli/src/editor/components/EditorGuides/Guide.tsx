@@ -1,4 +1,5 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
+import {truthy} from '../../../truthy';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -23,7 +24,8 @@ const GuideComp: React.FC<{
 	const {
 		shouldCreateGuideRef,
 		setGuidesList,
-		setSelectedGuideId: setSelectedGuideIndex,
+		setSelectedGuideId,
+		selectedGuideId,
 	} = useContext(EditorShowGuidesContext);
 	const isVerticalGuide = guide.orientation === 'vertical';
 
@@ -65,9 +67,9 @@ const GuideComp: React.FC<{
 
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
-			setSelectedGuideIndex(() => guide.id);
+			setSelectedGuideId(() => guide.id);
 		},
-		[shouldCreateGuideRef, setSelectedGuideIndex, guide.id],
+		[shouldCreateGuideRef, setSelectedGuideId, guide.id],
 	);
 
 	const values = useMemo((): ComboboxValue[] => {
@@ -103,7 +105,14 @@ const GuideComp: React.FC<{
 			>
 				<div
 					style={guideContentStyle}
-					className="__remotion_editor_guide_content"
+					className={[
+						'__remotion_editor_guide_content',
+						selectedGuideId === guide.id
+							? '__remotion_editor_guide_selected'
+							: null,
+					]
+						.filter(truthy)
+						.join(' ')}
 				/>
 			</div>
 		</ContextMenu>
