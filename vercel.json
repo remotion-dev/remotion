@@ -249,7 +249,7 @@
     },
     {
       "source": "/transitions",
-      "destination": "/docs/transitions",
+      "destination": "/docs/transitioning",
       "permanent": false
     },
     {

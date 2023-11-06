@@ -9,6 +9,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
@@ -36,7 +37,6 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {
 	validateDimension,
@@ -130,7 +130,7 @@ const innerRenderStill = async ({
 	jpegQuality,
 	onBrowserLog,
 	compositor,
-	sourceMapContext,
+	sourceMapGetter,
 	downloadMap,
 	logLevel,
 	indent,
@@ -141,7 +141,7 @@ const innerRenderStill = async ({
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: Promise<AnySourceMapConsumer | null>;
+	sourceMapGetter: SourceMapGetter;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
 		composition.height,
@@ -212,11 +212,7 @@ const innerRenderStill = async ({
 			viewport: null,
 			logLevel,
 		}));
-	const page = await browserInstance.newPage(
-		Promise.resolve(sourceMapContext),
-		logLevel,
-		indent,
-	);
+	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -366,8 +362,13 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					server;
+				const {
+					serveUrl,
+					offthreadPort,
+					compositor,
+					sourceMap: sourceMapGetter,
+					downloadMap,
+				} = server;
 
 				return innerRenderStill({
 					...options,
@@ -375,7 +376,7 @@ const internalRenderStillRaw = (
 					onError,
 					proxyPort: offthreadPort,
 					compositor,
-					sourceMapContext: sourceMap,
+					sourceMapGetter,
 					downloadMap,
 				});
 			})

@@ -37,7 +37,10 @@ import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import type {OnAllChunksAvailable} from './helpers/merge-chunks';
@@ -364,7 +367,6 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
-	(await browserInstance).instance.forgetEventLoop();
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
@@ -648,6 +650,7 @@ export const launchHandler = async (
 		});
 		RenderInternals.Log.error('Wrote error to S3');
 		clearTimeout(webhookDueToTimeout);
+
 		if (params.webhook && !webhookInvoked) {
 			try {
 				await invokeWebhook({
@@ -696,5 +699,7 @@ export const launchHandler = async (
 		}
 
 		throw err;
+	} finally {
+		forgetBrowserEventLoop(params.logLevel);
 	}
 };

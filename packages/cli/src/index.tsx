@@ -83,7 +83,7 @@ export const cli = async () => {
 		} else if (isStudio) {
 			await studioCommand(remotionRoot, args, logLevel);
 		} else if (command === 'lambda') {
-			await lambdaCommand(remotionRoot, args);
+			await lambdaCommand(remotionRoot, args, logLevel);
 		} else if (command === 'cloudrun') {
 			await cloudrunCommand(remotionRoot, args, logLevel);
 		} else if (command === 'render') {
