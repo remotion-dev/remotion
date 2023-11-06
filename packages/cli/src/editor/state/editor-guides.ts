@@ -28,8 +28,17 @@ export const loadEditorShowGuidesOption = (): boolean => {
 	return item === 'true';
 };
 
+export const persistGuidesList = (guides: Guide[]) => {
+	localStorage.setItem('remotion.guidesList', JSON.stringify(guides));
+};
+
+export const loadGuidesList = (): Guide[] => {
+	const item = localStorage.getItem('remotion.guidesList');
+	return item ? JSON.parse(item) : [];
+};
+
 export const EditorShowGuidesContext = createContext<GuideState>({
-	editorShowGuides: loadEditorShowGuidesOption(),
+	editorShowGuides: false,
 	setEditorShowGuides: () => undefined,
 	guidesList: [],
 	setGuidesList: () => undefined,

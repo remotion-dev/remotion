@@ -3,13 +3,14 @@ import type {Guide, GuideState} from '../state/editor-guides';
 import {
 	EditorShowGuidesContext,
 	loadEditorShowGuidesOption,
+	loadGuidesList,
 	persistEditorShowGuidesOption,
 } from '../state/editor-guides';
 
 export const ShowGuidesProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [guidesList, setGuidesList] = useState<Guide[]>([]);
+	const [guidesList, setGuidesList] = useState<Guide[]>(() => loadGuidesList());
 	const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
 	const [editorShowGuides, setEditorShowGuidesState] = useState(() =>
 		loadEditorShowGuidesOption(),

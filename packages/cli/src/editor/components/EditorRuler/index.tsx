@@ -6,12 +6,15 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {TIMELINE_BACKGROUND} from '../../helpers/colors';
+import {RULER_COLOR, TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
-import {EditorShowGuidesContext} from '../../state/editor-guides';
+import {
+	EditorShowGuidesContext,
+	persistGuidesList,
+} from '../../state/editor-guides';
 import {
 	MAXIMUM_PREDEFINED_RULER_SCALE_GAP,
 	MINIMUM_RULER_MARKING_GAP_PX,
@@ -24,8 +27,8 @@ const originBlockStyles: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	left: 0,
-	borderBottom: '1px solid #444444',
-	borderRight: '1px solid #444444',
+	borderBottom: '1px solid ' + RULER_COLOR,
+	borderRight: '1px solid ' + RULER_COLOR,
 	width: `${RULER_WIDTH}px`,
 	height: `${RULER_WIDTH}px`,
 	background: TIMELINE_BACKGROUND,
@@ -135,7 +138,7 @@ export const EditorRulers: React.FC<{
 					}
 
 					setGuidesList((prevState) => {
-						return prevState.map((guide) => {
+						const newGuides = prevState.map((guide) => {
 							if (guide.id !== selectedGuideId) {
 								return guide;
 							}
@@ -145,6 +148,8 @@ export const EditorRulers: React.FC<{
 								show: false,
 							};
 						});
+						persistGuidesList(newGuides);
+						return newGuides;
 					});
 				} else {
 					if (shouldDeleteGuideRef.current) {
@@ -152,6 +157,7 @@ export const EditorRulers: React.FC<{
 					}
 
 					setGuidesList((prevState) => {
+						// Intentionally no persist, only persist on mouse up
 						return prevState.map((guide) => {
 							if (guide.id !== selectedGuideId) {
 								return guide;
@@ -192,11 +198,17 @@ export const EditorRulers: React.FC<{
 	);
 
 	const onMouseUp = useCallback(() => {
-		if (shouldDeleteGuideRef.current) {
-			setGuidesList((prevState) => {
-				return prevState.filter((selected) => selected.id !== selectedGuideId);
+		setGuidesList((prevState) => {
+			const newGuides = prevState.filter((selected) => {
+				if (!shouldDeleteGuideRef.current) {
+					return true;
+				}
+
+				return selected.id !== selectedGuideId;
 			});
-		}
+			persistGuidesList(newGuides);
+			return newGuides;
+		});
 
 		shouldDeleteGuideRef.current = false;
 		document.body.style.cursor = 'auto';
