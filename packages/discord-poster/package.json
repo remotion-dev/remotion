@@ -1,6 +1,6 @@
 {
   "name": "@remotion/discord-poster",
-  "version": "4.0.64",
+  "version": "4.0.65",
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
