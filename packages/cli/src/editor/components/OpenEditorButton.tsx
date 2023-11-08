@@ -38,6 +38,7 @@ export const OpenEditorButton: React.FC<{}> = () => {
 				}
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-console
 				console.error(err);
 				sendErrorNotification(`Could not open ${window.remotion_editorName}`);
 			});

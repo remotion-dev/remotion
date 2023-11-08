@@ -62,6 +62,7 @@ export const UpdateCheck = () => {
 					return;
 				}
 
+				// eslint-disable-next-line no-console
 				console.log('Could not check for updates', err);
 			});
 
@@ -83,6 +84,7 @@ export const UpdateCheck = () => {
 					return;
 				}
 
+				// eslint-disable-next-line no-console
 				console.log('Could not check for bugs in this version', err);
 			});
 

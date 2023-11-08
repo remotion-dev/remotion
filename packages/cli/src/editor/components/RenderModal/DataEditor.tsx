@@ -317,6 +317,7 @@ export const DataEditor: React.FC<{
 			)
 				.then((response) => {
 					if (!response.success) {
+						// eslint-disable-next-line no-console
 						console.log(response.stack);
 						sendErrorNotification(
 							`Cannot update default props: ${response.reason}. See console for more information.`,

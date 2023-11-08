@@ -111,6 +111,7 @@ const findItemListToPush = (
 
 	const folder = doesFolderExist(items, folderName, parentName);
 	if (!folder) {
+		// eslint-disable-next-line no-console
 		console.log({items, folderName, parentName});
 		throw new Error('did not find folder ' + folderName);
 	}
