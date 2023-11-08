@@ -14,6 +14,10 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {
+	enableNodeIntrospection,
+	whyIsNodeRunning,
+} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -36,6 +40,8 @@ type Options = {
 	isWarm: boolean;
 };
 
+let leakDetectionTimeout: NodeJS.Timeout | null = null;
+
 const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -43,6 +49,11 @@ const renderHandler = async (
 ): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
+	}
+
+	if (leakDetectionTimeout !== null) {
+		clearTimeout(leakDetectionTimeout);
+		leakDetectionTimeout = null;
 	}
 
 	if (params.launchFunctionConfig.version !== VERSION) {
@@ -304,6 +315,8 @@ export const rendererHandler = async (
 
 	const logs: BrowserLog[] = [];
 
+	const leakDetection = enableNodeIntrospection();
+
 	try {
 		await renderHandler(params, options, logs);
 		return {
@@ -367,5 +380,18 @@ export const rendererHandler = async (
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
+
+		leakDetectionTimeout = setTimeout(() => {
+			console.log(
+				'Leak detected: Lambda function is still running 10s after the render has finished.',
+			);
+			console.log('You may report this to the Remotion team.');
+			console.log('Include the logs below:');
+			whyIsNodeRunning(leakDetection);
+			console.log('Force-quitting the Lambda function now.');
+			process.exit(0);
+		}, 10000);
+
+		leakDetectionTimeout.unref();
 	}
 };
