@@ -63,7 +63,7 @@ export const NewMuxVideo: React.FC<{
       {() => (
         <VideoPlayerWithControls
           playbackId={muxId}
-          poster={"https://image.mux.com/" + muxId + "/thumbnail.png"}
+          poster={"https://image.mux.com/" + muxId + "/thumbnail.png?time=1"}
           onError={(error) => {
             console.log(error);
           }}
