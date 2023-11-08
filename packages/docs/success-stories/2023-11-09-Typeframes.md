@@ -1,7 +1,7 @@
 ---
 slug: typeframes
 title: Creating product videos in minutes with Typeframes
-image: /img/shortvid.png
+image: /img/typeframes.png
 ---
 
 import {NewMuxVideo} from '../src/components/MuxVideo';
