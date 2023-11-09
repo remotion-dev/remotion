@@ -44,7 +44,7 @@ const waitForLaunched = () => {
 };
 
 export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
-	RenderInternals.Log.verbose(
+	RenderInternals.Log.infoAdvanced(
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
 	);
@@ -61,6 +61,10 @@ export const getBrowserInstance = async (
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
 	};
+	const configurationString = makeConfigurationString(
+		actualChromiumOptions,
+		logLevel,
+	);
 
 	if (launching) {
 		RenderInternals.Log.info('Already waiting for browser launch...');
@@ -69,11 +73,6 @@ export const getBrowserInstance = async (
 			throw new Error('expected to launch');
 		}
 	}
-
-	const configurationString = makeConfigurationString(
-		actualChromiumOptions,
-		logLevel,
-	);
 
 	if (!_browserInstance) {
 		RenderInternals.Log.info(

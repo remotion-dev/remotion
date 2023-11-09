@@ -11,7 +11,7 @@ type Resource = {
 	};
 };
 
-type NodeIntrospection = {
+export type NodeIntrospection = {
 	hook: asyncHooks.AsyncHook;
 	active: Map<number, Resource>;
 };

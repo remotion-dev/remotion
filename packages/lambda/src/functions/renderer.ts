@@ -14,10 +14,7 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
-import {
-	enableNodeIntrospection,
-	whyIsNodeRunning,
-} from '../shared/why-is-node-running';
+import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -29,7 +26,9 @@ import {
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {RequestContext} from './helpers/request-context';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -40,8 +39,6 @@ type Options = {
 	isWarm: boolean;
 };
 
-let leakDetectionTimeout: NodeJS.Timeout | null = null;
-
 const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -49,11 +46,6 @@ const renderHandler = async (
 ): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
-	}
-
-	if (leakDetectionTimeout !== null) {
-		clearTimeout(leakDetectionTimeout);
-		leakDetectionTimeout = null;
 	}
 
 	if (params.launchFunctionConfig.version !== VERSION) {
@@ -306,6 +298,7 @@ const renderHandler = async (
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -381,17 +374,6 @@ export const rendererHandler = async (
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
 
-		leakDetectionTimeout = setTimeout(() => {
-			console.log(
-				'Leak detected: Lambda function is still running 10s after the render has finished.',
-			);
-			console.log('You may report this to the Remotion team.');
-			console.log('Include the logs below:');
-			whyIsNodeRunning(leakDetection);
-			console.log('Force-quitting the Lambda function now.');
-			process.exit(0);
-		}, 10000);
-
-		leakDetectionTimeout.unref();
+		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };
