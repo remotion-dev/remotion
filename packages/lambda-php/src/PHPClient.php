@@ -1,4 +1,6 @@
 <?php
+namespace Remotion\LambdaPhp;
+
 use Remotion\LambdaPhp\GetRenderProgressResponse;
 use Aws\Credentials\CredentialProvider;
 use Aws\Lambda\LambdaClient;
