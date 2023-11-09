@@ -345,6 +345,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					setMediaMuted(false);
 				},
 				getScale: () => scale,
+				pauseAndReturnToPlayStart: () => {
+					player.pauseAndReturnToPlayStart();
+				},
 			};
 			return Object.assign(player.emitter, methods);
 		},

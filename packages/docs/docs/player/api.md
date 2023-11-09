@@ -324,7 +324,7 @@ export const App: React.FC = () => {
 
       return <MyPauseButton />;
     },
-    []
+    [],
   );
 
   return (
@@ -363,7 +363,7 @@ export const App: React.FC = () => {
 
       return <FullScreenButton />;
     },
-    []
+    [],
   );
 
   return (
@@ -440,7 +440,7 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
-### `pauseAndReturnToPlayStart()`<AvailableFrom v="3.0.30" />
+### `pauseAndReturnToPlayStart()`<AvailableFrom v="4.0.67" />
 
 If the video is playing, pause it and return to the playback position where the video has last been played.
 
@@ -638,7 +638,7 @@ useEffect(() => {
       playerRef.current.removeEventListener("error", onError);
       playerRef.current.removeEventListener(
         "fullscreenchange",
-        onFullscreenChange
+        onFullscreenChange,
       );
       playerRef.current.removeEventListener("scalechange", onScaleChange);
       playerRef.current.removeEventListener("mutechange", onMuteChange);

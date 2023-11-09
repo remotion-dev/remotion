@@ -21,6 +21,7 @@ export type PlayerMethods = ThumbnailMethods & {
 	isPlaying: () => boolean;
 	mute: () => void;
 	unmute: () => void;
+	pauseAndReturnToPlayStart: () => void;
 };
 
 export type ThumbnailRef = PlayerEmitter & ThumbnailMethods;
