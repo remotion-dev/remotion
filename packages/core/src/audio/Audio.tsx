@@ -5,6 +5,7 @@ import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
@@ -14,7 +15,6 @@ import {AudioForDevelopment} from './AudioForDevelopment.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioContext} from './shared-audio-tags.js';
-
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
 	RemotionAudioProps & RemotionMainAudioProps
@@ -35,13 +35,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const preloadedSrc = usePreload(props.src);
+
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);
 
 			// If there is no `loop` property, we don't need to get the duration
 			// and this does not need to be a fatal error
-			const errMessage = `Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
+			const errMessage = `Could not play audio with src ${preloadedSrc}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
 
 			if (loop) {
 				cancelRender(new Error(errMessage));
@@ -49,7 +51,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				console.warn(errMessage);
 			}
 		},
-		[loop, otherProps.src],
+		[loop, preloadedSrc],
 	);
 
 	const onDuration = useCallback(
@@ -59,8 +61,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
+	if (loop && durations[getAbsoluteSrc(preloadedSrc)] !== undefined) {
+		const duration = Math.floor(durations[getAbsoluteSrc(preloadedSrc)] * fps);
 
 		return (
 			<Loop
