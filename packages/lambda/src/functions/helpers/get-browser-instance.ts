@@ -32,9 +32,9 @@ const waitForLaunched = () => {
 		const check = () =>
 			setTimeout(() => {
 				if (launching) {
-					resolve();
-				} else {
 					check();
+				} else {
+					resolve();
 				}
 			}, 16);
 
