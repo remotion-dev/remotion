@@ -76,7 +76,7 @@ export const getBrowserInstance = async (
 
 	if (!_browserInstance) {
 		RenderInternals.Log.info(
-			'Cold Lambda function, launching new Lambda function',
+			'Cold Lambda function, launching new browser instance',
 		);
 		launching = true;
 
@@ -92,10 +92,11 @@ export const getBrowserInstance = async (
 			logLevel,
 		});
 		instance.on('disconnected', () => {
-			console.log('Browser disconnected / crashed');
-			_browserInstance?.instance
-				?.close(true, logLevel, indent)
-				.catch(() => undefined);
+			RenderInternals.Log.info('Browser disconnected or crashed.');
+			forgetBrowserEventLoop(logLevel);
+			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
+				RenderInternals.Log.info('Could not close browser instance', err);
+			});
 			_browserInstance = null;
 		});
 		_browserInstance = {
