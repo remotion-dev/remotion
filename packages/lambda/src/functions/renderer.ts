@@ -260,10 +260,7 @@ const renderHandler = async (
 	});
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		'Wrote chunk to S3',
-		{
-			time: Date.now() - writeStart,
-		},
+		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
 	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
