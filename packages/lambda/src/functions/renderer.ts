@@ -14,6 +14,7 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -25,7 +26,9 @@ import {
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {RequestContext} from './helpers/request-context';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -295,6 +298,7 @@ const renderHandler = async (
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -303,6 +307,8 @@ export const rendererHandler = async (
 	}
 
 	const logs: BrowserLog[] = [];
+
+	const leakDetection = enableNodeIntrospection();
 
 	try {
 		await renderHandler(params, options, logs);
@@ -367,5 +373,7 @@ export const rendererHandler = async (
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
+
+		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };

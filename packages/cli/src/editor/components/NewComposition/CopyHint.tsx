@@ -17,6 +17,7 @@ export const CopyHint: React.FC = () => {
 				setProjectInfo(res);
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-console
 				console.log('Error fetching info about the project', err);
 				setProjectInfo(null);
 			});

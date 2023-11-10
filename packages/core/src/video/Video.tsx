@@ -4,6 +4,7 @@ import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
@@ -36,6 +37,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const preloadedSrc = usePreload(props.src);
+
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
@@ -43,8 +46,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const mediaDuration = durations[getAbsoluteSrc(props.src)] * fps;
+	if (loop && durations[getAbsoluteSrc(preloadedSrc)] !== undefined) {
+		const mediaDuration = durations[getAbsoluteSrc(preloadedSrc)] * fps;
 
 		return (
 			<Loop

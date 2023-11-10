@@ -31,7 +31,6 @@
 		{
 			"files": "./src/editor/**",
 			"rules": {
-				"no-console": "off",
 				"no-restricted-imports": [
 					"error",
 					{

@@ -178,7 +178,6 @@ export const drawMarkingOnRulerCanvas = ({
 	context.strokeStyle = RULER_COLOR;
 	context.lineWidth = 1;
 	context.beginPath();
-	console.log(points);
 	points.forEach((point) => {
 		context.strokeStyle = RULER_COLOR;
 		context.lineWidth = 1;

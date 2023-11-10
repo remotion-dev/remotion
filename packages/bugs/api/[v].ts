@@ -8,6 +8,12 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "<Player> does not render",
+    description: "The <Player> component does not render anything.",
+    link: "https://github.com/remotion-dev/remotion/issues/3128",
+    versions: ["4.0.63"],
+  },
+  {
     title: "Slow rendering for long videos",
     description: "A render could get progressively slower the longer it runs.",
     link: "https://github.com/remotion-dev/remotion/pull/3106",

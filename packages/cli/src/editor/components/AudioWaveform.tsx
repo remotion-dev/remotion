@@ -116,7 +116,6 @@ export const AudioWaveform: React.FC<{
 				}
 			})
 			.catch((err) => {
-				console.log(err);
 				if (mountState.current.isMounted) {
 					setError(err);
 				}

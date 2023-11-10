@@ -227,6 +227,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											}
 										})
 										.catch((err) => {
+											// eslint-disable-next-line no-console
 											console.error(err);
 											sendErrorNotification(
 												`Could not open ${window.remotion_editorName}`,
