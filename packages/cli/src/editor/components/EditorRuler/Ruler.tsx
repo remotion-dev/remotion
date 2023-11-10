@@ -49,6 +49,7 @@ const Ruler: React.FC<RulerProps> = ({
 		hoveredGuideId,
 		setSelectedGuideId,
 		guidesList,
+		setEditorShowGuides,
 	} = useContext(EditorShowGuidesContext);
 	const unsafeVideoConfig = Internals.useUnsafeVideoConfig();
 
@@ -119,6 +120,7 @@ const Ruler: React.FC<RulerProps> = ({
 			shouldCreateGuideRef.current = true;
 			document.body.style.cursor = 'no-drop';
 			const guideId = makeGuideId();
+			setEditorShowGuides(() => true);
 			setSelectedGuideId(() => guideId);
 			setGuidesList((prevState) => {
 				return [
@@ -135,6 +137,7 @@ const Ruler: React.FC<RulerProps> = ({
 		},
 		[
 			shouldCreateGuideRef,
+			setEditorShowGuides,
 			setSelectedGuideId,
 			setGuidesList,
 			orientation,
