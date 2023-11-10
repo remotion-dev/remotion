@@ -65,4 +65,5 @@ It’s always tricky to answer this one. I can tell what’s coming up in the ne
 
 We've got some exciting developments ahead for Typeframes, and one of the highlights is definitely our upcoming animation library. Picture it as something similar to Canva's image templates, but we're bringing it to life for videos. We look forward to seeing how our users will use Typeframes’ animation library.
 
-Editors note: You can follow Tibo (Thibault Louis-Lucas) on [X](https://twitter.com/tibo_maker) and [LinkedIn](https://www.linkedin.com/in/thibaultll/), where he shares his indie hacker journey and Typeframes’ development.
+Editors note:
+You can follow Tibo (Thibault Louis-Lucas) on [X](https://twitter.com/tibo_maker) and [LinkedIn](https://www.linkedin.com/in/thibaultll/), where he shares his indie hacker journey and Typeframes’ development.
