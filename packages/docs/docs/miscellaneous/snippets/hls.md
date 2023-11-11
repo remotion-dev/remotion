@@ -41,8 +41,6 @@ const HlsVideo: React.FC<RemotionVideoProps> = ({ src }) => {
     const startFrom = 0;
 
     const hls = new Hls({
-      lowLatencyMode: true,
-      backBufferLength: 20,
       startLevel: 4,
       maxBufferLength: 5,
       maxMaxBufferLength: 5,
