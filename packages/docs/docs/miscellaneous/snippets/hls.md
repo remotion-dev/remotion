@@ -38,7 +38,20 @@ const HlsVideo: React.FC<RemotionVideoProps> = ({ src }) => {
       throw new Error("src is required");
     }
 
-    const hls = new Hls();
+    const startFrom = 0;
+
+    const hls = new Hls({
+      enableWorker: !isSafari(),
+      lowLatencyMode: true,
+      backBufferLength: 20,
+      startLevel: 4,
+      maxBufferLength: 5,
+      maxMaxBufferLength: 5,
+    });
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      hls.startLoad(startFrom);
+    });
 
     hls.loadSource(src);
     hls.attachMedia(videoRef.current!);
