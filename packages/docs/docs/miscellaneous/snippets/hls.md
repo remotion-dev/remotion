@@ -41,7 +41,6 @@ const HlsVideo: React.FC<RemotionVideoProps> = ({ src }) => {
     const startFrom = 0;
 
     const hls = new Hls({
-      enableWorker: !isSafari(),
       lowLatencyMode: true,
       backBufferLength: 20,
       startLevel: 4,
