@@ -1,7 +1,7 @@
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
 
 // Nonces keep track of the order of compositions.
-// It's a counter that goes up and seqences and compositions get a nonce
+// It's a counter that goes up and sequences and compositions get a nonce
 // to keep track of the orders.
 
 // On fast refresh, we reset the counter and all compositions and
