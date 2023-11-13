@@ -6,11 +6,19 @@ const toSeconds = (time: number, fps: number) => {
 
 // https://github.com/remotion-dev/remotion/issues/1655
 const isIOSSafariCase = (actualSrc: string) => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
-				actualSrc.startsWith('blob:');
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isSafari = Boolean(
+		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	);
+	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
+
+	return (
+		isIpadIPodIPhone && (isSafari || isChrome) && actualSrc.startsWith('blob:')
+	);
 };
 
 export const appendVideoFragment = ({
