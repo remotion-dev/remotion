@@ -75,6 +75,7 @@ export const serveStatic = async (
 	const portConfig = getPortConfig();
 
 	for (let i = 0; i < maxTries; i++) {
+		let unlock = () => {};
 		try {
 			selectedPort = await new Promise<number>((resolve, reject) => {
 				getDesiredPort({
@@ -83,17 +84,22 @@ export const serveStatic = async (
 					to: 3100,
 					hostsToTry: portConfig.hostsToTry,
 				})
-					.then(({port, didUsePort}) => {
+					.then(({port, unlockPort}) => {
+						unlock = unlockPort;
 						server.listen({port, host: portConfig.host});
 						server.on('listening', () => {
 							resolve(port);
-							return didUsePort();
+							return unlock();
 						});
 						server.on('error', (err) => {
+							unlock();
 							reject(err);
 						});
 					})
-					.catch((err) => reject(err));
+					.catch((err) => {
+						unlock();
+						return reject(err);
+					});
 			});
 			const destroyConnections = function () {
 				for (const key in connections) connections[key].destroy();
