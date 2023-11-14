@@ -35,6 +35,7 @@ export const HelpLink: React.FC<{
 			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openLink, registerKeybinding]);

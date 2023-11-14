@@ -40,6 +40,7 @@ export const FullScreenToggle: React.FC<{}> = () => {
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => {
 			f.unregister();

@@ -1107,7 +1107,7 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 					defaultProps={{
-						title: 'sdasdsd',
+						title: 'sdasds',
 						delay: 5.2,
 						color: '#df822a',
 						list: ['second', 'lol', 'first', '', 'yo'],
