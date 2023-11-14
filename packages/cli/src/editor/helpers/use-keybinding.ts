@@ -27,6 +27,7 @@ export const useKeybinding = () => {
 			callback: (e: KeyboardEvent) => void;
 			preventDefault: boolean;
 			triggerIfInputFieldFocused: boolean;
+			keepRegisteredWhenNotHighestContext: boolean;
 		}) => {
 			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 				return {
@@ -34,7 +35,7 @@ export const useKeybinding = () => {
 				};
 			}
 
-			if (!isHighestContext) {
+			if (!isHighestContext && !options.keepRegisteredWhenNotHighestContext) {
 				return {
 					unregister: () => undefined,
 				};

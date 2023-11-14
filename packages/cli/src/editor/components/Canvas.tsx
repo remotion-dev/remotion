@@ -274,6 +274,7 @@ export const Canvas: React.FC<{
 			callback: onReset,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -283,6 +284,7 @@ export const Canvas: React.FC<{
 			callback: onZoomIn,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -292,6 +294,7 @@ export const Canvas: React.FC<{
 			callback: onZoomOut,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
