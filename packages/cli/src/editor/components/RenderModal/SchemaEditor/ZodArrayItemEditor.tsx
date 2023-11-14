@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {Plus} from '../../../icons/plus';
 import {
 	useZodIfPossible,
@@ -41,6 +41,7 @@ export const ZodArrayItemEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	const [hovered, setHovered] = useState(false);
 	const zodTypes = useZodTypesIfPossible();
 	const onRemove = useCallback(() => {
 		onChange(
@@ -101,7 +102,10 @@ export const ZodArrayItemEditor: React.FC<{
 	}, []);
 
 	return (
-		<>
+		<div
+			onMouseEnter={() => setHovered(true)}
+			onMouseLeave={() => setHovered(false)}
+		>
 			<ZodSwitch
 				jsonPath={newJsonPath}
 				schema={def.type}
@@ -115,9 +119,11 @@ export const ZodArrayItemEditor: React.FC<{
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
-			<div>
-				<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
-			</div>
-		</>
+			{hovered ? (
+				<div>
+					<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
+				</div>
+			) : null}
+		</div>
 	);
 };
