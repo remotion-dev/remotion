@@ -35,6 +35,7 @@ const EscapeHook: React.FC<{
 			preventDefault: true,
 			// To dismiss the Quick Switcher menu if input is focused
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

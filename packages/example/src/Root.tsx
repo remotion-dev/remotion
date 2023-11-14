@@ -1107,11 +1107,12 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 					defaultProps={{
-						title: 'sdasdsd',
+						title: 'sdasds',
 						delay: 5.2,
-						color: '#df822a',
-						list: ['Sample Item'],
-						description: 'Sample description \nOn multiple lines',
+						color: '#b47841',
+						list: ['test'],
+						description: null,
+						dropdown: 'a' as const,
 					}}
 				/>
 				{/**

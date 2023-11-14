@@ -61,6 +61,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const kKey = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -69,6 +70,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const lKey = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -77,6 +79,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

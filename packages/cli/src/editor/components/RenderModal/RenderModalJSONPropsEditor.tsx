@@ -125,6 +125,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			callback: onQuickSave,
 			preventDefault: true,
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

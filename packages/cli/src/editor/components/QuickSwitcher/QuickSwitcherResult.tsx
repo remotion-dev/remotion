@@ -96,6 +96,7 @@ export const QuickSwitcherResult: React.FC<{
 			preventDefault: true,
 			// Input will be focused while sleection
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

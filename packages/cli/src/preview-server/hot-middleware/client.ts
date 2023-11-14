@@ -55,7 +55,7 @@ function eventSourceWrapper() {
 	function handleDisconnect() {
 		clearInterval(timer);
 		source.close();
-		setTimeout(init, hotMiddlewareOptions.timeout);
+		setTimeout(init, 1000);
 	}
 
 	return {

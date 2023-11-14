@@ -1075,6 +1075,7 @@ const RenderModal: React.FC<
 			event: 'keydown',
 			preventDefault: true,
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => {
 			enter.unregister();

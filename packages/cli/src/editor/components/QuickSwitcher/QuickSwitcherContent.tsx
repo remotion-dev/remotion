@@ -244,6 +244,7 @@ export const QuickSwitcherContent: React.FC<{
 			preventDefault: true,
 			// Will be using the input field while selecting
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
@@ -294,6 +295,7 @@ export const QuickSwitcherContent: React.FC<{
 			preventDefault: true,
 			// Will be using the input field while selecting
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

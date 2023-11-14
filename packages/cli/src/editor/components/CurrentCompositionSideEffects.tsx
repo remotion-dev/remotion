@@ -71,6 +71,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 			callback: openRenderModal,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
