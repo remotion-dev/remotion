@@ -93,7 +93,7 @@ export const getDesiredPort = async ({
 }) => {
 	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
-	const unlockPort = portLocks.unlock(lockPortSelection);
+	const unlockPort = () => portLocks.unlock(lockPortSelection);
 
 	if (
 		typeof desiredPort !== 'undefined' &&
