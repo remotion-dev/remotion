@@ -1,4 +1,11 @@
 import {useCallback, useMemo} from 'react';
+import {Plus} from '../../../icons/plus';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
+import {InlineAction, type RenderInlineAction} from '../../InlineAction';
+import {createZodValues} from './create-zod-values';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
@@ -29,6 +36,12 @@ export const ZodArrayItemEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
@@ -36,6 +49,20 @@ export const ZodArrayItemEditor: React.FC<{
 			true,
 		);
 	}, [index, onChange]);
+
+	const onAdd2 = useCallback(() => {
+		onChange(
+			(oldV) => {
+				return [
+					...oldV.slice(0, index + 1),
+					createZodValues(def.type, z, zodTypes),
+					...oldV.slice(index + 1),
+				];
+			},
+			false,
+			true,
+		);
+	}, [def.type, index, onChange, z, zodTypes]);
 
 	const setValue = useCallback(
 		(val: ((newV: unknown) => unknown) | unknown) => {
@@ -69,19 +96,28 @@ export const ZodArrayItemEditor: React.FC<{
 		[index, onSaveObject],
 	);
 
+	const renderAddButton: RenderInlineAction = useCallback((color) => {
+		return <Plus color={color} style={{height: 12}} />;
+	}, []);
+
 	return (
-		<ZodSwitch
-			jsonPath={newJsonPath}
-			schema={def.type}
-			value={value}
-			setValue={setValue}
-			defaultValue={defaultValue}
-			onSave={onSave}
-			showSaveButton={showSaveButton}
-			onRemove={onRemove}
-			saving={saving}
-			saveDisabledByParent={saveDisabledByParent}
-			mayPad={mayPad}
-		/>
+		<>
+			<ZodSwitch
+				jsonPath={newJsonPath}
+				schema={def.type}
+				value={value}
+				setValue={setValue}
+				defaultValue={defaultValue}
+				onSave={onSave}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
+			/>
+			<div>
+				<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
+			</div>
+		</>
 	);
 };
