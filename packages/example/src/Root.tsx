@@ -1110,9 +1110,9 @@ export const Index: React.FC = () => {
 						title: 'sdasds',
 						delay: 5.2,
 						color: '#df822a',
-						list: ['second', 'lol', 'first', '', 'yo'],
+						list: ['first', 'second', 'third'],
 						description: 'Sample description \nOn multiple lines',
-						dropdown: 'a',
+						dropdown: 'a' as const,
 					}}
 				/>
 				{/**
