@@ -51,7 +51,7 @@ export const ZodArrayItemEditor: React.FC<{
 		);
 	}, [index, onChange]);
 
-	const onAdd2 = useCallback(() => {
+	const onAdd = useCallback(() => {
 		onChange(
 			(oldV) => {
 				return [
@@ -128,7 +128,7 @@ export const ZodArrayItemEditor: React.FC<{
 				mayPad={mayPad}
 			/>
 			<div style={dynamicAddButtonStyle}>
-				<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
+				<InlineAction onClick={onAdd} renderAction={renderAddButton} />
 			</div>
 		</div>
 	);
