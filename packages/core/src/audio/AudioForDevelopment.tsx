@@ -59,6 +59,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		_remotionInternalNeedsDurationCalculation,
 		allowAmplificationDuringRender,
+		name,
 		...nativeProps
 	} = props;
 
@@ -116,6 +117,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		displayName: name ?? null,
 	});
 
 	useMediaPlayback({

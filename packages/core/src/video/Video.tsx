@@ -18,7 +18,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps & RemotionMainVideoProps
 > = (props, ref) => {
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, name, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -58,6 +58,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					startFrom,
 				})}
 				layout="none"
+				name={name}
 			>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
@@ -75,6 +76,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
+				name={name}
 			>
 				<Video {...otherProps} ref={ref} />
 			</Sequence>

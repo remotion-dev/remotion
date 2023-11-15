@@ -59,6 +59,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		_remotionInternalNeedsDurationCalculation,
 		acceptableTimeShiftInSeconds,
+		name,
 		...nativeProps
 	} = props;
 

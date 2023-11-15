@@ -13,6 +13,7 @@ export type RemotionVideoProps = Omit<
 	>,
 	'autoPlay' | 'controls' | 'onEnded' | 'nonce'
 > & {
+	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
 	acceptableTimeShiftInSeconds?: number;
@@ -30,6 +31,7 @@ type DeprecatedOffthreadVideoProps = {
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
+	name?: string;
 	id?: string;
 	style?: React.CSSProperties;
 	volume?: VolumeProp;

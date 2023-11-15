@@ -50,6 +50,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShift,
 		acceptableTimeShiftInSeconds,
 		toneFrequency,
+		name,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -70,6 +71,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		src,
 		playbackRate: props.playbackRate ?? 1,
+		displayName: name ?? null,
 	});
 
 	useSyncVolumeWithMediaTag({

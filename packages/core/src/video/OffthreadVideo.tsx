@@ -16,7 +16,7 @@ export const OffthreadVideo: React.FC<Omit<OffthreadVideoProps, 'loop'>> = (
 ) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, name, ...otherProps} = props;
 	const environment = getRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
@@ -46,6 +46,7 @@ export const OffthreadVideo: React.FC<Omit<OffthreadVideoProps, 'loop'>> = (
 				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
+				name={name}
 			>
 				<OffthreadVideo {...otherProps} />
 			</Sequence>
