@@ -27,6 +27,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	allowAmplificationDuringRender,
 	transparent = false,
 	toneFrequency,
+	name,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();

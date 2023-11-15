@@ -20,7 +20,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	RemotionAudioProps & RemotionMainAudioProps
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, name, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -90,6 +90,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
+				name={name}
 			>
 				<Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
