@@ -135,6 +135,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Augie](https://www.meetaugie.com/)
 - [Oxolo](https://www.oxolo.com/)
 - [Hackreels](https://www.hackreels.com/)
+- [AnimStats](https://www.animstats.com/)
 
 ## See also
 
