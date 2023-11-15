@@ -27,6 +27,7 @@ export const SchemaLabel: React.FC<{
 	valid: boolean;
 	saveDisabledByParent: boolean;
 	suffix: string | null;
+	handleClick?: () => void;
 }> = ({
 	jsonPath,
 	isDefaultValue,
@@ -38,6 +39,7 @@ export const SchemaLabel: React.FC<{
 	valid,
 	saveDisabledByParent,
 	suffix,
+	handleClick,
 }) => {
 	const disableSave = saving || !valid || saveDisabledByParent;
 	const labelStyle: React.CSSProperties = useMemo(() => {
@@ -49,11 +51,21 @@ export const SchemaLabel: React.FC<{
 		};
 	}, [valid]);
 
+	const labelContent = (
+		<span style={labelStyle}>
+			{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
+		</span>
+	);
+
 	return (
 		<div style={compactStyles}>
-			<span style={labelStyle}>
-				{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
-			</span>
+			{handleClick ? (
+				<button type="button" onClick={handleClick} style={{border: 'none'}}>
+					{labelContent}
+				</button>
+			) : (
+				labelContent
+			)}
 			<Flex />
 			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
 			{isDefaultValue ? null : showSaveButton ? (

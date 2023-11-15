@@ -8,11 +8,11 @@ import {
 import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 import {fieldsetLabel} from '../layout';
-import {ClickableSchemaLabel} from './ClickableSchemaLabel';
 import {createZodValues} from './create-zod-values';
 import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
+import {SchemaLabel} from './SchemaLabel';
 import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 import type {JSONPath} from './zod-types';
@@ -97,7 +97,7 @@ export const ZodArrayEditor: React.FC<{
 					flexDirection: 'row',
 				}}
 			>
-				<ClickableSchemaLabel
+				<SchemaLabel
 					onReset={reset}
 					isDefaultValue={isDefaultValue}
 					jsonPath={jsonPath}
