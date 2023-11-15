@@ -109,6 +109,14 @@ export const ZodObjectEditor: React.FC<{
 							return discriminatedUnionReplacement.markup;
 						}
 
+						let derivedDefaultValue;
+
+						if (defaultValue && defaultValue[key] !== undefined) {
+							derivedDefaultValue = defaultValue[key];
+						} else {
+							derivedDefaultValue = value[key];
+						}
+
 						return (
 							<React.Fragment key={key}>
 								<ZodSwitch
@@ -117,7 +125,7 @@ export const ZodObjectEditor: React.FC<{
 									schema={shape[key]}
 									value={localValue.value[key]}
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
-									defaultValue={(defaultValue ?? value)[key]}
+									defaultValue={derivedDefaultValue}
 									setValue={(val, forceApply) => {
 										onChange(
 											(oldVal) => {
