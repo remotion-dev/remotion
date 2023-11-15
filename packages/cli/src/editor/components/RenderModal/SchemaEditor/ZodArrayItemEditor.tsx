@@ -97,6 +97,14 @@ export const ZodArrayItemEditor: React.FC<{
 		[index, onSaveObject],
 	);
 
+	const dynamicAddButtonStyle: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			justifyContent: 'flex-end',
+			opacity: hovered ? 1 : 0,
+			marginTop: -10,
+		};
+	}, [hovered]);
 	const renderAddButton: RenderInlineAction = useCallback((color) => {
 		return <Plus color={color} style={{height: 12}} />;
 	}, []);
@@ -119,11 +127,9 @@ export const ZodArrayItemEditor: React.FC<{
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
-			{hovered ? (
-				<div>
-					<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
-				</div>
-			) : null}
+			<div style={dynamicAddButtonStyle}>
+				<InlineAction onClick={onAdd2} renderAction={renderAddButton} />
+			</div>
 		</div>
 	);
 };
