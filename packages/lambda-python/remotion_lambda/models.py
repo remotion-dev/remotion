@@ -18,7 +18,7 @@ class RenderParams:
     composition: str = ""
     serve_url: str = ""
     frames_per_lambda: Optional[int] = None
-    input_props: Optional[Dict] = None
+    private_serialized_input_props: Optional[Dict] = None
     codec: str = 'h264'
     version: str = ""
     image_format: str = 'jpeg'
@@ -62,7 +62,7 @@ class RenderParams:
             'framesPerLambda': self.frames_per_lambda,
             'composition': self.composition,
             'serveUrl': self.serve_url,
-            'inputProps': self.input_props,
+            'inputProps': self.private_serialized_input_props,
             'codec': self.codec,
             'imageFormat': self.image_format,
             'maxRetries': self.max_retries,
