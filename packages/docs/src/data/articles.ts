@@ -2186,6 +2186,13 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "security",
+    title: "Security Best Practices",
+    relativePath: "docs/security.md",
+    compId: "articles-docs-security",
+    crumb: "FAQ",
+  },
+  {
     id: "sequence",
     title: "<Sequence>",
     relativePath: "docs/sequence.md",

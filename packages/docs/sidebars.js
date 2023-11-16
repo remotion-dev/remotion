@@ -760,6 +760,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       items: [
+        "security",
         "chromium-flags",
         "miscellaneous/changing-temp-dir",
         "miscellaneous/thorium-browser",
