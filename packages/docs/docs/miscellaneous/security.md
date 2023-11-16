@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-security.png
 sidebar_label: Security
 title: Security Best Practices
 crumb: "FAQ"
@@ -26,3 +27,4 @@ APIs such as `renderMedia()` and `renderMediaOnLambda()` may be expensive (compu
 
 Often you will use Remotion alongside other Node.js dependencies.  
 You should only install dependencies you trust, since they can run arbitrary code in their `postinstall` scripts.
+Dependencies, including Remotion, may have known vulnerabilities which you can list with the `npm audit` command.

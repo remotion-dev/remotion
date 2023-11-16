@@ -1519,6 +1519,13 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "miscellaneous/security",
+    title: "Security Best Practices",
+    relativePath: "docs/miscellaneous/security.md",
+    compId: "articles-docs-miscellaneous-security",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/snippets/accelerated-video",
     title: "Change the speed of a video over time",
     relativePath: "docs/miscellaneous/snippets/accelerated-video.md",
