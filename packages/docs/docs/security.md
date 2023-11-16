@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-miscellaneous-security.png
+image: /generated/articles-docs-security.png
 sidebar_label: Security
 title: Security Best Practices
 crumb: "FAQ"
