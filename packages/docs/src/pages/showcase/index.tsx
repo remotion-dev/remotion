@@ -113,6 +113,7 @@ const Showcase = () => {
 
     return {
       display: "inline-block",
+      width: "100%",
     };
   }, [mobileLayout]);
 
