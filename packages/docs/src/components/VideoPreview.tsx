@@ -40,13 +40,13 @@ export const VideoPreview: React.FC<
     description: React.ReactNode;
     onClick: () => void;
   }
-> = ({ title, description, onClick, muxId, width, height }) => {
+> = ({ title, description, onClick, muxId, width, height, time }) => {
   const [hover, setHover] = useState(false);
 
   const container = useRef<HTMLAnchorElement>(null);
 
   const animated = `https://image.mux.com/${muxId}/animated.gif?width=600`;
-  const thumbnail = `https://image.mux.com/${muxId}/thumbnail.png?width=600`;
+  const thumbnail = `https://image.mux.com/${muxId}/thumbnail.png?width=600&time=${time}`;
 
   useEffect(() => {
     const { current } = container;
