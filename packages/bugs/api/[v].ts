@@ -8,9 +8,9 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
-    title: "Subsequence Lambda renders are slow",
-    description: "A warm Lambda function would get slower over time",
-    link: "",
+    title: "Subsequent Lambda renders become slow",
+    description: "A warm Lambda function would get slower over time.",
+    link: "https://github.com/remotion-dev/remotion/pull/3184",
     versions: ["4.0.66", "4.0.67", "4.0.68", "4.0.69", "4.0.70"],
   },
   {
