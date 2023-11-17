@@ -14,6 +14,7 @@ const videoTitle: React.CSSProperties = {
   marginTop: "1rem",
   textAlign: "center",
   alignSelf: "center",
+  padding: "10px",
 };
 
 const videoDescription: React.CSSProperties = {
