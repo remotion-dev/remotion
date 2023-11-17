@@ -97,8 +97,22 @@ export const VideoPreview: React.FC<
     };
   }, [height, width]);
 
+  const frameStyle: React.CSSProperties = {
+    border: "2px solid #ccc",
+    borderRadius: "10px",
+    backgroundColor: "var(--ifm-background-color)",
+    boxShadow: "var(--box-shadow)",
+    margin: "5px",
+    overflow: "hidden",
+  };
+
   return (
-    <a ref={container} style={a} className={clsx(videoStyle)} onClick={onClick}>
+    <a
+      ref={container}
+      style={{ ...a, ...frameStyle }}
+      className={clsx(videoStyle)}
+      onClick={onClick}
+    >
       <div style={placeholder}>
         <div style={style} />
       </div>
