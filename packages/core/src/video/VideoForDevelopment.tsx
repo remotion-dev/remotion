@@ -178,6 +178,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		// if a seek is triggered before `loadedmetadata` is fired,
 		// the video will not seek, even if `loadedmetadata` is fired afterwards.
 
+		// Also, this needs to happen in a useEffect, because otherwise
+		// the SSR props will be applied.
+
 		if (isIosSafari()) {
 			current.preload = 'metadata';
 		} else {
