@@ -12,12 +12,21 @@ type Resource = {
 };
 
 export type NodeIntrospection = {
-	hook: asyncHooks.AsyncHook;
+	hook: asyncHooks.AsyncHook | null;
 	active: Map<number, Resource>;
 };
 
-export const enableNodeIntrospection = (): NodeIntrospection => {
+export const enableNodeIntrospection = (
+	enabled: boolean,
+): NodeIntrospection => {
 	const active = new Map<number, Resource>();
+	if (!enabled) {
+		return {
+			active,
+			hook: null,
+		};
+	}
+
 	const hook = asyncHooks.createHook({
 		init(asyncId, type, _triggerAsyncId, resource) {
 			if (type === 'TIMERWRAP' || type === 'PROMISE') return;
@@ -37,6 +46,10 @@ export const enableNodeIntrospection = (): NodeIntrospection => {
 };
 
 export function whyIsNodeRunning({active, hook}: NodeIntrospection) {
+	if (!hook) {
+		return;
+	}
+
 	hook.disable();
 	const activeResources = [...active.values()].filter((r) => {
 		if (typeof r.resource.hasRef === 'function' && !r.resource.hasRef())

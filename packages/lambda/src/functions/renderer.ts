@@ -292,6 +292,8 @@ const renderHandler = async (
 	return {};
 };
 
+export const ENABLE_SLOW_LEAK_DETECTION = false;
+
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -305,7 +307,7 @@ export const rendererHandler = async (
 
 	const logs: BrowserLog[] = [];
 
-	const leakDetection = enableNodeIntrospection();
+	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
 		await renderHandler(params, options, logs);
