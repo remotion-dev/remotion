@@ -18,6 +18,7 @@ const videoTitle: React.CSSProperties = {
 
 const videoDescription: React.CSSProperties = {
   textAlign: "center",
+  padding: "10px",
 };
 
 const padding: React.CSSProperties = {
