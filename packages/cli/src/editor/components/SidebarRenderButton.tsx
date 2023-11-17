@@ -35,7 +35,7 @@ export const SidebarRenderButton: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
-	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
 			const defaults = window.remotion_renderDefaults;
 			if (!defaults) {
