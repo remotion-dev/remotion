@@ -167,13 +167,27 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [src]);
 
+	useEffect(() => {
+		const {current} = videoRef;
+
+		if (!current) {
+			return;
+		}
+
+		// Without this, on iOS Safari, the video cannot be seeked.
+		// if a seek is triggered before `loadedmetadata` is fired,
+		// the video will not seek, even if `loadedmetadata` is fired afterwards.
+
+		if (isIosSafari()) {
+			current.preload = 'metadata';
+		} else {
+			current.preload = 'auto';
+		}
+	}, []);
+
 	return (
 		<video
 			ref={videoRef}
-			// Without this, on iOS Safari, the video cannot be seeked.
-			// if a seek is triggered before `loadedmetadata` is fired,
-			// the video will not seek, even if `loadedmetadata` is fired afterwards.
-			preload={isIosSafari() ? 'metadata' : 'auto'}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
