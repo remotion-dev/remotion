@@ -1,6 +1,6 @@
 import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';

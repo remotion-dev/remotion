@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';

@@ -14,7 +14,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,

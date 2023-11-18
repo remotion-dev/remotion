@@ -12,7 +12,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';

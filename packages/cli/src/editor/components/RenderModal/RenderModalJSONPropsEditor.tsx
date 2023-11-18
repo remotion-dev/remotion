@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {FAIL_COLOR} from '../../helpers/colors';

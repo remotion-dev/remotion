@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {subscribeToEvent} from '../../../event-source';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';

@@ -5,7 +5,7 @@
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/*/src/*"]
+				"patterns": ["@remotion/*/src/*", "remotion/src/*"]
 			}
 		],
 		"@typescript-eslint/no-use-before-define": "off",
@@ -34,7 +34,7 @@
 				"no-restricted-imports": [
 					"error",
 					{
-						"patterns": ["@remotion/*/src/*"]
+						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
 					}
 				]
 			}
@@ -45,7 +45,7 @@
 				"no-restricted-imports": [
 					"error",
 					{
-						"patterns": ["@remotion/*/src/*"]
+						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
 					}
 				]
 			}

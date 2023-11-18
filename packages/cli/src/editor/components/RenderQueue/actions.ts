@@ -9,7 +9,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	CopyStillToClipboardRequest,

@@ -1,5 +1,5 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {getErrorKeyPrefix} from '../../shared/constants';
 import {DOCS_URL} from '../../shared/docs-url';
