@@ -32,7 +32,6 @@ import {
 	FILE_TOKEN,
 	serializeJSONWithDate,
 } from './input-props-serialization.js';
-import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
@@ -137,7 +136,6 @@ export const Internals = {
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
-	processColor,
 	NonceContext,
 	resolveVideoConfig,
 	useResolvedVideoConfig,
