@@ -6,7 +6,8 @@
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/cli", "@remotion/*/src/*"]
+				"patterns": ["@remotion/cli", "@remotion/*/src/*"],
+				"paths": ["remotion"]
 			}
 		]
 	},

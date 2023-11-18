@@ -30,7 +30,6 @@ import {
 	DATE_TOKEN,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
-	serializeJSONWithDate,
 } from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
@@ -68,10 +67,6 @@ import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
-import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
-import {validateDimension} from './validation/validate-dimensions.js';
-import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
-import {validateFps} from './validation/validate-fps.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import {isIosSafari} from './video/video-fragment.js';
 import type {
@@ -112,10 +107,6 @@ export const Internals = {
 	setupEnvVariables,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
-	validateDurationInFrames,
-	validateFps,
-	validateDefaultAndInputProps,
-	validateDimension,
 	getRemotionEnvironment,
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -147,7 +138,6 @@ export const Internals = {
 	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	serializeJSONWithDate,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
 	DATE_TOKEN,

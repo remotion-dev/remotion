@@ -1,4 +1,5 @@
 import {Internals, type VideoConfig} from 'remotion';
+import {NoReactInternals} from 'remotion/src/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -263,11 +264,12 @@ export const getCompositions = (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps ?? {},
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps ?? {},
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		indent: false,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
