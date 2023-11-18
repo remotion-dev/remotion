@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {FAIL_COLOR} from '../../helpers/colors';
@@ -27,7 +27,7 @@ const scrollable: React.CSSProperties = {
 
 const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 	try {
-		const value = Internals.deserializeJSONWithCustomFields(str);
+		const value = NoReactInternals.deserializeJSONWithCustomFields(str);
 		const zodValidation = schema.safeParse(value);
 		return {str, value, validJSON: true, zodValidation};
 	} catch (e) {

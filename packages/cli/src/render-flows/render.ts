@@ -20,7 +20,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
@@ -403,11 +403,12 @@ export const renderVideoFlow = async ({
 			onBrowserLog: null,
 			onFrameBuffer: null,
 			logLevel,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				indent: undefined,
-				staticBase: null,
-				data: config.props,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: config.props,
+				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 		});
@@ -484,11 +485,12 @@ export const renderVideoFlow = async ({
 		disallowParallelEncoding,
 		onBrowserLog: null,
 		onStart: () => undefined,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: config.props,
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: config.props,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	});

@@ -1,6 +1,6 @@
 import type {ChromiumOptions, LogLevel, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';

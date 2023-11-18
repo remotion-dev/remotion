@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {subscribeToEvent} from '../../../event-source';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -140,7 +141,7 @@ export const DataEditor: React.FC<{
 		}
 
 		const value = inputProps;
-		return Internals.serializeJSONWithDate({
+		return NoReactInternals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,

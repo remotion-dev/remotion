@@ -2,8 +2,8 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {VideoConfig} from 'remotion';
-import {Internals} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
@@ -805,11 +805,12 @@ export const renderMedia = ({
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		muted: muted ?? false,
 		numberOfGifLoops: numberOfGifLoops ?? null,
@@ -831,11 +832,12 @@ export const renderMedia = ({
 		indent: false,
 		onCtrlCExit: () => undefined,
 		server: undefined,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props ?? {},
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props ?? {},
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
 	});

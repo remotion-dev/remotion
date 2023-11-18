@@ -3,7 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -93,11 +93,12 @@ export const stillCommand = async (
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					indent: undefined,
-					staticBase: null,
-					data: inputProps,
-				}).serializedString,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						indent: undefined,
+						staticBase: null,
+						data: inputProps,
+					}).serializedString,
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,

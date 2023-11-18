@@ -7,7 +7,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -107,11 +107,12 @@ const renderStillOnCloudrunRaw = async ({
 	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		outputBucket,
 		outName,
 		privacy: privacy ?? 'public',

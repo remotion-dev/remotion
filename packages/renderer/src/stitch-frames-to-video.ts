@@ -1,7 +1,7 @@
 import fs, {promises} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {Internals} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -374,7 +374,7 @@ const innerStitchFramesToVideo = async (
 				audioBitrate ? audioBitrate : '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
-			].filter(Internals.truthy),
+			].filter(NoReactInternals.truthy),
 			indent,
 			logLevel,
 		);

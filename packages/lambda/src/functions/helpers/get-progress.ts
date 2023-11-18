@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
@@ -271,7 +271,7 @@ export const getProgress = async ({
 			  })
 			: null,
 		...errorExplanations,
-	].filter(Internals.truthy);
+	].filter(NoReactInternals.truthy);
 
 	return {
 		framesRendered,

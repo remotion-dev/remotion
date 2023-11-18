@@ -8,7 +8,8 @@
 				"patterns": [
 					"@remotion/*/src/*",
 					"@remotion/renderer/*/src/*",
-					"@remotion/cli/*/src/*"
+					"@remotion/cli/*/src/*",
+					"remotion/src/*"
 				]
 			}
 		],

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -198,7 +197,7 @@ export class Page extends EventEmitter {
 			}
 
 			if (
-				url?.endsWith(Internals.bundleName) &&
+				url?.endsWith(NoReactInternals.bundleName) &&
 				lineNumber &&
 				this.sourceMapGetter()
 			) {

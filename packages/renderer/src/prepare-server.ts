@@ -1,6 +1,6 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -113,7 +113,7 @@ export const prepareServer = async ({
 	let localSourceMap: AnySourceMapConsumer | null = null;
 
 	getSourceMapFromLocalFile(
-		path.join(webpackConfigOrServeUrl, Internals.bundleName),
+		path.join(webpackConfigOrServeUrl, NoReactInternals.bundleName),
 	)
 		.then((s) => {
 			localSourceMap = s;
