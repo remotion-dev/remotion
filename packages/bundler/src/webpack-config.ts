@@ -147,6 +147,7 @@ export const webpackConfig = ({
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
+				'remotion/no-react': require.resolve('remotion/no-react'),
 			},
 		},
 		module: {
