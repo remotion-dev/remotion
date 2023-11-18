@@ -12,7 +12,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/src/no-react';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
@@ -300,11 +300,12 @@ export const renderStillFlow = async ({
 		indent,
 		onBrowserLog: null,
 		logLevel,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: config.props,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: config.props,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 	});
 

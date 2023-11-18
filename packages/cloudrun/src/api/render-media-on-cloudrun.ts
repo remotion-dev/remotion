@@ -14,7 +14,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/src/no-react';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -165,11 +165,12 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		composition,
 		serveUrl,
 		codec: actualCodec,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,

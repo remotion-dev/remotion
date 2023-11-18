@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/src/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
@@ -70,11 +70,12 @@ export const still = async (
 		chromiumOptions,
 		envVariables,
 		height,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		overwrite,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		publicDir,

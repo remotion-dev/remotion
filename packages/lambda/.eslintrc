@@ -7,7 +7,7 @@
 			"error",
 			{
 				"patterns": ["@remotion/cli", "@remotion/*/src/*"],
-				"paths": ["remotion"]
+				"paths": ["remotion", "react", "react-dom"]
 			}
 		]
 	},

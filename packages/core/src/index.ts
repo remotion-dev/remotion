@@ -106,14 +106,14 @@ export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
+export {Loop} from './loop/index.js';
+export {ClipRegion} from './NativeLayers.js';
 export {
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
-} from './interpolate.js';
-export {Loop} from './loop/index.js';
-export {ClipRegion} from './NativeLayers.js';
+} from './no-react';
 export {prefetch} from './prefetch.js';
 export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
