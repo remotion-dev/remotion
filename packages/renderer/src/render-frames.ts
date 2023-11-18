@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TRenderAsset, VideoConfig} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import type {TRenderAsset, VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';

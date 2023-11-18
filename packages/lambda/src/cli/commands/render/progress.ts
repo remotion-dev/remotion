@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CleanupInfo,
 	EncodingProgress,
@@ -169,7 +169,7 @@ const makeDownloadProgress = (
 						? null
 						: `${CliInternals.formatBytes(downloadInfo.totalSize)}`,
 			  ]
-					.filter(Internals.truthy)
+					.filter(NoReactInternals.truthy)
 					.join('/')
 			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
 	].join(' ');
@@ -242,6 +242,6 @@ export const makeProgressString = ({
 		makeCleanupProgress(progress.cleanupInfo, steps, logLevel === 'verbose'),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.join('\n');
 };

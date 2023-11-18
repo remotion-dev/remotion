@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type {ClipRegion, TRenderAsset} from 'remotion';
+import type {ClipRegion, TRenderAsset} from 'remotion/no-react';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';

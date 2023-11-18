@@ -113,9 +113,10 @@ export {
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
+	random,
+	RandomSeed,
 } from './no-react';
 export {prefetch} from './prefetch.js';
-export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
 export {
 	LayoutAndStyle,

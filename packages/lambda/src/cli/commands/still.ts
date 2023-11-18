@@ -3,7 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {

@@ -1,5 +1,5 @@
 import path from 'path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {isServeUrl} from './is-serve-url';
 
 const map = (webpackBundleOrServeUrl: string, suffix: string) => {
@@ -19,9 +19,9 @@ const map = (webpackBundleOrServeUrl: string, suffix: string) => {
 };
 
 export const getBundleUrlFromServeUrl = (serveUrl: string) => {
-	return map(serveUrl, Internals.bundleName);
+	return map(serveUrl, NoReactInternals.bundleName);
 };
 
 export const getBundleMapUrlFromServeUrl = (serveUrl: string) => {
-	return map(serveUrl, Internals.bundleMapName);
+	return map(serveUrl, NoReactInternals.bundleMapName);
 };

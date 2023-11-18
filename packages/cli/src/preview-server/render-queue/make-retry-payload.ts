@@ -6,7 +6,7 @@ import type {
 	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderModalState} from '../../editor/state/modals';
 import type {RenderJob} from './job';
 
@@ -46,7 +46,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: null,
@@ -86,7 +86,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			initialStillImageFormat: defaults.stillImageFormat,
@@ -130,7 +130,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: job.startFrame,

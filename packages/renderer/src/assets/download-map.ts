@@ -1,6 +1,6 @@
 import fs, {mkdirSync} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
 import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {tmpDir} from '../tmp-dir';

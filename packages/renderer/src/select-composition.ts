@@ -1,5 +1,5 @@
-import {Internals, type VideoConfig} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -162,10 +162,10 @@ const innerSelectComposition = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: Internals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithCustomFields(
 				res.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,

@@ -17,7 +17,6 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
 import {
 	getPreviewDomElement,
@@ -26,11 +25,7 @@ import {
 import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
-import {
-	DATE_TOKEN,
-	deserializeJSONWithCustomFields,
-	FILE_TOKEN,
-} from './input-props-serialization.js';
+import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
@@ -62,7 +57,6 @@ import {truthy} from './truthy.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
-import {validateFrame} from './validate-frame.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
@@ -114,7 +108,6 @@ export const Internals = {
 	isCompositionIdValid,
 	getPreviewDomElement,
 	compositionsRef,
-	DELAY_RENDER_CALLSTACK_TOKEN,
 	portalNode,
 	waitForRoot,
 	CanUseRemotionHooksProvider,
@@ -123,7 +116,6 @@ export const Internals = {
 	DurationsContextProvider,
 	IsPlayerContextProvider,
 	useIsPlayer,
-	validateFrame,
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
@@ -134,11 +126,8 @@ export const Internals = {
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
-	bundleName: 'bundle.js',
-	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
 	DATE_TOKEN,
 	NativeLayersProvider,

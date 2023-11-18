@@ -2,7 +2,7 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
