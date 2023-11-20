@@ -13,7 +13,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['remotion', 'react', 'react/jsx-runtime'],
+		external: ['remotion', 'remotion/no-react', 'react', 'react/jsx-runtime'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-cjs.json',
@@ -32,7 +32,7 @@ export default [
 					sourcemap: false,
 				},
 			],
-			external: ['remotion', 'react', 'react/jsx-runtime'],
+			external: ['remotion', 'remotion/no-react', 'react', 'react/jsx-runtime'],
 			plugins: [
 				typescript({
 					tsconfig: 'tsconfig-cjs.json',
