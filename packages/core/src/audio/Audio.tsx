@@ -15,6 +15,7 @@ import {AudioForDevelopment} from './AudioForDevelopment.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioContext} from './shared-audio-tags.js';
+
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
 	RemotionAudioProps & RemotionMainAudioProps
@@ -74,7 +75,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 					startFrom,
 				})}
 			>
-				<Audio {...propsOtherThanLoop} ref={ref} />
+				<Audio
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -117,6 +122,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<AudioForDevelopment
+			nativeLoopPassed={props._remotionInternalNativeLoopPassed ?? false}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}

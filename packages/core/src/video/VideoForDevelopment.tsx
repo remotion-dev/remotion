@@ -27,6 +27,7 @@ import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	nativeLoopPassed: boolean;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -51,6 +52,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		toneFrequency,
 		name,
+		nativeLoopPassed,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -194,6 +196,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
+			loop={nativeLoopPassed}
 			{...nativeProps}
 		/>
 	);

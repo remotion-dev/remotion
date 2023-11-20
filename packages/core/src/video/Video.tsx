@@ -60,7 +60,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				name={name}
 			>
-				<Video {...propsOtherThanLoop} ref={ref} />
+				<Video
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -97,6 +101,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			{...otherProps}
 			ref={ref}
 			onDuration={onDuration}
+			nativeLoopPassed={props._remotionInternalNativeLoopPassed ?? false}
 		/>
 	);
 };

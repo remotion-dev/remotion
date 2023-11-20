@@ -4,6 +4,10 @@ import type {VolumeProp} from '../volume-prop.js';
 export type RemotionMainVideoProps = {
 	startFrom?: number;
 	endAt?: number;
+	/**
+	 * @deprecated Only for internal `transparent` use
+	 */
+	_remotionInternalNativeLoopPassed?: boolean;
 };
 
 export type RemotionVideoProps = Omit<

@@ -18,5 +18,6 @@ export type RemotionAudioProps = Omit<
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	_remotionInternalNeedsDurationCalculation?: boolean;
+	_remotionInternalNativeLoopPassed?: boolean;
 	toneFrequency?: number;
 };
