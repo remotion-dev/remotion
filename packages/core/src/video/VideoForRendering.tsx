@@ -43,6 +43,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		onDuration,
 		toneFrequency,
 		name,
+		acceptableTimeShiftInSeconds,
 		...props
 	},
 	ref,

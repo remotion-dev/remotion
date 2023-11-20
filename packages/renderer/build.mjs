@@ -18,7 +18,7 @@ const where = isWin ? 'where' : 'which';
 if (os.platform() === 'win32') {
 	console.log('Windows CI is broken - revisit in 14 days');
 	console.log('https://github.com/actions/runner-images/issues/8598');
-	if (Date.now() > 1700355456204) {
+	if (Date.now() > 1701565056204) {
 		process.exit(1);
 	}
 

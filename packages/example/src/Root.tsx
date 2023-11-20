@@ -703,6 +703,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-testing-short-loop"
+					lazyComponent={() => import('./AudioTesting/ShortLoop')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
 					id="audio-testing-amplify"
 					lazyComponent={() => import('./AudioTesting/Amplify')}
 					width={1080}

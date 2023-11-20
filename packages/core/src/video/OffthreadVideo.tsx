@@ -63,6 +63,7 @@ export const OffthreadVideo: React.FC<Omit<OffthreadVideoProps, 'loop'>> = (
 
 	return (
 		<VideoForDevelopment
+			_remotionInternalNativeLoopPassed={false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			{...withoutTransparent}
