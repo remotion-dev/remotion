@@ -56,6 +56,7 @@ export const useMediaPlayback = ({
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
+	// For short audio, a lower acceptable time shift is used
 	const acceptableTimeShiftButLessThanDuration = (() => {
 		if (mediaRef.current?.duration) {
 			return Math.min(

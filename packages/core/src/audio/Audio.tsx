@@ -122,7 +122,9 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<AudioForDevelopment
-			nativeLoopPassed={props._remotionInternalNativeLoopPassed ?? false}
+			_remotionInternalNativeLoopPassed={
+				props._remotionInternalNativeLoopPassed ?? false
+			}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}

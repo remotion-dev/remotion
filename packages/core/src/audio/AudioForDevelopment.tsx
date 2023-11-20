@@ -29,7 +29,7 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
-	nativeLoopPassed: boolean;
+	_remotionInternalNativeLoopPassed: boolean;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -62,7 +62,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		allowAmplificationDuringRender,
 		name,
-		nativeLoopPassed,
 		...nativeProps
 	} = props;
 
@@ -76,10 +75,16 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return {
 			muted: muted || mediaMuted,
 			src: preloadedSrc,
-			loop: nativeLoopPassed,
+			loop: _remotionInternalNativeLoopPassed,
 			...nativeProps,
 		};
-	}, [mediaMuted, muted, nativeLoopPassed, nativeProps, preloadedSrc]);
+	}, [
+		_remotionInternalNativeLoopPassed,
+		mediaMuted,
+		muted,
+		nativeProps,
+		preloadedSrc,
+	]);
 
 	const sequenceContext = useContext(SequenceContext);
 
