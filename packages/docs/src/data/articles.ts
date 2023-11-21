@@ -2655,6 +2655,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/delay-render-proxy",
+    title: "Loading <Img> with src http://localhost:3000/proxy",
+    relativePath: "docs/troubleshooting/delay-render-proxy.md",
+    compId: "articles-docs-troubleshooting-delay-render-proxy",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "loading-root-component",
     title: "Root component Timeout",
     relativePath: "docs/troubleshooting/loading-root-component.md",
@@ -2673,6 +2680,13 @@ export const articles = [
     title: "Apple Silicon under Rosetta",
     relativePath: "docs/troubleshooting/rosetta.md",
     compId: "articles-docs-troubleshooting-rosetta",
+    crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/timed-out-page-function",
+    title: "Timed out evaluating page function",
+    relativePath: "docs/troubleshooting/timed-out-page-function.md",
+    compId: "articles-docs-troubleshooting-timed-out-page-function",
     crumb: "Troubleshooting",
   },
   {

@@ -144,9 +144,6 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace;
 }) => {
 	const downloads: DownloadProgress[] = [];
-	if (browserExecutable) {
-		Log.verbose({indent, logLevel}, 'Browser executable: ', browserExecutable);
-	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,

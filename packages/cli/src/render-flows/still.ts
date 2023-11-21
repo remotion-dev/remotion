@@ -133,10 +133,6 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
-	if (browserExecutable) {
-		Log.verbose({indent, logLevel}, 'Browser executable: ', browserExecutable);
-	}
-
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,

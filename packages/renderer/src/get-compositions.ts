@@ -108,6 +108,7 @@ const innerGetCompositions = async ({
 		},
 		frame: null,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
 	await waitForReady({
@@ -124,6 +125,7 @@ const innerGetCompositions = async ({
 		frame: null,
 		page,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
 	const res = result as Awaited<
