@@ -114,6 +114,7 @@ const innerSelectComposition = async ({
 		},
 		frame: null,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
 	await waitForReady({
@@ -140,6 +141,7 @@ const innerSelectComposition = async ({
 		frame: null,
 		page,
 		args: [id],
+		timeoutInMilliseconds,
 	});
 	Log.verbose(
 		{

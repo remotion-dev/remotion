@@ -126,6 +126,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	if (typeof isRemotionFn === 'undefined') {
@@ -138,6 +139,7 @@ const innerSetPropsAndEnv = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds: actualTimeout,
 		});
 
 		// AWS shakyness
@@ -165,6 +167,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	const {value: remotionVersion} = await puppeteerEvaluateWithCatch<string>({
@@ -174,6 +177,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	const requiredVersion: typeof window.siteVersion = '10';

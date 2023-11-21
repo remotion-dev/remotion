@@ -12,6 +12,7 @@ export const screenshotDOMElement = async ({
 	height,
 	width,
 	clipRegion,
+	timeoutInMilliseconds,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
@@ -22,6 +23,7 @@ export const screenshotDOMElement = async ({
 	height: number;
 	width: number;
 	clipRegion: ClipRegion | null;
+	timeoutInMilliseconds: number;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -37,6 +39,7 @@ export const screenshotDOMElement = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 	} else {
 		await puppeteerEvaluateWithCatch({
@@ -46,6 +49,7 @@ export const screenshotDOMElement = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 	}
 

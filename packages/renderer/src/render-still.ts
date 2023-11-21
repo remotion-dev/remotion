@@ -307,6 +307,7 @@ const innerRenderStill = async ({
 		],
 		frame: null,
 		page,
+		timeoutInMilliseconds,
 	});
 	await seekToFrame({
 		frame: stillFrame,
@@ -329,6 +330,7 @@ const innerRenderStill = async ({
 		wantsBuffer: !output,
 		compositor,
 		downloadMap,
+		timeoutInMilliseconds,
 	});
 
 	await cleanup();

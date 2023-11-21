@@ -307,6 +307,7 @@ const innerRenderFrames = async ({
 			],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 
 		page.off('console', logCallback);
@@ -442,6 +443,7 @@ const innerRenderFrames = async ({
 			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
 			compositor,
+			timeoutInMilliseconds,
 		});
 		if (onFrameBuffer) {
 			if (!buffer) {
