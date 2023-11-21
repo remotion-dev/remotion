@@ -4,6 +4,7 @@ mod copy_clipboard;
 mod errors;
 mod ffmpeg;
 mod frame_cache;
+mod frame_cache_manager;
 mod get_silent_parts;
 mod global_printer;
 mod image;

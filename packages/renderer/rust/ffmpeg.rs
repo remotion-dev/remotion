@@ -1,4 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::frame_cache_manager::FrameCacheManager;
 use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
@@ -12,9 +13,10 @@ use remotionffmpeg::{codec, encoder, format, media, Rational};
 
 pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
+    let cache_manager = FrameCacheManager::get_instance();
     let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
-    let frames_in_cache = manager.get_frames_in_cache()?;
+    let frames_in_cache = cache_manager.get_frames_in_cache()?;
 
     Ok(OpenVideoStats {
         open_videos,
@@ -24,7 +26,7 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
 }
 
 pub fn free_up_memory(maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
+    let manager = FrameCacheManager::get_instance();
 
     manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
 
@@ -34,7 +36,7 @@ pub fn free_up_memory(maximum_frame_cache_size_in_bytes: u128) -> Result<(), Err
 pub fn keep_only_latest_frames(
     maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
+    let manager = FrameCacheManager::get_instance();
 
     manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
 
@@ -44,7 +46,7 @@ pub fn keep_only_latest_frames(
 pub fn emergency_memory_free_up(
     maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
+    let manager = FrameCacheManager::get_instance();
 
     _print_verbose("System is about to run out of memory, freeing up memory.")?;
     manager.halfen_cache_size(maximum_frame_cache_size_in_bytes)?;
@@ -79,11 +81,20 @@ pub fn extract_frame(
     };
 
     // Don't allow previous frame, but allow for some flexibility
-    let cache_item = vid.get_cache_item_id(transparent, position, threshold - 1);
+    let cache_item = FrameCacheManager::get_instance().get_cache_item_id(
+        &src,
+        transparent,
+        position,
+        threshold - 1,
+    );
 
     match cache_item {
         Ok(Some(item)) => {
-            return Ok(vid.get_cache_item_from_id(transparent, item)?);
+            return Ok(FrameCacheManager::get_instance().get_cache_item_from_id(
+                &src,
+                transparent,
+                item,
+            )?);
         }
         Ok(None) => {}
         Err(err) => {
@@ -135,15 +146,14 @@ pub fn extract_frame(
 
     let frame_id = first_opened_stream.get_frame(
         time,
-        &vid.get_frame_cache(transparent),
         position,
         time_base,
         one_frame_in_time_base,
         threshold,
     )?;
 
-    let from_cache = vid
-        .get_frame_cache(transparent)
+    let from_cache = FrameCacheManager::get_instance()
+        .get_frame_cache(&src, transparent)
         .lock()?
         .get_item_from_id(frame_id);
 

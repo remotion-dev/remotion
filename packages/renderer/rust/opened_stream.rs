@@ -13,6 +13,7 @@ use crate::{
     errors::ErrorWithBacktrace,
     ffmpeg,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
+    frame_cache_manager::FrameCacheManager,
     global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
@@ -78,7 +79,6 @@ impl OpenedStream {
     pub fn handle_eof(
         &mut self,
         position: i64,
-        frame_cache: &Arc<Mutex<FrameCache>>,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
@@ -127,8 +127,10 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-
-                    frame_cache.lock()?.add_item(item);
+                    FrameCacheManager::get_instance()
+                        .get_frame_cache(&self.src, self.transparent)
+                        .lock()?
+                        .add_item(item);
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
@@ -150,7 +152,6 @@ impl OpenedStream {
     pub fn get_frame(
         &mut self,
         time: f64,
-        frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
@@ -197,7 +198,6 @@ impl OpenedStream {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(
                         position,
-                        frame_cache,
                         one_frame_in_time_base,
                         match freshly_seeked || self.last_position.is_none() {
                             true => None,
@@ -206,12 +206,15 @@ impl OpenedStream {
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
-
-                        frame_cache
+                        FrameCacheManager::get_instance()
+                            .get_frame_cache(&self.src, self.transparent)
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
-                        frame_cache.lock()?.set_biggest_frame_as_last_frame();
+                        FrameCacheManager::get_instance()
+                            .get_frame_cache(&self.src, self.transparent)
+                            .lock()?
+                            .set_biggest_frame_as_last_frame();
                     }
 
                     break;
@@ -297,8 +300,10 @@ impl OpenedStream {
 
                     self.last_position = Some(video.pts().expect("expected pts"));
                     freshly_seeked = false;
-
-                    frame_cache.lock().unwrap().add_item(item);
+                    FrameCacheManager::get_instance()
+                        .get_frame_cache(&self.src, self.transparent)
+                        .lock()?
+                        .add_item(item);
 
                     items_in_loop += 1;
                     _print_verbose(&format!(
@@ -340,9 +345,9 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = frame_cache
-            .lock()
-            .unwrap()
+        let final_frame = FrameCacheManager::get_instance()
+            .get_frame_cache(&self.src, self.transparent)
+            .lock()?
             .get_item_id(position, threshold)?;
 
         if final_frame.is_none() {
