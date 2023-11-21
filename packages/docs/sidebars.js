@@ -703,6 +703,7 @@ module.exports = {
         "troubleshooting/could-not-be-parsed-as-a-value-list",
         "troubleshooting/broken-fast-refresh",
         "troubleshooting/timed-out-page-function",
+        "troubleshooting/delay-render-proxy",
       ],
     },
     {
