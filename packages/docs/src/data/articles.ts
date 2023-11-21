@@ -2676,6 +2676,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/timed-out-page-function",
+    title: "Timed out evaluating page function",
+    relativePath: "docs/troubleshooting/timed-out-page-function.md",
+    compId: "articles-docs-troubleshooting-timed-out-page-function",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "player-flicker",
     title: "Avoiding flickering in <Player>",
     relativePath: "docs/troubleshooting/video-flicker.md",

@@ -99,3 +99,4 @@ Uncaught Error: A delayRender() "Fetching data from API..." was called but not c
 - [delayRender()](/docs/delay-render)
 - [Data fetching](/docs/data-fetching)
 - [Loading Root Component Timeout](/docs/troubleshooting/loading-root-component)
+- ["Timed out evaluating page function"](/docs/troubleshooting/timed-out-page-function)
