@@ -34,6 +34,13 @@ export const printUsefulErrorMessage = (err: Error) => {
 		);
 	}
 
+	if (err.message.includes('Timed out evaluating')) {
+		console.log();
+		console.log(
+			'💡 Get help for this issue at https://remotion.dev/docs/troubleshooting/timed-out-page-function',
+		);
+	}
+
 	if (err.message.includes('ENAMETOOLONG')) {
 		console.log();
 		console.log(
