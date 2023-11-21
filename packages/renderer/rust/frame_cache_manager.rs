@@ -95,9 +95,8 @@ impl FrameCacheManager {
         for i in 0..2 {
             let transparent = i == 0;
             let keys: Vec<String> = match transparent {
-                // TODO: Potentially unsafe unwrap
-                true => self.transparent.read().unwrap().keys().cloned().collect(),
-                false => self.opaque.read().unwrap().keys().cloned().collect(),
+                true => self.transparent.read()?.keys().cloned().collect(),
+                false => self.opaque.read()?.keys().cloned().collect(),
             };
 
             for key in keys {
