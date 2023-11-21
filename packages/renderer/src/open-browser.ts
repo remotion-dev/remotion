@@ -8,6 +8,7 @@ import {
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
 
@@ -103,6 +104,15 @@ export const internalOpenBrowser = async ({
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+
+	Log.verbose(
+		{indent, logLevel, tag: 'openBrowser()'},
+		`Opening browser: gl = ${
+			chromiumOptions.gl
+		}, executable = ${executablePath}, enableMultiProcessOnLinux = ${
+			chromiumOptions.enableMultiProcessOnLinux ?? false
+		}`,
+	);
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,

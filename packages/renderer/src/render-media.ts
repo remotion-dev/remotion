@@ -392,6 +392,11 @@ const internalRenderMediaRaw = ({
 		frameRange,
 	);
 
+	Log.verbose(
+		{indent, logLevel, tag: 'renderMedia()'},
+		`Rendering frames ${realFrameRange.join('-')}`,
+	);
+
 	const callUpdate = () => {
 		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
 
