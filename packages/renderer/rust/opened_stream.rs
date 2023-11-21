@@ -11,6 +11,7 @@ use std::time::UNIX_EPOCH;
 
 use crate::{
     errors::ErrorWithBacktrace,
+    ffmpeg,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_verbose,
     rotation,
@@ -177,6 +178,8 @@ impl OpenedStream {
         let mut last_frame_received: Option<LastFrameInfo> = None;
         let mut stop_after_n_diverging_pts: Option<u8> = None;
 
+        let mut items_in_loop = 0;
+
         loop {
             if stop_after_n_diverging_pts.is_some() && stop_after_n_diverging_pts.unwrap() == 0 {
                 break;
@@ -297,7 +300,14 @@ impl OpenedStream {
 
                     frame_cache.lock().unwrap().add_item(item);
 
-                    _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
+                    items_in_loop += 1;
+                    _print_verbose(&format!(
+                        "received frame {} ({})",
+                        video.pts().expect("pts"),
+                        items_in_loop
+                    ))?;
+
+                    ffmpeg::keep_only_latest_frames(100);
 
                     match stop_after_n_diverging_pts {
                         Some(stop) => match last_frame_received {
