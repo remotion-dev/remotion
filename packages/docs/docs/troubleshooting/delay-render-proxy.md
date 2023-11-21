@@ -8,7 +8,7 @@ crumb: "Troubleshooting"
 The error message `A delayRender() "Loading <Img> with src=http://localhost:3000/proxy?src=[...]&time=[...]&transparent=[...]" was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help`:
 
 ```
-A delayRender() "Loading <Img> with src=http://localhost:3000/proxy?src=http%3A%2F%2Flocalhost%3A3000%2Fpublic%2Fbackground.mp4&time=683.45&transparent=false" was called but not cleared after 28000ms. See https://remotion.dev/docs/delay-render-proxy for help
+A delayRender() "Loading <Img> with src=http://localhost:3000/proxy?src=http%3A%2F%2Flocalhost%3A3000%2Fpublic%2Fbackground.mp4&time=683.45&transparent=false" was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help
 ```
 
 occurs when loading an [`<OffthreadVideo>`](/docs/offthreadvideo) and the frame cannot be extracted within the [timeout](/docs/cli/render#--timeout).
