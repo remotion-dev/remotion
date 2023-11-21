@@ -92,7 +92,6 @@ impl FrameCacheManager {
     pub fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
         // 0..2 loops twice, not 0..1
-        _print_verbose("going into loop");
         for i in 0..2 {
             let transparent = i == 0;
             let keys: Vec<String> = match transparent {
@@ -114,18 +113,7 @@ impl FrameCacheManager {
             }
         }
 
-        _print_verbose("got references");
         return Ok(vec);
-    }
-
-    fn get_cache_size_bytes(&self, src: &str) -> Result<u128, ErrorWithBacktrace> {
-        let transparent_cache = FrameCacheManager::get_instance().get_frame_cache(src, true);
-        let opaque_cache = FrameCacheManager::get_instance().get_frame_cache(src, false);
-
-        let transparent_size = transparent_cache.lock()?.get_size_in_bytes();
-        let opaque_size = opaque_cache.lock()?.get_size_in_bytes();
-
-        Ok(transparent_size.saturating_add(opaque_size))
     }
 
     fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
@@ -154,7 +142,6 @@ impl FrameCacheManager {
         let mut sorted = references.clone();
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
 
-        _print_verbose("sorted");
         let mut pruned = 0;
         for removal in sorted {
             let current_cache_size_in_bytes = self.get_total_size()?;
@@ -186,8 +173,6 @@ impl FrameCacheManager {
                 self.get_total_size()? / 1024 / 1024
             ))?;
         }
-
-        _print_verbose("pruned");
 
         Ok(())
     }

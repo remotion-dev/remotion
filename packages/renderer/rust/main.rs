@@ -56,7 +56,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            let data = execute_command(opts.payload)?;
+            let data = execute_command(opts.payload, None)?;
             global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
         }
     }
@@ -93,7 +93,7 @@ fn start_long_running_process(
         }
         let opts: CliInputCommand = parse_cli(&input)?;
         pool.install(move || {
-            match execute_command(opts.payload) {
+            match execute_command(opts.payload, Some(maximum_frame_cache_size_in_bytes)) {
                 Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
                 Err(err) => global_printer::synchronized_write_buf(
                     1,

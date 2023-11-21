@@ -33,12 +33,20 @@ pub fn free_up_memory(maximum_frame_cache_size_in_bytes: u128) -> Result<(), Err
     Ok(())
 }
 
-pub fn keep_only_latest_frames(
-    maximum_frame_cache_size_in_bytes: u128,
-) -> Result<(), ErrorWithBacktrace> {
+pub fn prune_oldest(maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
     let manager = FrameCacheManager::get_instance();
 
     manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+
+    Ok(())
+}
+pub fn keep_only_latest_frames(
+    maximum_frame_cache_size_in_bytes: u128,
+) -> Result<(), ErrorWithBacktrace> {
+    prune_oldest(maximum_frame_cache_size_in_bytes)?;
+
+    let opened_video_manager = OpenedVideoManager::get_instance();
+    opened_video_manager.close_videos_if_cache_empty()?;
 
     Ok(())
 }
@@ -59,6 +67,7 @@ pub fn extract_frame(
     original_src: String,
     time: f64,
     transparent: bool,
+    maximum_frame_cache_size_in_bytes: Option<u128>,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, &original_src, transparent)?;
@@ -150,6 +159,7 @@ pub fn extract_frame(
         time_base,
         one_frame_in_time_base,
         threshold,
+        maximum_frame_cache_size_in_bytes,
     )?;
 
     let from_cache = FrameCacheManager::get_instance()

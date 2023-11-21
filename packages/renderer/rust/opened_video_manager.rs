@@ -97,4 +97,19 @@ impl OpenedVideoManager {
         }
         Ok(())
     }
+
+    pub fn close_videos_if_cache_empty(&self) -> Result<(), ErrorWithBacktrace> {
+        let video_sources: Vec<String> = self.videos.read()?.keys().cloned().collect();
+        for video_source in video_sources {
+            self.videos
+                .read()?
+                .get(&video_source)
+                .cloned()
+                .unwrap()
+                .lock()
+                .unwrap()
+                .close_video_if_frame_cache_empty()?;
+        }
+        Ok(())
+    }
 }

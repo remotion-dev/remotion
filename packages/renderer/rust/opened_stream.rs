@@ -1,8 +1,4 @@
-use std::{
-    io::ErrorKind,
-    sync::{Arc, Mutex},
-    time::SystemTime,
-};
+use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
@@ -12,7 +8,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     ffmpeg,
-    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
+    frame_cache::{get_frame_cache_id, FrameCacheItem},
     frame_cache_manager::FrameCacheManager,
     global_printer::_print_verbose,
     rotation,
@@ -156,6 +152,7 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
+        maximum_frame_cache_size_in_bytes: Option<u128>,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -312,7 +309,14 @@ impl OpenedStream {
                         items_in_loop
                     ))?;
 
-                    ffmpeg::keep_only_latest_frames(100);
+                    if items_in_loop % 10 == 0 {
+                        match maximum_frame_cache_size_in_bytes {
+                            Some(cache_size) => {
+                                ffmpeg::prune_oldest(cache_size)?;
+                            }
+                            None => {}
+                        }
+                    }
 
                     match stop_after_n_diverging_pts {
                         Some(stop) => match last_frame_received {
