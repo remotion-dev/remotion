@@ -131,11 +131,13 @@ pub fn extract_frame(
 
     let mut first_opened_stream = opened_stream.lock()?;
 
+    let time_base = vid.time_base;
+
     let frame_id = first_opened_stream.get_frame(
         time,
         &vid.get_frame_cache(transparent),
         position,
-        vid.time_base,
+        time_base,
         one_frame_in_time_base,
         threshold,
     )?;
