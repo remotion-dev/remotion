@@ -43,12 +43,21 @@ impl OpenedVideoManager {
     fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
         // 0..2 loops twice, not 0..1
+        _print_verbose("going into loop");
         for i in 0..2 {
             let transparent = i == 0;
             for video in self.videos.read()?.values() {
+                _print_verbose("got a video");
+
                 let video_locked = video.lock()?;
+                _print_verbose("locked a video");
+
                 let frame_cache = video_locked.get_frame_cache(transparent);
+
+                _print_verbose("got a frame cache");
                 let frame_cache_locked = frame_cache.lock()?;
+                _print_verbose("unlocked a frame cache");
+
                 let references = frame_cache_locked.get_references(
                     video_locked.src.clone(),
                     video_locked.original_src.clone(),
