@@ -51,10 +51,33 @@ Make sure to rebuild `remotion/packages/transitions` so your transition gets usa
 - An example code snippet showing how to use your presentation . See the [type safe snippets](/docs/contributing/docs#type-safe-snippets) docs for instructions on how to create typesafe code snippets.
 - The API of your presentation
 
-&nbsp;&nbsp;&nbsp;&nbsp; For more information on how to write documentation, see the [contributing to the documentation](/docs/contributing/docs) page.
+&nbsp;&nbsp;&nbsp;&nbsp; For more help on how to write a documentation, see the [contributing to the documentation](/docs/contributing/docs) page.
+
+<Step>6</Step> Add your presentation to the table of contents at <a href="/docs/transitions/presentations">docs/transitions/presentations</a> by creating a <code>&lt;TOCItem&gt;</code> containing a link to your documentation, a <code>&lt;PresentationPreview</code> displaying your presentation and a one-liner describing what your presentation does.
+
+```tsx title="Example TOCItem"
+<TOCItem link="/docs/transitions/presentations/yourPresentation">
+  <div style={row}>
+    <PresentationPreview
+      durationRestThreshold={0.001}
+      effect={yourPresentation()}
+    />
+    <div style={{ flex: 1, marginLeft: 10 }}>
+      <strong>
+        <code>{"yourPresentation()"}</code>
+      </strong>
+      <div>Insert one-liner describing your presentation</div>
+    </div>
+  </div>
+</TOCItem>
+```
 
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
 - [Writing documentation](/docs/contributing/docs)
 - [How to take a bounty issue](/docs/contributing/bounty)
+
+```
+
+```
