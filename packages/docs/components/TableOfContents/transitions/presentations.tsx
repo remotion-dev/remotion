@@ -86,7 +86,7 @@ export const Presentations: React.FC = () => {
             <strong>
               <code>{"clockWipe()"}</code>
             </strong>
-            <div>Reveal new scene with a clockWipe movement</div>
+            <div>Reveal the new scene in a circular movement</div>
           </div>
         </div>
       </TOCItem>
