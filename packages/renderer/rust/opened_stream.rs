@@ -312,7 +312,7 @@ impl OpenedStream {
                     if items_in_loop % 10 == 0 {
                         match maximum_frame_cache_size_in_bytes {
                             Some(cache_size) => {
-                                ffmpeg::prune_oldest(cache_size)?;
+                                ffmpeg::keep_only_latest_frames(cache_size)?;
                             }
                             None => {}
                         }

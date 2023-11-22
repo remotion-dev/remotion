@@ -25,25 +25,19 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     })
 }
 
-pub fn free_up_memory(maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
-    let manager = FrameCacheManager::get_instance();
-
-    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
-
-    Ok(())
-}
-
-pub fn prune_oldest(maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
-    let manager = FrameCacheManager::get_instance();
-
-    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
-
-    Ok(())
-}
 pub fn keep_only_latest_frames(
     maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    prune_oldest(maximum_frame_cache_size_in_bytes)?;
+    let manager = FrameCacheManager::get_instance();
+
+    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+
+    Ok(())
+}
+pub fn keep_only_latest_frames_and_close_videos(
+    maximum_frame_cache_size_in_bytes: u128,
+) -> Result<(), ErrorWithBacktrace> {
+    keep_only_latest_frames(maximum_frame_cache_size_in_bytes)?;
 
     let opened_video_manager = OpenedVideoManager::get_instance();
     opened_video_manager.close_videos_if_cache_empty()?;

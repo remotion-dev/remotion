@@ -34,7 +34,7 @@ pub fn execute_command(
             Ok(vec![])
         }
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::free_up_memory(payload.remaining_bytes)?;
+            ffmpeg::keep_only_latest_frames(payload.remaining_bytes)?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
