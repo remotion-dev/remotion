@@ -83,9 +83,9 @@ export const Presentations: React.FC = () => {
           />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
-              <code>{"flip()"}</code>
+              <code>{"clockwipe()"}</code>
             </strong>
-            <div>Rotate the previous scene</div>
+            <div>Reveal new scene with a clockwipe movement</div>
           </div>
         </div>
       </TOCItem>
