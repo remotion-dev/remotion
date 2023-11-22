@@ -106,6 +106,8 @@ export const getProgress = async ({
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
 			type: 'success',
+			estimatedBillingDurationInMilliseconds:
+				postRenderData.estimatedBillingDurationInMilliseconds,
 		};
 	}
 
@@ -160,18 +162,16 @@ export const getProgress = async ({
 		  })
 		: null;
 
-	const accruedSoFar = Number(
-		estimatePriceFromBucket({
-			contents,
-			renderMetadata,
-			memorySizeInMb,
-			outputFileMetadata: outputFile,
-			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
-			// We cannot determine the ephemeral storage size, so we
-			// overestimate the price, but will only have a miniscule effect (~0.2%)
-			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		}),
-	);
+	const priceFromBucket = estimatePriceFromBucket({
+		contents,
+		renderMetadata,
+		memorySizeInMb,
+		outputFileMetadata: outputFile,
+		lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+	});
 
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
@@ -278,7 +278,9 @@ export const getProgress = async ({
 		chunks: chunkCount,
 		done: false,
 		encodingStatus,
-		costs: formatCostsInfo(accruedSoFar),
+		costs: priceFromBucket
+			? formatCostsInfo(priceFromBucket.accruedSoFar)
+			: formatCostsInfo(0),
 		renderId,
 		renderMetadata,
 		bucket: bucketName,
@@ -323,6 +325,9 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		estimatedBillingDurationInMilliseconds: priceFromBucket
+			? priceFromBucket.estimatedBillingDurationInMilliseconds
+			: null,
 		type: 'success',
 	};
 };
