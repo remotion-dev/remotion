@@ -72,7 +72,7 @@ Make sure to `pnpm build` in `remotion/packages/transitions` so your transition 
 </TOCItem>
 ```
 
-An examplary pull request containing all required steps and filechanges can be found <a href="https://github.com/remotion-dev/remotion/pull/3199/files">here</a>.
+An pull request for reference containing all required steps and filechanges can be found <a href="https://github.com/remotion-dev/remotion/pull/3199/files">here</a>.
 
 ## See also
 
