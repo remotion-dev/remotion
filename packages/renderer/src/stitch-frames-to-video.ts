@@ -417,6 +417,9 @@ const innerStitchFramesToVideo = async (
 					['-s', `${width}x${height}`],
 					['-start_number', String(assetsInfo.firstFrameIndex)],
 					['-i', assetsInfo.imageSequenceName],
+					codec === 'gif'
+						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
+						: null,
 			  ]),
 		audio ? ['-i', audio] : null,
 		numberOfGifLoops === null

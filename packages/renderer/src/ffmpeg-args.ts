@@ -23,7 +23,7 @@ const firstEncodingStepOnly = ({
 	codec: Codec;
 	videoBitrate: string | null | undefined;
 }): string[][] => {
-	if (hasPreencoded) {
+	if (hasPreencoded || codec === 'gif') {
 		return [];
 	}
 
