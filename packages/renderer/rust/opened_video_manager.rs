@@ -10,7 +10,6 @@ use lazy_static::lazy_static;
 
 use crate::{
     errors::ErrorWithBacktrace,
-    frame_cache::FrameCache,
     frame_cache_manager::FrameCacheManager,
     logger::log_callback,
     opened_video::{open_video, OpenedVideo},
