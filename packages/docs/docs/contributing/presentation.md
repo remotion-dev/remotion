@@ -9,13 +9,13 @@ Make your custom presentation accessible for others in the `@remotion/transition
 
 ## Setup the remotion project
 
-If this is your first contribution, see the <a href="https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> file for general information and instructions on how to set up the remotion project.
+If this is your first contribution, see the <a href="https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> file for information on how to contribute and instructions to set up the remotion project.
 
 ## How to proceed
 
 <Step>1</Step> Create a custom transition. Loook at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.<br/>
-<Step>2</Step>Add your presentation to the remotion monorepository under <code></code>packages/transitions/src/presentations`.<br/>
-<Step>3</Step> In the <code></code>`rollup.config.js`, add your presentation to the `presentations` array.
+<Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br/>
+<Step>3</Step> In the <code>rollup.config.js</code>, add your presentation to the <code>presentations array</code>.
 <br/>
 
 ```tsx
@@ -33,22 +33,22 @@ If this is your first contribution, see the <a href="https://github.com/remotion
     "types": "./dist/presentations/yourPresentation.d.ts"
     },
   },
-  "typesVersions": {
-    ">=1.0": {
-      "yourPresentation": [
-        "dist/presentations/yourPresentation.d.ts"
+"typesVersions": {
+  ">=1.0": {
+    "yourPresentation": [
+      "dist/presentations/yourPresentation.d.ts"
       ],
     },
   }
 ```
 
-Make sure to rebuild `remotion/packages/transitions` so your transition gets usable in your remotion repository.
+Make sure to `pnpm build` in `remotion/packages/transitions` so your transition gets usable in your remotion repository.
 
-<Step>5</Step> Write a documentation for your presentation. Have a lookat the presentations linked in the <a href="/docs/transitions/presentations">presentation</a> docs for reference. The documentation should consist of the following parts:
+<Step>5</Step> Write a documentation for your presentation. Have a look at the presentations linked in the <a href="/docs/transitions/presentations">presentation</a> docs for reference. The documentation should consist of the following parts:
 
-- A short description of what your presentation does.
-- A demo of your presentation. For instructions, have a look at the [contributing to the documentation](/docs/contributing/docs#demos) page, or have a look at the source code of other presentation documentations ([presentationType].mdx files).
-- An example code snippet showing how to use your presentation . See the [type safe snippets](/docs/contributing/docs#type-safe-snippets) docs for instructions on how to create typesafe code snippets.
+- A `short description` of what your presentation does.
+- A `demo` of your presentation. For instructions, have a look at the `demo` paragraph in the [contributing to the documentation](/docs/contributing/docs#demos) page, or have a look at the source code of other presentation documentations ([presentationType].mdx files).
+- An `example code snippet` showing how to use your presentation . See the [type safe snippets](/docs/contributing/docs#type-safe-snippets) docs for instructions on typesafe code snippets.
 - The API of your presentation
 
 &nbsp;&nbsp;&nbsp;&nbsp; For more help on how to write a documentation, see the [contributing to the documentation](/docs/contributing/docs) page.
@@ -72,12 +72,10 @@ Make sure to rebuild `remotion/packages/transitions` so your transition gets usa
 </TOCItem>
 ```
 
+An examplary pull request containing all required steps and filechanges can be found <a href="https://github.com/remotion-dev/remotion/pull/3199/files">here</a>.
+
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
 - [Writing documentation](/docs/contributing/docs)
 - [How to take a bounty issue](/docs/contributing/bounty)
-
-```
-
-```
