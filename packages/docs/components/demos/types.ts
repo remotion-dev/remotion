@@ -1,4 +1,5 @@
 import {
+  ClockWipeDemo,
   CustomTimingDemo,
   CustomTransitionDemo,
   FadeDemo,
@@ -612,6 +613,17 @@ export const wipePresentationDemo: DemoType = {
       ],
     },
   ],
+};
+
+export const clockwipePresentationDemo: DemoType = {
+  comp: ClockWipeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "clockwipe",
+  autoPlay: true,
+  options: [],
 };
 
 export const customPresentationDemo: DemoType = {

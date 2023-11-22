@@ -22,7 +22,9 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
@@ -82,6 +84,12 @@
 			"require": "./dist/cjs/presentations/flip.js",
 			"types": "./dist/presentations/flip.d.ts"
 		},
+		"./clockwipe": {
+			"module": "./dist/presentations/clockwipe.js",
+			"import": "./dist/presentations/clockwipe.js",
+			"require": "./dist/cjs/presentations/clockwipe.js",
+			"types": "./dist/presentations/clockwipe.d.ts"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -97,6 +105,9 @@
 			],
 			"fade": [
 				"dist/presentations/fade.d.ts"
+			],
+			"clockwipe": [
+				"dist/presentations/clockwipe.d.ts"
 			]
 		}
 	}

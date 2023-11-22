@@ -428,6 +428,7 @@ module.exports = {
             "transitions/presentations/slide",
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
+            "transitions/presentations/clockwipe",
             "transitions/presentations/custom",
             "transitions/audio-transitions",
           ],

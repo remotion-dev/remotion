@@ -1,3 +1,4 @@
+import { clockwipe } from "@remotion/transitions/clockwipe";
 import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
@@ -12,6 +13,9 @@ const row: React.CSSProperties = {
   flexDirection: "row",
   justifyContent: "space-between",
 };
+
+const compositionWidth = 540;
+const compositionHeight = 280;
 
 export const Presentations: React.FC = () => {
   return (
@@ -60,6 +64,23 @@ export const Presentations: React.FC = () => {
       <TOCItem link="/docs/transitions/presentations/flip">
         <div style={row}>
           <PresentationPreview durationRestThreshold={0.001} effect={flip()} />
+          <div style={{ flex: 1, marginLeft: 10 }}>
+            <strong>
+              <code>{"flip()"}</code>
+            </strong>
+            <div>Rotate the previous scene</div>
+          </div>
+        </div>
+      </TOCItem>
+      <TOCItem link="/docs/transitions/presentations/clockwipe">
+        <div style={row}>
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={clockwipe({
+              width: compositionWidth,
+              height: compositionHeight,
+            })}
+          />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
               <code>{"flip()"}</code>

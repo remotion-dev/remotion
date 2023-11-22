@@ -5,6 +5,7 @@ import type {
   TransitionTiming,
 } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { clockwipe } from "@remotion/transitions/clockwipe";
 import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
 import { flip } from "@remotion/transitions/flip";
@@ -126,6 +127,17 @@ export const WipeDemo: React.FC<{
   return (
     <SampleTransition
       effect={wipe({ direction })}
+      durationRestThreshold={0.001}
+    />
+  );
+};
+
+export const ClockWipeDemo: React.FC<{}> = () => {
+  const { width, height } = useVideoConfig();
+
+  return (
+    <SampleTransition
+      effect={clockwipe({ width, height })}
       durationRestThreshold={0.001}
     />
   );

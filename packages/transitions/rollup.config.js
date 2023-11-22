@@ -1,7 +1,7 @@
 // rollup.config.js
 import typescript from '@rollup/plugin-typescript';
 
-const presentations = ['slide', 'flip', 'wipe', 'fade'];
+const presentations = ['slide', 'flip', 'wipe', 'fade', 'clockwipe'];
 
 export default [
 	{
@@ -32,7 +32,14 @@ export default [
 					sourcemap: false,
 				},
 			],
-			external: ['remotion', 'remotion/no-react', 'react', 'react/jsx-runtime'],
+			external: [
+				'remotion',
+				'remotion/no-react',
+				'react',
+				'react/jsx-runtime',
+				'@remotion/paths',
+				'@remotion/shapes',
+			],
 			plugins: [
 				typescript({
 					tsconfig: 'tsconfig-cjs.json',
