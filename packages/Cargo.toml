@@ -19,7 +19,7 @@ image = "0.23.7"
 arboard = "3.2.0"
 sysinfo = "0.29.9"
 mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641"}
-ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="2d6219fc75ffd99472f8f9d626002b3cf3e5c3d7"}
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="5ba778adac4e9c8fde0ed368597cf84c6538fd57"}
 
 [[bin]]
 name = "compositor"
