@@ -56,8 +56,10 @@ impl OpenedVideo {
     }
 
     pub fn close_video_if_frame_cache_empty(&mut self) -> Result<bool, ErrorWithBacktrace> {
-        let transparent_cache = FrameCacheManager::get_instance().get_frame_cache(&self.src, true);
-        let opaque_cache = FrameCacheManager::get_instance().get_frame_cache(&self.src, false);
+        let transparent_cache =
+            FrameCacheManager::get_instance().get_frame_cache(&self.src, &self.original_src, true);
+        let opaque_cache =
+            FrameCacheManager::get_instance().get_frame_cache(&self.src, &self.original_src, false);
         if transparent_cache.lock()?.is_empty() && opaque_cache.lock()?.is_empty() {
             self.close()?;
             Ok(true)

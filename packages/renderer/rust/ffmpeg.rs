@@ -86,6 +86,7 @@ pub fn extract_frame(
     // Don't allow previous frame, but allow for some flexibility
     let cache_item = FrameCacheManager::get_instance().get_cache_item_id(
         &src,
+        &original_src,
         transparent,
         position,
         threshold - 1,
@@ -95,6 +96,7 @@ pub fn extract_frame(
         Ok(Some(item)) => {
             return Ok(FrameCacheManager::get_instance().get_cache_item_from_id(
                 &src,
+                &original_src,
                 transparent,
                 item,
             )?);
@@ -157,7 +159,7 @@ pub fn extract_frame(
     )?;
 
     let from_cache = FrameCacheManager::get_instance()
-        .get_frame_cache(&src, transparent)
+        .get_frame_cache(&src, &original_src, transparent)
         .lock()?
         .get_item_from_id(frame_id);
 

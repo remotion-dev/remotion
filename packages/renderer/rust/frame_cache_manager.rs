@@ -32,11 +32,11 @@ impl FrameCacheManager {
         self.cache.read().unwrap().contains_key(src)
     }
 
-    fn add_frame_cache(&self, src: &str) {
+    fn add_frame_cache(&self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
             transparent: Arc::new(Mutex::new(FrameCache::new())),
             opaque: Arc::new(Mutex::new(FrameCache::new())),
-            original_src: src.to_string(),
+            original_src: original_src.to_string(),
         };
 
         self.cache
@@ -45,9 +45,14 @@ impl FrameCacheManager {
             .insert(src.to_string(), frame_cache_and_original_src);
     }
 
-    pub fn get_frame_cache(&self, src: &str, transparent: bool) -> Arc<Mutex<FrameCache>> {
+    pub fn get_frame_cache(
+        &self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+    ) -> Arc<Mutex<FrameCache>> {
         if !self.frame_cache_exists(src) {
-            self.add_frame_cache(src);
+            self.add_frame_cache(src, original_src);
         }
 
         match transparent {
@@ -66,12 +71,13 @@ impl FrameCacheManager {
     pub fn get_cache_item_id(
         &self,
         src: &str,
+        original_src: &str,
         transparent: bool,
         time: i64,
         threshold: i64,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         Ok(self
-            .get_frame_cache(src, transparent)
+            .get_frame_cache(src, original_src, transparent)
             .lock()?
             .get_item_id(time, threshold)?)
     }
@@ -79,11 +85,12 @@ impl FrameCacheManager {
     pub fn get_cache_item_from_id(
         &self,
         src: &str,
+        original_src: &str,
         transparent: bool,
         frame_id: usize,
     ) -> Result<Vec<u8>, ErrorWithBacktrace> {
         match self
-            .get_frame_cache(src, transparent)
+            .get_frame_cache(src, original_src, transparent)
             .lock()?
             .get_item_from_id(frame_id)?
         {
@@ -108,8 +115,6 @@ impl FrameCacheManager {
 
             for key in keys.clone() {
                 let src = key.clone();
-                let lock = self.get_frame_cache(&src, transparent);
-                let frame_cache = lock.lock()?;
                 let original_src = self
                     .cache
                     .read()
@@ -118,6 +123,9 @@ impl FrameCacheManager {
                     .unwrap()
                     .original_src
                     .clone();
+                let lock = self.get_frame_cache(&src, &original_src, transparent);
+                let frame_cache = lock.lock()?;
+
                 let references = frame_cache.get_references(
                     src.to_string(),
                     original_src.to_string(),
@@ -147,7 +155,16 @@ impl FrameCacheManager {
             let transparent = i == 0;
             for key in keys.clone() {
                 let src = key.clone();
-                let lock = self.get_frame_cache(&src, transparent);
+
+                let original_src = self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(&src)
+                    .unwrap()
+                    .original_src
+                    .clone();
+                let lock = self.get_frame_cache(&src, &original_src, transparent);
                 let frame_cache = lock.lock()?;
                 total_size += frame_cache.get_size_in_bytes();
             }
@@ -168,7 +185,7 @@ impl FrameCacheManager {
                 break;
             }
             {
-                self.get_frame_cache(&removal.src, removal.transparent)
+                self.get_frame_cache(&removal.src, &removal.original_src, removal.transparent)
                     .lock()?
                     .remove_item_by_id(removal.id)?;
 
