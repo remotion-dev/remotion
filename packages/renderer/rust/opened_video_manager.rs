@@ -10,6 +10,8 @@ use lazy_static::lazy_static;
 
 use crate::{
     errors::ErrorWithBacktrace,
+    frame_cache::FrameCache,
+    frame_cache_manager::FrameCacheManager,
     logger::log_callback,
     opened_video::{open_video, OpenedVideo},
 };
@@ -87,6 +89,9 @@ impl OpenedVideoManager {
 
         let mut vid = self.videos.write()?;
         vid.remove(src);
+
+        FrameCacheManager::get_instance().remove_frame_cache(src);
+
         Ok(())
     }
 
@@ -101,7 +106,8 @@ impl OpenedVideoManager {
     pub fn close_videos_if_cache_empty(&self) -> Result<(), ErrorWithBacktrace> {
         let video_sources: Vec<String> = self.videos.read()?.keys().cloned().collect();
         for video_source in video_sources {
-            self.videos
+            let closed = self
+                .videos
                 .read()?
                 .get(&video_source)
                 .cloned()
@@ -109,6 +115,9 @@ impl OpenedVideoManager {
                 .lock()
                 .unwrap()
                 .close_video_if_frame_cache_empty()?;
+            if closed {
+                self.videos.write()?.remove(&video_source);
+            }
         }
         Ok(())
     }

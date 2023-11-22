@@ -32,6 +32,10 @@ impl FrameCacheManager {
         self.cache.read().unwrap().contains_key(src)
     }
 
+    pub fn remove_frame_cache(&self, src: &str) {
+        self.cache.write().unwrap().remove(src);
+    }
+
     fn add_frame_cache(&self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
             transparent: Arc::new(Mutex::new(FrameCache::new())),
