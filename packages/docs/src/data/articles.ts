@@ -2529,6 +2529,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "transitions/presentations/clock-wipe",
+    title: "clockWipe()",
+    relativePath: "docs/transitions/presentations/clock-wipe.mdx",
+    compId: "articles-docs-transitions-presentations-clock-wipe",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/custom",
     title: "Custom presentations",
     relativePath: "docs/transitions/presentations/custom.mdx",
