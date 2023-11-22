@@ -5,7 +5,7 @@ import type {
   TransitionTiming,
 } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
-import { clockwipe } from "@remotion/transitions/clockwipe";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
 import { flip } from "@remotion/transitions/flip";
@@ -137,7 +137,7 @@ export const ClockWipeDemo: React.FC<{}> = () => {
 
   return (
     <SampleTransition
-      effect={clockwipe({ width, height })}
+      effect={clockWipe({ width, height })}
       durationRestThreshold={0.001}
     />
   );

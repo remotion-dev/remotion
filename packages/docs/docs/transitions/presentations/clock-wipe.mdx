@@ -1,14 +1,14 @@
 ---
-image: /generated/articles-docs-transitions-presentations-clockwipe.png
+image: /generated/articles-docs-transitions-presentations-clock-wipe.png
 crumb: "@remotion/transitions - Presentations"
-title: "clockwipe()"
+title: "clockWipe()"
 ---
 
-# clockwipe()<AvailableFrom v="4.0.73"/>
+# clockWipe()<AvailableFrom v="4.0.73"/>
 
 A presentation where the exiting slide fades out in a clockwise fashion, revealing the next slide underneath it.
 
-<Demo type="clockwipe" />
+<Demo type="clock-wipe" />
 
 ## Example
 
@@ -36,7 +36,7 @@ const Letter: React.FC<{
 };
 // ---cut---
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { clockwipe } from "@remotion/transitions/clockwipe";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { useVideoConfig } from "remotion";
 
 const BasicTransition = () => {
@@ -48,7 +48,7 @@ const BasicTransition = () => {
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition
-        presentation={clockwipe({ width, height })}
+        presentation={clockWipe({ width, height })}
         timing={linearTiming({ durationInFrames: 30 })}
       />
       <TransitionSeries.Sequence durationInFrames={60}>

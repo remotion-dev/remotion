@@ -1,7 +1,7 @@
 // rollup.config.js
 import typescript from '@rollup/plugin-typescript';
 
-const presentations = ['slide', 'flip', 'wipe', 'fade', 'clockwipe'];
+const presentations = ['slide', 'flip', 'wipe', 'fade', 'clock-wipe'];
 
 export default [
 	{

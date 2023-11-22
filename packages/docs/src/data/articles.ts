@@ -2551,9 +2551,9 @@ export const articles = [
   },
   {
     id: "transitions/presentations/flip",
-    title: "clockwipe()",
-    relativePath: "docs/transitions/presentations/clockwipe.mdx",
-    compId: "articles-docs-transitions-presentations-clockwipe",
+    title: "clockWipe()",
+    relativePath: "docs/transitions/presentations/clock-wipe.mdx",
+    compId: "articles-docs-transitions-presentations-clock-wipe",
     crumb: "@remotion/transitions - Presentations",
   },
   {

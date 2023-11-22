@@ -1,7 +1,8 @@
-import { clockwipe } from "@remotion/transitions/clockwipe";
 import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
+
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
@@ -72,20 +73,20 @@ export const Presentations: React.FC = () => {
           </div>
         </div>
       </TOCItem>
-      <TOCItem link="/docs/transitions/presentations/clockwipe">
+      <TOCItem link="/docs/transitions/presentations/clock-wipe">
         <div style={row}>
           <PresentationPreview
             durationRestThreshold={0.001}
-            effect={clockwipe({
+            effect={clockWipe({
               width: compositionWidth,
               height: compositionHeight,
             })}
           />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
-              <code>{"clockwipe()"}</code>
+              <code>{"clockWipe()"}</code>
             </strong>
-            <div>Reveal new scene with a clockwipe movement</div>
+            <div>Reveal new scene with a clockWipe movement</div>
           </div>
         </div>
       </TOCItem>
