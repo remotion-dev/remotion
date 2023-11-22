@@ -2550,6 +2550,13 @@ export const articles = [
     crumb: "@remotion/transitions - Presentations",
   },
   {
+    id: "transitions/presentations/flip",
+    title: "clockwipe()",
+    relativePath: "docs/transitions/presentations/clockwipe.mdx",
+    compId: "articles-docs-transitions-presentations-clockwipe",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/index",
     title: "Presentations",
     relativePath: "docs/transitions/presentations/index.mdx",
