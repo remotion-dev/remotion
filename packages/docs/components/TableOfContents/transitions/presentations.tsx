@@ -15,8 +15,8 @@ const row: React.CSSProperties = {
   justifyContent: "space-between",
 };
 
-const compositionWidth = 540;
-const compositionHeight = 280;
+export const presentationCompositionWidth = 540;
+export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC = () => {
   return (
@@ -78,8 +78,8 @@ export const Presentations: React.FC = () => {
           <PresentationPreview
             durationRestThreshold={0.001}
             effect={clockWipe({
-              width: compositionWidth,
-              height: compositionHeight,
+              width: presentationCompositionWidth,
+              height: presentationCompositionHeight,
             })}
           />
           <div style={{ flex: 1, marginLeft: 10 }}>

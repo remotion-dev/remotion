@@ -16,6 +16,10 @@ import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import type { SpringConfig } from "remotion";
 import { AbsoluteFill, measureSpring, spring, useVideoConfig } from "remotion";
+import {
+  presentationCompositionHeight,
+  presentationCompositionWidth,
+} from "../TableOfContents/transitions/presentations";
 import { customPresentation } from "./custom-transition";
 
 const SceneA: React.FC = () => {
@@ -226,8 +230,8 @@ export const PresentationPreview: React.FC<{
     <Player
       ref={ref}
       component={SampleTransition}
-      compositionHeight={280}
-      compositionWidth={540}
+      compositionHeight={presentationCompositionHeight}
+      compositionWidth={presentationCompositionWidth}
       durationInFrames={60}
       fps={30}
       numberOfSharedAudioTags={0}
