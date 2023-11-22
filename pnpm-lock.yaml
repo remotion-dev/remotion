@@ -1850,6 +1850,12 @@ importers:
 
   packages/transitions:
     dependencies:
+      '@remotion/paths':
+        specifier: workspace:*
+        version: link:../paths
+      '@remotion/shapes':
+        specifier: workspace:*
+        version: link:../shapes
       remotion:
         specifier: workspace:*
         version: link:../core
