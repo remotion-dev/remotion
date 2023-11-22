@@ -10,14 +10,9 @@ use crate::{
 };
 use lazy_static::lazy_static;
 
-struct FrameCacheAndOriginal {
-    transparent: FrameCache,
-    opaque: FrameCache,
-    original_src: String,
-}
-
 pub struct FrameCacheManager {
-    cache: RwLock<HashMap<String, FrameCacheAndOriginal>>,
+    transparent: RwLock<HashMap<String, Arc<Mutex<FrameCache>>>>,
+    opaque: RwLock<HashMap<String, Arc<Mutex<FrameCache>>>>,
 }
 
 impl FrameCacheManager {
@@ -28,34 +23,41 @@ impl FrameCacheManager {
         &INSTANCE
     }
 
-    fn frame_cache_exists(&self, src: &str) -> bool {
-        if self.cache.read().unwrap().contains_key(src) {
-            return true;
+    fn frame_cache_exists(&self, src: &str, transparent: bool) -> bool {
+        match transparent {
+            true => self.transparent.read().unwrap().contains_key(src),
+            false => self.opaque.read().unwrap().contains_key(src),
         }
-
-        return false;
     }
 
     fn add_frame_cache(&self, src: &str, transparent: bool) {
         let frame_cache = FrameCache::new();
-        self.cache.write().unwrap().insert(
-            src.to_string(),
-            FrameCacheAndOriginal {
-                transparent: FrameCache::new(),
-                opaque: FrameCache::new(),
-                // TODO: Original source
-                original_src: src.to_string(),
-            },
-        );
+        let frame_cache_arc = Arc::new(Mutex::new(frame_cache));
+        match transparent {
+            true => {
+                self.transparent
+                    .write()
+                    .unwrap()
+                    .insert(src.to_string(), frame_cache_arc);
+            }
+            false => {
+                self.opaque
+                    .write()
+                    .unwrap()
+                    .insert(src.to_string(), frame_cache_arc);
+            }
+        }
     }
 
     pub fn get_frame_cache(&self, src: &str, transparent: bool) -> Arc<Mutex<FrameCache>> {
-        if !self.frame_cache_exists(src) {
+        if !self.frame_cache_exists(src, transparent) {
             self.add_frame_cache(src, transparent);
         }
-        return Arc::new(Mutex::new(
-            self.cache.read().unwrap().get(src).unwrap().transparent,
-        ));
+
+        match transparent {
+            true => self.transparent.read().unwrap().get(src).unwrap().clone(),
+            false => self.opaque.read().unwrap().get(src).unwrap().clone(),
+        }
     }
 
     pub fn get_cache_item_id(
@@ -198,6 +200,7 @@ impl FrameCacheManager {
 
 pub fn make_frame_cache_manager() -> Result<FrameCacheManager, ErrorWithBacktrace> {
     Ok(FrameCacheManager {
-        cache: RwLock::new(HashMap::new()),
+        transparent: RwLock::new(HashMap::new()),
+        opaque: RwLock::new(HashMap::new()),
     })
 }
