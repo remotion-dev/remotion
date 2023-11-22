@@ -10,9 +10,14 @@ use crate::{
 };
 use lazy_static::lazy_static;
 
+pub struct FrameCacheAndOriginalSource {
+    transparent: Arc<Mutex<FrameCache>>,
+    opaque: Arc<Mutex<FrameCache>>,
+    original_src: String,
+}
+
 pub struct FrameCacheManager {
-    transparent: RwLock<HashMap<String, Arc<Mutex<FrameCache>>>>,
-    opaque: RwLock<HashMap<String, Arc<Mutex<FrameCache>>>>,
+    cache: RwLock<HashMap<String, FrameCacheAndOriginalSource>>,
 }
 
 impl FrameCacheManager {
@@ -23,40 +28,38 @@ impl FrameCacheManager {
         &INSTANCE
     }
 
-    fn frame_cache_exists(&self, src: &str, transparent: bool) -> bool {
-        match transparent {
-            true => self.transparent.read().unwrap().contains_key(src),
-            false => self.opaque.read().unwrap().contains_key(src),
-        }
+    fn frame_cache_exists(&self, src: &str) -> bool {
+        self.cache.read().unwrap().contains_key(src)
     }
 
-    fn add_frame_cache(&self, src: &str, transparent: bool) {
-        let frame_cache = FrameCache::new();
-        let frame_cache_arc = Arc::new(Mutex::new(frame_cache));
-        match transparent {
-            true => {
-                self.transparent
-                    .write()
-                    .unwrap()
-                    .insert(src.to_string(), frame_cache_arc);
-            }
-            false => {
-                self.opaque
-                    .write()
-                    .unwrap()
-                    .insert(src.to_string(), frame_cache_arc);
-            }
-        }
+    fn add_frame_cache(&self, src: &str) {
+        let frame_cache_and_original_src = FrameCacheAndOriginalSource {
+            transparent: Arc::new(Mutex::new(FrameCache::new())),
+            opaque: Arc::new(Mutex::new(FrameCache::new())),
+            original_src: src.to_string(),
+        };
+
+        self.cache
+            .write()
+            .unwrap()
+            .insert(src.to_string(), frame_cache_and_original_src);
     }
 
     pub fn get_frame_cache(&self, src: &str, transparent: bool) -> Arc<Mutex<FrameCache>> {
-        if !self.frame_cache_exists(src, transparent) {
-            self.add_frame_cache(src, transparent);
+        if !self.frame_cache_exists(src) {
+            self.add_frame_cache(src);
         }
 
         match transparent {
-            true => self.transparent.read().unwrap().get(src).unwrap().clone(),
-            false => self.opaque.read().unwrap().get(src).unwrap().clone(),
+            true => self
+                .cache
+                .read()
+                .unwrap()
+                .get(src)
+                .unwrap()
+                .transparent
+                .clone(),
+            false => self.cache.read().unwrap().get(src).unwrap().opaque.clone(),
         }
     }
 
@@ -92,20 +95,34 @@ impl FrameCacheManager {
     pub fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
         // 0..2 loops twice, not 0..1
+        let keys = self
+            .cache
+            .read()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<Vec<String>>();
+
         for i in 0..2 {
             let transparent = i == 0;
-            let keys: Vec<String> = match transparent {
-                true => self.transparent.read()?.keys().cloned().collect(),
-                false => self.opaque.read()?.keys().cloned().collect(),
-            };
 
-            for key in keys {
+            for key in keys.clone() {
                 let src = key.clone();
                 let lock = self.get_frame_cache(&src, transparent);
                 let frame_cache = lock.lock()?;
-                // TODO: original src has been replaced with key
-                let references =
-                    frame_cache.get_references(src.to_string(), src.to_string(), transparent)?;
+                let original_src = self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(&src)
+                    .unwrap()
+                    .original_src
+                    .clone();
+                let references = frame_cache.get_references(
+                    src.to_string(),
+                    original_src.to_string(),
+                    transparent,
+                )?;
                 for reference in references {
                     vec.push(reference);
                 }
@@ -118,14 +135,17 @@ impl FrameCacheManager {
     fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
         let mut total_size = 0;
 
+        let keys = self
+            .cache
+            .read()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<Vec<String>>();
+
         for i in 0..2 {
             let transparent = i == 0;
-            let keys: Vec<String> = match transparent {
-                // TODO: Potentially unsafe unwrap
-                true => self.transparent.read().unwrap().keys().cloned().collect(),
-                false => self.opaque.read().unwrap().keys().cloned().collect(),
-            };
-            for key in keys {
+            for key in keys.clone() {
                 let src = key.clone();
                 let lock = self.get_frame_cache(&src, transparent);
                 let frame_cache = lock.lock()?;
@@ -148,19 +168,11 @@ impl FrameCacheManager {
                 break;
             }
             {
-                // let video_locked =
-                //  self.get_video(&removal.src, &removal.original_src, removal.transparent)?;
-                // let mut video = video_locked.lock()?;
                 self.get_frame_cache(&removal.src, removal.transparent)
                     .lock()?
                     .remove_item_by_id(removal.id)?;
 
                 pruned += 1;
-
-                // let closed = video.close_video_if_frame_cache_empty()?;
-                // if closed {
-                //     self.videos.write()?.remove(&video.src);
-                // }
             }
         }
 
@@ -200,7 +212,6 @@ impl FrameCacheManager {
 
 pub fn make_frame_cache_manager() -> Result<FrameCacheManager, ErrorWithBacktrace> {
     Ok(FrameCacheManager {
-        transparent: RwLock::new(HashMap::new()),
-        opaque: RwLock::new(HashMap::new()),
+        cache: RwLock::new(HashMap::new()),
     })
 }

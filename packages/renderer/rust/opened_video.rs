@@ -65,14 +65,4 @@ impl OpenedVideo {
             Ok(false)
         }
     }
-
-    pub fn get_cache_size_items(&self) -> Result<usize, ErrorWithBacktrace> {
-        let transparent_cache = FrameCacheManager::get_instance().get_frame_cache(&self.src, true);
-        let opaque_cache = FrameCacheManager::get_instance().get_frame_cache(&self.src, false);
-
-        let transparent_count = transparent_cache.lock()?.get_cache_item_count();
-        let opaque_count = opaque_cache.lock()?.get_cache_item_count();
-
-        Ok(transparent_count.saturating_add(opaque_count))
-    }
 }
