@@ -138,7 +138,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: job.colorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
-			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			defaultConfigurationVideoCodec: job.codec,
 			defaultConfigurationAudioCodec: job.audioCodec,
 		};
 	}
