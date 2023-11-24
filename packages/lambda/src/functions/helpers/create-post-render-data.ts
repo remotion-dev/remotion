@@ -48,12 +48,12 @@ export const createPostRenderData = ({
 		parseLambdaTimingsKey(Key as string),
 	);
 
-	const times = parsedTimings
+	const estimatedBillingDurationInMilliseconds = parsedTimings
 		.map((p) => p.rendered - p.start + OVERHEAD_TIME_PER_LAMBDA)
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
-		durationInMilliseconds: times,
+		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
@@ -124,5 +124,6 @@ export const createPostRenderData = ({
 			renderMetadata.frameRange[1],
 		),
 		deleteAfter: renderMetadata.deleteAfter,
+		estimatedBillingDurationInMilliseconds,
 	};
 };
