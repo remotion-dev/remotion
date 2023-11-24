@@ -61,6 +61,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		acceptableTimeShiftInSeconds,
 		name,
+		onError,
 		...nativeProps
 	} = props;
 
