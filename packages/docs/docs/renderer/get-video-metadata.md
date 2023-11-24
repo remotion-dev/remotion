@@ -98,14 +98,14 @@ You may consider re-encoding the video using FFmpeg to make it seekable.
 
 One of `rgb`, `bt601`, `bt709`, `bt2020-ncl`, `bt2020-cl`, `fcc`, `bt470bg`, `smpte170m`, `smpte240m`, `ycgco`, `smpte2085`, `chroma-derived-ncl`, `chroma-derived-cl`, `ictcp` or `unknown`.
 
-## `audioCodec`<AvailableFrom v="4.0.49"/>
+### `audioCodec`<AvailableFrom v="4.0.49"/>
 
 If the video has no audio track, it is `null`.
 If the audio codec is unknown to Remotion, it is `"unknown"`.
 
 Otherwise, it is one of `"opus" | "aac" | "mp3" | "pcm-f16le" | "pcm-f24le" | "pcm-f32be" | "pcm-s16be" | "pcm-s16le" | "pcm-f32le" | "pcm-s32be" | "pcm-s32le" | "pcm-s64be" | "pcm-s64le" | "pcm-u16be" | "pcm-u16le" | "pcm-u24be" | "pcm-u24le" | "pcm-u32be" | "pcm-u32le" | "pcm-u8" | "pcm-f64be" | "pcm-s24be" | "pcm-s24le" | "pcm-s8" | "pcm-s16be-planar" | "pcm-s8-planar" | "pcm-s24le-planar" | "pcm-s32le-planar" | "unknown"`
 
-## `audioFileExtension`<AvailableFrom v="4.0.49"/>
+### `audioFileExtension`<AvailableFrom v="4.0.49"/>
 
 If the video has no audio track or is unknown to Remotion, it is `null`. Otherwise it is the appropriate file extension for the audio codec, e.g. `"mp3"`. The `.` is not included.
 
