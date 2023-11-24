@@ -288,7 +288,8 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     };
 
     // Get the frame rate
-    let fps: i32 = video_stream.avg_frame_rate().numerator();
+    let fps = (video_stream.avg_frame_rate().numerator() as f32)
+        / (video_stream.avg_frame_rate().denominator() as f32);
 
     // Get the codec
     let codec = remotionffmpeg::codec::context::Context::from_parameters(video_stream.parameters())
