@@ -487,6 +487,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 };
 
@@ -529,6 +530,7 @@ export type RenderProgress = {
 	framesRendered: number;
 	outputSizeInBytes: number | null;
 	type: 'success';
+	estimatedBillingDurationInMilliseconds: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';
