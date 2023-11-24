@@ -34,7 +34,6 @@ export const RenderModalPicture: React.FC<{
 	scale: number;
 	setScale: React.Dispatch<React.SetStateAction<number>>;
 	pixelFormat: PixelFormat;
-	setPixelFormat: React.Dispatch<React.SetStateAction<PixelFormat>>;
 	colorSpace: ColorSpace;
 	setColorSpace: React.Dispatch<React.SetStateAction<ColorSpace>>;
 	imageFormatOptions: SegmentedControlItem[];
@@ -53,12 +52,12 @@ export const RenderModalPicture: React.FC<{
 	crf: number;
 	customTargetVideoBitrate: string;
 	shouldDisplayQualityControlPicker: boolean;
+	pixelFormatOptions: ComboboxValue[];
 }> = ({
 	renderMode,
 	scale,
 	setScale,
 	pixelFormat,
-	setPixelFormat,
 	imageFormatOptions,
 	setQualityControl,
 	qualityControlType,
@@ -75,24 +74,8 @@ export const RenderModalPicture: React.FC<{
 	stillImageFormat,
 	colorSpace,
 	setColorSpace,
+	pixelFormatOptions,
 }) => {
-	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.validPixelFormats.map((option) => {
-			return {
-				label: option,
-				onClick: () => setPixelFormat(option),
-				key: option,
-				id: option,
-				keyHint: null,
-				leftItem: pixelFormat === option ? <Checkmark /> : null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: option,
-			};
-		});
-	}, [pixelFormat, setPixelFormat]);
-
 	const colorSpaceOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validColorSpaces.map((option) => {
 			return {
