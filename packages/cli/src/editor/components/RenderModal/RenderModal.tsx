@@ -44,6 +44,7 @@ import {GifIcon} from '../../icons/gif';
 import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {getDefaultCodecs} from '../../../preview-server/render-queue/get-default-video-contexts';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Spacing} from '../layout';
@@ -55,6 +56,7 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -403,7 +405,7 @@ const RenderModal: React.FC<
 		() => initialx264Preset,
 	);
 
-	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
+	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat,
 	);
 	const [preferredQualityControlType, setQualityControl] =
@@ -736,6 +738,18 @@ const RenderModal: React.FC<
 	}, [codec, everyNthFrameSetting]);
 
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
+
+	const availablePixelFormats = useMemo(() => {
+		return BrowserSafeApis.validPixelFormatsForCodec(codec);
+	}, [codec]);
+
+	const pixelFormat = useMemo(() => {
+		if (availablePixelFormats.includes(userPreferredPixelFormat)) {
+			return userPreferredPixelFormat;
+		}
+
+		return availablePixelFormats[0];
+	}, [availablePixelFormats, userPreferredPixelFormat]);
 
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
@@ -1082,6 +1096,23 @@ const RenderModal: React.FC<
 		};
 	}, [registerKeybinding, trigger]);
 
+	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
+		return availablePixelFormats.map((option) => {
+			return {
+				label: option,
+				onClick: () => setPixelFormat(option),
+				key: option,
+				id: option,
+				keyHint: null,
+				leftItem: pixelFormat === option ? <Checkmark /> : null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
+			};
+		});
+	}, [availablePixelFormats, pixelFormat]);
+
 	return (
 		<div style={outer}>
 			<NewCompHeader title={`Render ${resolvedComposition.id}`} />
@@ -1204,7 +1235,7 @@ const RenderModal: React.FC<
 							scale={scale}
 							setScale={setScale}
 							pixelFormat={pixelFormat}
-							setPixelFormat={setPixelFormat}
+							pixelFormatOptions={pixelFormatOptions}
 							imageFormatOptions={imageFormatOptions}
 							crf={crf}
 							setCrf={setCrf}

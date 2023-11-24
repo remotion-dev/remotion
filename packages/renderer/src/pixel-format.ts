@@ -15,6 +15,14 @@ export type PixelFormat = (typeof validPixelFormats)[number];
 
 export const DEFAULT_PIXEL_FORMAT: PixelFormat = 'yuv420p';
 
+export const validPixelFormatsForCodec = (codec: Codec) => {
+	if (codec === 'vp8' || codec === 'vp9') {
+		return validPixelFormats;
+	}
+
+	return validPixelFormats.filter((format) => format !== 'yuva420p');
+};
+
 export const validateSelectedPixelFormatAndCodecCombination = (
 	pixelFormat: PixelFormat | undefined,
 	codec: Codec,
@@ -31,9 +39,13 @@ export const validateSelectedPixelFormatAndCodecCombination = (
 		return;
 	}
 
-	if (codec !== 'vp8' && codec !== 'vp9') {
+	const validFormats = validPixelFormatsForCodec(codec);
+
+	if (!validFormats.includes(pixelFormat)) {
 		throw new TypeError(
-			"Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp9'. To render videos with alpha channel, you must choose a codec that supports it.",
+			`Pixel format was set to 'yuva420p' but codec ${codec} does not support it. Valid pixel formats for codec ${codec} are: ${validFormats.join(
+				', ',
+			)}.`,
 		);
 	}
 };
