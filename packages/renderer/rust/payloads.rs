@@ -217,7 +217,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[allow(non_snake_case)]
     pub struct VideoMetadata {
-        pub fps: i32,
+        pub fps: f32,
         pub width: u32,
         pub height: u32,
         pub durationInSeconds: f64,
