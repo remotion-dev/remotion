@@ -19,6 +19,7 @@ const warnOnce = (message: string) => {
 		return;
 	}
 
+	// eslint-disable-next-line no-console
 	console.warn(message);
 	didWarn[message] = true;
 };
