@@ -92,12 +92,10 @@ export const useMediaPlayback = ({
 		}
 
 		const desiredUnclampedTime = getMediaTime({
-			fps,
 			frame,
-			src,
 			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
-			mediaType,
+			fps,
 		});
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
