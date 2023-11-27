@@ -18,6 +18,7 @@ type UsePlayerMethods = {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
+	currentFrameRef: React.MutableRefObject<number>;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -31,8 +32,9 @@ export const usePlayer = (): UsePlayerMethods => {
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const {audioAndVideoTags} = useContext(Internals.Timeline.TimelineContext);
 
-	const frameRef = useRef<number>();
+	const frameRef = useRef<number>(frame);
 	frameRef.current = frame;
+
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
 	const emitter = useContext(PlayerEventEmitterContext);
@@ -50,6 +52,8 @@ export const usePlayer = (): UsePlayerMethods => {
 			if (video?.id) {
 				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
 			}
+
+			frameRef.current = newFrame;
 
 			emitter.dispatchSeek(newFrame);
 		},
@@ -109,6 +113,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {
 			imperativePlaying.current = false;
+			frameRef.current = playStart.current as number;
 			if (config) {
 				setTimelinePosition((c) => ({
 					...c,
@@ -179,6 +184,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			isPlaying: () => imperativePlaying.current as boolean,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
+			currentFrameRef: frameRef,
 		};
 	}, [
 		frameBack,
