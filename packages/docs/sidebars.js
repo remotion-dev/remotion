@@ -779,6 +779,7 @@ module.exports = {
         "miscellaneous/automatic-duration",
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
+        "miscellaneous/embed-studio",
         "compare/motion-canvas",
       ],
     },

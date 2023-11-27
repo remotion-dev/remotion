@@ -1498,6 +1498,13 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "embed-studio",
+    title: "Can I embed the Remotion Studio?",
+    relativePath: "docs/miscellaneous/embed-remotion-studio.md",
+    compId: "articles-docs-miscellaneous-embed-remotion-studio",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/linux-single-process",
     title: "Multiple cores on Linux",
     relativePath: "docs/miscellaneous/linux-single-process.md",
