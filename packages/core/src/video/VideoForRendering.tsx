@@ -181,11 +181,15 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 		};
 
-		seekToTimeMultipleUntilRight(current, currentTime, videoConfig.fps).then(
-			() => {
-				continueRender(handle);
-			},
+		const seek = seekToTimeMultipleUntilRight(
+			current,
+			currentTime,
+			videoConfig.fps,
 		);
+
+		seek.prom.then(() => {
+			continueRender(handle);
+		});
 
 		current.addEventListener('ended', endedHandler, {once: true});
 
@@ -211,6 +215,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
+			seek.cancel();
 			current.removeEventListener('ended', endedHandler);
 			current.removeEventListener('error', errorHandler);
 			continueRender(handle);

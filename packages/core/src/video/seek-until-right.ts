@@ -16,42 +16,62 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	};
 };
 
-export const seekToTimeMultipleUntilRight = async (
+export const seekToTimeMultipleUntilRight = (
 	element: HTMLVideoElement,
 	desiredTime: number,
 	fps: number,
 ) => {
-	const seekedTo = await seekToTime(element, desiredTime).wait;
-	const difference = Math.abs(desiredTime - seekedTo);
-	const threshold = 1 / fps;
-	const ident = Math.random();
+	const threshold = 1 / fps / 2;
+	let currentCancel: () => void = () => undefined;
 
-	if (difference > threshold) {
-		console.log(
-			ident,
-			'seekedTo',
-			seekedTo,
-			'desiredTime',
-			desiredTime,
-			'difference',
-			difference,
-			'threshold',
-			threshold,
-		);
-		const sign = desiredTime > seekedTo ? 1 : -1;
+	const prom = new Promise<void>((resolve, reject) => {
+		const firstSeek = seekToTime(element, desiredTime + threshold);
+		firstSeek.wait.then((seekedTo) => {
+			const difference = Math.abs(desiredTime - seekedTo);
+			const ident = Math.random();
 
-		const newTime = await seekToTime(
-			element,
-			desiredTime + (threshold / 2) * sign,
-		).wait;
-		console.log(
-			ident,
-			'before',
-			seekedTo,
-			'after',
-			newTime,
-			'desired',
-			desiredTime,
-		);
-	}
+			if (difference < threshold) {
+				return resolve();
+			}
+
+			const sign = desiredTime > seekedTo ? 1 : -1;
+
+			const newSeek = seekToTime(element, seekedTo + threshold * sign);
+			currentCancel = newSeek.cancel;
+			newSeek.wait
+				.then((newTime) => {
+					const newDifference = Math.abs(desiredTime - newTime);
+					console.log(
+						ident,
+						'before',
+						seekedTo,
+						'after',
+						newTime,
+						'desired',
+						desiredTime,
+					);
+					if (newDifference < threshold) {
+						return resolve();
+					}
+
+					const thirdSeek = seekToTime(element, desiredTime);
+					currentCancel = thirdSeek.cancel;
+					thirdSeek.wait.then(() => {
+						resolve();
+					});
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+
+		currentCancel = firstSeek.cancel;
+	});
+
+	return {
+		prom,
+		cancel: () => {
+			currentCancel();
+		},
+	};
 };
