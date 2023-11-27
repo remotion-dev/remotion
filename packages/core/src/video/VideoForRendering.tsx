@@ -209,6 +209,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		const errorHandler = () => {
 			if (current?.error) {
+				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 
 				// If user is handling the error, we don't cause an unhandled exception

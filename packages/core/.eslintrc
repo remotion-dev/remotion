@@ -1,3 +1,6 @@
 {
-	"extends": ["@jonny"]
+	"extends": ["@jonny"],
+	"rules": {
+		"no-console": "error"
+	}
 }

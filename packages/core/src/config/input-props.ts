@@ -9,10 +9,13 @@ const warnOnceSSRImport = () => {
 	}
 
 	didWarnSSRImport = true;
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Called `getInputProps()` on the server. This function is not available server-side and has returned an empty object.',
 	);
+	// eslint-disable-next-line no-console
 	console.warn("To hide this warning, don't call this function on the server:");
+	// eslint-disable-next-line no-console
 	console.warn("  typeof window === 'undefined' ? {} : getInputProps()");
 };
 

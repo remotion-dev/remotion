@@ -104,7 +104,6 @@ export const useMediaPlayback = ({
 			!Number.isNaN(duration) && Number.isFinite(duration)
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
-
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
 
