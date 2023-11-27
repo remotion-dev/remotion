@@ -12,6 +12,7 @@ export const FontPicker: React.FC = () => {
 			const loaded = await fonts.load();
 
 			// Load the font itself
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const {fontFamily, ...otherInfo} = loaded.loadFont();
 
 			// Or get metadata about the font
