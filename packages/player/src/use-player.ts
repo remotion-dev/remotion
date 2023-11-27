@@ -187,7 +187,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			isPlaying: () => imperativePlaying.current as boolean,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
-			currentFrameRef: frameRef,
+			remotionInternal_currentFrameRef: frameRef,
 		};
 	}, [
 		frameBack,
