@@ -18,7 +18,10 @@ type UsePlayerMethods = {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
-	currentFrameRef: React.MutableRefObject<number>;
+	/**
+	 * @deprecated Remotion internal API
+	 */
+	remotionInternal_currentFrameRef: React.MutableRefObject<number>;
 };
 
 export const usePlayer = (): UsePlayerMethods => {

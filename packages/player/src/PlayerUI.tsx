@@ -127,7 +127,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
-		frameRef: player.currentFrameRef,
+		frameRef: player.remotionInternal_currentFrameRef,
 	});
 
 	useEffect(() => {
