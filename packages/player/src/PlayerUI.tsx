@@ -120,14 +120,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
 
+	const player = usePlayer();
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
+		frameRef: player.remotionInternal_currentFrameRef,
 	});
-	const player = usePlayer();
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {

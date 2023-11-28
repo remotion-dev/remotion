@@ -11,12 +11,14 @@ export const usePlayback = ({
 	moveToBeginningWhenEnded,
 	inFrame,
 	outFrame,
+	frameRef,
 }: {
 	loop: boolean;
 	playbackRate: number;
 	moveToBeginningWhenEnded: boolean;
 	inFrame: number | null;
 	outFrame: number | null;
+	frameRef: React.MutableRefObject<number>;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -27,9 +29,6 @@ export const usePlayback = ({
 	// This means that audio will keep playing even if it has ended.
 	// In that case, we use setTimeout() instead.
 	const isBackgroundedRef = useIsBackgrounded();
-
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
 
 	const lastTimeUpdateEvent = useRef<number | null>(null);
 
@@ -150,6 +149,7 @@ export const usePlayback = ({
 		outFrame,
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
+		frameRef,
 	]);
 
 	useEffect(() => {
@@ -163,7 +163,7 @@ export const usePlayback = ({
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter]);
+	}, [emitter, frameRef]);
 
 	useEffect(() => {
 		emitter.dispatchFrameUpdate({frame});
