@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import type {RemotionAudioProps} from './props.js';
 
 /**
@@ -236,7 +237,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
-			ref.ref.current?.play();
+			playAndHandleNotAllowedError(ref.ref, 'audio');
 		});
 	}, [refs]);
 
