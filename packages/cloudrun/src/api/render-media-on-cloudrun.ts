@@ -321,7 +321,7 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.concurrency By default, each Cloud Run service renders with concurrency 100% (equal to number of available cores). You may use the option to customize this value.
+ * @param params.concurrency A number or a string describing how many browser tabs should be opened. Default "50%".
  * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
