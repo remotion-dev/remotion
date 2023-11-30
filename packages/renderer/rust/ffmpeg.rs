@@ -45,13 +45,11 @@ pub fn keep_only_latest_frames_and_close_videos(
     Ok(())
 }
 
-pub fn emergency_memory_free_up(
-    maximum_frame_cache_size_in_bytes: u128,
-) -> Result<(), ErrorWithBacktrace> {
+pub fn emergency_memory_free_up() -> Result<(), ErrorWithBacktrace> {
     let manager = FrameCacheManager::get_instance();
 
     _print_verbose("System is about to run out of memory, freeing up memory.")?;
-    manager.halfen_cache_size(maximum_frame_cache_size_in_bytes)?;
+    manager.halfen_cache_size()?;
 
     Ok(())
 }

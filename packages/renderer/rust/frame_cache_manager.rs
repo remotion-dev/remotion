@@ -217,11 +217,9 @@ impl FrameCacheManager {
     }
 
     // Should be called if system is about to run out of memory
-    pub fn halfen_cache_size(
-        &self,
-        maximum_frame_cache_size_in_bytes: u128,
-    ) -> Result<(), ErrorWithBacktrace> {
-        self.prune(maximum_frame_cache_size_in_bytes / 2)
+    pub fn halfen_cache_size(&self) -> Result<(), ErrorWithBacktrace> {
+        let current_cache_size = self.get_total_size()?;
+        self.prune(current_cache_size / 2)
     }
 
     pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {
