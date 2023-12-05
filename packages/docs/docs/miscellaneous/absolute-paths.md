@@ -37,7 +37,7 @@ Remotion implements a convention where the <code>public</code> folder in your pr
 
 In Next.js, Remix, and Vite, if you have a file `public/image.png`, you can access it via `"http://localhost:3000/image.png"`, or just `"/image.png"`
 
-In Remotion you need to wrap the path in [`staticFile()`](/docs/static-file), so it would be `staticFile("image.png")`.  
+In Remotion you need to wrap the path in [`staticFile()`](/docs/staticfile), so it would be `staticFile("image.png")`.  
 This ensures that assets are loaded correctly if the webpage is not served on the root path `/`, which is the case on [Remotion Lambda](/docs/lambda) and [Remotion Cloud Run](/docs/cloudrun).
 
 By using `staticFile()`, you can import assets from the public folder, and it will automatically also work in Remotion Studio as well as Remix, Vite, Next.js and Create React App in case you are using the [Remotion Player](/docs/player).
