@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-troubleshooting-bundling-bundle.png
 sidebar_label: Calling bundle() in bundled code
 title: Calling bundle() in bundled code
 crumb: "FAQ"

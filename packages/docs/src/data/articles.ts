@@ -1477,6 +1477,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/absolute-paths",
+    title: "Files with absolute paths",
+    relativePath: "docs/miscellaneous/absolute-paths.md",
+    compId: "articles-docs-miscellaneous-absolute-paths",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/automatic-duration",
     title: "Calculating the duration of a composition automatically",
     relativePath: "docs/miscellaneous/automatic-duration.md",
@@ -2646,6 +2653,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/broken-fast-refresh.md",
     compId: "articles-docs-troubleshooting-broken-fast-refresh",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/bundling-bundle",
+    title: "Calling bundle() in bundled code",
+    relativePath: "docs/troubleshooting/bundling-bundle.md",
+    compId: "articles-docs-troubleshooting-bundling-bundle",
+    crumb: "FAQ",
   },
   {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",
