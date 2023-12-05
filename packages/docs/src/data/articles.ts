@@ -2659,7 +2659,7 @@ export const articles = [
     title: "Calling bundle() in bundled code",
     relativePath: "docs/troubleshooting/bundling-bundle.md",
     compId: "articles-docs-troubleshooting-bundling-bundle",
-    crumb: "FAQ",
+    crumb: "Troubleshooting",
   },
   {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",
