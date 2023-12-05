@@ -705,6 +705,7 @@ module.exports = {
         "troubleshooting/broken-fast-refresh",
         "troubleshooting/timed-out-page-function",
         "troubleshooting/delay-render-proxy",
+        "troubleshooting/bundling-bundle",
       ],
     },
     {
@@ -780,6 +781,8 @@ module.exports = {
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
         "miscellaneous/embed-studio",
+        "miscellaneous/absolute-paths",
+
         "compare/motion-canvas",
       ],
     },
