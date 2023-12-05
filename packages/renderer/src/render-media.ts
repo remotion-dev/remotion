@@ -121,6 +121,8 @@ export type InternalRenderMediaOptions = {
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	maxRate: string | null;
+	bufSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
@@ -173,6 +175,8 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufSize?: string | null;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
@@ -217,6 +221,8 @@ const internalRenderMediaRaw = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	audioCodec,
 	concurrency,
 	disallowParallelEncoding,
@@ -235,7 +241,7 @@ const internalRenderMediaRaw = ({
 	colorSpace,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
-	validateQualitySettings({crf, codec, videoBitrate});
+	validateQualitySettings({crf, codec, videoBitrate, maxRate, bufSize});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 
@@ -447,6 +453,8 @@ const internalRenderMediaRaw = ({
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
+				maxRate,
+				bufSize,
 				indent,
 				x264Preset: x264Preset ?? null,
 				colorSpace,
@@ -657,6 +665,8 @@ const internalRenderMediaRaw = ({
 						ffmpegOverride: ffmpegOverride ?? null,
 						audioBitrate,
 						videoBitrate,
+						bufSize,
+						maxRate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
 						colorSpace,
@@ -768,6 +778,8 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	audioCodec,
 	jpegQuality,
 	concurrency,
@@ -831,6 +843,8 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
+		maxRate: maxRate ?? null,
+		bufSize: bufSize ?? null,
 		logLevel:
 			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,

@@ -50,6 +50,8 @@ type PreStitcherOptions = {
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
+	maxRate: string | null;
+	bufSize: string | null;
 	indent: boolean;
 	colorSpace: ColorSpace;
 };
@@ -98,6 +100,8 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			codec,
 			crf: options.crf,
 			videoBitrate: options.videoBitrate,
+			maxRate: options.maxRate,
+			bufSize: options.bufSize,
 			colorSpace: options.colorSpace,
 		}),
 

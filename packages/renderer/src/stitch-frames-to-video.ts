@@ -56,6 +56,8 @@ const packageJson = fs.existsSync(packageJsonPath)
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	maxRate: string | null;
+	bufSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -86,6 +88,8 @@ type InternalStitchFramesToVideoOptions = {
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -227,6 +231,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
+		maxRate,
+		bufSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -251,7 +257,9 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-
+	validateBitrate(maxRate, 'maxRate');
+	// bufSize is not a bitrate but need to be validated using the same format
+	validateBitrate(bufSize, 'bufSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
@@ -333,6 +341,8 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
+		maxRate,
+		bufSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -429,6 +439,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
+			maxRate,
+			bufSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -579,12 +591,16 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	x264Preset,
 	colorSpace,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
+		maxRate: maxRate ?? null,
+		bufSize: bufSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,

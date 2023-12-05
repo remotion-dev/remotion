@@ -41,6 +41,8 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				pixelFormat: input.pixelFormat,
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,
+				maxRate: input.maxRate,
+				bufSize: input.bufSize,
 				everyNthFrame: input.everyNthFrame,
 				numberOfGifLoops: input.numberOfGifLoops,
 				delayRenderTimeout: input.delayRenderTimeout,
@@ -48,7 +50,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				chromiumOptions: input.chromiumOptions,
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
-					input.serializedInputPropsWithCustomSchema,
+				input.serializedInputPropsWithCustomSchema,
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 				colorSpace: input.colorSpace,
 				multiProcessOnLinux: input.multiProcessOnLinux,

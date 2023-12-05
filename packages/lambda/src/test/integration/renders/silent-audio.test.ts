@@ -57,6 +57,8 @@ test('Should add silent audio if there is no audio', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			maxRate: null,
+			bufSize: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,

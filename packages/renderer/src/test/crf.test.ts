@@ -46,6 +46,8 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 					crf: entry[0],
 					codec: entry[1],
 					videoBitrate: undefined,
+					maxRate: undefined,
+					bufSize: undefined
 				}),
 			).not.toThrow()),
 	);
@@ -74,6 +76,8 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 					crf: entry[0],
 					codec: entry[1],
 					videoBitrate: undefined,
+					maxRate: undefined,
+					bufSize: undefined
 				}),
 			).toThrow(
 				new RegExp(
@@ -85,21 +89,29 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 
 test('ProRes', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined}),
+		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined, maxRate: undefined, bufSize: undefined}),
 	).toThrow(/The "prores" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined}),
+		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined, maxRate: undefined, bufSize: undefined}),
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M'}),
+		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M', maxRate: undefined, bufSize: undefined}),
 	).toThrow(
 		/"crf" and "videoBitrate" can not both be set. Choose one of either./,
+	);
+});
+
+test('maxRate', () => {
+	expect(() =>
+		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: undefined, maxRate: '1M', bufSize: undefined}),
+	).toThrow(
+		/"maxRate" can not be set without "bufSize"./,
 	);
 });
 

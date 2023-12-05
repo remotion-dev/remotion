@@ -66,6 +66,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	overwrite: boolean;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	maxRate: string | null;
+	bufSize: string | null;
 	webhook: WebhookOption | null;
 	forceWidth: number | null;
 	forceHeight: number | null;
@@ -108,6 +110,8 @@ export const makeLambdaRenderMediaPayload = async ({
 	forceWidth,
 	webhook,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	downloadBehavior,
 	muted,
 	overwrite,
@@ -170,6 +174,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		overwrite: overwrite ?? false,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
+		bufSize: bufSize ?? null,
+		maxRate: maxRate ?? null,
 		webhook: webhook ?? null,
 		forceHeight: forceHeight ?? null,
 		forceWidth: forceWidth ?? null,

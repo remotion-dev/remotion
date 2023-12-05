@@ -96,6 +96,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		webhook: params.webhook,
 		audioBitrate: params.audioBitrate,
 		videoBitrate: params.videoBitrate,
+		bufSize: params.bufSize,
+		maxRate: params.maxRate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,

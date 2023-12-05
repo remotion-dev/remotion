@@ -60,8 +60,13 @@ import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
 	getVideoBitrate,
+	getVideoBufSize,
+	getVideoMaxRate,
 	setAudioBitrate,
 	setVideoBitrate,
+	setVideoBufSize,
+	setVideoMaxRate
+
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
@@ -429,6 +434,16 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
+		 * Set a maximum bitrate to be passed to FFMPEG.
+		 */
+		readonly setVideoMaxRate: (bitrate: string | null) => void;
+
+		/**
+		 * Set a buffer size to be passed to FFMPEG.
+		 */
+		readonly setVideoBufSize: (bitrate: string | null) => void;
+
+		/**
 		 * Opt into bt709 rendering.
 		 */
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
@@ -555,6 +570,8 @@ export const Config: FlatConfig = {
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
+	setVideoMaxRate,
+	setVideoBufSize,
 	setFrameRange,
 	setScale,
 	setEveryNthFrame,
@@ -625,6 +642,8 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getVideoBufSize,
+	getVideoMaxRate,
 	getHeight,
 	getWidth,
 	getCrfOrUndefined,

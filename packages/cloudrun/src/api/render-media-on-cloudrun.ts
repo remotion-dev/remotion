@@ -48,6 +48,8 @@ type InternalRenderMediaOnCloudrun = {
 	jpegQuality: number | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	maxRate: string | null;
+	bufSize: string | null;
 	proResProfile: ProResProfile | undefined;
 	x264Preset: X264Preset | undefined;
 	crf: Crf | null;
@@ -86,6 +88,8 @@ export type RenderMediaOnCloudrunInput = {
 	jpegQuality?: number;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	maxRate?: string | null;
+	bufSize?: string | null;
 	proResProfile?: ProResProfile;
 	x264Preset?: X264Preset;
 	crf?: number | undefined;
@@ -124,6 +128,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	proResProfile,
 	x264Preset,
 	crf,
@@ -175,6 +181,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
+		bufSize: maxRate ?? null,
+		maxRate: bufSize ?? null,
 		crf: crf ?? null,
 		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -305,6 +313,8 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.audioCodec The encoding of the audio of the output video.
  * @param params.audioBitrate The target bitrate for the audio of the generated video.
  * @param params.videoBitrate The target bitrate of the generated video.
+ * @param params.bufSize The decoder buffer size, which determines the variability of the generated video bitrate.
+ * @param params.maxRate The maximum bitrate tolerance to be used, this is only used in conjunction with bufsize.
  * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
  * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
  * @param params.crf Constant Rate Factor, controlling the quality.
@@ -342,6 +352,8 @@ export const renderMediaOnCloudrun = ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	proResProfile,
 	x264Preset,
 	crf,
@@ -382,6 +394,8 @@ export const renderMediaOnCloudrun = ({
 		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
+		maxRate: maxRate ?? null,
+		bufSize: bufSize ?? null,
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? undefined,
 		crf: crf ?? null,

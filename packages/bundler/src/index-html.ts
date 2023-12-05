@@ -20,6 +20,8 @@ export type RenderDefaults = {
 	pixelFormat: string;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	bufSize: string | null;
+	maxRate: string | null;
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
 	delayRenderTimeout: number;

@@ -41,6 +41,8 @@ type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
+	['buf-size']: string;
+	['max-rate']: string;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -261,6 +263,14 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
 		Config.setVideoBitrate(parsedCli['video-bitrate']);
+	}
+
+	if (typeof parsedCli['buf-size'] !== 'undefined') {
+		Config.setVideoBufSize(parsedCli['buf-size']);
+	}
+
+	if (typeof parsedCli['buf-size'] !== 'undefined') {
+		Config.setVideoMaxRate(parsedCli['buf-size']);
 	}
 
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {

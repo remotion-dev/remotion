@@ -55,6 +55,8 @@ test('Should fail when using an incompatible version', async () => {
 				webhook: null,
 				audioBitrate: null,
 				videoBitrate: null,
+				bufSize: null,
+				maxRate: null,
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,

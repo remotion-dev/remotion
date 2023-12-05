@@ -71,16 +71,29 @@ export const validateQualitySettings = ({
 	codec,
 	crf,
 	videoBitrate,
+	maxRate,
+	bufSize
 }: {
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null | undefined;
+	maxRate: string | null | undefined;
+	bufSize: string | null | undefined;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
 			'"crf" and "videoBitrate" can not both be set. Choose one of either.',
 		);
 	}
+
+	if (maxRate && !bufSize) {
+		throw new Error(
+			'"maxRate" can not be set without "bufSize".',
+		);
+	}
+
+	const bufSizeArray = bufSize ? ['-bufsize', bufSize] : [];
+	const maxRateArray = maxRate ? ['-maxrate', maxRate] : [];
 
 	if (videoBitrate) {
 		if (codec === 'prores') {
@@ -93,13 +106,12 @@ export const validateQualitySettings = ({
 			return [];
 		}
 
-		return ['-b:v', videoBitrate];
+		return ['-b:v', videoBitrate, ...bufSizeArray, ...maxRateArray];
 	}
 
 	if (crf === null || typeof crf === 'undefined') {
 		const actualCrf = getDefaultCrfForCodec(codec);
-
-		return ['-crf', String(actualCrf)];
+		return ['-crf', String(actualCrf), ...bufSizeArray, ...maxRateArray];
 	}
 
 	if (typeof crf !== 'number') {
@@ -137,5 +149,5 @@ export const validateQualitySettings = ({
 		return [];
 	}
 
-	return ['-crf', String(crf)];
+	return ['-crf', String(crf), ...bufSizeArray, ...maxRateArray];
 };

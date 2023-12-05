@@ -14,6 +14,8 @@ const firstEncodingStepOnly = ({
 	codec,
 	crf,
 	videoBitrate,
+	maxRate,
+	bufSize
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -22,6 +24,8 @@ const firstEncodingStepOnly = ({
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null | undefined;
+	maxRate: string | null | undefined;
+	bufSize: string | null | undefined;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -39,6 +43,8 @@ const firstEncodingStepOnly = ({
 			crf,
 			videoBitrate,
 			codec,
+			maxRate,
+			bufSize
 		}),
 	].filter(truthy);
 };
@@ -51,6 +57,8 @@ export const generateFfmpegArgs = ({
 	codec,
 	crf,
 	videoBitrate,
+	maxRate,
+	bufSize,
 	colorSpace,
 }: {
 	hasPreencoded: boolean;
@@ -60,6 +68,8 @@ export const generateFfmpegArgs = ({
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null | undefined;
+	maxRate: string | null | undefined;
+	bufSize: string | null | undefined;
 	colorSpace: ColorSpace;
 }): string[][] => {
 	const encoderName = getCodecName(codec);
@@ -90,6 +100,8 @@ export const generateFfmpegArgs = ({
 			pixelFormat,
 			proResProfileName,
 			videoBitrate,
+			maxRate,
+			bufSize,
 			x264Preset,
 		}),
 	].filter(truthy);
