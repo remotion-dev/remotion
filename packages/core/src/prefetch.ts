@@ -86,6 +86,7 @@ export const prefetch = (
 			if (
 				!buf.type.startsWith('video/') &&
 				!buf.type.startsWith('audio/') &&
+				!buf.type.startsWith('image/') &&
 				!options?.contentType
 			) {
 				// eslint-disable-next-line no-console
