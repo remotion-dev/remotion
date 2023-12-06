@@ -90,11 +90,11 @@ import {
   useVideoConfig,
 } from "remotion";
 
-interface Props {
+type Props = {
   name: string;
   logo: string;
   repo: string;
-}
+};
 
 export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
   const frame = useCurrentFrame();
