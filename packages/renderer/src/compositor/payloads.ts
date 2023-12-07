@@ -88,7 +88,7 @@ export type VideoMetadata = {
 		| 'pcm-s24le-planar'
 		| 'pcm-s32le-planar'
 		| 'unknown';
-	audioFileExtension: string | null,
+	audioFileExtension: string | null;
 	pixelFormat:
 		| null
 		| 'yuv420p'
