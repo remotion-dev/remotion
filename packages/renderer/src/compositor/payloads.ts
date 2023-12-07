@@ -193,7 +193,8 @@ export type VideoMetadata = {
 		| 'yuva422p12be'
 		| 'yuva422p12le'
 		| 'yuva444p12be'
-		| 'yuva444p12le';
+		| 'yuva444p12le'
+		| 'unknown';
 };
 
 type SilentPart = {
