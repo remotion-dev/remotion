@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
+import hex from 'crypto-js/enc-hex';
+import hmacSHA512 from 'crypto-js/hmac-sha512';
 import https from 'https';
-import * as Crypto from 'node:crypto';
 import http from 'node:http';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AfterRenderCost} from './constants';
@@ -17,8 +18,8 @@ export function calculateSignature(payload: string, secret: string | null) {
 		return 'NO_SECRET_PROVIDED';
 	}
 
-	const hmac = Crypto.createHmac('sha512', secret);
-	const signature = 'sha512=' + hmac.update(payload).digest('hex');
+	const hmac = hmacSHA512(payload, secret);
+	const signature = 'sha512=' + hex.stringify(hmac);
 	return signature;
 }
 
