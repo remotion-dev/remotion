@@ -334,7 +334,7 @@ export const Canvas: React.FC<{
 						<ResetZoomButton onClick={onReset} />
 					</div>
 				)}
-				{editorShowGuides && (
+				{editorShowGuides && canvasContent.type === 'composition' && (
 					<EditorGuides
 						canvasSize={size}
 						contentDimensions={contentDimensions}
