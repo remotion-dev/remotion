@@ -34,7 +34,7 @@ If your animation will not break if the frames are rendered in order, users ofte
 
 ## Why Remotion works this way
 
-We commonly get asked if Remotion would consider changing the way how it renders. While we are always have an open ear for how to improve Remotion, the following points need to be considered:
+We commonly get asked if Remotion would consider changing the way how it renders. While we always have an open ear for suggestions on how to improve Remotion, the following points need to be considered:
 
 - Rendering speed is of critical importance for many Remotion users, especially those who are relying on server-side rendering. Rendering each frame sequentially would be detrimental for speed, a sacrifice that is not worth it when it's possible to write concurrency-safe videos.
 
