@@ -2,6 +2,7 @@ import React from "react";
 
 const link: React.CSSProperties = {
   color: "inherit",
+  textDecoration: "none",
 };
 
 const container: React.CSSProperties = {

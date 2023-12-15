@@ -6,8 +6,6 @@ sidebar_label: Visual editing
 crumb: "How To"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={6}
   href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
