@@ -6,8 +6,6 @@ title: Debugging failed Lambda renders
 crumb: "Lambda"
 ---
 
-import { YouTube } from "../../../components/YouTube";
-
 <YouTube
   minutes={11}
   href="https://youtu.be/pwVEzTQ6VYE"

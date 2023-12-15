@@ -5,8 +5,6 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={11}
   href="https://youtu.be/dQyPUasZY7I"
