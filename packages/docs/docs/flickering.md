@@ -5,6 +5,13 @@ title: Flickering
 crumb: "How to avoid"
 ---
 
+<YouTube
+  minutes={2}
+  href="https://www.youtube.com/watch?v=M7BOPECeqV8"
+  thumb="https://i.ytimg.com/vi/M7BOPECeqV8/hq720.jpg"
+  title="Avoid this common mistake in Remotion"
+/>
+
 If your video flickers or suffers from choppiness during rendering, it is an indication that you have a **multi-threading issue**.
 
 The rendering process of Remotion works as follows:
