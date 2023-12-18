@@ -20,7 +20,7 @@ export const NumberSetting: React.FC<{
 	const onTextChanged = useCallback(
 		(e: string) => {
 			onValueChanged((q) => {
-				const newSetting = parseInt(e, 10);
+				const newSetting = step < 1 ? parseFloat(e) : parseInt(e, 10);
 				if (Number.isNaN(newSetting)) {
 					return q;
 				}
@@ -28,7 +28,7 @@ export const NumberSetting: React.FC<{
 				return Math.min(max ?? Infinity, Math.max(newSetting, min));
 			});
 		},
-		[max, min, onValueChanged],
+		[max, min, onValueChanged, step],
 	);
 
 	const onValueChange = useCallback(

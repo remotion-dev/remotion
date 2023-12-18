@@ -380,7 +380,7 @@ export const renderCommand = async (
 					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {
-							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+							return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
 						})
 						.join(', '),
 				);

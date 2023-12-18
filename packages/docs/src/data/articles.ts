@@ -596,7 +596,7 @@ export const articles = [
   },
   {
     id: "dynamic-metadata",
-    title: "Variable metadata",
+    title: "Variable duration and dimensions",
     relativePath: "docs/dynamic-metadata.md",
     compId: "articles-docs-dynamic-metadata",
     crumb: "How To",
@@ -1477,6 +1477,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/absolute-paths",
+    title: "Files with absolute paths",
+    relativePath: "docs/miscellaneous/absolute-paths.md",
+    compId: "articles-docs-miscellaneous-absolute-paths",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/automatic-duration",
     title: "Calculating the duration of a composition automatically",
     relativePath: "docs/miscellaneous/automatic-duration.md",
@@ -1510,6 +1517,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/linux-single-process.md",
     compId: "articles-docs-miscellaneous-linux-single-process",
     crumb: "Server-side rendering",
+  },
+  {
+    id: "miscellaneous/live-streaming",
+    title: "Can Remotion be used for live streaming?",
+    relativePath: "docs/miscellaneous/live-streaming.md",
+    compId: "articles-docs-miscellaneous-live-streaming",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/render-in-browser",
@@ -2645,6 +2659,13 @@ export const articles = [
     title: "Fast Refresh not working",
     relativePath: "docs/troubleshooting/broken-fast-refresh.md",
     compId: "articles-docs-troubleshooting-broken-fast-refresh",
+    crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/bundling-bundle",
+    title: "Calling bundle() in bundled code",
+    relativePath: "docs/troubleshooting/bundling-bundle.md",
+    compId: "articles-docs-troubleshooting-bundling-bundle",
     crumb: "Troubleshooting",
   },
   {

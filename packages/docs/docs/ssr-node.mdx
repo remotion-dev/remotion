@@ -32,6 +32,7 @@ import path from "path";
 const compositionId = "HelloWorld";
 
 // You only have to create a bundle once, and you may reuse it
+// for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
   entryPoint: path.resolve("./src/index.ts"),
   // If you have a Webpack override, make sure to add it here
