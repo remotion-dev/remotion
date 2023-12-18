@@ -395,6 +395,13 @@ You may pass an array with the available playback rates for selection, however, 
 
 Default `false`.
 
+### `posterFillMode`<AvailableFrom v="4.0.78" />
+
+Either `player-size` (default) or `composition-size`:
+
+- `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
+- `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
