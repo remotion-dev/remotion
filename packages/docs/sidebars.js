@@ -782,7 +782,7 @@ module.exports = {
         "miscellaneous/render-on-edge",
         "miscellaneous/embed-studio",
         "miscellaneous/absolute-paths",
-
+        "miscellaneous/live-streaming",
         "compare/motion-canvas",
       ],
     },

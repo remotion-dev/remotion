@@ -596,7 +596,7 @@ export const articles = [
   },
   {
     id: "dynamic-metadata",
-    title: "Variable metadata",
+    title: "Variable duration and dimensions",
     relativePath: "docs/dynamic-metadata.md",
     compId: "articles-docs-dynamic-metadata",
     crumb: "How To",
@@ -1517,6 +1517,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/linux-single-process.md",
     compId: "articles-docs-miscellaneous-linux-single-process",
     crumb: "Server-side rendering",
+  },
+  {
+    id: "miscellaneous/live-streaming",
+    title: "Can Remotion be used for live streaming?",
+    relativePath: "docs/miscellaneous/live-streaming.md",
+    compId: "articles-docs-miscellaneous-live-streaming",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/render-in-browser",
