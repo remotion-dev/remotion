@@ -344,6 +344,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 					<PlayerEventEmitterContext.Provider value={emitter}>
 						<PlayerUI
 							ref={rootRef}
+							posterFillMode="composition-size"
 							renderLoading={renderLoading}
 							autoPlay={Boolean(autoPlay)}
 							loop={Boolean(loop)}
