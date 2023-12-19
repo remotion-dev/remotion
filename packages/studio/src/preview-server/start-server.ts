@@ -48,7 +48,7 @@ export const startServer = async (options: {
 		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
-			require.resolve('./error-overlay/entry-basic.js'),
+			require.resolve('../error-overlay/entry-basic.js'),
 		],
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,

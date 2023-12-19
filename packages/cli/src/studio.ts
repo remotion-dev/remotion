@@ -106,5 +106,8 @@ export const studioCommand = async (
 			cancelJob,
 			removeJob,
 		},
+		// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
+		// @ts-expect-error
+		parsedCliOpen: parsedCli.open,
 	});
 };

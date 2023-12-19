@@ -23,15 +23,15 @@ const noop = () => undefined;
 
 const getShouldOpenBrowser = ({
 	configValueShouldOpenBrowser,
+	parsedCliOpen,
 }: {
 	configValueShouldOpenBrowser: boolean;
+	parsedCliOpen: boolean;
 }): {
 	shouldOpenBrowser: boolean;
 	reasonForBrowserDecision: string;
 } => {
-	// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
-	// @ts-expect-error
-	if (parsedCli.open === false) {
+	if (parsedCliOpen === false) {
 		return {
 			shouldOpenBrowser: false,
 			reasonForBrowserDecision: '--no-open specified',
@@ -71,6 +71,7 @@ export const startStudio = async ({
 	getRenderQueue,
 	numberOfAudioTags,
 	queueMethods,
+	parsedCliOpen,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -90,6 +91,7 @@ export const startStudio = async ({
 	getRenderQueue: () => RenderJob[];
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
+	parsedCliOpen: boolean;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
@@ -167,6 +169,7 @@ export const startStudio = async ({
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
 		configValueShouldOpenBrowser,
+		parsedCliOpen,
 	});
 
 	if (shouldOpenBrowser) {
