@@ -49,6 +49,7 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 # Set render request
 render_params = RenderParams(
     composition="react-svg",
+    # Note: In Python, you pass input props using `data`, not `input_props`
     data={
         'hi': 'there'
     },

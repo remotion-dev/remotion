@@ -1,5 +1,5 @@
 import * as assert from 'node:assert';
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';

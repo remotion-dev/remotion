@@ -207,6 +207,8 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			encodingBufferSize: params.encodingBufferSize,
+			encodingMaxRate: params.encodingMaxRate,
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
@@ -292,6 +294,8 @@ const renderHandler = async (
 	return {};
 };
 
+export const ENABLE_SLOW_LEAK_DETECTION = false;
+
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
@@ -305,7 +309,7 @@ export const rendererHandler = async (
 
 	const logs: BrowserLog[] = [];
 
-	const leakDetection = enableNodeIntrospection();
+	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
 		await renderHandler(params, options, logs);

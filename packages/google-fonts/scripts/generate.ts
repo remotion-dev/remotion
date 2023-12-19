@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs, { mkdirSync } from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
@@ -167,6 +167,7 @@ export const loadFont = <T extends keyof Variants>(
 
 `;
 
+  mkdirSync(OUTDIR, { recursive: true });
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
 };

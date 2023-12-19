@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import type {LogLevel} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
@@ -67,6 +67,8 @@ export const render = async (
 		x264Preset,
 		pixelFormat,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		numberOfGifLoops,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
@@ -91,11 +93,12 @@ export const render = async (
 		shouldOutputImageSequence,
 		publicDir,
 		envVariables,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps,
+			}).serializedString,
 		puppeteerTimeout,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		height,
@@ -126,6 +129,8 @@ export const render = async (
 		x264Preset,
 		pixelFormat,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding: false,

@@ -15,6 +15,7 @@ import {AudioForDevelopment} from './AudioForDevelopment.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioContext} from './shared-audio-tags.js';
+
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
 	RemotionAudioProps & RemotionMainAudioProps
@@ -39,6 +40,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
+			// eslint-disable-next-line no-console
 			console.log(e.currentTarget.error);
 
 			// If there is no `loop` property, we don't need to get the duration
@@ -48,6 +50,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			if (loop) {
 				cancelRender(new Error(errMessage));
 			} else {
+				// eslint-disable-next-line no-console
 				console.warn(errMessage);
 			}
 		},
@@ -74,7 +77,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 					startFrom,
 				})}
 			>
-				<Audio {...propsOtherThanLoop} ref={ref} />
+				<Audio
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -117,6 +124,9 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<AudioForDevelopment
+			_remotionInternalNativeLoopPassed={
+				props._remotionInternalNativeLoopPassed ?? false
+			}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}

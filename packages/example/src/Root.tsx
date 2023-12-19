@@ -497,7 +497,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={30 * 60 * 60}
+					durationInFrames={30 * 60}
 					defaultProps={{
 						src: 'variablefps.webm',
 					}}
@@ -696,6 +696,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="audio-testing"
 					lazyComponent={() => import('./AudioTesting')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="audio-testing-short-loop"
+					lazyComponent={() => import('./AudioTesting/ShortLoop')}
 					width={1080}
 					height={1080}
 					fps={30}

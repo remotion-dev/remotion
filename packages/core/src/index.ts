@@ -106,16 +106,17 @@ export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
+export {Loop} from './loop/index.js';
+export {ClipRegion} from './NativeLayers.js';
 export {
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
 	InterpolateOptions,
-} from './interpolate.js';
-export {Loop} from './loop/index.js';
-export {ClipRegion} from './NativeLayers.js';
+	random,
+	RandomSeed,
+} from './no-react';
 export {prefetch} from './prefetch.js';
-export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
 export {
 	LayoutAndStyle,
@@ -164,6 +165,7 @@ export const Config = new Proxy(proxyObj, {
 		}
 
 		return () => {
+			/* eslint-disable no-console */
 			console.warn(
 				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
@@ -177,6 +179,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn(
 				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
+			/* eslint-enable no-console */
 
 			process.exit(1);
 		};

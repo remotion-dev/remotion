@@ -81,6 +81,8 @@ type RenderJobDynamicFields =
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
+			encodingBufferSize: string | null;
+			encodingMaxRate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
@@ -146,6 +148,8 @@ type AddRenderRequestDynamicFields =
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
+			encodingBufferSize: string | null;
+			encodingMaxRate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;

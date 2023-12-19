@@ -9,7 +9,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	CopyStillToClipboardRequest,
@@ -94,11 +94,12 @@ export const addStillRenderJob = ({
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			staticBase: window.remotion_staticBase,
-			indent: undefined,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				staticBase: window.remotion_staticBase,
+				indent: undefined,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
 	});
@@ -153,11 +154,12 @@ export const addSequenceRenderJob = ({
 		delayRenderTimeout,
 		envVariables,
 		concurrency,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			staticBase: window.remotion_staticBase,
-			indent: undefined,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				staticBase: window.remotion_staticBase,
+				indent: undefined,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
@@ -194,6 +196,8 @@ export const addVideoRenderJob = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	multiProcessOnLinux,
+	encodingMaxRate,
+	encodingBufferSize,
 }: {
 	compositionId: string;
 	outName: string;
@@ -224,6 +228,8 @@ export const addVideoRenderJob = ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -252,14 +258,17 @@ export const addVideoRenderJob = ({
 		disallowParallelEncoding,
 		chromiumOptions,
 		envVariables,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			staticBase: window.remotion_staticBase,
-			indent: undefined,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				staticBase: window.remotion_staticBase,
+				indent: undefined,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		multiProcessOnLinux,
+		encodingBufferSize,
+		encodingMaxRate,
 	});
 };
 
@@ -324,7 +333,7 @@ export const updateDefaultProps = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: Internals.serializeJSONWithDate({
+		defaultProps: NoReactInternals.serializeJSONWithDate({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,

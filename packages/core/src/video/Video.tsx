@@ -18,7 +18,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps & RemotionMainVideoProps
 > = (props, ref) => {
-	const {startFrom, endAt, name, ...otherProps} = props;
+	const {
+		startFrom,
+		endAt,
+		name,
+		_remotionInternalNativeLoopPassed,
+		...otherProps
+	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -60,7 +66,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				name={name}
 			>
-				<Video {...propsOtherThanLoop} ref={ref} />
+				<Video
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -97,6 +107,9 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			{...otherProps}
 			ref={ref}
 			onDuration={onDuration}
+			_remotionInternalNativeLoopPassed={
+				_remotionInternalNativeLoopPassed ?? false
+			}
 		/>
 	);
 };

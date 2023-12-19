@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 export const enableLambdaInsights = {
 	name: 'Enable Lambda Insights',
-	cliFlag: 'enable-lambda-insights',
+	cliFlag: 'enable-lambda-insights' as const,
 	description: () => (
 		<>
 			Enable{' '}

@@ -2,7 +2,7 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
@@ -202,11 +202,12 @@ const innerStillHandler = async ({
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 

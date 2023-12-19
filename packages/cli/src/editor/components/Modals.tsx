@@ -49,13 +49,16 @@ export const Modals: React.FC = () => {
 					initialIgnoreCertificateErrors={
 						modalContextType.initialIgnoreCertificateErrors
 					}
-					defaultProps={modalContextType.defaultProps}
-					inFrameMark={modalContextType.inFrameMark}
-					outFrameMark={modalContextType.outFrameMark}
+					initialEncodingBufferSize={modalContextType.initialEncodingBufferSize}
+					initialEncodingMaxRate={modalContextType.initialEncodingMaxRate}
+					initialUserAgent={modalContextType.initialUserAgent}
 					initialColorSpace={modalContextType.initialColorSpace}
 					initialMultiProcessOnLinux={
 						modalContextType.initialMultiProcessOnLinux
 					}
+					defaultProps={modalContextType.defaultProps}
+					inFrameMark={modalContextType.inFrameMark}
+					outFrameMark={modalContextType.outFrameMark}
 					defaultConfigurationAudioCodec={
 						modalContextType.defaultConfigurationAudioCodec
 					}

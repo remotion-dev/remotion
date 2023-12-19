@@ -675,6 +675,30 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
+## `setEncodingBufferSize`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingBufferSize("10000k");
+```
+
+The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
+
+## `setEncodingMaxRate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingMaxRate("5000k");
+```
+
+The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
+
 ## `setAudioBitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  

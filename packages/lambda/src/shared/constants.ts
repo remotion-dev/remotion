@@ -12,7 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
@@ -222,7 +222,9 @@ export type WebhookOption = Prettify<
 			url: string;
 			secret: string | null;
 	  } & Partial<
-			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+			ToOptions<{
+				customData: typeof BrowserSafeApis.options.webhookCustomDataOption;
+			}>
 	  >)
 >;
 
@@ -269,6 +271,8 @@ export type LambdaStartPayload = {
 	overwrite: boolean;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	webhook: WebhookOption;
 	forceHeight: number | null;
 	forceWidth: number | null;
@@ -325,6 +329,8 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingMaxRate: string | null;
+		encodingBufferSize: string | null;
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
@@ -367,6 +373,8 @@ export type LambdaPayloads = {
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingBufferSize: string | null;
+		encodingMaxRate: string | null;
 		launchFunctionConfig: {
 			version: string;
 		};
@@ -487,6 +495,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 };
 
@@ -529,6 +538,7 @@ export type RenderProgress = {
 	framesRendered: number;
 	outputSizeInBytes: number | null;
 	type: 'success';
+	estimatedBillingDurationInMilliseconds: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

@@ -7,11 +7,14 @@ import type {UiOpenGlOptions} from '../../../required-chromium-options';
 import {labelx264Preset} from '../../helpers/presets-labels';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
-import {label, optionRow, rightRow} from './layout';
+import {RemotionInput} from '../NewComposition/RemInput';
+import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalHr} from './RenderModalHr';
 
@@ -53,6 +56,8 @@ export const RenderModalAdvanced: React.FC<{
 	codec: Codec;
 	enableMultiProcessOnLinux: boolean;
 	setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
+	userAgent: string | null;
+	setUserAgent: React.Dispatch<React.SetStateAction<string | null>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -82,6 +87,8 @@ export const RenderModalAdvanced: React.FC<{
 	setOffthreadVideoCacheSizeInBytes,
 	enableMultiProcessOnLinux,
 	setChromiumMultiProcessOnLinux,
+	setUserAgent,
+	userAgent,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return [
@@ -110,6 +117,16 @@ export const RenderModalAdvanced: React.FC<{
 			return null;
 		});
 	}, [setOffthreadVideoCacheSizeInBytes]);
+
+	const toggleCustomUserAgent = useCallback(() => {
+		setUserAgent((previous) => {
+			if (previous === null) {
+				return 'Mozilla/5.0 (Remotion)';
+			}
+
+			return null;
+		});
+	}, [setUserAgent]);
 
 	const onDisallowParallelEncodingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +162,14 @@ export const RenderModalAdvanced: React.FC<{
 		},
 		[setHeadless],
 	);
+
+	const onUserAgentChanged: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				setUserAgent(e.target.value);
+			},
+			[setUserAgent],
+		);
 
 	const openGlOptions = useMemo((): ComboboxValue[] => {
 		return extendedOpenGlOptions.map((option) => {
@@ -202,6 +227,27 @@ export const RenderModalAdvanced: React.FC<{
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<div style={optionRow}>
+				<div style={label}>Verbose logging</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={logLevel === 'verbose'}
+						onChange={onVerboseLoggingChanged}
+						name="verbose-logging"
+					/>
+				</div>
+			</div>
+			{renderMode === 'still' ? null : (
+				<NumberSetting
+					min={minConcurrency}
+					max={maxConcurrency}
+					step={1}
+					name="Concurrency"
+					formatter={(w) => `${w}x`}
+					onValueChanged={setConcurrency}
+					value={concurrency}
+				/>
+			)}
 			{renderMode === 'video' && codec === 'h264' ? (
 				<div style={optionRow}>
 					<div style={label}>x264 Preset</div>
@@ -214,17 +260,7 @@ export const RenderModalAdvanced: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{renderMode === 'still' ? null : (
-				<NumberSetting
-					min={minConcurrency}
-					max={maxConcurrency}
-					step={1}
-					name="Concurrency"
-					formatter={(w) => `${w}x`}
-					onValueChanged={setConcurrency}
-					value={concurrency}
-				/>
-			)}
+
 			<NumberSetting
 				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
 				min={7_000}
@@ -248,6 +284,8 @@ export const RenderModalAdvanced: React.FC<{
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom OffthreadVideo cache</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytes" />
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
@@ -269,16 +307,6 @@ export const RenderModalAdvanced: React.FC<{
 					value={offthreadVideoCacheSizeInBytes}
 				/>
 			)}
-			<div style={optionRow}>
-				<div style={label}>Verbose logging</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
-					/>
-				</div>
-			</div>
 			<RenderModalHr />
 			<div style={optionRow}>
 				<div style={label}>Disable web security</div>
@@ -291,7 +319,7 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Ignore certificate errors </div>
+				<div style={label}>Ignore certificate errors</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={ignoreCertificateErrors}
@@ -307,7 +335,10 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>OpenGL render backend</div>
+				<div style={label}>
+					OpenGL render backend <Spacing x={0.5} />
+					<OptionExplainerBubble id="glOption" />
+				</div>
 
 				<div style={rightRow}>
 					<Combobox
@@ -319,6 +350,8 @@ export const RenderModalAdvanced: React.FC<{
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Multi-process Chrome on Linux</div>
+				<Spacing x={0.5} />
+				<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
 				<div style={rightRow}>
 					<Checkbox
 						checked={enableMultiProcessOnLinux}
@@ -327,7 +360,32 @@ export const RenderModalAdvanced: React.FC<{
 					/>
 				</div>
 			</div>
-
+			<div style={optionRow}>
+				<div style={label}>Custom User Agent</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={userAgent !== null}
+						onChange={toggleCustomUserAgent}
+						name="custom-user-agent"
+					/>
+				</div>
+			</div>
+			{userAgent === null ? null : (
+				<div style={optionRow}>
+					<div style={label}>User Agent</div>
+					<div style={rightRow}>
+						<div>
+							<RemotionInput
+								style={input}
+								value={userAgent}
+								onChange={onUserAgentChanged}
+								status="ok"
+								rightAlign
+							/>
+						</div>
+					</div>
+				</div>
+			)}
 			<RenderModalHr />
 			<RenderModalEnvironmentVariables
 				envVariables={envVariables}

@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
@@ -59,6 +59,8 @@ export const renderCommand = async (
 		muted,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -110,11 +112,12 @@ export const renderCommand = async (
 				logLevel,
 				width,
 				server: await server,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					data: inputProps,
-					indent: undefined,
-					staticBase: null,
-				}).serializedString,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						data: inputProps,
+						indent: undefined,
+						staticBase: null,
+					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
@@ -195,6 +198,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		audioCodec,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		proResProfile,
 		x264Preset,
 		crf,
