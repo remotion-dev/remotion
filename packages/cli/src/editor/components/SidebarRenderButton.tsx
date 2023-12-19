@@ -79,6 +79,9 @@ export const SidebarRenderButton: React.FC<{
 				initialColorSpace: defaults.colorSpace as ColorSpace,
 				initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 				defaultConfigurationVideoCodec: defaults.codec as Codec,
+				initialEncodingBufferSize: defaults.encodingBufferSize,
+				initialEncodingMaxRate: defaults.encodingMaxRate,
+				initialUserAgent: defaults.userAgent,
 			});
 		},
 		[composition.defaultProps, composition.id, props, setSelectedModal],

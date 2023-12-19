@@ -89,6 +89,7 @@ const handleFallback = async ({
 	const offthreadVideoCacheSizeInBytes =
 		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
 	const colorSpace = ConfigInternals.getColorSpace();
+	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -147,6 +148,7 @@ const handleFallback = async ({
 				offthreadVideoCacheSizeInBytes,
 				colorSpace,
 				multiProcessOnLinux,
+				userAgent,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),

@@ -226,6 +226,9 @@ type RenderModalProps = {
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialHeadless: boolean;
 	initialColorSpace: ColorSpace;
+	initialEncodingMaxRate: string | null;
+	initialEncodingBufferSize: string | null;
+	initialUserAgent: string | null;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
@@ -267,6 +270,9 @@ const RenderModal: React.FC<
 	initialGl,
 	initialHeadless,
 	initialIgnoreCertificateErrors,
+	initialEncodingBufferSize,
+	initialEncodingMaxRate,
+	initialUserAgent,
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
@@ -372,6 +378,13 @@ const RenderModal: React.FC<
 		() => initialGl ?? 'default',
 	);
 	const [colorSpace, setColorSpace] = useState(() => initialColorSpace);
+	const [userAgent, setUserAgent] = useState<string | null>(() =>
+		initialUserAgent === null
+			? null
+			: initialUserAgent.trim() === ''
+			? null
+			: initialUserAgent,
+	);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
@@ -379,8 +392,8 @@ const RenderModal: React.FC<
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
-			// TODO: Make this configurable at some point (not necessary for V4)
-			userAgent: null,
+			userAgent:
+				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
 	}, [
@@ -388,6 +401,7 @@ const RenderModal: React.FC<
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
+		userAgent,
 		multiProcessOnLinux,
 	]);
 
@@ -422,6 +436,12 @@ const RenderModal: React.FC<
 	);
 	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
 		() => initialVideoBitrate ?? '1M',
+	);
+	const [encodingMaxRate, setEncodingMaxRate] = useState<string | null>(
+		() => initialEncodingMaxRate ?? null,
+	);
+	const [encodingBufferSize, setEncodingBufferSize] = useState<string | null>(
+		() => initialEncodingBufferSize ?? null,
 	);
 	const [limitNumberOfGifLoops, setLimitNumberOfGifLoops] = useState(
 		() => initialNumberOfGifLoops !== null,
@@ -786,6 +806,8 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			colorSpace,
 			multiProcessOnLinux,
+			encodingBufferSize,
+			encodingMaxRate,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -828,6 +850,8 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		multiProcessOnLinux,
+		encodingBufferSize,
+		encodingMaxRate,
 		onClose,
 	]);
 

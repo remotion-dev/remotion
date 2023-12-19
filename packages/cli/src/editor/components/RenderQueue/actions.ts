@@ -196,6 +196,8 @@ export const addVideoRenderJob = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	multiProcessOnLinux,
+	encodingMaxRate,
+	encodingBufferSize,
 }: {
 	compositionId: string;
 	outName: string;
@@ -226,6 +228,8 @@ export const addVideoRenderJob = ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -263,6 +267,8 @@ export const addVideoRenderJob = ({
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		multiProcessOnLinux,
+		encodingBufferSize,
+		encodingMaxRate,
 	});
 };
 
