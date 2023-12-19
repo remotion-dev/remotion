@@ -34,12 +34,16 @@ export const input: React.CSSProperties = {
 	minWidth: 250,
 };
 
-export const fieldsetLabel: React.CSSProperties = {
+export const fieldSetText: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 14,
+	fontFamily: 'monospace',
+};
+
+export const fieldsetLabel: React.CSSProperties = {
+	...fieldSetText,
 	display: 'flex',
 	flexDirection: 'row',
-	fontFamily: 'monospace',
 	alignItems: 'center',
 	width: '100%',
 };

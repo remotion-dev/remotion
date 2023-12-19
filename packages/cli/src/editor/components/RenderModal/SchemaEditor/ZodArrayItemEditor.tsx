@@ -1,4 +1,5 @@
 import {useCallback, useMemo} from 'react';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
@@ -29,6 +30,11 @@ export const ZodArrayItemEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
@@ -70,18 +76,20 @@ export const ZodArrayItemEditor: React.FC<{
 	);
 
 	return (
-		<ZodSwitch
-			jsonPath={newJsonPath}
-			schema={def.type}
-			value={value}
-			setValue={setValue}
-			defaultValue={defaultValue}
-			onSave={onSave}
-			showSaveButton={showSaveButton}
-			onRemove={onRemove}
-			saving={saving}
-			saveDisabledByParent={saveDisabledByParent}
-			mayPad={mayPad}
-		/>
+		<div>
+			<ZodSwitch
+				jsonPath={newJsonPath}
+				schema={def.type}
+				value={value}
+				setValue={setValue}
+				defaultValue={defaultValue}
+				onSave={onSave}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
+			/>
+		</div>
 	);
 };
