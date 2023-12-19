@@ -1,18 +1,15 @@
-import type {AnyRemotionOption} from '@remotion/renderer';
 import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
-import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
-import {OptionExplainer} from './OptionExplainer';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 
 export const MutedSetting: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 	enforceAudioTrack: boolean;
-	hint: AnyRemotionOption;
-}> = ({muted, setMuted, enforceAudioTrack, hint}) => {
+}> = ({muted, setMuted, enforceAudioTrack}) => {
 	const onMutedChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setMuted(e.target.checked);
@@ -25,9 +22,7 @@ export const MutedSetting: React.FC<{
 			<div style={label}>
 				Muted
 				<Spacing x={0.5} />
-				<InfoBubble title="Learn more about this option">
-					<OptionExplainer option={hint} />
-				</InfoBubble>
+				<OptionExplainerBubble id="muteOption" />
 			</div>
 			<Spacing x={0.25} />
 

@@ -16,10 +16,9 @@ import {RemotionInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {CrfSetting} from './CrfSetting';
-import {InfoBubble} from './InfoBubble';
 import {JpegQualitySetting} from './JpegQualitySetting';
 import {input, label, optionRow, rightRow} from './layout';
-import {OptionExplainer} from './OptionExplainer';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
@@ -199,16 +198,14 @@ export const RenderModalPicture: React.FC<{
 					min={minCrf}
 					max={maxCrf}
 					setCrf={setCrf}
-					option={BrowserSafeApis.options.crfOption}
+					option="crfOption"
 				/>
 			) : null}
 			{qualityControlType === 'bitrate' && renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>
 						Target video bitrate
-						<InfoBubble title="Learn more about this option">
-							<OptionExplainer option={BrowserSafeApis.options.videoBitrate} />
-						</InfoBubble>
+						<OptionExplainerBubble id="videoBitrate" />
 					</div>
 
 					<div style={rightRow}>
@@ -299,12 +296,7 @@ export const RenderModalPicture: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>
 						Color space
-						<Spacing x={0.25} />{' '}
-						<InfoBubble title="Learn more about this option">
-							<OptionExplainer
-								option={BrowserSafeApis.options.colorSpaceOption}
-							/>
-						</InfoBubble>
+						<Spacing x={0.25} /> <OptionExplainerBubble id="colorSpaceOption" />
 					</div>
 					<div style={rightRow}>
 						<Combobox

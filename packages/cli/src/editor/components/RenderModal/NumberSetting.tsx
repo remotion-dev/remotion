@@ -1,11 +1,10 @@
-import type {AnyRemotionOption} from '@remotion/renderer';
+import type {AvailableOptions} from '@remotion/renderer/client';
 import React, {useCallback} from 'react';
 import {Spacing} from '../layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
-import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
-import {OptionExplainer} from './OptionExplainer';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 
 export const NumberSetting: React.FC<{
 	name: string;
@@ -15,7 +14,7 @@ export const NumberSetting: React.FC<{
 	min: number;
 	step: number;
 	formatter?: (value: string | number) => string;
-	hint?: AnyRemotionOption;
+	hint?: AvailableOptions;
 }> = ({name, value, step, hint, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
@@ -44,10 +43,8 @@ export const NumberSetting: React.FC<{
 				{name}
 				{hint ? (
 					<>
-						<Spacing x={0.25} />{' '}
-						<InfoBubble title="Learn more about this option">
-							<OptionExplainer option={hint} />
-						</InfoBubble>
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id={hint} />
 					</>
 				) : null}
 			</div>

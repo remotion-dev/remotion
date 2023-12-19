@@ -37,3 +37,5 @@ export const allOptions = {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 };
+
+export type AvailableOptions = keyof typeof allOptions;
