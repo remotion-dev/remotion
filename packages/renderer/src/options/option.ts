@@ -12,6 +12,6 @@ export type RemotionOption<SsrName extends string, Type> = {
 
 export type AnyRemotionOption = RemotionOption<string, unknown>;
 
-export type ToOptions<T extends readonly AnyRemotionOption[]> = {
-	[K in T[number]['ssrName']]: T[number]['type'];
+export type ToOptions<T extends Record<string, AnyRemotionOption>> = {
+	[K in keyof T]: T[K]['type'];
 };

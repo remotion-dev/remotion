@@ -83,6 +83,8 @@ export type RenderMediaOnProgress = (progress: {
 	stitchStage: StitchingState;
 }) => void;
 
+type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
+
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
@@ -128,9 +130,13 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
-} & ToOptions<typeof optionsMap.renderMedia>;
+} & MoreRenderMediaOptions;
 
-export type RenderMediaOptions = {
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type RenderMediaOptions = Prettify<{
 	outputLocation?: string | null;
 	codec: Codec;
 	composition: VideoConfig;
@@ -184,7 +190,7 @@ export type RenderMediaOptions = {
 	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	colorSpace?: ColorSpace;
-};
+}>;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 

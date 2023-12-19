@@ -222,7 +222,9 @@ export type WebhookOption = Prettify<
 			url: string;
 			secret: string | null;
 	  } & Partial<
-			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+			ToOptions<{
+				customData: typeof BrowserSafeApis.options.webhookCustomDataOption;
+			}>
 	  >)
 >;
 
