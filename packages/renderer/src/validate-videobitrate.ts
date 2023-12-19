@@ -15,7 +15,6 @@ export const validateBitrate = (bitrate: unknown, name: string) => {
 		);
 	}
 
-
 	if (
 		!bitrate.endsWith('K') &&
 		!bitrate.endsWith('k') &&
