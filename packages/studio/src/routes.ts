@@ -5,24 +5,8 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
-import {allApiRoutes} from '../../studio/src/preview-server/api-routes';
-import type {
-	ApiHandler,
-	ApiRoutes,
-} from '../../studio/src/preview-server/api-types';
-import {getPackageManager} from '../../studio/src/preview-server/get-package-manager';
-import {handleRequest} from '../../studio/src/preview-server/handler';
-import type {RenderJob} from '../../studio/src/preview-server/job';
-import type {LiveEventsServer} from '../../studio/src/preview-server/live-events';
-import {parseRequestBody} from '../../studio/src/preview-server/parse-body';
-import {getProjectInfo} from '../../studio/src/preview-server/project-info';
-import {
-	fetchFolder,
-	getFiles,
-} from '../../studio/src/preview-server/public-folder';
-import {serveStatic} from '../../studio/src/preview-server/serve-static';
+import {ConfigInternals} from '../../cli/src/config';
 import {parsedCli} from '../parse-command-line';
-import {ConfigInternals} from './config';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -30,6 +14,16 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {allApiRoutes} from './preview-server/api-routes';
+import type {ApiHandler, ApiRoutes} from './preview-server/api-types';
+import {getPackageManager} from './preview-server/get-package-manager';
+import {handleRequest} from './preview-server/handler';
+import type {RenderJob} from './preview-server/job';
+import type {LiveEventsServer} from './preview-server/live-events';
+import {parseRequestBody} from './preview-server/parse-body';
+import {getProjectInfo} from './preview-server/project-info';
+import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {serveStatic} from './preview-server/serve-static';
 
 const editorGuess = guessEditor();
 

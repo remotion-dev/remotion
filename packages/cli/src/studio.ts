@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {watchRootFile} from '@remotion/studio';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
@@ -12,7 +13,6 @@ import {
 	initPublicFolderWatch,
 } from '../../cli/src/preview-server/public-folder';
 import {startServer} from '../../cli/src/preview-server/start-server';
-import {watchRootFile} from '../../studio/src/watch-root-file';
 import {openBrowser} from './better-opn';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';

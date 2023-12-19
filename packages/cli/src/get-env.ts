@@ -1,11 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {installFileWatcher} from '@remotion/studio';
 import dotenv from 'dotenv';
 import fs, {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
-import {installFileWatcher} from './file-watcher';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 

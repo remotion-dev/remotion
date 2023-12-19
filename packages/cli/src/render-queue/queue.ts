@@ -5,10 +5,10 @@ import type {
 	RenderJobWithCleanup,
 } from '@remotion/studio';
 import {waitForLiveEventsListener} from '@remotion/studio';
+import {installFileWatcher} from '@remotion/studio/src/file-watcher';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
-import {installFileWatcher} from '../file-watcher';
 import {Log} from '../log';
 import {printError} from '../print-error';
 import type {AggregateRenderProgress} from '../progress-types';
