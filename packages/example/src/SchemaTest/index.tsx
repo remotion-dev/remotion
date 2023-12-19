@@ -7,7 +7,7 @@ export const schemaTestSchema = z.object({
 	title: z.string().nullable(),
 	delay: z.number().min(0).max(1000).step(0.1),
 	color: zColor(),
-	list: z.array(z.string()),
+	list: z.array(z.object({name: z.string(), age: z.number()})),
 	description: zTextarea().nullable(),
 	dropdown: z.enum(['a', 'b', 'c']),
 });
@@ -46,8 +46,8 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 
 				<ul style={{listStyleType: 'disc'}}>
 					{list.map((item) => (
-						<li key={item} style={{fontSize: 10}}>
-							{item}
+						<li key={item.name} style={{fontSize: 30, color: 'red'}}>
+							{item.name} is {item.age} years old
 						</li>
 					))}
 				</ul>

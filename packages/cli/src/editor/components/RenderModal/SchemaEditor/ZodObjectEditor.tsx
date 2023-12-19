@@ -109,6 +109,12 @@ export const ZodObjectEditor: React.FC<{
 							return discriminatedUnionReplacement.markup;
 						}
 
+						// In case of null | {a: string, b: string} type, we need to fallback to the default value
+						const defaultValueToPass =
+							defaultValue?.[key] === undefined
+								? value[key]
+								: defaultValue[key];
+
 						return (
 							<React.Fragment key={key}>
 								<ZodSwitch
@@ -116,8 +122,7 @@ export const ZodObjectEditor: React.FC<{
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={localValue.value[key]}
-									// In case of null | {a: string, b: string} type, we need to fallback to the default value
-									defaultValue={(defaultValue ?? value)[key]}
+									defaultValue={defaultValueToPass}
 									setValue={(val, forceApply) => {
 										onChange(
 											(oldVal) => {
