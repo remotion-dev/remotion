@@ -1,0 +1,37 @@
+{
+	"name": "@remotion/studio",
+	"version": "4.0.79",
+	"description": "Remotion Editor",
+	"main": "dist",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "tsc -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"devDependencies": {
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"remotion": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/media-utils": "workspace:*",
+		"@jonny/eslint-config": "3.0.266",
+		"@types/node": "18.14.6",
+		"@types/react": "18.0.26",
+		"eslint": "8.42.0",
+		"prettier": "3.0.2",
+		"prettier-plugin-organize-imports": "^3.2.2",
+		"vitest": "0.31.1",
+		"zod": "^3.22.3"
+	},
+	"private": true
+}

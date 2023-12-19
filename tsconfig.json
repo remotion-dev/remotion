@@ -105,6 +105,9 @@
       "path": "./packages/tailwind"
     },
     {
+      "path": "./packages/studio"
+    },
+    {
       "path": "./packages/test-utils"
     },
     {

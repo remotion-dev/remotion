@@ -1714,6 +1714,48 @@ importers:
         specifier: ^2.70.1
         version: 2.76.0
 
+  packages/studio:
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.266
+        version: 3.0.266(eslint@8.42.0)(typescript@4.9.5)
+      '@remotion/media-utils':
+        specifier: workspace:*
+        version: link:../media-utils
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      '@types/react':
+        specifier: 18.0.26
+        version: 18.0.26
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      prettier:
+        specifier: 3.0.2
+        version: 3.0.2
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.2
+        version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
+      zod:
+        specifier: ^3.22.3
+        version: 3.22.3
+
   packages/tailwind:
     dependencies:
       autoprefixer:
