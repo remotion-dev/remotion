@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'zod';
-import {BACKGROUND, LIGHT_TEXT} from '../../../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT, LINE_COLOR} from '../../../helpers/colors';
 import {Plus} from '../../../icons/plus';
 import {
 	useZodIfPossible,
@@ -13,7 +13,7 @@ import {createZodValues} from './create-zod-values';
 export const VERTICAL_GUIDE_HEIGHT = 24;
 
 const line: React.CSSProperties = {
-	borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+	borderBottom: '1px solid ' + LINE_COLOR,
 };
 
 export const SchemaSeparationLine: React.FC = () => {
@@ -21,7 +21,7 @@ export const SchemaSeparationLine: React.FC = () => {
 };
 
 const arraySeparationLine: React.CSSProperties = {
-	borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+	borderBottom: '1px solid ' + LINE_COLOR,
 	marginTop: -VERTICAL_GUIDE_HEIGHT / 2,
 	pointerEvents: 'none',
 	width: '100%',

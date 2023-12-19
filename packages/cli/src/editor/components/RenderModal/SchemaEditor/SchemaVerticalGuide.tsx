@@ -22,7 +22,7 @@ export const SchemaVerticalGuide: React.FC<{
 		return isRoot
 			? {}
 			: {
-					height: `calc(100% - ${VERTICAL_GUIDE_HEIGHT}px)`,
+					height: `calc(100% - ${VERTICAL_GUIDE_HEIGHT / 2}px)`,
 					width: 1,
 					background: '#363A3E',
 					position: 'absolute',
