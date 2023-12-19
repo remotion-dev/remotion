@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import type {ApiHandler} from '../api-types';
-import {
+import type {
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse,
 } from '../job';

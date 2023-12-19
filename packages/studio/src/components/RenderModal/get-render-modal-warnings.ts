@@ -1,4 +1,4 @@
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {PropsEditType} from './DataEditor';
 
 export type TypeCanSaveState =

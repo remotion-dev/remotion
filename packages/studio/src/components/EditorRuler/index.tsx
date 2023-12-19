@@ -8,8 +8,8 @@ import React, {
 } from 'react';
 import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
-import {AssetMetadata} from '../../helpers/get-asset-metadata';
-import {Dimensions} from '../../helpers/is-current-selected-still';
+import type {AssetMetadata} from '../../helpers/get-asset-metadata';
+import type {Dimensions} from '../../helpers/is-current-selected-still';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {
 	EditorShowGuidesContext,

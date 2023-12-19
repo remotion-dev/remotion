@@ -1,6 +1,6 @@
 import type {webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {

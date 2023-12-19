@@ -1,9 +1,6 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {
-	KeybindingContext,
-	KeyEventType,
-	RegisteredKeybinding,
-} from '../state/keybindings';
+import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
+import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
 
 if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {

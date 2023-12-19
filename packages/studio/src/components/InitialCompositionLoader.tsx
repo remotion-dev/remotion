@@ -2,7 +2,7 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
 import {getStaticFiles, Internals} from 'remotion';
-import {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
 import {deriveCanvasContentFromUrl} from './ZoomPersistor';

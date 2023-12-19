@@ -40,7 +40,7 @@ import {
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Checkmark} from '../../icons/Checkmark';
-import {
+import type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
 } from '../../required-chromium-options';

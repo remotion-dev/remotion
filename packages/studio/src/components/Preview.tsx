@@ -10,8 +10,8 @@ import {
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
 import {LIGHT_TEXT} from '../helpers/colors';
-import {AssetMetadata} from '../helpers/get-asset-metadata';
-import {Dimensions} from '../helpers/is-current-selected-still';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RenderPreview} from './RenderPreview';

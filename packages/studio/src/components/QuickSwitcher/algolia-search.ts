@@ -1,4 +1,4 @@
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 
 const ALGOLIA_API_KEY = '3e42dbd4f895fe93ff5cf40d860c4a85';

@@ -1,4 +1,4 @@
-import {Guide} from '../state/editor-guides';
+import type {Guide} from '../state/editor-guides';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
 import {
 	BACKGROUND,

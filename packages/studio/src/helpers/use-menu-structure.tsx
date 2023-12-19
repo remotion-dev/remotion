@@ -1,6 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {SelectionItem} from '../components/NewComposition/ComboBox';

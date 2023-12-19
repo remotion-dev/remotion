@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import {BLUE, LIGHT_TEXT, WARNING_COLOR} from '../helpers/colors';
-import {PackageManager} from '../preview-server/get-package-manager';
+import type {PackageManager} from '../preview-server/get-package-manager';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {updateAvailable} from './RenderQueue/actions';

@@ -1,5 +1,5 @@
-import {NoReactInternals} from 'remotion/src/no-react';
-import {RenderJob} from '../preview-server/job';
+import {NoReactInternals} from 'remotion/no-react';
+import type {RenderJob} from '../preview-server/job';
 
 let currentItemName: string | null = null;
 let unsavedProps = false;

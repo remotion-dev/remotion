@@ -1,4 +1,4 @@
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 
 export type ErrorLocation = {
 	fileName: string;

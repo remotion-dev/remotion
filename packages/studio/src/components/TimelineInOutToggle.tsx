@@ -5,7 +5,7 @@ import React, {
 	useImperativeHandle,
 } from 'react';
 import {Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/src/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,

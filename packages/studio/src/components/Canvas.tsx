@@ -9,7 +9,8 @@ import React, {
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
-import {AssetMetadata, getAssetMetadata} from '../helpers/get-asset-metadata';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,

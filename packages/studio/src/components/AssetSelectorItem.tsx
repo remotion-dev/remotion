@@ -8,7 +8,7 @@ import {
 	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
+import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
