@@ -103,7 +103,7 @@ export const ZodArrayEditor: React.FC<{
 										def={def}
 										index={i}
 										jsonPath={jsonPath}
-										defaultValue={defaultValue[i] ?? child}
+										defaultValue={defaultValue[i]}
 										onSave={onSave}
 										showSaveButton={showSaveButton}
 										saving={saving}
