@@ -5,7 +5,8 @@ import {
 	CLEAR_HOVER,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
+
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {

@@ -1,4 +1,4 @@
-import {truthy} from '../../../truthy';
+import {NoReactInternals} from 'remotion/src/no-react';
 import type {PropsEditType} from './DataEditor';
 
 export type TypeCanSaveState =
@@ -104,5 +104,5 @@ export const getRenderModalWarnings = ({
 		staticFileUsed(customFileUsed, inJSONEditor),
 		mapUsed(jsMapUsed, inJSONEditor),
 		setUsed(jsSetUsed, inJSONEditor),
-	].filter(truthy);
+	].filter(NoReactInternals.truthy);
 };

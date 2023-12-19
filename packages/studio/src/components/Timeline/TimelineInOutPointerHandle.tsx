@@ -1,7 +1,7 @@
 import React, {createRef, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
-import {LIGHT_TRANSPARENT} from '../../../../../studio/src/helpers/colors';
-import {getXPositionOfItemInTimelineImperatively} from '../../../../../studio/src/helpers/get-left-of-timeline-slider';
+import {LIGHT_TRANSPARENT} from '../../helpers/colors';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const line: React.CSSProperties = {

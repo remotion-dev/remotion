@@ -12,7 +12,7 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import type {RenderInlineAction} from './InlineAction';

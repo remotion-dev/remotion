@@ -1,6 +1,6 @@
 import React from 'react';
-import {BORDER_COLOR} from '../../../../../studio/src/helpers/colors';
-import {inlineCodeSnippet} from '../../../editor/components/Menu/styles';
+import {inlineCodeSnippet} from '../../components/Menu/styles';
+import {BORDER_COLOR} from '../../helpers/colors';
 
 export const CalculateMetadataErrorExplainer: React.FC<{}> = () => {
 	return (

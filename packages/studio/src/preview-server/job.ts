@@ -9,16 +9,42 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	StitchingState,
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {AggregateRenderProgress} from '../../progress-types';
-import type {RequiredChromiumOptions} from '../../required-chromium-options';
+import type {RequiredChromiumOptions} from '../required-chromium-options';
 import type {PackageManager} from './get-package-manager';
 
 type BaseRenderProgress = {
 	message: string;
 	value: number;
+};
+
+export type RenderStep = 'bundling' | 'rendering' | 'stitching';
+
+export type DownloadProgress = {
+	name: string;
+	id: number;
+	progress: number | null;
+	totalBytes: number | null;
+	downloaded: number;
+};
+
+export type RenderingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	steps: RenderStep[];
+	concurrency: number;
+	doneIn: number | null;
+};
+
+export type StitchingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	doneIn: number | null;
+	stage: StitchingState;
+	codec: Codec;
 };
 
 type RenderJobDynamicStatus =
@@ -40,6 +66,24 @@ type RenderJobDynamicStatus =
 				stack: string | undefined;
 			};
 	  };
+
+export type CopyingState = {
+	bytes: number;
+	doneIn: number | null;
+};
+
+export type BundlingState = {
+	progress: number;
+	doneIn: number | null;
+};
+
+export type AggregateRenderProgress = {
+	rendering: RenderingProgressInput | null;
+	stitching: StitchingProgressInput | null;
+	downloads: DownloadProgress[];
+	bundling: BundlingState;
+	copyingState: CopyingState;
+};
 
 export type JobProgressCallback = (
 	options: BaseRenderProgress & AggregateRenderProgress,

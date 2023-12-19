@@ -1,4 +1,4 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {RenderDefaults, WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -6,6 +6,7 @@ import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {DEFAULT_TIMELINE_TRACKS} from '../components/Timeline/MaxTimelineTracks';
 import {handleRoutes} from '../routes';
+import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {RenderJob} from './job';
@@ -31,6 +32,9 @@ export const startServer = async (options: {
 	outputHashPrefix: string;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
+	getRenderDefaults: () => RenderDefaults;
+	numberOfAudioTags: number;
+	queueMethods: QueueMethods;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -87,6 +91,9 @@ export const startServer = async (options: {
 					publicDir: options.publicDir,
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
+					getRenderDefaults: options.getRenderDefaults,
+					numberOfAudioTags: options.numberOfAudioTags,
+					queueMethods: options.queueMethods,
 				});
 			})
 			.catch((err) => {

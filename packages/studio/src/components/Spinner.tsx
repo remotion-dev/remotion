@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 
 const viewBox = 100;
 const lines = 6;

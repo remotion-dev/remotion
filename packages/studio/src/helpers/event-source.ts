@@ -1,9 +1,9 @@
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
+import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import {renderJobsRef} from '../components/RenderQueue/context';
 import type {EventSourceEvent} from '../event-source-events';
 import {studioServerConnectionRef} from './client-id';
-import {sendErrorNotification} from './editor/components/Notifications/NotificationCenter';
-import {renderJobsRef} from './editor/components/RenderQueue/context';
 
 let source: EventSource | null = null;
 

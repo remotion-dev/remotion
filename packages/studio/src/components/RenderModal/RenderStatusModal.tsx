@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
-import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {makeRetryPayload} from '../../../preview-server/render-queue/make-retry-payload';
+import {Button} from '../../error-overlay/remotion-overlay/Button';
+import {makeRetryPayload} from '../../preview-server/retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Flex, SPACING_UNIT} from '../layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';

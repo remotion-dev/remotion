@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {LIGHT_TEXT} from '../../../../../studio/src/helpers/colors';
-import type {ProjectInfo} from '../../../preview-server/project-info';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import type {ProjectInfo} from '../../preview-server/project-info';
 
 const style: React.CSSProperties = {
 	fontSize: 12,

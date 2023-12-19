@@ -1,4 +1,4 @@
-import {truthy} from '../../../../truthy';
+import {NoReactInternals} from 'remotion/src/no-react';
 
 export type ErrorLocation = {
 	fileName: string;
@@ -57,6 +57,6 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 					fileName: filename.trim(),
 				};
 			})
-			.filter(truthy)[0] ?? null
+			.filter(NoReactInternals.truthy)[0] ?? null
 	);
 };

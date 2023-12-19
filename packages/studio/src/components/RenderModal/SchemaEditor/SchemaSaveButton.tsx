@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {LIGHT_TEXT} from '../../../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../../../helpers/colors';
 import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 

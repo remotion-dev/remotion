@@ -1,6 +1,13 @@
 import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {AnsiDiff} from './ansi/ansi-diff';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from '@remotion/studio';
+import {AnsiDiff} from '@remotion/studio';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
@@ -8,11 +15,6 @@ import {
 } from './download-progress';
 import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
-import type {
-	AggregateRenderProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from './progress-types';
 import {truthy} from './truthy';
 
 export type OverwriteableCliOutput = {
@@ -137,16 +139,6 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 		),
 		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
 	].join('\n');
-};
-
-export type CopyingState = {
-	bytes: number;
-	doneIn: number | null;
-};
-
-export type BundlingState = {
-	progress: number;
-	doneIn: number | null;
 };
 
 export type SymbolicLinksState = {symlinks: string[]};

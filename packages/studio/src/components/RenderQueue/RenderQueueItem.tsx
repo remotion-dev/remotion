@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {getBackgroundFromHoverState} from '../../../../../studio/src/helpers/colors';
-import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {RenderJob} from '../../preview-server/job';
 import {Row, Spacing} from '../layout';
 import {
 	RenderQueueCopyToClipboard,

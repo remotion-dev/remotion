@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
 import NewComposition from './NewComposition/NewComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';

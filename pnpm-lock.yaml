@@ -200,9 +200,6 @@ importers:
       dotenv:
         specifier: 9.0.2
         version: 9.0.2
-      memfs:
-        specifier: 3.4.3
-        version: 3.4.3
       minimist:
         specifier: 1.2.6
         version: 1.2.6
@@ -215,9 +212,6 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
-      source-map:
-        specifier: 0.6.1
-        version: 0.6.1
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.276
@@ -1725,16 +1719,25 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      memfs:
+        specifier: 3.4.3
+        version: 3.4.3
       remotion:
         specifier: workspace:*
         version: link:../core
       semver:
         specifier: 7.5.3
         version: 7.5.3
+      source-map:
+        specifier: 0.6.1
+        version: 0.6.1
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.266
         version: 3.0.266(eslint@8.42.0)(typescript@4.9.5)
+      '@remotion/zod-types':
+        specifier: workspace:*
+        version: link:../zod-types
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1750,6 +1753,15 @@ importers:
       eslint:
         specifier: 8.42.0
         version: 8.42.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.42.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.42.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.42.0)
       prettier:
         specifier: 3.0.2
         version: 3.0.2

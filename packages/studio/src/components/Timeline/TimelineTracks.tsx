@@ -1,10 +1,10 @@
 import React, {useMemo} from 'react';
-import type {TrackWithHash} from '../../../../../studio/src/helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
-} from '../../../../../studio/src/helpers/timeline-layout';
+} from '../../helpers/timeline-layout';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import type {TimelineViewState} from './timeline-state-reducer';

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {Spacing} from './layout';
 import {OpenEditorButton} from './OpenEditorButton';
 import {Spinner} from './Spinner';

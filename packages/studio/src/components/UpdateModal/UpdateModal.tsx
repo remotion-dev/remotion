@@ -1,9 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {
-	BLUE,
-	SELECTED_BACKGROUND,
-} from '../../../../../studio/src/helpers/colors';
-import {copyText} from '../../../../../studio/src/helpers/copy-text';
+import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
+import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {KnownBugs} from '../KnownBugs';

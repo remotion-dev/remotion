@@ -7,13 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../../../../studio/src/helpers/colors';
-import {isCompositionStill} from '../../../../../studio/src/helpers/is-composition-still';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {isCompositionStill} from '../../helpers/is-composition-still';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	makeSearchResults,
 	useMenuStructure,
-} from '../../../../../studio/src/helpers/use-menu-structure';
+} from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
 import {compositionSelectorRef} from '../CompositionSelector';
 import {useSelectComposition} from '../InitialCompositionLoader';

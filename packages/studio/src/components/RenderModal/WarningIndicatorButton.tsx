@@ -6,7 +6,7 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 	LIGHT_TEXT,
 	WARNING_COLOR,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
 import {AngleDown} from '../../icons/caret';
 import {Spacing} from '../layout';
 

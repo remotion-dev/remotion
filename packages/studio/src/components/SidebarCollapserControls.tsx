@@ -1,9 +1,9 @@
 import React, {useCallback, useContext, useEffect} from 'react';
+import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
-} from '../../../../studio/src/helpers/use-keybinding';
-import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
+} from '../helpers/use-keybinding';
 import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';

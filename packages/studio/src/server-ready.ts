@@ -1,4 +1,4 @@
-import {Log} from './log';
+import {RenderInternals} from '@remotion/renderer';
 
 let message: string | null = null;
 
@@ -7,5 +7,5 @@ export const setServerReadyComment = (newMessage: string) => {
 };
 
 export const printServerReadyComment = (prefix: string) => {
-	Log.info(`${prefix} - ${message}`);
+	RenderInternals.Log.info(`${prefix} - ${message}`);
 };

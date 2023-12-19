@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
-import {Spacing} from '../../../editor/components/layout';
-import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../../editor/components/Menu/is-menu-item';
+import {Spacing} from '../../components/layout';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';

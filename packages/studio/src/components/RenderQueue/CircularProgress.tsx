@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT} from '../../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 
 export const RENDER_STATUS_INDICATOR_SIZE = 16;
 

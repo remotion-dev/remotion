@@ -1,6 +1,6 @@
 import React from 'react';
-import {BLUE} from '../../../../../studio/src/helpers/colors';
-import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../../editor/components/Menu/is-menu-item';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
+import {BLUE} from '../../helpers/colors';
 import type {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const container: React.CSSProperties = {

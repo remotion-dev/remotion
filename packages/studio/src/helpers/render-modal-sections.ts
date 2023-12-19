@@ -1,6 +1,6 @@
 import type {Codec} from '@remotion/renderer';
 import {useMemo, useState} from 'react';
-import type {RenderType} from '../../../cli/src/editor/components/RenderModal/RenderModalAdvanced';
+import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 
 type Section = 'general' | 'picture' | 'advanced' | 'data' | 'gif' | 'audio';
 

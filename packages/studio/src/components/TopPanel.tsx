@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {useBreakpoint} from '../../../../studio/src/helpers/use-breakpoint';
+import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasOrLoading} from './CanvasOrLoading';

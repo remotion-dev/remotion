@@ -9,13 +9,9 @@ import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
-import {StudioServerConnectionCtx} from '../../../../../studio/src/helpers/client-id';
-import {
-	BACKGROUND,
-	BORDER_COLOR,
-	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
-import {subscribeToEvent} from '../../../event-source';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {subscribeToEvent} from '../../helpers/event-source';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';

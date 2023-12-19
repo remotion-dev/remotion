@@ -1,5 +1,5 @@
-import type {Guide} from '../../../cli/src/editor/state/editor-guides';
-import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../../../cli/src/editor/state/editor-rulers';
+import {Guide} from '../state/editor-guides';
+import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
 import {
 	BACKGROUND,
 	BACKGROUND__TRANSPARENT,

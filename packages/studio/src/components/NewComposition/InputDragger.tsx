@@ -5,8 +5,8 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE} from '../../../../../studio/src/helpers/colors';
-import {noop} from '../../../../../studio/src/helpers/noop';
+import {BLUE} from '../../helpers/colors';
+import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import type {RemInputStatus} from './RemInput';

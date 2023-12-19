@@ -1,5 +1,5 @@
 import React from 'react';
-import {TIMELINE_PADDING} from '../../../../../studio/src/helpers/timeline-layout';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
 export const DEFAULT_TIMELINE_TRACKS = 90;
 

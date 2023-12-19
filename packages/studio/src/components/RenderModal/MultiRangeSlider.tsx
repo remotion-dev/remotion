@@ -1,6 +1,6 @@
 import type {ChangeEvent, FC} from 'react';
 import React, {useCallback, useMemo} from 'react';
-import {BLUE, INPUT_BACKGROUND} from '../../../../../studio/src/helpers/colors';
+import {BLUE, INPUT_BACKGROUND} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	borderColor: 'black',

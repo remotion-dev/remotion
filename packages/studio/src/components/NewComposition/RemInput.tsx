@@ -14,7 +14,7 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
 	WARNING_COLOR,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
 export type RemInputStatus = 'error' | 'warning' | 'ok';

@@ -4,7 +4,7 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	LIGHT_TEXT,
-} from '../../../../studio/src/helpers/colors';
+} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
 const container: React.CSSProperties = {

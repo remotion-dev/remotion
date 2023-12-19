@@ -2,11 +2,8 @@ import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {
-	CLEAR_HOVER,
-	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
-import {areKeyboardShortcutsDisabled} from '../../../../../studio/src/helpers/use-keybinding';
+import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Row, Spacing} from '../layout';

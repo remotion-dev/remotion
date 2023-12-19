@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect} from 'react';
-import {BLUE} from '../../../../../studio/src/helpers/colors';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
+import {BLUE} from '../../helpers/colors';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from './Button';
 import type {THelpLink} from './get-help-link';
 import {ShortcutHint} from './ShortcutHint';

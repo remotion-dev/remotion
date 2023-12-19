@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {makeRetryPayload} from '../../../preview-server/render-queue/make-retry-payload';
+import type {RenderJob} from '../../preview-server/job';
+import {makeRetryPayload} from '../../preview-server/retry-payload';
 import {ModalsContext} from '../../state/modals';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';

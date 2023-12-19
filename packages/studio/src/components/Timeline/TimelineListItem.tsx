@@ -1,11 +1,11 @@
 import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from 'remotion';
-import {LIGHT_COLOR} from '../../../../../studio/src/helpers/colors';
+import {LIGHT_COLOR} from '../../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
-} from '../../../../../studio/src/helpers/timeline-layout';
+} from '../../helpers/timeline-layout';
 import {useZIndex} from '../../state/z-index';
 import {Spacing} from '../layout';
 import type {TimelineActionState} from './timeline-state-reducer';

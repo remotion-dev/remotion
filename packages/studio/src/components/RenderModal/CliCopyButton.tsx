@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {LIGHT_TEXT} from '../../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {ClipboardIcon} from '../../icons/clipboard';
 const svgStyle: React.CSSProperties = {
 	width: 16,

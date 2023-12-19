@@ -1,5 +1,5 @@
 import React, {createRef, useImperativeHandle, useMemo, useState} from 'react';
-import type {RenderJob} from '../../../preview-server/render-queue/job';
+import type {RenderJob} from '../../preview-server/job';
 
 declare global {
 	interface Window {

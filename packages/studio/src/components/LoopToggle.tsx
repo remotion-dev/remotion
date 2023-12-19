@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {BLUE} from '../../../../studio/src/helpers/colors';
+import {BLUE} from '../helpers/colors';
 import {persistLoopOption} from '../state/loop';
 import {ControlButton} from './ControlButton';
 

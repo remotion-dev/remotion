@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {getBackgroundFromHoverState} from '../../../../../studio/src/helpers/colors';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';

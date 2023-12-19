@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
-import {VERY_LIGHT_TEXT} from '../../../../../../studio/src/helpers/colors';
+import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';

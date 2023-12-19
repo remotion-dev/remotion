@@ -1,7 +1,7 @@
 import {getVideoMetadata} from '@remotion/media-utils';
 import type {CanvasContent} from 'remotion';
 import {staticFile} from 'remotion';
-import {getPreviewFileType} from '../../../cli/src/editor/components/Preview';
+import {getPreviewFileType} from '../components/Preview';
 import type {Dimensions} from './is-current-selected-still';
 
 export const remotion_outputsBase = window.remotion_staticBase.replace(

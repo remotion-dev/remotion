@@ -1,4 +1,4 @@
-import type {ZodTypesType} from './editor/components/get-zod-if-possible';
+import type {ZodTypesType} from '../components/get-zod-if-possible';
 
 export const colorWithNewOpacity = (
 	color: string,

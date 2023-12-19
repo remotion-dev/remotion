@@ -41,12 +41,10 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"dotenv": "9.0.2",
-		"memfs": "3.4.3",
 		"minimist": "1.2.6",
 		"open": "^8.4.2",
 		"prompts": "2.4.2",
-		"remotion": "workspace:*",
-		"source-map": "0.6.1"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

@@ -1,4 +1,4 @@
-import type {SymbolicatedStackFrame} from '../../../cli/src/preview-server/error-overlay/react-overlay/utils/stack-frame';
+import type {SymbolicatedStackFrame} from '@remotion/renderer';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {

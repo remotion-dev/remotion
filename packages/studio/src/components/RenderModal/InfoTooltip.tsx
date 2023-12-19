@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {BORDER_COLOR} from '../../../../../studio/src/helpers/colors';
+import {BORDER_COLOR} from '../../helpers/colors';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SHADOW_TOWARDS_BOTTOM, SHADOW_TOWARDS_TOP} from '../Menu/styles';
 

@@ -1,6 +1,6 @@
 import React, {createRef, useContext} from 'react';
 import {Internals} from 'remotion';
-import {getXPositionOfItemInTimelineImperatively} from '../../../../../studio/src/helpers/get-left-of-timeline-slider';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {useTimelineInOutFramePosition} from '../../state/in-out';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 

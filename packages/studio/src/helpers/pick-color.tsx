@@ -1,9 +1,9 @@
-import {Spacing} from '../../../cli/src/editor/components/layout';
-import {ColorDot} from '../../../cli/src/editor/components/Notifications/ColorDot';
+import {Spacing} from '../components/layout';
+import {ColorDot} from '../components/Notifications/ColorDot';
 import {
 	notificationCenter,
 	sendErrorNotification,
-} from '../../../cli/src/editor/components/Notifications/NotificationCenter';
+} from '../components/Notifications/NotificationCenter';
 import {copyText} from './copy-text';
 
 export const pickColor = () => {

@@ -5,12 +5,12 @@ import React, {
 	useImperativeHandle,
 } from 'react';
 import {Internals} from 'remotion';
-import {BLUE} from '../../../../studio/src/helpers/colors';
+import {NoReactInternals} from 'remotion/src/no-react';
+import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
-} from '../../../../studio/src/helpers/use-keybinding';
-import {truthy} from '../../truthy';
+} from '../helpers/use-keybinding';
 import {
 	TimelineInPointer,
 	TimelineOutPointer,
@@ -28,7 +28,7 @@ const getTooltipText = (pointType: string, key: string) =>
 		areKeyboardShortcutsDisabled() ? null : `(${key})`,
 		'- right click to clear',
 	]
-		.filter(truthy)
+		.filter(NoReactInternals.truthy)
 		.join(' ');
 
 const style: React.CSSProperties = {

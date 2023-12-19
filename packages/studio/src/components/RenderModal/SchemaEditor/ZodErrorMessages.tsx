@@ -1,9 +1,6 @@
 import React, {useMemo} from 'react';
 import type {z} from 'zod';
-import {
-	FAIL_COLOR,
-	LIGHT_TEXT,
-} from '../../../../../../studio/src/helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {WarningTriangle} from '../../NewComposition/ValidationMessage';
 

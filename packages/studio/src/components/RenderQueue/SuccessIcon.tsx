@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT} from '../../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {RENDER_STATUS_INDICATOR_SIZE} from './CircularProgress';
 
 const iconStyle: React.CSSProperties = {

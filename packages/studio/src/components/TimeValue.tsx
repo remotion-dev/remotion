@@ -1,6 +1,6 @@
 import React from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {useIsStill} from '../../../../studio/src/helpers/is-current-selected-still';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {renderFrame} from '../state/render-frame';
 import {Spacing} from './layout';
 

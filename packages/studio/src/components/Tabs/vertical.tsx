@@ -3,7 +3,7 @@ import {
 	CLEAR_HOVER,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
 const selectorButton: React.CSSProperties = {

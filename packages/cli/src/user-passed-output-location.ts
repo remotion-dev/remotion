@@ -1,5 +1,5 @@
+import {getDefaultOutLocation} from '@remotion/studio';
 import {ConfigInternals} from './config';
-import {getDefaultOutLocation} from './get-default-out-name';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = (

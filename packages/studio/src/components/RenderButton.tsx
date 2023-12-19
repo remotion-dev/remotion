@@ -11,9 +11,9 @@ import type {
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
-import {areKeyboardShortcutsDisabled} from '../../../../studio/src/helpers/use-keybinding';
-import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
+import {Button} from '../error-overlay/remotion-overlay/Button';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';

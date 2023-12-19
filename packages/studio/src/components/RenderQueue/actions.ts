@@ -10,13 +10,14 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
-import type {ApiRoutes} from '../../../preview-server/api-types';
+import type {ApiRoutes} from '../../preview-server/api-types';
 import type {
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	RenderJob,
-} from '../../../preview-server/render-queue/job';
-import type {RequiredChromiumOptions} from '../../../required-chromium-options';
+} from '../../preview-server/job';
+import type {RequiredChromiumOptions} from '../../required-chromium-options';
+
 import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(

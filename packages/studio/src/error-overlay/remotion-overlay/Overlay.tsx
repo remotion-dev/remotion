@@ -5,7 +5,7 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
-import {KeybindingContextProvider} from '../../../editor/state/keybindings';
+import {KeybindingContextProvider} from '../../state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
 
 type SetErrors = {

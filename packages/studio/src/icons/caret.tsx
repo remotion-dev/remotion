@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 
 const caret: React.CSSProperties = {
 	height: 12,

@@ -6,8 +6,8 @@ import {
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
-} from '../../../../../studio/src/helpers/colors';
-import {noop} from '../../../../../studio/src/helpers/noop';
+} from '../../helpers/colors';
+import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {Spacing} from '../layout';

@@ -1,12 +1,12 @@
 import React, {useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
-import {BLUE} from '../../../../../studio/src/helpers/colors';
+import {BLUE} from '../../helpers/colors';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
-} from '../../../../../studio/src/helpers/get-timeline-sequence-layout';
-import {TIMELINE_LAYER_HEIGHT} from '../../../../../studio/src/helpers/timeline-layout';
+} from '../../helpers/get-timeline-sequence-layout';
+import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineVideoInfo} from './TimelineVideoInfo';

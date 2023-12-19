@@ -1,8 +1,8 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {useIsStill} from '../../../../studio/src/helpers/is-current-selected-still';
-import {useKeybinding} from '../../../../studio/src/helpers/use-keybinding';
+import {useIsStill} from '../helpers/is-current-selected-still';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';

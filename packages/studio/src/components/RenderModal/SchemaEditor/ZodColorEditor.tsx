@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
-import {colorWithNewOpacity} from '../../../../color-math';
+import {colorWithNewOpacity} from '../../../helpers/color-math';
 import {
 	useZodIfPossible,
 	useZodTypesIfPossible,

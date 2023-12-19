@@ -4,8 +4,8 @@ import {
 	BACKGROUND,
 	LIGHT_TEXT,
 	TIMELINE_BACKGROUND,
-} from '../../../../../studio/src/helpers/colors';
-import {TIMELINE_PADDING} from '../../../../../studio/src/helpers/timeline-layout';
+} from '../../helpers/colors';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {timelineVerticalScroll} from './timeline-refs';

@@ -1,10 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {
-	INPUT_BACKGROUND,
-	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
+import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {outerPortal} from '../Menu/styles';

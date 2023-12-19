@@ -1,5 +1,5 @@
 import type {AnyComposition, StaticFile, TFolder} from 'remotion';
-import type {CompositionSelectorItemType} from '../../../cli/src/editor/components/CompositionSelectorItem';
+import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
 export type AssetFolder = {

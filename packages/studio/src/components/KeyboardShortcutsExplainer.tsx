@@ -1,10 +1,10 @@
 import React from 'react';
+import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../../../../studio/src/helpers/colors';
-import {areKeyboardShortcutsDisabled} from '../../../../studio/src/helpers/use-keybinding';
-import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
+} from '../helpers/colors';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {Column, Row, Spacing} from './layout';
 

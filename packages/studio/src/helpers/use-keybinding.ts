@@ -1,7 +1,10 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import type {KeyEventType, RegisteredKeybinding} from '../../../cli/src/editor/state/keybindings';
-import {KeybindingContext} from '../../../cli/src/editor/state/keybindings';
-import {useZIndex} from '../../../cli/src/editor/state/z-index';
+import {
+	KeybindingContext,
+	KeyEventType,
+	RegisteredKeybinding,
+} from '../state/keybindings';
+import {useZIndex} from '../state/z-index';
 
 if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 	// eslint-disable-next-line no-console

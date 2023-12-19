@@ -1,5 +1,5 @@
 import type {StaticFile} from 'remotion';
-import type {RenderJob} from './preview-server/render-queue/job';
+import type {RenderJob} from './preview-server/job';
 
 export type EventSourceEvent =
 	| {

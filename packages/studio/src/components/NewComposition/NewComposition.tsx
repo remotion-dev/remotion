@@ -4,7 +4,7 @@ import {Internals} from 'remotion';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
-} from '../../../../../studio/src/helpers/validate-new-comp-data';
+} from '../../helpers/validate-new-comp-data';
 import {Checkmark} from '../../icons/Checkmark';
 import {
 	loadAspectRatioOption,

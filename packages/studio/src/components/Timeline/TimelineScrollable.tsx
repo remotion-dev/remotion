@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_BACKGROUND} from '../../../../../studio/src/helpers/colors';
+import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
 

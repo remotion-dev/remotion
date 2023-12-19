@@ -1,4 +1,4 @@
-import {BLUE} from '../../../../studio/src/helpers/colors';
+import {BLUE} from '../helpers/colors';
 
 const size = 22;
 

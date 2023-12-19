@@ -1,5 +1,5 @@
 import type React from 'react';
-import {BACKGROUND, BLUE} from '../../../../../studio/src/helpers/colors';
+import {BACKGROUND, BLUE} from '../../helpers/colors';
 
 export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;

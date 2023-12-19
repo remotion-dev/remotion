@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback} from 'react';
-import {BACKGROUND} from '../../../../../studio/src/helpers/colors';
+import {BACKGROUND} from '../../helpers/colors';
 import {LockIcon, UnlockIcon} from '../../icons/lock';
 
 const buttonStyle: React.CSSProperties = {

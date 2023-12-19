@@ -1,7 +1,7 @@
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../../../studio/src/helpers/colors';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
+import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';

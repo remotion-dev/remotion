@@ -1,4 +1,4 @@
-import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
+import {Button} from '../error-overlay/remotion-overlay/Button';
 
 export const ResetZoomButton: React.FC<{
 	onClick: () => void;

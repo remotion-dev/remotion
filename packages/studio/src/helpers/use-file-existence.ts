@@ -2,7 +2,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {
 	subscribeToFileExistenceWatcher,
 	unsubscribeFromFileExistenceWatcher,
-} from '../../../cli/src/editor/components/RenderQueue/actions';
+} from '../components/RenderQueue/actions';
 import type {EventSourceEvent} from '../event-source-events';
 import {StudioServerConnectionCtx} from './client-id';
 import {subscribeToEvent} from './event-source';

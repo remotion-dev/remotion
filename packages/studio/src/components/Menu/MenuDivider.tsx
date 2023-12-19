@@ -1,5 +1,5 @@
 import React from 'react';
-import {INPUT_BORDER_COLOR_HOVERED} from '../../../../../studio/src/helpers/colors';
+import {INPUT_BORDER_COLOR_HOVERED} from '../../helpers/colors';
 
 const menuDivider: React.CSSProperties = {
 	marginTop: 4,

@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {VERY_LIGHT_TEXT} from '../../../../../../studio/src/helpers/colors';
+import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';

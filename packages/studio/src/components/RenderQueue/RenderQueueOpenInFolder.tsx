@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
-import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
+import type {RenderJob} from '../../preview-server/job';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';

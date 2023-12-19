@@ -1,11 +1,11 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {
 	useIsStill,
 	useIsVideoComposition,
-} from '../../../../studio/src/helpers/is-current-selected-still';
-import {TIMELINE_PADDING} from '../../../../studio/src/helpers/timeline-layout';
+} from '../helpers/is-current-selected-still';
+import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';

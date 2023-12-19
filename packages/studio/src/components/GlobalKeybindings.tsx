@@ -1,6 +1,6 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
-import {useKeybinding} from '../../../../studio/src/helpers/use-keybinding';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 

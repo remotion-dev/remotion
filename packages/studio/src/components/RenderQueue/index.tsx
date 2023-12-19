@@ -1,11 +1,7 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../../../../studio/src/helpers/client-id';
-import {
-	BACKGROUND,
-	BORDER_COLOR,
-	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RenderQueueContext} from './context';

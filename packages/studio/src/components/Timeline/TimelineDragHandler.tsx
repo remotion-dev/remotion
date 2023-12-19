@@ -8,8 +8,8 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import {getXPositionOfItemInTimelineImperatively} from '../../../../../studio/src/helpers/get-left-of-timeline-slider';
-import {TIMELINE_PADDING} from '../../../../../studio/src/helpers/timeline-layout';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,

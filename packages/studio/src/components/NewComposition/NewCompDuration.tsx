@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {validateCompositionDuration} from '../../../../../studio/src/helpers/validate-new-comp-data';
+import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
 import {Row, Spacing} from '../layout';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';

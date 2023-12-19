@@ -1,5 +1,5 @@
 import {interpolate} from 'remotion';
-import {TIMELINE_PADDING} from '../../../../../studio/src/helpers/timeline-layout';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {scrollableRef} from './timeline-refs';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 

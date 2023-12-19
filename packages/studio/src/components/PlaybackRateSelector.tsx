@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {useIsStill} from '../../../../studio/src/helpers/is-current-selected-still';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {persistPlaybackRate} from '../state/playbackrate';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';

@@ -19,6 +19,22 @@ import type {
 	UpdateDefaultPropsResponse,
 } from './job';
 
+export type QueueMethods = {
+	removeJob: (jobId: string) => void;
+	cancelJob: (jobId: string) => void;
+	addJob: ({
+		job,
+		entryPoint,
+		remotionRoot,
+		logLevel,
+	}: {
+		job: RenderJobWithCleanup;
+		entryPoint: string;
+		remotionRoot: string;
+		logLevel: LogLevel;
+	}) => void;
+};
+
 export type ApiHandler<ReqData, ResData> = (params: {
 	input: ReqData;
 	entryPoint: string;
@@ -26,21 +42,7 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	request: IncomingMessage;
 	response: ServerResponse;
 	logLevel: LogLevel;
-	methods: {
-		removeJob: (jobId: string) => void;
-		cancelJob: (jobId: string) => void;
-		addJob: ({
-			job,
-			entryPoint,
-			remotionRoot,
-			logLevel,
-		}: {
-			job: RenderJobWithCleanup;
-			entryPoint: string;
-			remotionRoot: string;
-			logLevel: LogLevel;
-		}) => void;
-	};
+	methods: QueueMethods;
 }) => Promise<ResData>;
 
 type ReqAndRes<A, B> = {

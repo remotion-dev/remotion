@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 import type {z} from 'zod';
-import {LIGHT_TEXT} from '../../../../../../studio/src/helpers/colors';
+import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
 import {
 	useZodIfPossible,

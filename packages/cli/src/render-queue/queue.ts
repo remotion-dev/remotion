@@ -1,18 +1,19 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {
+	AggregateRenderProgress,
 	JobProgressCallback,
 	RenderJob,
 	RenderJobWithCleanup,
 } from '@remotion/studio';
-import {waitForLiveEventsListener} from '@remotion/studio';
-import {installFileWatcher} from '@remotion/studio/src/file-watcher';
+import {installFileWatcher, waitForLiveEventsListener} from '@remotion/studio';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {printError} from '../print-error';
-import type {AggregateRenderProgress} from '../progress-types';
 import {initialAggregateRenderProgress} from '../progress-types';
+import {processStill} from './process-still';
+import {processVideoJob} from './process-video';
 
 let jobQueue: RenderJobWithCleanup[] = [];
 

@@ -4,7 +4,7 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
 import {CaretDown} from './carets';
 
 const fontSize = 24;

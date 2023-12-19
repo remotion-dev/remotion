@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from './Button';
 import {ShortcutHint} from './ShortcutHint';
 

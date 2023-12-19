@@ -1,5 +1,5 @@
 import React from 'react';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {HigherZIndex} from '../state/z-index';
 
 const padding = 20;

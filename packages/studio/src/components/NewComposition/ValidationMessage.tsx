@@ -1,9 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useMemo} from 'react';
-import {
-	FAIL_COLOR,
-	WARNING_COLOR,
-} from '../../../../../studio/src/helpers/colors';
+import {FAIL_COLOR, WARNING_COLOR} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 
 export const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {

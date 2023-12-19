@@ -1,4 +1,4 @@
-import {truthy} from '../../../truthy';
+import {NoReactInternals} from 'remotion/src/no-react';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 
 const ALGOLIA_API_KEY = '3e42dbd4f895fe93ff5cf40d860c4a85';
@@ -91,7 +91,7 @@ export const algoliaSearch = async (
 				},
 			};
 		})
-		.filter(truthy);
+		.filter(NoReactInternals.truthy);
 };
 
 const splitMatchIntoTitleAndSubtitle = (match: Hit) => {

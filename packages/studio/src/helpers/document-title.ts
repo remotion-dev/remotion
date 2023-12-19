@@ -1,5 +1,5 @@
-import type {RenderJob} from '../../../cli/src/preview-server/render-queue/job';
-import {truthy} from '../../../cli/src/truthy';
+import {NoReactInternals} from 'remotion/src/no-react';
+import {RenderJob} from '../preview-server/job';
 
 let currentItemName: string | null = null;
 let unsavedProps = false;
@@ -50,7 +50,7 @@ const updateTitle = () => {
 		unsavedProps && tabInactive ? '✏️' : null,
 		`${currentCompTitle} ${suffix}`,
 	]
-		.filter(truthy)
+		.filter(NoReactInternals.truthy)
 		.join(' ');
 };
 

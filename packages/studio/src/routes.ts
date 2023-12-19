@@ -1,12 +1,10 @@
 import {BundlerInternals} from '@remotion/bundler';
+import type {RenderDefaults} from '@remotion/bundler/dist/index-html';
 import type {LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
-import {ConfigInternals} from '../../cli/src/config';
-import {parsedCli} from '../parse-command-line';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -15,7 +13,11 @@ import {
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {allApiRoutes} from './preview-server/api-routes';
-import type {ApiHandler, ApiRoutes} from './preview-server/api-types';
+import type {
+	ApiHandler,
+	ApiRoutes,
+	QueueMethods,
+} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {handleRequest} from './preview-server/handler';
 import type {RenderJob} from './preview-server/job';
@@ -49,6 +51,8 @@ const handleFallback = async ({
 	getEnvVariables,
 	publicDir,
 	getRenderQueue,
+	getRenderDefaults,
+	numberOfAudioTags,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -57,44 +61,11 @@ const handleFallback = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	getRenderQueue: () => RenderJob[];
+	getRenderDefaults: () => RenderDefaults;
+	numberOfAudioTags: number;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
-
-	const defaultJpegQuality = ConfigInternals.getJpegQuality();
-	const defaultScale = ConfigInternals.getScale();
-	const logLevel = ConfigInternals.Logging.getLogLevel();
-	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
-	const concurrency = RenderInternals.getActualConcurrency(
-		ConfigInternals.getConcurrency(),
-	);
-	const muted = ConfigInternals.getMuted();
-	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
-	const pixelFormat = ConfigInternals.getPixelFormat();
-	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
-	const x264Preset = ConfigInternals.getPresetProfile() ?? 'medium';
-	const audioBitrate = ConfigInternals.getAudioBitrate();
-	const videoBitrate = ConfigInternals.getVideoBitrate();
-	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
-	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
-	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
-	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
-	const audioCodec = ConfigInternals.getAudioCodec();
-	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
-	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
-	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
-	const headless = ConfigInternals.getChromiumHeadlessMode();
-	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
-	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
-	const offthreadVideoCacheSizeInBytes =
-		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
-	const colorSpace = ConfigInternals.getColorSpace();
-	const userAgent = ConfigInternals.getChromiumUserAgent();
-
-	const maxConcurrency = RenderInternals.getMaxConcurrency();
-	const minConcurrency = RenderInternals.getMinConcurrency();
-	const multiProcessOnLinux = ConfigInternals.getChromiumMultiProcessOnLinux();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -111,46 +82,11 @@ const handleFallback = async ({
 			studioServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
-			numberOfAudioTags:
-				parsedCli['number-of-shared-audio-tags'] ??
-				getNumberOfSharedAudioTags(),
+			numberOfAudioTags,
 			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Studio',
-			renderDefaults: {
-				jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
-				scale: defaultScale ?? 1,
-				logLevel,
-				codec: defaultCodec ?? 'h264',
-				concurrency,
-				maxConcurrency,
-				minConcurrency,
-				stillImageFormat:
-					stillImageFormat ?? RenderInternals.DEFAULT_STILL_IMAGE_FORMAT,
-				videoImageFormat:
-					videoImageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
-				muted,
-				enforceAudioTrack,
-				proResProfile,
-				x264Preset,
-				pixelFormat,
-				audioBitrate,
-				videoBitrate,
-				encodingBufferSize,
-				encodingMaxRate,
-				everyNthFrame,
-				numberOfGifLoops,
-				delayRenderTimeout,
-				audioCodec,
-				disableWebSecurity,
-				headless,
-				ignoreCertificateErrors,
-				openGlRenderer,
-				offthreadVideoCacheSizeInBytes,
-				colorSpace,
-				multiProcessOnLinux,
-				userAgent,
-			},
+			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),
 	);
@@ -276,6 +212,9 @@ export const handleRoutes = ({
 	publicDir,
 	logLevel,
 	getRenderQueue,
+	getRenderDefaults,
+	numberOfAudioTags,
+	queueMethods: methods,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -291,6 +230,9 @@ export const handleRoutes = ({
 	publicDir: string;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
+	getRenderDefaults: () => RenderDefaults;
+	numberOfAudioTags: number;
+	queueMethods: QueueMethods;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -323,6 +265,7 @@ export const handleRoutes = ({
 				request,
 				response,
 				logLevel,
+				methods,
 			});
 		}
 	}
@@ -381,5 +324,7 @@ export const handleRoutes = ({
 		getEnvVariables,
 		publicDir,
 		getRenderQueue,
+		getRenderDefaults,
+		numberOfAudioTags,
 	});
 };

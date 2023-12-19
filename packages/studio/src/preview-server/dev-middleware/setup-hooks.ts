@@ -1,7 +1,6 @@
 import type {webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import {Log} from '../../log';
-import {truthy} from '../../truthy';
+import {NoReactInternals} from 'remotion/src/no-react';
 import type {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {
@@ -36,7 +35,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 			const lines = printedStats
 				.split('\n')
 				.map((a) => a.trimEnd())
-				.filter(truthy)
+				.filter(NoReactInternals.truthy)
 				.map((a) => {
 					if (a.startsWith('webpack compiled')) {
 						return `Built in ${stats.endTime - stats.startTime}ms`;
@@ -47,7 +46,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 				.join('\n');
 
 			if (lines) {
-				Log.info(lines);
+				RenderInternals.Log.info(lines);
 			}
 
 			context.callbacks = [];

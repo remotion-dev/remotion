@@ -10,13 +10,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import {RenderInternals} from '@remotion/renderer';
 import type {ChildProcess} from 'node:child_process';
 import child_process, {exec} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import util from 'node:util';
-import {Log} from '../../../../log';
+
+const {Log} = RenderInternals;
 
 const execProm = util.promisify(exec);
 

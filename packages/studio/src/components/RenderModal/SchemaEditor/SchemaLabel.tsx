@@ -1,8 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {
-	FAIL_COLOR,
-	LIGHT_TEXT,
-} from '../../../../../../studio/src/helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';

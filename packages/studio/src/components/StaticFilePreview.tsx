@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {getStaticFiles, staticFile} from 'remotion';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
-import {LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
-import type {AssetMetadata} from '../../../../studio/src/helpers/get-asset-metadata';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {FilePreview} from './FilePreview';
 import {getPreviewFileType} from './Preview';
 

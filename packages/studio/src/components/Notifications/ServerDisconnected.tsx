@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {StudioServerConnectionCtx} from '../../../../../studio/src/helpers/client-id';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',

@@ -1,5 +1,5 @@
 import React from 'react';
-import {BLUE} from '../../../../../studio/src/helpers/colors';
+import {BLUE} from '../../helpers/colors';
 import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
 import {ErrorMessage} from './ErrorMessage';

@@ -1,7 +1,7 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
-import {useMenuStructure} from '../../../../studio/src/helpers/use-menu-structure';
+import {BACKGROUND} from '../helpers/colors';
+import {useMenuStructure} from '../helpers/use-menu-structure';
 import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';

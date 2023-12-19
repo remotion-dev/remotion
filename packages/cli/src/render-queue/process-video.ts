@@ -1,9 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
-import {getRendererPortFromConfigFile} from '../../config/preview-server';
-import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
-import {getCliOptions} from '../../get-cli-options';
-import {renderVideoFlow} from '../../render-flows/render';
-import type {JobProgressCallback, RenderJob} from './job';
+import type {JobProgressCallback, RenderJob} from '@remotion/studio';
+import {getRendererPortFromConfigFile} from '../config/preview-server';
+import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
+import {getCliOptions} from '../get-cli-options';
+import {renderVideoFlow} from '../render-flows/render';
 
 export const processVideoJob = async ({
 	job,

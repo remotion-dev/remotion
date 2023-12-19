@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from 'react';
-import {LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
-import {openInEditor} from '../../../../studio/src/helpers/open-in-editor';
+import {LIGHT_TEXT} from '../helpers/colors';
+import {openInEditor} from '../helpers/open-in-editor';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
 const svgStyle: React.CSSProperties = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {noop} from '../../../../../studio/src/helpers/noop';
+import {noop} from '../../helpers/noop';
 import {HigherZIndex} from '../../state/z-index';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';

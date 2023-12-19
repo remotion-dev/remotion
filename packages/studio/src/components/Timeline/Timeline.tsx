@@ -5,13 +5,13 @@ import React, {
 	useReducer,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateTimeline} from '../../../../../studio/src/helpers/calculate-timeline';
-import {BACKGROUND} from '../../../../../studio/src/helpers/colors';
-import type {TrackWithHash} from '../../../../../studio/src/helpers/get-timeline-sequence-sort-key';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {BACKGROUND} from '../../helpers/colors';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
-} from '../../../../../studio/src/helpers/timeline-layout';
+} from '../../helpers/timeline-layout';
 import {timelineRef} from '../../state/timeline-ref';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';

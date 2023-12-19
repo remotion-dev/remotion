@@ -1,10 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'zod';
-import {
-	BACKGROUND,
-	LIGHT_TEXT,
-	LINE_COLOR,
-} from '../../../../../../studio/src/helpers/colors';
+import {BACKGROUND, LIGHT_TEXT, LINE_COLOR} from '../../../helpers/colors';
 import {Plus} from '../../../icons/plus';
 import {
 	useZodIfPossible,

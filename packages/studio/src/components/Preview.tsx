@@ -8,10 +8,10 @@ import {
 	checkerboardBackgroundImage,
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
-} from '../../../../studio/src/helpers/checkerboard-background';
-import {LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
-import type {AssetMetadata} from '../../../../studio/src/helpers/get-asset-metadata';
-import type {Dimensions} from '../../../../studio/src/helpers/is-current-selected-still';
+} from '../helpers/checkerboard-background';
+import {LIGHT_TEXT} from '../helpers/colors';
+import {AssetMetadata} from '../helpers/get-asset-metadata';
+import {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RenderPreview} from './RenderPreview';

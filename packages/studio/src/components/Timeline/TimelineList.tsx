@@ -1,6 +1,6 @@
 import React from 'react';
-import {BACKGROUND} from '../../../../../studio/src/helpers/colors';
-import type {TrackWithHash} from '../../../../../studio/src/helpers/get-timeline-sequence-sort-key';
+import {BACKGROUND} from '../../helpers/colors';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {isTrackCollapsed} from './is-collapsed';
 import type {
 	TimelineActionState,

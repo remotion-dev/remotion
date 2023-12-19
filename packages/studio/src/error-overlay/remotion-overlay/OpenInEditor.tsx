@@ -6,8 +6,8 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
-import {openInEditor} from '../../../../../studio/src/helpers/open-in-editor';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
+import {openInEditor} from '../../helpers/open-in-editor';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 import {ShortcutHint} from './ShortcutHint';

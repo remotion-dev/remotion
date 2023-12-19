@@ -22,18 +22,6 @@ import React, {
 } from 'react';
 import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
-import {
-	envVariablesArrayToObject,
-	envVariablesObjectToArray,
-} from '../../../../../studio/src/helpers/convert-env-variables';
-import {useRenderModalSections} from '../../../../../studio/src/helpers/render-modal-sections';
-import {useKeybinding} from '../../../../../studio/src/helpers/use-keybinding';
-import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {ShortcutHint} from '../../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
-import type {
-	RequiredChromiumOptions,
-	UiOpenGlOptions,
-} from '../../../required-chromium-options';
 import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
@@ -41,14 +29,21 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
+import {Button} from '../../error-overlay/remotion-overlay/Button';
+import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {getDefaultOutLocation} from '../../get-default-out-name';
+import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {
-	BLUE,
-	BLUE_DISABLED,
-	LIGHT_TEXT,
-} from '../../../../../studio/src/helpers/colors';
-import {getDefaultOutLocation} from '../../../get-default-out-name';
-import {getDefaultCodecs} from '../../../preview-server/render-queue/get-default-video-contexts';
+	envVariablesArrayToObject,
+	envVariablesObjectToArray,
+} from '../../helpers/convert-env-variables';
+import {useRenderModalSections} from '../../helpers/render-modal-sections';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {Checkmark} from '../../icons/Checkmark';
+import {
+	RequiredChromiumOptions,
+	UiOpenGlOptions,
+} from '../../required-chromium-options';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Spacing} from '../layout';
@@ -76,6 +71,7 @@ import {Spinner} from '../Spinner';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
+import {getDefaultCodecs} from './get-default-codecs';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';

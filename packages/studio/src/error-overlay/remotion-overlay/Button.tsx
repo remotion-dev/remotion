@@ -2,7 +2,8 @@ import React, {forwardRef, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../../../../../studio/src/helpers/colors';
+} from '../../helpers/colors';
+
 const button: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	borderRadius: 4,

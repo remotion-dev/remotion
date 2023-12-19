@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {INPUT_BACKGROUND} from '../../../../../studio/src/helpers/colors';
+import {INPUT_BACKGROUND} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
