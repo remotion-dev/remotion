@@ -1117,9 +1117,9 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						title: 'sdasds',
 						delay: 5.2,
-						color: '#df822a',
-						list: ['first', 'second', 'third'],
-						description: 'Sample description \nOn multiple lines',
+						color: '#b47841',
+						list: ['test'],
+						description: null,
 						dropdown: 'a' as const,
 					}}
 				/>
