@@ -207,8 +207,8 @@ importers:
         specifier: ^8.4.2
         version: 8.4.2
       prompts:
-        specifier: 2.4.1
-        version: 2.4.1
+        specifier: 2.4.2
+        version: 2.4.2
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -469,8 +469,8 @@ importers:
         specifier: 1.2.6
         version: 1.2.6
       prompts:
-        specifier: 2.4.1
-        version: 2.4.1
+        specifier: 2.4.2
+        version: 2.4.2
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -18360,14 +18360,6 @@ packages:
 
   /prompts@2.4.0:
     resolution: {integrity: sha512-awZAKrk3vN6CroQukBL+R9051a4R3zCZBlJm/HBfrSZ8iTpYix3VX1vU4mveiLpiwmOJT4wokTF9m6HUk4KqWQ==}
-    engines: {node: '>= 6'}
-    dependencies:
-      kleur: 3.0.3
-      sisteransi: 1.0.5
-    dev: false
-
-  /prompts@2.4.1:
-    resolution: {integrity: sha512-EQyfIuO2hPDsX1L/blblV+H7I0knhgAd82cVneCwcdND9B8AuCDuRcBH6yIcG4dFzlOUqbazQqwGjx5xmsNLuQ==}
     engines: {node: '>= 6'}
     dependencies:
       kleur: 3.0.3
