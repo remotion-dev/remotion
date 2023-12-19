@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-transitions-presentations-cube.png
+crumb: "@remotion/transitions - Presentations"
+title: "cube()"
+---
+
+# cube()<AvailableFrom v="4.0.76"/>
+
+A presentation where the outgoing slide on the front face of a cube disappears with its rotation, while the incoming slide appears from an adjacent side.
+
+<Demo type="cube" />
+
+## Example
+
+```tsx twoslash title="ClockWipeTransition.tsx"
+import { AbsoluteFill } from "remotion";
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({ children, color }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 200,
+        color: "white",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { cube } from "@remotion/transitions/cube";
+
+const BasicTransition = () => {
+  const { width, height } = useVideoConfig();
+
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={cube({ direction: "from-right", perspective: 1000 })}
+        timing={linearTiming({ durationInFrames: 30 })}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+Takes an object with the following optional properties:
+
+### `direction` (optional)
+
+On of `from-left` | `from-right` | `from-top` | `from-bottom`;
+Defines from which side the new slide enters.
+
+```tsx title="TypeScript type"
+import { Direction } from "@remotion/pro-transitions/cube";
+
+const direction: Direction = "from-right";
+```
+
+### `perspective`
+
+The `perspective` property accepts any `number` and defines the distance from the viewer to the cube. The smaller the
+absolute value of the passed number, the strong the visual effect of the rotation animation from the cube.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/clock-wipe.tsx)
+- [Presentations](/docs/transitions/presentations)
