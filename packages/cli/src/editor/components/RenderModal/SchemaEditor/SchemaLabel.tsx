@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
@@ -41,15 +41,21 @@ export const SchemaLabel: React.FC<{
 	suffix,
 	handleClick,
 }) => {
+	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
+
 	const disableSave = saving || !valid || saveDisabledByParent;
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
 			fontSize: 14,
-			color: valid ? LIGHT_TEXT : FAIL_COLOR,
+			color: valid
+				? clickableButtonHovered
+					? 'white'
+					: LIGHT_TEXT
+				: FAIL_COLOR,
 			lineHeight: '24px',
 		};
-	}, [valid]);
+	}, [clickableButtonHovered, valid]);
 
 	const labelContent = (
 		<span style={labelStyle}>
@@ -60,7 +66,14 @@ export const SchemaLabel: React.FC<{
 	return (
 		<div style={compactStyles}>
 			{handleClick ? (
-				<button type="button" onClick={handleClick} style={{border: 'none'}}>
+				// Minus the padding that a button has (user agent padding-line-start)
+				<button
+					onPointerEnter={() => setClickableButtonHovered(true)}
+					onPointerLeave={() => setClickableButtonHovered(false)}
+					type="button"
+					onClick={handleClick}
+					style={{border: 'none', marginLeft: -6}}
+				>
 					{labelContent}
 				</button>
 			) : (
