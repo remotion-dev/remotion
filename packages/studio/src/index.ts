@@ -1,0 +1,1 @@
+export {studioCommand} from './command';

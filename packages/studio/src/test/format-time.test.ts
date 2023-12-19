@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {renderFrame} from '../editor/state/render-frame';
+import {renderFrame} from '../state/render-frame';
 
 test('Format time', () => {
 	expect(renderFrame(152, 30)).toBe('00:05.02');

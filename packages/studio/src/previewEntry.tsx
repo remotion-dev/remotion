@@ -2,11 +2,11 @@ import type {render} from 'react-dom';
 import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
-import {openEventSource} from '../../studio/src/helpers/event-source';
 import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';
 import {EditorContexts} from './editor/components/EditorContexts';
 import {ServerDisconnected} from './editor/components/Notifications/ServerDisconnected';
+import {openEventSource} from './helpers/event-source';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),

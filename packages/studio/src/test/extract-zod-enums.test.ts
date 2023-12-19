@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
-import {extractEnumJsonPaths} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
+import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
 test('Extract Zod enums', () => {
 	expect(

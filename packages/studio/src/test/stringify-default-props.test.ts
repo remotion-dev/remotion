@@ -2,8 +2,8 @@ import {expect, test} from 'vitest';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
 import {stringifyDefaultProps} from '../codemods/stringify-with-path';
+import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod-values';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
-import {createZodValues} from '../editor/components/RenderModal/SchemaEditor/create-zod-values';
 
 test('Should stringify default props correctly', () => {
 	const result = stringifyDefaultProps({

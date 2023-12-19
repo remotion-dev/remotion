@@ -5,7 +5,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {useKeybinding} from '../../../../studio/src/helpers/use-keybinding';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 import {getClickLock} from './input-dragger-click-lock';
 

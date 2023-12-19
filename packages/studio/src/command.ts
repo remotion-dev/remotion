@@ -2,28 +2,31 @@ import type {LogLevel} from '@remotion/renderer';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {openBrowser} from './better-opn';
-import {chalk} from './chalk';
-import {ConfigInternals} from './config';
-import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
-import {findEntryPoint} from './entry-point';
-import {getEnvironmentVariables} from './get-env';
-import {getInputProps} from './get-input-props';
-import {getNetworkAddress} from './get-network-address';
-import {Log} from './log';
-import {parsedCli} from './parse-command-line';
-import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
+import {openBrowser} from '../../cli/src/better-opn';
+import {chalk} from '../../cli/src/chalk';
+import {ConfigInternals} from '../../cli/src/config';
+import {convertEntryPointToServeUrl} from '../../cli/src/convert-entry-point-to-serve-url';
+import {findEntryPoint} from '../../cli/src/entry-point';
+import {getEnvironmentVariables} from '../../cli/src/get-env';
+import {getInputProps} from '../../cli/src/get-input-props';
+import {getNetworkAddress} from '../../cli/src/get-network-address';
+import {Log} from '../../cli/src/log';
+import {parsedCli} from '../../cli/src/parse-command-line';
+import {getAbsolutePublicDir} from '../../cli/src/preview-server/get-absolute-public-dir';
 import {
 	setLiveEventsListener,
 	waitForLiveEventsListener,
-} from './preview-server/live-events';
-import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
-import {startServer} from './preview-server/start-server';
+} from '../../cli/src/preview-server/live-events';
+import {
+	getFiles,
+	initPublicFolderWatch,
+} from '../../cli/src/preview-server/public-folder';
+import {startServer} from '../../cli/src/preview-server/start-server';
 import {
 	printServerReadyComment,
 	setServerReadyComment,
-} from './server-ready-comment';
-import {watchRootFile} from './watch-root-file';
+} from '../../cli/src/server-ready-comment';
+import {watchRootFile} from '../../cli/src/watch-root-file';
 
 const noop = () => undefined;
 

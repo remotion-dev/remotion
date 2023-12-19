@@ -1,6 +1,6 @@
 import type {TSequence} from 'remotion';
 import {expect, test} from 'vitest';
-import {calculateTimeline} from '../../../studio/src/helpers/calculate-timeline';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 
 test('Should calculate timeline as expected', () => {
 	const timeline = calculateTimeline({

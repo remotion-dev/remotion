@@ -1,3 +1,4 @@
+import {getMaxTimelineTracks} from '../../../studio/src/max-timeline-tracks';
 import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
@@ -25,7 +26,6 @@ import {
 import {getShouldOutputImageSequence} from './image-sequence';
 import {getJpegQuality} from './jpeg-quality';
 import * as Logging from './log';
-import {getMaxTimelineTracks} from './max-timeline-tracks';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -56,6 +56,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {setMaxTimelineTracks} from '../../../studio/src/max-timeline-tracks';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
@@ -99,7 +100,6 @@ import {
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
 import {setLogLevel} from './log';
-import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';

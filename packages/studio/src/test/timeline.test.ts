@@ -1,6 +1,5 @@
 import {expect, test} from 'vitest';
-import {calculateTimeline} from '../../../studio/src/helpers/calculate-timeline';
-
+import {calculateTimeline} from '../helpers/calculate-timeline';
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
 		sequences: [],

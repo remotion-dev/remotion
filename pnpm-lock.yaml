@@ -194,6 +194,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       dotenv:
         specifier: 9.0.2
         version: 9.0.2
@@ -1725,6 +1728,9 @@ importers:
       '@remotion/player':
         specifier: workspace:*
         version: link:../player
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6

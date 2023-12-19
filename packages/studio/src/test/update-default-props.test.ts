@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
-import {updateDefaultProps} from '../../../studio/src/codemods/update-default-props';
+import {updateDefaultProps} from '../codemods/update-default-props';
 
 test('Should be able to update default props', async () => {
 	const file = readFileSync(

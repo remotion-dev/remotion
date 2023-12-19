@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {studioCommand} from '@remotion/studio';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
@@ -30,7 +31,6 @@ import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
-import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
 	validateVersionsBeforeCommand,

@@ -1,11 +1,11 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
-import {BACKGROUND, LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
-import {buildAssetFolderStructure} from '../../../../studio/src/helpers/create-folder-tree';
-import type {ExpandedFoldersState} from '../../../../studio/src/helpers/persist-open-folders';
-import {persistExpandedFolders} from '../../../../studio/src/helpers/persist-open-folders';
-import {subscribeToEvent} from '../../event-source';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
+import {subscribeToEvent} from '../helpers/event-source';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';

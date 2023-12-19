@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {getZTypesIfPossible} from '../editor/components/get-zod-if-possible';
+import {getZTypesIfPossible} from '../components/get-zod-if-possible';
 
 const getZodTypes = async () => {
 	const z = await getZTypesIfPossible();
