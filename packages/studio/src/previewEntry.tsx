@@ -3,9 +3,9 @@ import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import '../styles/styles.css';
-import {Editor} from './editor/components/Editor';
-import {EditorContexts} from './editor/components/EditorContexts';
-import {ServerDisconnected} from './editor/components/Notifications/ServerDisconnected';
+import {Editor} from './components/Editor';
+import {EditorContexts} from './components/EditorContexts';
+import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
 import {openEventSource} from './helpers/event-source';
 
 Internals.CSSUtils.injectCSS(

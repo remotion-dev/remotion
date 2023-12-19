@@ -5,9 +5,9 @@
  */
 
 import type {webpack} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {parse} from 'node:url';
-import {Log} from '../../log';
 import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
 import {hotMiddlewareOptions} from './types';
 
@@ -137,7 +137,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 
 	function onInvalid() {
 		latestStats = null;
-		Log.info('Building...');
+		RenderInternals.Log.info('Building...');
 		eventStream?.publish({
 			action: 'building',
 		});

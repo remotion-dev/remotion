@@ -3,8 +3,6 @@ import type {
 	OutgoingHttpHeaders,
 	ServerResponse,
 } from 'node:http';
-import type {EventSourceEvent} from '../event-source-events';
-import {printServerReadyComment} from '../server-ready-comment';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 
 type Client = {

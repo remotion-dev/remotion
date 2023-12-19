@@ -1,11 +1,11 @@
 import {readFileSync} from 'node:fs';
-import type {ApiHandler} from '../api-types';
-import {updateDefaultProps} from '../codemods/update-default-props';
-import {getProjectInfo} from '../project-info';
 import type {
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse,
-} from '../render-queue/job';
+} from '../../../cli/src/render-queue/job';
+import type {ApiHandler} from '../api-types';
+import {updateDefaultProps} from '../codemods/update-default-props';
+import {getProjectInfo} from '../project-info';
 
 export const checkIfTypeScriptFile = (file: string) => {
 	if (

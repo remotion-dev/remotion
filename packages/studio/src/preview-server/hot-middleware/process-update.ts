@@ -11,7 +11,7 @@
  * Original copyright Tobias Koppers @sokra (MIT license)
  */
 
-import {notificationCenter} from '../../editor/components/Notifications/NotificationCenter';
+import {notificationCenter} from '../../components/Notifications/NotificationCenter';
 import type {HotMiddlewareOptions, ModuleMap} from './types';
 
 if (!__webpack_module__.hot) {

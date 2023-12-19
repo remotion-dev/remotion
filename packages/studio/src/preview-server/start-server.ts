@@ -4,9 +4,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import {ConfigInternals} from '../config';
-import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
-import {Log} from '../log';
+import {DEFAULT_TIMELINE_TRACKS} from '../components/Timeline/MaxTimelineTracks';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
@@ -40,8 +38,7 @@ export const startServer = async (options: {
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development',
-		webpackOverride:
-			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
+		webpackOverride: options?.webpackOverride,
 		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
@@ -90,7 +87,7 @@ export const startServer = async (options: {
 				});
 			})
 			.catch((err) => {
-				Log.error(`Error while calling ${request.url}`, err);
+				RenderInternals.Log.error(`Error while calling ${request.url}`, err);
 				if (!response.headersSent) {
 					response.setHeader('content-type', 'application/json');
 					response.writeHead(500);
@@ -148,7 +145,7 @@ export const startServer = async (options: {
 			const codedError = err as Error & {code: string; port: number};
 
 			if (codedError.code === 'EADDRINUSE') {
-				Log.error(
+				RenderInternals.Log.error(
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {

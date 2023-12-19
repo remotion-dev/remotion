@@ -1,4 +1,4 @@
-import {installFileWatcher} from './file-watcher';
+import {installFileWatcher} from '../../cli/src/file-watcher';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getProjectInfo} from './preview-server/project-info';
 

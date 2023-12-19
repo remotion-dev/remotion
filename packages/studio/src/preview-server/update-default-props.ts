@@ -1,12 +1,12 @@
 import {readFileSync, writeFileSync} from 'node:fs';
-import type {ApiHandler} from '../api-types';
 import {updateDefaultProps} from '../codemods/update-default-props';
-import {getProjectInfo} from '../project-info';
+import type {ApiHandler} from './api-types';
+import {checkIfTypeScriptFile} from './can-update-default-props';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
-} from '../render-queue/job';
-import {checkIfTypeScriptFile} from './can-update-default-props';
+} from './job';
+import {getProjectInfo} from './project-info';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,

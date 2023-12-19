@@ -3,7 +3,7 @@ import {
 	subscribeToFileExistenceWatcher,
 	unsubscribeFromFileExistenceWatcher,
 } from '../../../cli/src/editor/components/RenderQueue/actions';
-import type {EventSourceEvent} from '../../../cli/src/event-source-events';
+import type {EventSourceEvent} from '../event-source-events';
 import {StudioServerConnectionCtx} from './client-id';
 import {subscribeToEvent} from './event-source';
 

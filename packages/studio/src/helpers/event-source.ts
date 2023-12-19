@@ -1,6 +1,6 @@
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
-import type {EventSourceEvent} from '../../../cli/src/event-source-events';
+import type {EventSourceEvent} from '../event-source-events';
 import {studioServerConnectionRef} from './client-id';
 import {sendErrorNotification} from './editor/components/Notifications/NotificationCenter';
 import {renderJobsRef} from './editor/components/RenderQueue/context';

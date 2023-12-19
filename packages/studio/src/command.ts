@@ -26,7 +26,7 @@ import {
 	printServerReadyComment,
 	setServerReadyComment,
 } from '../../cli/src/server-ready-comment';
-import {watchRootFile} from '../../cli/src/watch-root-file';
+import {watchRootFile} from './watch-root-file';
 
 const noop = () => undefined;
 
