@@ -1,14 +1,6 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {z} from 'zod';
-import {Plus} from '../../../icons/plus';
-import {
-	useZodIfPossible,
-	useZodTypesIfPossible,
-} from '../../get-zod-if-possible';
-import type {RenderInlineAction} from '../../InlineAction';
-import {InlineAction} from '../../InlineAction';
-import {fieldsetLabel} from '../layout';
-import {createZodValues} from './create-zod-values';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
@@ -59,30 +51,14 @@ export const ZodArrayEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zodTypes = useZodTypesIfPossible();
-
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
 		throw new Error('expected object');
 	}
 
-	const onAdd = useCallback(() => {
-		onChange(
-			(oldV) => {
-				return [...oldV, createZodValues(def.type, z, zodTypes)];
-			},
-			false,
-			true,
-		);
-	}, [def.type, onChange, z, zodTypes]);
-
 	const isDefaultValue = useMemo(() => {
 		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
-
-	const renderAddButton: RenderInlineAction = useCallback((color) => {
-		return <Plus color={color} style={{height: 12}} />;
-	}, []);
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
@@ -119,29 +95,17 @@ export const ZodArrayEditor: React.FC<{
 									saveDisabledByParent={saveDisabledByParent}
 									mayPad={mayPad}
 								/>
-								{i === localValue.value.length - 1 ? null : (
-									<SchemaArrayItemSeparationLine
-										schema={schema}
-										index={i}
-										onChange={onChange}
-									/>
-								)}
+								<SchemaArrayItemSeparationLine
+									schema={schema}
+									index={i}
+									onChange={onChange}
+									isLast={i === localValue.value.length - 1}
+								/>
 							</React.Fragment>
 						);
 					})}
 				</SchemaVerticalGuide>
 			</RevisionContextProvider>
-
-			<div
-				style={{
-					...fieldsetLabel,
-					alignItems: 'center',
-					display: 'flex',
-				}}
-			>
-				{']'}
-				<InlineAction onClick={onAdd} renderAction={renderAddButton} />
-			</div>
 			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);
