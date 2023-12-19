@@ -53,6 +53,7 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Full projects
 
+- [GitHub Unwrapped 2023](https://github.com/remotion-dev/github-unwrapped-2023)
 - [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/FelippeChemello/podcast-maker)
