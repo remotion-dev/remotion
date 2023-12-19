@@ -114,6 +114,13 @@ export const internalOpenBrowser = async ({
 		}`,
 	);
 
+	if (chromiumOptions.userAgent) {
+		Log.verbose(
+			{indent, logLevel: 'verbose', tag: 'openBrowser()'},
+			`Using custom user agent: ${chromiumOptions.userAgent}`,
+		);
+	}
+
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),

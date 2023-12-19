@@ -22,6 +22,7 @@ export const watchStaticFile = (
 ): {cancel: () => void} => {
 	// Check if function is called in Remotion Studio
 	if (!getRemotionEnvironment().isStudio) {
+		// eslint-disable-next-line no-console
 		console.warn('The API is only available while using the Remotion Studio.');
 		return {cancel: () => undefined};
 	}

@@ -8,6 +8,12 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Lambda throws an undefined variable error",
+    description: "The publish script of this version was broken.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.73"],
+  },
+  {
     title: "Subsequent Lambda renders become slow",
     description: "A warm Lambda function would get slower over time.",
     link: "https://github.com/remotion-dev/remotion/pull/3184",

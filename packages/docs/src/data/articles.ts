@@ -596,7 +596,7 @@ export const articles = [
   },
   {
     id: "dynamic-metadata",
-    title: "Variable metadata",
+    title: "Variable duration and dimensions",
     relativePath: "docs/dynamic-metadata.md",
     compId: "articles-docs-dynamic-metadata",
     crumb: "How To",
@@ -1477,6 +1477,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/absolute-paths",
+    title: "Files with absolute paths",
+    relativePath: "docs/miscellaneous/absolute-paths.md",
+    compId: "articles-docs-miscellaneous-absolute-paths",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/automatic-duration",
     title: "Calculating the duration of a composition automatically",
     relativePath: "docs/miscellaneous/automatic-duration.md",
@@ -1498,11 +1505,25 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "embed-studio",
+    title: "Can I embed the Remotion Studio?",
+    relativePath: "docs/miscellaneous/embed-remotion-studio.md",
+    compId: "articles-docs-miscellaneous-embed-remotion-studio",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/linux-single-process",
     title: "Multiple cores on Linux",
     relativePath: "docs/miscellaneous/linux-single-process.md",
     compId: "articles-docs-miscellaneous-linux-single-process",
     crumb: "Server-side rendering",
+  },
+  {
+    id: "miscellaneous/live-streaming",
+    title: "Can Remotion be used for live streaming?",
+    relativePath: "docs/miscellaneous/live-streaming.md",
+    compId: "articles-docs-miscellaneous-live-streaming",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/render-in-browser",
@@ -2529,6 +2550,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "transitions/presentations/clock-wipe",
+    title: "clockWipe()",
+    relativePath: "docs/transitions/presentations/clock-wipe.mdx",
+    compId: "articles-docs-transitions-presentations-clock-wipe",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/custom",
     title: "Custom presentations",
     relativePath: "docs/transitions/presentations/custom.mdx",
@@ -2547,13 +2575,6 @@ export const articles = [
     title: "flip()",
     relativePath: "docs/transitions/presentations/flip.mdx",
     compId: "articles-docs-transitions-presentations-flip",
-    crumb: "@remotion/transitions - Presentations",
-  },
-  {
-    id: "transitions/presentations/flip",
-    title: "clockwipe()",
-    relativePath: "docs/transitions/presentations/clockwipe.mdx",
-    compId: "articles-docs-transitions-presentations-clockwipe",
     crumb: "@remotion/transitions - Presentations",
   },
   {
@@ -2638,6 +2659,13 @@ export const articles = [
     title: "Fast Refresh not working",
     relativePath: "docs/troubleshooting/broken-fast-refresh.md",
     compId: "articles-docs-troubleshooting-broken-fast-refresh",
+    crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/bundling-bundle",
+    title: "Calling bundle() in bundled code",
+    relativePath: "docs/troubleshooting/bundling-bundle.md",
+    compId: "articles-docs-troubleshooting-bundling-bundle",
     crumb: "Troubleshooting",
   },
   {

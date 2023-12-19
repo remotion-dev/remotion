@@ -66,7 +66,11 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 ### `--concurrency`
 
-By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+A number or a string describing how many browser tabs should be opened. Default "50%".
+
+:::note
+Before v4.0.76, this was "100%" by default. It is now aligned to the other server-side rendering APIs.
+:::
 
 ### `--jpeg-quality`
 

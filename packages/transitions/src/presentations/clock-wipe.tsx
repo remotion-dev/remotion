@@ -57,7 +57,7 @@ const ClockWipePresentation: React.FC<
 	);
 };
 
-export const clockwipe = (
+export const clockWipe = (
 	props: ClockWipeProps,
 ): TransitionPresentation<ClockWipeProps> => {
 	return {component: ClockWipePresentation, props: props ?? {}};

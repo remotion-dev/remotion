@@ -76,6 +76,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -197,6 +199,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
 		forceHeight: height,
 		forceWidth: width,
 		webhook: parsedLambdaCli.webhook
@@ -376,7 +380,7 @@ export const renderCommand = async (
 					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {
-							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+							return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
 						})
 						.join(', '),
 				);

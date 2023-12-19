@@ -103,6 +103,9 @@ export const RenderButton: React.FC = () => {
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			initialEncodingBufferSize: defaults.encodingBufferSize,
+			initialEncodingMaxRate: defaults.encodingMaxRate,
+			initialUserAgent: defaults.userAgent,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

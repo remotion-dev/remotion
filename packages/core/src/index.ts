@@ -165,6 +165,7 @@ export const Config = new Proxy(proxyObj, {
 		}
 
 		return () => {
+			/* eslint-disable no-console */
 			console.warn(
 				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
@@ -178,6 +179,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn(
 				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
+			/* eslint-enable no-console */
 
 			process.exit(1);
 		};

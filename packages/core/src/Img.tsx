@@ -90,6 +90,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				const backoff = exponentialBackoff(
 					errors.current[imageRef.current?.src as string] ?? 0,
 				);
+				// eslint-disable-next-line no-console
 				console.warn(
 					`Could not load image with source ${
 						imageRef.current?.src as string
@@ -120,6 +121,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			const onComplete = () => {
 				if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
 					delete errors.current[imageRef.current?.src as string];
+					// eslint-disable-next-line no-console
 					console.info(
 						`Retry successful - ${
 							imageRef.current?.src as string

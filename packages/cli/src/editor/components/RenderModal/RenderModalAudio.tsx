@@ -4,15 +4,15 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {humanReadableAudioCodec} from './human-readable-audio-codecs';
-import {InfoBubble} from './InfoBubble';
 import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
-import {OptionExplainer} from './OptionExplainer';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 
@@ -108,7 +108,6 @@ export const RenderModalAudio: React.FC<{
 					enforceAudioTrack={enforceAudioTrack}
 					muted={muted}
 					setMuted={setMuted}
-					hint={BrowserSafeApis.options.muteOption}
 				/>
 			) : null}
 			{(renderMode === 'video' || renderMode === 'audio') && (
@@ -117,7 +116,6 @@ export const RenderModalAudio: React.FC<{
 						muted={muted}
 						enforceAudioTrack={enforceAudioTrack}
 						setEnforceAudioTrack={setEnforceAudioTrackState}
-						option={BrowserSafeApis.options.enforceAudioOption}
 					/>
 					<RenderModalHr />
 				</>
@@ -126,6 +124,8 @@ export const RenderModalAudio: React.FC<{
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom audio bitrate</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="audioBitrateOption" />
 					<div style={rightRow}>
 						<Checkbox
 							checked={shouldHaveCustomTargetAudioBitrate}
@@ -139,11 +139,7 @@ export const RenderModalAudio: React.FC<{
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
-					<InfoBubble title="Learn more about this option">
-						<OptionExplainer
-							option={BrowserSafeApis.options.audioBitrateOption}
-						/>
-					</InfoBubble>
+
 					<div style={rightRow}>
 						<div>
 							<RemotionInput

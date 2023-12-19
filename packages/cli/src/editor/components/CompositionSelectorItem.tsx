@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {KeyboardEvent, MouseEvent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
@@ -113,8 +113,8 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, selected]);
 
-	const onClick: MouseEventHandler = useCallback(
-		(evt) => {
+	const onClick = useCallback(
+		(evt: MouseEvent | KeyboardEvent<HTMLAnchorElement>) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
 				selectComposition(item.composition, true);
@@ -123,6 +123,15 @@ export const CompositionSelectorItem: React.FC<{
 			}
 		},
 		[item, selectComposition, toggleFolder],
+	);
+
+	const onKeyPress = useCallback(
+		(evt: React.KeyboardEvent<HTMLAnchorElement>) => {
+			if (evt.key === 'Enter') {
+				onClick(evt);
+			}
+		},
+		[onClick],
 	);
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
@@ -212,12 +221,13 @@ export const CompositionSelectorItem: React.FC<{
 	return (
 		<ContextMenu values={contextMenu}>
 			<Row align="center">
-				<button
+				<a
 					style={style}
 					onPointerEnter={onPointerEnter}
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
+					onKeyPress={onKeyPress}
 					type="button"
 					title={item.composition.id}
 					className="__remotion-composition"
@@ -243,7 +253,7 @@ export const CompositionSelectorItem: React.FC<{
 							composition={item.composition}
 						/>
 					</div>
-				</button>
+				</a>
 			</Row>
 		</ContextMenu>
 	);

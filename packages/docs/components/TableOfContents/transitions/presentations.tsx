@@ -1,7 +1,8 @@
-import { clockwipe } from "@remotion/transitions/clockwipe";
 import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
+
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
@@ -14,8 +15,8 @@ const row: React.CSSProperties = {
   justifyContent: "space-between",
 };
 
-const compositionWidth = 540;
-const compositionHeight = 280;
+export const presentationCompositionWidth = 540;
+export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC = () => {
   return (
@@ -72,20 +73,20 @@ export const Presentations: React.FC = () => {
           </div>
         </div>
       </TOCItem>
-      <TOCItem link="/docs/transitions/presentations/clockwipe">
+      <TOCItem link="/docs/transitions/presentations/clock-wipe">
         <div style={row}>
           <PresentationPreview
             durationRestThreshold={0.001}
-            effect={clockwipe({
-              width: compositionWidth,
-              height: compositionHeight,
+            effect={clockWipe({
+              width: presentationCompositionWidth,
+              height: presentationCompositionHeight,
             })}
           />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
-              <code>{"clockwipe()"}</code>
+              <code>{"clockWipe()"}</code>
             </strong>
-            <div>Reveal new scene with a clockwipe movement</div>
+            <div>Reveal the new scene in a circular movement</div>
           </div>
         </div>
       </TOCItem>

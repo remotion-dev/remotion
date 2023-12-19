@@ -6,8 +6,6 @@ sidebar_label: Deploy Remotion Studio
 crumb: "Building video apps"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={3}
   href="https://www.youtube.com/watch?v=430B9xSs06U"

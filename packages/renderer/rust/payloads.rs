@@ -217,7 +217,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[allow(non_snake_case)]
     pub struct VideoMetadata {
-        pub fps: i32,
+        pub fps: f32,
         pub width: u32,
         pub height: u32,
         pub durationInSeconds: f64,
@@ -227,6 +227,7 @@ pub mod payloads {
         pub colorSpace: KnownColorSpaces,
         pub audioCodec: Option<KnownAudioCodecs>,
         pub audioFileExtension: Option<String>,
+        pub pixelFormat: Option<String>,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

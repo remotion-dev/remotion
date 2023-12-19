@@ -1,4 +1,3 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NumberSetting} from './NumberSetting';
 
 const MIN_JPEG_QUALITY = 1;
@@ -16,7 +15,7 @@ export const JpegQualitySetting: React.FC<{
 			name="JPEG Quality"
 			onValueChanged={setJpegQuality}
 			value={jpegQuality}
-			hint={BrowserSafeApis.options.jpegQualityOption}
+			hint={'jpegQualityOption'}
 		/>
 	);
 };
