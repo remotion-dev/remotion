@@ -56,7 +56,7 @@ const packageJson = fs.existsSync(packageJsonPath)
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	fps: number;
 	width: number;
@@ -88,7 +88,7 @@ type InternalStitchFramesToVideoOptions = {
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	maxRate?: string | null;
+	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
@@ -231,7 +231,7 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
-		maxRate,
+		encodingMaxRate,
 		encodingBufferSize,
 		width,
 		numberOfGifLoops,
@@ -257,7 +257,7 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-	validateBitrate(maxRate, 'maxRate');
+	validateBitrate(encodingMaxRate, 'encodingMaxRate');
 	// encodingBufferSize is not a bitrate but need to be validated using the same format
 	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
@@ -341,7 +341,7 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
-		maxRate,
+		encodingMaxRate,
 		encodingBufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
@@ -439,7 +439,7 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
-			maxRate,
+			encodingMaxRate,
 			encodingBufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
@@ -591,7 +591,7 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	x264Preset,
 	colorSpace,
@@ -599,7 +599,7 @@ export const stitchFramesToVideo = ({
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
-		maxRate: maxRate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,

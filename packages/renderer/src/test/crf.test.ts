@@ -45,9 +45,9 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 				validateQualitySettings({
 					crf: entry[0],
 					codec: entry[1],
-					videoBitrate: undefined,
-					maxRate: undefined,
-					encodingBufferSize: undefined,
+					videoBitrate: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
 				}),
 			).not.toThrow()),
 	);
@@ -75,9 +75,9 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 				validateQualitySettings({
 					crf: entry[0],
 					codec: entry[1],
-					videoBitrate: undefined,
-					maxRate: undefined,
-					encodingBufferSize: undefined,
+					videoBitrate: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
 				}),
 			).toThrow(
 				new RegExp(
@@ -92,9 +92,9 @@ test('ProRes', () => {
 		validateQualitySettings({
 			crf: 3,
 			codec: 'prores',
-			videoBitrate: undefined,
-			maxRate: undefined,
-			encodingBufferSize: undefined,
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
 		}),
 	).toThrow(/The "prores" codec does not support the --crf option\./);
 });
@@ -104,9 +104,9 @@ test('WAV', () => {
 		validateQualitySettings({
 			crf: 3,
 			codec: 'wav',
-			videoBitrate: undefined,
-			maxRate: undefined,
-			encodingBufferSize: undefined,
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
 		}),
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
@@ -117,24 +117,24 @@ test('WAV', () => {
 			crf: 10,
 			codec: 'h264',
 			videoBitrate: '1M',
-			maxRate: undefined,
-			encodingBufferSize: undefined,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
 		}),
 	).toThrow(
 		/"crf" and "videoBitrate" can not both be set. Choose one of either./,
 	);
 });
 
-test('maxRate', () => {
+test('encodingMaxRate', () => {
 	expect(() =>
 		validateQualitySettings({
 			crf: 10,
 			codec: 'h264',
 			videoBitrate: null,
-			maxRate: '1M',
+			encodingMaxRate: '1M',
 			encodingBufferSize: null,
 		}),
-	).toThrow(/"maxRate" can not be set without "encodingBufferSize"./);
+	).toThrow(/"encodingMaxRate" can not be set without "encodingBufferSize"./);
 });
 
 describe('crf tests getValidCrfRanges invalid input', () => {

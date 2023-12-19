@@ -75,7 +75,7 @@ const handleFallback = async ({
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
-	const maxRate = ConfigInternals.getVideoMaxRate();
+	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
@@ -135,7 +135,7 @@ const handleFallback = async ({
 				audioBitrate,
 				videoBitrate,
 				encodingBufferSize,
-				maxRate,
+				encodingMaxRate,
 				everyNthFrame,
 				numberOfGifLoops,
 				delayRenderTimeout,

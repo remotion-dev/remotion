@@ -121,7 +121,7 @@ export type InternalRenderMediaOptions = {
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
@@ -175,7 +175,7 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	maxRate?: string | null;
+	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
@@ -221,7 +221,7 @@ const internalRenderMediaRaw = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	audioCodec,
 	concurrency,
@@ -245,7 +245,7 @@ const internalRenderMediaRaw = ({
 		crf,
 		codec,
 		videoBitrate,
-		maxRate,
+		encodingMaxRate,
 		encodingBufferSize,
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -459,7 +459,7 @@ const internalRenderMediaRaw = ({
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
-				maxRate,
+				encodingMaxRate,
 				encodingBufferSize,
 				indent,
 				x264Preset: x264Preset ?? null,
@@ -672,7 +672,7 @@ const internalRenderMediaRaw = ({
 						audioBitrate,
 						videoBitrate,
 						encodingBufferSize,
-						maxRate,
+						encodingMaxRate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
 						colorSpace,
@@ -784,7 +784,7 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	audioCodec,
 	jpegQuality,
@@ -849,7 +849,7 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		maxRate: maxRate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		logLevel:
 			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),

@@ -90,7 +90,7 @@ export const renderVideoFlow = async ({
 	x264Preset,
 	pixelFormat,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	numberOfGifLoops,
 	audioCodec,
@@ -134,7 +134,7 @@ export const renderVideoFlow = async ({
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
@@ -462,7 +462,7 @@ export const renderVideoFlow = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
-		maxRate,
+		encodingMaxRate,
 		encodingBufferSize,
 		onProgress: (update) => {
 			(stitchingProgress as StitchingProgressInput).doneIn =

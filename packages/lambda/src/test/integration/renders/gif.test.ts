@@ -59,7 +59,7 @@ test('Should make a distributed GIF', async () => {
 			audioBitrate: null,
 			videoBitrate: null,
 			encodingBufferSize: null,
-			maxRate: null,
+			encodingMaxRate: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,

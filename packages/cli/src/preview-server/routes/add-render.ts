@@ -41,7 +41,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				pixelFormat: input.pixelFormat,
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,
-				maxRate: input.maxRate,
+				encodingMaxRate: input.encodingMaxRate,
 				encodingBufferSize: input.encodingBufferSize,
 				everyNthFrame: input.everyNthFrame,
 				numberOfGifLoops: input.numberOfGifLoops,

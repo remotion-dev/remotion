@@ -76,7 +76,7 @@ export const processVideoJob = async ({
 		pixelFormat: job.type === 'video' ? job.pixelFormat : 'yuv420p',
 		videoBitrate: job.type === 'video' ? job.videoBitrate : null,
 		encodingBufferSize: job.type === 'video' ? job.encodingBufferSize : null,
-		maxRate: job.type === 'video' ? job.maxRate : null,
+		encodingMaxRate: job.type === 'video' ? job.encodingMaxRate : null,
 		numberOfGifLoops: job.type === 'video' ? job.numberOfGifLoops : null,
 		audioCodec: job.type === 'video' ? job.audioCodec : null,
 		disallowParallelEncoding:

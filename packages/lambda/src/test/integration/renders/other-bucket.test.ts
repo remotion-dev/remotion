@@ -62,7 +62,7 @@ test('Should be able to render to another bucket', async () => {
 			audioBitrate: null,
 			videoBitrate: null,
 			encodingBufferSize: null,
-			maxRate: null,
+			encodingMaxRate: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,

@@ -269,7 +269,7 @@ export type LambdaStartPayload = {
 	overwrite: boolean;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	webhook: WebhookOption;
 	forceHeight: number | null;
@@ -327,7 +327,7 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
-		maxRate: string | null;
+		encodingMaxRate: string | null;
 		encodingBufferSize: string | null;
 		webhook: WebhookOption;
 		forceHeight: number | null;
@@ -372,7 +372,7 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		encodingBufferSize: string | null;
-		maxRate: string | null;
+		encodingMaxRate: string | null;
 		launchFunctionConfig: {
 			version: string;
 		};

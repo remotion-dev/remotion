@@ -71,13 +71,13 @@ export const validateQualitySettings = ({
 	codec,
 	crf,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 }: {
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 }): string[] => {
 	if (crf && videoBitrate) {
@@ -86,14 +86,16 @@ export const validateQualitySettings = ({
 		);
 	}
 
-	if (maxRate && !encodingBufferSize) {
-		throw new Error('"maxRate" can not be set without "encodingBufferSize".');
+	if (encodingMaxRate && !encodingBufferSize) {
+		throw new Error(
+			'"encodingMaxRate" can not be set without also setting "encodingBufferSize".',
+		);
 	}
 
 	const bufSizeArray = encodingBufferSize
 		? ['-bufsize', encodingBufferSize]
 		: [];
-	const maxRateArray = maxRate ? ['-maxrate', maxRate] : [];
+	const maxRateArray = encodingMaxRate ? ['-maxrate', encodingMaxRate] : [];
 
 	if (videoBitrate) {
 		if (codec === 'prores') {

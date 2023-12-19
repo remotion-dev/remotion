@@ -48,7 +48,7 @@ type InternalRenderMediaOnCloudrun = {
 	jpegQuality: number | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	proResProfile: ProResProfile | undefined;
 	x264Preset: X264Preset | undefined;
@@ -88,7 +88,7 @@ export type RenderMediaOnCloudrunInput = {
 	jpegQuality?: number;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	maxRate?: string | null;
+	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	proResProfile?: ProResProfile;
 	x264Preset?: X264Preset;
@@ -128,7 +128,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	proResProfile,
 	x264Preset,
@@ -181,8 +181,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
-		encodingBufferSize: maxRate ?? null,
-		maxRate: encodingBufferSize ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
 		crf: crf ?? null,
 		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -314,7 +314,7 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.audioBitrate The target bitrate for the audio of the generated video.
  * @param params.videoBitrate The target bitrate of the generated video.
  * @param params.encodingBufferSize The decoder buffer size, which determines the variability of the generated video bitrate.
- * @param params.maxRate The maximum bitrate tolerance to be used, this is only used in conjunction with encodingBufferSize.
+ * @param params.encodingMaxRate The maximum bitrate tolerance to be used, this is only used in conjunction with encodingBufferSize.
  * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
  * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
  * @param params.crf Constant Rate Factor, controlling the quality.
@@ -352,7 +352,7 @@ export const renderMediaOnCloudrun = ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
-	maxRate,
+	encodingMaxRate,
 	encodingBufferSize,
 	proResProfile,
 	x264Preset,
@@ -394,7 +394,7 @@ export const renderMediaOnCloudrun = ({
 		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
-		maxRate: maxRate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? undefined,

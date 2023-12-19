@@ -18,14 +18,14 @@ export const getVideoBitrate = () => {
 	return videoBitrate;
 };
 
-let maxRate: string | null = null;
+let encodingMaxRate: string | null = null;
 
-export const setVideoMaxRate = (bitrate: string | null) => {
-	maxRate = bitrate;
+export const setEncodingMaxRate = (bitrate: string | null) => {
+	encodingMaxRate = bitrate;
 };
 
-export const getVideoMaxRate = () => {
-	return maxRate;
+export const getEncodingMaxRate = () => {
+	return encodingMaxRate;
 };
 
 /**

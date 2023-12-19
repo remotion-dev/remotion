@@ -60,12 +60,12 @@ import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
 	getEncodingBufferSize,
+	getEncodingMaxRate,
 	getVideoBitrate,
-	getVideoMaxRate,
 	setAudioBitrate,
 	setEncodingBufferSize,
+	setEncodingMaxRate,
 	setVideoBitrate,
-	setVideoMaxRate,
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
@@ -433,9 +433,9 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
-		 * Set a maximum bitrate to be passed to FFMPEG.
+		 * Set a maximum bitrate to be passed to FFmpeg.
 		 */
-		readonly setVideoMaxRate: (bitrate: string | null) => void;
+		readonly setEncodingMaxRate: (bitrate: string | null) => void;
 
 		/**
 		 * Set a buffer size to be passed to FFmpeg.
@@ -569,7 +569,7 @@ export const Config: FlatConfig = {
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
-	setVideoMaxRate,
+	setEncodingMaxRate,
 	setEncodingBufferSize,
 	setFrameRange,
 	setScale,
@@ -642,7 +642,7 @@ export const ConfigInternals = {
 	getAudioBitrate,
 	getVideoBitrate,
 	getEncodingBufferSize,
-	getVideoMaxRate,
+	getEncodingMaxRate,
 	getHeight,
 	getWidth,
 	getCrfOrUndefined,

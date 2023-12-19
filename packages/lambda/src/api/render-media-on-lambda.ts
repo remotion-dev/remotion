@@ -62,7 +62,7 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	maxRate?: string | null;
+	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
@@ -202,7 +202,7 @@ export const renderMediaOnLambda = (
 		serveUrl: options.serveUrl,
 		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
 		videoBitrate: options.videoBitrate ?? null,
-		maxRate: options.maxRate ?? null,
+		encodingMaxRate: options.encodingMaxRate ?? null,
 		encodingBufferSize: options.encodingBufferSize ?? null,
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,

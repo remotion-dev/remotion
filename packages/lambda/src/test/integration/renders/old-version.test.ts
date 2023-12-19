@@ -56,7 +56,7 @@ test('Should fail when using an incompatible version', async () => {
 				audioBitrate: null,
 				videoBitrate: null,
 				encodingBufferSize: null,
-				maxRate: null,
+				encodingMaxRate: null,
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,

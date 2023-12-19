@@ -67,7 +67,7 @@ export const renderMediaSingleThread = async (
 			audioCodec: body.audioCodec,
 			audioBitrate: body.audioBitrate,
 			videoBitrate: body.videoBitrate,
-			maxRate: body.maxRate,
+			encodingMaxRate: body.encodingMaxRate,
 			encodingBufferSize: body.encodingBufferSize,
 			crf: body.crf,
 			pixelFormat: body.pixelFormat,

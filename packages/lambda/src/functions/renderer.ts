@@ -208,7 +208,7 @@ const renderHandler = async (
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
 			encodingBufferSize: params.encodingBufferSize,
-			maxRate: params.maxRate,
+			encodingMaxRate: params.encodingMaxRate,
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality

@@ -269,8 +269,8 @@ export const parseCommandLine = () => {
 		Config.setEncodingBufferSize(parsedCli['buf-size']);
 	}
 
-	if (typeof parsedCli['buf-size'] !== 'undefined') {
-		Config.setVideoMaxRate(parsedCli['buf-size']);
+	if (typeof parsedCli['max-rate'] !== 'undefined') {
+		Config.setEncodingMaxRate(parsedCli['max-rate']);
 	}
 
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {

@@ -21,7 +21,7 @@ export type RenderDefaults = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	encodingBufferSize: string | null;
-	maxRate: string | null;
+	encodingMaxRate: string | null;
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
 	delayRenderTimeout: number;

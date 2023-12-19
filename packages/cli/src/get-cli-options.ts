@@ -130,7 +130,7 @@ export const getCliOptions = async (options: {
 	const crf = getCrf(shouldOutputImageSequence);
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
-	const maxRate = ConfigInternals.getVideoMaxRate();
+	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const x264Preset = getx264Preset();
@@ -193,7 +193,7 @@ export const getCliOptions = async (options: {
 		audioBitrate: ConfigInternals.getAudioBitrate(),
 		videoBitrate,
 		encodingBufferSize,
-		maxRate,
+		encodingMaxRate,
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
