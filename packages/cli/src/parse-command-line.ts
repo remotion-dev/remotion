@@ -29,8 +29,8 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
 	['number-of-shared-audio-tags']: number;
-	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
-		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytes
+		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytes.type;
 	[BrowserSafeApis.options.colorSpaceOption
 		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
