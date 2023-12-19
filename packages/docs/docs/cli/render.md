@@ -106,6 +106,14 @@ FFMPEG may encode the video in a way that will not result in the exact video bit
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
+### `--buffer-size`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `--max-rate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
+
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
