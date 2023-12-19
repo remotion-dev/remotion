@@ -7,17 +7,17 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
-} from '../../../../studio/src/helpers/create-folder-tree';
-import type {ExpandedFoldersState} from '../../../../studio/src/helpers/persist-open-folders';
+} from '../helpers/create-folder-tree';
 import {
+	ExpandedFoldersState,
 	loadExpandedFolders,
 	openFolderKey,
 	persistExpandedFolders,
-} from '../../../../studio/src/helpers/persist-open-folders';
+} from '../helpers/persist-open-folders';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {

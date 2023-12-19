@@ -1,7 +1,7 @@
 import React from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, BORDER_COLOR} from '../../../../studio/src/helpers/colors';
-import {isCompositionStill} from '../../../../studio/src/helpers/is-composition-still';
+import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
+import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
 export const CURRENT_COMPOSITION_HEIGHT = 80;

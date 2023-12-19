@@ -6,17 +6,11 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {
-	BACKGROUND,
-	RULER_COLOR,
-} from '../../../../../studio/src/helpers/colors';
-import {
-	getRulerPoints,
-	getRulerScaleRange,
-} from '../../../../../studio/src/helpers/editor-ruler';
-import type {AssetMetadata} from '../../../../../studio/src/helpers/get-asset-metadata';
-import type {Dimensions} from '../../../../../studio/src/helpers/is-current-selected-still';
-import {useStudioCanvasDimensions} from '../../../../../studio/src/helpers/use-studio-canvas-dimensions';
+import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
+import {AssetMetadata} from '../../helpers/get-asset-metadata';
+import {Dimensions} from '../../helpers/is-current-selected-still';
+import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,

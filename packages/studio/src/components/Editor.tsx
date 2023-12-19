@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {continueRender, delayRender, Internals} from 'remotion';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
-import {noop} from '../../../../studio/src/helpers/noop';
+import {BACKGROUND} from '../helpers/colors';
+import {noop} from '../helpers/noop';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';

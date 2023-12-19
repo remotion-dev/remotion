@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
-import {useIsStill} from '../../../../studio/src/helpers/is-current-selected-still';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';

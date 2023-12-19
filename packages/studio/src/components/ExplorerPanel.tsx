@@ -1,5 +1,5 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {Tab, Tabs} from './Tabs';

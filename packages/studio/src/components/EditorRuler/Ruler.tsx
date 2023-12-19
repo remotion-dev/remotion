@@ -7,11 +7,8 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {
-	BACKGROUND,
-	RULER_COLOR,
-} from '../../../../../studio/src/helpers/colors';
-import {drawMarkingOnRulerCanvas} from '../../../../../studio/src/helpers/editor-ruler';
+import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 

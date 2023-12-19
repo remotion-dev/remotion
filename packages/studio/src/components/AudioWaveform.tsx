@@ -2,11 +2,11 @@ import type {AudioData} from '@remotion/media-utils';
 import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TRANSPARENT} from '../../../../studio/src/helpers/colors';
+import {LIGHT_TRANSPARENT} from '../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
-} from '../../../../studio/src/helpers/timeline-layout';
+} from '../helpers/timeline-layout';
 import {
 	AudioWaveformBar,
 	WAVEFORM_BAR_LENGTH,

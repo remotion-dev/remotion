@@ -1,7 +1,7 @@
 import React, {useCallback, useContext} from 'react';
-import {BLUE} from '../../../../studio/src/helpers/colors';
-import {areKeyboardShortcutsDisabled} from '../../../../studio/src/helpers/use-keybinding';
-import {truthy} from '../../truthy';
+import {NoReactInternals} from 'remotion/no-react';
+import {BLUE} from '../helpers/colors';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
 
@@ -9,7 +9,7 @@ const accessibilityLabel = [
 	'Show transparency as checkerboard',
 	areKeyboardShortcutsDisabled() ? null : '(T)',
 ]
-	.filter(truthy)
+	.filter(NoReactInternals.truthy)
 	.join(' ');
 
 export const CheckboardToggle: React.FC = () => {

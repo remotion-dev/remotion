@@ -203,9 +203,6 @@ importers:
       minimist:
         specifier: 1.2.6
         version: 1.2.6
-      open:
-        specifier: ^8.4.2
-        version: 8.4.2
       prompts:
         specifier: 2.4.2
         version: 2.4.2
@@ -1722,6 +1719,9 @@ importers:
       memfs:
         specifier: 3.4.3
         version: 3.4.3
+      open:
+        specifier: ^8.4.2
+        version: 8.4.2
       remotion:
         specifier: workspace:*
         version: link:../core

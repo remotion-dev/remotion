@@ -1,6 +1,6 @@
 import React from 'react';
-import type {AssetMetadata} from '../../../../studio/src/helpers/get-asset-metadata';
-import {formatBytes} from '../../format-bytes';
+import {formatBytes} from '../helpers/format-bytes';
+import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import type {AssetFileType} from './Preview';

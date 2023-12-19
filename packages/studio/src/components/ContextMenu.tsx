@@ -1,7 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {noop} from '../../../../studio/src/helpers/noop';
+import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {getPortal} from './Menu/portals';
 import {

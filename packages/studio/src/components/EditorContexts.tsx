@@ -1,5 +1,5 @@
 import React from 'react';
-import {PreviewServerConnection} from '../../../../studio/src/helpers/client-id';
+import {PreviewServerConnection} from '../helpers/client-id';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';

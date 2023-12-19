@@ -1,9 +1,6 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
-import {
-	SELECTED_GUIDE,
-	UNSELECTED_GUIDE,
-} from '../../../../../studio/src/helpers/colors';
-import {truthy} from '../../../truthy';
+import {NoReactInternals} from 'remotion/no-react';
+import {SELECTED_GUIDE, UNSELECTED_GUIDE} from '../../helpers/colors';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -132,7 +129,7 @@ const GuideComp: React.FC<{
 							? '__remotion_editor_guide_selected'
 							: null,
 					]
-						.filter(truthy)
+						.filter(NoReactInternals.truthy)
 						.join(' ')}
 				/>
 			</div>

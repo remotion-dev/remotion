@@ -1,17 +1,14 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type StaticFile} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
-} from '../../../../studio/src/helpers/colors';
-import {copyText} from '../../../../studio/src/helpers/copy-text';
-import type {
-	AssetFolder,
-	AssetStructure,
-} from '../../../../studio/src/helpers/create-folder-tree';
-import {truthy} from '../../truthy';
+} from '../helpers/colors';
+import {copyText} from '../helpers/copy-text';
+import {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -145,7 +142,7 @@ export const AssetFolderTree: React.FC<{
 	toggleFolder: (folderName: string, parentName: string | null) => void;
 }> = ({item, level, name, parentFolder, toggleFolder, tabIndex}) => {
 	const combinedParents = useMemo(() => {
-		return [parentFolder, name].filter(truthy).join('/');
+		return [parentFolder, name].filter(NoReactInternals.truthy).join('/');
 	}, [name, parentFolder]);
 
 	return (

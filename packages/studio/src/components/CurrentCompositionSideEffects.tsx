@@ -1,12 +1,12 @@
 import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../../../studio/src/helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	setCurrentCanvasContentId,
 	setRenderJobs,
-} from '../../../../studio/src/helpers/document-title';
-import {useKeybinding} from '../../../../studio/src/helpers/use-keybinding';
+} from '../helpers/document-title';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 import {RenderQueueContext} from './RenderQueue/context';
 

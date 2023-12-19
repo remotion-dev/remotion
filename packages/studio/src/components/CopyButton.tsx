@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {copyText} from '../../../../studio/src/helpers/copy-text';
-import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
+import {Button} from '../error-overlay/remotion-overlay/Button';
+import {copyText} from '../helpers/copy-text';
 import {Spacing} from './layout';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 

@@ -1,9 +1,9 @@
 import {type Size} from '@remotion/player';
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import type {AssetMetadata} from '../../../../../studio/src/helpers/get-asset-metadata';
-import type {Dimensions} from '../../../../../studio/src/helpers/is-current-selected-still';
-import {useStudioCanvasDimensions} from '../../../../../studio/src/helpers/use-studio-canvas-dimensions';
+import type {AssetMetadata} from '../../helpers/get-asset-metadata';
+import type {Dimensions} from '../../helpers/is-current-selected-still';
+import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import GuideComp from './Guide';
 

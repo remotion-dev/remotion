@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_LAYER_HEIGHT} from '../../../../studio/src/helpers/timeline-layout';
+import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
 
 export const WAVEFORM_BAR_LENGTH = 4;
 export const WAVEFORM_BAR_MARGIN = 2;

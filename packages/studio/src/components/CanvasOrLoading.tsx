@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, LIGHT_TEXT} from '../../../../studio/src/helpers/colors';
-import {ErrorLoader} from '../../preview-server/error-overlay/remotion-overlay/ErrorLoader';
+import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';

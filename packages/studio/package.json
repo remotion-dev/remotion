@@ -26,7 +26,8 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"memfs": "3.4.3",
-		"source-map": "0.6.1"
+		"source-map": "0.6.1",
+		"open": "^8.4.2"
 	},
 	"devDependencies": {
 		"react": "18.2.0",

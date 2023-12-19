@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {smoothenZoom, unsmoothenZoom} from '../smooth-zoom';
+import {smoothenZoom, unsmoothenZoom} from '../helpers/smooth-zoom';
 
 test('Smoothen zoom', () => {
 	expect(smoothenZoom(0)).toBe(1.4715177646857693);

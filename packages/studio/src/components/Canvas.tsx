@@ -8,20 +8,19 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../../../../studio/src/helpers/colors';
-import type {AssetMetadata} from '../../../../studio/src/helpers/get-asset-metadata';
-import {getAssetMetadata} from '../../../../studio/src/helpers/get-asset-metadata';
+import {BACKGROUND} from '../helpers/colors';
+import {AssetMetadata, getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
-} from '../../../../studio/src/helpers/get-effective-translation';
-import {useKeybinding} from '../../../../studio/src/helpers/use-keybinding';
+} from '../helpers/get-effective-translation';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
 	smoothenZoom,
 	unsmoothenZoom,
-} from '../../smooth-zoom';
+} from '../helpers/smooth-zoom';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';

@@ -1,9 +1,9 @@
 import {useCallback, useContext, useEffect} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
-} from '../../../../studio/src/helpers/use-keybinding';
-import {truthy} from '../../truthy';
+} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {PreviewSizeContext} from '../state/preview-size';
 import {ControlButton} from './ControlButton';
@@ -12,7 +12,7 @@ const accessibilityLabel = [
 	'Enter fullscreen preview',
 	areKeyboardShortcutsDisabled() ? null : '(F)',
 ]
-	.filter(truthy)
+	.filter(NoReactInternals.truthy)
 	.join(' ');
 
 export const FullScreenToggle: React.FC<{}> = () => {

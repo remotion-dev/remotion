@@ -5,8 +5,8 @@ import {
 	BACKGROUND,
 	getBackgroundFromHoverState,
 	LIGHT_TEXT,
-} from '../../../../studio/src/helpers/colors';
-import {isCompositionStill} from '../../../../studio/src/helpers/is-composition-still';
+} from '../helpers/colors';
+import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
