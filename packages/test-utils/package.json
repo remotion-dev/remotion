@@ -1,6 +1,6 @@
 {
   "name": "@remotion/test-utils",
-  "version": "4.0.77",
+  "version": "4.0.79",
   "description": "Utilities for using tailwind css in Remotion",
   "main": "dist",
   "sideEffects": false,
