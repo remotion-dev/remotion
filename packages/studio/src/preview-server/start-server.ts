@@ -4,12 +4,13 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
+import {handleRoutes} from '../../../cli/src/routes';
 import {DEFAULT_TIMELINE_TRACKS} from '../components/Timeline/MaxTimelineTracks';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
+import type {RenderJob} from './job';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
-import {handleRoutes} from './routes';
 
 export const startServer = async (options: {
 	entry: string;
@@ -29,6 +30,7 @@ export const startServer = async (options: {
 	outputHash: string;
 	outputHashPrefix: string;
 	logLevel: LogLevel;
+	getRenderQueue: () => RenderJob[];
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -84,6 +86,7 @@ export const startServer = async (options: {
 					entryPoint: options.userDefinedComponent,
 					publicDir: options.publicDir,
 					logLevel: options.logLevel,
+					getRenderQueue: options.getRenderQueue,
 				});
 			})
 			.catch((err) => {

@@ -9,6 +9,7 @@ import type {
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
+	RenderJobWithCleanup,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
@@ -16,7 +17,7 @@ import type {
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
-} from './render-queue/job';
+} from './job';
 
 export type ApiHandler<ReqData, ResData> = (params: {
 	input: ReqData;
@@ -25,6 +26,21 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	request: IncomingMessage;
 	response: ServerResponse;
 	logLevel: LogLevel;
+	methods: {
+		removeJob: (jobId: string) => void;
+		cancelJob: (jobId: string) => void;
+		addJob: ({
+			job,
+			entryPoint,
+			remotionRoot,
+			logLevel,
+		}: {
+			job: RenderJobWithCleanup;
+			entryPoint: string;
+			remotionRoot: string;
+			logLevel: LogLevel;
+		}) => void;
+	};
 }) => Promise<ResData>;
 
 type ReqAndRes<A, B> = {

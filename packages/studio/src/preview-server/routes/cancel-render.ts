@@ -1,14 +1,10 @@
 import type {ApiHandler} from '../api-types';
-import type {
-	CancelRenderRequest,
-	CancelRenderResponse,
-} from '../render-queue/job';
-import {cancelJob} from '../render-queue/queue';
+import type {CancelRenderRequest, CancelRenderResponse} from '../job';
 
 export const handleCancelRender: ApiHandler<
 	CancelRenderRequest,
 	CancelRenderResponse
-> = ({input: {jobId}}) => {
+> = ({input: {jobId}, methods: {cancelJob}}) => {
 	cancelJob(jobId);
 	return Promise.resolve({});
 };

@@ -1,13 +1,13 @@
 import {makeCancelSignal} from '@remotion/renderer';
 import type {ApiHandler} from '../api-types';
-import type {AddRenderRequest} from '../render-queue/job';
-import {addJob} from '../render-queue/queue';
+import type {AddRenderRequest} from '../job';
 
 export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	input,
 	entryPoint,
 	remotionRoot,
 	logLevel,
+	methods: {addJob},
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
 	if (input.type === 'video') {

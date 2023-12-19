@@ -5,11 +5,24 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
-import {ConfigInternals} from '../config';
-import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
+import {allApiRoutes} from '../../studio/src/preview-server/api-routes';
+import type {
+	ApiHandler,
+	ApiRoutes,
+} from '../../studio/src/preview-server/api-types';
+import {getPackageManager} from '../../studio/src/preview-server/get-package-manager';
+import {handleRequest} from '../../studio/src/preview-server/handler';
+import type {RenderJob} from '../../studio/src/preview-server/job';
+import type {LiveEventsServer} from '../../studio/src/preview-server/live-events';
+import {parseRequestBody} from '../../studio/src/preview-server/parse-body';
+import {getProjectInfo} from '../../studio/src/preview-server/project-info';
+import {
+	fetchFolder,
+	getFiles,
+} from '../../studio/src/preview-server/public-folder';
+import {serveStatic} from '../../studio/src/preview-server/serve-static';
 import {parsedCli} from '../parse-command-line';
-import {allApiRoutes} from './api-routes';
-import type {ApiHandler, ApiRoutes} from './api-types';
+import {ConfigInternals} from './config';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -17,14 +30,6 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
-import {getPackageManager} from './get-package-manager';
-import {handleRequest} from './handler';
-import type {LiveEventsServer} from './live-events';
-import {parseRequestBody} from './parse-body';
-import {getProjectInfo} from './project-info';
-import {fetchFolder, getFiles} from './public-folder';
-import {getRenderQueue} from './render-queue/queue';
-import {serveStatic} from './serve-static';
 
 const editorGuess = guessEditor();
 
@@ -49,6 +54,7 @@ const handleFallback = async ({
 	getCurrentInputProps,
 	getEnvVariables,
 	publicDir,
+	getRenderQueue,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -56,6 +62,7 @@ const handleFallback = async ({
 	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
+	getRenderQueue: () => RenderJob[];
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -274,6 +281,7 @@ export const handleRoutes = ({
 	entryPoint,
 	publicDir,
 	logLevel,
+	getRenderQueue,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -288,6 +296,7 @@ export const handleRoutes = ({
 	entryPoint: string;
 	publicDir: string;
 	logLevel: LogLevel;
+	getRenderQueue: () => RenderJob[];
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -377,5 +386,6 @@ export const handleRoutes = ({
 		getCurrentInputProps,
 		getEnvVariables,
 		publicDir,
+		getRenderQueue,
 	});
 };

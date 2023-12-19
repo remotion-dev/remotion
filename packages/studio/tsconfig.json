@@ -6,7 +6,7 @@
 		"outDir": "dist",
 		"skipLibCheck": true
 	},
-	"include": ["src"],
+	"include": ["src", "../cli/src/routes.ts", "../cli/src/studio.ts"],
 	"references": [
 		{
 			"path": "../core"

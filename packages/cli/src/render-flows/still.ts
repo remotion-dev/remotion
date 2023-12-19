@@ -10,6 +10,7 @@ import type {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {JobProgressCallback} from '@remotion/studio/dist';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -22,7 +23,6 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,

@@ -215,9 +215,6 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
-      semver:
-        specifier: 7.5.3
-        version: 7.5.3
       source-map:
         specifier: 0.6.1
         version: 0.6.1
@@ -249,9 +246,6 @@ importers:
       '@types/react-dom':
         specifier: 18.0.11
         version: 18.0.11
-      '@types/semver':
-        specifier: ^7.3.4
-        version: 7.3.8
       bun-types:
         specifier: 0.8.0
         version: 0.8.0
@@ -1718,10 +1712,7 @@ importers:
         version: 2.76.0
 
   packages/studio:
-    devDependencies:
-      '@jonny/eslint-config':
-        specifier: 3.0.266
-        version: 3.0.266(eslint@8.42.0)(typescript@4.9.5)
+    dependencies:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -1734,6 +1725,16 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      semver:
+        specifier: 7.5.3
+        version: 7.5.3
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.266
+        version: 3.0.266(eslint@8.42.0)(typescript@4.9.5)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1743,6 +1744,9 @@ importers:
       '@types/react-dom':
         specifier: 18.0.11
         version: 18.0.11
+      '@types/semver':
+        specifier: ^7.3.4
+        version: 7.5.3
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1758,9 +1762,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      remotion:
-        specifier: workspace:*
-        version: link:../core
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -9498,10 +9499,6 @@ packages:
 
   /@types/scheduler@0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
-
-  /@types/semver@7.3.8:
-    resolution: {integrity: sha512-D/2EJvAlCEtYFEYmmlGwbGXuK886HzyCc3nZX/tkFTQdEU8jZDAgiv08P162yB17y4ZXZoq7yFAnW4GDBb9Now==}
-    dev: true
 
   /@types/semver@7.5.3:
     resolution: {integrity: sha512-OxepLK9EuNEIPxWNME+C6WwbRAOOI2o2BaQEGzz5Lu2e4Z5eDnEo+/aVEDMIXywoJitJ7xWd641wrGLZdtwRyw==}

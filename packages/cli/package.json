@@ -46,7 +46,6 @@
 		"open": "^8.4.2",
 		"prompts": "2.4.2",
 		"remotion": "workspace:*",
-		"semver": "7.5.3",
 		"source-map": "0.6.1"
 	},
 	"peerDependencies": {
@@ -62,7 +61,6 @@
 		"@types/react": "18.0.26",
 		"@types/prettier": "^2.7.2",
 		"@types/react-dom": "18.0.11",
-		"@types/semver": "^7.3.4",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"eslint": "8.42.0",

@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import type {ApiHandler} from '../api-types';
-import type {CopyStillToClipboardRequest} from '../render-queue/job';
+import type {CopyStillToClipboardRequest} from '../job';
 
 export const handleCopyStillToClipboard: ApiHandler<
 	CopyStillToClipboardRequest,

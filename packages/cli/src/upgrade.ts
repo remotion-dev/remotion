@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
+import {getLatestRemotionVersion} from '@remotion/studio/src/get-latest-remotion-version';
 import path from 'node:path';
 import {ConfigInternals} from './config';
-import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import type {PackageManager} from './preview-server/get-package-manager';

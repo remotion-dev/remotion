@@ -3,7 +3,7 @@ import {subscribeToFileExistenceWatchers} from '../file-existence-watchers';
 import type {
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
-} from '../render-queue/job';
+} from '../job';
 
 export const subscribeToFileExistence: ApiHandler<
 	SubscribeToFileExistenceRequest,

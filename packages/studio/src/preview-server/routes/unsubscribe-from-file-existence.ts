@@ -1,6 +1,6 @@
 import type {ApiHandler} from '../api-types';
 import {unsubscribeFromFileExistenceWatchers} from '../file-existence-watchers';
-import type {UnsubscribeFromFileExistenceRequest} from '../render-queue/job';
+import type {UnsubscribeFromFileExistenceRequest} from '../job';
 
 export const unsubscribeFromFileExistence: ApiHandler<
 	UnsubscribeFromFileExistenceRequest,

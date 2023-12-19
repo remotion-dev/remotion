@@ -1,4 +1,7 @@
+import semver from 'semver';
+import {getLatestRemotionVersion} from '../get-latest-remotion-version';
 import {getPackageManager} from './get-package-manager';
+import type {UpdateAvailableResponse} from './job';
 
 const isUpdateAvailable = async ({
 	remotionRoot,
