@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
@@ -57,6 +57,14 @@ export const SchemaLabel: React.FC<{
 		};
 	}, [clickableButtonHovered, valid]);
 
+	const onClickablePointerEnter = useCallback(() => {
+		setClickableButtonHovered(true);
+	}, []);
+
+	const onClickablePointerLeave = useCallback(() => {
+		setClickableButtonHovered(false);
+	}, []);
+
 	const labelContent = (
 		<span style={labelStyle}>
 			{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
@@ -68,8 +76,8 @@ export const SchemaLabel: React.FC<{
 			{handleClick ? (
 				// Minus the padding that a button has (user agent padding-line-start)
 				<button
-					onPointerEnter={() => setClickableButtonHovered(true)}
-					onPointerLeave={() => setClickableButtonHovered(false)}
+					onPointerEnter={onClickablePointerEnter}
+					onPointerLeave={onClickablePointerLeave}
 					type="button"
 					onClick={handleClick}
 					style={{border: 'none', marginLeft: -6}}
