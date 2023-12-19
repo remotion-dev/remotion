@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "4.0.69",
+	"version": "4.0.77",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -10,7 +10,7 @@
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup.config.js",
+		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup-no-react.config.js && rollup --config rollup.config.js",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -69,12 +69,21 @@
 			"module": "./dist/esm/version.mjs",
 			"import": "./dist/esm/version.mjs",
 			"require": "./dist/cjs/version.js"
+		},
+		"./no-react": {
+			"types": "./dist/cjs/no-react.d.ts",
+			"module": "./dist/esm/no-react.mjs",
+			"import": "./dist/esm/no-react.mjs",
+			"require": "./dist/cjs/no-react.js"
 		}
 	},
 	"typesVersions": {
 		">=1.0": {
 			"version": [
 				"dist/cjs/version.d.ts"
+			],
+			"no-react": [
+				"dist/cjs/no-react.d.ts"
 			]
 		}
 	}

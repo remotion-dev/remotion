@@ -24,7 +24,7 @@ import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
-import type {RenderLoading, RenderPoster} from './PlayerUI.js';
+import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
@@ -74,6 +74,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	schema?: Schema;
 	initiallyMuted?: boolean;
 	showPlaybackRateControl?: boolean | number[];
+	posterFillMode?: PosterFillMode;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -122,6 +123,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		alwaysShowControls = false,
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
+		posterFillMode = 'player-size',
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -344,6 +346,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 					<PlayerEventEmitterContext.Provider value={emitter}>
 						<PlayerUI
 							ref={rootRef}
+							posterFillMode={posterFillMode}
 							renderLoading={renderLoading}
 							autoPlay={Boolean(autoPlay)}
 							loop={Boolean(loop)}

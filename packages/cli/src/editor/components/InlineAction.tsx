@@ -5,7 +5,7 @@ import {useZIndex} from '../state/z-index';
 export type RenderInlineAction = (color: string) => React.ReactNode;
 
 export const InlineAction: React.FC<{
-	onClick: React.MouseEventHandler<HTMLAnchorElement>;
+	onClick: React.MouseEventHandler<HTMLButtonElement>;
 	disabled?: boolean;
 	renderAction: RenderInlineAction;
 	title?: string;
@@ -39,7 +39,7 @@ export const InlineAction: React.FC<{
 	}, [disabled, hovered]);
 
 	return (
-		<a
+		<button
 			type="button"
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
@@ -49,6 +49,6 @@ export const InlineAction: React.FC<{
 			title={title}
 		>
 			{renderAction(hovered ? 'white' : LIGHT_TEXT)}
-		</a>
+		</button>
 	);
 };

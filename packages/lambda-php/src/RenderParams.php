@@ -48,6 +48,8 @@ class RenderParams
     private $overwrite = false;
     private $audioBitrate = null;
     private $videoBitrate = null;
+    private $encodingBufferSize = null;
+    private $maxRate = null;
     private $webhook = null;
     private $forceHeight = null;
     private $forceWidth = null;
@@ -95,7 +97,9 @@ class RenderParams
         ?string $proResProfile = null, 
         ?string $pixelFormat = null,
         ?string $x264Preset = null,
-        ?string $deleteAfter = null
+        ?string $deleteAfter = null,
+        ?string $encodingBufferSize = null,
+        ?string $maxRate = null
         )
     {
         if ($chromiumOptions === null) {
@@ -127,6 +131,8 @@ class RenderParams
         $this->overwrite = $overwrite;
         $this->audioBitrate = $audioBitrate;
         $this->videoBitrate = $videoBitrate;
+        $this->encodingBufferSize = $encodingBufferSize;
+        $this->maxRate = $maxRate;
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
@@ -170,6 +176,8 @@ class RenderParams
             'overwrite' => $this->getOverwrite(),
             'audioBitrate' => $this->getAudioBitrate(),
             'videoBitrate' => $this->getVideoBitrate(),
+            'encodingBufferSize' => $this->getEncodingBufferSize(),
+            'encodingMaxRate' => $this->getMaxRate(),
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
@@ -670,6 +678,16 @@ class RenderParams
     public function getVideoBitrate()
     {
         return $this->videoBitrate;
+    }
+
+    public function getEncodingBufferSize()
+    {
+        return $this->encodingBufferSize;
+    }
+
+    public function getMaxRate()
+    {
+        return $this->maxRate;
     }
 
     public function getWebhook()

@@ -34,14 +34,6 @@ export const PlayPause: React.FC<{
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
-	PlayerInternals.usePlayback({
-		loop,
-		playbackRate,
-		moveToBeginningWhenEnded: true,
-		inFrame,
-		outFrame,
-	});
-
 	const {
 		playing,
 		play,
@@ -52,7 +44,17 @@ export const PlayPause: React.FC<{
 		frameForward,
 		isLastFrame,
 		isFirstFrame,
+		remotionInternal_currentFrameRef,
 	} = PlayerInternals.usePlayer();
+
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded: true,
+		inFrame,
+		outFrame,
+		frameRef: remotionInternal_currentFrameRef,
+	});
 
 	const isStill = useIsStill();
 

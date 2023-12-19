@@ -27,6 +27,7 @@ import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	_remotionInternalNativeLoopPassed: boolean;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -50,6 +51,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShift,
 		acceptableTimeShiftInSeconds,
 		toneFrequency,
+		name,
+		_remotionInternalNativeLoopPassed,
+
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -70,6 +74,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		src,
 		playbackRate: props.playbackRate ?? 1,
+		displayName: name ?? null,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -120,6 +125,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		const errorHandler = () => {
 			if (current?.error) {
+				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 				// If user is handling the error, we don't cause an unhandled exception
 				if (props.onError) {
@@ -165,16 +171,34 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [src]);
 
+	useEffect(() => {
+		const {current} = videoRef;
+
+		if (!current) {
+			return;
+		}
+
+		// Without this, on iOS Safari, the video cannot be seeked.
+		// if a seek is triggered before `loadedmetadata` is fired,
+		// the video will not seek, even if `loadedmetadata` is fired afterwards.
+
+		// Also, this needs to happen in a useEffect, because otherwise
+		// the SSR props will be applied.
+
+		if (isIosSafari()) {
+			current.preload = 'metadata';
+		} else {
+			current.preload = 'auto';
+		}
+	}, []);
+
 	return (
 		<video
 			ref={videoRef}
-			// Without this, on iOS Safari, the video cannot be seeked.
-			// if a seek is triggered before `loadedmetadata` is fired,
-			// the video will not seek, even if `loadedmetadata` is fired afterwards.
-			preload={isIosSafari() ? 'metadata' : 'auto'}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
+			loop={_remotionInternalNativeLoopPassed}
 			{...nativeProps}
 		/>
 	);

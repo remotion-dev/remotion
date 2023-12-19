@@ -25,15 +25,12 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 		}
 	}
 
-	const invalidCodecs: Codec[] = ['h264', 'h265'];
-	invalidCodecs.forEach((entry) =>
-		test(`test for invalid combination yuva420p and ${entry}`, () =>
-			expect(() =>
-				validateSelectedPixelFormatAndCodecCombination('yuva420p', entry),
-			).toThrow(
-				/Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp9'. To render videos with alpha channel, you must choose a codec that supports it./,
-			)),
-	);
+	test(`test for invalid combination yuva420p and h264`, () =>
+		expect(() =>
+			validateSelectedPixelFormatAndCodecCombination('yuva420p', 'h264'),
+		).toThrow(
+			/Pixel format was set to 'yuva420p' but codec h264 does not support it. Valid pixel formats for codec h264 are: yuv420p, yuv422p, yuv444p, yuv420p10le, yuv422p10le, yuv444p10le, yuva444p10le./g,
+		));
 	const validCodecs: Codec[] = ['vp8', 'vp9'];
 	validCodecs.forEach((c) =>
 		test(`test for valid combination yuva420p and ${c}`, () =>

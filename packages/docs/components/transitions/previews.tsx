@@ -5,6 +5,7 @@ import type {
   TransitionTiming,
 } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
 import { flip } from "@remotion/transitions/flip";
@@ -15,6 +16,10 @@ import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import type { SpringConfig } from "remotion";
 import { AbsoluteFill, measureSpring, spring, useVideoConfig } from "remotion";
+import {
+  presentationCompositionHeight,
+  presentationCompositionWidth,
+} from "../TableOfContents/transitions/presentations";
 import { customPresentation } from "./custom-transition";
 
 const SceneA: React.FC = () => {
@@ -131,6 +136,17 @@ export const WipeDemo: React.FC<{
   );
 };
 
+export const ClockWipeDemo: React.FC<{}> = () => {
+  const { width, height } = useVideoConfig();
+
+  return (
+    <SampleTransition
+      effect={clockWipe({ width, height })}
+      durationRestThreshold={0.001}
+    />
+  );
+};
+
 export const CustomTransitionDemo: React.FC<{}> = () => {
   const { width, height } = useVideoConfig();
 
@@ -214,8 +230,8 @@ export const PresentationPreview: React.FC<{
     <Player
       ref={ref}
       component={SampleTransition}
-      compositionHeight={280}
-      compositionWidth={540}
+      compositionHeight={presentationCompositionHeight}
+      compositionWidth={presentationCompositionWidth}
       durationInFrames={60}
       fps={30}
       numberOfSharedAudioTags={0}

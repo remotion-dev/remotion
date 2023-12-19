@@ -6,7 +6,7 @@ import type {
 	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderModalState} from '../../editor/state/modals';
 import type {RenderJob} from './job';
 
@@ -46,7 +46,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: null,
@@ -55,6 +55,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			initialEncodingBufferSize: defaults.encodingBufferSize,
+			initialEncodingMaxRate: defaults.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 
@@ -86,7 +89,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			initialStillImageFormat: defaults.stillImageFormat,
@@ -97,6 +100,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
 			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
+			initialEncodingBufferSize: defaults.encodingBufferSize,
+			initialEncodingMaxRate: defaults.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 
@@ -130,7 +136,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: job.startFrame,
@@ -138,8 +144,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 			initialColorSpace: job.colorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
-			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			defaultConfigurationVideoCodec: job.codec,
 			defaultConfigurationAudioCodec: job.audioCodec,
+			initialEncodingBufferSize: job.encodingBufferSize,
+			initialEncodingMaxRate: job.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 

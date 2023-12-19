@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 export const crfOption = {
 	name: 'CRF',
-	cliFlag: 'crf',
+	cliFlag: 'crf' as const,
 	description: () => (
 		<>
 			No matter which codec you end up using, there&apos;s always a tradeoff

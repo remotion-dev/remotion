@@ -14,11 +14,13 @@ export const getChromiumGpuInformation = async ({
 	indent,
 	logLevel,
 	chromiumOptions,
+	timeoutInMilliseconds,
 }: {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
 	logLevel: LogLevel;
 	chromiumOptions: ChromiumOptions;
+	timeoutInMilliseconds: number;
 }) => {
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: undefined,
@@ -54,6 +56,7 @@ export const getChromiumGpuInformation = async ({
 		frame: null,
 		args: [],
 		page,
+		timeoutInMilliseconds,
 	});
 
 	cleanup();

@@ -596,7 +596,7 @@ export const articles = [
   },
   {
     id: "dynamic-metadata",
-    title: "Variable metadata",
+    title: "Variable duration and dimensions",
     relativePath: "docs/dynamic-metadata.md",
     compId: "articles-docs-dynamic-metadata",
     crumb: "How To",
@@ -1477,6 +1477,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/absolute-paths",
+    title: "Files with absolute paths",
+    relativePath: "docs/miscellaneous/absolute-paths.md",
+    compId: "articles-docs-miscellaneous-absolute-paths",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/automatic-duration",
     title: "Calculating the duration of a composition automatically",
     relativePath: "docs/miscellaneous/automatic-duration.md",
@@ -1498,11 +1505,25 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "embed-studio",
+    title: "Can I embed the Remotion Studio?",
+    relativePath: "docs/miscellaneous/embed-remotion-studio.md",
+    compId: "articles-docs-miscellaneous-embed-remotion-studio",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/linux-single-process",
     title: "Multiple cores on Linux",
     relativePath: "docs/miscellaneous/linux-single-process.md",
     compId: "articles-docs-miscellaneous-linux-single-process",
     crumb: "Server-side rendering",
+  },
+  {
+    id: "miscellaneous/live-streaming",
+    title: "Can Remotion be used for live streaming?",
+    relativePath: "docs/miscellaneous/live-streaming.md",
+    compId: "articles-docs-miscellaneous-live-streaming",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/render-in-browser",
@@ -2186,6 +2207,13 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "security",
+    title: "Security Best Practices",
+    relativePath: "docs/security.md",
+    compId: "articles-docs-security",
+    crumb: "FAQ",
+  },
+  {
     id: "sequence",
     title: "<Sequence>",
     relativePath: "docs/sequence.md",
@@ -2522,6 +2550,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "transitions/presentations/clock-wipe",
+    title: "clockWipe()",
+    relativePath: "docs/transitions/presentations/clock-wipe.mdx",
+    compId: "articles-docs-transitions-presentations-clock-wipe",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/custom",
     title: "Custom presentations",
     relativePath: "docs/transitions/presentations/custom.mdx",
@@ -2627,6 +2662,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/bundling-bundle",
+    title: "Calling bundle() in bundled code",
+    relativePath: "docs/troubleshooting/bundling-bundle.md",
+    compId: "articles-docs-troubleshooting-bundling-bundle",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",
     title: "The source provided could not be parsed as a value list",
     relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
@@ -2648,6 +2690,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/delay-render-proxy",
+    title: "Loading <Img> with src http://localhost:3000/proxy",
+    relativePath: "docs/troubleshooting/delay-render-proxy.md",
+    compId: "articles-docs-troubleshooting-delay-render-proxy",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "loading-root-component",
     title: "Root component Timeout",
     relativePath: "docs/troubleshooting/loading-root-component.md",
@@ -2666,6 +2715,13 @@ export const articles = [
     title: "Apple Silicon under Rosetta",
     relativePath: "docs/troubleshooting/rosetta.md",
     compId: "articles-docs-troubleshooting-rosetta",
+    crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/timed-out-page-function",
+    title: "Timed out evaluating page function",
+    relativePath: "docs/troubleshooting/timed-out-page-function.md",
+    compId: "articles-docs-troubleshooting-timed-out-page-function",
     crumb: "Troubleshooting",
   },
   {

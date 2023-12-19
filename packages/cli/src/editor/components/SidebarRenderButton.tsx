@@ -35,7 +35,7 @@ export const SidebarRenderButton: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
-	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
 			const defaults = window.remotion_renderDefaults;
 			if (!defaults) {
@@ -79,6 +79,9 @@ export const SidebarRenderButton: React.FC<{
 				initialColorSpace: defaults.colorSpace as ColorSpace,
 				initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
 				defaultConfigurationVideoCodec: defaults.codec as Codec,
+				initialEncodingBufferSize: defaults.encodingBufferSize,
+				initialEncodingMaxRate: defaults.encodingMaxRate,
+				initialUserAgent: defaults.userAgent,
 			});
 		},
 		[composition.defaultProps, composition.id, props, setSelectedModal],

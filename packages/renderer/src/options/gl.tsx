@@ -31,7 +31,7 @@ const AngleChangelog: React.FC = () => {
 };
 
 export const glOption = {
-	cliFlag: 'gl',
+	cliFlag: 'gl' as const,
 	docLink: 'https://www.remotion.dev/docs/chromium-flags#--gl',
 	name: 'OpenGL renderer',
 	type: 'angle' as OpenGlRenderer,

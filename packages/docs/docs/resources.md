@@ -49,12 +49,14 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
 - [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
+- [remotion-animate-text](https://github.com/pskd73/remotion-animate-text)
 
 ## Full projects
 
+- [GitHub Unwrapped 2023](https://github.com/remotion-dev/github-unwrapped-2023)
 - [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
-- [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
+- [Podcast Maker](https://github.com/FelippeChemello/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://remotion.pro) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
@@ -103,7 +105,6 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Formula 1 Graphics](https://www.youtube.com/watch?v=sA-X0Bw_7Gg&t=146s)
 - [Remotion Skia Tutorial](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
-- [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 - [Integrate GreenSock with Remotion](https://archive.ph/dGQ19)
@@ -136,6 +137,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Augie](https://www.meetaugie.com/)
 - [Oxolo](https://www.oxolo.com/)
 - [Hackreels](https://www.hackreels.com/)
+- [AnimStats](https://www.animstats.com/)
 
 ## See also
 

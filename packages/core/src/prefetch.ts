@@ -86,8 +86,10 @@ export const prefetch = (
 			if (
 				!buf.type.startsWith('video/') &&
 				!buf.type.startsWith('audio/') &&
+				!buf.type.startsWith('image/') &&
 				!options?.contentType
 			) {
+				// eslint-disable-next-line no-console
 				console.warn(
 					`Called prefetch() on ${src} which returned a "Content-Type" of ${buf.type}. Prefetched content should have a proper content type (video/... or audio/...) or a contentType passed the options of prefetch(). Otherwise, prefetching will not work properly in all browsers.`,
 				);
