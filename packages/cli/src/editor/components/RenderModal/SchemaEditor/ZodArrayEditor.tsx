@@ -13,7 +13,7 @@ import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import {SchemaSeparationLine} from './SchemaSeparationLine';
+import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -120,7 +120,11 @@ export const ZodArrayEditor: React.FC<{
 									mayPad={mayPad}
 								/>
 								{i === localValue.value.length - 1 ? null : (
-									<SchemaSeparationLine />
+									<SchemaArrayItemSeparationLine
+										schema={schema}
+										index={i}
+										onChange={onChange}
+									/>
 								)}
 							</React.Fragment>
 						);
