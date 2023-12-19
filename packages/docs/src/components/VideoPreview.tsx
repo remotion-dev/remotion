@@ -100,11 +100,9 @@ export const VideoPreview: React.FC<
   }, [height, width]);
 
   const frameStyle: React.CSSProperties = {
-    border: "2px solid #ccc",
-    borderRadius: "10px",
+    border: "2px solid var(--border-color)",
+    borderRadius: 5,
     backgroundColor: "var(--ifm-background-color)",
-    boxShadow: "var(--box-shadow)",
-    margin: "5px",
     overflow: "hidden",
   };
 

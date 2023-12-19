@@ -1,6 +1,5 @@
 import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
-import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
@@ -15,13 +14,25 @@ import styles from "./styles.module.css";
 
 const PageHeader: React.FC = () => {
   return (
-    <div className={headerStyles.row}>
+    <div
+      style={{
+        maxWidth: "var(--ifm-container-width)",
+        paddingLeft: 20,
+        paddingRight: 20,
+        margin: "auto",
+        marginTop: 50,
+      }}
+    >
       <div style={{ flex: 1 }}>
         <h1 className={headerStyles.title}>Showcase</h1>
+        <p>Some awesome creations from the community, many with source code.</p>
         <p>
-          Some awesome creations from the community, many with source code. Have
-          you made your own video with Remotion?{" "}
+          Have you made your own video with Remotion?{" "}
           <a href="/showcase/add">Add it to the showcase!</a>
+        </p>
+        <p>
+          See more projects, applications and examples and libraries on the{" "}
+          <a href="/docs/resources">Resources</a> page.
         </p>
       </div>
     </div>
@@ -126,11 +137,9 @@ const Showcase = () => {
         <meta property="og:image" content="/img/showcase.png" />
         <meta property="twitter:image" content="/img/showcase.png" />
       </Head>
-      <header className={clsx("hero ", styles.heroBanner)}>
-        <div className="container">
-          <PageHeader />
-        </div>
-      </header>
+      <div>
+        <PageHeader />
+      </div>
       <VideoPlayer
         hasNext={hasNext}
         hasPrevious={hasPrevious}
@@ -140,14 +149,12 @@ const Showcase = () => {
         video={video}
         userHasInteractedWithPage={userHasInteractedWithPage}
       />
-
       <main>
         <section className={styles.videos}>
           <div className={styles.container} style={container}>
             {shuffledShowcaseVideos.map((vid) => {
               return (
-                // eslint-disable-next-line react/jsx-key
-                <div style={layoutStyle}>
+                <div key={vid.muxId} style={layoutStyle}>
                   <VideoPreview
                     onClick={() => {
                       setVideo(vid);
