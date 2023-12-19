@@ -27,7 +27,7 @@ export const SchemaLabel: React.FC<{
 	valid: boolean;
 	saveDisabledByParent: boolean;
 	suffix: string | null;
-	handleClick?: () => void;
+	handleClick: null | (() => void);
 }> = ({
 	jsonPath,
 	isDefaultValue,
