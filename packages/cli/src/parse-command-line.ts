@@ -41,8 +41,10 @@ type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
-	['buf-size']: string;
-	['max-rate']: string;
+	[BrowserSafeApis.options.encodingBufferSizeOption
+		.cliFlag]: typeof BrowserSafeApis.options.encodingBufferSizeOption.type;
+	[BrowserSafeApis.options.encodingMaxRateOption
+		.cliFlag]: typeof BrowserSafeApis.options.encodingMaxRateOption.type;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -265,8 +267,8 @@ export const parseCommandLine = () => {
 		Config.setVideoBitrate(parsedCli['video-bitrate']);
 	}
 
-	if (typeof parsedCli['buf-size'] !== 'undefined') {
-		Config.setEncodingBufferSize(parsedCli['buf-size']);
+	if (typeof parsedCli['buffer-size'] !== 'undefined') {
+		Config.setEncodingBufferSize(parsedCli['buffer-size']);
 	}
 
 	if (typeof parsedCli['max-rate'] !== 'undefined') {

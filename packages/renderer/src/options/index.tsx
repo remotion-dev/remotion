@@ -4,6 +4,8 @@ import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
+import {encodingBufferSizeOption} from './encoding-buffer-size';
+import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
@@ -32,4 +34,6 @@ export const allOptions = {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	enableLambdaInsights,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
 };
