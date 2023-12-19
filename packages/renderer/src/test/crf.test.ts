@@ -134,7 +134,9 @@ test('encodingMaxRate', () => {
 			encodingMaxRate: '1M',
 			encodingBufferSize: null,
 		}),
-	).toThrow(/"encodingMaxRate" can not be set without "encodingBufferSize"./);
+	).toThrow(
+		/"encodingMaxRate" can not be set without also setting "encodingBufferSize"./,
+	);
 });
 
 describe('crf tests getValidCrfRanges invalid input', () => {
