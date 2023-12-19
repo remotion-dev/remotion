@@ -12,7 +12,6 @@ import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
 
-
 const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
@@ -130,8 +129,8 @@ export const getCliOptions = async (options: {
 	});
 	const crf = getCrf(shouldOutputImageSequence);
 	const videoBitrate = ConfigInternals.getVideoBitrate();
-	const bufSize = ConfigInternals.getVideoBufSize()
-	const maxRate = ConfigInternals.getVideoMaxRate()
+	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
+	const maxRate = ConfigInternals.getVideoMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const x264Preset = getx264Preset();
@@ -193,7 +192,7 @@ export const getCliOptions = async (options: {
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		audioBitrate: ConfigInternals.getAudioBitrate(),
 		videoBitrate,
-		bufSize,
+		encodingBufferSize,
 		maxRate,
 		height,
 		width,

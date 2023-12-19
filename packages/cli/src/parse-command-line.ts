@@ -266,7 +266,7 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli['buf-size'] !== 'undefined') {
-		Config.setVideoBufSize(parsedCli['buf-size']);
+		Config.setEncodingBufferSize(parsedCli['buf-size']);
 	}
 
 	if (typeof parsedCli['buf-size'] !== 'undefined') {

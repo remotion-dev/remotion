@@ -91,7 +91,7 @@ export const renderVideoFlow = async ({
 	pixelFormat,
 	videoBitrate,
 	maxRate,
-  	bufSize,
+	encodingBufferSize,
 	numberOfGifLoops,
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
@@ -135,7 +135,7 @@ export const renderVideoFlow = async ({
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	maxRate: string | null;
-	bufSize: string | null;
+	encodingBufferSize: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
@@ -463,7 +463,7 @@ export const renderVideoFlow = async ({
 		audioBitrate,
 		videoBitrate,
 		maxRate,
-		bufSize,
+		encodingBufferSize,
 		onProgress: (update) => {
 			(stitchingProgress as StitchingProgressInput).doneIn =
 				update.encodedDoneIn;

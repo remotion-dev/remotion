@@ -47,7 +47,7 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 					codec: entry[1],
 					videoBitrate: undefined,
 					maxRate: undefined,
-					bufSize: undefined
+					encodingBufferSize: undefined,
 				}),
 			).not.toThrow()),
 	);
@@ -77,7 +77,7 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 					codec: entry[1],
 					videoBitrate: undefined,
 					maxRate: undefined,
-					bufSize: undefined
+					encodingBufferSize: undefined,
 				}),
 			).toThrow(
 				new RegExp(
@@ -89,19 +89,37 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 
 test('ProRes', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined, maxRate: undefined, bufSize: undefined}),
+		validateQualitySettings({
+			crf: 3,
+			codec: 'prores',
+			videoBitrate: undefined,
+			maxRate: undefined,
+			encodingBufferSize: undefined,
+		}),
 	).toThrow(/The "prores" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined, maxRate: undefined, bufSize: undefined}),
+		validateQualitySettings({
+			crf: 3,
+			codec: 'wav',
+			videoBitrate: undefined,
+			maxRate: undefined,
+			encodingBufferSize: undefined,
+		}),
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M', maxRate: undefined, bufSize: undefined}),
+		validateQualitySettings({
+			crf: 10,
+			codec: 'h264',
+			videoBitrate: '1M',
+			maxRate: undefined,
+			encodingBufferSize: undefined,
+		}),
 	).toThrow(
 		/"crf" and "videoBitrate" can not both be set. Choose one of either./,
 	);
@@ -109,10 +127,14 @@ test('WAV', () => {
 
 test('maxRate', () => {
 	expect(() =>
-		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: undefined, maxRate: '1M', bufSize: undefined}),
-	).toThrow(
-		/"maxRate" can not be set without "bufSize"./,
-	);
+		validateQualitySettings({
+			crf: 10,
+			codec: 'h264',
+			videoBitrate: null,
+			maxRate: '1M',
+			encodingBufferSize: null,
+		}),
+	).toThrow(/"maxRate" can not be set without "encodingBufferSize"./);
 });
 
 describe('crf tests getValidCrfRanges invalid input', () => {

@@ -72,13 +72,13 @@ export const validateQualitySettings = ({
 	crf,
 	videoBitrate,
 	maxRate,
-	bufSize
+	encodingBufferSize,
 }: {
 	crf: unknown;
 	codec: Codec;
-	videoBitrate: string | null | undefined;
-	maxRate: string | null | undefined;
-	bufSize: string | null | undefined;
+	videoBitrate: string | null;
+	maxRate: string | null;
+	encodingBufferSize: string | null;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
@@ -86,13 +86,13 @@ export const validateQualitySettings = ({
 		);
 	}
 
-	if (maxRate && !bufSize) {
-		throw new Error(
-			'"maxRate" can not be set without "bufSize".',
-		);
+	if (maxRate && !encodingBufferSize) {
+		throw new Error('"maxRate" can not be set without "encodingBufferSize".');
 	}
 
-	const bufSizeArray = bufSize ? ['-bufsize', bufSize] : [];
+	const bufSizeArray = encodingBufferSize
+		? ['-bufsize', encodingBufferSize]
+		: [];
 	const maxRateArray = maxRate ? ['-maxrate', maxRate] : [];
 
 	if (videoBitrate) {

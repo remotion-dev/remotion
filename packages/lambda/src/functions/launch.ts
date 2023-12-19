@@ -272,7 +272,7 @@ const innerLaunchHandler = async ({
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
 			maxRate: params.maxRate,
-			bufSize: params.bufSize,
+			encodingBufferSize: params.encodingBufferSize,
 			launchFunctionConfig: {
 				version: VERSION,
 			},

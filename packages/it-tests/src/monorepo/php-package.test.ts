@@ -97,7 +97,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     timeoutInMilliseconds: 30000,
     videoBitrate: null,
     maxRate: null,
-    bufSize: null,
+    encodingBufferSize: null,
     webhook: null,
     x264Preset: null,
   });

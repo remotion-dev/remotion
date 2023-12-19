@@ -58,7 +58,7 @@ test('Should add silent audio if there is no audio', async () => {
 			audioBitrate: null,
 			videoBitrate: null,
 			maxRate: null,
-			bufSize: null,
+			encodingBufferSize: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,

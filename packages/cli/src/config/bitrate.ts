@@ -22,22 +22,21 @@ let maxRate: string | null = null;
 
 export const setVideoMaxRate = (bitrate: string | null) => {
 	maxRate = bitrate;
-}
+};
 
 export const getVideoMaxRate = () => {
 	return maxRate;
-}
+};
 
 /**
- * bufSize is not a bitrate, but it is a bitrate-related option and get validated like a bitrate.
+ * encodingBufferSize is not a bitrate, but it is a bitrate-related option and get validated like a bitrate.
  */
-let bufSize: string | null = null;
+let encodingBufferSize: string | null = null;
 
-export const setVideoBufSize = (bitrate: string | null) => {
-	bufSize = bitrate;
-}
+export const setEncodingBufferSize = (bitrate: string | null) => {
+	encodingBufferSize = bitrate;
+};
 
-export const getVideoBufSize = () => {
-	return bufSize;
-}
-
+export const getEncodingBufferSize = () => {
+	return encodingBufferSize;
+};

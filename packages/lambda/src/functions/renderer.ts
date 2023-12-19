@@ -207,7 +207,7 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
-			bufSize: params.bufSize,
+			encodingBufferSize: params.encodingBufferSize,
 			maxRate: params.maxRate,
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647

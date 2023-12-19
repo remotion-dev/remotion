@@ -61,7 +61,7 @@ test('Should make a transparent video', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
-			bufSize: null,
+			encodingBufferSize: null,
 			maxRate: null,
 			forceHeight: null,
 			forceWidth: null,

@@ -57,7 +57,7 @@ type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	maxRate: string | null;
-	bufSize: string | null;
+	encodingBufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -89,7 +89,7 @@ export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	maxRate?: string | null;
-	bufSize?: string | null;
+	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -232,7 +232,7 @@ const innerStitchFramesToVideo = async (
 		logLevel,
 		videoBitrate,
 		maxRate,
-		bufSize,
+		encodingBufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -258,8 +258,8 @@ const innerStitchFramesToVideo = async (
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 	validateBitrate(maxRate, 'maxRate');
-	// bufSize is not a bitrate but need to be validated using the same format
-	validateBitrate(bufSize, 'bufSize');
+	// encodingBufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
@@ -342,7 +342,7 @@ const innerStitchFramesToVideo = async (
 		codec,
 		videoBitrate,
 		maxRate,
-		bufSize,
+		encodingBufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -440,7 +440,7 @@ const innerStitchFramesToVideo = async (
 			crf,
 			videoBitrate,
 			maxRate,
-			bufSize,
+			encodingBufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -592,7 +592,7 @@ export const stitchFramesToVideo = ({
 	verbose,
 	videoBitrate,
 	maxRate,
-	bufSize,
+	encodingBufferSize,
 	x264Preset,
 	colorSpace,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
@@ -600,7 +600,7 @@ export const stitchFramesToVideo = ({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
 		maxRate: maxRate ?? null,
-		bufSize: bufSize ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,

@@ -80,7 +80,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     timeoutInMilliseconds: 30000,
     videoBitrate: null,
     maxRate: null,
-    bufSize: null,
+    encodingBufferSize: null,
     webhook: null,
     x264Preset: null,
   });

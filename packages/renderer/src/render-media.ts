@@ -122,7 +122,7 @@ export type InternalRenderMediaOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	maxRate: string | null;
-	bufSize: string | null;
+	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
@@ -176,7 +176,7 @@ export type RenderMediaOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	maxRate?: string | null;
-	bufSize?: string | null;
+	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
@@ -222,7 +222,7 @@ const internalRenderMediaRaw = ({
 	audioBitrate,
 	videoBitrate,
 	maxRate,
-	bufSize,
+	encodingBufferSize,
 	audioCodec,
 	concurrency,
 	disallowParallelEncoding,
@@ -241,7 +241,13 @@ const internalRenderMediaRaw = ({
 	colorSpace,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
-	validateQualitySettings({crf, codec, videoBitrate, maxRate, bufSize});
+	validateQualitySettings({
+		crf,
+		codec,
+		videoBitrate,
+		maxRate,
+		encodingBufferSize,
+	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 
@@ -454,7 +460,7 @@ const internalRenderMediaRaw = ({
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
 				maxRate,
-				bufSize,
+				encodingBufferSize,
 				indent,
 				x264Preset: x264Preset ?? null,
 				colorSpace,
@@ -665,7 +671,7 @@ const internalRenderMediaRaw = ({
 						ffmpegOverride: ffmpegOverride ?? null,
 						audioBitrate,
 						videoBitrate,
-						bufSize,
+						encodingBufferSize,
 						maxRate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
@@ -779,7 +785,7 @@ export const renderMedia = ({
 	audioBitrate,
 	videoBitrate,
 	maxRate,
-	bufSize,
+	encodingBufferSize,
 	audioCodec,
 	jpegQuality,
 	concurrency,
@@ -844,7 +850,7 @@ export const renderMedia = ({
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
 		maxRate: maxRate ?? null,
-		bufSize: bufSize ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		logLevel:
 			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,
