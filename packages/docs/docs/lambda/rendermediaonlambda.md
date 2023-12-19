@@ -183,13 +183,21 @@ Renamed to `jpegQuality` in v4.0.0.
 
 _optional_
 
-See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`
 
 _optional_
 
-See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+<Options id="video-bitrate"/>
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `maxRetries`
 

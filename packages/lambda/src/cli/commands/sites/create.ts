@@ -3,7 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {deploySite} from '../../../api/deploy-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {Privacy} from '../../../shared/constants';
@@ -181,7 +181,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
-				.filter(Internals.truthy)
+				.filter(NoReactInternals.truthy)
 				.join(' '),
 		),
 	);

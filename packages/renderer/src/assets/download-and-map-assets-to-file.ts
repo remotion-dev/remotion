@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path, {extname} from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {random} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {random} from 'remotion/no-react';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import type {LogLevel} from '../log-level';

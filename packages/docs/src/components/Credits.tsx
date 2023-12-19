@@ -1,4 +1,3 @@
-import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 import "./credits.css";
 
@@ -34,15 +33,11 @@ interface CreditsProps {
 const ContributorComp: React.FC<{
   contributor: Contributor;
 }> = ({ contributor }) => {
-  const { colorMode } = useColorMode();
-
-  const textColor = colorMode === "dark" ? "#ffffff" : "#000000";
-
   const cardStyle: React.CSSProperties = {
     width: "300px",
     overflow: "hidden",
     display: "flex",
-    color: textColor,
+    color: "var(--text-color)",
     alignItems: "center",
     marginTop: 5,
     marginBottom: 5,
@@ -62,7 +57,7 @@ const ContributorComp: React.FC<{
       target="_blank"
       rel="noopener noreferrer"
       className="credits-contributors"
-      style={{ ...linkStyle, color: textColor }}
+      style={{ ...linkStyle, color: "var(--text-color)" }}
     >
       <div key={contributor.username} style={cardStyle}>
         <img
@@ -72,7 +67,7 @@ const ContributorComp: React.FC<{
         />
         <div
           style={{
-            color: textColor,
+            color: "var(--text-color)",
             display: "flex",
             flexDirection: "column",
           }}
@@ -80,7 +75,7 @@ const ContributorComp: React.FC<{
           <strong>{contributor.username}</strong>
           <div
             style={{
-              color: textColor,
+              color: "var(--text-color)",
               lineHeight: 1.4,
             }}
           >
@@ -108,7 +103,7 @@ const titleLine: React.CSSProperties = {
 
 const title: React.CSSProperties = {
   marginRight: 10,
-  fontFamily: "GT Planar",
+  fontFamily: "GTPlanar",
   color: "var(--light-text-color)",
 };
 

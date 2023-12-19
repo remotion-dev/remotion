@@ -18,10 +18,16 @@ import {isAudioCodec} from './is-audio-codec';
 import {allOptions} from './options';
 import {validColorSpaces} from './options/color-space';
 import {optionsMap} from './options/options-map';
-import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validPixelFormats,
+	validPixelFormatsForCodec,
+} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 import {x264PresetOptions} from './x264-preset';
+
+export {AvailableOptions} from './options';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -33,6 +39,7 @@ export const BrowserSafeApis = {
 	proResProfileOptions,
 	x264PresetOptions,
 	validPixelFormats,
+	validPixelFormatsForCodec,
 	DEFAULT_PIXEL_FORMAT,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,

@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
@@ -76,6 +76,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -121,11 +123,12 @@ export const renderCommand = async (
 				envVariables,
 				height,
 				indent: false,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					indent: undefined,
-					staticBase: null,
-					data: inputProps,
-				}).serializedString,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						indent: undefined,
+						staticBase: null,
+						data: inputProps,
+					}).serializedString,
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
@@ -196,6 +199,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
 		forceHeight: height,
 		forceWidth: width,
 		webhook: parsedLambdaCli.webhook
@@ -375,7 +380,7 @@ export const renderCommand = async (
 					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {
-							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+							return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
 						})
 						.join(', '),
 				);

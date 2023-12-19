@@ -58,6 +58,8 @@ test('Should make a distributed GIF', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			encodingBufferSize: null,
+			encodingMaxRate: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,

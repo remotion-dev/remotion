@@ -21,7 +21,7 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
-		className?: number;
+		className?: string;
 	} & LayoutAndStyle &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;

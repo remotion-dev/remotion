@@ -1,4 +1,3 @@
-import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React, {useCallback} from 'react';
 import {
@@ -498,7 +497,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={30 * 60 * 60}
+					durationInFrames={30 * 60}
 					defaultProps={{
 						src: 'variablefps.webm',
 					}}
@@ -697,6 +696,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="audio-testing"
 					lazyComponent={() => import('./AudioTesting')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="audio-testing-short-loop"
+					lazyComponent={() => import('./AudioTesting/ShortLoop')}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -949,126 +956,31 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
-						vehicle: z
-							.string()
-							.max(3, 'Too long')
-							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
-						other: z.string(),
-						abc: z.object({
-							union: z.null().or(
+						union: z.array(
+							z.discriminatedUnion('type', [
 								z.object({
-									abc: z.string(),
+									type: z.literal('car'),
+									color: z.string(),
+									obj: z.array(
+										z.object({
+											link: z.string(),
+										}),
+									),
 								}),
-							),
-							jkl: z.string(),
-							def: z.object({
-								unionArray: z.array(z.null().or(z.string())),
-								pef: z.string(),
-							}),
-						}),
-						array: z
-							.array(
 								z.object({
-									a: z.string(),
-									b: z.string(),
+									type: z.literal('boat'),
+									depth: z.number(),
 								}),
-							)
-							.min(2),
-						array2: z.array(z.array(z.number())),
-						mynum: z.number().lt(10),
-						value: z.boolean().refine((v) => v === false || v === true),
-						lol: z.undefined(),
-						haha: z.null(),
-						yo: z.any(),
-						un: z.unknown(),
-						num: z.coerce.string(),
-						date: z.date(),
-						values: z.enum(['a', 'b', 'c']),
-						supersuperlongvalueabcdefghji: z.string(),
-						incompatible: z.null().or(z.undefined()),
-						color: zColor(),
-						nullable: z.nullable(z.string()),
-						optional: z.string().optional(),
-						filePath: z.string().refine((v) => v.endsWith('.png')),
-						longEnum: z.enum([
-							'a',
-							'b',
-							'c',
-							'd',
-							'e',
-							'f',
-							'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-							'h',
-							'i',
-							'j',
-							'k',
-							'l',
-							'm',
-							'n',
-							'o',
-							'p',
-							'q',
-							'r',
-							's',
-							't',
-							'u',
-							'v',
-							'w',
-							'x',
-							'y',
-							'z',
-						]),
-						union: z.discriminatedUnion('type', [
-							z.object({
-								type: z.literal('car'),
-								color: z.string(),
-							}),
-							z.object({
-								type: z.literal('boat'),
-								depth: z.number(),
-							}),
-						]),
+							]),
+						),
 					})}
 					defaultProps={{
-						vehicle: 'car',
-						other: 'hi',
-						abc: {
-							union: null,
-							def: {unionArray: [null], pef: 'hu'},
-							jkl: 'sting',
-							xyz: 'hi',
-						},
-						array: [
-							{a: 'a', b: 'bbbbb'},
-							{a: 'a', b: 'b'},
+						union: [
+							{type: 'boat' as const, depth: 10},
+							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
 						],
-						array2: [[12], [12]],
-						mynum: 4,
-						value: true,
-						haha: null,
-						yo: {hi: ' there'},
-						un: 'hi',
-						num: '179',
-						date: new Date('1999-02-12T22:20:00.000Z'),
-						values: 'a' as const,
-						supersuperlongvalueabcdefghji: 'hi',
-						incompatible: null,
-						longEnum: 'k' as const,
-						color: '#eb3a60',
-						nullable: null,
-						optional: '',
-						filePath: staticFile('nested/logö.png'),
-						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
-					calculateMetadata={({defaultProps}) => {
-						return {
-							durationInFrames: defaultProps.mynum * 10,
-							props: {
-								...defaultProps,
-							},
-						};
-					}}
 				/>
 			</Folder>
 			<Folder name="Transitions">
@@ -1109,9 +1021,9 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						title: 'sdasds',
 						delay: 5.2,
-						color: '#b47841',
-						list: ['test'],
-						description: null,
+						color: '#df822a',
+						list: [{name: 'first', age: 12}],
+						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 					}}
 				/>

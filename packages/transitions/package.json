@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.70",
+	"version": "4.0.77",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/cjs/index.js",
@@ -22,7 +22,9 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
@@ -82,6 +84,12 @@
 			"require": "./dist/cjs/presentations/flip.js",
 			"types": "./dist/presentations/flip.d.ts"
 		},
+		"./clock-wipe": {
+			"module": "./dist/presentations/clock-wipe.js",
+			"import": "./dist/presentations/clock-wipe.js",
+			"require": "./dist/cjs/presentations/clock-wipe.js",
+			"types": "./dist/presentations/clock-wipe.d.ts"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -97,6 +105,9 @@
 			],
 			"fade": [
 				"dist/presentations/fade.d.ts"
+			],
+			"clock-wipe": [
+				"dist/presentations/clock-wipe.d.ts"
 			]
 		}
 	}

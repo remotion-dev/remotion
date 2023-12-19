@@ -122,6 +122,12 @@ export const MyComposition = () => {
 Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
 ### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
 Adjust the pitch of the audio - will only be applied during rendering.
