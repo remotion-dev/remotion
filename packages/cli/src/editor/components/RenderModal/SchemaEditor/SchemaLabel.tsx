@@ -14,6 +14,7 @@ const compactStyles: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
+	flex: 1,
 };
 
 export const SchemaLabel: React.FC<{

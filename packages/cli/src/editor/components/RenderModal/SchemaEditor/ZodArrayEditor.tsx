@@ -122,7 +122,6 @@ export const ZodArrayEditor: React.FC<{
 					</SchemaVerticalGuide>
 				</RevisionContextProvider>
 			) : null}
-
 			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);
