@@ -109,13 +109,10 @@ export const ZodObjectEditor: React.FC<{
 							return discriminatedUnionReplacement.markup;
 						}
 
-						let derivedDefaultValue;
-
-						if (defaultValue && defaultValue[key] !== undefined) {
-							derivedDefaultValue = defaultValue[key];
-						} else {
-							derivedDefaultValue = value[key];
-						}
+						const derivedDefaultValue =
+							defaultValue?.[key] === undefined
+								? value[key]
+								: defaultValue[key];
 
 						return (
 							<React.Fragment key={key}>
