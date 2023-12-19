@@ -132,6 +132,13 @@ const innerLaunchHandler = async ({
 		logLevel: params.logLevel,
 	};
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
+		'Waiting for browser to be ready:',
+		serializedInputPropsWithCustomSchema,
+	);
+	const {instance} = await browserInstance;
 	RenderInternals.Log.infoAdvanced(
 		logOptions,
 		'Validating composition, input props:',
@@ -140,7 +147,7 @@ const innerLaunchHandler = async ({
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance: (await browserInstance).instance,
+		browserInstance: instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -264,6 +271,8 @@ const innerLaunchHandler = async ({
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			encodingMaxRate: params.encodingMaxRate,
+			encodingBufferSize: params.encodingBufferSize,
 			launchFunctionConfig: {
 				version: VERSION,
 			},

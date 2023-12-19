@@ -13,6 +13,8 @@ import {ModalsProvider} from './ModalsProvider';
 import {PlayerEmitterContext} from './PlayerEmitterContext';
 import {RenderQueueContextProvider} from './RenderQueue/context';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
+import {ShowGuidesProvider} from './ShowGuidesProvider';
+import {ShowRulersProvider} from './ShowRulersProvider';
 import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
 export const EditorContexts: React.FC<{
@@ -25,23 +27,27 @@ export const EditorContexts: React.FC<{
 					<KeybindingContextProvider>
 						<CheckerboardProvider>
 							<ZoomGesturesProvider>
-								<PreviewSizeProvider>
-									<ModalsProvider>
-										<MediaVolumeProvider>
-											<PlayerEmitterContext>
-												<SidebarContextProvider>
-													<FolderContextProvider>
-														<HighestZIndexProvider>
-															<SetTimelineInOutProvider>
-																{children}
-															</SetTimelineInOutProvider>
-														</HighestZIndexProvider>
-													</FolderContextProvider>
-												</SidebarContextProvider>
-											</PlayerEmitterContext>
-										</MediaVolumeProvider>
-									</ModalsProvider>
-								</PreviewSizeProvider>
+								<ShowRulersProvider>
+									<ShowGuidesProvider>
+										<PreviewSizeProvider>
+											<ModalsProvider>
+												<MediaVolumeProvider>
+													<PlayerEmitterContext>
+														<SidebarContextProvider>
+															<FolderContextProvider>
+																<HighestZIndexProvider>
+																	<SetTimelineInOutProvider>
+																		{children}
+																	</SetTimelineInOutProvider>
+																</HighestZIndexProvider>
+															</FolderContextProvider>
+														</SidebarContextProvider>
+													</PlayerEmitterContext>
+												</MediaVolumeProvider>
+											</ModalsProvider>
+										</PreviewSizeProvider>
+									</ShowGuidesProvider>
+								</ShowRulersProvider>
 							</ZoomGesturesProvider>
 						</CheckerboardProvider>
 					</KeybindingContextProvider>

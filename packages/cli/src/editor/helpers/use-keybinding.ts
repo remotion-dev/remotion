@@ -4,6 +4,7 @@ import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
 
 if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Keyboard shortcuts disabled either due to: a) --disable-keyboard-shortcuts being passed b) Config.setKeyboardShortcutsEnabled(false) being set or c) a Remotion version mismatch.',
 	);
@@ -26,6 +27,7 @@ export const useKeybinding = () => {
 			callback: (e: KeyboardEvent) => void;
 			preventDefault: boolean;
 			triggerIfInputFieldFocused: boolean;
+			keepRegisteredWhenNotHighestContext: boolean;
 		}) => {
 			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 				return {
@@ -33,7 +35,7 @@ export const useKeybinding = () => {
 				};
 			}
 
-			if (!isHighestContext) {
+			if (!isHighestContext && !options.keepRegisteredWhenNotHighestContext) {
 				return {
 					unregister: () => undefined,
 				};

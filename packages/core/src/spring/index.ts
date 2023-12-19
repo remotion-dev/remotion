@@ -87,7 +87,7 @@ export function spring({
 			? delayProcessed
 			: delayProcessed / (passedDurationInFrames / naturalDurationGetter.get());
 
-	if (passedDurationInFrames && durationProcessed > passedDurationInFrames) {
+	if (passedDurationInFrames && delayProcessed > passedDurationInFrames) {
 		return to;
 	}
 

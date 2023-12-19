@@ -74,6 +74,8 @@ const handleFallback = async ({
 	const x264Preset = ConfigInternals.getPresetProfile() ?? 'medium';
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
+	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
+	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
@@ -87,6 +89,7 @@ const handleFallback = async ({
 	const offthreadVideoCacheSizeInBytes =
 		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
 	const colorSpace = ConfigInternals.getColorSpace();
+	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -132,6 +135,8 @@ const handleFallback = async ({
 				pixelFormat,
 				audioBitrate,
 				videoBitrate,
+				encodingBufferSize,
+				encodingMaxRate,
 				everyNthFrame,
 				numberOfGifLoops,
 				delayRenderTimeout,
@@ -143,6 +148,7 @@ const handleFallback = async ({
 				offthreadVideoCacheSizeInBytes,
 				colorSpace,
 				multiProcessOnLinux,
+				userAgent,
 			},
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		}),

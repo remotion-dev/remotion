@@ -1,5 +1,6 @@
 import React, {createRef, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
+import {LIGHT_TRANSPARENT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -33,7 +34,7 @@ const InnerTimelineInOutPointerHandle: React.FC<
 		return {
 			...line,
 			backgroundColor: dragging
-				? 'rgba(255, 255, 255, 0.7)'
+				? LIGHT_TRANSPARENT
 				: 'rgba(255, 255, 255, 0.1)',
 			transform: `translateX(${getXPositionOfItemInTimelineImperatively(
 				atFrame,

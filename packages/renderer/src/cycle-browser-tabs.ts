@@ -41,7 +41,9 @@ export const cycleBrowserTabs = (
 
 				.catch((err) => console.log(err))
 				.finally(() => {
-					set();
+					if (!stopped) {
+						set();
+					}
 				});
 		}, 200);
 	};
@@ -56,7 +58,7 @@ export const cycleBrowserTabs = (
 
 			stopped = true;
 
-			return clearInterval(interval);
+			return clearTimeout(interval);
 		},
 	};
 };

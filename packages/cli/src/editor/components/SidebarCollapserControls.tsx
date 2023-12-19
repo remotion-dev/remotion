@@ -105,6 +105,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			callback: toggleLeft,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const right = keybindings.registerKeybinding({
@@ -114,6 +115,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			callback: toggleRight,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const zen = keybindings.registerKeybinding({
@@ -123,6 +125,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			callback: toggleBoth,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

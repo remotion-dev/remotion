@@ -22,6 +22,7 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const cmdKKey = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -34,6 +35,8 @@ export const GlobalKeybindings: React.FC = () => {
 				});
 			},
 			triggerIfInputFieldFocused: true,
+
+			keepRegisteredWhenNotHighestContext: false,
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
@@ -47,6 +50,7 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const questionMark = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -61,6 +65,7 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {

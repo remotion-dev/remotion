@@ -14,6 +14,7 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -25,7 +26,9 @@ import {
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {RequestContext} from './helpers/request-context';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -204,6 +207,8 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			encodingBufferSize: params.encodingBufferSize,
+			encodingMaxRate: params.encodingMaxRate,
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
@@ -257,10 +262,7 @@ const renderHandler = async (
 	});
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		'Wrote chunk to S3',
-		{
-			time: Date.now() - writeStart,
-		},
+		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
 	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
@@ -292,9 +294,12 @@ const renderHandler = async (
 	return {};
 };
 
+export const ENABLE_SLOW_LEAK_DETECTION = false;
+
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -303,6 +308,8 @@ export const rendererHandler = async (
 	}
 
 	const logs: BrowserLog[] = [];
+
+	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
 		await renderHandler(params, options, logs);
@@ -367,5 +374,7 @@ export const rendererHandler = async (
 		throw err;
 	} finally {
 		forgetBrowserEventLoop(params.logLevel);
+
+		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };

@@ -23,8 +23,12 @@ import {
 } from '../helpers/get-effective-translation';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
+import EditorGuides from './EditorGuides';
+import {EditorRulers} from './EditorRuler';
+import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
@@ -52,6 +56,8 @@ export const Canvas: React.FC<{
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
+	const areRulersVisible = useIsRulerVisible();
+	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -268,6 +274,7 @@ export const Canvas: React.FC<{
 			callback: onReset,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -277,6 +284,7 @@ export const Canvas: React.FC<{
 			callback: onZoomIn,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -286,6 +294,7 @@ export const Canvas: React.FC<{
 			callback: onZoomOut,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
@@ -310,20 +319,37 @@ export const Canvas: React.FC<{
 	}, [fetchMetadata]);
 
 	return (
-		<div ref={ref} style={container}>
-			{size ? (
-				<VideoPreview
-					canvasContent={canvasContent}
+		<>
+			<div ref={ref} style={container}>
+				{size ? (
+					<VideoPreview
+						canvasContent={canvasContent}
+						contentDimensions={contentDimensions}
+						canvasSize={size}
+						assetMetadata={assetResolution}
+					/>
+				) : null}
+				{isFit ? null : (
+					<div style={resetZoom} className="css-reset">
+						<ResetZoomButton onClick={onReset} />
+					</div>
+				)}
+				{editorShowGuides && canvasContent.type === 'composition' && (
+					<EditorGuides
+						canvasSize={size}
+						contentDimensions={contentDimensions}
+						assetMetadata={assetResolution}
+					/>
+				)}
+			</div>
+			{areRulersVisible && (
+				<EditorRulers
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}
+					containerRef={ref}
 				/>
-			) : null}
-			{isFit ? null : (
-				<div style={resetZoom} className="css-reset">
-					<ResetZoomButton onClick={onReset} />
-				</div>
 			)}
-		</div>
+		</>
 	);
 };

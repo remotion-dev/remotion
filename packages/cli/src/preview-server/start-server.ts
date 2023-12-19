@@ -124,14 +124,14 @@ export const startServer = async (options: {
 					to: 3100,
 					hostsToTry: portConfig.hostsToTry,
 				})
-					.then(({port, didUsePort}) => {
+					.then(({port, unlockPort}) => {
 						server.listen({
 							port,
 							host: portConfig.host,
 						});
 						server.on('listening', () => {
 							resolve(port);
-							return didUsePort();
+							return unlockPort();
 						});
 						server.on('error', (err) => {
 							reject(err);

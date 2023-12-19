@@ -12,6 +12,8 @@ import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Checkmark} from '../icons/Checkmark';
 import {canvasRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -40,6 +42,12 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
+	);
+	const {editorShowRulers, setEditorShowRulers} = useContext(
+		EditorShowRulersContext,
+	);
+	const {editorShowGuides, setEditorShowGuides} = useContext(
+		EditorShowGuidesContext,
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {type} = useContext(StudioServerConnectionCtx);
@@ -219,6 +227,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											}
 										})
 										.catch((err) => {
+											// eslint-disable-next-line no-console
 											console.error(err);
 											sendErrorNotification(
 												`Could not open ${window.remotion_editorName}`,
@@ -289,6 +298,38 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: editorZoomGestures
 							? 'Disable Zoom and Pan Gestures'
 							: 'Enable Zoom and Pan Gestures',
+					},
+					{
+						id: 'show-rulers',
+						keyHint: null,
+						label: 'Show Rulers',
+						onClick: () => {
+							closeMenu();
+							setEditorShowRulers((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'show-ruler',
+						leftItem: editorShowRulers ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorShowRulers
+							? 'Hide Rulers'
+							: 'Show Rulers',
+					},
+					{
+						id: 'show-guides',
+						keyHint: null,
+						label: 'Show Guides',
+						onClick: () => {
+							closeMenu();
+							setEditorShowGuides((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'show-guides',
+						leftItem: editorShowGuides ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorShowGuides
+							? 'Hide Guides'
+							: 'Show Guides',
 					},
 					{
 						id: 'timeline-divider-1',
@@ -732,6 +773,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		setEditorZoomGestures,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		editorShowRulers,
+		setEditorShowRulers,
+		editorShowGuides,
+		setEditorShowGuides,
 	]);
 
 	return structure;
@@ -776,7 +821,7 @@ const itemToSearchResult = (
 			id: item.id,
 			onSelected: () => {
 				setSelectedModal(null);
-				item.onClick(item.id);
+				item.onClick(item.id, null);
 			},
 			title: [...prefixes, getItemLabel(item)].join(': '),
 		},

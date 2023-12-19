@@ -44,6 +44,7 @@ import {GifIcon} from '../../icons/gif';
 import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {getDefaultCodecs} from '../../../preview-server/render-queue/get-default-video-contexts';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Spacing} from '../layout';
@@ -55,6 +56,7 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -224,6 +226,9 @@ type RenderModalProps = {
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialHeadless: boolean;
 	initialColorSpace: ColorSpace;
+	initialEncodingMaxRate: string | null;
+	initialEncodingBufferSize: string | null;
+	initialUserAgent: string | null;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
@@ -265,6 +270,9 @@ const RenderModal: React.FC<
 	initialGl,
 	initialHeadless,
 	initialIgnoreCertificateErrors,
+	initialEncodingBufferSize,
+	initialEncodingMaxRate,
+	initialUserAgent,
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
@@ -370,6 +378,13 @@ const RenderModal: React.FC<
 		() => initialGl ?? 'default',
 	);
 	const [colorSpace, setColorSpace] = useState(() => initialColorSpace);
+	const [userAgent, setUserAgent] = useState<string | null>(() =>
+		initialUserAgent === null
+			? null
+			: initialUserAgent.trim() === ''
+			? null
+			: initialUserAgent,
+	);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
@@ -377,8 +392,8 @@ const RenderModal: React.FC<
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
-			// TODO: Make this configurable at some point (not necessary for V4)
-			userAgent: null,
+			userAgent:
+				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
 	}, [
@@ -386,6 +401,7 @@ const RenderModal: React.FC<
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
+		userAgent,
 		multiProcessOnLinux,
 	]);
 
@@ -403,7 +419,7 @@ const RenderModal: React.FC<
 		() => initialx264Preset,
 	);
 
-	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
+	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat,
 	);
 	const [preferredQualityControlType, setQualityControl] =
@@ -420,6 +436,12 @@ const RenderModal: React.FC<
 	);
 	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
 		() => initialVideoBitrate ?? '1M',
+	);
+	const [encodingMaxRate, setEncodingMaxRate] = useState<string | null>(
+		() => initialEncodingMaxRate ?? null,
+	);
+	const [encodingBufferSize, setEncodingBufferSize] = useState<string | null>(
+		() => initialEncodingBufferSize ?? null,
 	);
 	const [limitNumberOfGifLoops, setLimitNumberOfGifLoops] = useState(
 		() => initialNumberOfGifLoops !== null,
@@ -737,6 +759,18 @@ const RenderModal: React.FC<
 
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
 
+	const availablePixelFormats = useMemo(() => {
+		return BrowserSafeApis.validPixelFormatsForCodec(codec);
+	}, [codec]);
+
+	const pixelFormat = useMemo(() => {
+		if (availablePixelFormats.includes(userPreferredPixelFormat)) {
+			return userPreferredPixelFormat;
+		}
+
+		return availablePixelFormats[0];
+	}, [availablePixelFormats, userPreferredPixelFormat]);
+
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedOptionsSidebarPanel('renders');
@@ -772,6 +806,8 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			colorSpace,
 			multiProcessOnLinux,
+			encodingBufferSize,
+			encodingMaxRate,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -814,6 +850,8 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		multiProcessOnLinux,
+		encodingBufferSize,
+		encodingMaxRate,
 		onClose,
 	]);
 
@@ -1075,11 +1113,29 @@ const RenderModal: React.FC<
 			event: 'keydown',
 			preventDefault: true,
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => {
 			enter.unregister();
 		};
 	}, [registerKeybinding, trigger]);
+
+	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
+		return availablePixelFormats.map((option) => {
+			return {
+				label: option,
+				onClick: () => setPixelFormat(option),
+				key: option,
+				id: option,
+				keyHint: null,
+				leftItem: pixelFormat === option ? <Checkmark /> : null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
+			};
+		});
+	}, [availablePixelFormats, pixelFormat]);
 
 	return (
 		<div style={outer}>
@@ -1203,7 +1259,7 @@ const RenderModal: React.FC<
 							scale={scale}
 							setScale={setScale}
 							pixelFormat={pixelFormat}
-							setPixelFormat={setPixelFormat}
+							pixelFormatOptions={pixelFormatOptions}
 							imageFormatOptions={imageFormatOptions}
 							crf={crf}
 							setCrf={setCrf}
@@ -1222,6 +1278,10 @@ const RenderModal: React.FC<
 							videoImageFormat={videoImageFormat}
 							stillImageFormat={stillImageFormat}
 							shouldDisplayQualityControlPicker={supportsBothQualityControls}
+							encodingBufferSize={encodingBufferSize}
+							setEncodingBufferSize={setEncodingBufferSize}
+							encodingMaxRate={encodingMaxRate}
+							setEncodingMaxRate={setEncodingMaxRate}
 						/>
 					) : tab === 'audio' ? (
 						<RenderModalAudio
@@ -1295,6 +1355,8 @@ const RenderModal: React.FC<
 							enableMultiProcessOnLinux={multiProcessOnLinux}
 							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}
+							userAgent={userAgent}
+							setUserAgent={setUserAgent}
 						/>
 					)}
 				</div>

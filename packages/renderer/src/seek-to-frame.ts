@@ -38,6 +38,7 @@ export const waitForReady = ({
 				args: [],
 				frame: null,
 				page,
+				timeoutInMilliseconds,
 			}).then(({value: val}) => {
 				if (typeof val !== 'string') {
 					reject(val);
@@ -107,6 +108,7 @@ export const waitForReady = ({
 						args: [],
 						frame,
 						page,
+						timeoutInMilliseconds,
 					})
 						.then((res) => {
 							reject(
@@ -182,6 +184,7 @@ export const seekToFrame = async ({
 		args: [frame, composition],
 		frame,
 		page,
+		timeoutInMilliseconds,
 	});
 	await waitForReady({page, timeoutInMilliseconds, frame, indent, logLevel});
 	await page.evaluateHandle('document.fonts.ready');

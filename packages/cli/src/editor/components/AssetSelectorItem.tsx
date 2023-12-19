@@ -241,7 +241,7 @@ export const AssetSelectorItem: React.FC<{
 		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
-	const revealInExplorer: React.MouseEventHandler<HTMLAnchorElement> =
+	const revealInExplorer: React.MouseEventHandler<HTMLButtonElement> =
 		React.useCallback(
 			(e) => {
 				e.stopPropagation();
@@ -259,7 +259,7 @@ export const AssetSelectorItem: React.FC<{
 			[item.name, parentFolder],
 		);
 
-	const copyToClipboard: React.MouseEventHandler<HTMLAnchorElement> =
+	const copyToClipboard: React.MouseEventHandler<HTMLButtonElement> =
 		useCallback(
 			(e) => {
 				e.stopPropagation();

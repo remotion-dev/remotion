@@ -8,6 +8,24 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Lambda throws an undefined variable error",
+    description: "The publish script of this version was broken.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.73"],
+  },
+  {
+    title: "Subsequent Lambda renders become slow",
+    description: "A warm Lambda function would get slower over time.",
+    link: "https://github.com/remotion-dev/remotion/pull/3184",
+    versions: ["4.0.66", "4.0.67", "4.0.68", "4.0.69", "4.0.70"],
+  },
+  {
+    title: "<Player> does not render",
+    description: "The <Player> component does not render anything.",
+    link: "https://github.com/remotion-dev/remotion/issues/3128",
+    versions: ["4.0.63"],
+  },
+  {
     title: "Slow rendering for long videos",
     description: "A render could get progressively slower the longer it runs.",
     link: "https://github.com/remotion-dev/remotion/pull/3106",

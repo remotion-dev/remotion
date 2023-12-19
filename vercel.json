@@ -213,6 +213,11 @@
       "permanent": false
     },
     {
+      "source": "/help",
+      "destination": "https://www.remotion.dev/docs/get-help",
+      "permanent": false
+    },
+    {
       "source": "/native",
       "destination": "https://remotion.dev/docs/react-native",
       "permanent": false
@@ -265,6 +270,11 @@
     {
       "source": "/studio",
       "destination": "/docs/studio",
+      "permanent": false
+    },
+    {
+      "source": "/security",
+      "destination": "/docs/security",
       "permanent": false
     }
   ]

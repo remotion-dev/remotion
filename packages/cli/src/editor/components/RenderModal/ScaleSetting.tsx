@@ -1,4 +1,3 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NumberSetting} from './NumberSetting';
 
 const MIN_SCALE = 0.1;
@@ -23,7 +22,7 @@ export const ScaleSetting: React.FC<{
 			}}
 			onValueChanged={setScale}
 			value={scale}
-			hint={BrowserSafeApis.options.scaleOption}
+			hint={'scaleOption'}
 		/>
 	);
 };

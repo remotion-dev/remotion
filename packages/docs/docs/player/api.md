@@ -324,7 +324,7 @@ export const App: React.FC = () => {
 
       return <MyPauseButton />;
     },
-    []
+    [],
   );
 
   return (
@@ -363,7 +363,7 @@ export const App: React.FC = () => {
 
       return <FullScreenButton />;
     },
-    []
+    [],
   );
 
   return (
@@ -394,6 +394,13 @@ If `true`, displays a gear icon allowing the user to change the playback rate.
 You may pass an array with the available playback rates for selection, however, updating the list dynamically is not supported. `true` is an alias for `[0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3]`.
 
 Default `false`.
+
+### `posterFillMode`<AvailableFrom v="4.0.78" />
+
+Either `player-size` (default) or `composition-size`:
+
+- `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
+- `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
 
 ## `PlayerRef`
 
@@ -440,7 +447,7 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
-### `pauseAndReturnToPlayStart()`<AvailableFrom v="3.0.30" />
+### `pauseAndReturnToPlayStart()`<AvailableFrom v="4.0.67" />
 
 If the video is playing, pause it and return to the playback position where the video has last been played.
 
@@ -638,7 +645,7 @@ useEffect(() => {
       playerRef.current.removeEventListener("error", onError);
       playerRef.current.removeEventListener(
         "fullscreenchange",
-        onFullscreenChange
+        onFullscreenChange,
       );
       playerRef.current.removeEventListener("scalechange", onScaleChange);
       playerRef.current.removeEventListener("mutechange", onMuteChange);

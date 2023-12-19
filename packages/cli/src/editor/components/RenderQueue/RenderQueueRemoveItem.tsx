@@ -25,7 +25,6 @@ export const RenderQueueRemoveItem: React.FC<{
 				})
 				.catch((err) => {
 					sendErrorNotification(`Could not remove item: ${err.message}`);
-					console.log(err);
 				});
 		},
 		[job],

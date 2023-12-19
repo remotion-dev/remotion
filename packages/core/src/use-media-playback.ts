@@ -56,6 +56,18 @@ export const useMediaPlayback = ({
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
+	// For short audio, a lower acceptable time shift is used
+	const acceptableTimeShiftButLessThanDuration = (() => {
+		if (mediaRef.current?.duration) {
+			return Math.min(
+				mediaRef.current.duration,
+				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+			);
+		}
+
+		return acceptableTimeshift;
+	})();
+
 	useEffect(() => {
 		if (!playing) {
 			mediaRef.current?.pause();
@@ -92,11 +104,10 @@ export const useMediaPlayback = ({
 			!Number.isNaN(duration) && Number.isFinite(duration)
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
-
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
 
-		if (timeShift > acceptableTimeshift) {
+		if (timeShift > acceptableTimeShiftButLessThanDuration) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
@@ -145,5 +156,6 @@ export const useMediaPlayback = ({
 		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift,
+		acceptableTimeShiftButLessThanDuration,
 	]);
 };

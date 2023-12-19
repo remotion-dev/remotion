@@ -8,7 +8,6 @@ crumb: "Lambda"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { YouTube } from "../../components/YouTube";
 
 <YouTube
   minutes={18}

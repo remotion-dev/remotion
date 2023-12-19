@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {KeyboardEvent, MouseEvent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
@@ -10,7 +10,10 @@ import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
+import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
+import type {ComboboxValue} from './NewComposition/ComboBox';
+import {notificationCenter} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
@@ -110,8 +113,8 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, selected]);
 
-	const onClick: MouseEventHandler = useCallback(
-		(evt) => {
+	const onClick = useCallback(
+		(evt: MouseEvent | KeyboardEvent<HTMLAnchorElement>) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
 				selectComposition(item.composition, true);
@@ -121,6 +124,54 @@ export const CompositionSelectorItem: React.FC<{
 		},
 		[item, selectComposition, toggleFolder],
 	);
+
+	const onKeyPress = useCallback(
+		(evt: React.KeyboardEvent<HTMLAnchorElement>) => {
+			if (evt.key === 'Enter') {
+				onClick(evt);
+			}
+		},
+		[onClick],
+	);
+
+	const contextMenu = useMemo((): ComboboxValue[] => {
+		if (item.type === 'composition') {
+			return [
+				{
+					id: '1',
+					keyHint: null,
+					label: `Copy ID`,
+					leftItem: null,
+					onClick: () => {
+						navigator.clipboard
+							.writeText(item.composition.id)
+							.catch((err) => {
+								notificationCenter.current?.addNotification({
+									content: `Could not copy to clipboard: ${err.message}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							})
+							.then(() => {
+								notificationCenter.current?.addNotification({
+									content: 'Copied to clipboard',
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'remove',
+				},
+			];
+		}
+
+		return [];
+	}, [item]);
 
 	if (item.type === 'folder') {
 		return (
@@ -168,39 +219,42 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<Row align="center">
-			<button
-				style={style}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-				tabIndex={tabIndex}
-				onClick={onClick}
-				type="button"
-				title={item.composition.id}
-				className="__remotion-composition"
-				data-compname={item.composition.id}
-			>
-				{isCompositionStill(item.composition) ? (
-					<StillIcon
-						color={hovered || selected ? 'white' : LIGHT_TEXT}
-						style={iconStyle}
-					/>
-				) : (
-					<FilmIcon
-						color={hovered || selected ? 'white' : LIGHT_TEXT}
-						style={iconStyle}
-					/>
-				)}
-				<Spacing x={1} />
-				<div style={label}>{item.composition.id}</div>
-				<Spacing x={0.5} />
-				<div>
-					<SidebarRenderButton
-						visible={hovered}
-						composition={item.composition}
-					/>
-				</div>
-			</button>
-		</Row>
+		<ContextMenu values={contextMenu}>
+			<Row align="center">
+				<a
+					style={style}
+					onPointerEnter={onPointerEnter}
+					onPointerLeave={onPointerLeave}
+					tabIndex={tabIndex}
+					onClick={onClick}
+					onKeyPress={onKeyPress}
+					type="button"
+					title={item.composition.id}
+					className="__remotion-composition"
+					data-compname={item.composition.id}
+				>
+					{isCompositionStill(item.composition) ? (
+						<StillIcon
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
+					) : (
+						<FilmIcon
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
+					)}
+					<Spacing x={1} />
+					<div style={label}>{item.composition.id}</div>
+					<Spacing x={0.5} />
+					<div>
+						<SidebarRenderButton
+							visible={hovered}
+							composition={item.composition}
+						/>
+					</div>
+				</a>
+			</Row>
+		</ContextMenu>
 	);
 };

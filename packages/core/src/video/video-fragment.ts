@@ -4,13 +4,16 @@ const toSeconds = (time: number, fps: number) => {
 	return Math.round((time / fps) * 100) / 100;
 };
 
-// https://github.com/remotion-dev/remotion/issues/1655
-const isIOSSafariCase = (actualSrc: string) => {
+export const isIosSafari = () => {
 	return typeof window === 'undefined'
 		? false
 		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
-				actualSrc.startsWith('blob:');
+				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+};
+
+// https://github.com/remotion-dev/remotion/issues/1655
+const isIOSSafariAndBlob = (actualSrc: string) => {
+	return isIosSafari() && actualSrc.startsWith('blob:');
 };
 
 export const appendVideoFragment = ({
@@ -24,7 +27,7 @@ export const appendVideoFragment = ({
 	duration: number;
 	fps: number;
 }): string => {
-	if (isIOSSafariCase(actualSrc)) {
+	if (isIOSSafariAndBlob(actualSrc)) {
 		return actualSrc;
 	}
 
@@ -100,11 +103,4 @@ export const useAppendVideoFragment = ({
 	});
 
 	return appended;
-};
-
-export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
 };

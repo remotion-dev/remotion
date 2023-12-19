@@ -1,16 +1,16 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {expect, test} from 'vitest';
 
 test('Validate frame', () => {
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			durationInFrames: Infinity,
 			frame: Infinity,
 			allowFloats: false,
 		}),
 	).toThrow(/Frame Infinity is not finite/);
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			// @ts-expect-error
 			frame: 'hithere',
 			allowFloats: false,
@@ -18,19 +18,23 @@ test('Validate frame', () => {
 		}),
 	).toThrow(/Argument passed for "frame" is not a number: hithere/);
 	expect(() =>
-		Internals.validateFrame({frame: 3, durationInFrames: 1, allowFloats: true}),
+		NoReactInternals.validateFrame({
+			frame: 3,
+			durationInFrames: 1,
+			allowFloats: true,
+		}),
 	).toThrow(
 		/Cannot use frame 3: Duration of composition is 1, therefore the highest frame that can be rendered is 0/,
 	);
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: 2.99,
 			durationInFrames: 10,
 			allowFloats: false,
 		}),
 	).toThrow(/Argument for frame must be an integer, but got 2.99/);
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: 2.99,
 			durationInFrames: 10,
 			allowFloats: true,
@@ -38,35 +42,35 @@ test('Validate frame', () => {
 	).not.toThrow();
 
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: 0,
 			durationInFrames: 1,
 			allowFloats: false,
 		}),
 	).not.toThrow();
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: 1,
 			durationInFrames: 2,
 			allowFloats: false,
 		}),
 	).not.toThrow();
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: -1,
 			durationInFrames: 100,
 			allowFloats: false,
 		}),
 	).not.toThrow();
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: -100,
 			durationInFrames: 100,
 			allowFloats: false,
 		}),
 	).not.toThrow();
 	expect(() =>
-		Internals.validateFrame({
+		NoReactInternals.validateFrame({
 			frame: -101,
 			durationInFrames: 100,
 			allowFloats: false,

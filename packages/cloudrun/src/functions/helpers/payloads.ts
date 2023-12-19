@@ -31,6 +31,8 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		audioCodec: audioCodec.nullable(),
 		audioBitrate: z.string().nullable(),
 		videoBitrate: z.string().nullable(),
+		encodingMaxRate: z.string().nullable(),
+		encodingBufferSize: z.string().nullable(),
 		crf: z.number().nullable(),
 		pixelFormat,
 		imageFormat: videoImageFormat,

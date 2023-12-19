@@ -1,4 +1,4 @@
-import type {SetStateAction} from 'react';
+import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -133,7 +133,7 @@ export const MenuContent: React.FC<{
 		}
 
 		onHide();
-		item.onClick(item.id);
+		item.onClick(item.id, null);
 	}, [onHide, selectedItem, values]);
 
 	const onArrowRight = useCallback(() => {
@@ -176,6 +176,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const rightBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -184,6 +185,7 @@ export const MenuContent: React.FC<{
 			callback: onArrowRight,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const leftBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -192,6 +194,7 @@ export const MenuContent: React.FC<{
 			callback: onPreviousMenu,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		const downBinding = keybindings.registerKeybinding({
@@ -201,6 +204,7 @@ export const MenuContent: React.FC<{
 			callback: onArrowDown,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const upBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -209,6 +213,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const enterBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -217,6 +222,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		const spaceBinding = keybindings.registerKeybinding({
 			event: 'keyup',
@@ -225,6 +231,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => {
 			escapeBinding.unregister();
@@ -299,9 +306,9 @@ export const MenuContent: React.FC<{
 					return <MenuDivider key={item.id} />;
 				}
 
-				const onClick = () => {
+				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
 					onHide();
-					item.onClick(item.id);
+					item.onClick(id, e);
 				};
 
 				return (

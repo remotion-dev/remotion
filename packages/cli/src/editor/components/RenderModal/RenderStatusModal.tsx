@@ -59,14 +59,12 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 		setSelectedModal(null);
 		removeRenderJob(job).catch((err) => {
 			sendErrorNotification(`Could not remove job: ${err.message}`);
-			console.log(err);
 		});
 	}, [job, setSelectedModal]);
 
 	const onClickOnCancel = useCallback(() => {
 		cancelRenderJob(job).catch((err) => {
 			sendErrorNotification(`Could not cancel job: ${err.message}`);
-			console.log(err);
 		});
 	}, [job]);
 

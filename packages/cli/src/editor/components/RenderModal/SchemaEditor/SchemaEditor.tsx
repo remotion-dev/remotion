@@ -72,6 +72,7 @@ export const SchemaEditor: React.FC<{
 			callback: onQuickSave,
 			preventDefault: true,
 			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: true,
 		});
 
 		return () => {

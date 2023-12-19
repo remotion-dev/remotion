@@ -38,6 +38,7 @@ export const TimelineVideoInfo: React.FC<{
 				setVideoMetadata(data);
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-console
 				console.log('Could not get video metadata', err);
 			});
 	}, [src]);

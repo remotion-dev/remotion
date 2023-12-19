@@ -29,6 +29,9 @@ test("Should fail to render if cancelRender() was being used", async () => {
   );
 
   expect(task.exitCode).toBe(1);
+  if (!task.stderr.includes("CancelledError")) {
+    console.log(task.stderr);
+  }
   expect(task.stderr).toContain("CancelledError");
   expect(task.stderr).toContain("This should be the error message");
 

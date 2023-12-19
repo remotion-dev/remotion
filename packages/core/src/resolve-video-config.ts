@@ -72,22 +72,19 @@ export const resolveVideoConfig = ({
 	signal: AbortSignal;
 	inputProps: Record<string, unknown>;
 }): VideoConfig | Promise<VideoConfig> => {
+	const originalProps = {
+		...(composition.defaultProps ?? {}),
+		...(editorPropsOrUndefined ?? {}),
+		...(inputProps ?? {}),
+	};
+
 	const calculatedProm = composition.calculateMetadata
 		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},
-				props: {
-					...(composition.defaultProps ?? {}),
-					...(editorPropsOrUndefined ?? {}),
-					...inputProps,
-				},
+				props: originalProps,
 				abortSignal: signal,
 		  })
 		: null;
-
-	const fallbackProps = {
-		...(composition.defaultProps ?? {}),
-		...(inputProps ?? {}),
-	};
 
 	if (
 		calculatedProm !== null &&
@@ -107,7 +104,7 @@ export const resolveVideoConfig = ({
 				durationInFrames,
 				id: composition.id,
 				defaultProps: composition.defaultProps ?? {},
-				props: c.props ?? fallbackProps,
+				props: c.props ?? originalProps,
 				defaultCodec: defaultCodec ?? null,
 			};
 		});
@@ -123,7 +120,7 @@ export const resolveVideoConfig = ({
 			...data,
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
-			props: fallbackProps,
+			props: originalProps,
 			defaultCodec: null,
 		};
 	}
@@ -132,7 +129,7 @@ export const resolveVideoConfig = ({
 		...data,
 		id: composition.id,
 		defaultProps: composition.defaultProps ?? {},
-		props: calculatedProm.props ?? fallbackProps,
+		props: calculatedProm.props ?? originalProps,
 		defaultCodec: calculatedProm.defaultCodec ?? null,
 	};
 };

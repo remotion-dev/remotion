@@ -126,6 +126,7 @@ export const OpenInEditor: React.FC<{
 			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

@@ -9,6 +9,7 @@ export const schemaTestSchema = z.object({
 	color: zColor(),
 	list: z.array(z.string()),
 	description: zTextarea().nullable(),
+	dropdown: z.enum(['a', 'b', 'c']),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());
