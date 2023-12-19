@@ -797,6 +797,7 @@ module.exports = {
         "contributing/formatting",
         "contributing/bounty",
         "contributing/rust",
+        "contributing/presentation",
         "authoring-packages",
         "prereleases",
       ],
