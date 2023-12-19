@@ -68,6 +68,7 @@ export const ZodStringEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={false}>
 			<SchemaLabel
+				handleClick={null}
 				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
