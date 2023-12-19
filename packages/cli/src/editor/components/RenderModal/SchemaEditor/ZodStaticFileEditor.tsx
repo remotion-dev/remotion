@@ -91,6 +91,7 @@ export const ZodStaticFileEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
+				handleClick={null}
 				onSave={save}
 				showSaveButton={showSaveButton}
 				isDefaultValue={localValue.value === defaultValue}

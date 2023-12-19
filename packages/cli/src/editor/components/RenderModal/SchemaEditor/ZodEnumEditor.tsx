@@ -86,6 +86,7 @@ export const ZodEnumEditor: React.FC<{
 	return (
 		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			<SchemaLabel
+				handleClick={null}
 				onSave={save}
 				showSaveButton={showSaveButton}
 				isDefaultValue={localValue.value === defaultValue}

@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {deepEqual} from './deep-equal';
@@ -44,8 +44,13 @@ export const ZodArrayEditor: React.FC<{
 		defaultValue,
 	});
 
+	const [expanded, setExpanded] = useState(true);
+
 	const def = schema._def as z.ZodArrayDef;
 
+	const suffix = useMemo(() => {
+		return expanded ? ' [' : ' [...] ';
+	}, [expanded]);
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -62,50 +67,61 @@ export const ZodArrayEditor: React.FC<{
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
-			<SchemaLabel
-				onReset={reset}
-				isDefaultValue={isDefaultValue}
-				jsonPath={jsonPath}
-				onRemove={onRemove}
-				suffix={' ['}
-				onSave={() => {
-					onSave(() => localValue.value, false, false);
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
 				}}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-				showSaveButton={showSaveButton}
-				valid={localValue.zodValidation.success}
-			/>
-			<RevisionContextProvider>
-				<SchemaVerticalGuide isRoot={false}>
-					{localValue.value.map((child, i) => {
-						return (
-							// eslint-disable-next-line react/no-array-index-key
-							<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
-								<ZodArrayItemEditor
-									onChange={onChange}
-									value={child}
-									def={def}
-									index={i}
-									jsonPath={jsonPath}
-									defaultValue={defaultValue[i] ?? child}
-									onSave={onSave}
-									showSaveButton={showSaveButton}
-									saving={saving}
-									saveDisabledByParent={saveDisabledByParent}
-									mayPad={mayPad}
-								/>
-								<SchemaArrayItemSeparationLine
-									schema={schema}
-									index={i}
-									onChange={onChange}
-									isLast={i === localValue.value.length - 1}
-								/>
-							</React.Fragment>
-						);
-					})}
-				</SchemaVerticalGuide>
-			</RevisionContextProvider>
+			>
+				<SchemaLabel
+					onReset={reset}
+					isDefaultValue={isDefaultValue}
+					jsonPath={jsonPath}
+					onRemove={onRemove}
+					suffix={suffix}
+					onSave={() => {
+						onSave(() => localValue.value, false, false);
+					}}
+					saveDisabledByParent={saveDisabledByParent}
+					saving={saving}
+					showSaveButton={showSaveButton}
+					valid={localValue.zodValidation.success}
+					handleClick={() => setExpanded(!expanded)}
+				/>
+			</div>
+
+			{expanded ? (
+				<RevisionContextProvider>
+					<SchemaVerticalGuide isRoot={false}>
+						{localValue.value.map((child, i) => {
+							return (
+								// eslint-disable-next-line react/no-array-index-key
+								<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
+									<ZodArrayItemEditor
+										onChange={onChange}
+										value={child}
+										def={def}
+										index={i}
+										jsonPath={jsonPath}
+										defaultValue={defaultValue[i] ?? child}
+										onSave={onSave}
+										showSaveButton={showSaveButton}
+										saving={saving}
+										saveDisabledByParent={saveDisabledByParent}
+										mayPad={mayPad}
+									/>
+									<SchemaArrayItemSeparationLine
+										schema={schema}
+										index={i}
+										onChange={onChange}
+										isLast={i === localValue.value.length - 1}
+									/>
+								</React.Fragment>
+							);
+						})}
+					</SchemaVerticalGuide>
+				</RevisionContextProvider>
+			) : null}
 			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);

@@ -126,6 +126,7 @@ export const ZodNumberEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
+				handleClick={null}
 				isDefaultValue={isDefault}
 				jsonPath={jsonPath}
 				onReset={reset}

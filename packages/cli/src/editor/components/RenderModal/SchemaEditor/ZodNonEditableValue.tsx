@@ -32,6 +32,7 @@ export const ZonNonEditableValue: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success>
 			<SchemaLabel
+				handleClick={null}
 				isDefaultValue
 				jsonPath={jsonPath}
 				onReset={reset}
