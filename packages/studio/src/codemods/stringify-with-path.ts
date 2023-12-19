@@ -1,5 +1,5 @@
 import {Internals} from 'remotion';
-import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
+import {EnumPath} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
 const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 	return enumPaths.some((p) =>

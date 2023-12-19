@@ -1,3 +1,5 @@
+import type {AggregateRenderProgress} from '@remotion/studio';
+
 export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
 	rendering: null,
 	downloads: [],

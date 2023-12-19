@@ -17,6 +17,16 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	DownloadProgress,
+	JobProgressCallback,
+	RenderingProgressInput,
+	RenderStep,
+	StitchingProgressInput,
+} from '@remotion/studio';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -32,21 +42,12 @@ import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
-import type {BundlingState, CopyingState} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
-import type {
-	AggregateRenderProgress,
-	DownloadProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
-import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
 

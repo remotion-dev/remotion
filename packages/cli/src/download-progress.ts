@@ -1,6 +1,6 @@
-import {formatBytes} from './format-bytes';
+import type {DownloadProgress} from '@remotion/studio';
+import {formatBytes} from '@remotion/studio';
 import {makeProgressBar} from './make-progress-bar';
-import type {DownloadProgress} from './progress-types';
 import {truthy} from './truthy';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {

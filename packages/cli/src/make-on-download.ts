@@ -1,7 +1,7 @@
 import type {LogLevel, RenderMediaOnDownload} from '@remotion/renderer';
-import {formatBytes} from './format-bytes';
+import type {DownloadProgress} from '@remotion/studio';
+import {formatBytes} from '@remotion/studio';
 import {Log} from './log';
-import type {DownloadProgress} from './progress-types';
 
 export const makeOnDownload = ({
 	indent,

@@ -6,8 +6,8 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {formatBytes} from '@remotion/studio';
 import type {VideoConfig} from 'remotion';
-import {formatBytes} from './format-bytes';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
 

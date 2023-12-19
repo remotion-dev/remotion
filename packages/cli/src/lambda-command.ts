@@ -1,7 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
+import {getPackageManager, getRemotionVersion} from '@remotion/studio';
 import {Log} from './log';
-import {getPackageManager} from './preview-server/get-package-manager';
-import {getRemotionVersion} from './preview-server/update-available';
 
 export const lambdaCommand = async (
 	remotionRoot: string,

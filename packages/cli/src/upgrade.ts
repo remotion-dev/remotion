@@ -1,13 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
-import {getLatestRemotionVersion} from '@remotion/studio';
+import type {PackageManager} from '@remotion/studio';
+import {
+	getLatestRemotionVersion,
+	getPackageManager,
+	lockFilePaths,
+} from '@remotion/studio';
 import path from 'node:path';
 import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-import {
-	getPackageManager,
-	lockFilePaths,
-} from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
 	manager,

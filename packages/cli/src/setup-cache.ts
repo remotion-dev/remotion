@@ -2,14 +2,11 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {BundlingState, CopyingState} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
-import type {
-	BundlingState,
-	CopyingState,
-	SymbolicLinksState,
-} from './progress-bar';
+import type {SymbolicLinksState} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeBundlingAndCopyProgress,

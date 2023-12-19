@@ -1,4 +1,3 @@
-import {getMaxTimelineTracks} from '../../../studio/src/max-timeline-tracks';
 import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
@@ -56,7 +55,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {setMaxTimelineTracks} from '../../../studio/src/max-timeline-tracks';
+import {getMaxTimelineTracks, setMaxTimelineTracks} from '@remotion/studio';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,

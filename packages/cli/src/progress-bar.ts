@@ -7,13 +7,12 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio';
-import {AnsiDiff} from '@remotion/studio';
+import {AnsiDiff, formatBytes} from '@remotion/studio';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
 
