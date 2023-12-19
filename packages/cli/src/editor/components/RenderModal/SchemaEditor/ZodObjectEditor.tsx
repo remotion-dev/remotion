@@ -109,7 +109,8 @@ export const ZodObjectEditor: React.FC<{
 							return discriminatedUnionReplacement.markup;
 						}
 
-						const derivedDefaultValue =
+						// In case of null | {a: string, b: string} type, we need to fallback to the default value
+						const defaultValueToPass =
 							defaultValue?.[key] === undefined
 								? value[key]
 								: defaultValue[key];
@@ -121,8 +122,7 @@ export const ZodObjectEditor: React.FC<{
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={localValue.value[key]}
-									// In case of null | {a: string, b: string} type, we need to fallback to the default value
-									defaultValue={derivedDefaultValue}
+									defaultValue={defaultValueToPass}
 									setValue={(val, forceApply) => {
 										onChange(
 											(oldVal) => {
