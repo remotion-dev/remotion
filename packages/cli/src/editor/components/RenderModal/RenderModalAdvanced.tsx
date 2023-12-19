@@ -7,12 +7,14 @@ import type {UiOpenGlOptions} from '../../../required-chromium-options';
 import {labelx264Preset} from '../../helpers/presets-labels';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalHr} from './RenderModalHr';
 
@@ -282,6 +284,8 @@ export const RenderModalAdvanced: React.FC<{
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom OffthreadVideo cache</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
@@ -331,7 +335,10 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>OpenGL render backend</div>
+				<div style={label}>
+					OpenGL render backend <Spacing x={0.5} />
+					<OptionExplainerBubble id="glOption" />
+				</div>
 
 				<div style={rightRow}>
 					<Combobox
@@ -343,6 +350,8 @@ export const RenderModalAdvanced: React.FC<{
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Multi-process Chrome on Linux</div>
+				<Spacing x={0.5} />
+				<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
 				<div style={rightRow}>
 					<Checkbox
 						checked={enableMultiProcessOnLinux}

@@ -10,6 +10,7 @@ import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -28,6 +29,7 @@ export type QualityControl = (typeof qualityControlModes)[number];
 
 const container: React.CSSProperties = {
 	flex: 1,
+	overflowY: 'auto',
 };
 
 export const RenderModalPicture: React.FC<{
@@ -123,16 +125,14 @@ export const RenderModalPicture: React.FC<{
 
 	const onEncodingBufferSizeToggled = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			// TODO: Get defaults from Raykka
-			setEncodingBufferSize(e.target.checked ? '1M' : null);
+			setEncodingBufferSize(e.target.checked ? '10000k' : null);
 		},
 		[setEncodingBufferSize],
 	);
 
 	const onEncodingMaxRateToggled = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			// TODO: Get defaults from Raykka
-			setEncodingMaxRate(e.target.checked ? '1M' : null);
+			setEncodingMaxRate(e.target.checked ? '5000k' : null);
 		},
 		[setEncodingMaxRate],
 	);
@@ -154,7 +154,7 @@ export const RenderModalPicture: React.FC<{
 		);
 
 	return (
-		<div style={container}>
+		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Image Format</div>
@@ -205,6 +205,7 @@ export const RenderModalPicture: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>
 						Target video bitrate
+						<Spacing x={0.5} />
 						<OptionExplainerBubble id="videoBitrate" />
 					</div>
 
@@ -224,7 +225,11 @@ export const RenderModalPicture: React.FC<{
 			{renderMode === 'video' ? (
 				<>
 					<div style={optionRow}>
-						<div style={label}>Custom FFmpeg -bufsize</div>
+						<div style={label}>
+							Custom FFmpeg -bufsize
+							<Spacing x={0.5} />
+							<OptionExplainerBubble id="encodingBufferSizeOption" />
+						</div>
 						<div style={rightRow}>
 							<Checkbox
 								checked={encodingBufferSize !== null}
@@ -250,7 +255,11 @@ export const RenderModalPicture: React.FC<{
 						</div>
 					)}
 					<div style={optionRow}>
-						<div style={label}>Custom FFmpeg -maxrate</div>
+						<div style={label}>
+							Custom FFmpeg -maxrate
+							<Spacing x={0.5} />
+							<OptionExplainerBubble id="encodingMaxRateOption" />
+						</div>
 						<div style={rightRow}>
 							<Checkbox
 								checked={encodingMaxRate !== null}
@@ -296,7 +305,8 @@ export const RenderModalPicture: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>
 						Color space
-						<Spacing x={0.25} /> <OptionExplainerBubble id="colorSpaceOption" />
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="colorSpaceOption" />
 					</div>
 					<div style={rightRow}>
 						<Combobox

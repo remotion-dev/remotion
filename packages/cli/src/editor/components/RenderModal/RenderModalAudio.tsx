@@ -4,6 +4,7 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -123,6 +124,8 @@ export const RenderModalAudio: React.FC<{
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom audio bitrate</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="audioBitrateOption" />
 					<div style={rightRow}>
 						<Checkbox
 							checked={shouldHaveCustomTargetAudioBitrate}
@@ -136,7 +139,7 @@ export const RenderModalAudio: React.FC<{
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
-					<OptionExplainerBubble id="audioBitrateOption" />
+
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
