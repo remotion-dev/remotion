@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {fieldsetLabel} from '../layout';
@@ -49,6 +49,7 @@ export const ZodObjectEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	const [expanded, setExpanded] = useState(true);
 	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
 		schema,
 		setValue,
@@ -72,6 +73,10 @@ export const ZodObjectEditor: React.FC<{
 		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
 
+	const suffix = useMemo(() => {
+		return expanded ? ' {' : ' {...}';
+	}, [expanded]);
+
 	return (
 		<Fieldset
 			shouldPad={!isRoot && mayPad}
@@ -83,7 +88,7 @@ export const ZodObjectEditor: React.FC<{
 					onReset={reset}
 					jsonPath={jsonPath}
 					onRemove={onRemove}
-					suffix={' {'}
+					suffix={suffix}
 					onSave={() => {
 						onSave(
 							() => {
@@ -97,71 +102,74 @@ export const ZodObjectEditor: React.FC<{
 					saving={saving}
 					showSaveButton={showSaveButton}
 					valid={localValue.zodValidation.success}
+					handleClick={() => setExpanded(!expanded)}
 				/>
 			)}
-			<RevisionContextProvider>
-				<SchemaVerticalGuide isRoot={isRoot}>
-					{keys.map((key, i) => {
-						if (
-							discriminatedUnionReplacement &&
-							key === discriminatedUnionReplacement.discriminator
-						) {
-							return discriminatedUnionReplacement.markup;
-						}
 
-						// In case of null | {a: string, b: string} type, we need to fallback to the default value
-						const defaultValueToPass =
-							defaultValue?.[key] === undefined
-								? value[key]
-								: defaultValue[key];
+			{expanded ? (
+				<RevisionContextProvider>
+					<SchemaVerticalGuide isRoot={isRoot}>
+						{keys.map((key, i) => {
+							if (
+								discriminatedUnionReplacement &&
+								key === discriminatedUnionReplacement.discriminator
+							) {
+								return discriminatedUnionReplacement.markup;
+							}
 
-						return (
-							<React.Fragment key={key}>
-								<ZodSwitch
-									mayPad
-									jsonPath={[...jsonPath, key]}
-									schema={shape[key]}
-									value={localValue.value[key]}
-									defaultValue={defaultValueToPass}
-									setValue={(val, forceApply) => {
-										onChange(
-											(oldVal) => {
-												return {
-													...oldVal,
-													[key]:
-														typeof val === 'function' ? val(oldVal[key]) : val,
-												};
-											},
-											forceApply,
-											false,
-										);
-									}}
-									onSave={(val, forceApply) => {
-										onSave(
-											(oldVal) => {
-												return {
-													...oldVal,
-													[key]:
-														typeof val === 'function' ? val(oldVal[key]) : val,
-												};
-											},
-											forceApply,
-											false,
-										);
-									}}
-									onRemove={null}
-									showSaveButton={showSaveButton}
-									saving={saving}
-									saveDisabledByParent={saveDisabledByParent}
-								/>
-								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
-							</React.Fragment>
-						);
-					})}
-				</SchemaVerticalGuide>
-			</RevisionContextProvider>
+							return (
+								<React.Fragment key={key}>
+									<ZodSwitch
+										mayPad
+										jsonPath={[...jsonPath, key]}
+										schema={shape[key]}
+										value={localValue.value[key]}
+										// In case of null | {a: string, b: string} type, we need to fallback to the default value
+										defaultValue={(defaultValue ?? value)[key]}
+										setValue={(val, forceApply) => {
+											onChange(
+												(oldVal) => {
+													return {
+														...oldVal,
+														[key]:
+															typeof val === 'function'
+																? val(oldVal[key])
+																: val,
+													};
+												},
+												forceApply,
+												false,
+											);
+										}}
+										onSave={(val, forceApply) => {
+											onSave(
+												(oldVal) => {
+													return {
+														...oldVal,
+														[key]:
+															typeof val === 'function'
+																? val(oldVal[key])
+																: val,
+													};
+												},
+												forceApply,
+												false,
+											);
+										}}
+										onRemove={null}
+										showSaveButton={showSaveButton}
+										saving={saving}
+										saveDisabledByParent={saveDisabledByParent}
+									/>
+									{i === keys.length - 1 ? null : <SchemaSeparationLine />}
+								</React.Fragment>
+							);
+						})}
+					</SchemaVerticalGuide>
+				</RevisionContextProvider>
+			) : null}
 
-			{isRoot ? null : <div style={fieldsetLabel}>{'}'}</div>}
+			{isRoot || !expanded ? null : <div style={fieldsetLabel}>{'}'}</div>}
 		</Fieldset>
 	);
 };

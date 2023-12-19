@@ -96,6 +96,7 @@ export const ZodOrNullishEditor: React.FC<{
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			{localValue.value === nullishValue ? (
 				<SchemaLabel
+					handleClick={null}
 					isDefaultValue={localValue.value === defaultValue}
 					jsonPath={jsonPath}
 					onReset={reset}
