@@ -5,8 +5,10 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
+import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -53,6 +55,10 @@ export const RenderModalPicture: React.FC<{
 	customTargetVideoBitrate: string;
 	shouldDisplayQualityControlPicker: boolean;
 	pixelFormatOptions: ComboboxValue[];
+	encodingBufferSize: string | null;
+	setEncodingBufferSize: React.Dispatch<React.SetStateAction<string | null>>;
+	encodingMaxRate: string | null;
+	setEncodingMaxRate: React.Dispatch<React.SetStateAction<string | null>>;
 }> = ({
 	renderMode,
 	scale,
@@ -75,6 +81,10 @@ export const RenderModalPicture: React.FC<{
 	colorSpace,
 	setColorSpace,
 	pixelFormatOptions,
+	encodingBufferSize,
+	encodingMaxRate,
+	setEncodingBufferSize,
+	setEncodingMaxRate,
 }) => {
 	const colorSpaceOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validColorSpaces.map((option) => {
@@ -110,6 +120,38 @@ export const RenderModalPicture: React.FC<{
 				setCustomTargetVideoBitrateValue(e.target.value);
 			},
 			[setCustomTargetVideoBitrateValue],
+		);
+
+	const onEncodingBufferSizeToggled = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			// TODO: Get defaults from Raykka
+			setEncodingBufferSize(e.target.checked ? '1M' : null);
+		},
+		[setEncodingBufferSize],
+	);
+
+	const onEncodingMaxRateToggled = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			// TODO: Get defaults from Raykka
+			setEncodingMaxRate(e.target.checked ? '1M' : null);
+		},
+		[setEncodingMaxRate],
+	);
+
+	const onEncodingBufferSizeChanged: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				setEncodingBufferSize(e.target.value);
+			},
+			[setEncodingBufferSize],
+		);
+
+	const onEncodingMaxRateChanged: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				setEncodingMaxRate(e.target.value);
+			},
+			[setEncodingMaxRate],
 		);
 
 	return (
@@ -160,7 +202,7 @@ export const RenderModalPicture: React.FC<{
 					option={BrowserSafeApis.options.crfOption}
 				/>
 			) : null}
-			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
+			{qualityControlType === 'bitrate' && renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>
 						Target video bitrate
@@ -181,6 +223,62 @@ export const RenderModalPicture: React.FC<{
 						</div>
 					</div>
 				</div>
+			) : null}
+			{renderMode === 'video' ? (
+				<>
+					<div style={optionRow}>
+						<div style={label}>Custom FFmpeg -bufsize</div>
+						<div style={rightRow}>
+							<Checkbox
+								checked={encodingBufferSize !== null}
+								onChange={onEncodingBufferSizeToggled}
+								name="encoding-buffer-size"
+							/>
+						</div>
+					</div>
+					{encodingBufferSize === null ? null : (
+						<div style={optionRow}>
+							<div style={label}>-bufsize value</div>
+							<div style={rightRow}>
+								<div>
+									<RemotionInput
+										style={input}
+										value={encodingBufferSize}
+										onChange={onEncodingBufferSizeChanged}
+										status="ok"
+										rightAlign
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+					<div style={optionRow}>
+						<div style={label}>Custom FFmpeg -maxrate</div>
+						<div style={rightRow}>
+							<Checkbox
+								checked={encodingMaxRate !== null}
+								onChange={onEncodingMaxRateToggled}
+								name="encoding-max-rate"
+							/>
+						</div>
+					</div>
+					{encodingMaxRate === null ? null : (
+						<div style={optionRow}>
+							<div style={label}>-maxrate value</div>
+							<div style={rightRow}>
+								<div>
+									<RemotionInput
+										style={input}
+										value={encodingMaxRate}
+										onChange={onEncodingMaxRateChanged}
+										status="ok"
+										rightAlign
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+				</>
 			) : null}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			<ScaleSetting scale={scale} setScale={setScale} />

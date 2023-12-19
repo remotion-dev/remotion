@@ -1278,6 +1278,10 @@ const RenderModal: React.FC<
 							videoImageFormat={videoImageFormat}
 							stillImageFormat={stillImageFormat}
 							shouldDisplayQualityControlPicker={supportsBothQualityControls}
+							encodingBufferSize={encodingBufferSize}
+							setEncodingBufferSize={setEncodingBufferSize}
+							encodingMaxRate={encodingMaxRate}
+							setEncodingMaxRate={setEncodingMaxRate}
 						/>
 					) : tab === 'audio' ? (
 						<RenderModalAudio
@@ -1351,6 +1355,8 @@ const RenderModal: React.FC<
 							enableMultiProcessOnLinux={multiProcessOnLinux}
 							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}
+							userAgent={userAgent}
+							setUserAgent={setUserAgent}
 						/>
 					)}
 				</div>
