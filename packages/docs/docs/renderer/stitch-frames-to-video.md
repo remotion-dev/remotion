@@ -78,24 +78,19 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
-_string - optional_
-
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-_string - optional_
+<Options id="video-bitrate"/>
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `crf?`
 

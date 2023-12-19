@@ -27,6 +27,8 @@ import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 import {x264PresetOptions} from './x264-preset';
 
+export {AvailableOptions} from './options';
+
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
 	validCodecs,

@@ -83,6 +83,8 @@ export type RenderMediaOnProgress = (progress: {
 	stitchStage: StitchingState;
 }) => void;
 
+type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
+
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
@@ -121,14 +123,20 @@ export type InternalRenderMediaOptions = {
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
-} & ToOptions<typeof optionsMap.renderMedia>;
+} & MoreRenderMediaOptions;
 
-export type RenderMediaOptions = {
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type RenderMediaOptions = Prettify<{
 	outputLocation?: string | null;
 	codec: Codec;
 	composition: VideoConfig;
@@ -173,6 +181,8 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
@@ -180,7 +190,7 @@ export type RenderMediaOptions = {
 	logLevel?: LogLevel;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	colorSpace?: ColorSpace;
-};
+}>;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
@@ -217,6 +227,8 @@ const internalRenderMediaRaw = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	audioCodec,
 	concurrency,
 	disallowParallelEncoding,
@@ -235,7 +247,13 @@ const internalRenderMediaRaw = ({
 	colorSpace,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
-	validateQualitySettings({crf, codec, videoBitrate});
+	validateQualitySettings({
+		crf,
+		codec,
+		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
+	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 
@@ -447,6 +465,8 @@ const internalRenderMediaRaw = ({
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
+				encodingMaxRate,
+				encodingBufferSize,
 				indent,
 				x264Preset: x264Preset ?? null,
 				colorSpace,
@@ -657,6 +677,8 @@ const internalRenderMediaRaw = ({
 						ffmpegOverride: ffmpegOverride ?? null,
 						audioBitrate,
 						videoBitrate,
+						encodingBufferSize,
+						encodingMaxRate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
 						colorSpace,
@@ -768,6 +790,8 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	audioCodec,
 	jpegQuality,
 	concurrency,
@@ -831,6 +855,8 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		logLevel:
 			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,

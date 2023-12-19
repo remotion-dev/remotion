@@ -76,6 +76,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -197,6 +199,8 @@ export const renderCommand = async (
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
 		forceHeight: height,
 		forceWidth: width,
 		webhook: parsedLambdaCli.webhook

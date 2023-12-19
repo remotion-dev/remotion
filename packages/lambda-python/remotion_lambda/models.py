@@ -52,6 +52,8 @@ class RenderParams:
     x264_preset: Optional[str] = None
     pixel_format: Optional[str] = None
     delete_after: Optional[str] = None
+    encoding_buffer_size: Optional[str] = None
+    encoding_max_rate: Optional[str] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -93,6 +95,8 @@ class RenderParams:
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'deleteAfter': self.delete_after,
+            'encodingBufferSize': self.encoding_buffer_size,
+            'encodingMaxRate': self.encoding_max_rate,
             'type': 'start'
         }
 

@@ -65,6 +65,8 @@ test("Go package should create the same payload as normal Lambda package", async
     scale: 1,
     timeoutInMilliseconds: 30000,
     videoBitrate: null,
+    encodingMaxRate: null,
+    encodingBufferSize: null,
     webhook: null,
     x264Preset: null,
     inputProps: {},

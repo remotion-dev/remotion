@@ -55,6 +55,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
+			initialEncodingBufferSize: defaults.encodingBufferSize,
+			initialEncodingMaxRate: defaults.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 
@@ -97,6 +100,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
 			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
+			initialEncodingBufferSize: defaults.encodingBufferSize,
+			initialEncodingMaxRate: defaults.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 
@@ -140,6 +146,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: job.codec,
 			defaultConfigurationAudioCodec: job.audioCodec,
+			initialEncodingBufferSize: job.encodingBufferSize,
+			initialEncodingMaxRate: job.encodingMaxRate,
+			initialUserAgent: job.chromiumOptions.userAgent,
 		};
 	}
 

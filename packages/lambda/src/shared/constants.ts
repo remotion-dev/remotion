@@ -222,7 +222,9 @@ export type WebhookOption = Prettify<
 			url: string;
 			secret: string | null;
 	  } & Partial<
-			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+			ToOptions<{
+				customData: typeof BrowserSafeApis.options.webhookCustomDataOption;
+			}>
 	  >)
 >;
 
@@ -269,6 +271,8 @@ export type LambdaStartPayload = {
 	overwrite: boolean;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	webhook: WebhookOption;
 	forceHeight: number | null;
 	forceWidth: number | null;
@@ -325,6 +329,8 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingMaxRate: string | null;
+		encodingBufferSize: string | null;
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
@@ -367,6 +373,8 @@ export type LambdaPayloads = {
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingBufferSize: string | null;
+		encodingMaxRate: string | null;
 		launchFunctionConfig: {
 			version: string;
 		};
