@@ -31,29 +31,5 @@
 				]
 			}
 		]
-	},
-	"overrides": [
-		{
-			"files": "./src/editor/**",
-			"rules": {
-				"no-restricted-imports": [
-					"error",
-					{
-						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-					}
-				]
-			}
-		},
-		{
-			"files": "./src/preview-server/error-overlay/**",
-			"rules": {
-				"no-restricted-imports": [
-					"error",
-					{
-						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-					}
-				]
-			}
-		}
-	]
+	}
 }
