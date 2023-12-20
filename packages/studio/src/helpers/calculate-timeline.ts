@@ -1,4 +1,5 @@
 import type {TSequence} from 'remotion';
+import {getLocationOfSequence} from './get-location-of-sequence';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -94,6 +95,9 @@ export const calculateTimeline = ({
 
 	const uniqueTracks: TrackWithHash[] = [];
 	for (const track of tracks) {
+		const location = getLocationOfSequence(track.sequence.stack);
+		console.log(location);
+
 		if (
 			!uniqueTracks.find((t) => t.hash === track.hash) &&
 			track.sequence.showInTimeline &&
