@@ -7,6 +7,7 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {TimelineLayerEye} from './TimelineLayerEye';
+import {TimelineStack} from './TimelineStack';
 
 const SPACING = 5;
 
@@ -87,6 +88,7 @@ export const TimelineListItem: React.FC<{
 			<div title={text || '<Sequence>'} style={textStyle}>
 				{text || '<Sequence>'}
 			</div>
+			{sequence.stack ? <TimelineStack stack={sequence.stack} /> : null}
 		</div>
 	);
 };
