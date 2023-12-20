@@ -10,7 +10,13 @@ export const enableSequenceStackTraces = () => {
 	const proxy = new Proxy(React.createElement, {
 		apply(target, thisArg, argArray) {
 			if (argArray[0] === Sequence) {
-				console.log('trapped', new Error().stack);
+				const [first, props, ...rest] = argArray;
+				const newProps = {
+					...(props ?? {}),
+					stack: new Error().stack,
+				};
+
+				return Reflect.apply(target, thisArg, [first, newProps, ...rest]);
 			}
 
 			return Reflect.apply(target, thisArg, argArray);

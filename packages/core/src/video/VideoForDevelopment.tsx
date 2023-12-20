@@ -83,6 +83,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
+		stack: null,
 	});
 
 	useSyncVolumeWithMediaTag({

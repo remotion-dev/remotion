@@ -38,6 +38,7 @@ test('Should calculate a basic timeline', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
+				stack: null,
 				loopDisplay: undefined,
 			},
 		],
@@ -76,6 +77,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
+				stack: null,
 				loopDisplay: undefined,
 			},
 			{
@@ -88,6 +90,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
+				stack: null,
 				loopDisplay: undefined,
 			},
 		],

@@ -134,6 +134,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
+		stack: null,
 	});
 
 	useMediaPlayback({

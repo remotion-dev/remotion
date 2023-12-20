@@ -43,6 +43,10 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated For internal use only.
 	 */
 	loopDisplay?: LoopDisplay;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	stack?: string;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -60,6 +64,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		showInTimeline = true,
 		loopDisplay,
+		stack,
 		...other
 	},
 	ref,
@@ -157,6 +162,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce,
 			loopDisplay,
+			stack: stack ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -175,6 +181,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
+		stack,
 	]);
 
 	// Ceil to support floats
