@@ -1,19 +1,23 @@
-export {AnsiDiff} from './ansi/ansi-diff';
-export type {EnumPath} from './components/RenderModal/SchemaEditor/extract-enum-json-paths';
-export {installFileWatcher} from './file-watcher';
-export {getDefaultOutLocation} from './get-default-out-name';
-export {getLatestRemotionVersion} from './get-latest-remotion-version';
-export {formatBytes} from './helpers/format-bytes';
-export {
+import {installFileWatcher} from './file-watcher';
+import {getDefaultOutLocation} from './get-default-out-name';
+import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {formatBytes} from './helpers/format-bytes';
+import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
 } from './max-timeline-tracks';
-export {
+import {
 	getPackageManager,
 	lockFilePaths,
-	PackageManager,
 } from './preview-server/get-package-manager';
-export {
+import {waitForLiveEventsListener} from './preview-server/live-events';
+import {getRemotionVersion} from './preview-server/update-available';
+import {startStudio} from './start-studio';
+
+export type {AnsiDiff} from './ansi/ansi-diff';
+export type {EnumPath} from './components/RenderModal/SchemaEditor/extract-enum-json-paths';
+export type {PackageManager} from './preview-server/get-package-manager';
+export type {
 	AggregateRenderProgress,
 	BundlingState,
 	CopyingState,
@@ -25,6 +29,17 @@ export {
 	RenderStep,
 	StitchingProgressInput,
 } from './preview-server/job';
-export {waitForLiveEventsListener} from './preview-server/live-events';
-export {getRemotionVersion} from './preview-server/update-available';
-export {startStudio} from './start-studio';
+
+export const StudioInternals = {
+	startStudio,
+	getRemotionVersion,
+	waitForLiveEventsListener,
+	lockFilePaths,
+	getPackageManager,
+	getMaxTimelineTracks,
+	setMaxTimelineTracks,
+	formatBytes,
+	getLatestRemotionVersion,
+	getDefaultOutLocation,
+	installFileWatcher,
+};
