@@ -4,20 +4,21 @@ import React, {useEffect, useRef, useState} from 'react';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 
 const containerStyle: React.CSSProperties = {
-	height: TIMELINE_LAYER_HEIGHT,
-	width: TIMELINE_LAYER_HEIGHT,
+	height: TIMELINE_LAYER_HEIGHT - 2,
+	width: TIMELINE_LAYER_HEIGHT - 2,
 	backgroundColor: 'rgba(0, 0, 0, 0.3)',
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	textAlign: 'center',
-	borderRadius: 2,
+	borderTopLeftRadius: 2,
+	borderBottomLeftRadius: 2,
 	fontSize: 10,
 	fontFamily: 'Arial, Helvetica',
 };
 
 const svgStyle: React.CSSProperties = {
-	height: 20,
+	height: 12,
 };
 
 const pathStyle: React.CSSProperties = {

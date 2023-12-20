@@ -49,7 +49,6 @@ const timeValue: React.CSSProperties = {
 	top: 0,
 	width: '100%',
 	paddingLeft: TOTAL_TIMELINE_LAYER_LEFT_PADDING,
-	boxShadow: `0 0 20px ${BACKGROUND}`,
 	display: 'flex',
 	alignItems: 'center',
 	background: BACKGROUND,
