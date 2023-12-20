@@ -9,6 +9,7 @@ import {
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
+import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -64,10 +65,9 @@ const Inner: React.FC<{
 					? VIDEO_GRADIENT
 					: BLUE,
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
-			borderRadius: 4,
+			borderRadius: 2,
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
-			marginTop: 1,
 			marginLeft,
 			width,
 			color: 'white',
@@ -93,6 +93,20 @@ const Inner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
+			{s.type !== 'audio' &&
+			s.type !== 'video' &&
+			s.loopDisplay === undefined ? (
+				<div
+					style={{
+						paddingLeft: 5,
+						height: '100%',
+						display: 'flex',
+						alignItems: 'center',
+					}}
+				>
+					<TimelineSequenceFrame from={s.from} duration={s.duration} />
+				</div>
+			) : null}
 		</div>
 	);
 };

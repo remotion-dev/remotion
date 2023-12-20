@@ -1,22 +1,19 @@
 import React, {useMemo} from 'react';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	TIMELINE_BORDER,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
-import type {TimelineViewState} from './timeline-state-reducer';
 import {TimelineSequence} from './TimelineSequence';
-import {
-	TimelineTimeIndicators,
-	TimelineTimePadding,
-} from './TimelineTimeIndicators';
+import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
+	paddingTop: 1,
 };
 
 const timelineContent: React.CSSProperties = {
@@ -25,12 +22,12 @@ const timelineContent: React.CSSProperties = {
 
 export const TimelineTracks: React.FC<{
 	timeline: TrackWithHash[];
-	viewState: TimelineViewState;
 	hasBeenCut: boolean;
-}> = ({timeline, viewState, hasBeenCut}) => {
+}> = ({timeline, hasBeenCut}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
+			height: TIMELINE_LAYER_HEIGHT,
+			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
 		};
 	}, []);
 
@@ -46,7 +43,7 @@ export const TimelineTracks: React.FC<{
 			<div style={content}>
 				<TimelineTimePadding />
 				{timeline.map((track) => {
-					if (isTrackHidden(track, timeline, viewState)) {
+					if (isTrackHidden(track, timeline)) {
 						return null;
 					}
 
@@ -56,7 +53,6 @@ export const TimelineTracks: React.FC<{
 						</div>
 					);
 				})}
-				<TimelineTimeIndicators />
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

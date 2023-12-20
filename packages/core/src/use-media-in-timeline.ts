@@ -32,6 +32,7 @@ export const useMediaInTimeline = ({
 	mediaType,
 	playbackRate,
 	displayName,
+	id,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -40,6 +41,7 @@ export const useMediaInTimeline = ({
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 	displayName: string | null;
+	id: string;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -50,7 +52,6 @@ export const useMediaInTimeline = ({
 	const [playing] = usePlayingState();
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const [id] = useState(() => String(Math.random()));
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
 	const nonce = useNonce();

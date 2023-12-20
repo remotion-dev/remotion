@@ -9,13 +9,12 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {DEFAULT_ZOOM} from '../../helpers/smooth-zoom';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomCtx, TIMELINE_MIN_ZOOM} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -72,7 +71,7 @@ export const TimelineDragHandler: React.FC = () => {
 			return {};
 		}
 
-		const zoom = zoomMap[canvasContent.compositionId] ?? DEFAULT_ZOOM;
+		const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
 		return {
 			...container,
 			width: 100 * zoom + '%',

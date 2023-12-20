@@ -1,30 +1,35 @@
 import React from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {renderFrame} from '../state/render-frame';
-import {Spacing} from './layout';
+import {Flex} from './layout';
 
 const text: React.CSSProperties = {
 	color: 'white',
-	fontSize: 18,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'flex-end',
 	fontVariantNumeric: 'tabular-nums',
 	lineHeight: 1,
+	width: '100%',
+	userSelect: 'none',
 };
 
 const time: React.CSSProperties = {
 	display: 'inline-block',
 	fontSize: 18,
 	lineHeight: 1,
+	fontFamily: 'monospace',
 };
 
 const frameStyle: React.CSSProperties = {
-	color: '#ccc',
-	fontSize: 10,
+	color: LIGHT_TEXT,
 	fontWeight: 500,
 	lineHeight: 1,
+	fontSize: 18,
+	fontFamily: 'monospace',
+	paddingRight: 10,
 };
 
 export const TimeValue: React.FC = () => {
@@ -42,10 +47,9 @@ export const TimeValue: React.FC = () => {
 
 	return (
 		<div style={text}>
-			<div style={time}>{renderFrame(frame, config.fps)}</div> <Spacing x={1} />
-			<div style={frameStyle}>
-				{frame} <span style={frameStyle}>({config.fps} fps)</span>
-			</div>
+			<div style={time}>{renderFrame(frame, config.fps)}</div>
+			<Flex />
+			<div style={frameStyle}>{frame}</div>
 		</div>
 	);
 };

@@ -11,6 +11,7 @@ import React, {
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -64,6 +65,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		name,
 		...nativeProps
 	} = props;
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
 		throw new TypeError("No 'src' was passed to <Audio>.");
@@ -71,23 +73,27 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const preloadedSrc = usePreload(src);
 
+	const sequenceContext = useContext(SequenceContext);
+
+	const [timelineId] = useState(() => String(Math.random()));
+
+	const isSequenceHidden = hidden[timelineId] ?? false;
+
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
-			muted: muted || mediaMuted,
+			muted: muted || mediaMuted || isSequenceHidden,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			...nativeProps,
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
+		isSequenceHidden,
 		mediaMuted,
 		muted,
 		nativeProps,
 		preloadedSrc,
 	]);
-
-	const sequenceContext = useContext(SequenceContext);
-
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
 	const id = useMemo(
@@ -127,6 +133,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
+		id: timelineId,
 	});
 
 	useMediaPlayback({

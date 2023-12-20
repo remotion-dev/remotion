@@ -24,6 +24,7 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {HlsDemo} from './Hls/HlsDemo';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {
@@ -1060,6 +1061,15 @@ export const Index: React.FC = () => {
 					durationInFrames={60}
 				/>
 			</Folder>
+			<Composition
+				id="Layers"
+				component={Layers}
+				width={1080}
+				height={1080}
+				durationInFrames={200}
+				fps={30}
+				defaultProps={{}}
+			/>
 		</>
 	);
 };

@@ -1,7 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {DEFAULT_ZOOM} from '../../helpers/smooth-zoom';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
 import {
@@ -75,7 +74,7 @@ export const TimelineZoomControls: React.FC = () => {
 		return null;
 	}
 
-	const zoom = zoomMap[canvasContent.compositionId] ?? DEFAULT_ZOOM;
+	const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
 
 	return (
 		<div style={container}>

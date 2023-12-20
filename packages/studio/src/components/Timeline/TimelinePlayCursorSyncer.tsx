@@ -1,8 +1,7 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {DEFAULT_ZOOM} from '../../helpers/smooth-zoom';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomCtx, TIMELINE_MIN_ZOOM} from '../../state/timeline-zoom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,
@@ -40,7 +39,9 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		canvasContent && canvasContent.type === 'composition'
 			? canvasContent.compositionId
 			: null;
-	const zoom = compositionId ? zoomMap[compositionId] ?? DEFAULT_ZOOM : null;
+	const zoom = compositionId
+		? zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM
+		: null;
 
 	if (zoom && video) {
 		setCurrentFrame(timelinePosition);

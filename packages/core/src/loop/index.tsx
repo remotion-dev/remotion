@@ -71,7 +71,7 @@ export const Loop: React.FC<LoopProps> = ({
 		<Sequence
 			durationInFrames={durationInFrames}
 			from={from}
-			name={name}
+			name={name ?? '<Loop>'}
 			loopDisplay={loopDisplay}
 			layout={props.layout}
 			style={style}

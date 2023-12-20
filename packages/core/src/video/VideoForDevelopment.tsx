@@ -4,11 +4,14 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -39,6 +42,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
+
+	const [timelineId] = useState(() => String(Math.random()));
+	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const {
 		volume,
@@ -53,7 +60,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		name,
 		_remotionInternalNativeLoopPassed,
-
+		style,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -75,6 +82,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src,
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
+		id: timelineId,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -192,6 +200,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
+	const actualStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			opacity: isSequenceHidden ? 0 : 1,
+		};
+	}, [isSequenceHidden, style]);
+
 	return (
 		<video
 			ref={videoRef}
@@ -199,6 +214,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
+			style={actualStyle}
 			{...nativeProps}
 		/>
 	);

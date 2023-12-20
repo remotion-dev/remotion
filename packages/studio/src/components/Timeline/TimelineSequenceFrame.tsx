@@ -1,14 +1,11 @@
 import React from 'react';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
-import {renderFrame} from '../../state/render-frame';
+import {useCurrentFrame} from 'remotion';
 
 const relativeFrameStyle: React.CSSProperties = {
-	fontSize: 12,
+	fontSize: 11,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	color: 'white',
-	opacity: 0.6,
-	marginTop: 2,
-	cursor: 'help',
+	opacity: 0.5,
 };
 
 export const TimelineSequenceFrame: React.FC<{
@@ -16,7 +13,6 @@ export const TimelineSequenceFrame: React.FC<{
 	duration: number;
 }> = ({from, duration}) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 	const relativeFrame = frame - from;
 
 	const roundedFrame = Math.round(relativeFrame * 100) / 100;
@@ -27,18 +23,5 @@ export const TimelineSequenceFrame: React.FC<{
 		return null;
 	}
 
-	return (
-		<div
-			title={`
-The current time within the sequence.
-
-Call \`useCurrentFrame()\` within the sequence to get the time programmatically.
-
-Call \`const {durationInFrames} = useVideoConfig()\` to get the duration of the sequence.
-`.trim()}
-			style={relativeFrameStyle}
-		>
-			{renderFrame(relativeFrame, fps)} ({roundedFrame})
-		</div>
-	);
+	return <div style={relativeFrameStyle}>{roundedFrame}</div>;
 };
