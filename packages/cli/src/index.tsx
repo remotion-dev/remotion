@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {formatBytes} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
@@ -140,7 +140,7 @@ export const CliInternals = {
 	quietFlagProvided,
 	parsedCli,
 	printError,
-	formatBytes,
+	formatBytes: StudioInternals.formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,

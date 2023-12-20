@@ -5,7 +5,7 @@ import type {
 	RenderJob,
 	RenderJobWithCleanup,
 } from '@remotion/studio';
-import {installFileWatcher, waitForLiveEventsListener} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
@@ -39,7 +39,7 @@ export const getRenderQueue = (): RenderJob[] => {
 };
 
 const notifyClientsOfJobUpdate = () => {
-	waitForLiveEventsListener().then((listener) => {
+	StudioInternals.waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({
 			type: 'render-queue-updated',
 			queue: getRenderQueue(),
@@ -219,7 +219,7 @@ const processJobIfPossible = async ({
 		});
 		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
 
-		const {unwatch} = installFileWatcher({
+		const {unwatch} = StudioInternals.installFileWatcher({
 			file: path.resolve(remotionRoot, nextJob.outName),
 			onChange: (type) => {
 				if (type === 'created') {
@@ -265,7 +265,7 @@ const processJobIfPossible = async ({
 
 		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
 
-		waitForLiveEventsListener().then((listener) => {
+		StudioInternals.waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({
 				type: 'render-job-failed',
 				compositionId: nextJob.compositionId,

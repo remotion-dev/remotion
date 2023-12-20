@@ -7,7 +7,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio';
-import {AnsiDiff, formatBytes} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
@@ -55,7 +55,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new AnsiDiff();
+	const diff = new StudioInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -270,7 +270,9 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+		return `Copying public dir ${StudioInternals.formatBytes(
+			progress.copyingState.bytes,
+		)}`;
 	}
 
 	if (!progress.rendering) {

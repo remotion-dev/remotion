@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {installFileWatcher} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import dotenv from 'dotenv';
 import fs, {readFileSync} from 'node:fs';
 import path from 'node:path';
@@ -42,7 +42,7 @@ const watchEnvFile = ({
 		});
 	};
 
-	const {unwatch} = installFileWatcher({
+	const {unwatch} = StudioInternals.installFileWatcher({
 		file: envFile,
 		onChange: async (type) => {
 			try {

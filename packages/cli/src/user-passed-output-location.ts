@@ -1,4 +1,4 @@
-import {getDefaultOutLocation} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
@@ -39,7 +39,7 @@ export const getOutputLocation = ({
 
 	return (
 		getUserPassedOutputLocation(args, outputLocationFromUi) ??
-		getDefaultOutLocation({
+		StudioInternals.getDefaultOutLocation({
 			compositionName: compositionId,
 			defaultExtension,
 			type,

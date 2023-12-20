@@ -1,3 +1,4 @@
+import {AnsiDiff} from './ansi/ansi-diff';
 import {installFileWatcher} from './file-watcher';
 import {getDefaultOutLocation} from './get-default-out-name';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
@@ -42,4 +43,5 @@ export const StudioInternals = {
 	getLatestRemotionVersion,
 	getDefaultOutLocation,
 	installFileWatcher,
+	AnsiDiff,
 };

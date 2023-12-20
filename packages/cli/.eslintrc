@@ -7,8 +7,10 @@
 			{
 				"patterns": [
 					"@remotion/*/src/*",
+					"@remotion/*/src",
 					"remotion/src/*",
 					"@remotion/*/dist/*",
+					"@remotion/*/dist",
 					"remotion/dist/*"
 				]
 			}
