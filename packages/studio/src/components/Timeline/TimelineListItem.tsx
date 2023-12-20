@@ -12,12 +12,9 @@ const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
 
-const TIMELINE_LAYER_PADDING = HOOK_WIDTH + SPACING * 1.5;
-const TIMELINE_COLLAPSER_WIDTH = 8;
-const TIMELINE_COLLAPSER_MARGIN_RIGHT = 10;
+const TIMELINE_LAYER_PADDING = HOOK_WIDTH + SPACING;
 
-export const TOTAL_TIMELINE_LAYER_LEFT_PADDING =
-	TIMELINE_COLLAPSER_WIDTH + TIMELINE_COLLAPSER_MARGIN_RIGHT + TIMELINE_PADDING;
+export const TOTAL_TIMELINE_LAYER_LEFT_PADDING = TIMELINE_PADDING;
 
 const textStyle: React.CSSProperties = {
 	fontSize: 13,
@@ -59,12 +56,6 @@ const space: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-const smallSpace: React.CSSProperties = {
-	width: SPACING * 0.5,
-
-	flexShrink: 0,
-};
-
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
 	nestedDepth: number;
@@ -84,7 +75,7 @@ export const TimelineListItem: React.FC<{
 
 	const padder = useMemo((): React.CSSProperties => {
 		return {
-			width: leftOffset * nestedDepth,
+			width: leftOffset * (nestedDepth - 1),
 			flexShrink: 0,
 		};
 	}, [leftOffset, nestedDepth]);
@@ -97,10 +88,8 @@ export const TimelineListItem: React.FC<{
 	return (
 		<div style={outer}>
 			<div style={padder} />
-
 			{sequence.parent && nestedDepth > 0 ? (
 				<>
-					<div style={smallSpace} />
 					<div style={hookContainer}>
 						<div style={hookStyle} />
 					</div>
