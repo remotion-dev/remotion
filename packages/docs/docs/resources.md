@@ -44,6 +44,11 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
+## Players
+
+- [Remotion Player](/docs/player)
+- [Vidstack Player](https://www.vidstack.io/docs/player/getting-started/installation/react?provider=remotion&styling=default-layout)
+
 ## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
