@@ -62,7 +62,7 @@ const drawGradient = ({
 	context.fillRect(startX, startY, endX - startX, endY - startY);
 };
 
-export const drawGuide = ({
+const drawGuide = ({
 	selectedGuide,
 	scale,
 	startMarking,
@@ -262,7 +262,7 @@ export const getRulerPoints = ({
 	};
 };
 
-export const rulerValueToPosition = ({
+const rulerValueToPosition = ({
 	value,
 	startMarking,
 	scale,

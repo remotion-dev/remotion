@@ -35,8 +35,6 @@ const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 	}
 };
 
-export type EditType = 'inputProps' | 'defaultProps';
-
 export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;

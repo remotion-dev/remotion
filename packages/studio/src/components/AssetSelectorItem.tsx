@@ -63,7 +63,7 @@ const revealIconStyle: React.CSSProperties = {
 	color: 'currentColor',
 };
 
-export const AssetFolderItem: React.FC<{
+const AssetFolderItem: React.FC<{
 	item: AssetFolder;
 	tabIndex: number;
 	level: number;
@@ -174,7 +174,7 @@ export const AssetFolderTree: React.FC<{
 	);
 };
 
-export const AssetSelectorItem: React.FC<{
+const AssetSelectorItem: React.FC<{
 	item: StaticFile | AssetFolder;
 	tabIndex: number;
 	level: number;

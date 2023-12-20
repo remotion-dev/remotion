@@ -30,13 +30,11 @@ const tabsContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-export const persistSelectedOptionsSidebarPanel = (
-	panel: OptionsSidebarPanel,
-) => {
+const persistSelectedOptionsSidebarPanel = (panel: OptionsSidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
-export const optionsSidebarTabs = createRef<{
+const optionsSidebarTabs = createRef<{
 	selectRendersPanel: () => void;
 }>();
 

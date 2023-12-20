@@ -21,7 +21,7 @@ type Props = React.DetailedHTMLProps<
 	status: 'error' | 'warning' | 'ok';
 };
 
-export const inputBaseStyle: React.CSSProperties = {
+const inputBaseStyle: React.CSSProperties = {
 	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
 	color: 'white',
 	borderStyle: 'solid',

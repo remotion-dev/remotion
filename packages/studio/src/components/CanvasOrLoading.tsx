@@ -118,7 +118,7 @@ const loaderContainer: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
-export const ErrorLoading: React.FC<{
+const ErrorLoading: React.FC<{
 	error: Error;
 }> = ({error}) => {
 	return (

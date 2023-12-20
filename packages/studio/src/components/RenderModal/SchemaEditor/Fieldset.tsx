@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useMemo} from 'react';
 
-export const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
+const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
 
 type AlreadyPaddedContext = boolean;
 
