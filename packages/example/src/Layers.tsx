@@ -10,9 +10,8 @@ export const Layers: React.FC = () => {
 			<Sequence from={10}>hi</Sequence>
 			<Sequence from={10}>hi</Sequence>
 			<Sequence from={10}>hi</Sequence>
-			<Sequence from={10}>hi</Sequence>
-			<Sequence from={10}>hi</Sequence>
-			<Sequence from={10}>hi</Sequence>
+			<Sequence from={10}>hi there</Sequence>
+			<Sequence from={10}>hi yaaa</Sequence>
 			<Sequence from={10}>hi</Sequence>
 			<Sequence from={10}>hi</Sequence>
 			<Sequence from={10}>hi</Sequence>

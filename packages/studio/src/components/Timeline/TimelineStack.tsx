@@ -1,11 +1,16 @@
 import {useCallback, useEffect, useState} from 'react';
-import {NoReactInternals} from 'remotion/no-react';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {getOriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {getLocationOfSequence} from '../../helpers/get-location-of-sequence';
 import {openInEditor} from '../../helpers/open-in-editor';
+
+// TODO: Use local version
+// @ts-expect-error
+SourceMapConsumer.initialize({
+	'lib/mappings.wasm': 'https://unpkg.com/source-map@0.7.3/lib/mappings.wasm',
+});
 
 export const TimelineStack: React.FC<{
 	stack: string;
@@ -33,12 +38,18 @@ export const TimelineStack: React.FC<{
 		const location = getLocationOfSequence(stack);
 
 		if (location) {
-			fetch('/' + NoReactInternals.bundleMapName)
+			fetch(`${location.fileName}.map`)
 				.then((res) => res.json())
 				.then((sourceMap) => {
-					const map = new SourceMapConsumer(sourceMap);
+					return new Promise((resolve) => {
+						SourceMapConsumer.with(sourceMap, null, (consumer) => {
+							resolve(consumer);
+						});
+					});
+				})
+				.then((map) => {
 					return getOriginalPosition(
-						map,
+						map as SourceMapConsumer,
 						location.lineNumber as number,
 						location.columnNumber as number,
 					);
