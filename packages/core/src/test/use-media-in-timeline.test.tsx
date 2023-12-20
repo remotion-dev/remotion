@@ -72,6 +72,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				mediaRef: audioRef,
 				playbackRate: 1,
 				displayName: null,
+				id: 'test',
 			}),
 		{
 			wrapper,
