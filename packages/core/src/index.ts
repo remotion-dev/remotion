@@ -2,6 +2,7 @@ import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
 import type {TRenderAsset} from './CompositionManager.js';
+import {enableSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -185,3 +186,5 @@ export const Config = new Proxy(proxyObj, {
 		};
 	},
 });
+
+enableSequenceStackTraces();
