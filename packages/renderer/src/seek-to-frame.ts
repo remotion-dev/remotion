@@ -31,7 +31,7 @@ export const waitForReady = ({
 }) => {
 	const cleanups: Fn[] = [];
 
-	const retrieveErrorAndReject = () => {
+	const retrieveCancelledErrorAndReject = () => {
 		return new Promise((_, reject) => {
 			puppeteerEvaluateWithCatch({
 				pageFunction: () => window.remotion_cancelledError,
@@ -39,22 +39,27 @@ export const waitForReady = ({
 				frame: null,
 				page,
 				timeoutInMilliseconds,
-			}).then(({value: val}) => {
-				if (typeof val !== 'string') {
-					reject(val);
-					return;
-				}
+			})
+				.then(({value: val}) => {
+					if (typeof val !== 'string') {
+						reject(val);
+						return;
+					}
 
-				reject(
-					new SymbolicateableError({
-						frame: null,
-						stack: val,
-						name: 'CancelledError',
-						message: val.split('\n')[0],
-						stackFrame: parseStack(val.split('\n')),
-					}),
-				);
-			});
+					reject(
+						new SymbolicateableError({
+							frame: null,
+							stack: val,
+							name: 'CancelledError',
+							message: val.split('\n')[0],
+							stackFrame: parseStack(val.split('\n')),
+						}),
+					);
+				})
+				.catch((err) => {
+					Log.verbose({indent, logLevel}, 'Could not get cancelled error', err);
+					reject(new Error('Render was cancelled using cancelRender()'));
+				});
 		});
 	};
 
@@ -78,7 +83,7 @@ export const waitForReady = ({
 			.then((a) => {
 				const token = a.toString() as typeof cancelledToken | typeof readyToken;
 				if (token === cancelledToken) {
-					return retrieveErrorAndReject();
+					return retrieveCancelledErrorAndReject();
 				}
 
 				if (token === readyToken) {
