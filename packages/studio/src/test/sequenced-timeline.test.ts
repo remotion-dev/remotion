@@ -131,6 +131,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 11,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -143,6 +144,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 211,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -161,6 +163,7 @@ const sequences: TSequence[] = [
 		nonce: 212,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -173,6 +176,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 213,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -191,6 +195,7 @@ const sequences: TSequence[] = [
 		nonce: 214,
 		startMediaFrom: 330,
 		doesVolumeChange: false,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -203,6 +208,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 215,
+		stack: '',
 		loopDisplay: undefined,
 	},
 	{
@@ -215,6 +221,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 216,
+		stack: '',
 		loopDisplay: undefined,
 	},
 ];

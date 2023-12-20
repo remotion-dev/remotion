@@ -116,6 +116,7 @@ export const useMediaInTimeline = ({
 			doesVolumeChange,
 			loopDisplay: undefined,
 			playbackRate,
+			stack: new Error().stack as string,
 		});
 		return () => {
 			unregisterSequence(id);

@@ -8,7 +8,6 @@ import React, {
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -139,8 +138,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	]);
 
 	const timelineClipName = useMemo(() => {
-		return name ?? getTimelineClipName(children);
-	}, [children, name]);
+		return name ?? '';
+	}, [name]);
 
 	useEffect(() => {
 		if (!getRemotionEnvironment().isStudio) {
@@ -158,6 +157,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce,
 			loopDisplay,
+			stack: new Error().stack as string,
 		});
 		return () => {
 			unregisterSequence(id);
