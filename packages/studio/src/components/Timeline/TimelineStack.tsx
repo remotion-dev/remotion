@@ -1,11 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
-import type {SourceMapConsumer} from 'source-map';
+import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {
-	getOriginalPosition,
-	getSourceMap,
-} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {getFileContents} from '../../error-overlay/react-overlay/utils/unmapper';
+import {getOriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {getLocationOfSequence} from '../../helpers/get-location-of-sequence';
 import {openInEditor} from '../../helpers/open-in-editor';
@@ -36,16 +32,12 @@ export const TimelineStack: React.FC<{
 		const location = getLocationOfSequence(stack);
 
 		if (location) {
-			getFileContents(location?.fileName as string)
-				.then((fileContents) => {
-					return getSourceMap(
-						location.fileName as string,
-						fileContents as string,
-					);
-				})
-				.then((frame) => {
+			fetch('/bundle.js.map')
+				.then((res) => res.json())
+				.then((sourceMap) => {
+					const map = new SourceMapConsumer(sourceMap);
 					return getOriginalPosition(
-						frame as SourceMapConsumer,
+						map,
 						location.lineNumber as number,
 						location.columnNumber as number,
 					);

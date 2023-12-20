@@ -90,8 +90,7 @@ export const webpackConfig = ({
 			aggregateTimeout: 0,
 			ignored: ['**/.git/**', '**/node_modules/**'],
 		},
-
-		devtool: 'inline-source-map',
+		devtool: 'cheap-module-source-map',
 		entry: [
 			// Fast Refresh must come first,
 			// because setup-environment imports ReactDOM.
