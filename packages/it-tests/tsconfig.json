@@ -22,6 +22,9 @@
       "path": "../core"
     },
     {
+      "path": "../create-video"
+    },
+    {
       "path": "../lambda"
     },
     {
