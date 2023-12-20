@@ -3,7 +3,7 @@ import {Internals, useCurrentFrame} from 'remotion';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {renderFrame} from '../state/render-frame';
-import {Spacing} from './layout';
+import {Flex} from './layout';
 
 const text: React.CSSProperties = {
 	color: 'white',
@@ -28,6 +28,7 @@ const frameStyle: React.CSSProperties = {
 	lineHeight: 1,
 	fontSize: 18,
 	fontFamily: 'monospace',
+	paddingRight: 10,
 };
 
 export const TimeValue: React.FC = () => {
@@ -46,7 +47,7 @@ export const TimeValue: React.FC = () => {
 	return (
 		<div style={text}>
 			<div style={time}>{renderFrame(frame, config.fps)}</div>
-			<Spacing x={1.5} />
+			<Flex />
 			<div style={frameStyle}>{frame}</div>
 		</div>
 	);

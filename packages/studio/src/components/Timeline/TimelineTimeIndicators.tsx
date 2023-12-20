@@ -23,7 +23,6 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	backgroundColor: TIMELINE_BACKGROUND,
 	top: 0,
-	right: 0,
 };
 
 const tick: React.CSSProperties = {

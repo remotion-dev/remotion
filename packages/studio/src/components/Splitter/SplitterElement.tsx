@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import {interpolateColors, random} from 'remotion';
 import {SplitterContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
@@ -20,10 +21,25 @@ export const SplitterElement: React.FC<{
 		};
 	}, [context.flexValue, type]);
 
+	const stickStyle: React.CSSProperties = useMemo(() => {
+		return {
+			position: 'absolute',
+			left: (type === 'flexer' ? 0 : context.flexValue) * 100 + '%',
+			width:
+				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 100 +
+				'%',
+			backgroundColor: interpolateColors(
+				random(context.flexValue),
+				[0, 1],
+				['red', 'blue'],
+			),
+		};
+	}, [context.flexValue, type]);
+
 	return (
 		<>
 			<div style={style}>{children}</div>
-			{sticky ?? null}
+			<div style={stickStyle}>{sticky ?? null}</div>
 		</>
 	);
 };

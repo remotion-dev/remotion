@@ -1,7 +1,6 @@
 import React, {
 	createRef,
 	useContext,
-	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
@@ -9,7 +8,7 @@ import React, {
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {getCurrentDuration} from './imperative-state';
-import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
+import {sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -21,7 +20,7 @@ const container: React.CSSProperties = {
 };
 
 const line: React.CSSProperties = {
-	height: '100%',
+	height: '100vh',
 	width: 1,
 	position: 'fixed',
 	backgroundColor: '#f02c00',
@@ -83,27 +82,6 @@ const Inner: React.FC = () => {
 		},
 		[],
 	);
-
-	useEffect(() => {
-		const currentRef = ref.current;
-		if (!currentRef) {
-			return;
-		}
-
-		const {current} = timelineVerticalScroll;
-		if (!current) {
-			return;
-		}
-
-		const onScroll = () => {
-			currentRef.style.top = current.scrollTop + 'px';
-		};
-
-		current.addEventListener('scroll', onScroll);
-		return () => {
-			current.removeEventListener('scroll', onScroll);
-		};
-	}, []);
 
 	return (
 		<div ref={ref} style={style}>

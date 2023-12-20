@@ -111,12 +111,16 @@ export const Timeline: React.FC = () => {
 						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 						<SplitterElement
 							type="anti-flexer"
-							sticky={<TimelineTimeIndicators />}
+							sticky={
+								<>
+									<TimelineTimeIndicators />
+									<TimelineSlider />
+								</>
+							}
 						>
 							<TimelineScrollable>
 								<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 								<TimelineInOutPointer />
-								<TimelineSlider />
 								<TimelinePlayCursorSyncer />
 								<TimelineDragHandler />
 							</TimelineScrollable>
