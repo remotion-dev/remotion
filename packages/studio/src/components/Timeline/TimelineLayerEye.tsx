@@ -3,13 +3,13 @@ import {LIGHT_COLOR} from '../../helpers/colors';
 import type {RenderInlineAction} from '../InlineAction';
 
 const clearIcon: React.CSSProperties = {
-	height: 9,
+	width: 12,
 	color: 'currentColor',
 };
 
 const container: React.CSSProperties = {
-	height: 18,
-	width: 18,
+	height: 16,
+	width: 16,
 	borderRadius: 2,
 	backgroundColor: 'rgba(0, 0, 0, 0.4)',
 	display: 'flex',
