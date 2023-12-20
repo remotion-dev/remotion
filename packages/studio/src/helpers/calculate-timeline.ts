@@ -42,7 +42,6 @@ export const calculateTimeline = ({
 					showInTimeline: true,
 					nonce: 0,
 					loopDisplay: undefined,
-					stack: new Error().stack as string,
 				},
 				depth: 0,
 				hash: '-',

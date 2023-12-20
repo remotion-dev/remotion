@@ -157,7 +157,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce,
 			loopDisplay,
-			stack: new Error().stack as string,
 		});
 		return () => {
 			unregisterSequence(id);

@@ -39,7 +39,6 @@ test('Should calculate a basic timeline', () => {
 				type: 'sequence',
 				nonce: 0,
 				loopDisplay: undefined,
-				stack: '',
 			},
 		],
 		sequenceDuration: 100,
@@ -78,7 +77,6 @@ test('Should follow order of nesting', () => {
 				type: 'sequence',
 				nonce: 0,
 				loopDisplay: undefined,
-				stack: '',
 			},
 			{
 				displayName: 'Audio',
@@ -91,7 +89,6 @@ test('Should follow order of nesting', () => {
 				type: 'sequence',
 				nonce: 0,
 				loopDisplay: undefined,
-				stack: '',
 			},
 		],
 		sequenceDuration: 100,
