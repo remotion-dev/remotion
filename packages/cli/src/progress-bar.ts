@@ -1,18 +1,19 @@
 import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {AnsiDiff} from './ansi/ansi-diff';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
-import type {
-	AggregateRenderProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from './progress-types';
 import {truthy} from './truthy';
 
 export type OverwriteableCliOutput = {
@@ -54,7 +55,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new AnsiDiff();
+	const diff = new StudioInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -137,16 +138,6 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 		),
 		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
 	].join('\n');
-};
-
-export type CopyingState = {
-	bytes: number;
-	doneIn: number | null;
-};
-
-export type BundlingState = {
-	progress: number;
-	doneIn: number | null;
 };
 
 export type SymbolicLinksState = {symlinks: string[]};
@@ -279,7 +270,9 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+		return `Copying public dir ${StudioInternals.formatBytes(
+			progress.copyingState.bytes,
+		)}`;
 	}
 
 	if (!progress.rendering) {

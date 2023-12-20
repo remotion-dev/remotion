@@ -14,6 +14,7 @@
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"},
+		{"path": "../studio"},
 		{"path": "../zod-types"}
 	],
 	"exclude": ["vitest.config.ts", "dist"]

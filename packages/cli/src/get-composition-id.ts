@@ -6,8 +6,8 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioInternals} from '@remotion/studio';
 import type {VideoConfig} from 'remotion';
-import {formatBytes} from './format-bytes';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
 
@@ -104,7 +104,7 @@ export const getCompositionId = async ({
 					indent,
 					logLevel,
 				},
-				`The props of your composition are large (${formatBytes(
+				`The props of your composition are large (${StudioInternals.formatBytes(
 					propsSize,
 				)}). This may cause slowdown.`,
 			);

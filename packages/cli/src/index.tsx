@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {StudioInternals} from '@remotion/studio';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
@@ -10,7 +11,6 @@ import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
-import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
@@ -140,7 +140,7 @@ export const CliInternals = {
 	quietFlagProvided,
 	parsedCli,
 	printError,
-	formatBytes,
+	formatBytes: StudioInternals.formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,

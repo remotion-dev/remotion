@@ -1,7 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
+import {StudioInternals} from '@remotion/studio';
 import {Log} from './log';
-import {getPackageManager} from './preview-server/get-package-manager';
-import {getRemotionVersion} from './preview-server/update-available';
 
 export const cloudrunCommand = async (
 	remotionRoot: string,
@@ -17,7 +16,7 @@ export const cloudrunCommand = async (
 		await CloudrunInternals.executeCommand(args, remotionRoot);
 		process.exit(0);
 	} catch (err) {
-		const manager = getPackageManager(remotionRoot, undefined);
+		const manager = StudioInternals.getPackageManager(remotionRoot, undefined);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
 		Log.error(err);
@@ -26,7 +25,7 @@ export const cloudrunCommand = async (
 		Log.infoAdvanced({indent: false, logLevel}, 'You can install it using:');
 		Log.infoAdvanced(
 			{indent: false, logLevel},
-			`${installCommand} @remotion/cloudrun@${getRemotionVersion()}`,
+			`${installCommand} @remotion/cloudrun@${StudioInternals.getRemotionVersion()}`,
 		);
 		process.exit(1);
 	}

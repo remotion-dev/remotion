@@ -1,14 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {PackageManager} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import path from 'node:path';
 import {ConfigInternals} from './config';
-import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-import type {PackageManager} from './preview-server/get-package-manager';
-import {
-	getPackageManager,
-	lockFilePaths,
-} from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
 	manager,
@@ -49,15 +45,18 @@ export const upgrade = async (
 		targetVersion = version;
 		Log.info('Upgrading to specified version: ' + version);
 	} else {
-		targetVersion = await getLatestRemotionVersion();
+		targetVersion = await StudioInternals.getLatestRemotionVersion();
 		Log.info('Newest Remotion version is', targetVersion);
 	}
 
-	const manager = getPackageManager(remotionRoot, packageManager);
+	const manager = StudioInternals.getPackageManager(
+		remotionRoot,
+		packageManager,
+	);
 
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${lockFilePaths
+			`No lockfile was found in your project (one of ${StudioInternals.lockFilePaths
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`,
 		);

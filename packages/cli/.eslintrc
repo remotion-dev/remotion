@@ -5,7 +5,14 @@
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/*/src/*", "remotion/src/*"]
+				"patterns": [
+					"@remotion/*/src/*",
+					"@remotion/*/src",
+					"remotion/src/*",
+					"@remotion/*/dist/*",
+					"@remotion/*/dist",
+					"remotion/dist/*"
+				]
 			}
 		],
 		"@typescript-eslint/no-use-before-define": "off",
@@ -26,29 +33,5 @@
 				]
 			}
 		]
-	},
-	"overrides": [
-		{
-			"files": "./src/editor/**",
-			"rules": {
-				"no-restricted-imports": [
-					"error",
-					{
-						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-					}
-				]
-			}
-		},
-		{
-			"files": "./src/preview-server/error-overlay/**",
-			"rules": {
-				"no-restricted-imports": [
-					"error",
-					{
-						"patterns": ["@remotion/*/src/*", "remotion/src/*"]
-					}
-				]
-			}
-		}
-	]
+	}
 }
