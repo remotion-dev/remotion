@@ -4,7 +4,9 @@ import type {RenderInlineAction} from '../InlineAction';
 
 const clearIcon: React.CSSProperties = {
 	width: 12,
+	height: 8,
 	color: 'currentColor',
+	pointerEvents: 'none',
 };
 
 const container: React.CSSProperties = {
@@ -12,16 +14,18 @@ const container: React.CSSProperties = {
 	width: 16,
 	borderRadius: 2,
 	backgroundColor: 'rgba(0, 0, 0, 0.4)',
-	display: 'flex',
+	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	marginRight: 6,
 };
 
+let layerPointedDown: null | 'enable' | 'disable' = null;
+
 export const TimelineLayerEye: React.FC<{
-	onClick: () => void;
+	onInvoked: (type: 'enable' | 'disable') => void;
 	hidden: boolean;
-}> = ({onClick, hidden}) => {
+}> = ({onInvoked, hidden}) => {
 	const renderAction: RenderInlineAction = useCallback(
 		(color) => {
 			if (hidden) {
@@ -40,8 +44,30 @@ export const TimelineLayerEye: React.FC<{
 		[hidden],
 	);
 
+	const onPointerDown = useCallback(() => {
+		layerPointedDown = hidden ? 'enable' : 'disable';
+		onInvoked(layerPointedDown);
+		window.addEventListener(
+			'pointerup',
+			() => {
+				layerPointedDown = null;
+			},
+			{once: true},
+		);
+	}, [hidden, onInvoked]);
+
+	const onPointerEnter = useCallback(() => {
+		if (layerPointedDown) {
+			onInvoked(layerPointedDown);
+		}
+	}, [onInvoked]);
+
 	return (
-		<div style={container} onPointerDown={onClick}>
+		<div
+			style={container}
+			onPointerEnter={onPointerEnter}
+			onPointerDown={onPointerDown}
+		>
 			{renderAction(LIGHT_COLOR)}
 		</div>
 	);

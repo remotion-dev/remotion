@@ -63,19 +63,21 @@ export const TimelineListItem: React.FC<{
 		return hidden[sequence.id] ?? false;
 	}, [hidden, sequence.id]);
 
-	const onToggleVisibility = useCallback(() => {
-		setHidden((prev) => {
-			const previouslyHidden = prev[sequence.id] ?? false;
-			return {
-				...prev,
-				[sequence.id]: !previouslyHidden,
-			};
-		});
-	}, [sequence.id, setHidden]);
+	const onToggleVisibility = useCallback(
+		(type: 'enable' | 'disable') => {
+			setHidden((prev) => {
+				return {
+					...prev,
+					[sequence.id]: type !== 'enable',
+				};
+			});
+		},
+		[sequence.id, setHidden],
+	);
 
 	return (
 		<div style={outer}>
-			<TimelineLayerEye hidden={isItemHidden} onClick={onToggleVisibility} />
+			<TimelineLayerEye hidden={isItemHidden} onInvoked={onToggleVisibility} />
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
 			<div title={text || 'Untitled'} style={textStyle}>
