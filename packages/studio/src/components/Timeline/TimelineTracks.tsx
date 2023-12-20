@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	TIMELINE_BORDER,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -16,6 +16,7 @@ import {
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
+	paddingTop: 1,
 };
 
 const timelineContent: React.CSSProperties = {
@@ -28,7 +29,8 @@ export const TimelineTracks: React.FC<{
 }> = ({timeline, hasBeenCut}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
+			height: TIMELINE_LAYER_HEIGHT,
+			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
 		};
 	}, []);
 

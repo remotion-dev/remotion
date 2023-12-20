@@ -42,7 +42,10 @@ import {
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	SequenceManager,
+	SequenceVisibilityToggleContext,
+} from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import type {
 	SetTimelineContextValue,
@@ -87,6 +90,7 @@ export const Internals = {
 	Timeline: TimelinePosition,
 	CompositionManager,
 	SequenceManager,
+	SequenceVisibilityToggleContext,
 	RemotionRoot,
 	useVideo,
 	getRoot,

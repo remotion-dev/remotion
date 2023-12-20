@@ -6,7 +6,10 @@ import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
 } from '../../helpers/get-timeline-sequence-layout';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {
+	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_LAYER_HEIGHT,
+} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -68,11 +71,11 @@ const Inner: React.FC<{
 			borderRadius: 2,
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
-			marginTop: 1,
 			marginLeft,
 			width,
 			color: 'white',
 			overflow: 'hidden',
+			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM * 4,
 		};
 	}, [marginLeft, s.type, width]);
 

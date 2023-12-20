@@ -12,7 +12,10 @@ import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	SequenceManager,
+	SequenceVisibilityToggleContext,
+} from './SequenceManager.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
@@ -117,6 +120,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
@@ -197,6 +201,12 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		throw new TypeError(
 			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.',
 		);
+	}
+
+	const isSequenceHidden = hidden[id] ?? false;
+
+	if (isSequenceHidden) {
+		return null;
 	}
 
 	return (

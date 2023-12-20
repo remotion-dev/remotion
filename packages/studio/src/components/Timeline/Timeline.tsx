@@ -4,7 +4,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	TIMELINE_BORDER,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -71,7 +71,9 @@ export const Timeline: React.FC = () => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height:
-				shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2) +
+				shown.length *
+					(TIMELINE_LAYER_HEIGHT + Number(TIMELINE_ITEM_BORDER_BOTTOM)) +
+				TIMELINE_ITEM_BORDER_BOTTOM +
 				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
 				TIMELINE_TIME_INDICATOR_HEIGHT,
 			display: 'flex',
