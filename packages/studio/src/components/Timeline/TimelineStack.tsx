@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {getOriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -32,7 +33,7 @@ export const TimelineStack: React.FC<{
 		const location = getLocationOfSequence(stack);
 
 		if (location) {
-			fetch('/bundle.js.map')
+			fetch('/' + NoReactInternals.bundleMapName)
 				.then((res) => res.json())
 				.then((sourceMap) => {
 					const map = new SourceMapConsumer(sourceMap);
