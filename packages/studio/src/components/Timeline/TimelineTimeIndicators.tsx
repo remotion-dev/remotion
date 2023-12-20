@@ -4,12 +4,15 @@ import {
 	BACKGROUND,
 	LIGHT_TEXT,
 	TIMELINE_BACKGROUND,
+	TIMELINE_TRACK_SEPARATOR,
 } from '../../helpers/colors';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_PADDING,
+} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
-import {TOTAL_TIMELINE_LAYER_LEFT_PADDING} from './TimelineListItem';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 30;
@@ -47,10 +50,11 @@ const timeValue: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	width: '100%',
-	paddingLeft: TOTAL_TIMELINE_LAYER_LEFT_PADDING,
+	paddingLeft: 10,
 	display: 'flex',
 	alignItems: 'center',
 	backgroundColor: BACKGROUND,
+	borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineTimePlaceholders: React.FC = () => {
