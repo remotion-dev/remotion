@@ -2,10 +2,11 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
+import {DEFAULT_ZOOM} from '../helpers/smooth-zoom';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 
 const makeKey = (composition: string) => {
-	return `remotion.zoom.${composition}`;
+	return `remotion.zoom-map.${composition}`;
 };
 
 const persistCurrentZoom = (zoom: number) => {
@@ -74,8 +75,8 @@ export const ZoomPersistor: React.FC = () => {
 			return;
 		}
 
-		persistCurrentZoom(zoom);
-	}, [zoom, isActive, playing]);
+		persistCurrentZoom(zoom[urlState.compositionId] ?? DEFAULT_ZOOM);
+	}, [zoom, isActive, playing, urlState]);
 
 	return null;
 };

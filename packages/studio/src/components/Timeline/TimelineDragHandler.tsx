@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {DEFAULT_ZOOM} from '../../helpers/smooth-zoom';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
@@ -63,14 +64,24 @@ const getClientXWithScroll = (x: number) => {
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
-	const {zoom} = useContext(TimelineZoomCtx);
+	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
+		if (!canvasContent || canvasContent.type !== 'composition') {
+			return {};
+		}
+
+		const zoom = zoomMap[canvasContent.compositionId] ?? DEFAULT_ZOOM;
 		return {
 			...container,
 			width: 100 * zoom + '%',
 		};
-	}, [zoom]);
+	}, [canvasContent, zoomMap]);
+
+	if (!canvasContent || canvasContent.type !== 'composition') {
+		return null;
+	}
 
 	return (
 		<div ref={sliderAreaRef} style={containerStyle}>

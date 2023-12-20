@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../../helpers/is-current-selected-still';
+import {DEFAULT_ZOOM} from '../../helpers/smooth-zoom';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
 import {
@@ -30,29 +31,51 @@ const iconStyle: React.CSSProperties = {
 
 export const TimelineZoomControls: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {setZoom, zoom} = useContext(TimelineZoomCtx);
+	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
 
 	const onMinusClicked = useCallback(() => {
-		setZoom((z) => Math.max(TIMELINE_MIN_ZOOM, z - 0.2));
-	}, [setZoom]);
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return;
+		}
+
+		setZoom(canvasContent.compositionId, (z) =>
+			Math.max(TIMELINE_MIN_ZOOM, z - 0.2),
+		);
+	}, [canvasContent, setZoom]);
 
 	const onPlusClicked = useCallback(() => {
-		setZoom((z) => Math.min(TIMELINE_MAX_ZOOM, z + 0.2));
-	}, [setZoom]);
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return;
+		}
+
+		setZoom(canvasContent.compositionId, (z) =>
+			Math.min(TIMELINE_MAX_ZOOM, z + 0.2),
+		);
+	}, [canvasContent, setZoom]);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setZoom(() => Number(e.target.value));
+			if (canvasContent === null || canvasContent.type !== 'composition') {
+				return;
+			}
+
+			setZoom(canvasContent.compositionId, () => Number(e.target.value));
 		},
-		[setZoom],
+		[canvasContent, setZoom],
 	);
 
 	const isStill = useIsStill();
 
-	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
+	if (
+		isStill ||
+		canvasContent === null ||
+		canvasContent.type !== 'composition'
+	) {
 		return null;
 	}
+
+	const zoom = zoomMap[canvasContent.compositionId] ?? DEFAULT_ZOOM;
 
 	return (
 		<div style={container}>
