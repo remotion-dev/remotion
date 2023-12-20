@@ -10,7 +10,6 @@ import {useZIndex} from '../../state/z-index';
 import {Spacing} from '../layout';
 import type {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
-import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
@@ -161,10 +160,6 @@ export const TimelineListItem: React.FC<{
 			) : null}
 			<div title={text || 'Untitled'} style={textStyle}>
 				{text || 'Untitled'}
-				<TimelineSequenceFrame
-					duration={sequence.duration}
-					from={sequence.from}
-				/>
 			</div>
 			<Spacing x={1} />
 		</div>
