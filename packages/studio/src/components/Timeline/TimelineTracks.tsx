@@ -8,10 +8,7 @@ import {
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
-import {
-	TimelineTimeIndicators,
-	TimelineTimePadding,
-} from './TimelineTimeIndicators';
+import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
@@ -56,7 +53,6 @@ export const TimelineTracks: React.FC<{
 						</div>
 					);
 				})}
-				<TimelineTimeIndicators />
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

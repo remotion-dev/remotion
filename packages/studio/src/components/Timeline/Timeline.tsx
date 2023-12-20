@@ -24,6 +24,7 @@ import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
 import {
+	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
 	TIMELINE_TIME_INDICATOR_HEIGHT,
 } from './TimelineTimeIndicators';
@@ -110,13 +111,14 @@ export const Timeline: React.FC = () => {
 						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 						<SplitterElement
 							type="anti-flexer"
-							sticky={<TimelineDragHandler />}
+							sticky={<TimelineTimeIndicators />}
 						>
 							<TimelineScrollable>
 								<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 								<TimelineInOutPointer />
 								<TimelineSlider />
 								<TimelinePlayCursorSyncer />
+								<TimelineDragHandler />
 							</TimelineScrollable>
 						</SplitterElement>
 					</SplitterContainer>

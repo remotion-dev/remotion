@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -8,7 +8,6 @@ import {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
-import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TOTAL_TIMELINE_LAYER_LEFT_PADDING} from './TimelineListItem';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -21,7 +20,7 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	backgroundColor: TIMELINE_BACKGROUND,
 	top: 0,
-	left: 0,
+	right: 0,
 };
 
 const tick: React.CSSProperties = {
@@ -105,27 +104,6 @@ const Inner: React.FC<{
 	durationInFrames: number;
 }> = ({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const currentRef = ref.current;
-		if (!currentRef) {
-			return;
-		}
-
-		const {current} = timelineVerticalScroll;
-		if (!current) {
-			return;
-		}
-
-		const onScroll = () => {
-			currentRef.style.top = current.scrollTop + 'px';
-		};
-
-		current.addEventListener('scroll', onScroll);
-		return () => {
-			current.removeEventListener('scroll', onScroll);
-		};
-	}, []);
 
 	const style = useMemo(() => {
 		return {
