@@ -1,5 +1,5 @@
 import React from 'react';
-import {BACKGROUND} from '../../helpers/colors';
+import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {isTrackCollapsed} from './is-collapsed';
 import type {
@@ -14,9 +14,11 @@ import {
 
 const container: React.CSSProperties = {
 	flex: 1,
-	display: 'flex',
-	flexDirection: 'column',
 	background: BACKGROUND,
+};
+
+const topSeparator: React.CSSProperties = {
+	borderBottom: '1px solid ' + TIMELINE_TRACK_SEPARATOR,
 };
 
 export const TimelineList: React.FC<{
@@ -27,10 +29,9 @@ export const TimelineList: React.FC<{
 	return (
 		<div style={container}>
 			<TimelineTimePadding />
-
+			<div style={topSeparator} />
 			{timeline.map((track, i) => {
 				const beforeDepth = i === 0 ? 0 : timeline[i - 1].depth;
-
 				return (
 					<div key={track.sequence.id}>
 						<TimelineListItem

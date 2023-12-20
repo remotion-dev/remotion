@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from 'remotion';
-import {LIGHT_COLOR} from '../../helpers/colors';
+import {LIGHT_COLOR, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -39,6 +39,7 @@ const outer: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
 	textAlign: 'left',
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 const hookContainer: React.CSSProperties = {
