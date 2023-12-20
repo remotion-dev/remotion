@@ -41,7 +41,7 @@ export const TimelineLayerEye: React.FC<{
 	);
 
 	return (
-		<div style={container} onClick={onClick}>
+		<div style={container} onPointerDown={onClick}>
 			{renderAction(LIGHT_COLOR)}
 		</div>
 	);
