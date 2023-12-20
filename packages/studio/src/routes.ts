@@ -185,7 +185,7 @@ const handleOpenInEditor = async (
 };
 
 const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
-	const filePath = path.join(__dirname, '..', '..', 'web', 'favicon.png');
+	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
 
 	response.writeHead(200, {

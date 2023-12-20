@@ -27,7 +27,7 @@ interface RulerProps {
 	orientation: 'horizontal' | 'vertical';
 }
 
-export const makeGuideId = (): string => {
+const makeGuideId = (): string => {
 	return Math.random().toString(36).substring(7);
 };
 

@@ -12,7 +12,7 @@ export type RegisteredKeybinding = {
 	callback: KeyListenerCallback;
 };
 
-export type KeybindingContextType = {
+type KeybindingContextType = {
 	registerKeybinding: (binding: RegisteredKeybinding) => void;
 	unregisterKeybinding: (binding: RegisteredKeybinding) => void;
 	unregisterPane: (paneId: string) => void;

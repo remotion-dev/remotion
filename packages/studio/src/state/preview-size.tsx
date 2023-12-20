@@ -15,7 +15,7 @@ type PreviewSizeCtx = {
 
 const key = 'remotion.previewSize';
 
-export const persistPreviewSizeOption = (option: PreviewSize) => {
+const persistPreviewSizeOption = (option: PreviewSize) => {
 	localStorage.setItem(key, JSON.stringify(option));
 };
 
