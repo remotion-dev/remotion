@@ -2,25 +2,19 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {DEFAULT_ZOOM} from '../helpers/smooth-zoom';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 
-const makeKey = (composition: string) => {
-	return `remotion.zoom-map.${composition}`;
+const makeKey = () => {
+	return `remotion.zoom-map`;
 };
 
-const persistCurrentZoom = (zoom: number) => {
-	const currentComposition = deriveCanvasContentFromUrl();
-	if (!currentComposition || currentComposition.type !== 'composition') {
-		return;
-	}
-
-	localStorage.setItem(makeKey(currentComposition.compositionId), String(zoom));
+const persistCurrentZoom = (zoom: Record<string, number>) => {
+	localStorage.setItem(makeKey(), JSON.stringify(zoom));
 };
 
-export const getZoomForComposition = (composition: string) => {
-	const zoom = localStorage.getItem(makeKey(composition));
-	return zoom ? Number(zoom) : 0;
+export const getZoomFromLocalStorage = (): Record<string, number> => {
+	const zoom = localStorage.getItem(makeKey());
+	return zoom ? JSON.parse(zoom) : {};
 };
 
 export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
@@ -75,7 +69,7 @@ export const ZoomPersistor: React.FC = () => {
 			return;
 		}
 
-		persistCurrentZoom(zoom[urlState.compositionId] ?? DEFAULT_ZOOM);
+		persistCurrentZoom(zoom);
 	}, [zoom, isActive, playing, urlState]);
 
 	return null;

@@ -4,6 +4,7 @@ import {
 	getCurrentFrame,
 } from '../components/Timeline/imperative-state';
 import {zoomAndPreserveCursor} from '../components/Timeline/timeline-scroll-logic';
+import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
 import {DEFAULT_ZOOM} from '../helpers/smooth-zoom';
 
 export const TIMELINE_MIN_ZOOM = 1;
@@ -22,7 +23,9 @@ export const TimelineZoomCtx = createContext<{
 export const TimelineZoomContext: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [zoom, setZoom] = useState<Record<string, number>>({});
+	const [zoom, setZoom] = useState<Record<string, number>>(() =>
+		getZoomFromLocalStorage(),
+	);
 
 	const value = useMemo(() => {
 		return {
