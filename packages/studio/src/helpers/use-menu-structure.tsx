@@ -20,7 +20,6 @@ import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
-import {timelineRef} from '../state/timeline-ref';
 import {StudioServerConnectionCtx} from './client-id';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
@@ -484,34 +483,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 					{
 						id: 'timeline-divider-3',
 						type: 'divider' as const,
-					},
-					{
-						id: 'expand-all',
-						keyHint: null,
-						label: 'Expand all',
-						onClick: () => {
-							closeMenu();
-							timelineRef.current?.expandAll();
-						},
-						type: 'item' as const,
-						value: 'expand-all',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Timeline: Expand all Timeline layers',
-					},
-					{
-						id: 'collapse-all',
-						keyHint: null,
-						label: 'Collapse all',
-						onClick: () => {
-							closeMenu();
-							timelineRef.current?.collapseAll();
-						},
-						type: 'item' as const,
-						value: 'collapse-all',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Timeline: Collapse all layers',
 					},
 					{
 						id: 'in-out-divider-4',

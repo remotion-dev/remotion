@@ -1,15 +1,12 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
-import {LIGHT_COLOR, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {useZIndex} from '../../state/z-index';
 import {Spacing} from '../layout';
-import type {TimelineActionState} from './timeline-state-reducer';
-import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
@@ -68,37 +65,12 @@ const smallSpace: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-const collapser: React.CSSProperties = {
-	width: TIMELINE_COLLAPSER_WIDTH,
-	userSelect: 'none',
-	marginRight: TIMELINE_COLLAPSER_MARGIN_RIGHT,
-	flexShrink: 0,
-};
-
-const collapserButton: React.CSSProperties = {
-	...collapser,
-	border: 'none',
-	background: 'none',
-};
-
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
 	nestedDepth: number;
 	beforeDepth: number;
-	collapsed: boolean;
-	dispatchStateChange: React.Dispatch<TimelineActionState>;
 	hash: string;
-	canCollapse: boolean;
-}> = ({
-	nestedDepth,
-	sequence,
-	collapsed,
-	beforeDepth,
-	dispatchStateChange,
-	hash,
-	canCollapse,
-}) => {
-	const {tabIndex} = useZIndex();
+}> = ({nestedDepth, sequence, beforeDepth}) => {
 	const leftOffset = TIMELINE_LAYER_PADDING;
 	const hookStyle = useMemo(() => {
 		return {
@@ -117,19 +89,6 @@ export const TimelineListItem: React.FC<{
 		};
 	}, [leftOffset, nestedDepth]);
 
-	const toggleCollapse = useCallback(() => {
-		if (collapsed) {
-			dispatchStateChange({
-				type: 'expand',
-				hash,
-			});
-		} else {
-			dispatchStateChange({
-				type: 'collapse',
-				hash,
-			});
-		}
-	}, [collapsed, dispatchStateChange, hash]);
 	const text =
 		sequence.displayName.length > 80
 			? sequence.displayName.slice(0, 80) + '...'
@@ -138,18 +97,7 @@ export const TimelineListItem: React.FC<{
 	return (
 		<div style={outer}>
 			<div style={padder} />
-			{canCollapse ? (
-				<button
-					tabIndex={tabIndex}
-					type="button"
-					style={collapserButton}
-					onClick={toggleCollapse}
-				>
-					<TimelineCollapseToggle color={LIGHT_COLOR} collapsed={collapsed} />
-				</button>
-			) : (
-				<div style={collapser} />
-			)}
+
 			{sequence.parent && nestedDepth > 0 ? (
 				<>
 					<div style={smallSpace} />

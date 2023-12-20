@@ -1,9 +1,4 @@
-import React, {
-	useContext,
-	useImperativeHandle,
-	useMemo,
-	useReducer,
-} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {BACKGROUND} from '../../helpers/colors';
@@ -12,7 +7,6 @@ import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
-import {timelineRef} from '../../state/timeline-ref';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
@@ -23,7 +17,6 @@ import {
 	MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
 } from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
-import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
@@ -49,10 +42,6 @@ export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
-	const [state, dispatch] = useReducer(timelineStateReducer, {
-		collapsed: {},
-	});
-
 	const timeline = useMemo((): TrackWithHash[] => {
 		if (!videoConfig) {
 			return [];
@@ -64,40 +53,17 @@ export const Timeline: React.FC = () => {
 		});
 	}, [sequences, videoConfig]);
 
-	useImperativeHandle(
-		timelineRef,
-		() => {
-			return {
-				expandAll: () => {
-					dispatch({
-						type: 'expand-all',
-						allHashes: timeline.map((t) => t.hash),
-					});
-				},
-				collapseAll: () => {
-					dispatch({
-						type: 'collapse-all',
-						allHashes: timeline.map((t) => t.hash),
-					});
-				},
-			};
-		},
-		[timeline],
-	);
-
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const filtered = useMemo(() => {
-		const withoutHidden = timeline.filter(
-			(t) => !isTrackHidden(t, timeline, state),
-		);
+		const withoutHidden = timeline.filter((t) => !isTrackHidden(t, timeline));
 
 		const withoutAfter = withoutHidden.filter((t) => {
 			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
 		});
 
 		return withoutAfter;
-	}, [durationInFrames, state, timeline]);
+	}, [durationInFrames, timeline]);
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
 	const hasBeenCut = filtered.length > shown.length;
@@ -131,20 +97,12 @@ export const Timeline: React.FC = () => {
 						minFlex={0.15}
 					>
 						<SplitterElement type="flexer">
-							<TimelineList
-								dispatchStateChange={dispatch}
-								viewState={state}
-								timeline={shown}
-							/>
+							<TimelineList timeline={shown} />
 						</SplitterElement>
 						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 						<SplitterElement type="anti-flexer">
 							<TimelineScrollable>
-								<TimelineTracks
-									viewState={state}
-									timeline={shown}
-									hasBeenCut={hasBeenCut}
-								/>
+								<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 								<TimelineInOutPointer />
 								<TimelineDragHandler />
 								<TimelineSlider />
