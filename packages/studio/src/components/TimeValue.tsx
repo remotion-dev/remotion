@@ -13,6 +13,7 @@ const text: React.CSSProperties = {
 	fontVariantNumeric: 'tabular-nums',
 	lineHeight: 1,
 	width: '100%',
+	userSelect: 'none',
 };
 
 const time: React.CSSProperties = {

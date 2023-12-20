@@ -77,11 +77,15 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<div style={outer}>
-			<TimelineLayerEye hidden={isItemHidden} onInvoked={onToggleVisibility} />
+			<TimelineLayerEye
+				type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+				hidden={isItemHidden}
+				onInvoked={onToggleVisibility}
+			/>
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
-			<div title={text || 'Untitled'} style={textStyle}>
-				{text || 'Untitled'}
+			<div title={text || '<Sequence>'} style={textStyle}>
+				{text || '<Sequence>'}
 			</div>
 		</div>
 	);
