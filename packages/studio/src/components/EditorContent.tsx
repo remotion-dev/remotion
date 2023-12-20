@@ -29,11 +29,11 @@ export const EditorContent: React.FC = () => {
 			minFlex={0.2}
 			defaultFlex={0.75}
 		>
-			<SplitterElement type="flexer">
+			<SplitterElement sticky={null} type="flexer">
 				<TopPanel />
 			</SplitterElement>
 			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
-			<SplitterElement type="anti-flexer">
+			<SplitterElement sticky={null} type="anti-flexer">
 				<Timeline />
 			</SplitterElement>
 		</SplitterContainer>

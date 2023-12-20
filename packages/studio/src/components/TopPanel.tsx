@@ -97,7 +97,7 @@ export const TopPanel: React.FC = () => {
 					orientation="vertical"
 				>
 					{actualStateLeft === 'expanded' ? (
-						<SplitterElement type="flexer">
+						<SplitterElement sticky={null} type="flexer">
 							<ExplorerPanel />
 						</SplitterElement>
 					) : null}
@@ -107,7 +107,7 @@ export const TopPanel: React.FC = () => {
 							onCollapse={onCollapseLeft}
 						/>
 					) : null}
-					<SplitterElement type="anti-flexer">
+					<SplitterElement sticky={null} type="anti-flexer">
 						<SplitterContainer
 							minFlex={0.5}
 							maxFlex={0.8}
@@ -115,7 +115,7 @@ export const TopPanel: React.FC = () => {
 							id="canvas-to-right-sidebar"
 							orientation="vertical"
 						>
-							<SplitterElement type="flexer">
+							<SplitterElement sticky={null} type="flexer">
 								<div style={canvasContainerStyle}>
 									<CanvasOrLoading />
 								</div>
@@ -127,7 +127,7 @@ export const TopPanel: React.FC = () => {
 								/>
 							) : null}
 							{actualStateRight === 'expanded' ? (
-								<SplitterElement type="anti-flexer">
+								<SplitterElement sticky={null} type="anti-flexer">
 									<OptionsPanel />
 								</SplitterElement>
 							) : null}

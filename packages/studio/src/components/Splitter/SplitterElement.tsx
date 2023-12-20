@@ -4,7 +4,8 @@ import {SplitterContext} from './SplitterContext';
 export const SplitterElement: React.FC<{
 	type: 'flexer' | 'anti-flexer';
 	children: React.ReactNode;
-}> = ({children, type}) => {
+	sticky: React.ReactNode | null;
+}> = ({children, type, sticky}) => {
 	const context = useContext(SplitterContext);
 
 	const style: React.CSSProperties = useMemo(() => {
@@ -19,5 +20,10 @@ export const SplitterElement: React.FC<{
 		};
 	}, [context.flexValue, type]);
 
-	return <div style={style}>{children}</div>;
+	return (
+		<>
+			<div style={style}>{children}</div>
+			{sticky ?? null}
+		</>
+	);
 };

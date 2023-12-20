@@ -23,7 +23,10 @@ import {TimelineList} from './TimelineList';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
-import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {
+	TimelineTimePlaceholders,
+	TIMELINE_TIME_INDICATOR_HEIGHT,
+} from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 
@@ -98,15 +101,20 @@ export const Timeline: React.FC = () => {
 						maxFlex={0.5}
 						minFlex={0.15}
 					>
-						<SplitterElement type="flexer">
+						<SplitterElement
+							type="flexer"
+							sticky={<TimelineTimePlaceholders />}
+						>
 							<TimelineList timeline={shown} />
 						</SplitterElement>
 						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-						<SplitterElement type="anti-flexer">
+						<SplitterElement
+							type="anti-flexer"
+							sticky={<TimelineDragHandler />}
+						>
 							<TimelineScrollable>
 								<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 								<TimelineInOutPointer />
-								<TimelineDragHandler />
 								<TimelineSlider />
 								<TimelinePlayCursorSyncer />
 							</TimelineScrollable>

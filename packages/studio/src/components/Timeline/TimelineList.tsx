@@ -2,10 +2,7 @@ import React from 'react';
 import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineListItem} from './TimelineListItem';
-import {
-	TimelineTimePadding,
-	TimelineTimePlaceholders,
-} from './TimelineTimeIndicators';
+import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -37,7 +34,6 @@ export const TimelineList: React.FC<{
 					</div>
 				);
 			})}
-			<TimelineTimePlaceholders />
 		</div>
 	);
 };

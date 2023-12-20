@@ -51,35 +51,12 @@ const timeValue: React.CSSProperties = {
 	paddingLeft: TOTAL_TIMELINE_LAYER_LEFT_PADDING,
 	display: 'flex',
 	alignItems: 'center',
-	background: BACKGROUND,
+	backgroundColor: BACKGROUND,
 };
 
 export const TimelineTimePlaceholders: React.FC = () => {
-	const ref = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const currentRef = ref.current;
-		if (!currentRef) {
-			return;
-		}
-
-		const {current} = timelineVerticalScroll;
-		if (!current) {
-			return;
-		}
-
-		const onScroll = () => {
-			currentRef.style.top = current.scrollTop + 'px';
-		};
-
-		current.addEventListener('scroll', onScroll);
-		return () => {
-			current.removeEventListener('scroll', onScroll);
-		};
-	}, []);
-
 	return (
-		<div ref={ref} style={timeValue}>
+		<div style={timeValue}>
 			<TimeValue />
 		</div>
 	);
