@@ -1,5 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -76,6 +77,7 @@ const Series: FC<{
 				durationInFrames,
 				children: _children,
 				from,
+				name,
 				...passedProps
 			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
@@ -112,6 +114,7 @@ const Series: FC<{
 			startFrame += durationInFramesProp + offset;
 			return (
 				<Sequence
+					name={name || '<Series.Sequence>'}
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -130,3 +133,5 @@ const Series: FC<{
 Series.Sequence = SeriesSequence;
 
 export {Series};
+
+addSequenceStackTraces(SeriesSequence);

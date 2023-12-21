@@ -14,9 +14,5 @@ export const getTimelineNestedLevel = (
 		throw new Error('has parentId but no parent');
 	}
 
-	return getTimelineNestedLevel(
-		parentSequence,
-		allSequences,
-		depth + (parentSequence.showInTimeline ? 1 : 0),
-	);
+	return getTimelineNestedLevel(parentSequence, allSequences, depth + 1);
 };

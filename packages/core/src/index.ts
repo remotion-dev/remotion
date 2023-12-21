@@ -2,11 +2,13 @@ import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
 import type {TRenderAsset} from './CompositionManager.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
+import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
 
 export type VideoConfigWithSerializedProps = Omit<
@@ -185,3 +187,5 @@ export const Config = new Proxy(proxyObj, {
 		};
 	},
 });
+
+addSequenceStackTraces(Sequence);

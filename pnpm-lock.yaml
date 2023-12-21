@@ -1729,8 +1729,8 @@ importers:
         specifier: 7.5.3
         version: 7.5.3
       source-map:
-        specifier: 0.6.1
-        version: 0.6.1
+        specifier: 0.7.3
+        version: 0.7.3
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.276

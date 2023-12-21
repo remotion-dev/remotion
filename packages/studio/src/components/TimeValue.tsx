@@ -18,7 +18,7 @@ const text: React.CSSProperties = {
 
 const time: React.CSSProperties = {
 	display: 'inline-block',
-	fontSize: 18,
+	fontSize: 16,
 	lineHeight: 1,
 	fontFamily: 'monospace',
 };
@@ -27,7 +27,7 @@ const frameStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontWeight: 500,
 	lineHeight: 1,
-	fontSize: 18,
+	fontSize: 16,
 	fontFamily: 'monospace',
 	paddingRight: 10,
 };

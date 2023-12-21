@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -11,7 +11,9 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
+import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
+import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -108,11 +110,34 @@ const Inner: React.FC<{
 }> = ({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
 
+	useEffect(() => {
+		const currentRef = ref.current;
+		if (!currentRef) {
+			return;
+		}
+
+		const {current} = timelineVerticalScroll;
+		if (!current) {
+			return;
+		}
+
+		const onScroll = () => {
+			currentRef.style.top = current.scrollTop + 'px';
+		};
+
+		current.addEventListener('scroll', onScroll);
+		return () => {
+			current.removeEventListener('scroll', onScroll);
+		};
+	}, []);
+
 	const style = useMemo(() => {
 		return {
 			...container,
-			width: windowWidth,
+			width: windowWidth - SPLITTER_HANDLE_SIZE / 2,
 			overflow: 'hidden',
+			// Since
+			marginLeft: SPLITTER_HANDLE_SIZE / 2,
 		};
 	}, [windowWidth]);
 
@@ -140,7 +165,10 @@ const Inner: React.FC<{
 					frame: index * fps,
 					style: {
 						...secondTick,
-						left: frameInterval * index * fps + TIMELINE_PADDING,
+						left:
+							frameInterval * index * fps +
+							TIMELINE_PADDING -
+							SPLITTER_HANDLE_SIZE / 2,
 					},
 					showTime: index > 0,
 				};
@@ -154,7 +182,10 @@ const Inner: React.FC<{
 					frame: index,
 					style: {
 						...tick,
-						left: frameInterval * index + TIMELINE_PADDING,
+						left:
+							frameInterval * index +
+							TIMELINE_PADDING -
+							SPLITTER_HANDLE_SIZE / 2,
 						height:
 							index % fps === 0
 								? 10

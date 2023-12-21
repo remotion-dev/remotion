@@ -14,11 +14,17 @@
 import type {RawSourceMap} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 
+export type OriginalPosition = {
+	line: number | null;
+	column: number | null;
+	source: string | null;
+};
+
 export const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,
 	column: number,
-): {source: string | null; line: number | null; column: number | null} => {
+): OriginalPosition => {
 	const result = source_map.originalPositionFor({
 		line,
 		column,

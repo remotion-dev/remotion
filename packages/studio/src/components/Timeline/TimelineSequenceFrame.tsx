@@ -1,5 +1,4 @@
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
 
 const relativeFrameStyle: React.CSSProperties = {
 	fontSize: 11,
@@ -9,19 +8,7 @@ const relativeFrameStyle: React.CSSProperties = {
 };
 
 export const TimelineSequenceFrame: React.FC<{
-	from: number;
-	duration: number;
-}> = ({from, duration}) => {
-	const frame = useCurrentFrame();
-	const relativeFrame = frame - from;
-
-	const roundedFrame = Math.round(relativeFrame * 100) / 100;
-
-	const isInRange = relativeFrame >= 0 && relativeFrame < duration;
-
-	if (!isInRange) {
-		return null;
-	}
-
+	roundedFrame: number;
+}> = ({roundedFrame}) => {
 	return <div style={relativeFrameStyle}>{roundedFrame}</div>;
 };

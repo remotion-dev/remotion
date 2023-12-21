@@ -1,6 +1,6 @@
 import React, {useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
 import {
 	getTimelineSequenceLayout,
@@ -43,6 +43,13 @@ const Inner: React.FC<{
 		throw new TypeError('Expected video config');
 	}
 
+	const frame = useCurrentFrame();
+	const relativeFrame = frame - s.from;
+
+	const roundedFrame = Math.round(relativeFrame * 100) / 100;
+
+	const isInRange = relativeFrame >= 0 && relativeFrame < s.duration;
+
 	const {marginLeft, width} = useMemo(() => {
 		return getTimelineSequenceLayout({
 			durationInFrames: s.loopDisplay
@@ -72,8 +79,9 @@ const Inner: React.FC<{
 			width,
 			color: 'white',
 			overflow: 'hidden',
+			opacity: isInRange ? 1 : 0.5,
 		};
-	}, [marginLeft, s.type, width]);
+	}, [isInRange, marginLeft, s.type, width]);
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
@@ -95,7 +103,8 @@ const Inner: React.FC<{
 			)}
 			{s.type !== 'audio' &&
 			s.type !== 'video' &&
-			s.loopDisplay === undefined ? (
+			s.loopDisplay === undefined &&
+			isInRange ? (
 				<div
 					style={{
 						paddingLeft: 5,
@@ -104,7 +113,7 @@ const Inner: React.FC<{
 						alignItems: 'center',
 					}}
 				>
-					<TimelineSequenceFrame from={s.from} duration={s.duration} />
+					<TimelineSequenceFrame roundedFrame={roundedFrame} />
 				</div>
 			) : null}
 		</div>

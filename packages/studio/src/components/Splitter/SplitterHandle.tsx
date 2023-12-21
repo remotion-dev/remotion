@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SplitterContext} from './SplitterContext';
 
-const SPLITTER_HANDLE_SIZE = 3;
+export const SPLITTER_HANDLE_SIZE = 3;
 
 const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,

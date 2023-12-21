@@ -34,8 +34,9 @@ const persistSelectedOptionsSidebarPanel = (panel: OptionsSidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
-const optionsSidebarTabs = createRef<{
-	selectRendersPanel: () => void;
+export const explorerSidebarTabs = createRef<{
+	selectAssetsPanel: () => void;
+	selectCompositionPanel: () => void;
 }>();
 
 export const ExplorerPanel: React.FC<{}> = () => {
@@ -53,12 +54,16 @@ export const ExplorerPanel: React.FC<{}> = () => {
 	}, []);
 
 	useImperativeHandle(
-		optionsSidebarTabs,
+		explorerSidebarTabs,
 		() => {
 			return {
-				selectRendersPanel: () => {
+				selectAssetsPanel: () => {
 					setPanel('assets');
 					persistSelectedOptionsSidebarPanel('assets');
+				},
+				selectCompositionPanel: () => {
+					setPanel('compositions');
+					persistSelectedOptionsSidebarPanel('compositions');
 				},
 			};
 		},

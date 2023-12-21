@@ -66,7 +66,7 @@ export const Timeline: React.FC = () => {
 			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
 		});
 
-		return withoutAfter;
+		return withoutAfter.filter((t) => t.sequence.showInTimeline);
 	}, [durationInFrames, timeline]);
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
@@ -109,20 +109,14 @@ export const Timeline: React.FC = () => {
 							<TimelineList timeline={shown} />
 						</SplitterElement>
 						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-						<SplitterElement
-							type="anti-flexer"
-							sticky={
-								<>
-									<TimelineTimeIndicators />
-									<TimelineSlider />
-								</>
-							}
-						>
+						<SplitterElement type="anti-flexer" sticky={null}>
 							<TimelineScrollable>
 								<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 								<TimelineInOutPointer />
 								<TimelinePlayCursorSyncer />
 								<TimelineDragHandler />
+								<TimelineTimeIndicators />
+								<TimelineSlider />
 							</TimelineScrollable>
 						</SplitterElement>
 					</SplitterContainer>

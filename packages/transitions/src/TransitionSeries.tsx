@@ -1,7 +1,7 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
 import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
-import {Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -22,6 +22,10 @@ type SeriesSequenceProps = PropsWithChildren<
 		durationInFrames: number;
 		offset?: number;
 		className?: string;
+		/**
+		 * @deprecated For internal use only
+		 */
+		stack?: string;
 	} & LayoutAndStyle &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
@@ -223,10 +227,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -242,7 +247,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								<Sequence {...passedProps}>{child}</Sequence>
+								<Sequence showInTimeline={false} {...passedProps}>
+									{child}
+								</Sequence>
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -256,10 +263,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -268,7 +276,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							<Sequence {...passedProps}>{child}</Sequence>
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -281,10 +291,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -293,7 +304,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							<Sequence {...passedProps}>{child}</Sequence>
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
@@ -301,6 +314,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
+					name="<TS.Sequence>"
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -318,11 +332,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
-} = ({children, ...otherProps}) => {
-	const showInTimeline = (otherProps.from ?? 0) !== 0;
-
+} = ({children, name, ...otherProps}) => {
+	const displayName = name ?? '<TransitionSeries>';
 	return (
-		<Sequence showInTimeline={showInTimeline} {...otherProps}>
+		<Sequence name={displayName} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);
@@ -332,3 +345,6 @@ TransitionSeries.Sequence = SeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
+
+Internals.addSequenceStackTraces(TransitionSeries);
+Internals.addSequenceStackTraces(SeriesSequence);

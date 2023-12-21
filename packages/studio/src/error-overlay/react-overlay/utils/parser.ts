@@ -36,7 +36,7 @@ const regexValidFrame_Chrome = /^\s*(at|in)\s.+(:\d+)/;
 const regexValidFrame_FireFox =
 	/(^|@)\S+:\d+|.+line\s+\d+\s+>\s+(eval|Function).+/;
 
-function parseStack(stack: string[]): StackFrame[] {
+export function parseStack(stack: string[]): StackFrame[] {
 	const frames = stack
 		.filter(
 			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e),

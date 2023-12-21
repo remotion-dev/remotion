@@ -1,4 +1,5 @@
-import React from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useRef} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineListItem} from './TimelineListItem';
@@ -12,17 +13,25 @@ const container: React.CSSProperties = {
 export const TimelineList: React.FC<{
 	timeline: TrackWithHash[];
 }> = ({timeline}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(ref, {
+		shouldApplyCssTransforms: false,
+		triggerOnWindowResize: false,
+	});
+
+	const isCompact = size ? size.width < 250 : false;
+
 	return (
-		<div style={container}>
+		<div ref={ref} style={container}>
 			<TimelineTimePadding />
 			{timeline.map((track) => {
 				return (
 					<div key={track.sequence.id}>
 						<TimelineListItem
 							key={track.sequence.id}
-							hash={track.hash}
 							nestedDepth={track.depth}
 							sequence={track.sequence}
+							isCompact={isCompact}
 						/>
 					</div>
 				);

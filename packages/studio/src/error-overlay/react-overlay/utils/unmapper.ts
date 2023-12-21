@@ -21,7 +21,7 @@ import type {
 	SymbolicatedStackFrame,
 } from './stack-frame';
 
-const getFileContents = async (fileName: string) => {
+export const getFileContents = async (fileName: string) => {
 	const res = await fetch(fileName as string);
 	const fileContents = await res.text();
 

@@ -11,12 +11,10 @@ import {VideoForDevelopment} from './VideoForDevelopment.js';
  * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
  * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
  */
-export const OffthreadVideo: React.FC<Omit<OffthreadVideoProps, 'loop'>> = (
-	props,
-) => {
+export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
-	const {startFrom, endAt, name, ...otherProps} = props;
+	const {startFrom, endAt, name, stack, ...otherProps} = props;
 	const environment = getRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
@@ -63,6 +61,7 @@ export const OffthreadVideo: React.FC<Omit<OffthreadVideoProps, 'loop'>> = (
 
 	return (
 		<VideoForDevelopment
+			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError

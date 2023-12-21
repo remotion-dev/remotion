@@ -3,6 +3,7 @@ import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
@@ -18,16 +19,21 @@ import {SharedAudioContext} from './shared-audio-tags.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps & RemotionMainAudioProps
+	RemotionAudioProps &
+		RemotionMainAudioProps & {
+			/**
+			 * @deprecated For internal use only
+			 */
+			stack?: string;
+		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
-	const {startFrom, endAt, name, ...otherProps} = props;
+	const {startFrom, endAt, name, stack, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
-
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
@@ -127,6 +133,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				props._remotionInternalNativeLoopPassed ?? false
 			}
+			_remotionInternalStack={stack ?? null}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}
@@ -144,3 +151,5 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
  * @see [Documentation](https://www.remotion.dev/docs/audio)
  */
 export const Audio = forwardRef(AudioRefForwardingFunction);
+
+addSequenceStackTraces(Audio);
