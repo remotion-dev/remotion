@@ -134,7 +134,7 @@ const Inner: React.FC<{
 	const style = useMemo(() => {
 		return {
 			...container,
-			width: windowWidth,
+			width: windowWidth - SPLITTER_HANDLE_SIZE / 2,
 			overflow: 'hidden',
 			// Since
 			marginLeft: SPLITTER_HANDLE_SIZE / 2,
