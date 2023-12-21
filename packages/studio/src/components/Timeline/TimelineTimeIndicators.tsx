@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -13,6 +13,7 @@ import {
 import {renderFrame} from '../../state/render-frame';
 import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
+import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -108,6 +109,27 @@ const Inner: React.FC<{
 	durationInFrames: number;
 }> = ({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const currentRef = ref.current;
+		if (!currentRef) {
+			return;
+		}
+
+		const {current} = timelineVerticalScroll;
+		if (!current) {
+			return;
+		}
+
+		const onScroll = () => {
+			currentRef.style.top = current.scrollTop + 'px';
+		};
+
+		current.addEventListener('scroll', onScroll);
+		return () => {
+			current.removeEventListener('scroll', onScroll);
+		};
+	}, []);
 
 	const style = useMemo(() => {
 		return {
