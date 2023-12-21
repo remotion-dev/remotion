@@ -5,6 +5,7 @@ import {getStaticFiles, Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
+import {explorerSidebarTabs} from './ExplorerPanel';
 import {deriveCanvasContentFromUrl} from './ZoomPersistor';
 
 export const useSelectAsset = () => {
@@ -13,6 +14,7 @@ export const useSelectAsset = () => {
 
 	return (asset: string) => {
 		setCanvasContent({type: 'asset', asset});
+		explorerSidebarTabs.current?.selectAssetsPanel();
 		setAssetFoldersExpanded((ex) => {
 			const split = asset.split('/');
 
@@ -39,6 +41,8 @@ export const useSelectComposition = () => {
 		if (push) {
 			window.history.pushState({}, 'Studio', `/${c.id}`);
 		}
+
+		explorerSidebarTabs.current?.selectCompositionPanel();
 
 		setCanvasContent({type: 'composition', compositionId: c.id});
 
