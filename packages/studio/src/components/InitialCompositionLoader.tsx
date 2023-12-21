@@ -7,7 +7,7 @@ import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
 import {deriveCanvasContentFromUrl} from './ZoomPersistor';
 
-const useSelectAsset = () => {
+export const useSelectAsset = () => {
 	const {setCanvasContent} = useContext(Internals.CompositionManager);
 	const {setAssetFoldersExpanded} = useContext(FolderContext);
 

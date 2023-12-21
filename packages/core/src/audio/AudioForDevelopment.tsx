@@ -62,6 +62,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		_remotionInternalNeedsDurationCalculation,
 		_remotionInternalNativeLoopPassed,
+		_remotionInternalStack,
 		allowAmplificationDuringRender,
 		name,
 		...nativeProps

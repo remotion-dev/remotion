@@ -70,11 +70,7 @@ export const TimelineListItem: React.FC<{
 			/>
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
-			<TimelineStack
-				displayName={sequence.displayName}
-				isCompact={isCompact}
-				stack={sequence.stack}
-			/>
+			<TimelineStack sequence={sequence} isCompact={isCompact} />
 		</div>
 	);
 };

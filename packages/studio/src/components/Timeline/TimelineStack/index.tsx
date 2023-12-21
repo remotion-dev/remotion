@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import type {TSequence} from 'remotion';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {SOURCE_MAP_ENDPOINT} from '../../../error-overlay/react-overlay/utils/source-map-endpoint';
@@ -8,6 +9,7 @@ import {
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {openInEditor} from '../../../helpers/open-in-editor';
+import {useSelectAsset} from '../../InitialCompositionLoader';
 import {Spacing} from '../../layout';
 import {sendErrorNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
@@ -20,18 +22,41 @@ SourceMapConsumer.initialize({
 });
 
 export const TimelineStack: React.FC<{
-	stack: string | null;
 	isCompact: boolean;
-	displayName: string;
-}> = ({stack, isCompact, displayName}) => {
+	sequence: TSequence;
+}> = ({isCompact, sequence}) => {
 	const [originalLocation, setOriginalLocation] =
 		useState<OriginalPosition | null>(null);
 
 	const [stackHovered, setStackHovered] = useState(false);
 	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
+	const selectAsset = useSelectAsset();
+
+	const assetPath = useMemo(() => {
+		if (sequence.type !== 'video' && sequence.type !== 'audio') {
+			return null;
+		}
+
+		const isStatic = sequence.src.startsWith(window.remotion_staticBase);
+		if (!isStatic) {
+			return null;
+		}
+
+		const relativePath = sequence.src.replace(
+			window.remotion_staticBase + '/',
+			'',
+		);
+		return relativePath;
+	}, [sequence]);
 
 	const onClick = useCallback(async () => {
+		if (assetPath) {
+			selectAsset(assetPath);
+			window.history.pushState({}, 'Studio', `/assets/${assetPath}`);
+			return;
+		}
+
 		if (!originalLocation) {
 			return;
 		}
@@ -50,14 +75,14 @@ export const TimelineStack: React.FC<{
 		} finally {
 			setOpening(false);
 		}
-	}, [originalLocation]);
+	}, [assetPath, originalLocation, selectAsset]);
 
 	useEffect(() => {
-		if (!stack) {
+		if (!sequence.stack) {
 			return;
 		}
 
-		getOriginalLocationFromStack(stack)
+		getOriginalLocationFromStack(sequence.stack)
 			.then((frame) => {
 				setOriginalLocation(frame);
 			})
@@ -65,7 +90,7 @@ export const TimelineStack: React.FC<{
 				// eslint-disable-next-line no-console
 				console.error('Could not get original location of Sequence', err);
 			});
-	}, [stack]);
+	}, [sequence.stack]);
 
 	const onStackPointerEnter = useCallback(() => {
 		setStackHovered(true);
@@ -104,6 +129,8 @@ export const TimelineStack: React.FC<{
 	}, [stackHovered, opening]);
 
 	const textStyle: React.CSSProperties = useMemo(() => {
+		const hoverable = (originalLocation && isCompact) || assetPath;
+		const hoverEffect = titleHovered && hoverable;
 		return {
 			fontSize: 12,
 			whiteSpace: 'nowrap',
@@ -112,18 +139,15 @@ export const TimelineStack: React.FC<{
 			lineHeight: 1,
 			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
 			userSelect: 'none',
-			borderBottom:
-				originalLocation && titleHovered && isCompact
-					? '1px solid #fff'
-					: 'none',
-			cursor: originalLocation && isCompact ? 'pointer' : undefined,
+			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
+			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [isCompact, opening, originalLocation, titleHovered]);
+	}, [assetPath, isCompact, opening, originalLocation, titleHovered]);
 
 	const text =
-		displayName.length > 1000
-			? displayName.slice(0, 1000) + '...'
-			: displayName;
+		sequence.displayName.length > 1000
+			? sequence.displayName.slice(0, 1000) + '...'
+			: sequence.displayName;
 
 	return (
 		<>

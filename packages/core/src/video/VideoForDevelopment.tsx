@@ -61,6 +61,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		name,
 		_remotionInternalNativeLoopPassed,
+		_remotionInternalStack,
 		style,
 		...nativeProps
 	} = props;
