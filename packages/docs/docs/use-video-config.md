@@ -5,19 +5,9 @@ id: use-video-config
 crumb: "API"
 ---
 
-With this hook, you can retrieve some info about the context of the video that you are making.
-Namely, `useVideoConfig` will return an object with the following properties:
+With this hook, you can retrieve some info about the composition you are in.
 
-- `width`: The width of the composition in pixels.
-- `height`: The height of the composition in pixels.
-- `fps`: The frame rate of the composition, in frames per seconds.
-- `durationInFrames` The duration of the composition in frames.
-- `id`: The composition ID.
-- `defaultProps`: The object that you have defined as the `defaultProps` in your composition.
-
-These properties are controlled by passing them as props to [`<Composition>`](/docs/composition). Read the page about [the fundamentals](/docs/the-fundamentals) to read how to setup a Remotion project.
-
-### Example
+## Example
 
 ```tsx twoslash
 import React from "react";
@@ -34,7 +24,45 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+## Return value
+
+A object with the following properties:
+
+### `width`
+
+The width of the composition in pixels, or the `width` of a [`<Sequence>`](/docs/sequence) if the component that calls `useVideoConfig()` is a child of a [`<Sequence>`](/docs/sequence) that defines a width.
+
+### `height`
+
+The height of the composition in pixels, or the `height` of a [`<Sequence>`](/docs/sequence) if the component that calls `useVideoConfig()` is a child of a [`<Sequence>`](/docs/sequence) that defines a height.
+
+### `fps`
+
+The frame rate of the composition, in frames per seconds.
+
+### `durationInFrames`
+
+The duration of the composition in frames or the `durationInFrames` of a [`<Sequence>`](/docs/sequence) if the component that calls `useVideoConfig()` is a child of a [`<Sequence>`](/docs/sequence) that defines a `durationInFrames`.
+
+### `id`
+
+The ID of the composition. This is the same as the `id` prop of the [`<Composition>`](/docs/composition) component.
+
+### `defaultProps`
+
+The object that you have defined as the `defaultProps` in your composition.
+
+### `props`<AvailableFrom v="4.0.0" />
+
+The props that were passed to the composition, after [all transformations](/docs/props-resolution).
+
+### `defaultCodec`<AvailableFrom v="4.0.54" />
+
+The default codec that is used for rendering this composition. Use [`calculateMetadata()`](/docs/calculate-metadata) to modify it.
+
 ## See also
+
+These properties are controlled by passing them as props to [`<Composition>`](/docs/composition). Read the page about [the fundamentals](/docs/the-fundamentals) to read how to setup a Remotion project.
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/use-video-config.ts)
 - [useCurrentFrame()](/docs/use-current-frame)
