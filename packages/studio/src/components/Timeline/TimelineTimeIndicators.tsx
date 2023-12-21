@@ -11,6 +11,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
+import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -113,6 +114,8 @@ const Inner: React.FC<{
 			...container,
 			width: windowWidth,
 			overflow: 'hidden',
+			// Since
+			marginLeft: SPLITTER_HANDLE_SIZE / 2,
 		};
 	}, [windowWidth]);
 
@@ -140,7 +143,10 @@ const Inner: React.FC<{
 					frame: index * fps,
 					style: {
 						...secondTick,
-						left: frameInterval * index * fps + TIMELINE_PADDING,
+						left:
+							frameInterval * index * fps +
+							TIMELINE_PADDING -
+							SPLITTER_HANDLE_SIZE / 2,
 					},
 					showTime: index > 0,
 				};
@@ -154,7 +160,10 @@ const Inner: React.FC<{
 					frame: index,
 					style: {
 						...tick,
-						left: frameInterval * index + TIMELINE_PADDING,
+						left:
+							frameInterval * index +
+							TIMELINE_PADDING -
+							SPLITTER_HANDLE_SIZE / 2,
 						height:
 							index % fps === 0
 								? 10

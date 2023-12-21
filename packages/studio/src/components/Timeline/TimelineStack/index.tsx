@@ -2,12 +2,17 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {SOURCE_MAP_ENDPOINT} from '../../../error-overlay/react-overlay/utils/source-map-endpoint';
-import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {
+	LIGHT_COLOR,
+	LIGHT_TEXT,
+	VERY_LIGHT_TEXT,
+} from '../../../helpers/colors';
 import {openInEditor} from '../../../helpers/open-in-editor';
 import {Spacing} from '../../layout';
 import {sendErrorNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
 import {getOriginalLocationFromStack} from './get-stack';
+import {getOriginalSourceAttribution} from './source-attribution';
 
 // @ts-expect-error
 SourceMapConsumer.initialize({
@@ -15,12 +20,15 @@ SourceMapConsumer.initialize({
 });
 
 export const TimelineStack: React.FC<{
-	stack: string;
-}> = ({stack}) => {
+	stack: string | null;
+	isCompact: boolean;
+	displayName: string;
+}> = ({stack, isCompact, displayName}) => {
 	const [originalLocation, setOriginalLocation] =
 		useState<OriginalPosition | null>(null);
 
-	const [hovered, setHovered] = useState(false);
+	const [stackHovered, setStackHovered] = useState(false);
+	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
 
 	const onClick = useCallback(async () => {
@@ -45,6 +53,10 @@ export const TimelineStack: React.FC<{
 	}, [originalLocation]);
 
 	useEffect(() => {
+		if (!stack) {
+			return;
+		}
+
 		getOriginalLocationFromStack(stack)
 			.then((frame) => {
 				setOriginalLocation(frame);
@@ -55,18 +67,30 @@ export const TimelineStack: React.FC<{
 			});
 	}, [stack]);
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
+	const onStackPointerEnter = useCallback(() => {
+		setStackHovered(true);
 	}, []);
 
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
+	const onStackPointerLeave = useCallback(() => {
+		setStackHovered(false);
+	}, []);
+
+	const onTitlePointerEnter = useCallback(() => {
+		setTitleHovered(true);
+	}, []);
+
+	const onTitlePointerLeave = useCallback(() => {
+		setTitleHovered(false);
 	}, []);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
-			color: opening ? VERY_LIGHT_TEXT : hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
+			color: opening
+				? VERY_LIGHT_TEXT
+				: stackHovered
+				? LIGHT_TEXT
+				: VERY_LIGHT_TEXT,
 			marginLeft: 10,
 			cursor: 'pointer',
 			display: 'flex',
@@ -77,26 +101,61 @@ export const TimelineStack: React.FC<{
 			overflow: 'hidden',
 			flexShrink: 100000,
 		};
-	}, [hovered, opening]);
+	}, [stackHovered, opening]);
 
-	if (!originalLocation) {
-		return null;
-	}
+	const textStyle: React.CSSProperties = useMemo(() => {
+		return {
+			fontSize: 12,
+			whiteSpace: 'nowrap',
+			textOverflow: 'ellipsis',
+			overflow: 'hidden',
+			lineHeight: 1,
+			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
+			userSelect: 'none',
+			borderBottom:
+				originalLocation && titleHovered && isCompact
+					? '1px solid #fff'
+					: 'none',
+			cursor: originalLocation && isCompact ? 'pointer' : undefined,
+		};
+	}, [isCompact, opening, originalLocation, titleHovered]);
+
+	const text =
+		displayName.length > 1000
+			? displayName.slice(0, 1000) + '...'
+			: displayName;
 
 	return (
-		<div
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
-			onClick={onClick}
-			style={style}
-		>
-			{originalLocation.source}:{originalLocation.line}
+		<>
+			<div
+				onPointerEnter={onTitlePointerEnter}
+				onPointerLeave={onTitlePointerLeave}
+				title={
+					originalLocation
+						? getOriginalSourceAttribution(originalLocation)
+						: text || '<Sequence>'
+				}
+				style={textStyle}
+				onClick={onClick}
+			>
+				{text || '<Sequence>'}
+			</div>
+			{isCompact || !originalLocation ? null : (
+				<div
+					onPointerEnter={onStackPointerEnter}
+					onPointerLeave={onStackPointerLeave}
+					onClick={onClick}
+					style={style}
+				>
+					{getOriginalSourceAttribution(originalLocation)}
+				</div>
+			)}
 			{opening ? (
 				<>
 					<Spacing x={0.5} />
 					<Spinner duration={0.5} size={12} />
 				</>
 			) : null}
-		</div>
+		</>
 	);
 };

@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
-import {LIGHT_COLOR, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT,
@@ -10,16 +10,6 @@ import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 
 const SPACING = 5;
-
-const textStyle: React.CSSProperties = {
-	fontSize: 12,
-	whiteSpace: 'nowrap',
-	textOverflow: 'ellipsis',
-	overflow: 'hidden',
-	lineHeight: 1,
-	color: LIGHT_COLOR,
-	userSelect: 'none',
-};
 
 const outer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM,
@@ -42,8 +32,8 @@ const space: React.CSSProperties = {
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
 	nestedDepth: number;
-	hash: string;
-}> = ({nestedDepth, sequence}) => {
+	isCompact: boolean;
+}> = ({nestedDepth, sequence, isCompact}) => {
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
@@ -54,11 +44,6 @@ export const TimelineListItem: React.FC<{
 			flexShrink: 0,
 		};
 	}, [nestedDepth]);
-
-	const text =
-		sequence.displayName.length > 80
-			? sequence.displayName.slice(0, 80) + '...'
-			: sequence.displayName;
 
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;
@@ -85,10 +70,11 @@ export const TimelineListItem: React.FC<{
 			/>
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
-			<div title={text || '<Sequence>'} style={textStyle}>
-				{text || '<Sequence>'}
-			</div>
-			{sequence.stack ? <TimelineStack stack={sequence.stack} /> : null}
+			<TimelineStack
+				displayName={sequence.displayName}
+				isCompact={isCompact}
+				stack={sequence.stack}
+			/>
 		</div>
 	);
 };
