@@ -12,13 +12,6 @@ import type {
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
-const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
-	return [
-		track.cascadedStart + track.cascadedDuration >= track.sequence.from,
-		track.cascadedStart <= track.sequence.from + track.sequence.duration,
-	].every(Boolean);
-};
-
 export const calculateTimeline = ({
 	sequences,
 	sequenceDuration,
@@ -94,11 +87,7 @@ export const calculateTimeline = ({
 
 	const uniqueTracks: TrackWithHash[] = [];
 	for (const track of tracks) {
-		if (
-			!uniqueTracks.find((t) => t.hash === track.hash) &&
-			track.sequence.showInTimeline &&
-			isTrackWithinParentBounds(track)
-		) {
+		if (!uniqueTracks.find((t) => t.hash === track.hash)) {
 			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
 			uniqueTracks.push(cleanTrack);
 		}

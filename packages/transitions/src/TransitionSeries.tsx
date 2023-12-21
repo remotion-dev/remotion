@@ -223,10 +223,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TransitionSeries.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -242,7 +242,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								<Sequence {...passedProps}>{child}</Sequence>
+								<Sequence showInTimeline={false} {...passedProps}>
+									{child}
+								</Sequence>
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -256,10 +258,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TransitionSeries.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -268,7 +270,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							<Sequence {...passedProps}>{child}</Sequence>
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -281,10 +285,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						name="<TransitionSeries.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						showInTimeline={false}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -293,7 +297,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							<Sequence {...passedProps}>{child}</Sequence>
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
@@ -301,6 +307,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
+					name="<TransitionSeries.Sequence>"
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -318,11 +325,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
-} = ({children, ...otherProps}) => {
-	const showInTimeline = (otherProps.from ?? 0) !== 0;
-
+} = ({children, name, ...otherProps}) => {
+	const displayName = name ?? '<TransitionSeries>';
 	return (
-		<Sequence showInTimeline={showInTimeline} {...otherProps}>
+		<Sequence name={displayName} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);

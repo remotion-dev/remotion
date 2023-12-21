@@ -66,7 +66,7 @@ export const Timeline: React.FC = () => {
 			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
 		});
 
-		return withoutAfter;
+		return withoutAfter.filter((t) => t.sequence.showInTimeline);
 	}, [durationInFrames, timeline]);
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
