@@ -1,15 +1,14 @@
 import React from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment';
-import {Sequence} from './Sequence';
 
-export const enableSequenceStackTraces = () => {
+export const enableSequenceStackTraces = (component: unknown) => {
 	if (!getRemotionEnvironment().isStudio) {
 		return;
 	}
 
 	const proxy = new Proxy(React.createElement, {
 		apply(target, thisArg, argArray) {
-			if (argArray[0] === Sequence) {
+			if (argArray[0] === component) {
 				const [first, props, ...rest] = argArray;
 				const newProps = {
 					...(props ?? {}),

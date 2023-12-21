@@ -1,7 +1,7 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
 import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
-import {Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -22,6 +22,10 @@ type SeriesSequenceProps = PropsWithChildren<
 		durationInFrames: number;
 		offset?: number;
 		className?: string;
+		/**
+		 * @deprecated For internal use only
+		 */
+		stack?: string;
 	} & LayoutAndStyle &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
@@ -223,10 +227,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TransitionSeries.Sequence>"
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -258,10 +263,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TransitionSeries.Sequence>"
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -285,10 +291,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TransitionSeries.Sequence>"
+						name="<TS.Sequence>"
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -307,7 +314,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
-					name="<TransitionSeries.Sequence>"
+					name="<TS.Sequence>"
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -338,3 +345,5 @@ TransitionSeries.Sequence = SeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
+
+Internals.enableSequenceStackTraces(SeriesSequence);
