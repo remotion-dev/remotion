@@ -59,6 +59,10 @@ export const TimelineStack: React.FC<{
 	);
 
 	const openEditor = useCallback(async (location: OriginalPosition) => {
+		if (!window.remotion_editorName) {
+			return;
+		}
+
 		setOpening(true);
 		try {
 			await openInEditor({
@@ -147,8 +151,11 @@ export const TimelineStack: React.FC<{
 		};
 	}, [stackHovered, opening]);
 
+	const hoverable =
+		(originalLocation && isCompact) ||
+		(assetPath && window.remotion_editorName);
+
 	const textStyle: React.CSSProperties = useMemo(() => {
-		const hoverable = (originalLocation && isCompact) || assetPath;
 		const hoverEffect = titleHovered && hoverable;
 		return {
 			fontSize: 12,
@@ -161,7 +168,7 @@ export const TimelineStack: React.FC<{
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [assetPath, isCompact, opening, originalLocation, titleHovered]);
+	}, [hoverable, isCompact, opening, titleHovered]);
 
 	const text =
 		sequence.displayName.length > 1000
