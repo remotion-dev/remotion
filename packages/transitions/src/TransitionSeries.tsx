@@ -346,4 +346,5 @@ TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
 
-Internals.enableSequenceStackTraces(SeriesSequence);
+Internals.addSequenceStackTraces(TransitionSeries);
+Internals.addSequenceStackTraces(SeriesSequence);

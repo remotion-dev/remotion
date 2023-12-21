@@ -1,5 +1,5 @@
 import React from 'react';
-import {Audio, Loop, Sequence, staticFile, Video} from 'remotion';
+import {Audio, Loop, Sequence, Series, staticFile, Video} from 'remotion';
 import {BasicTransition} from '../Transitions/BasicTransition';
 
 export const Layers: React.FC = () => {
@@ -22,7 +22,11 @@ export const Layers: React.FC = () => {
 			</Loop>
 			<Audio src={staticFile('music.mp3')} />
 			<Video src={staticFile('vid1.mp4')} />
-			<BasicTransition />{' '}
+			<BasicTransition />
+			<Series>
+				<Series.Sequence durationInFrames={40}>hi there</Series.Sequence>
+				<Series.Sequence durationInFrames={40}>hi there</Series.Sequence>
+			</Series>
 		</Sequence>
 	);
 };

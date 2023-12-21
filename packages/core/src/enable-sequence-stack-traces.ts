@@ -1,14 +1,17 @@
 import React from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment';
 
-export const enableSequenceStackTraces = (component: unknown) => {
+const originalCreateElement = React.createElement;
+const componentsToAddStacksTo: unknown[] = [];
+
+const enableSequenceStackTraces = () => {
 	if (!getRemotionEnvironment().isStudio) {
 		return;
 	}
 
-	const proxy = new Proxy(React.createElement, {
+	const proxy = new Proxy(originalCreateElement, {
 		apply(target, thisArg, argArray) {
-			if (argArray[0] === component) {
+			if (componentsToAddStacksTo.includes(argArray[0])) {
 				const [first, props, ...rest] = argArray;
 				const newProps = {
 					...(props ?? {}),
@@ -23,4 +26,9 @@ export const enableSequenceStackTraces = (component: unknown) => {
 	});
 
 	React.createElement = proxy;
+};
+
+export const addSequenceStackTraces = (component: unknown) => {
+	componentsToAddStacksTo.push(component);
+	enableSequenceStackTraces();
 };
