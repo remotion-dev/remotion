@@ -1508,8 +1508,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       source-map:
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.6.1
+        version: 0.6.1
       ws:
         specifier: 8.7.0
         version: 8.7.0
