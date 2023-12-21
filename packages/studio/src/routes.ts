@@ -11,6 +11,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
+import {SOURCE_MAP_ENDPOINT} from './error-overlay/react-overlay/utils/source-map-endpoint';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {
@@ -197,6 +198,25 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	readStream.pipe(response);
 };
 
+const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
+	const filePath = path.resolve(
+		require.resolve('source-map'),
+		'..',
+		'lib',
+		'mappings.wasm',
+	);
+
+	const stat = statSync(filePath);
+
+	response.writeHead(200, {
+		'Content-Type': 'application/wasm',
+		'Content-Length': stat.size,
+	});
+
+	const readStream = createReadStream(filePath);
+	readStream.pipe(response);
+};
+
 export const handleRoutes = ({
 	staticHash,
 	staticHashPrefix,
@@ -272,6 +292,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/remotion.png') {
 		return handleFavicon(request, response);
+	}
+
+	if (url.pathname === SOURCE_MAP_ENDPOINT) {
+		return handleWasm(request, response);
 	}
 
 	if (url.pathname === '/events') {
