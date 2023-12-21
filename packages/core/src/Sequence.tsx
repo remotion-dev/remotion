@@ -198,15 +198,13 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
-		const widthValue = width ?? parentSequence?.width;
-		const heightValue = height ?? parentSequence?.height;
 		return {
 			flexDirection: undefined,
+			...(width ? {width} : {}),
+			...(height ? {height} : {}),
 			...(styleIfThere ?? {}),
-			...(widthValue ? {width: widthValue} : {}),
-			...(heightValue ? {height: heightValue} : {}),
 		};
-	}, [height, parentSequence, styleIfThere, width]);
+	}, [height, styleIfThere, width]);
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
