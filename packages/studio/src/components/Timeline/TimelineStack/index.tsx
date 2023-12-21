@@ -50,24 +50,22 @@ export const TimelineStack: React.FC<{
 		return relativePath;
 	}, [sequence]);
 
-	const onClick = useCallback(async () => {
-		if (assetPath) {
-			selectAsset(assetPath);
-			window.history.pushState({}, 'Studio', `/assets/${assetPath}`);
-			return;
-		}
+	const navigateToAsset = useCallback(
+		(asset: string) => {
+			selectAsset(asset);
+			window.history.pushState({}, 'Studio', `/assets/${asset}`);
+		},
+		[selectAsset],
+	);
 
-		if (!originalLocation) {
-			return;
-		}
-
+	const openEditor = useCallback(async (location: OriginalPosition) => {
 		setOpening(true);
 		try {
 			await openInEditor({
-				originalColumnNumber: originalLocation.column,
-				originalFileName: originalLocation.source,
+				originalColumnNumber: location.column,
+				originalFileName: location.source,
 				originalFunctionName: null,
-				originalLineNumber: originalLocation.line,
+				originalLineNumber: location.line,
 				originalScriptCode: null,
 			});
 		} catch (err) {
@@ -75,7 +73,28 @@ export const TimelineStack: React.FC<{
 		} finally {
 			setOpening(false);
 		}
-	}, [assetPath, originalLocation, selectAsset]);
+	}, []);
+
+	const onClickTitle = useCallback(() => {
+		if (assetPath) {
+			navigateToAsset(assetPath);
+			return;
+		}
+
+		if (!originalLocation) {
+			return;
+		}
+
+		openEditor(originalLocation);
+	}, [assetPath, navigateToAsset, openEditor, originalLocation]);
+
+	const onClickStack = useCallback(() => {
+		if (!originalLocation) {
+			return;
+		}
+
+		openEditor(originalLocation);
+	}, [openEditor, originalLocation]);
 
 	useEffect(() => {
 		if (!sequence.stack) {
@@ -160,7 +179,7 @@ export const TimelineStack: React.FC<{
 						: text || '<Sequence>'
 				}
 				style={textStyle}
-				onClick={onClick}
+				onClick={onClickTitle}
 			>
 				{text || '<Sequence>'}
 			</div>
@@ -168,7 +187,7 @@ export const TimelineStack: React.FC<{
 				<div
 					onPointerEnter={onStackPointerEnter}
 					onPointerLeave={onStackPointerLeave}
-					onClick={onClick}
+					onClick={onClickStack}
 					style={style}
 				>
 					{getOriginalSourceAttribution(originalLocation)}
