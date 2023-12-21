@@ -1,9 +1,8 @@
-import {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {SOURCE_MAP_ENDPOINT} from '../../../error-overlay/react-overlay/utils/source-map-endpoint';
 import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../../helpers/colors';
-import {getLocationOfSequence} from '../../../helpers/get-location-of-sequence';
 import {openInEditor} from '../../../helpers/open-in-editor';
 import {Spacing} from '../../layout';
 import {sendErrorNotification} from '../../Notifications/NotificationCenter';
@@ -46,20 +45,14 @@ export const TimelineStack: React.FC<{
 	}, [originalLocation]);
 
 	useEffect(() => {
-		const location = getLocationOfSequence(stack);
-
-		if (location) {
-			getOriginalLocationFromStack(stack)
-				.then((frame) => {
-					setOriginalLocation(frame);
-				})
-				.catch((err) => {
-					// eslint-disable-next-line no-console
-					console.error('Could not get original location of Sequence', err);
-				});
-		} else {
-			setOriginalLocation(null);
-		}
+		getOriginalLocationFromStack(stack)
+			.then((frame) => {
+				setOriginalLocation(frame);
+			})
+			.catch((err) => {
+				// eslint-disable-next-line no-console
+				console.error('Could not get original location of Sequence', err);
+			});
 	}, [stack]);
 
 	const onPointerEnter = useCallback(() => {
@@ -70,6 +63,22 @@ export const TimelineStack: React.FC<{
 		setHovered(false);
 	}, []);
 
+	const style = useMemo((): React.CSSProperties => {
+		return {
+			fontSize: 12,
+			color: opening ? VERY_LIGHT_TEXT : hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
+			marginLeft: 10,
+			cursor: 'pointer',
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			whiteSpace: 'nowrap',
+			textOverflow: 'ellipsis',
+			overflow: 'hidden',
+			flexShrink: 100000,
+		};
+	}, [hovered, opening]);
+
 	if (!originalLocation) {
 		return null;
 	}
@@ -79,19 +88,7 @@ export const TimelineStack: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			onClick={onClick}
-			style={{
-				fontSize: 12,
-				color: opening
-					? VERY_LIGHT_TEXT
-					: hovered
-					? LIGHT_TEXT
-					: VERY_LIGHT_TEXT,
-				marginLeft: 10,
-				cursor: 'pointer',
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-			}}
+			style={style}
 		>
 			{originalLocation.source}:{originalLocation.line}
 			{opening ? (
