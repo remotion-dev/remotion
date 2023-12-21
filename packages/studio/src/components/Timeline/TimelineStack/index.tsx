@@ -1,14 +1,14 @@
 import {useCallback, useEffect, useState} from 'react';
 import {SourceMapConsumer} from 'source-map';
-import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {getOriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {SOURCE_MAP_ENDPOINT} from '../../error-overlay/react-overlay/utils/source-map-endpoint';
-import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
-import {getLocationOfSequence} from '../../helpers/get-location-of-sequence';
-import {openInEditor} from '../../helpers/open-in-editor';
-import {Spacing} from '../layout';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
-import {Spinner} from '../Spinner';
+import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
+import {SOURCE_MAP_ENDPOINT} from '../../../error-overlay/react-overlay/utils/source-map-endpoint';
+import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {getLocationOfSequence} from '../../../helpers/get-location-of-sequence';
+import {openInEditor} from '../../../helpers/open-in-editor';
+import {Spacing} from '../../layout';
+import {sendErrorNotification} from '../../Notifications/NotificationCenter';
+import {Spinner} from '../../Spinner';
+import {getOriginalLocationFromStack} from './get-stack';
 
 // @ts-expect-error
 SourceMapConsumer.initialize({
@@ -49,28 +49,16 @@ export const TimelineStack: React.FC<{
 		const location = getLocationOfSequence(stack);
 
 		if (location) {
-			fetch(`${location.fileName}.map`)
-				.then((res) => res.json())
-				.then((sourceMap) => {
-					return new Promise((resolve) => {
-						SourceMapConsumer.with(sourceMap, null, (consumer) => {
-							resolve(consumer);
-						});
-					});
-				})
-				.then((map) => {
-					return getOriginalPosition(
-						map as SourceMapConsumer,
-						location.lineNumber as number,
-						location.columnNumber as number,
-					);
-				})
+			getOriginalLocationFromStack(stack)
 				.then((frame) => {
 					setOriginalLocation(frame);
 				})
 				.catch((err) => {
-					console.log(err);
+					// eslint-disable-next-line no-console
+					console.error('Could not get original location of Sequence', err);
 				});
+		} else {
+			setOriginalLocation(null);
 		}
 	}, [stack]);
 
