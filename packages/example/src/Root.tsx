@@ -43,6 +43,7 @@ import {
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
+import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
@@ -1069,6 +1070,14 @@ export const Index: React.FC = () => {
 				durationInFrames={200}
 				fps={30}
 				defaultProps={{}}
+			/>
+			<Composition
+				id="WidthHeight"
+				component={WidthHeightSequences}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
 			/>
 		</>
 	);

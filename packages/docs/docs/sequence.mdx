@@ -63,6 +63,18 @@ _optional_
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
 
+### `height`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
+
+### `width`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
+
 ### `name`
 
 _optional_
