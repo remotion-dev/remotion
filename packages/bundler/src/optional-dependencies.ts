@@ -9,10 +9,21 @@ const OPTIONAL_DEPENDENCIES = [
 	'react-native-reanimated/package.json',
 ];
 
+const SOURCE_MAP_IGNORE = ['path', 'fs'];
+
 export class AllowOptionalDependenciesPlugin {
 	filter(error: Error) {
 		for (const dependency of OPTIONAL_DEPENDENCIES) {
 			if (error.message.includes(`Can't resolve '${dependency}'`)) {
+				return false;
+			}
+		}
+
+		for (const dependency of SOURCE_MAP_IGNORE) {
+			if (
+				error.message.includes(`Can't resolve '${dependency}'`) &&
+				error.message.includes('source-map')
+			) {
 				return false;
 			}
 		}
