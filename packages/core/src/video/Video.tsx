@@ -2,6 +2,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
@@ -16,12 +17,19 @@ import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps & RemotionMainVideoProps
+	RemotionVideoProps &
+		RemotionMainVideoProps & {
+			/**
+			 * @deprecated For internal use only
+			 */
+			stack?: string;
+		}
 > = (props, ref) => {
 	const {
 		startFrom,
 		endAt,
 		name,
+		stack,
 		_remotionInternalNativeLoopPassed,
 		...otherProps
 	} = props;
@@ -107,6 +115,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			{...otherProps}
 			ref={ref}
 			onDuration={onDuration}
+			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
@@ -126,3 +135,5 @@ const forward = forwardRef as <T, P = {}>(
  * @see [Documentation](https://www.remotion.dev/docs/video)
  */
 export const Video = forward(VideoForwardingFunction);
+
+addSequenceStackTraces(Video);

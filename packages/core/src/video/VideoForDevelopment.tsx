@@ -31,6 +31,7 @@ type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 	_remotionInternalNativeLoopPassed: boolean;
+	_remotionInternalStack: string | null;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -83,7 +84,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: null,
+		stack: props._remotionInternalStack,
 	});
 
 	useSyncVolumeWithMediaTag({

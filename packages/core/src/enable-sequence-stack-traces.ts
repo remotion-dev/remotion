@@ -5,10 +5,6 @@ const originalCreateElement = React.createElement;
 const componentsToAddStacksTo: unknown[] = [];
 
 const enableSequenceStackTraces = () => {
-	if (!getRemotionEnvironment().isStudio) {
-		return;
-	}
-
 	const proxy = new Proxy(originalCreateElement, {
 		apply(target, thisArg, argArray) {
 			if (componentsToAddStacksTo.includes(argArray[0])) {
@@ -29,6 +25,10 @@ const enableSequenceStackTraces = () => {
 };
 
 export const addSequenceStackTraces = (component: unknown) => {
+	if (!getRemotionEnvironment().isStudio) {
+		return;
+	}
+
 	componentsToAddStacksTo.push(component);
 	enableSequenceStackTraces();
 };

@@ -31,6 +31,7 @@ type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 	_remotionInternalNativeLoopPassed: boolean;
+	_remotionInternalStack: string | null;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -134,7 +135,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: null,
+		stack: props._remotionInternalStack,
 	});
 
 	useMediaPlayback({

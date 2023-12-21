@@ -46,5 +46,9 @@ export type OffthreadVideoProps = {
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
 	transparent?: boolean;
+	/**
+	 * @deprecated For internal use only
+	 */
+	stack?: string;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
