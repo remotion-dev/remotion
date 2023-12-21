@@ -30,6 +30,8 @@ test.skip('Media start is shifted back based on sequence', () => {
 		parentFrom: 0,
 		durationInFrames: 0,
 		id: 'mock',
+		height: null,
+		width: null,
 	};
 	const wrapper: React.FC<{
 		children: React.ReactNode;

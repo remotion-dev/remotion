@@ -33,6 +33,8 @@ export type LayoutAndStyle =
 
 export type SequencePropsWithoutDuration = {
 	children: React.ReactNode;
+	width?: number;
+	height?: number;
 	from?: number;
 	name?: string;
 	/**
@@ -58,6 +60,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		durationInFrames = Infinity,
 		children,
 		name,
+		height,
+		width,
 		showInTimeline = true,
 		loopDisplay,
 		...other
@@ -128,13 +132,17 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
+			height: height ?? parentSequence?.height ?? null,
+			width: width ?? parentSequence?.width ?? null,
 		};
 	}, [
 		cumulatedFrom,
 		from,
 		actualDurationInFrames,
-		parentSequence?.relativeFrom,
+		parentSequence,
 		id,
+		height,
+		width,
 	]);
 
 	const timelineClipName = useMemo(() => {
@@ -190,11 +198,15 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
+		const widthValue = width ?? parentSequence?.width;
+		const heightValue = height ?? parentSequence?.height;
 		return {
 			flexDirection: undefined,
 			...(styleIfThere ?? {}),
+			...(widthValue ? {width: widthValue} : {}),
+			...(heightValue ? {height: heightValue} : {}),
 		};
-	}, [styleIfThere]);
+	}, [height, parentSequence, styleIfThere, width]);
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
