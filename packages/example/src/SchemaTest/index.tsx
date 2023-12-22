@@ -10,6 +10,18 @@ export const schemaTestSchema = z.object({
 	list: z.array(z.object({name: z.string(), age: z.number()})),
 	description: zTextarea().nullable(),
 	dropdown: z.enum(['a', 'b', 'c']),
+	superSchema: z.array(
+		z.discriminatedUnion('type', [
+			z.object({
+				type: z.literal('a'),
+				a: z.object({a: z.string()}),
+			}),
+			z.object({
+				type: z.literal('b'),
+				b: z.object({b: z.string()}),
+			}),
+		]),
+	),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());

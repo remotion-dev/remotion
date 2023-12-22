@@ -54,9 +54,14 @@ const findEndPosition = (input: string, currentPosition: number) => {
 		return nextTriple + 1;
 	}
 
-	const next = input.indexOf('}}', currentPosition + 1);
-	if (next !== -1) {
-		return next;
+	const nextLinux = input.indexOf('}}\n', currentPosition + 1);
+	const nextWindows = input.indexOf('}}\r', currentPosition + 1);
+	if (nextLinux !== -1) {
+		return nextLinux;
+	}
+
+	if (nextWindows !== -1) {
+		return nextWindows;
 	}
 
 	throw new Error('Could not find end of defaultProps');

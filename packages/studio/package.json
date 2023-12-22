@@ -7,7 +7,8 @@
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d"
+		"build": "tsc -d",
+		"test": "vitest --run"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
