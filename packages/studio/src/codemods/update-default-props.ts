@@ -54,7 +54,7 @@ const findEndPosition = (input: string, currentPosition: number) => {
 		return nextTriple + 1;
 	}
 
-	const next = input.indexOf('}}', currentPosition + 1);
+	const next = input.indexOf('}}\n', currentPosition + 1);
 	if (next !== -1) {
 		return next;
 	}
