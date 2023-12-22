@@ -1,6 +1,10 @@
 import React, {useMemo, useState} from 'react';
 import type {z} from 'zod';
-import {useZodIfPossible} from '../../get-zod-if-possible';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
+import {createZodValues} from './create-zod-values';
 import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
@@ -56,6 +60,8 @@ export const ZodArrayEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	const zodTypes = useZodTypesIfPossible();
+
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
 		throw new Error('expected object');
@@ -103,7 +109,9 @@ export const ZodArrayEditor: React.FC<{
 										def={def}
 										index={i}
 										jsonPath={jsonPath}
-										defaultValue={defaultValue[i]}
+										defaultValue={
+											defaultValue[i] ?? createZodValues(def.type, z, zodTypes)
+										}
 										onSave={onSave}
 										showSaveButton={showSaveButton}
 										saving={saving}

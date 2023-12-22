@@ -1027,6 +1027,10 @@ export const Index: React.FC = () => {
 						list: [{name: 'first', age: 12}],
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
+						superSchema: [
+							{type: 'a' as const, a: {a: 'hi'}},
+							{type: 'b' as const, b: {b: 'hi'}},
+						],
 					}}
 				/>
 				{/**
