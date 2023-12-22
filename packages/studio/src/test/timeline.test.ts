@@ -7,20 +7,21 @@ test('Should calculate timeline with no sequences', () => {
 	});
 	expect(calculated).toEqual([
 		{
-			canCollapse: false,
-			hash: '-',
-			depth: 0,
 			sequence: {
 				displayName: '',
 				duration: 100,
 				from: 0,
 				id: 'seq',
 				parent: null,
+				type: 'sequence',
 				rootId: '-',
 				showInTimeline: true,
-				type: 'sequence',
 				nonce: 0,
+				loopDisplay: undefined,
+				stack: null,
 			},
+			depth: 0,
+			hash: '-',
 		},
 	]);
 });
@@ -46,7 +47,6 @@ test('Should calculate a basic timeline', () => {
 	});
 	expect(calculated).toEqual([
 		{
-			canCollapse: false,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -56,6 +56,8 @@ test('Should calculate a basic timeline', () => {
 				parent: null,
 				rootId: '0.1',
 				showInTimeline: true,
+				loopDisplay: undefined,
+				stack: null,
 				type: 'sequence',
 				nonce: 0,
 			},
@@ -85,38 +87,36 @@ test('Should follow order of nesting', () => {
 				duration: 100,
 				from: 0,
 				id: '0.1',
+				loopDisplay: undefined,
 				parent: null,
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
 				stack: null,
-				loopDisplay: undefined,
 			},
 		],
 		sequenceDuration: 100,
 	});
 	expect(calculated).toEqual([
 		{
-			canCollapse: true,
-			depth: 0,
-			hash: '-Audio-100-0-sequence----0',
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
 				from: 0,
 				id: '0.1',
+				loopDisplay: undefined,
 				parent: null,
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
+				stack: null,
 			},
+			depth: 0,
+			hash: '-Audio-100-0-sequence----0',
 		},
 		{
-			canCollapse: false,
-			depth: 1,
-			hash: '-Audio-100-0-sequence----0-Audio-100-0-sequence----0',
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
@@ -127,7 +127,11 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
+				stack: null,
+				loopDisplay: undefined,
 			},
+			depth: 1,
+			hash: '-Audio-100-0-sequence----0-Audio-100-0-sequence----0',
 		},
 	]);
 });
