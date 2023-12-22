@@ -612,7 +612,6 @@ module.exports = {
         "lambda/go",
         "lambda/python",
         "lambda/serverless-framework-integration",
-        "lambda/sqs",
         "lambda/insights",
         "lambda/multiple-buckets",
         "lambda/bucket-naming",
