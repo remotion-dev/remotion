@@ -22,6 +22,8 @@ See [this repository](https://github.com/remotion-dev/anime-example) for an exam
 
 You can synchronize animations with Remotions time using the [`animation-play-state`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-play-state) and [`animation-delay`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-delay) CSS properties.
 
+See an [example here](https://stackblitz.com/~/github.com/remotion-dev/css-animation-play-state).
+
 ## Framer Motion
 
 At the moment, we don't have a Framer Motion integration, but are discussing the matter on [GitHub Issues](https://github.com/remotion-dev/remotion/issues/399).
