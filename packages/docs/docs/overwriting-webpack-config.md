@@ -236,7 +236,7 @@ yarn add sass sass-loader
 ```ts twoslash title="src/enable-sass.ts"
 import { WebpackOverrideFn } from "@remotion/bundler";
 
-const enableSass: WebpackOverrideFn = (currentConfiguration) => {
+export const enableSass: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
