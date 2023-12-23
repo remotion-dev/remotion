@@ -50,6 +50,10 @@ export const PricingTable: React.FC<{}> = () => {
               </li>
               <li>
                 <Bullet color="#4290f5" />
+                Cloud rendering allowed
+              </li>
+              <li>
+                <Bullet color="#4290f5" />
                 Community support
               </li>
             </ul>
