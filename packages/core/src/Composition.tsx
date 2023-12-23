@@ -193,7 +193,7 @@ export const Composition = <
 			id,
 			folderName,
 			component: lazy,
-			defaultProps: defaultProps as z.infer<Schema> & Props,
+			defaultProps: defaultProps as z.output<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,

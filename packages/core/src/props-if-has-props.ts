@@ -33,6 +33,6 @@ export type InferProps<
 		  Props
 	: {} extends Props
 	? // Only schema specified
-	  z.infer<Schema>
+	  z.input<Schema>
 	: // Props and schema specified
-	  z.infer<Schema> & Props;
+	  z.input<Schema> & Props;

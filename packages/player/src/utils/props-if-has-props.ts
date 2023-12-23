@@ -7,7 +7,7 @@ export type PropsIfHasProps<
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
-				inputProps?: z.infer<Schema> & Props;
+				inputProps?: z.input<Schema> & Props;
 		  }
 		: {
 				// Only props specified
@@ -16,9 +16,9 @@ export type PropsIfHasProps<
 	: {} extends Props
 	? {
 			// Only schema specified
-			inputProps: z.infer<Schema>;
+			inputProps: z.input<Schema>;
 	  }
 	: {
 			// Props and schema specified
-			inputProps: z.infer<Schema> & Props;
+			inputProps: z.input<Schema> & Props;
 	  };
