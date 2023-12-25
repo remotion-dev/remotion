@@ -28,6 +28,7 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 # Set render still request
 render_params = RenderStillParams(
     composition="star-test",
+
     data={
         'hi': 'there'
     },
@@ -37,16 +38,6 @@ render_response = client.render_still_on_lambda(render_params)
 if render_response:
     # Execute render request
 
-    print("Render ID:", render_response.renderId)
-    print("Bucket name:", render_response.bucketName)
-
-    # Execute progress request
-    progress_response = client.get_render_progress(
-        render_id=render_response.renderId, bucket_name=render_response.bucketName)
-
-    while progress_response and not progress_response.done:
-        print("Overall progress")
-        print(str(progress_response.overallProgress * 100) + "%")
-        progress_response = client.get_render_progress(
-            render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    print("Render done!", progress_response.outputFile)
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
+    print("Render done! File at ", render_response.url)

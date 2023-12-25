@@ -5,8 +5,8 @@ from math import ceil
 from typing import Union, Literal
 from enum import Enum
 import boto3
-from .models import (RenderParams, RenderProgress,
-                     RenderResponse, RenderProgressParams,
+from .models import (CostsInfo, RenderParams, RenderProgress,
+                     RenderResponse, RenderProgressParams, RenderStillOnLambdaOutput,
                      RenderStillParams)
 
 
@@ -106,10 +106,7 @@ class RemotionClient:
         response = client.invoke(
             FunctionName=function_name, Payload=payload, )
         result = response['Payload'].read().decode('utf-8')
-        print("\ndecoded_result")
         decoded_result = (self._parse_stream(result)[-1])
-        print(decoded_result)
-        print("\n")
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
 
@@ -209,7 +206,19 @@ class RemotionClient:
             function_name=self.function_name, payload=params)
 
         if body_object:
-            return RenderResponse(body_object['bucketName'], body_object['renderId'])
+            return RenderStillOnLambdaOutput(
+                estimated_price=CostsInfo(
+                    accrued_so_far=body_object['estimatedPrice']['accruedSoFar'],
+                    display_cost=body_object['estimatedPrice']['displayCost'],
+                    currency=body_object['estimatedPrice']['currency'],
+                    disclaimer=body_object['estimatedPrice']['disclaimer']
+                ),
+                url=body_object['output'],
+                size_in_bytes=body_object['size'],
+                bucket_name=body_object['bucketName'],
+                render_id=body_object['renderId'],
+                # cloud_watch_logs=body_object['cloud_watch_logs']
+            )
 
         return None
 

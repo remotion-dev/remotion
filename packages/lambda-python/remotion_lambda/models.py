@@ -357,7 +357,7 @@ class RenderStillOnLambdaOutput:
     size_in_bytes: int
     bucket_name: str
     render_id: str
-    cloud_watch_logs: str
+    cloud_watch_logs: Optional[str] = None
 
 
 @dataclass
