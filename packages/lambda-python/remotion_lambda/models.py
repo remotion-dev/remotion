@@ -7,6 +7,172 @@ from .version import VERSION
 
 
 # pylint: disable=too-many-instance-attributes
+
+
+class ValidStillImageFormats(str, Enum):
+    """
+    Enumeration of valid image formats for still images.
+
+    Attributes:
+        PNG: Represents the PNG image format.
+        JPEG: Represents the JPEG image format.
+        PDF: Represents the PDF format for images.
+        WEBP: Represents the WEBP image format.
+    """
+    PNG: str = 'png'
+    JPEG: str = 'jpeg'
+    PDF: str = 'pdf'
+    WEBP: str = 'webp'
+
+
+class Privacy(str, Enum):
+    """
+    Enumeration of privacy settings.
+
+    Attributes:
+        PUBLIC: Indicates a public setting.
+        PRIVATE: Indicates a private setting.
+    """
+    PUBLIC: str = 'public'
+    PRIVATE: str = 'private'
+
+
+class LogLevel(str, Enum):
+    """
+    Enumeration for different levels of logging.
+
+    Attributes:
+        VERBOSE: Verbose logging level.
+        INFO: Informational logging level.
+        WARN: Warning logging level.
+        ERROR: Error logging level.
+    """
+    VERBOSE = 'verbose'
+    INFO = 'info'
+    WARN = 'warn'
+    ERROR = 'error'
+
+
+class OpenGlRenderer(str, Enum):
+    """
+    Enumeration of OpenGL renderer options.
+
+    Attributes:
+        SWANGLE: Represents the SWANGLE OpenGL renderer.
+        ANGLE: Represents the ANGLE OpenGL renderer.
+        EGL: Represents the EGL OpenGL renderer.
+        SWIFTSHADER: Represents the SWIFTSHADER OpenGL renderer.
+        VULKAN: Represents the VULKAN OpenGL renderer.
+    """
+    SWANGLE: str = 'swangle'
+    ANGLE: str = 'angle'
+    EGL: str = 'egl'
+    SWIFTSHADER: str = 'swiftshader'
+    VULKAN: str = 'vulkan'
+
+
+@dataclass
+class ChromiumOptions:
+    """
+    Options for configuring the Chromium browser.
+
+    Attributes:
+        ignore_certificate_errors (Optional[bool]): If True, ignores certificate errors.
+        disable_web_security (Optional[bool]): If True, disables web security.
+        gl (Optional[OpenGlRenderer]): Specifies the OpenGL renderer to use.
+        headless (Optional[bool]): If True, runs Chromium in headless mode.
+        user_agent (Optional[str]): Specifies a custom user agent.
+        enable_multi_process_on_linux (Optional[bool]): 
+            If True, enables multi-process mode on Linux.
+    """
+    ignore_certificate_errors: Optional[bool] = None
+    disable_web_security: Optional[bool] = None
+    gl: Optional[OpenGlRenderer] = OpenGlRenderer.SWANGLE
+    headless: Optional[bool] = None
+    user_agent: Optional[str] = None
+    enable_multi_process_on_linux: Optional[bool] = None
+
+
+@dataclass
+class CustomCredentialsWithoutSensitiveData:
+    """
+    Represents credentials without sensitive data.
+
+    Attributes:
+        endpoint (str): The endpoint associated with the credentials.
+    """
+    endpoint: str
+
+
+@dataclass
+class CustomCredentials(CustomCredentialsWithoutSensitiveData):
+    """
+    Represents custom credentials, extending credentials without sensitive data.
+
+    Attributes:
+        access_key_id (Optional[str]): The access key ID.
+        secret_access_key (Optional[str]): The secret access key.
+    """
+    access_key_id: Optional[str] = None
+    secret_access_key: Optional[str] = None
+
+
+@dataclass
+class OutNameInputObject:
+    """
+    Defines output naming and storage options.
+
+    Attributes:
+        bucket_name (str): The name of the S3 bucket for output storage.
+        key (str): The key name within the S3 bucket.
+        s3_output_provider (Optional[CustomCredentials]):
+             Optional custom credentials for the S3 output provider.
+    """
+    bucket_name: str
+    key: str
+    s3_output_provider: Optional[CustomCredentials] = None
+
+
+@dataclass
+class PlayInBrowser:
+    """
+    Represents the behavior to play content directly in the browser.
+
+    Attributes:
+        type (str): The type of in-browser action (e.g., 'play-in-browser').
+    """
+    type: str
+
+
+@dataclass
+class Download:
+    """
+    Represents the behavior to download content.
+
+    Attributes:
+        type (str): The type of download action.
+        file_name (Optional[str]): The name of the file to be downloaded, if specified.
+    """
+    type: str
+    file_name: Optional[str]
+
+
+class DeleteAfter(Enum):
+    """
+    Enumeration for specifying the time period after which an item should be deleted.
+
+    Attributes:
+        ONE_DAY: Represents deletion after one day.
+        THREE_DAYS: Represents deletion after three days.
+        SEVEN_DAYS: Represents deletion after seven days.
+        THIRTY_DAYS: Represents deletion after thirty days.
+    """
+    ONE_DAY = '1-day'
+    THREE_DAYS = '3-days'
+    SEVEN_DAYS = '7-days'
+    THIRTY_DAYS = '30-days'
+
+
 @dataclass
 class RenderParams:
     """
@@ -194,196 +360,30 @@ class RenderStillOnLambdaOutput:
     cloud_watch_logs: str
 
 
-class ValidStillImageFormats(Enum):
-    """
-    Enumeration of valid image formats for still images.
-
-    Attributes:
-        PNG: Represents the PNG image format.
-        JPEG: Represents the JPEG image format.
-        PDF: Represents the PDF format for images.
-        WEBP: Represents the WEBP image format.
-    """
-    PNG = 'png'
-    JPEG = 'jpeg'
-    PDF = 'pdf'
-    WEBP = 'webp'
-
-
-class Privacy(Enum):
-    """
-    Enumeration of privacy settings.
-
-    Attributes:
-        PUBLIC: Indicates a public setting.
-        PRIVATE: Indicates a private setting.
-    """
-    PUBLIC = 'public'
-    PRIVATE = 'private'
-
-
-class LogLevel(Enum):
-    """
-    Enumeration for different levels of logging.
-
-    Attributes:
-        VERBOSE: Verbose logging level.
-        INFO: Informational logging level.
-        WARN: Warning logging level.
-        ERROR: Error logging level.
-    """
-    VERBOSE = 'verbose'
-    INFO = 'info'
-    WARN = 'warn'
-    ERROR = 'error'
-
-
-class OpenGlRenderer(Enum):
-    """
-    Enumeration of OpenGL renderer options.
-
-    Attributes:
-        SWANGLE: Represents the SWANGLE OpenGL renderer.
-        ANGLE: Represents the ANGLE OpenGL renderer.
-        EGL: Represents the EGL OpenGL renderer.
-        SWIFTSHADER: Represents the SWIFTSHADER OpenGL renderer.
-        VULKAN: Represents the VULKAN OpenGL renderer.
-    """
-    SWANGLE = 'swangle'
-    ANGLE = 'angle'
-    EGL = 'egl'
-    SWIFTSHADER = 'swiftshader'
-    VULKAN = 'vulkan'
-
-
-@dataclass
-class ChromiumOptions:
-    """
-    Options for configuring the Chromium browser.
-
-    Attributes:
-        ignore_certificate_errors (Optional[bool]): If True, ignores certificate errors.
-        disable_web_security (Optional[bool]): If True, disables web security.
-        gl (Optional[OpenGlRenderer]): Specifies the OpenGL renderer to use.
-        headless (Optional[bool]): If True, runs Chromium in headless mode.
-        user_agent (Optional[str]): Specifies a custom user agent.
-        enable_multi_process_on_linux (Optional[bool]): 
-            If True, enables multi-process mode on Linux.
-    """
-    ignore_certificate_errors: Optional[bool] = None
-    disable_web_security: Optional[bool] = None
-    gl: Optional[OpenGlRenderer] = None
-    headless: Optional[bool] = None
-    user_agent: Optional[str] = None
-    enable_multi_process_on_linux: Optional[bool] = None
-
-
-@dataclass
-class CustomCredentialsWithoutSensitiveData:
-    """
-    Represents credentials without sensitive data.
-
-    Attributes:
-        endpoint (str): The endpoint associated with the credentials.
-    """
-    endpoint: str
-
-
-@dataclass
-class CustomCredentials(CustomCredentialsWithoutSensitiveData):
-    """
-    Represents custom credentials, extending credentials without sensitive data.
-
-    Attributes:
-        access_key_id (Optional[str]): The access key ID.
-        secret_access_key (Optional[str]): The secret access key.
-    """
-    access_key_id: Optional[str] = None
-    secret_access_key: Optional[str] = None
-
-
-@dataclass
-class OutNameInputObject:
-    """
-    Defines output naming and storage options.
-
-    Attributes:
-        bucket_name (str): The name of the S3 bucket for output storage.
-        key (str): The key name within the S3 bucket.
-        s3_output_provider (Optional[CustomCredentials]):
-             Optional custom credentials for the S3 output provider.
-    """
-    bucket_name: str
-    key: str
-    s3_output_provider: Optional[CustomCredentials] = None
-
-
-@dataclass
-class PlayInBrowser:
-    """
-    Represents the behavior to play content directly in the browser.
-
-    Attributes:
-        type (str): The type of in-browser action (e.g., 'play-in-browser').
-    """
-    type: str
-
-
-@dataclass
-class Download:
-    """
-    Represents the behavior to download content.
-
-    Attributes:
-        type (str): The type of download action.
-        file_name (Optional[str]): The name of the file to be downloaded, if specified.
-    """
-    type: str
-    file_name: Optional[str]
-
-
-class DeleteAfter(Enum):
-    """
-    Enumeration for specifying the time period after which an item should be deleted.
-
-    Attributes:
-        ONE_DAY: Represents deletion after one day.
-        THREE_DAYS: Represents deletion after three days.
-        SEVEN_DAYS: Represents deletion after seven days.
-        THIRTY_DAYS: Represents deletion after thirty days.
-    """
-    ONE_DAY = '1-day'
-    THREE_DAYS = '3-days'
-    SEVEN_DAYS = '7-days'
-    THIRTY_DAYS = '30-days'
-
-
-@dataclass
-class BaseRenderParams:
-    region: str
-    function_name: str
-    serve_url: str
-
-
 @dataclass
 class RenderStillParams:
     """
     Parameters for video rendering.
     """
     composition: str
+    serve_url: str = ""
     data: Optional[List] = None
     input_props: Optional[Dict[str, Any]] = None
+    private_serialized_input_props: Optional[Dict[str, Any]] = None
     image_format: ValidStillImageFormats = ValidStillImageFormats.JPEG
     privacy: Privacy = Privacy.PUBLIC
-    max_retries: Optional[int] = None
+    max_retries: Optional[int] = 1
     env_variables: Optional[Dict[str, str]] = None
-    jpeg_quality: Optional[int] = None
-    frame: Optional[int] = None
-    log_level: Optional[LogLevel] = None
+    jpeg_quality: Optional[int] = 80
+    frame: Optional[int] = 0
+    attempt: Optional[int] = 1
+    log_level: Optional[LogLevel] = LogLevel.INFO
     out_name: Optional[Union[str, OutNameInputObject]] = None
-    timeout_in_milliseconds: Optional[int] = None
-    chromium_options: Optional[ChromiumOptions] = None
-    scale: Optional[float] = None
+    timeout_in_milliseconds: Optional[int] = 30000
+    chromium_options: Optional[ChromiumOptions] = field(
+        default_factory=lambda: ChromiumOptions()
+    )
+    scale: Optional[float] = 1
     download_behavior: Dict = field(default_factory=lambda: {
                                     'type': 'play-in-browser'})
     force_width: Optional[int] = None
@@ -411,21 +411,20 @@ class RenderStillParams:
                 Dict: A dictionary containing all the serialized parameters of the object.
         """
         parameters = {
-
             'composition': self.composition,
-            'inputProps': self.input_props or {},  # Provide a default empty dict if None
+            'inputProps': self.private_serialized_input_props or {},
             'imageFormat': self.image_format,
             'privacy': self.privacy,
-            'type': 'start'
-        }
-        optional_fields = {
+            'serveUrl': self.serve_url,
+            'version': VERSION,
+            'type': 'still',
+            'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'maxRetries': self.max_retries,
             'envVariables': self.env_variables,
             'jpegQuality': self.jpeg_quality,
             'frame': self.frame,
             'logLevel': self.log_level,
             'outName': self.out_name,
-            'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'chromiumOptions': self.chromium_options,
             'scale': self.scale,
             'downloadBehavior': self.download_behavior or {'type': 'play-in-browser'},
@@ -434,12 +433,8 @@ class RenderStillParams:
             'forceBucketName': self.force_bucket_name,
             'dumpBrowserLogs': self.dump_browser_logs,
             'deleteAfter': self.delete_after,
+            'attempt': self.attempt
         }
-
-        # Add optional fields only if they are not None
-        for key, value in optional_fields.items():
-            if value is not None:
-                parameters[key] = value
 
         return parameters
 

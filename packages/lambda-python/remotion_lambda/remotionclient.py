@@ -1,11 +1,13 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+from dataclasses import asdict, is_dataclass
 import json
 from math import ceil
+from typing import Union, Literal
+from enum import Enum
+import boto3
 from .models import (RenderParams, RenderProgress,
                      RenderResponse, RenderProgressParams,
                      RenderStillParams)
-from typing import Union, Literal
-import boto3
 
 
 class RemotionClient:
@@ -74,25 +76,65 @@ class RemotionClient:
 
         return boto3.client('lambda',  region_name=self.region)
 
+    def _find_json_objects(self, input_string):
+        """Finds and returns a list of complete JSON object strings."""
+        objects = []
+        depth = 0
+        start_index = 0
+
+        for i, char in enumerate(input_string):
+            if char == '{':
+                if depth == 0:
+                    start_index = i
+                depth += 1
+            elif char == '}':
+                depth -= 1
+                if depth == 0:
+                    objects.append(input_string[start_index:i + 1])
+
+        return objects
+
+    def _parse_stream(self, stream):
+        """Parses a stream of concatenated JSON objects."""
+        json_objects = self._find_json_objects(stream)
+        parsed_objects = [json.loads(obj) for obj in json_objects]
+        return parsed_objects
+
     def _invoke_lambda(self, function_name, payload):
+
         client = self._create_lambda_client()
         response = client.invoke(
-            FunctionName=function_name, Payload=payload)
-
+            FunctionName=function_name, Payload=payload, )
         result = response['Payload'].read().decode('utf-8')
-
-        decoded_result = json.loads(result)
+        print("\ndecoded_result")
+        decoded_result = (self._parse_stream(result)[-1])
+        print(decoded_result)
+        print("\n")
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
 
         if 'type' in decoded_result and decoded_result['type'] == 'error':
             raise ValueError(decoded_result['message'])
-        if not 'type' in decoded_result or decoded_result['type'] != 'success':
+        if (not 'type' in decoded_result or decoded_result['type'] != 'success'):
             raise ValueError(result)
 
         return decoded_result
 
-    def construct_render_request(self, render_params: RenderParams, render_type: Union[Literal["video-or-audio"], Literal["still"]]) -> str:
+    def _custom_serializer(self, obj):
+        """A custom JSON serializer that handles enums and objects."""
+
+        if isinstance(obj, Enum):
+            return obj.value if hasattr(obj, 'value') else obj.name
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+        elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+            return list(obj)
+        else:
+            return asdict(obj)
+
+    def construct_render_request(self, render_params: Union[RenderParams, RenderStillParams],
+                                 render_type:
+                                 Union[Literal["video-or-audio"], Literal["still"]]) -> str:
         """
         Construct a render request in JSON format.
 
@@ -105,11 +147,12 @@ class RemotionClient:
         render_params.serve_url = self.serve_url
         render_params.region = self.region
         render_params.function_name = self.function_name
+        render_params.type = render_type
         render_params.private_serialized_input_props = self._serialize_input_props(
             input_props=render_params.data,
             render_type=render_type
         )
-        return json.dumps(render_params.serialize_params(), default=lambda x: x.value)
+        return json.dumps(render_params.serialize_params(), default=self._custom_serializer)
 
     def construct_render_progress_request(self, render_id: str, bucket_name: str) -> str:
         """
