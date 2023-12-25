@@ -2,7 +2,11 @@
 import json
 from math import ceil
 import boto3
-from .models import RenderParams, RenderProgress, RenderResponse, RenderProgressParams
+from .models import (RenderParams, RenderProgress,
+                     RenderResponse, RenderProgressParams,
+                     RenderStillParams)
+
+from typing import Union, Literal
 
 
 class RemotionClient:
@@ -75,7 +79,9 @@ class RemotionClient:
         client = self._create_lambda_client()
         response = client.invoke(
             FunctionName=function_name, Payload=payload)
+
         result = response['Payload'].read().decode('utf-8')
+
         decoded_result = json.loads(result)
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
@@ -87,7 +93,7 @@ class RemotionClient:
 
         return decoded_result
 
-    def construct_render_request(self, render_params: RenderParams) -> str:
+    def construct_render_request(self, render_params: RenderParams, render_type: Union[Literal["video-or-audio"], Literal["still"]]) -> str:
         """
         Construct a render request in JSON format.
 
@@ -102,9 +108,9 @@ class RemotionClient:
         render_params.function_name = self.function_name
         render_params.input_props = self._serialize_input_props(
             input_props=render_params.data,
-            render_type="video-or-audio"
+            render_type=render_type
         )
-        return json.dumps(render_params.serialize_params())
+        return json.dumps(render_params.serialize_params(), default=lambda x: x.value)
 
     def construct_render_progress_request(self, render_id: str, bucket_name: str) -> str:
         """
@@ -135,9 +141,31 @@ class RemotionClient:
         Returns:
             RenderResponse: Response from the render operation.
         """
-        params = self.construct_render_request(render_params)
+        params = self.construct_render_request(
+            render_params, render_type="video-or-audio")
         body_object = self._invoke_lambda(
             function_name=self.function_name, payload=params)
+        if body_object:
+            return RenderResponse(body_object['bucketName'], body_object['renderId'])
+
+        return None
+
+    def render_still_on_lambda(self, render_params: RenderStillParams) -> RenderResponse:
+        """
+        Render still using AWS Lambda.
+
+        Args:
+            render_params (RenderParams): Render parameters.
+
+        Returns:
+            RenderResponse: Response from the render operation.
+        """
+        params = self.construct_render_request(
+            render_params, render_type='still')
+
+        body_object = self._invoke_lambda(
+            function_name=self.function_name, payload=params)
+
         if body_object:
             return RenderResponse(body_object['bucketName'], body_object['renderId'])
 

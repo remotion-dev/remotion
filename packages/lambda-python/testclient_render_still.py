@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderParams, RenderProgressParams
+from remotion_lambda import RenderStillParams, RenderProgressParams
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -25,26 +25,25 @@ client = RemotionClient(region=REMOTION_APP_REGION,
                         serve_url=REMOTION_APP_SERVE_URL,
                         function_name=REMOTION_APP_FUNCTION_NAME)
 
-# Set render request
-render_params = RenderParams(
-    composition="react-svg",
+# Set render still request
+render_params = RenderStillParams(
+    composition="star-test",
     data={
         'hi': 'there'
     },
 )
 
-render_response = client.render_media_on_lambda(render_params)
+render_response = client.render_still_on_lambda(render_params)
 if render_response:
     # Execute render request
 
     print("Render ID:", render_response.renderId)
     print("Bucket name:", render_response.bucketName)
 
-
     # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-   
+
     while progress_response and not progress_response.done:
         print("Overall progress")
         print(str(progress_response.overallProgress * 100) + "%")
