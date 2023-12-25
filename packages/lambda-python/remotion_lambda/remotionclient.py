@@ -1,12 +1,11 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
 import json
 from math import ceil
-import boto3
 from .models import (RenderParams, RenderProgress,
                      RenderResponse, RenderProgressParams,
                      RenderStillParams)
-
 from typing import Union, Literal
+import boto3
 
 
 class RemotionClient:

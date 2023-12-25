@@ -407,9 +407,7 @@ class RenderStillParams:
                 Dict: A dictionary containing all the serialized parameters of the object.
         """
         parameters = {
-            'region': self.region,
-            'functionName': self.function_name,
-            'serveUrl': self.serve_url,
+
             'composition': self.composition,
             'inputProps': self.input_props or {},  # Provide a default empty dict if None
             'imageFormat': self.image_format,
