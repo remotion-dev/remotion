@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TRenderAsset, VideoConfig} from 'remotion';
-import {Internals} from 'remotion';
+import type {TRenderAsset, VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -13,7 +13,9 @@ import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -47,7 +49,6 @@ import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -95,6 +96,7 @@ export type InternalRenderFramesOptions = {
 	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -128,12 +130,13 @@ type InnerRenderFramesOptions = {
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: Promise<AnySourceMapConsumer | null>;
+	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
 };
 
 export type RenderFramesOptions = {
@@ -208,9 +211,10 @@ const innerRenderFrames = async ({
 	makeBrowser,
 	browserReplacer,
 	compositor,
-	sourcemapContext,
+	sourceMapGetter,
 	logLevel,
 	indent,
+	parallelEncodingEnabled,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -230,7 +234,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: Promise<AnySourceMapConsumer | null>) => {
+	const makePage = async (context: SourceMapGetter) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -279,6 +283,7 @@ const innerRenderFrames = async ({
 				fps: number,
 				height: number,
 				width: number,
+				defaultCodec: Codec,
 			) => {
 				window.remotion_setBundleMode({
 					type: 'composition',
@@ -288,6 +293,7 @@ const innerRenderFrames = async ({
 					compositionFps: fps,
 					compositionHeight: height,
 					compositionWidth: width,
+					compositionDefaultCodec: defaultCodec,
 				});
 			},
 			args: [
@@ -297,9 +303,11 @@ const innerRenderFrames = async ({
 				composition.fps,
 				composition.height,
 				composition.width,
+				composition.defaultCodec,
 			],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 
 		page.off('console', logCallback);
@@ -307,7 +315,7 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
-	const getPool = async (context: Promise<AnySourceMapConsumer | null>) => {
+	const getPool = async (context: SourceMapGetter) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));
@@ -328,10 +336,11 @@ const innerRenderFrames = async ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool(sourcemapContext);
+	const poolPromise = getPool(sourceMapGetter);
 
 	onStart?.({
 		frameCount: framesToRender.length,
+		parallelEncoding: parallelEncodingEnabled,
 	});
 
 	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
@@ -384,11 +393,16 @@ const innerRenderFrames = async ({
 			page: freePage,
 			composition: compId,
 			timeoutInMilliseconds,
+			indent,
+			logLevel,
 		});
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
-			Log.verbose(`Seeking to frame ${frame} took ${timeToSeek}ms`);
+			Log.verbose(
+				{indent, logLevel},
+				`Seeking to frame ${frame} took ${timeToSeek}ms`,
+			);
 		}
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
@@ -429,6 +443,7 @@ const innerRenderFrames = async ({
 			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
 			compositor,
+			timeoutInMilliseconds,
 		});
 		if (onFrameBuffer) {
 			if (!buffer) {
@@ -449,6 +464,8 @@ const innerRenderFrames = async ({
 				renderAsset,
 				onDownload,
 				downloadMap,
+				indent,
+				logLevel,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`),
@@ -527,7 +544,7 @@ const innerRenderFrames = async ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
-					.map(() => makePage(sourcemapContext));
+					.map(() => makePage(sourceMapGetter));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
@@ -604,6 +621,7 @@ const internalRenderFramesRaw = ({
 	serializedInputPropsWithCustomSchema,
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
+	parallelEncodingEnabled,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -699,7 +717,7 @@ const internalRenderFramesRaw = ({
 					makeBrowser,
 					browserReplacer,
 					compositor,
-					sourcemapContext: sourceMap,
+					sourceMapGetter: sourceMap,
 					downloadMap,
 					cancelSignal,
 					envVariables,
@@ -719,6 +737,7 @@ const internalRenderFramesRaw = ({
 					indent,
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
+					parallelEncodingEnabled,
 				});
 			}),
 		])
@@ -834,16 +853,18 @@ export const renderFrames = (
 		indent: false,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props,
+			}).serializedString,
 		puppeteerInstance,
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,
@@ -859,5 +880,6 @@ export const renderFrames = (
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		parallelEncodingEnabled: false,
 	});
 };

@@ -150,17 +150,19 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
   </tr>
   <tr>
     <td>
-      <code>logs:InvokeAsync</code> <br/>
-      <code>logs:InvokeFunction</code> <br/>
-      <code>logs:DeleteFunction</code> <br/>
-      <code>logs:PutFunctionEventInvokeConfig</code> <br/>
-      <code>logs:CreateFunction</code> <br/>
+      <code>lambda:InvokeAsync</code> <br/>
+      <code>lambda:InvokeFunction</code> <br/>
+      <code>lambda:DeleteFunction</code> <br/>
+      <code>lambda:PutFunctionEventInvokeConfig</code> <br/>
+      <code>lambda:CreateFunction</code> <br/>
+      <code>lambda:PutRuntimeManagementConfig</code> <br/>
+      <code>lambda:TagResource</code> <br/>
     </td>
     <td>
       <code>{"arn:aws:lambda:*:*:function:remotion-render-*"}</code>
     </td>
     <td>
-    Allows to create, delete, invoke and configure functions (such as disabling automatic retries). Used by the CLI and the Node.JS APIS to set up, execute and teardown the infrastructure.
+    Allows to create, delete, invoke and configure functions (such as disabling automatic retries). Used by the CLI and the Node.JS APIS to set up, execute and teardown the infrastructure. <code>lambda:TagResource</code> will optionally tag the functions 
     </td>
   </tr>
   <tr>

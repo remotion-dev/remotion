@@ -4,6 +4,64 @@ const toSeconds = (time: number, fps: number) => {
 	return Math.round((time / fps) * 100) / 100;
 };
 
+export const isIosSafari = () => {
+	return typeof window === 'undefined'
+		? false
+		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
+				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+};
+
+// https://github.com/remotion-dev/remotion/issues/1655
+const isIOSSafariAndBlob = (actualSrc: string) => {
+	return isIosSafari() && actualSrc.startsWith('blob:');
+};
+
+export const appendVideoFragment = ({
+	actualSrc,
+	actualFrom,
+	duration,
+	fps,
+}: {
+	actualSrc: string;
+	actualFrom: number;
+	duration: number;
+	fps: number;
+}): string => {
+	if (isIOSSafariAndBlob(actualSrc)) {
+		return actualSrc;
+	}
+
+	if (actualSrc.startsWith('data:')) {
+		return actualSrc;
+	}
+
+	const existingHash = Boolean(
+		new URL(
+			actualSrc,
+			(typeof window === 'undefined' ? null : window.location.href) ??
+				'http://localhost:3000',
+		).hash,
+	);
+
+	if (existingHash) {
+		return actualSrc;
+	}
+
+	if (!Number.isFinite(actualFrom)) {
+		return actualSrc;
+	}
+
+	actualSrc += `#t=${toSeconds(-actualFrom, fps)}`;
+
+	if (!Number.isFinite(duration)) {
+		return actualSrc;
+	}
+
+	actualSrc += `,${toSeconds(duration, fps)}`;
+
+	return actualSrc;
+};
+
 const isSubsetOfDuration = (
 	prevStartFrom: number,
 	newStartFrom: number,
@@ -45,66 +103,4 @@ export const useAppendVideoFragment = ({
 	});
 
 	return appended;
-};
-
-export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
-};
-
-// https://github.com/remotion-dev/remotion/issues/1655
-const isIOSSafariCase = (actualSrc: string) => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
-				actualSrc.startsWith('blob:');
-};
-
-export const appendVideoFragment = ({
-	actualSrc,
-	actualFrom,
-	duration,
-	fps,
-}: {
-	actualSrc: string;
-	actualFrom: number;
-	duration: number;
-	fps: number;
-}): string => {
-	if (isIOSSafariCase(actualSrc)) {
-		return actualSrc;
-	}
-
-	if (actualSrc.startsWith('data:')) {
-		return actualSrc;
-	}
-
-	const existingHash = Boolean(
-		new URL(
-			actualSrc,
-			(typeof window === 'undefined' ? null : window.location.href) ??
-				'http://localhost:3000',
-		).hash,
-	);
-
-	if (existingHash) {
-		return actualSrc;
-	}
-
-	if (!Number.isFinite(actualFrom)) {
-		return actualSrc;
-	}
-
-	actualSrc += `#t=${toSeconds(-actualFrom, fps)}`;
-
-	if (!Number.isFinite(duration)) {
-		return actualSrc;
-	}
-
-	actualSrc += `,${toSeconds(duration, fps)}`;
-
-	return actualSrc;
 };

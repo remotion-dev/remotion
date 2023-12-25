@@ -12,7 +12,8 @@ crumb: "API"
 Use it if you:
 
 <Step>1</Step> need to make the duration, width, height, or fps <a href="/docs/dynamic-metadata">dynamic based on some data</a><br/>
-<Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a>
+<Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a><br/>
+<Step>3</Step> want to add a per-composition default codec
 
 ## Usage / API
 
@@ -46,6 +47,8 @@ const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({
     durationInFrames: props.duration,
     // or transform some props
     props,
+    // or add per-composition default codec
+    defaultCodec: "h264",
   };
 };
 
@@ -81,8 +84,9 @@ The function must return an object, which can contain the following properties:
 - `width` _optional_: The width of the composition in pixels
 - `height` _optional_: The height of the composition in pixels
 - `fps` _optional_: The frames per second of the composition
+- `defaultCodec` _optional_: The default codec to use for the composition.
 
-If you return a field, it will take precendence over the props directly passed to the composition.
+If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
 
 The function may be `async`.
 

@@ -5,28 +5,115 @@ export type WarpPathFn = (point: {x: number; y: number}) => {
 	y: number;
 };
 
-export function svgPathInterpolate(
-	path: ReducedInstruction[],
-	threshold: number,
-): ReducedInstruction[] {
-	let didWork = false;
+const euclideanDistance = (points: [number, number][]) => {
+	const startPoint = points[0];
+	const endPoint = points[points.length - 1];
+	let d2 = 0;
 
-	const deltaFunction: DeltaFunction = (points) => {
-		const linearPoints = [
-			points[0].slice(0, 2),
-			points[points.length - 1].slice(0, 2),
-		] as [number, number][];
+	for (let i = 0; i < startPoint.length; i++) {
+		const d = endPoint[i] - startPoint[i];
+		d2 += d ** 2;
+	}
 
-		const delta = euclideanDistance(linearPoints);
-		didWork = didWork || delta > threshold;
+	return Math.sqrt(d2);
+};
 
-		return delta;
-	};
+export function split(p: number[][], t = 0.5) {
+	const seg0 = [];
+	const seg1 = [];
+	const orders = [p];
 
-	return warpInterpolate(path, threshold, deltaFunction);
+	while (orders.length < p.length) {
+		const q = orders[orders.length - 1];
+		const r = [];
+
+		for (let i = 1; i < q.length; i++) {
+			const q0 = q[i - 1];
+			const q1 = q[i];
+			const s = [];
+			const dim = Math.max(q0.length, q1.length);
+
+			for (let j = 0; j < dim; j++) {
+				const s0 = q0[j] || 0;
+				const s1 = q1[j] || 0;
+
+				s.push(s0 + (s1 - s0) * t);
+			}
+
+			r.push(s);
+		}
+
+		orders.push(r);
+	}
+
+	for (let i = 0; i < orders.length; i++) {
+		seg0.push(orders[i][0]);
+		seg1.push(orders[orders.length - 1 - i][i]);
+	}
+
+	return [seg0, seg1];
 }
 
-type DeltaFunction = (points: [number, number][]) => number;
+export function interpolateUntil(
+	points: [number, number][],
+	threshold: number,
+	deltaFunction = euclideanDistance,
+) {
+	const stack = [points];
+	const segments = [];
+
+	while (stack.length > 0) {
+		const currentPoints = stack.pop() as [number, number][];
+
+		if (deltaFunction(currentPoints) > threshold) {
+			const newPoints = split(currentPoints);
+
+			// Add new segments backwards so they end up in correct order
+			for (let i = newPoints.length - 1; i >= 0; i--) {
+				stack.push(newPoints[i] as [number, number][]);
+			}
+		} else {
+			segments.push(currentPoints);
+		}
+	}
+
+	return segments;
+}
+
+export function createLineSegment(points: number[][]): ReducedInstruction {
+	switch (points.length) {
+		case 2:
+			return {
+				type: 'L',
+				x: points[1][0],
+				y: points[1][1],
+			};
+
+		case 3:
+			return {
+				type: 'Q',
+				cpx: points[1][0],
+				cpy: points[1][1],
+				x: points[2][0],
+				y: points[2][1],
+			};
+
+		case 4:
+			return {
+				type: 'C',
+				cp1x: points[1][0],
+				cp1y: points[1][1],
+				cp2x: points[2][0],
+				cp2y: points[2][1],
+				x: points[3][0],
+				y: points[3][1],
+			};
+		default:
+			throw new Error(
+				'Expected 2, 3 or 4 points for a line segment, got ' + points.length,
+			);
+	}
+}
 
 function warpInterpolate(
 	path: ReducedInstruction[],
@@ -74,6 +161,29 @@ function warpInterpolate(
 		})
 		.flat(1);
 }
+
+export function svgPathInterpolate(
+	path: ReducedInstruction[],
+	threshold: number,
+): ReducedInstruction[] {
+	let didWork = false;
+
+	const deltaFunction: DeltaFunction = (points) => {
+		const linearPoints = [
+			points[0].slice(0, 2),
+			points[points.length - 1].slice(0, 2),
+		] as [number, number][];
+
+		const delta = euclideanDistance(linearPoints);
+		didWork = didWork || delta > threshold;
+
+		return delta;
+	};
+
+	return warpInterpolate(path, threshold, deltaFunction);
+}
+
+type DeltaFunction = (points: [number, number][]) => number;
 
 export const warpTransform = (
 	path: ReducedInstruction[],
@@ -180,113 +290,3 @@ export const fixZInstruction = (
 		})
 		.flat(1);
 };
-
-const euclideanDistance = (points: [number, number][]) => {
-	const startPoint = points[0];
-	const endPoint = points[points.length - 1];
-	let d2 = 0;
-
-	for (let i = 0; i < startPoint.length; i++) {
-		const d = endPoint[i] - startPoint[i];
-		d2 += d ** 2;
-	}
-
-	return Math.sqrt(d2);
-};
-
-export function interpolateUntil(
-	points: [number, number][],
-	threshold: number,
-	deltaFunction = euclideanDistance,
-) {
-	const stack = [points];
-	const segments = [];
-
-	while (stack.length > 0) {
-		const currentPoints = stack.pop() as [number, number][];
-
-		if (deltaFunction(currentPoints) > threshold) {
-			const newPoints = split(currentPoints);
-
-			// Add new segments backwards so they end up in correct order
-			for (let i = newPoints.length - 1; i >= 0; i--) {
-				stack.push(newPoints[i] as [number, number][]);
-			}
-		} else {
-			segments.push(currentPoints);
-		}
-	}
-
-	return segments;
-}
-
-export function split(p: number[][], t = 0.5) {
-	const seg0 = [];
-	const seg1 = [];
-	const orders = [p];
-
-	while (orders.length < p.length) {
-		const q = orders[orders.length - 1];
-		const r = [];
-
-		for (let i = 1; i < q.length; i++) {
-			const q0 = q[i - 1];
-			const q1 = q[i];
-			const s = [];
-			const dim = Math.max(q0.length, q1.length);
-
-			for (let j = 0; j < dim; j++) {
-				const s0 = q0[j] || 0;
-				const s1 = q1[j] || 0;
-
-				s.push(s0 + (s1 - s0) * t);
-			}
-
-			r.push(s);
-		}
-
-		orders.push(r);
-	}
-
-	for (let i = 0; i < orders.length; i++) {
-		seg0.push(orders[i][0]);
-		seg1.push(orders[orders.length - 1 - i][i]);
-	}
-
-	return [seg0, seg1];
-}
-
-export function createLineSegment(points: number[][]): ReducedInstruction {
-	switch (points.length) {
-		case 2:
-			return {
-				type: 'L',
-				x: points[1][0],
-				y: points[1][1],
-			};
-
-		case 3:
-			return {
-				type: 'Q',
-				cpx: points[1][0],
-				cpy: points[1][1],
-				x: points[2][0],
-				y: points[2][1],
-			};
-
-		case 4:
-			return {
-				type: 'C',
-				cp1x: points[1][0],
-				cp1y: points[1][1],
-				cp2x: points[2][0],
-				cp2y: points[2][1],
-				x: points[3][0],
-				y: points[3][1],
-			};
-		default:
-			throw new Error(
-				'Expected 2, 3 or 4 points for a line segment, got ' + points.length,
-			);
-	}
-}

@@ -7,7 +7,7 @@ Depending on the type of your legal entity, you are granted permission to use Re
 
 ## Free license
 
-Copyright © 2023 [Remotion](https://www.remotion.dev/)
+Copyright © 2023 [Remotion](https://www.remotion.dev)
 
 ### Eligibility
 
@@ -36,6 +36,10 @@ Support is provided on a best-we-can-do basis via GitHub Issues and Discord.
 
 ## Company license
 
-You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license, and give you access to prioritized support (read the [Support Policy](/docs/support)).
+You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license, and give you access to prioritized support (read the [Support Policy](https://www.remotion.dev/docs/support)).
 
-Visit [companies.remotion.dev](https://companies.remotion.dev) for pricing and to buy a license.
+Visit [remotion.pro](https://www.remotion.pro/license) for pricing and to buy a license.
+
+### FAQs
+
+Are you not sure whether you need a company license because of an edge case? Here are some [frequently asked questions](https://www.remotion.pro/faq).

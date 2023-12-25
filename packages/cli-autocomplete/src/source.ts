@@ -501,6 +501,10 @@ const completionSpec: Fig.Spec = {
       description: "Prints and validates versions of all Remotion packages",
     },
     {
+      name: "gpu",
+      description: "Prints information about how Chrome uses the GPU",
+    },
+    {
       name: "compositions",
       description: "Prints the list of available compositions",
       args: {
@@ -704,6 +708,10 @@ const completionSpec: Fig.Spec = {
                   name: "--disable-cloudwatch",
                   description: "Disable CloudWatch logging",
                   exclusiveOn: ["--retention-period"],
+                },
+                {
+                  name: "--enable-lambda-insights",
+                  description: "Enable Lambda Insights",
                 },
                 {
                   name: "--custom-role-arn",

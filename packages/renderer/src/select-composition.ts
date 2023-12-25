@@ -1,4 +1,5 @@
-import {Internals, type VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -113,11 +114,18 @@ const innerSelectComposition = async ({
 		},
 		frame: null,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
-	await waitForReady({page, timeoutInMilliseconds, frame: null});
+	await waitForReady({
+		page,
+		timeoutInMilliseconds,
+		frame: null,
+		logLevel,
+		indent,
+	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',
@@ -133,8 +141,9 @@ const innerSelectComposition = async ({
 		frame: null,
 		page,
 		args: [id],
+		timeoutInMilliseconds,
 	});
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			tag: 'selectComposition()',
@@ -147,7 +156,7 @@ const innerSelectComposition = async ({
 		ReturnType<typeof window.remotion_calculateComposition>
 	>;
 
-	const {width, durationInFrames, fps, height} = res;
+	const {width, durationInFrames, fps, height, defaultCodec} = res;
 	return {
 		metadata: {
 			id,
@@ -155,12 +164,13 @@ const innerSelectComposition = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: Internals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithCustomFields(
 				res.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
+			defaultCodec,
 		},
 		propsSize: size,
 	};
@@ -196,7 +206,6 @@ export const internalSelectCompositionRaw = async (
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
-		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
@@ -231,7 +240,7 @@ export const internalSelectCompositionRaw = async (
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
-				page.setBrowserSourceMapContext(sourceMap);
+				page.setBrowserSourceMapGetter(sourceMap);
 				cleanup.push(() => cleanupServer(true));
 
 				return innerSelectComposition({
@@ -300,11 +309,12 @@ export const selectComposition = async (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance,

@@ -1,5 +1,5 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {getErrorKeyPrefix} from '../../shared/constants';
 import {DOCS_URL} from '../../shared/docs-url';
@@ -64,7 +64,7 @@ export const inspectErrors = async ({
 	const errs = contents
 		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)))
 		.map((c) => c.Key)
-		.filter(Internals.truthy);
+		.filter(NoReactInternals.truthy);
 
 	if (errs.length === 0) {
 		return [];

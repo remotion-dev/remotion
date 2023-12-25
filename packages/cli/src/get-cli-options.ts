@@ -2,6 +2,7 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	FrameRange,
+	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
@@ -11,14 +12,21 @@ import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
 
-const getAndValidateFrameRange = () => {
+const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
-		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
+			{logLevel, indent},
+			'Selected a single frame. Assuming you want to output an image.',
+		);
+		Log.warn(
+			{logLevel, indent},
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
-		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
+		Log.warn(
+			{indent, logLevel},
+			"To dismiss this message, add the '--sequence' flag explicitly.",
+		);
 	}
 
 	return frameRange;
@@ -76,10 +84,22 @@ const getx264Preset = () => {
 	return x264Preset;
 };
 
-const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
+const getAndValidateBrowser = async ({
+	browserExecutable,
+	indent,
+	logLevel,
+}: {
+	browserExecutable: BrowserExecutable;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(browserExecutable);
+		await RenderInternals.ensureLocalBrowser({
+			preferredBrowserExecutable: browserExecutable,
+			indent,
+			logLevel,
+		});
 	} catch (err) {
 		Log.error('Could not download a browser for rendering frames.');
 		Log.error(err);
@@ -93,8 +113,9 @@ export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
 	remotionRoot: string;
+	logLevel: LogLevel;
 }) => {
-	const frameRange = getAndValidateFrameRange();
+	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
 	const shouldOutputImageSequence =
 		options.type === 'still'
@@ -108,13 +129,13 @@ export const getCliOptions = async (options: {
 	});
 	const crf = getCrf(shouldOutputImageSequence);
 	const videoBitrate = ConfigInternals.getVideoBitrate();
-
+	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
+	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
-	const port = ConfigInternals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
@@ -145,10 +166,14 @@ export const getCliOptions = async (options: {
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		inputProps: getInputProps(null),
-		envVariables: await getEnvironmentVariables(null),
+		inputProps: getInputProps(null, options.logLevel),
+		envVariables: getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
-		browser: await getAndValidateBrowser(browserExecutable),
+		browser: await getAndValidateBrowser({
+			browserExecutable,
+			indent: false,
+			logLevel: options.logLevel,
+		}),
 		crf,
 		pixelFormat,
 		proResProfile,
@@ -161,13 +186,14 @@ export const getCliOptions = async (options: {
 		scale,
 		chromiumOptions,
 		overwrite,
-		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		audioBitrate: ConfigInternals.getAudioBitrate(),
 		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),

@@ -8,11 +8,13 @@ import React, {
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	SequenceManager,
+	SequenceVisibilityToggleContext,
+} from './SequenceManager.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
@@ -21,18 +23,19 @@ import {useVideoConfig} from './use-video-config.js';
 
 export type LayoutAndStyle =
 	| {
-			layout: 'none';
-	  }
-	| {
 			layout?: 'absolute-fill';
 			style?: React.CSSProperties;
 			className?: string;
+	  }
+	| {
+			layout: 'none';
 	  };
 
-export type SequenceProps = {
+export type SequencePropsWithoutDuration = {
 	children: React.ReactNode;
+	width?: number;
+	height?: number;
 	from?: number;
-	durationInFrames?: number;
 	name?: string;
 	/**
 	 * @deprecated For internal use only.
@@ -42,7 +45,15 @@ export type SequenceProps = {
 	 * @deprecated For internal use only.
 	 */
 	loopDisplay?: LoopDisplay;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	stack?: string;
 } & LayoutAndStyle;
+
+export type SequenceProps = {
+	durationInFrames?: number;
+} & SequencePropsWithoutDuration;
 
 const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
@@ -53,8 +64,11 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		durationInFrames = Infinity,
 		children,
 		name,
+		height,
+		width,
 		showInTimeline = true,
 		loopDisplay,
+		stack,
 		...other
 	},
 	ref,
@@ -114,6 +128,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
@@ -122,18 +137,22 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
+			height: height ?? parentSequence?.height ?? null,
+			width: width ?? parentSequence?.width ?? null,
 		};
 	}, [
 		cumulatedFrom,
 		from,
 		actualDurationInFrames,
-		parentSequence?.relativeFrom,
+		parentSequence,
 		id,
+		height,
+		width,
 	]);
 
 	const timelineClipName = useMemo(() => {
-		return name ?? getTimelineClipName(children);
-	}, [children, name]);
+		return name ?? '';
+	}, [name]);
 
 	useEffect(() => {
 		if (!getRemotionEnvironment().isStudio) {
@@ -151,6 +170,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce,
 			loopDisplay,
+			stack: stack ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -169,6 +189,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
+		stack,
 	]);
 
 	// Ceil to support floats
@@ -186,14 +207,22 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {
 			flexDirection: undefined,
+			...(width ? {width} : {}),
+			...(height ? {height} : {}),
 			...(styleIfThere ?? {}),
 		};
-	}, [styleIfThere]);
+	}, [height, styleIfThere, width]);
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
 			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.',
 		);
+	}
+
+	const isSequenceHidden = hidden[id] ?? false;
+
+	if (isSequenceHidden) {
+		return null;
 	}
 
 	return (

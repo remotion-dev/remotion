@@ -105,7 +105,16 @@
       "path": "./packages/tailwind"
     },
     {
+      "path": "./packages/studio"
+    },
+    {
+      "path": "./packages/test-utils"
+    },
+    {
       "path": "./packages/three"
+    },
+    {
+      "path": "./packages/transitions"
     },
     {
       "path": "./packages/zod-types"

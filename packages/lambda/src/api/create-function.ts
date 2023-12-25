@@ -7,12 +7,15 @@ import {
 	GetFunctionCommand,
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
+	TagResourceCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'node:fs';
+import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
+import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
@@ -27,6 +30,7 @@ export const createFunction = async ({
 	retentionInDays,
 	ephemerealStorageInMb,
 	customRoleArn,
+	enableLambdaInsights,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -39,6 +43,7 @@ export const createFunction = async ({
 	retentionInDays: number;
 	ephemerealStorageInMb: number;
 	customRoleArn: string;
+	enableLambdaInsights: boolean;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -68,7 +73,7 @@ export const createFunction = async ({
 
 	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
 
-	const {FunctionName} = await getLambdaClient(region).send(
+	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
 				ZipFile: readFileSync(zipFile),
@@ -80,15 +85,36 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region].map(
-				({layerArn, version}) => `${layerArn}:${version}`,
-			),
+			Layers: hostedLayers[region]
+				.map(({layerArn, version}) => `${layerArn}:${version}`)
+				.concat(enableLambdaInsights ? lambdaInsightsExtensions[region] : []),
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
 		}),
 	);
+
+	try {
+		await getLambdaClient(region).send(
+			new TagResourceCommand({
+				Resource: FunctionArn,
+				Tags: {
+					'remotion-lambda': 'true',
+					'remotion-version': VERSION,
+					'remotion-memory-in-mb': String(memorySizeInMb),
+					'remotion-timeout-in-seconds': String(timeoutInSeconds),
+					'remotion-ephemereal-storage-in-mb': String(ephemerealStorageInMb),
+				},
+			}),
+		);
+	} catch (err) {
+		// Previous Lambda versions had no permission to tag the function
+		if (!(err as Error).name.includes('AccessDenied')) {
+			throw err;
+		}
+	}
+
 	await getLambdaClient(region).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,

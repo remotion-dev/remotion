@@ -4,6 +4,7 @@ import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import type {LogLevel} from '../log-level';
 import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
@@ -94,14 +95,22 @@ export const compose = async ({
 	downloadMap.compositorCache[hash] = output;
 };
 
-export const callCompositor = (payload: string) => {
+export const callCompositor = (
+	payload: string,
+	indent: boolean,
+	logLevel: LogLevel,
+) => {
 	return new Promise<void>((resolve, reject) => {
-		const execPath = getExecutablePath('compositor');
+		const execPath = getExecutablePath('compositor', indent, logLevel);
 		if (!process.env.READ_ONLY_FS) {
 			chmodSync(execPath, 0o755);
 		}
 
-		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
+		const child = spawn(
+			execPath,
+			[payload],
+			dynamicLibraryPathOptions(indent, logLevel),
+		);
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));

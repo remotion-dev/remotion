@@ -75,6 +75,7 @@ export const requiredPermissions: {
 			lambda.DeleteFunction,
 			lambda.PutFunctionEventInvokeConfig,
 			'lambda:PutRuntimeManagementConfig',
+			lambda.TagResource,
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
@@ -88,6 +89,9 @@ export const requiredPermissions: {
 	{
 		id: 'FetchBinaries',
 		actions: [lambda.GetLayerVersion],
-		resource: [REMOTION_HOSTED_LAYER_ARN],
+		resource: [
+			REMOTION_HOSTED_LAYER_ARN,
+			'arn:aws:lambda:*:580247275435:layer:LambdaInsightsExtension*',
+		],
 	},
 ];

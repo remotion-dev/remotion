@@ -34,5 +34,6 @@ export const calculateFfmpegFilter = ({
 		durationInFrames,
 		assetDuration,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+		toneFrequency: asset.toneFrequency,
 	});
 };

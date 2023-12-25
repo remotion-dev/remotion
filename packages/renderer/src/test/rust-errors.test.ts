@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
 import {startLongRunningCompositor} from '../compositor/compositor';
@@ -38,9 +37,10 @@ test('Handle panics', async () => {
 		await compositor.executeCommand('DeliberatePanic', {});
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
-		expect((err as Error).message).toContain(
-			path.join('rust', 'commands', 'mod'),
-		);
+		expect(
+			(err as Error).message.includes(['rust', 'commands', 'mod'].join('/')) ||
+				(err as Error).message.includes(['rust', 'commands', 'mod'].join('\\')),
+		).toBeTruthy();
 	}
 
 	try {
@@ -69,7 +69,7 @@ test('Non-long running task panics should be handled', async () => {
 	const command = serializeCommand('DeliberatePanic', {});
 
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
@@ -85,7 +85,7 @@ test('Long running task failures should be handled', async () => {
 		transparent: false,
 	});
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain(
@@ -104,7 +104,7 @@ test('Invalid payloads will be handled', async () => {
 		original_src: 'fsdfds',
 	});
 	try {
-		await callCompositor(JSON.stringify(command));
+		await callCompositor(JSON.stringify(command), false, 'info');
 	} catch (err) {
 		expect((err as Error).message).toContain(
 			'Compositor error: missing field `time`',

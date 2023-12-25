@@ -61,6 +61,8 @@ test('Should be able to render to another bucket', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			encodingBufferSize: null,
+			encodingMaxRate: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,
@@ -97,7 +99,7 @@ test('Should be able to render to another bucket', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.callFf('ffprobe', ['-'], {
+	const probe = await RenderInternals.callFf('ffprobe', ['-'], false, 'info', {
 		stdin: file,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);

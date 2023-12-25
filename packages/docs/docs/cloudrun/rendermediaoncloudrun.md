@@ -123,13 +123,21 @@ See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
 
 _optional_
 
-See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`
 
 _optional_
 
-See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+<Options id="video-bitrate"/>
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `proResProfile?`
 
@@ -211,17 +219,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
+<Options id="gl"  />
 
 ### `muted?`
 
@@ -266,7 +264,11 @@ A number describing how long the render may take to resolve all [`delayRender()`
 
 ### `concurrency?`
 
-By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+A number or a string describing how many browser tabs should be opened. Default "50%".
+
+:::note
+Before v4.0.76, this was "100%" by default. It is now aligned to the other server-side rendering APIs.
+:::
 
 ### `enforceAudioTrack?`
 

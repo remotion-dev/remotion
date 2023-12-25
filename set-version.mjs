@@ -27,7 +27,7 @@ const dirs = readdirSync("packages")
     existsSync(path.join(process.cwd(), "packages", dir, "package.json"))
   );
 
-for (const dir of dirs) {
+for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   const packageJsonPath = path.join(
     process.cwd(),
     "packages",

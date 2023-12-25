@@ -127,7 +127,7 @@ export class DOMWorld {
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
-	}): Promise<JSHandle> {
+	}): WaitTask {
 		return new WaitTask({
 			domWorld: this,
 			predicateBody: pageFunction,
@@ -135,12 +135,6 @@ export class DOMWorld {
 			timeout,
 			args: [],
 			browser,
-		}).promise;
-	}
-
-	title(): Promise<string> {
-		return this.evaluate(() => {
-			return document.title;
 		});
 	}
 }
@@ -335,6 +329,10 @@ class WaitTask {
 			BrowserEmittedEvents.ClosedSilent,
 			this.onBrowserCloseSilent,
 		);
+
+		if (this.#domWorld._waitTasks.size > 100) {
+			throw new Error('Leak detected: Too many WaitTasks');
+		}
 
 		this.#domWorld._waitTasks.delete(this);
 	}

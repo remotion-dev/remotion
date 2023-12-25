@@ -7,7 +7,10 @@ use crate::payloads::payloads::CliInputCommandPayload;
 use crate::{ffmpeg, get_silent_parts};
 use std::io::ErrorKind;
 
-pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
+pub fn execute_command(
+    opts: CliInputCommandPayload,
+    maximum_frame_cache_size_in_bytes: Option<u128>,
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
             let res = ffmpeg::extract_frame(
@@ -15,6 +18,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
                 command.original_src,
                 command.time,
                 command.transparent,
+                maximum_frame_cache_size_in_bytes,
             )?;
             Ok(res)
         }
@@ -30,7 +34,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(vec![])
         }
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::free_up_memory(payload.remaining_bytes)?;
+            ffmpeg::keep_only_latest_frames_and_close_videos(payload.remaining_bytes)?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
@@ -90,5 +94,9 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok("".as_bytes().to_vec())
         }
         CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
+        CliInputCommandPayload::ExtractAudio(_command) => {
+            ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
+            Ok(vec![])
+        }
     }
 }

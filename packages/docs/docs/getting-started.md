@@ -12,8 +12,7 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-To use Remotion, you need at least Node 16.  
-[Install Node.js here.](https://nodejs.org/en/download/)
+To use Remotion, you need at least [Node](https://nodejs.org/en/download/) 16 or [Bun](https://bun.sh) 1.0.3.
 
 ## Scaffolding a new project
 
@@ -66,7 +65,7 @@ Bun as a runtime is mostly supported. [Read more here](/docs/bun).
 
 Choose the template that is most suitable for you. For your first project, we recommend the [Hello World](/templates/hello-world) template.
 
-After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/timeline):
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/studio):
 
 ```bash
 npm start

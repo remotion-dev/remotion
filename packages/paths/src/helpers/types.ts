@@ -4,6 +4,7 @@ export interface Properties {
 	getTotalLength(): number;
 	getPointAtLength(pos: number): Point;
 	getTangentAtLength(pos: number): Point;
+	type: string;
 }
 
 export interface Part {

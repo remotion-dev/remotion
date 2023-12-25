@@ -74,10 +74,6 @@ How many chunks have been fully rendered so far.
 
 Either `null` if not all chunks have been rendered yet or an object with the signature `{framesEncoded: number}` that tells how many frames have been stitched together so far in the concatenation process.
 
-### `costs`
-
-Non-binding information about how much the render is costing. At the moment the calculation is still very inaccurate (on the conservative size, probably shows higher cost than real).
-
 ### `renderId`
 
 Mirrors the `renderId` that has been passed as an input
@@ -150,6 +146,10 @@ An object describing the costs of the render so far. The cost may increase if th
 - `currency`: The currency of the cost.
 - `displayCost`: The cost formatted as a string.
 - `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
+
+## `estimatedBillingDurationInMilliseconds`<AvailableFrom v="4.0.74"/>
+
+The estimated total runtime of all invoked Lambda functions combined, in milliseconds. As the render goes on, this number increases.
 
 ### `mostExpensiveFrameRanges`
 

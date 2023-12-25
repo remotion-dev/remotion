@@ -106,6 +106,14 @@ FFMPEG may encode the video in a way that will not result in the exact video bit
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
+### `--buffer-size`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `--max-rate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
+
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
@@ -159,13 +167,15 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--port`
 
-[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setport). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setrendererport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--ffmpeg-executable`
+### `--timeout`
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
@@ -185,20 +195,7 @@ Opens an actual browser during rendering to observe the render.
 
 ### `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" cli />
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 

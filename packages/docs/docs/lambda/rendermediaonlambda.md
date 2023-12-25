@@ -183,13 +183,21 @@ Renamed to `jpegQuality` in v4.0.0.
 
 _optional_
 
-See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`
 
 _optional_
 
-See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+<Options id="video-bitrate"/>
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `maxRetries`
 
@@ -272,21 +280,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
-
-:::note
-The default for Lambda is `swangle`, but `null` elsewhere.
-:::
+<Options id="gl"  />
 
 ### `overwrite?`
 
@@ -380,15 +374,15 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 
 The S3 bucket name in which all files are being saved.
 
-### `cloudWatchLogs`
-
-_available from v3.2.10_
+### `cloudWatchLogs`<AvailableFrom v="3.2.10"/>
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `folderInS3Console`
+### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
 
-_available from v3.2.43_
+A link to the [Lambda Insights](/docs/lambda/insights), if you enabled it.
+
+### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 
 A link to the folder in the AWS console where each chunk and render is located.
 

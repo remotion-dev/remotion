@@ -12,24 +12,53 @@ import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
 
+const getForFrame = (frame: number, content: React.ReactNode) => {
+	const {queryByText} = render(
+		<WrapSequenceContext>
+			<TimelineContext.Provider
+				value={{
+					frame: {
+						'my-comp': frame,
+					},
+					playing: false,
+					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
+				}}
+			>
+				{content}
+			</TimelineContext.Provider>
+		</WrapSequenceContext>,
+	);
+	return queryByText;
+};
+
 test('It should calculate the correct offset in nested sequences', () => {
 	const NestedChild = () => {
 		const frame = useCurrentFrame();
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const Child = () => {
-		return (
-			<Sequence from={10} durationInFrames={50}>
-				<Child2 />
-			</Sequence>
-		);
-	};
-
 	const Child2 = () => {
 		return (
 			<Sequence from={1} durationInFrames={50}>
 				<NestedChild />
+			</Sequence>
+		);
+	};
+
+	const Child = () => {
+		return (
+			<Sequence from={10} durationInFrames={50}>
+				<Child2 />
 			</Sequence>
 		);
 	};
@@ -63,35 +92,6 @@ test('Negative offset test', () => {
 	const result = getForFrame(40, content);
 	expect(result(/^frame220/i)).not.toBe(null);
 });
-
-const getForFrame = (frame: number, content: React.ReactNode) => {
-	const {queryByText} = render(
-		<WrapSequenceContext>
-			<TimelineContext.Provider
-				value={{
-					frame: {
-						'my-comp': frame,
-					},
-					playing: false,
-					rootId: 'hi',
-					imperativePlaying: {
-						current: false,
-					},
-					playbackRate: 1,
-					setPlaybackRate: () => {
-						throw new Error('playback rate');
-					},
-					audioAndVideoTags: {
-						current: [],
-					},
-				}}
-			>
-				{content}
-			</TimelineContext.Provider>
-		</WrapSequenceContext>,
-	);
-	return queryByText;
-};
 
 test('Nested negative offset test', () => {
 	const NestedChild = () => {

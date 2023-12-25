@@ -1,4 +1,4 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
 
 export const videoBitrate = {
 	name: 'Video Bitrate',
@@ -13,5 +13,5 @@ export const videoBitrate = {
 	),
 	ssrName: 'videoBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate-',
-	type: '' as string,
+	type: '' as string | null,
 } satisfies AnyRemotionOption;

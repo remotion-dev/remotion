@@ -50,6 +50,10 @@ export const PricingTable: React.FC<{}> = () => {
               </li>
               <li>
                 <Bullet color="#4290f5" />
+                Cloud rendering allowed
+              </li>
+              <li>
+                <Bullet color="#4290f5" />
                 Community support
               </li>
             </ul>
@@ -164,10 +168,8 @@ export const PricingTable: React.FC<{}> = () => {
               ) : null}
               <a
                 className={styles.pricinga}
-                href="https://companies.remotion.dev"
+                href="https://www.remotion.pro"
                 target="_blank"
-                data-splitbee-event="License-Buy"
-                data-splitbee-event-target={`license-${period}`}
               >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">

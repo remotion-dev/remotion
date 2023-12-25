@@ -7,7 +7,7 @@ import {jsonStringifyWithCircularReferences} from './stringify-with-circular-ref
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
@@ -90,8 +90,9 @@ export const webpackConfig = ({
 			aggregateTimeout: 0,
 			ignored: ['**/.git/**', '**/node_modules/**'],
 		},
-
-		devtool: 'cheap-module-source-map',
+		// Higher source map quality in development to power line numbers for stack traces
+		devtool:
+			environment === 'development' ? 'source-map' : 'cheap-module-source-map',
 		entry: [
 			// Fast Refresh must come first,
 			// because setup-environment imports ReactDOM.
@@ -131,7 +132,7 @@ export const webpackConfig = ({
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			filename: Internals.bundleName,
+			filename: NoReactInternals.bundleName,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
@@ -146,6 +147,8 @@ export const webpackConfig = ({
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
+				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
+				'remotion/no-react': require.resolve('remotion/no-react'),
 				remotion: require.resolve('remotion'),
 			},
 		},

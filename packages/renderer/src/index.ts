@@ -51,9 +51,15 @@ import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	validateOpenGlRenderer,
+	validOpenGlRenderers,
+} from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {getPortConfig, isIpV6Supported} from './port-config';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderFrames} from './render-frames';
 import {internalRenderMedia} from './render-media';
@@ -61,6 +67,7 @@ import {internalRenderStill} from './render-still';
 import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
+import {getChromiumGpuInformation} from './test-gpu';
 import {tmpDir} from './tmp-dir';
 import {
 	getMaxConcurrency,
@@ -68,18 +75,6 @@ import {
 	validateConcurrency,
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-	validOpenGlRenderers,
-} from './validate-opengl-renderer';
-import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {validateBitrate} from './validate-videobitrate';
-import {
-	registerErrorSymbolicationLock,
-	unlockErrorSymbolicationLock,
-} from './wait-for-symbolication-error-to-be-done';
-
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -89,12 +84,13 @@ export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata} from './get-video-metadata';
+export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -102,10 +98,12 @@ export {
 	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
+export {LogOptions} from './logger';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
+export {OpenGlRenderer} from './options/gl';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
@@ -130,9 +128,15 @@ export {
 } from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
-export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
 export {X264Preset} from './x264-preset';
+
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateBitrate} from './validate-videobitrate';
+import {
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+} from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
 	ensureLocalBrowser,
@@ -214,6 +218,9 @@ export const RenderInternals = {
 	internalRenderMedia,
 	validOpenGlRenderers,
 	copyImageToClipboard,
+	isIpV6Supported,
+	getChromiumGpuInformation,
+	getPortConfig,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

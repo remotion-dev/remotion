@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "4.0.46",
+	"version": "4.0.81",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -10,7 +10,7 @@
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup.config.js",
+		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup-no-react.config.js && rollup --config rollup.config.js",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -26,20 +26,20 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.273",
+		"@jonny/eslint-config": "3.0.276",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "14.0.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
-		"@types/react-dom": "18.0.10",
+		"@types/react-dom": "18.0.11",
 		"@vitejs/plugin-react": "^2.0.0",
 		"eslint": "8.42.0",
 		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "21.1.0",
 		"prettier": "3.0.2",
 		"prettier-plugin-organize-imports": "^3.2.2",
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
 		"rimraf": "^3.0.2",
 		"rollup": "^2.70.1",
 		"vitest": "0.31.1",
@@ -69,12 +69,21 @@
 			"module": "./dist/esm/version.mjs",
 			"import": "./dist/esm/version.mjs",
 			"require": "./dist/cjs/version.js"
+		},
+		"./no-react": {
+			"types": "./dist/cjs/no-react.d.ts",
+			"module": "./dist/esm/no-react.mjs",
+			"import": "./dist/esm/no-react.mjs",
+			"require": "./dist/cjs/no-react.js"
 		}
 	},
 	"typesVersions": {
 		">=1.0": {
 			"version": [
 				"dist/cjs/version.d.ts"
+			],
+			"no-react": [
+				"dist/cjs/no-react.d.ts"
 			]
 		}
 	}

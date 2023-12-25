@@ -11,6 +11,7 @@ import React, {
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -29,6 +30,8 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	_remotionInternalNativeLoopPassed: boolean;
+	_remotionInternalStack: string | null;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -58,9 +61,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onDuration,
 		acceptableTimeShiftInSeconds,
 		_remotionInternalNeedsDurationCalculation,
+		_remotionInternalNativeLoopPassed,
+		_remotionInternalStack,
 		allowAmplificationDuringRender,
+		name,
 		...nativeProps
 	} = props;
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
 		throw new TypeError("No 'src' was passed to <Audio>.");
@@ -68,16 +75,27 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const preloadedSrc = usePreload(src);
 
-	const propsToPass = useMemo((): RemotionAudioProps => {
-		return {
-			muted: muted || mediaMuted,
-			src: preloadedSrc,
-			...nativeProps,
-		};
-	}, [mediaMuted, muted, nativeProps, preloadedSrc]);
-
 	const sequenceContext = useContext(SequenceContext);
 
+	const [timelineId] = useState(() => String(Math.random()));
+
+	const isSequenceHidden = hidden[timelineId] ?? false;
+
+	const propsToPass = useMemo((): RemotionAudioProps => {
+		return {
+			muted: muted || mediaMuted || isSequenceHidden,
+			src: preloadedSrc,
+			loop: _remotionInternalNativeLoopPassed,
+			...nativeProps,
+		};
+	}, [
+		_remotionInternalNativeLoopPassed,
+		isSequenceHidden,
+		mediaMuted,
+		muted,
+		nativeProps,
+		preloadedSrc,
+	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
 	const id = useMemo(
@@ -116,6 +134,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		displayName: name ?? null,
+		id: timelineId,
+		stack: props._remotionInternalStack,
 	});
 
 	useMediaPlayback({

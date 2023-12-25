@@ -5,7 +5,7 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 

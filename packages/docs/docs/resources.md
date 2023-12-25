@@ -13,11 +13,13 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Blank](https://github.com/remotion-dev/template-empty)
 - [React Three Fiber](https://github.com/remotion-dev/template-three)
 - [Stills](https://github.com/remotion-dev/template-still)
-- [TTS template](https://github.com/FelippeChemello/Remotion-TTS-Example)
+- [Text-to-Speech Template (Azure)](https://github.com/FelippeChemello/Remotion-TTS-Example)
+- [Text-to-Speech Template (Google)](https://github.com/thecmdrunner/remotion-gtts-template)
 - [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
 - [Skia](https://github.com/remotion-dev/template-skia)
 - [Tailwind](https://github.com/remotion-dev/template-tailwind)
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
+- [Library starter template with best practices](https://github.com/remotion-dev/library-starter)
 
 ## SaaS starter Kits
 
@@ -42,19 +44,26 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
+## Players
+
+- [Remotion Player](/docs/player)
+- [Vidstack Player](https://www.vidstack.io/docs/player/getting-started/installation/react?provider=remotion&styling=default-layout)
+
 ## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
 - [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
+- [remotion-animate-text](https://github.com/pskd73/remotion-animate-text)
 
 ## Full projects
 
+- [GitHub Unwrapped 2023](https://github.com/remotion-dev/github-unwrapped-2023)
 - [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
-- [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
+- [Podcast Maker](https://github.com/FelippeChemello/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
-- [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
+- [MapSnap](https://remotion.pro) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
@@ -88,6 +97,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 - [Shader example](https://github.com/onion2k/a-roll)
 - [Jump cuts without re-mounting](https://github.com/remotion-dev/video-with-jump-cuts)
+- [CSS animations](https://stackblitz.com/~/github.com/remotion-dev/css-animation-play-state)
 
 ## Videos
 
@@ -101,10 +111,11 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Formula 1 Graphics](https://www.youtube.com/watch?v=sA-X0Bw_7Gg&t=146s)
 - [Remotion Skia Tutorial](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
-- [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
-- [Integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
+- [Integrate GreenSock with Remotion](https://archive.ph/dGQ19)
+- [DVD Screensaver Tutorial](https://www.youtube.com/watch?v=n69siyttEwM)
+- [Remotion Tutorial by Alfonso Graziano](https://www.youtube.com/watch?v=r4v1J7ozxIg)
 
 ## Tooling
 
@@ -125,9 +136,19 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Support](/docs/support)
 - [Success Stories](/success-stories)
 
+## Products
+
+- [Typeframes](https://www.typeframes.com)
+- [ClipPulse](https://www.clippulse.com/)
+- [Augie](https://www.meetaugie.com/)
+- [Oxolo](https://www.oxolo.com/)
+- [Hackreels](https://www.hackreels.com/)
+- [AnimStats](https://www.animstats.com/)
+
 ## See also
 
 - [Remotion GitHub topic](https://github.com/topics/remotion)
 - [#resources and #showcase channel on Discord](https://remotion.dev/discord)
 
-Many resources in our documentation were left out from this list to avoid too much redundancy. [Search](/search) the documentation to see if we have an article on what you are looking for!
+Many resources in our documentation were left out from this list to avoid too much redundancy.  
+[Search](/search) the documentation to see if we have an article on what you are looking for!

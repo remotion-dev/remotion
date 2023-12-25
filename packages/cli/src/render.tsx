@@ -1,7 +1,9 @@
 // eslint-disable-next-line no-restricted-imports
-import {Internals} from 'remotion';
+import type {LogLevel} from '@remotion/renderer';
+import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getResolvedAudioCodec} from './get-audio-codec';
@@ -10,12 +12,16 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
 
-export const render = async (remotionRoot: string, args: string[]) => {
+export const render = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	const {
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot);
+	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -47,7 +53,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		browserExecutable,
 		scale,
 		chromiumOptions,
-		port,
 		everyNthFrame,
 		puppeteerTimeout,
 		publicDir,
@@ -62,6 +67,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		x264Preset,
 		pixelFormat,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		numberOfGifLoops,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
@@ -69,6 +76,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
+		logLevel,
 	});
 
 	const audioCodec = getResolvedAudioCodec();
@@ -85,13 +93,14 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		shouldOutputImageSequence,
 		publicDir,
 		envVariables,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps,
+			}).serializedString,
 		puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		height,
 		width,
 		remainingArgs,
@@ -120,6 +129,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		x264Preset,
 		pixelFormat,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding: false,

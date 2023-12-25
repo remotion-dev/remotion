@@ -32,6 +32,7 @@ const testRenderMetadata: RenderMetadata = {
 		id: 'react-svg',
 		width: 1080,
 		props: {},
+		defaultCodec: null,
 	},
 	privacy: 'public',
 	everyNthFrame: 1,

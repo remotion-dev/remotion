@@ -1,18 +1,6 @@
 import type {AbsoluteInstruction, Instruction} from './helpers/types';
 import {parsePath} from './parse-path';
 import {serializeInstructions} from './serialize-instructions';
-
-/**
- * @description Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
- * @param {string} path A valid SVG path
- * @see [Documentation](https://remotion.dev/docs/paths/normalize-path)
- */
-export const normalizePath = (path: string): string => {
-	const instructions = parsePath(path);
-	const normalized = normalizeInstructions(instructions);
-	return serializeInstructions(normalized);
-};
-
 export const normalizeInstructions = (
 	instructions: Instruction[],
 ): AbsoluteInstruction[] => {
@@ -181,4 +169,15 @@ export const normalizeInstructions = (
 	}
 
 	return normalized;
+};
+
+/**
+ * @description Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
+ * @param {string} path A valid SVG path
+ * @see [Documentation](https://remotion.dev/docs/paths/normalize-path)
+ */
+export const normalizePath = (path: string): string => {
+	const instructions = parsePath(path);
+	const normalized = normalizeInstructions(instructions);
+	return serializeInstructions(normalized);
 };

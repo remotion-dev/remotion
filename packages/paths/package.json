@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/paths",
-	"version": "4.0.46",
+	"version": "4.0.81",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -20,7 +20,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@types/node": "18.14.6",
 		"eslint": "8.42.0",
 		"prettier": "3.0.2",

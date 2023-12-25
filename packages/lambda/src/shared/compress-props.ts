@@ -10,6 +10,14 @@ import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
 
+const makeKey = (type: PropsType, hash: string): string => {
+	if (type === 'input-props') {
+		return inputPropsKey(hash);
+	}
+
+	return resolvedPropsKey(hash);
+};
+
 export const serializeOrThrow = (
 	inputProps: Record<string, unknown>,
 	propsType: PropsType,
@@ -137,12 +145,4 @@ export const decompressInputProps = async ({
 			}`,
 		);
 	}
-};
-
-const makeKey = (type: PropsType, hash: string): string => {
-	if (type === 'input-props') {
-		return inputPropsKey(hash);
-	}
-
-	return resolvedPropsKey(hash);
 };

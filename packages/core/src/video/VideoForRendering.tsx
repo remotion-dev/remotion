@@ -41,6 +41,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		playbackRate,
 		onDuration,
+		toneFrequency,
+		name,
+		acceptableTimeShiftInSeconds,
 		...props
 	},
 	ref,
@@ -110,6 +113,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
+			toneFrequency: toneFrequency ?? null,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -124,6 +128,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		absoluteFrame,
 		playbackRate,
 		allowAmplificationDuringRender,
+		toneFrequency,
 	]);
 
 	useImperativeHandle(
@@ -204,6 +209,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		const errorHandler = () => {
 			if (current?.error) {
+				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 
 				// If user is handling the error, we don't cause an unhandled exception

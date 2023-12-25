@@ -27,7 +27,7 @@ corepack enable
 If you don't have `corepack`, install pnpm manually:
 
 ```sh
-npm i -g pnpm@8.5.1
+npm i -g pnpm@8.10.2
 ```
 
 Prefix with `sudo` if necessary.
@@ -149,3 +149,4 @@ To develop the Rust parts of Remotion, see the README in [packages/renderer/READ
 - [Writing documentation](/docs/contributing/docs)
 - [How to take a bounty issue](/docs/contributing/bounty)
 - [Formatting guidelines](/docs/contributing/formatting)
+- [Authoring Remotion libraries](/docs/authoring-packages)

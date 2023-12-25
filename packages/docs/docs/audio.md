@@ -108,6 +108,12 @@ export const MyVideo = () => {
 };
 ```
 
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
 ### `loop`<AvailableFrom v="3.2.29"/>
 
 You can use the `loop` prop to loop audio.
@@ -125,13 +131,21 @@ export const MyVideo = () => {
 };
 ```
 
-## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
+### `toneFrequency`<AvailableFrom v="4.0.47"/>
+
+Adjust the pitch of the audio - will only be applied during rendering.
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
 In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-## `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
+### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
 
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ## See also
@@ -140,3 +154,14 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
+
+<Credits contributors={[
+{
+username: "JonnyBurger",
+contribution: "Implementation"
+},
+{
+username: "evoxf1",
+contribution: <><code>toneFrequency</code> prop</>
+},
+]} />

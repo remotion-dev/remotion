@@ -44,6 +44,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				width: 1080,
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			outName: 'out.mp4',
 			privacy: 'public',
@@ -61,5 +62,5 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
 	});
-	expect(price).toBeGreaterThanOrEqual(0);
+	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

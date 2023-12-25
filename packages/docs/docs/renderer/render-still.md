@@ -27,7 +27,7 @@ import { getCompositions, renderStill } from "@remotion/renderer";
 const compositionId = "HelloWorld";
 
 const bundleLocation = await bundle({
-  entryPoint: require.resolve("./src/index"),
+  entryPoint: require.resolve("./src/index.ts"),
 });
 
 const comps = await getCompositions(bundleLocation, {
@@ -187,22 +187,7 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 #### `gl`
 
-_string_
-
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
-
-Default: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 

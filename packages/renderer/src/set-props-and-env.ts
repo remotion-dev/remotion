@@ -126,6 +126,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	if (typeof isRemotionFn === 'undefined') {
@@ -138,6 +139,7 @@ const innerSetPropsAndEnv = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds: actualTimeout,
 		});
 
 		// AWS shakyness
@@ -165,6 +167,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	const {value: remotionVersion} = await puppeteerEvaluateWithCatch<string>({
@@ -174,6 +177,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	const requiredVersion: typeof window.siteVersion = '10';
@@ -194,7 +198,7 @@ const innerSetPropsAndEnv = async ({
 
 	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,
@@ -208,7 +212,7 @@ const innerSetPropsAndEnv = async ({
 				].join('\n'),
 			);
 		} else {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,
@@ -219,17 +223,27 @@ const innerSetPropsAndEnv = async ({
 	}
 };
 
-export const setPropsAndEnv = (params: SetPropsAndEnv) => {
-	return Promise.race([
-		innerSetPropsAndEnv(params),
-		new Promise((_, reject) => {
-			setTimeout(() => {
-				reject(
-					new Error(
-						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
-					),
-				);
-			}, params.timeoutInMilliseconds);
-		}),
-	]);
+export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
+	let timeout: NodeJS.Timeout | null = null;
+
+	try {
+		const result = await Promise.race([
+			innerSetPropsAndEnv(params),
+			new Promise((_, reject) => {
+				timeout = setTimeout(() => {
+					reject(
+						new Error(
+							`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+						),
+					);
+				}, params.timeoutInMilliseconds);
+			}),
+		]);
+
+		return result;
+	} finally {
+		if (timeout !== null) {
+			clearTimeout(timeout);
+		}
+	}
 };

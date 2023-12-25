@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "4.0.46",
+  "version": "4.0.81",
   "description": "Load Google Fonts in Remotion",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
@@ -34,6 +34,12 @@
       "ABeeZee": [
         "dist/esm/ABeeZee.d.ts"
       ],
+      "ADLaMDisplay": [
+        "dist/esm/ADLaMDisplay.d.ts"
+      ],
+      "AROneSans": [
+        "dist/esm/AROneSans.d.ts"
+      ],
       "Abel": [
         "dist/esm/Abel.d.ts"
       ],
@@ -64,8 +70,17 @@
       "AdventPro": [
         "dist/esm/AdventPro.d.ts"
       ],
+      "Agbalumo": [
+        "dist/esm/Agbalumo.d.ts"
+      ],
+      "Agdasima": [
+        "dist/esm/Agdasima.d.ts"
+      ],
       "AguafinaScript": [
         "dist/esm/AguafinaScript.d.ts"
+      ],
+      "Akatab": [
+        "dist/esm/Akatab.d.ts"
       ],
       "AkayaKanadaka": [
         "dist/esm/AkayaKanadaka.d.ts"
@@ -409,8 +424,14 @@
       "Babylonica": [
         "dist/esm/Babylonica.d.ts"
       ],
+      "BacasimeAntique": [
+        "dist/esm/BacasimeAntique.d.ts"
+      ],
       "BadScript": [
         "dist/esm/BadScript.d.ts"
+      ],
+      "BagelFatOne": [
+        "dist/esm/BagelFatOne.d.ts"
       ],
       "Bahiana": [
         "dist/esm/Bahiana.d.ts"
@@ -504,6 +525,9 @@
       ],
       "BebasNeue": [
         "dist/esm/BebasNeue.d.ts"
+      ],
+      "Belanosima": [
+        "dist/esm/Belanosima.d.ts"
       ],
       "Belgrano": [
         "dist/esm/Belgrano.d.ts"
@@ -631,6 +655,9 @@
       "Boogaloo": [
         "dist/esm/Boogaloo.d.ts"
       ],
+      "Borel": [
+        "dist/esm/Borel.d.ts"
+      ],
       "BowlbyOne": [
         "dist/esm/BowlbyOne.d.ts"
       ],
@@ -645,6 +672,9 @@
       ],
       "BreeSerif": [
         "dist/esm/BreeSerif.d.ts"
+      ],
+      "BricolageGrotesque": [
+        "dist/esm/BricolageGrotesque.d.ts"
       ],
       "BrunoAce": [
         "dist/esm/BrunoAce.d.ts"
@@ -738,6 +768,9 @@
       ],
       "CantoraOne": [
         "dist/esm/CantoraOne.d.ts"
+      ],
+      "Caprasimo": [
+        "dist/esm/Caprasimo.d.ts"
       ],
       "Capriola": [
         "dist/esm/Capriola.d.ts"
@@ -874,9 +907,6 @@
       "Coda": [
         "dist/esm/Coda.d.ts"
       ],
-      "CodaCaption": [
-        "dist/esm/CodaCaption.d.ts"
-      ],
       "Codystar": [
         "dist/esm/Codystar.d.ts"
       ],
@@ -1012,6 +1042,9 @@
       "DMSerifText": [
         "dist/esm/DMSerifText.d.ts"
       ],
+      "DaiBannaSIL": [
+        "dist/esm/DaiBannaSIL.d.ts"
+      ],
       "Damion": [
         "dist/esm/Damion.d.ts"
       ],
@@ -1068,6 +1101,9 @@
       ],
       "DidactGothic": [
         "dist/esm/DidactGothic.d.ts"
+      ],
+      "Diphylleia": [
+        "dist/esm/Diphylleia.d.ts"
       ],
       "Diplomata": [
         "dist/esm/Diplomata.d.ts"
@@ -1381,6 +1417,9 @@
       "GFSNeohellenic": [
         "dist/esm/GFSNeohellenic.d.ts"
       ],
+      "Gabarito": [
+        "dist/esm/Gabarito.d.ts"
+      ],
       "Gabriela": [
         "dist/esm/Gabriela.d.ts"
       ],
@@ -1407,6 +1446,9 @@
       ],
       "Gantari": [
         "dist/esm/Gantari.d.ts"
+      ],
+      "GasoekOne": [
+        "dist/esm/GasoekOne.d.ts"
       ],
       "Gayathri": [
         "dist/esm/Gayathri.d.ts"
@@ -1513,6 +1555,9 @@
       "GrandHotel": [
         "dist/esm/GrandHotel.d.ts"
       ],
+      "GrandifloraOne": [
+        "dist/esm/GrandifloraOne.d.ts"
+      ],
       "Grandstander": [
         "dist/esm/Grandstander.d.ts"
       ],
@@ -1581,6 +1626,9 @@
       ],
       "HanaleiFill": [
         "dist/esm/HanaleiFill.d.ts"
+      ],
+      "Handjet": [
+        "dist/esm/Handjet.d.ts"
       ],
       "Handlee": [
         "dist/esm/Handlee.d.ts"
@@ -1729,6 +1777,9 @@
       "Imprima": [
         "dist/esm/Imprima.d.ts"
       ],
+      "InclusiveSans": [
+        "dist/esm/InclusiveSans.d.ts"
+      ],
       "Inconsolata": [
         "dist/esm/Inconsolata.d.ts"
       ],
@@ -1855,6 +1906,9 @@
       "K2D": [
         "dist/esm/K2D.d.ts"
       ],
+      "Kablammo": [
+        "dist/esm/Kablammo.d.ts"
+      ],
       "Kadwa": [
         "dist/esm/Kadwa.d.ts"
       ],
@@ -1902,6 +1956,9 @@
       ],
       "Kavoon": [
         "dist/esm/Kavoon.d.ts"
+      ],
+      "KayPhoDu": [
+        "dist/esm/KayPhoDu.d.ts"
       ],
       "KdamThmorPro": [
         "dist/esm/KdamThmorPro.d.ts"
@@ -2137,6 +2194,12 @@
       "LindenHill": [
         "dist/esm/LindenHill.d.ts"
       ],
+      "Linefont": [
+        "dist/esm/Linefont.d.ts"
+      ],
+      "LisuBosa": [
+        "dist/esm/LisuBosa.d.ts"
+      ],
       "Literata": [
         "dist/esm/Literata.d.ts"
       ],
@@ -2184,6 +2247,15 @@
       ],
       "LuckiestGuy": [
         "dist/esm/LuckiestGuy.d.ts"
+      ],
+      "Lugrasimo": [
+        "dist/esm/Lugrasimo.d.ts"
+      ],
+      "Lumanosimo": [
+        "dist/esm/Lumanosimo.d.ts"
+      ],
+      "Lunasima": [
+        "dist/esm/Lunasima.d.ts"
       ],
       "Lusitana": [
         "dist/esm/Lusitana.d.ts"
@@ -2407,6 +2479,9 @@
       "Mohave": [
         "dist/esm/Mohave.d.ts"
       ],
+      "MoiraiOne": [
+        "dist/esm/MoiraiOne.d.ts"
+      ],
       "Molengo": [
         "dist/esm/Molengo.d.ts"
       ],
@@ -2451,6 +2526,9 @@
       ],
       "MooLahLah": [
         "dist/esm/MooLahLah.d.ts"
+      ],
+      "Mooli": [
+        "dist/esm/Mooli.d.ts"
       ],
       "MoonDance": [
         "dist/esm/MoonDance.d.ts"
@@ -2535,6 +2613,9 @@
       ],
       "NanumPenScript": [
         "dist/esm/NanumPenScript.d.ts"
+      ],
+      "Narnoor": [
+        "dist/esm/Narnoor.d.ts"
       ],
       "Neonderthaw": [
         "dist/esm/Neonderthaw.d.ts"
@@ -2689,6 +2770,9 @@
       "NotoSansCypriot": [
         "dist/esm/NotoSansCypriot.d.ts"
       ],
+      "NotoSansCyproMinoan": [
+        "dist/esm/NotoSansCyproMinoan.d.ts"
+      ],
       "NotoSansDeseret": [
         "dist/esm/NotoSansDeseret.d.ts"
       ],
@@ -2775,6 +2859,9 @@
       ],
       "NotoSansKannada": [
         "dist/esm/NotoSansKannada.d.ts"
+      ],
+      "NotoSansKawi": [
+        "dist/esm/NotoSansKawi.d.ts"
       ],
       "NotoSansKayahLi": [
         "dist/esm/NotoSansKayahLi.d.ts"
@@ -2877,6 +2964,9 @@
       ],
       "NotoSansNKo": [
         "dist/esm/NotoSansNKo.d.ts"
+      ],
+      "NotoSansNKoUnjoined": [
+        "dist/esm/NotoSansNKoUnjoined.d.ts"
       ],
       "NotoSansNabataean": [
         "dist/esm/NotoSansNabataean.d.ts"
@@ -3007,6 +3097,9 @@
       "NotoSansSyriac": [
         "dist/esm/NotoSansSyriac.d.ts"
       ],
+      "NotoSansSyriacEastern": [
+        "dist/esm/NotoSansSyriacEastern.d.ts"
+      ],
       "NotoSansTC": [
         "dist/esm/NotoSansTC.d.ts"
       ],
@@ -3060,6 +3153,9 @@
       ],
       "NotoSansVai": [
         "dist/esm/NotoSansVai.d.ts"
+      ],
+      "NotoSansVithkuqi": [
+        "dist/esm/NotoSansVithkuqi.d.ts"
       ],
       "NotoSansWancho": [
         "dist/esm/NotoSansWancho.d.ts"
@@ -3127,6 +3223,9 @@
       "NotoSerifKannada": [
         "dist/esm/NotoSerifKannada.d.ts"
       ],
+      "NotoSerifKhitanSmallScript": [
+        "dist/esm/NotoSerifKhitanSmallScript.d.ts"
+      ],
       "NotoSerifKhmer": [
         "dist/esm/NotoSerifKhmer.d.ts"
       ],
@@ -3135,6 +3234,9 @@
       ],
       "NotoSerifLao": [
         "dist/esm/NotoSerifLao.d.ts"
+      ],
+      "NotoSerifMakasar": [
+        "dist/esm/NotoSerifMakasar.d.ts"
       ],
       "NotoSerifMalayalam": [
         "dist/esm/NotoSerifMalayalam.d.ts"
@@ -3145,8 +3247,14 @@
       "NotoSerifNPHmong": [
         "dist/esm/NotoSerifNPHmong.d.ts"
       ],
+      "NotoSerifOldUyghur": [
+        "dist/esm/NotoSerifOldUyghur.d.ts"
+      ],
       "NotoSerifOriya": [
         "dist/esm/NotoSerifOriya.d.ts"
+      ],
+      "NotoSerifOttomanSiyaq": [
+        "dist/esm/NotoSerifOttomanSiyaq.d.ts"
       ],
       "NotoSerifSC": [
         "dist/esm/NotoSerifSC.d.ts"
@@ -3174,6 +3282,9 @@
       ],
       "NotoSerifToto": [
         "dist/esm/NotoSerifToto.d.ts"
+      ],
+      "NotoSerifVithkuqi": [
+        "dist/esm/NotoSerifVithkuqi.d.ts"
       ],
       "NotoSerifYezidi": [
         "dist/esm/NotoSerifYezidi.d.ts"
@@ -3244,6 +3355,9 @@
       "OleoScriptSwashCaps": [
         "dist/esm/OleoScriptSwashCaps.d.ts"
       ],
+      "Onest": [
+        "dist/esm/Onest.d.ts"
+      ],
       "OoohBaby": [
         "dist/esm/OoohBaby.d.ts"
       ],
@@ -3252,6 +3366,9 @@
       ],
       "Oranienbaum": [
         "dist/esm/Oranienbaum.d.ts"
+      ],
+      "Orbit": [
+        "dist/esm/Orbit.d.ts"
       ],
       "Orbitron": [
         "dist/esm/Orbitron.d.ts"
@@ -3415,6 +3532,9 @@
       "PirataOne": [
         "dist/esm/PirataOne.d.ts"
       ],
+      "PixelifySans": [
+        "dist/esm/PixelifySans.d.ts"
+      ],
       "Plaster": [
         "dist/esm/Plaster.d.ts"
       ],
@@ -3432,6 +3552,9 @@
       ],
       "PlayfairDisplaySC": [
         "dist/esm/PlayfairDisplaySC.d.ts"
+      ],
+      "PlaypenSans": [
+        "dist/esm/PlaypenSans.d.ts"
       ],
       "PlusJakartaSans": [
         "dist/esm/PlusJakartaSans.d.ts"
@@ -3546,6 +3669,9 @@
       ],
       "QwitcherGrypen": [
         "dist/esm/QwitcherGrypen.d.ts"
+      ],
+      "REM": [
+        "dist/esm/REM.d.ts"
       ],
       "RacingSansOne": [
         "dist/esm/RacingSansOne.d.ts"
@@ -3805,6 +3931,9 @@
       "Ruthie": [
         "dist/esm/Ruthie.d.ts"
       ],
+      "Ruwudu": [
+        "dist/esm/Ruwudu.d.ts"
+      ],
       "Rye": [
         "dist/esm/Rye.d.ts"
       ],
@@ -4054,6 +4183,9 @@
       "Solway": [
         "dist/esm/Solway.d.ts"
       ],
+      "SometypeMono": [
+        "dist/esm/SometypeMono.d.ts"
+      ],
       "SongMyung": [
         "dist/esm/SongMyung.d.ts"
       ],
@@ -4075,14 +4207,8 @@
       "SourceSans3": [
         "dist/esm/SourceSans3.d.ts"
       ],
-      "SourceSansPro": [
-        "dist/esm/SourceSansPro.d.ts"
-      ],
       "SourceSerif4": [
         "dist/esm/SourceSerif4.d.ts"
-      ],
-      "SourceSerifPro": [
-        "dist/esm/SourceSerifPro.d.ts"
       ],
       "SpaceGrotesk": [
         "dist/esm/SpaceGrotesk.d.ts"
@@ -4239,6 +4365,9 @@
       ],
       "Teko": [
         "dist/esm/Teko.d.ts"
+      ],
+      "Tektur": [
+        "dist/esm/Tektur.d.ts"
       ],
       "Telex": [
         "dist/esm/Telex.d.ts"
@@ -4438,6 +4567,9 @@
       "Vibur": [
         "dist/esm/Vibur.d.ts"
       ],
+      "VictorMono": [
+        "dist/esm/VictorMono.d.ts"
+      ],
       "Vidaloka": [
         "dist/esm/Vidaloka.d.ts"
       ],
@@ -4482,6 +4614,9 @@
       ],
       "Waterfall": [
         "dist/esm/Waterfall.d.ts"
+      ],
+      "Wavefont": [
+        "dist/esm/Wavefont.d.ts"
       ],
       "Wellfleet": [
         "dist/esm/Wellfleet.d.ts"
@@ -4537,11 +4672,23 @@
       "Yomogi": [
         "dist/esm/Yomogi.d.ts"
       ],
+      "YoungSerif": [
+        "dist/esm/YoungSerif.d.ts"
+      ],
       "Yrsa": [
         "dist/esm/Yrsa.d.ts"
       ],
       "Ysabeau": [
         "dist/esm/Ysabeau.d.ts"
+      ],
+      "YsabeauInfant": [
+        "dist/esm/YsabeauInfant.d.ts"
+      ],
+      "YsabeauOffice": [
+        "dist/esm/YsabeauOffice.d.ts"
+      ],
+      "YsabeauSC": [
+        "dist/esm/YsabeauSC.d.ts"
       ],
       "YujiBoku": [
         "dist/esm/YujiBoku.d.ts"

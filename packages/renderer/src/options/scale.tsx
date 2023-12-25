@@ -1,8 +1,8 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
 
 export const scaleOption = {
 	name: 'Scale',
-	cliFlag: 'scale',
+	cliFlag: 'scale' as const,
 	description: () => (
 		<>
 			Scales the output by a factor. For example, a 1280x720px frame will become

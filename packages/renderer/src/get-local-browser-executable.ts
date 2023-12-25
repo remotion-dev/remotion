@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
 const getSearchPathsForProduct = () => {
@@ -92,15 +93,22 @@ const getBrowserStatus = (
 	return {type: 'no-browser'};
 };
 
-export const ensureLocalBrowser = async (
-	preferredBrowserExecutable: BrowserExecutable,
-) => {
+export const ensureLocalBrowser = async ({
+	indent,
+	logLevel,
+	preferredBrowserExecutable,
+}: {
+	preferredBrowserExecutable: BrowserExecutable;
+	logLevel: LogLevel;
+	indent: boolean;
+}) => {
 	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
-		Log.info(
+		Log.infoAdvanced(
+			{indent, logLevel},
 			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/miscellaneous/thorium-browser',
 		);
-		await downloadBrowser();
+		await downloadBrowser({indent, logLevel});
 	}
 };
 

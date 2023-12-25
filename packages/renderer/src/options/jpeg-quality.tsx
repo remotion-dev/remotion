@@ -1,8 +1,8 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
 
 export const jpegQualityOption = {
 	name: 'JPEG Quality',
-	cliFlag: 'jpeg-quality',
+	cliFlag: 'jpeg-quality' as const,
 	description: () => (
 		<>
 			Sets the quality of the generated JPEG images. Must be an integer between

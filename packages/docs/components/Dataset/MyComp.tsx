@@ -63,6 +63,7 @@ export const MyComp: React.FC<Props> = ({ name, repo, logo }) => {
           style={{
             display: "flex",
             flexDirection: "column",
+            color: "black",
           }}
         >
           <div

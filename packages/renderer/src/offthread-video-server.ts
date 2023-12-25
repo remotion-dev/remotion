@@ -128,7 +128,7 @@ export const startOffthreadVideoServer = ({
 			});
 
 			let extractStart = Date.now();
-			downloadAsset({src, downloadMap})
+			downloadAsset({src, downloadMap, indent, logLevel})
 				.then((to) => {
 					return new Promise<Buffer>((resolve, reject) => {
 						if (closed) {
@@ -164,6 +164,7 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
+								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
 						}
@@ -180,11 +181,17 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.catch((err) => {
-					response.writeHead(500);
+					if (!response.headersSent) {
+						response.writeHead(500);
+					}
+
 					response.end();
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
-					if (err.message !== REQUEST_CLOSED_TOKEN) {
+					if (
+						err.message !== REQUEST_CLOSED_TOKEN &&
+						!err.message.includes('EPIPE')
+					) {
 						downloadMap.emitter.dispatchError(err);
 						console.log('Error occurred', err);
 					}

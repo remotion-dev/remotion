@@ -16,14 +16,14 @@ export const NewsletterButton: React.FC<{}> = () => {
         e.preventDefault();
 
         const response = await fetch(
-          "https://companies.remotion.dev/api/newsletter",
+          "https://www.remotion.pro/api/newsletter",
           {
             method: "POST",
             body: JSON.stringify({ email }),
             headers: {
               "content-type": "application/json",
             },
-          }
+          },
         );
         const json = await response.json();
         if (json.success) {
@@ -39,7 +39,7 @@ export const NewsletterButton: React.FC<{}> = () => {
         alert("Something went wrong. Please try again later.");
       }
     },
-    [email]
+    [email],
   );
 
   return (

@@ -1,8 +1,4 @@
-use std::{
-    io::ErrorKind,
-    sync::{Arc, Mutex},
-    time::SystemTime,
-};
+use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
@@ -11,7 +7,9 @@ use std::time::UNIX_EPOCH;
 
 use crate::{
     errors::ErrorWithBacktrace,
-    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
+    ffmpeg,
+    frame_cache::{get_frame_cache_id, FrameCacheItem},
+    frame_cache_manager::FrameCacheManager,
     global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
@@ -77,7 +75,6 @@ impl OpenedStream {
     pub fn handle_eof(
         &mut self,
         position: i64,
-        frame_cache: &Arc<Mutex<FrameCache>>,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
@@ -126,8 +123,10 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-
-                    frame_cache.lock()?.add_item(item);
+                    FrameCacheManager::get_instance()
+                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .lock()?
+                        .add_item(item);
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
@@ -149,11 +148,11 @@ impl OpenedStream {
     pub fn get_frame(
         &mut self,
         time: f64,
-        frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
+        maximum_frame_cache_size_in_bytes: Option<u128>,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -177,6 +176,8 @@ impl OpenedStream {
         let mut last_frame_received: Option<LastFrameInfo> = None;
         let mut stop_after_n_diverging_pts: Option<u8> = None;
 
+        let mut items_in_loop = 0;
+
         loop {
             if stop_after_n_diverging_pts.is_some() && stop_after_n_diverging_pts.unwrap() == 0 {
                 break;
@@ -194,7 +195,6 @@ impl OpenedStream {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(
                         position,
-                        frame_cache,
                         one_frame_in_time_base,
                         match freshly_seeked || self.last_position.is_none() {
                             true => None,
@@ -203,12 +203,15 @@ impl OpenedStream {
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
-
-                        frame_cache
+                        FrameCacheManager::get_instance()
+                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
-                        frame_cache.lock()?.set_biggest_frame_as_last_frame();
+                        FrameCacheManager::get_instance()
+                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .lock()?
+                            .set_biggest_frame_as_last_frame();
                     }
 
                     break;
@@ -294,10 +297,26 @@ impl OpenedStream {
 
                     self.last_position = Some(video.pts().expect("expected pts"));
                     freshly_seeked = false;
+                    FrameCacheManager::get_instance()
+                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .lock()?
+                        .add_item(item);
 
-                    frame_cache.lock().unwrap().add_item(item);
+                    items_in_loop += 1;
+                    _print_verbose(&format!(
+                        "received frame {} ({})",
+                        video.pts().expect("pts"),
+                        items_in_loop
+                    ))?;
 
-                    _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
+                    if items_in_loop % 10 == 0 {
+                        match maximum_frame_cache_size_in_bytes {
+                            Some(cache_size) => {
+                                ffmpeg::keep_only_latest_frames(cache_size)?;
+                            }
+                            None => {}
+                        }
+                    }
 
                     match stop_after_n_diverging_pts {
                         Some(stop) => match last_frame_received {
@@ -330,9 +349,9 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = frame_cache
-            .lock()
-            .unwrap()
+        let final_frame = FrameCacheManager::get_instance()
+            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+            .lock()?
             .get_item_id(position, threshold)?;
 
         if final_frame.is_none() {

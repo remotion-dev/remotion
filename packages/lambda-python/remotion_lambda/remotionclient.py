@@ -105,7 +105,7 @@ class RemotionClient:
         render_params.serve_url = self.serve_url
         render_params.region = self.region
         render_params.function_name = self.function_name
-        render_params.input_props = self._serialize_input_props(
+        render_params.private_serialized_input_props = self._serialize_input_props(
             input_props=render_params.data,
             render_type=render_type
         )

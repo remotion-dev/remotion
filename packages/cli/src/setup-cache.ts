@@ -2,14 +2,11 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {BundlingState, CopyingState} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
-import type {
-	BundlingState,
-	CopyingState,
-	SymbolicLinksState,
-} from './progress-bar';
+import type {SymbolicLinksState} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeBundlingAndCopyProgress,
@@ -231,7 +228,7 @@ const bundleOnCli = async ({
 		progress: 1,
 		doneIn: Date.now() - bundleStartTime,
 	};
-	Log.verboseAdvanced(
+	Log.verbose(
 		{logLevel, indent},
 		'Bundling done in',
 		bundlingState.doneIn + 'ms',
@@ -240,14 +237,14 @@ const bundleOnCli = async ({
 		...copyingState,
 		doneIn: copyStart ? Date.now() - copyStart : 0,
 	};
-	Log.verboseAdvanced(
+	Log.verbose(
 		{logLevel, indent},
 		'Copying done in ',
 		copyingState.doneIn + 'ms',
 	);
 	updateProgress(true);
 
-	Log.verboseAdvanced({indent, logLevel}, 'Bundled under', bundled);
+	Log.verbose({indent, logLevel}, 'Bundled under', bundled);
 	const cacheExistedAfter =
 		BundlerInternals.cacheExists(remotionRoot, 'production', hash) === 'exists';
 

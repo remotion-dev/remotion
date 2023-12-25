@@ -1,4 +1,4 @@
-import type {TRenderAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset
@@ -14,6 +14,7 @@ export type UnsafeAsset = Omit<
 	id: string;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 // Volume can either be static, for all frames the same,

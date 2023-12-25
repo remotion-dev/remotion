@@ -12,6 +12,11 @@ import {useCurrentFrame} from '../use-current-frame.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
+const TestComponent: React.FC = () => {
+	const frame = useCurrentFrame();
+	return <div>{frame}</div>;
+};
+
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
 		expectToThrow(
@@ -87,11 +92,6 @@ const WithSequence: React.FC = () => {
 			</Sequence>
 		</WrapSequenceContext>
 	);
-};
-
-const TestComponent: React.FC = () => {
-	const frame = useCurrentFrame();
-	return <div>{frame}</div>;
 };
 
 describe('Integration tests', () => {

@@ -7,6 +7,8 @@ crumb: "API"
 
 This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
 
+Use [`<OffthreadVideo>`](/docs/offthreadvideo) by default instead which is in general faster.
+
 ## API
 
 [Put a video file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
@@ -39,12 +41,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `startFrom` / `endAt`
+## Props
 
-`<Video>` has two more helper props you can use:
+### `startFrom`
 
-- `startFrom` will remove a portion of the video at the beginning
-- `endAt` will remove a portion of the video at the end
+Will remove a portion of the video at the beginning.
 
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
@@ -66,9 +67,13 @@ export const MyComposition = () => {
 };
 ```
 
+### `endAt`
+
+Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom) for an explanation.
+
 ### `style`
 
-You can pass any style you can pass to a native `<video>` element. This is how you set it's size for example:
+You can pass any style you can pass to a native `<video>` element. For example, set its size:
 
 ```tsx twoslash
 import { AbsoluteFill, staticFile, Video } from "remotion";
@@ -88,7 +93,7 @@ export const MyComposition = () => {
 
 ### `volume`
 
-`<Video>` accepts a `volume` prop which allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
+Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
 import { AbsoluteFill, staticFile, Video } from "remotion";
@@ -121,9 +126,15 @@ export const MyComposition = () => {
 };
 ```
 
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
 ### `playbackRate`<AvailableFrom v="2.2.0" />
 
-You can use the `playbackRate` prop to control the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
+Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
@@ -159,9 +170,11 @@ export const MyComposition = () => {
 };
 ```
 
+This has the benefit that Remotion will not have to download the video file during rendering in order to extract the audio from it.
+
 ### `loop`<AvailableFrom v="3.2.29" />
 
-You can use the `loop` prop to loop a video.
+Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
 import { AbsoluteFill, Video } from "remotion";
@@ -186,6 +199,14 @@ In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `toneFrequency`<AvailableFrom v="4.0.47"/>
+
+Adjust the pitch of the audio - will only be applied during rendering.
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
 ### `onError`
 

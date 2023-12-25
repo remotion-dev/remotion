@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {StudioInternals} from '@remotion/studio';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
@@ -10,11 +11,11 @@ import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
-import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
+import {gpuCommand} from './gpu';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
@@ -46,7 +47,7 @@ export const cli = async () => {
 
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	if (command !== VERSIONS_COMMAND) {
-		await validateVersionsBeforeCommand(remotionRoot);
+		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
 
 	const isBun = typeof Bun !== 'undefined';
@@ -73,24 +74,26 @@ export const cli = async () => {
 		? 0
 		: RenderInternals.registerErrorSymbolicationLock();
 
-	handleCtrlC();
+	const logLevel = await initializeCli(remotionRoot);
+	handleCtrlC({indent: false, logLevel});
 
-	await initializeCli(remotionRoot);
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand(remotionRoot, args);
+			await listCompositionsCommand(remotionRoot, args, logLevel);
 		} else if (isStudio) {
-			await studioCommand(remotionRoot, args);
+			await studioCommand(remotionRoot, args, logLevel);
 		} else if (command === 'lambda') {
-			await lambdaCommand(remotionRoot, args);
+			await lambdaCommand(remotionRoot, args, logLevel);
 		} else if (command === 'cloudrun') {
-			await cloudrunCommand(remotionRoot, args);
+			await cloudrunCommand(remotionRoot, args, logLevel);
 		} else if (command === 'render') {
-			await render(remotionRoot, args);
+			await render(remotionRoot, args, logLevel);
 		} else if (command === 'still') {
-			await still(remotionRoot, args);
+			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
 			ffmpegCommand(remotionRoot, process.argv.slice(3));
+		} else if (command === 'gpu') {
+			await gpuCommand(remotionRoot, logLevel);
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
@@ -100,9 +103,9 @@ export const cli = async () => {
 				parsedCli.version,
 			);
 		} else if (command === VERSIONS_COMMAND) {
-			await versionsCommand(remotionRoot);
+			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === 'benchmark') {
-			await benchmarkCommand(remotionRoot, args);
+			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
@@ -117,15 +120,13 @@ export const cli = async () => {
 	} catch (err) {
 		Log.info();
 		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
-		cleanupBeforeQuit();
+		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
-		cleanupBeforeQuit();
+		cleanupBeforeQuit({indent: false, logLevel});
 	}
 };
-
-export * from './render';
 
 export const CliInternals = {
 	createOverwriteableCliOutput,
@@ -139,7 +140,7 @@ export const CliInternals = {
 	quietFlagProvided,
 	parsedCli,
 	printError,
-	formatBytes,
+	formatBytes: StudioInternals.formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,

@@ -9,7 +9,12 @@ _Part of the `@remotion/bundler` package._
 
 Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media).
 
-```ts
+You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
+
+Calling `bundle()` for every video that you render is an anti-pattern.  
+`bundle()` cannot be called in a serverless function, see: [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle).
+
+```ts title="Function signature"
 const bundle: (options?: {
   entryPoint: string;
   onProgress?: (progress: number) => void;
@@ -116,7 +121,7 @@ const bundle: (
     publicPath?: string;
     rootDir?: string;
     publicDir?: string | null;
-  }
+  },
 ) => Promise<string>;
 ```
 
@@ -141,3 +146,4 @@ A promise which will resolve into a `string` specifying the output directory.
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderMedia()](/docs/renderer/render-media)
 - [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)

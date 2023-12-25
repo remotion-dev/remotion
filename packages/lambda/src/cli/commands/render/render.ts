@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
@@ -29,7 +30,20 @@ import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
-export const renderCommand = async (args: string[], remotionRoot: string) => {
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame,
+		  ).length
+		: null;
+}
+
+export const renderCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
@@ -51,7 +65,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		frameRange,
 		inputProps,
-		logLevel,
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
@@ -63,10 +76,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
-		port,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		deleteAfter,
@@ -75,6 +89,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition: string = args[1];
@@ -92,7 +107,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
@@ -108,12 +123,13 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					indent: undefined,
-					staticBase: null,
-					data: inputProps,
-				}).serializedString,
-				port,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						indent: undefined,
+						staticBase: null,
+						data: inputProps,
+					}).serializedString,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
@@ -134,6 +150,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		outName: outName ?? null,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
+		compositionCodec: null,
 	});
 
 	const imageFormat = CliInternals.getVideoImageFormat({
@@ -141,7 +158,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		uiImageFormat: null,
 	});
 
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -151,7 +168,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
-	const webhookCustomData = getWebhookCustomData();
+	const webhookCustomData = getWebhookCustomData(logLevel);
 
 	const res = await internalRenderMediaOnLambdaRaw({
 		functionName,
@@ -182,6 +199,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		encodingBufferSize,
+		encodingMaxRate,
 		forceHeight: height,
 		forceWidth: width,
 		webhook: parsedLambdaCli.webhook
@@ -221,13 +240,19 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
 		),
 	);
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		ConfigInternals.Logging.getLogLevel(),
-		'verbose',
-	);
 
-	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
-	Log.verbose(`Render folder: ${res.folderInS3Console}`);
+	Log.verbose(
+		{indent: false, logLevel},
+		`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`,
+	);
+	Log.verbose(
+		{indent: false, logLevel},
+		`Lambda insights (if enabled): ${res.lambdaInsightsLogs}`,
+	);
+	Log.verbose(
+		{indent: false, logLevel},
+		`Render folder: ${res.folderInS3Console}`,
+	);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -241,7 +266,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
-			verbose,
+			logLevel,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
 		}),
@@ -264,7 +289,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				steps: totalSteps,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
-				verbose,
+				logLevel,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
 			}),
@@ -278,7 +303,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					steps: totalSteps,
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
-					verbose,
+					logLevel,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
 				}),
@@ -291,6 +316,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
+					logLevel,
 					onProgress: ({downloaded, totalSize}) => {
 						progressBar.update(
 							makeProgressString({
@@ -302,7 +328,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 									downloaded,
 									totalSize,
 								},
-								verbose,
+								logLevel,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
 							}),
@@ -320,7 +346,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 							downloaded: sizeInBytes,
 							totalSize: sizeInBytes,
 						},
-						verbose,
+						logLevel,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
 					}),
@@ -349,11 +375,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					.join(', '),
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
-				Log.verbose('Most expensive frame ranges:');
+				Log.verbose({indent: false, logLevel}, 'Most expensive frame ranges:');
 				Log.verbose(
+					{indent: false, logLevel},
 					newStatus.mostExpensiveFrameRanges
 						.map((f) => {
-							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+							return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
 						})
 						.join(', '),
 				);
@@ -398,12 +425,3 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		}
 	}
 };
-
-function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata
-		? RenderInternals.getFramesToRender(
-				status.renderMetadata.frameRange,
-				status.renderMetadata.everyNthFrame,
-		  ).length
-		: null;
-}

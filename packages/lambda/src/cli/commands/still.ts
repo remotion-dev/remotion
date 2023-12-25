@@ -1,8 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -21,7 +22,11 @@ import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[], remotionRoot: string) => {
+export const stillCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -40,7 +45,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		chromiumOptions,
 		envVariables,
 		inputProps,
-		logLevel,
 		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
@@ -48,12 +52,12 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		height,
 		width,
 		browserExecutable,
-		port,
 		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	const region = getAwsRegion();
@@ -72,7 +76,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
@@ -89,12 +93,13 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					indent: undefined,
-					staticBase: null,
-					data: inputProps,
-				}).serializedString,
-				port,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						indent: undefined,
+						staticBase: null,
+						data: inputProps,
+					}).serializedString,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
@@ -108,7 +113,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -155,9 +160,16 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		onInit: ({cloudWatchLogs, renderId}) => {
+		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
 			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
-			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+			Log.verbose(
+				{indent: false, logLevel},
+				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
+			);
+			Log.verbose(
+				{indent: false, logLevel},
+				`Lambda Insights (if enabled): ${lambdaInsightsUrl}`,
+			);
 		},
 		deleteAfter,
 	});
@@ -169,6 +181,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
+			logLevel,
 		});
 		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 	} else {

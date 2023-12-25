@@ -66,7 +66,7 @@ const DynamicAsset: React.FC = () => {
 };
 ```
 
-This cannot work because Webpack has no ideas which assets it has to bundle. Therefore the import has to fail.
+This cannot work because Webpack has no idea which assets it has to bundle. Therefore the import has to fail.
 Like above, you can force Webpack to bundle the whole assets folder by putting an expression inside the `require()` statement:
 
 ```tsx twoslash

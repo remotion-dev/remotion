@@ -15,6 +15,7 @@ test("Should be able to cancel render", async () => {
         width: 1280,
         defaultProps: {},
         props: {},
+        defaultCodec: null,
       },
       cancelSignal,
       output: "out/hithere.png",

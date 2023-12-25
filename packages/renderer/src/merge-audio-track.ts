@@ -6,6 +6,7 @@ import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
+import type {LogLevel} from './log-level';
 import {pLimit} from './p-limit';
 import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 import {tmpDir} from './tmp-dir';
@@ -17,6 +18,8 @@ type Options = {
 	numberOfSeconds: number;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -25,11 +28,15 @@ const mergeAudioTrackUnlimited = async ({
 	numberOfSeconds,
 	downloadMap,
 	remotionRoot,
+	indent,
+	logLevel,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
 			numberOfSeconds,
+			indent,
+			logLevel,
 		});
 		return;
 	}
@@ -51,6 +58,8 @@ const mergeAudioTrackUnlimited = async ({
 						outName: chunkOutname,
 						downloadMap,
 						remotionRoot,
+						indent,
+						logLevel,
 					});
 					return chunkOutname;
 				}),
@@ -68,6 +77,8 @@ const mergeAudioTrackUnlimited = async ({
 				outName,
 				downloadMap,
 				remotionRoot,
+				indent,
+				logLevel,
 			});
 			return;
 		} finally {
@@ -90,7 +101,7 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = callFf('ffmpeg', args);
+	const task = callFf('ffmpeg', args, indent, logLevel);
 	await task;
 	cleanup();
 };

@@ -94,3 +94,4 @@ The image will now be loaded properly, however, you must avoid to encode the fil
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/static-file.ts)
 - [Loading assets](/docs/assets)
 - [`getStaticFiles()`](/docs/getstaticfiles)
+- [`watchStaticFile()`](/docs/watchstaticfile)

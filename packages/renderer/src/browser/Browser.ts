@@ -15,7 +15,6 @@
  */
 
 import type {LogLevel} from '../log-level';
-import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
@@ -23,6 +22,7 @@ import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Viewport} from './PuppeteerViewport';
+import type {SourceMapGetter} from './source-map-getter';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
 
@@ -44,16 +44,22 @@ export class HeadlessBrowser extends EventEmitter {
 		connection,
 		defaultViewport,
 		closeCallback,
+		forgetEventLoop,
+		rememberEventLoop,
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
 		closeCallback: BrowserCloseCallback;
+		forgetEventLoop: () => void;
+		rememberEventLoop: () => void;
 	}): Promise<HeadlessBrowser> {
-		const browser = new HeadlessBrowser(
+		const browser = new HeadlessBrowser({
 			connection,
 			defaultViewport,
 			closeCallback,
-		);
+			forgetEventLoop,
+			rememberEventLoop,
+		});
 		await connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
 	}
@@ -65,23 +71,30 @@ export class HeadlessBrowser extends EventEmitter {
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
 
+	forgetEventLoop: () => void;
+	rememberEventLoop: () => void;
+
 	get _targets(): Map<string, Target> {
 		return this.#targets;
 	}
 
-	constructor(
-		connection: Connection,
-		defaultViewport: Viewport,
-		closeCallback?: BrowserCloseCallback,
-	) {
+	constructor({
+		closeCallback,
+		connection,
+		defaultViewport,
+		forgetEventLoop,
+		rememberEventLoop,
+	}: {
+		connection: Connection;
+		defaultViewport: Viewport;
+		closeCallback: BrowserCloseCallback;
+		forgetEventLoop: () => void;
+		rememberEventLoop: () => void;
+	}) {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
-		this.#closeCallback =
-			closeCallback ||
-			function () {
-				return undefined;
-			};
+		this.#closeCallback = closeCallback;
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
@@ -96,6 +109,8 @@ export class HeadlessBrowser extends EventEmitter {
 			'Target.targetInfoChanged',
 			this.#targetInfoChanged.bind(this),
 		);
+		this.forgetEventLoop = forgetEventLoop;
+		this.rememberEventLoop = rememberEventLoop;
 	}
 
 	browserContexts(): BrowserContext[] {
@@ -163,7 +178,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	newPage(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {
@@ -171,7 +186,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	async _createPageInContext(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {
@@ -297,7 +312,7 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(Promise.resolve(null), logLevel, indent)),
+				.map((target) => target.page(() => null, logLevel, indent)),
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
@@ -305,7 +320,7 @@ export class BrowserContext extends EventEmitter {
 	}
 
 	newPage(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {

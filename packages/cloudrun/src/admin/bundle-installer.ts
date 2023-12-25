@@ -3,6 +3,15 @@ import {execSync} from 'child_process';
 import {copyFileSync, mkdirSync, rmSync} from 'fs';
 import path from 'path';
 
+export const hasGTar = () => {
+	try {
+		const output = execSync('gtar --usage', {});
+		return output.includes('--sort');
+	} catch {
+		return false;
+	}
+};
+
 const bundleInstaller = async () => {
 	const outdir = path.join(__dirname, '..', `build-installer`);
 	mkdirSync(outdir, {recursive: true});
@@ -56,12 +65,3 @@ const bundleInstaller = async () => {
 };
 
 bundleInstaller();
-
-export const hasGTar = () => {
-	try {
-		const output = execSync('gtar --usage', {});
-		return output.includes('--sort');
-	} catch {
-		return false;
-	}
-};

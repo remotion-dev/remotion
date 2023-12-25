@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "4.0.46",
+  "version": "4.0.81",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/eslint-plugin": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "5.59.9",
-    "@typescript-eslint/parser": "5.59.9",
+    "@typescript-eslint/eslint-plugin": "6.7.4",
+    "@typescript-eslint/parser": "6.7.4",
     "eslint-plugin-10x": "1.5.2",
     "eslint-plugin-react": "7.32.2",
     "eslint-plugin-react-hooks": "4.6.0"

@@ -5,11 +5,13 @@ import type {OrError} from '../shared/return-values';
 import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
+import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {
 	generateRandomHashWithLifeCycleRule,
 	validateDeleteAfter,
 } from './helpers/lifecycle';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
+import type {RequestContext} from './helpers/request-context';
 import type {ResponseStream} from './helpers/streamify-response';
 import {streamifyResponse} from './helpers/streamify-response';
 import type {StreamingPayloads} from './helpers/streaming-payloads';
@@ -25,14 +27,14 @@ import {stillHandler} from './still';
 const innerHandler = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
-	context: {
-		invokedFunctionArn: string;
-		getRemainingTimeInMillis: () => number;
-	},
+	context: RequestContext,
 ): Promise<void> => {
+	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
+	console.log('AWS Request ID:', context.awsRequestId);
+	stopLeakDetection();
 	if (!context?.invokedFunctionArn) {
 		throw new Error(
 			'Lambda function unexpectedly does not have context.invokedFunctionArn',
@@ -134,10 +136,14 @@ const innerHandler = async (
 		});
 		RenderInternals.setLogLevel(params.logLevel);
 
-		const response = await rendererHandler(params, {
-			expectedBucketOwner: currentUserId,
-			isWarm,
-		});
+		const response = await rendererHandler(
+			params,
+			{
+				expectedBucketOwner: currentUserId,
+				isWarm,
+			},
+			context,
+		);
 
 		responseStream.write(JSON.stringify(response), () => {
 			responseStream.end();
@@ -193,10 +199,7 @@ const innerHandler = async (
 const routine = async (
 	params: LambdaPayload,
 	responseStream: ResponseStream,
-	context: {
-		invokedFunctionArn: string;
-		getRemainingTimeInMillis: () => number;
-	},
+	context: RequestContext,
 ): Promise<void> => {
 	try {
 		await innerHandler(params, responseStream, context);
@@ -209,12 +212,6 @@ const routine = async (
 
 		responseStream.write(JSON.stringify(res));
 		responseStream.end();
-	} finally {
-		responseStream.on('close', () => {
-			if (!process.env.VITEST) {
-				process.exit(0);
-			}
-		});
 	}
 };
 

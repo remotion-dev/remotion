@@ -1,5 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -9,6 +10,7 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
+		className?: string;
 	} & Pick<SequenceProps, 'layout' | 'name'> &
 		LayoutAndStyle
 >;
@@ -52,13 +54,13 @@ const Series: FC<{
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but you passed a string "${castedChild}"`,
 				);
 			}
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but got ${castedChild} instead`,
 				);
 			}
 
@@ -75,6 +77,7 @@ const Series: FC<{
 				durationInFrames,
 				children: _children,
 				from,
+				name,
 				...passedProps
 			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
@@ -111,6 +114,7 @@ const Series: FC<{
 			startFrame += durationInFramesProp + offset;
 			return (
 				<Sequence
+					name={name || '<Series.Sequence>'}
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -129,3 +133,5 @@ const Series: FC<{
 Series.Sequence = SeriesSequence;
 
 export {Series};
+
+addSequenceStackTraces(SeriesSequence);

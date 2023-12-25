@@ -14,7 +14,17 @@ If you are using the player, a common desire is to share the code with your Remo
 Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
 :::
 
-## Setup
+## Template
+
+Use one of our starter templates:
+
+- [Next.js (App dir)](/templates/next)
+- [Next.js (Pages dir)](/templates/next-pages-dir)
+- [Remix](/templates/remix)
+
+which have the Player and Lambda already set up.
+
+## Manual setup
 
 Set up a React project with your preferred setup from the [Official React docs](https://react.dev/learn/start-a-new-react-project). Popular choices are:
 
@@ -197,7 +207,7 @@ import path from "path";
 import { bundle } from "@remotion/bundler";
 
 const bundled = await bundle(
-  path.join(process.cwd(), "src", "remotion", "index.ts")
+  path.join(process.cwd(), "src", "remotion", "index.ts"),
 );
 ```
 

@@ -40,7 +40,7 @@ We have evaluated Amazon Elastic File System (EFS) and we found the speed benefi
 
 ### How much does Remotion Lambda cost?
 
-There are two cost components: The Remotion licensing fee (see [pricing](https://companies.remotion.dev), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. We estimate the Lambda costs for you and report it in the API response.
+There are two cost components: The Remotion licensing fee (see [pricing](https://www.remotion.pro), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. We estimate the Lambda costs for you and report it in the API response.
 
 ### How can I upgrade/redeploy a Lambda function?
 

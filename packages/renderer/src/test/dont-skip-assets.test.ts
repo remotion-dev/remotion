@@ -21,6 +21,7 @@ test('Dont skip assets', () => {
 			volume: 1,
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -32,6 +33,7 @@ test('Dont skip assets', () => {
 			volume: 1,
 			playbackRate: 1,
 			allowAmplificationDuringRender: false,
+			toneFrequency: null,
 		},
 	]);
 });
@@ -51,6 +53,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 						playbackRate: 1,
 						mediaFrame: 0,
 						allowAmplificationDuringRender: false,
+						toneFrequency: null,
 				  }
 				: null,
 			{
@@ -62,6 +65,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 				playbackRate: 1,
 				mediaFrame: k,
 				allowAmplificationDuringRender: false,
+				toneFrequency: null,
 			},
 		].filter(truthy);
 	});

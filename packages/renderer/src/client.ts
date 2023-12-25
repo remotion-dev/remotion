@@ -15,25 +15,19 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
-import {audioBitrateOption} from './options/audio-bitrate';
-import {colorSpaceOption, validColorSpaces} from './options/color-space';
-import {crfOption} from './options/crf';
-import {deleteAfterOption} from './options/delete-after';
-import {enableMultiprocessOnLinuxOption} from './options/enable-multiprocess-on-linux';
-import {enforceAudioOption} from './options/enforce-audio';
-import {folderExpiryOption} from './options/folder-expiry';
-import {jpegQualityOption} from './options/jpeg-quality';
-import {muteOption} from './options/mute';
-import {offthreadVideoCacheSizeInBytesOption} from './options/offthreadvideo-cache-size';
+import {allOptions} from './options';
+import {validColorSpaces} from './options/color-space';
 import {optionsMap} from './options/options-map';
-import {scaleOption} from './options/scale';
-import {videoBitrate} from './options/video-bitrate';
-import {videoCodecOption} from './options/video-codec';
-import {webhookCustomDataOption} from './options/webhook-custom-data';
-import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validPixelFormats,
+	validPixelFormatsForCodec,
+} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 import {x264PresetOptions} from './x264-preset';
+
+export {AvailableOptions} from './options';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -45,28 +39,14 @@ export const BrowserSafeApis = {
 	proResProfileOptions,
 	x264PresetOptions,
 	validPixelFormats,
+	validPixelFormatsForCodec,
 	DEFAULT_PIXEL_FORMAT,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,
 	defaultCodecsForFileExtension,
 	validateOutputFilename,
-	options: {
-		scaleOption,
-		crfOption,
-		jpegQualityOption,
-		videoBitrate,
-		audioBitrateOption,
-		enforceAudioOption,
-		muteOption,
-		videoCodecOption,
-		offthreadVideoCacheSizeInBytesOption,
-		webhookCustomDataOption,
-		colorSpaceOption,
-		deleteAfterOption,
-		folderExpiryOption,
-		enableMultiprocessOnLinuxOption,
-	},
+	options: allOptions,
 	validColorSpaces,
 	optionsMap,
 	codecSupportsCrf,

@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
@@ -13,7 +14,11 @@ import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
 
-export const renderCommand = async (args: string[], remotionRoot: string) => {
+export const renderCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -22,7 +27,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		downloadName,
 		privacy,
 		region,
-	} = await renderArgsCheck(RENDER_COMMAND, args);
+	} = await renderArgsCheck(RENDER_COMMAND, args, logLevel);
 
 	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
 		cliFlag: CliInternals.parsedCli.codec,
@@ -30,6 +35,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		outName: outName ?? null,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
+		compositionCodec: null,
 	});
 
 	const imageFormat = parsedCloudrunCli['image-format'];
@@ -42,7 +48,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		frameRange,
 		inputProps,
-		logLevel,
 		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
@@ -54,10 +59,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		muted,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
-		port,
 		enforceAudioTrack,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
@@ -65,6 +71,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition: string = args[1];
@@ -82,7 +89,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
@@ -98,18 +105,19 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				port,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
 				logLevel,
 				width,
 				server: await server,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					data: inputProps,
-					indent: undefined,
-					staticBase: null,
-				}).serializedString,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						data: inputProps,
+						indent: undefined,
+						staticBase: null,
+					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
@@ -190,6 +198,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		audioCodec,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		proResProfile,
 		x264Preset,
 		crf,

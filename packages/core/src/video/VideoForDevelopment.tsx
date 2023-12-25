@@ -4,11 +4,14 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -27,6 +30,8 @@ import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	_remotionInternalNativeLoopPassed: boolean;
+	_remotionInternalStack: string | null;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -38,6 +43,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
+
+	const [timelineId] = useState(() => String(Math.random()));
+	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const {
 		volume,
@@ -49,6 +58,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		// @ts-expect-error
 		acceptableTimeShift,
 		acceptableTimeShiftInSeconds,
+		toneFrequency,
+		name,
+		_remotionInternalNativeLoopPassed,
+		_remotionInternalStack,
+		style,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -69,6 +83,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		src,
 		playbackRate: props.playbackRate ?? 1,
+		displayName: name ?? null,
+		id: timelineId,
+		stack: props._remotionInternalStack,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -119,6 +136,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		const errorHandler = () => {
 			if (current?.error) {
+				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 				// If user is handling the error, we don't cause an unhandled exception
 				if (props.onError) {
@@ -164,16 +182,42 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [src]);
 
+	useEffect(() => {
+		const {current} = videoRef;
+
+		if (!current) {
+			return;
+		}
+
+		// Without this, on iOS Safari, the video cannot be seeked.
+		// if a seek is triggered before `loadedmetadata` is fired,
+		// the video will not seek, even if `loadedmetadata` is fired afterwards.
+
+		// Also, this needs to happen in a useEffect, because otherwise
+		// the SSR props will be applied.
+
+		if (isIosSafari()) {
+			current.preload = 'metadata';
+		} else {
+			current.preload = 'auto';
+		}
+	}, []);
+
+	const actualStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			opacity: isSequenceHidden ? 0 : 1,
+		};
+	}, [isSequenceHidden, style]);
+
 	return (
 		<video
 			ref={videoRef}
-			// Without this, on iOS Safari, the video cannot be seeked.
-			// if a seek is triggered before `loadedmetadata` is fired,
-			// the video will not seek, even if `loadedmetadata` is fired afterwards.
-			preload={isIosSafari() ? 'metadata' : 'auto'}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
+			loop={_remotionInternalNativeLoopPassed}
+			style={actualStyle}
 			{...nativeProps}
 		/>
 	);

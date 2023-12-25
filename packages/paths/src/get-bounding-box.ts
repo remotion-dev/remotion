@@ -88,18 +88,6 @@ function minmaxC(A: [number, number, number, number]): minMax {
 	return [min, max];
 }
 
-/**
- * @description Returns the bounding box of the given path, suitable for calculating the viewBox value that you need to pass to an SVG.
- * @param {string} d
- * @see [Documentation](https://www.remotion.dev/docs/paths/get-bounding-box)
- */
-export const getBoundingBox = (d: string): BoundingBox => {
-	const parsed = parsePath(d) as AbsoluteInstruction[];
-	const unarced = removeATSHVInstructions(normalizeInstructions(parsed));
-
-	return getBoundingBoxFromInstructions(unarced);
-};
-
 export const getBoundingBoxFromInstructions = (
 	instructions: ReducedInstruction[],
 ): BoundingBox => {
@@ -232,4 +220,16 @@ export const getBoundingBoxFromInstructions = (
 		width: maxX - minX,
 		height: maxY - minY,
 	};
+};
+
+/**
+ * @description Returns the bounding box of the given path, suitable for calculating the viewBox value that you need to pass to an SVG.
+ * @param {string} d
+ * @see [Documentation](https://www.remotion.dev/docs/paths/get-bounding-box)
+ */
+export const getBoundingBox = (d: string): BoundingBox => {
+	const parsed = parsePath(d) as AbsoluteInstruction[];
+	const unarced = removeATSHVInstructions(normalizeInstructions(parsed));
+
+	return getBoundingBoxFromInstructions(unarced);
 };

@@ -15,6 +15,16 @@ import {toolchains} from './toolchains.mjs';
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
 
+if (os.platform() === 'win32') {
+	console.log('Windows CI is broken - revisit in 14 days');
+	console.log('https://github.com/actions/runner-images/issues/8598');
+	if (Date.now() > 1703980800000) {
+		process.exit(1);
+	}
+
+	process.exit(0);
+}
+
 function isMusl() {
 	const {glibcVersionRuntime} = process.report.getReport().header;
 	return !glibcVersionRuntime;
@@ -38,7 +48,7 @@ export const getTarget = () => {
 					return 'x86_64-pc-windows-gnu';
 				default:
 					throw new Error(
-						`Unsupported architecture on Windows: ${process.arch}`
+						`Unsupported architecture on Windows: ${process.arch}`,
 					);
 			}
 
@@ -73,7 +83,7 @@ export const getTarget = () => {
 
 		default:
 			throw new Error(
-				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`
+				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`,
 			);
 	}
 };
@@ -140,14 +150,14 @@ const cloudrun = process.argv.includes('--cloudrun');
 const lambda = process.argv.includes('--lambda');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
-		'Run "node install-toolchain.mjs" if you want to build all platforms'
+		'Run "node install-toolchain.mjs" if you want to build all platforms',
 	);
 }
 
 for (const toolchain of toolchains) {
 	if (!existsSync(path.join('toolchains', toolchain)) && all) {
 		throw new Error(
-			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`
+			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`,
 		);
 	}
 }
@@ -159,7 +169,7 @@ const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
 
 if (!rustFfmpegSys) {
 	console.error(
-		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
+		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1',
 	);
 	process.exit(1);
 }
@@ -211,7 +221,7 @@ for (const arch of archs) {
 					? undefined
 					: path.join(
 							process.cwd(),
-							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc'
+							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc',
 					  ),
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
@@ -225,13 +235,13 @@ for (const arch of archs) {
 		copyDestinations[arch].dir,
 		'ffmpeg',
 		'remotion',
-		'lib'
+		'lib',
 	);
 	const binDir = path.join(
 		copyDestinations[arch].dir,
 		'ffmpeg',
 		'remotion',
-		'bin'
+		'bin',
 	);
 	const files = readdirSync(libDir);
 	for (const file of files) {
@@ -264,7 +274,7 @@ for (const arch of archs) {
 		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
 		{
 			recursive: true,
-		}
+		},
 	);
 	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
 		recursive: true,
@@ -278,12 +288,12 @@ for (const arch of archs) {
 
 	const filename = JSON.parse(output.toString('utf-8'))[0].filename.replace(
 		/^@remotion\//,
-		'remotion-'
+		'remotion-',
 	);
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,
-		filename
+		filename,
 	);
 
 	const filesize = lstatSync(tgzPath).size;

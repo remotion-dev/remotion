@@ -1,7 +1,8 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
@@ -11,8 +12,9 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 export const listCompositionsCommand = async (
 	remotionRoot: string,
 	args: string[],
+	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot);
+	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
 		Log.error(
@@ -25,9 +27,13 @@ export const listCompositionsCommand = async (
 		process.exit(1);
 	}
 
-	const logLevel = ConfigInternals.Logging.getLogLevel();
-
-	Log.verbose('Entry point:', file, 'reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'reason:',
+		reason,
+	);
 
 	const {
 		browserExecutable,
@@ -35,13 +41,13 @@ export const listCompositionsCommand = async (
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
-		port,
 		publicDir,
 		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,
+		logLevel,
 	});
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
@@ -67,13 +73,14 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			staticBase: null,
-			indent: undefined,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				staticBase: null,
+				indent: undefined,
+			}).serializedString,
 		timeoutInMilliseconds: puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,

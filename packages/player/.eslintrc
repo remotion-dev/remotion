@@ -2,6 +2,7 @@
 	"extends": ["@jonny", "plugin:require-extensions/recommended"],
 	"plugins": ["require-extensions"],
 	"rules": {
+		"no-console": "error",
 		"@typescript-eslint/no-restricted-imports": [
 			"error",
 			{

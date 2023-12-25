@@ -12,7 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
@@ -56,6 +56,7 @@ export const ENCODING_PROGRESS_STEP_SIZE = 100;
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const LOG_GROUP_PREFIX = '/aws/lambda/';
+export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
@@ -221,7 +222,9 @@ export type WebhookOption = Prettify<
 			url: string;
 			secret: string | null;
 	  } & Partial<
-			ToOptions<[typeof BrowserSafeApis.options.webhookCustomDataOption]>
+			ToOptions<{
+				customData: typeof BrowserSafeApis.options.webhookCustomDataOption;
+			}>
 	  >)
 >;
 
@@ -268,6 +271,8 @@ export type LambdaStartPayload = {
 	overwrite: boolean;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	webhook: WebhookOption;
 	forceHeight: number | null;
 	forceWidth: number | null;
@@ -324,6 +329,8 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingMaxRate: string | null;
+		encodingBufferSize: string | null;
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
@@ -366,6 +373,8 @@ export type LambdaPayloads = {
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		encodingBufferSize: string | null;
+		encodingMaxRate: string | null;
 		launchFunctionConfig: {
 			version: string;
 		};
@@ -417,7 +426,6 @@ export type LambdaPayloads = {
 		outName: OutNameInput | null;
 		inputProps: SerializedInputProps;
 		serializedResolvedProps: SerializedInputProps;
-		verbose: boolean;
 		logLevel: LogLevel;
 	};
 };
@@ -487,6 +495,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 };
 
@@ -529,6 +538,7 @@ export type RenderProgress = {
 	framesRendered: number;
 	outputSizeInBytes: number | null;
 	type: 'success';
+	estimatedBillingDurationInMilliseconds: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

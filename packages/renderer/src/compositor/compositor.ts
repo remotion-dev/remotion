@@ -70,7 +70,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	logLevel: LogLevel,
 	indent: boolean,
 ): Compositor => {
-	const bin = getExecutablePath('compositor');
+	const bin = getExecutablePath('compositor', indent, logLevel);
 	if (!process.env.READ_ONLY_FS) {
 		chmodSync(bin, 0o755);
 	}
@@ -83,7 +83,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	const child = spawn(
 		bin,
 		[JSON.stringify(fullCommand)],
-		dynamicLibraryPathOptions(),
+		dynamicLibraryPathOptions(indent, logLevel),
 	);
 
 	const stderrChunks: Buffer[] = [];
@@ -98,10 +98,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		data: Buffer,
 	) => {
 		if (nonce === '0') {
-			Log.verboseAdvanced(
-				{indent, logLevel, tag: 'compositor'},
-				data.toString('utf8'),
-			);
+			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
 		}
 
 		if (waiters.has(nonce)) {

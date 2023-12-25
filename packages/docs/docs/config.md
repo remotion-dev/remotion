@@ -73,22 +73,26 @@ Config.setCachingEnabled(false);
 
 The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
-## setPort()
+## setStudioPort()<AvailableFrom v="4.0.61" />
 
-Define on which port Remotion should start it's HTTP servers.  
-HTTP servers
-By default, Remotion will try to find a free port.  
-If you specify a port, but it's not available, Remotion will throw an error.
-
-:::note
-When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it.  
-During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
-:::
+Set the HTTP port for the Studio.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setPort(3003);
+Config.setStudioPort(3003);
+```
+
+The [command line flag](/docs/cli/studio#--port) `--port` will take precedence over this option.
+
+## setRendererPort()<AvailableFrom v="4.0.61" />
+
+Set the port to be used to host the Webpack bundle.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStudioPort(3004);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
@@ -276,7 +280,7 @@ The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enab
 
 ## setChromiumOpenGlRenderer
 
-Select the OpenGL renderer backend for Chromium.
+<Options id="gl" />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -285,18 +289,6 @@ import { Config } from "@remotion/cli/config";
 
 Config.setChromiumOpenGlRenderer("angle");
 ```
-
-<AngleChangelog/>
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
 
 The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
 
@@ -683,6 +675,30 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
+## `setEncodingBufferSize`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingBufferSize("10000k");
+```
+
+The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
+
+## `setEncodingMaxRate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingMaxRate("5000k");
+```
+
+The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
+
 ## `setAudioBitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
@@ -800,6 +816,32 @@ Config.setFfprobeExecutable("/path/to/custom/ffprobe");
 ```
 
 The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
+## ~~setPort()~~
+
+_deprecated in v4.0.61 - use [`setStudioPort()`](/docs/config#setstudioport)_
+and [`setRendererPort()`](/docs/config#setrendererport) instead.
+
+Define on which port Remotion should start it's HTTP servers.  
+By default, Remotion will try to find a free port.  
+If you specify a port, but it's not available, Remotion will throw an error.
+
+:::warning
+Setting this option will break rendering in the Remotion Studio, because this option controls two settings at the same time:
+
+- When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it ([`setStudioPort()`](/docs/config#setstudioport)).
+- During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle) ([`setRendererPort()`](/docs/config#setrendererport)).
+
+Use the options individually.
+:::
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPort(3003);
+```
+
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
 
 ## See also
 

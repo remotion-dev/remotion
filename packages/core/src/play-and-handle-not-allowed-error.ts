@@ -49,8 +49,10 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// eslint-disable-next-line no-console
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
+				// eslint-disable-next-line no-console
 				console.log(`The video will be muted and we'll retry playing it.`, err);
 				current.muted = true;
 				current.play();

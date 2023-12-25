@@ -7,6 +7,23 @@ const getFileForTemplate = (template: Template, file: string) => {
 	return `https://github.com/${template.org}/${template.repoName}/raw/${template.defaultBranch}/${file}`;
 };
 
+const findFile = async (options: string[]) => {
+	let entryPoint: string | null = null;
+	let contents: string | null = null;
+	for (const point of options) {
+		const res = await got(point, {
+			throwHttpErrors: false,
+		});
+		if (res.statusCode === 200) {
+			entryPoint = point;
+			contents = res.body;
+			break;
+		}
+	}
+
+	return {entryPoint, contents};
+};
+
 describe('Templates should be valid', () => {
 	for (const template of FEATURED_TEMPLATES) {
 		it(
@@ -183,20 +200,3 @@ describe('Templates should be valid', () => {
 		);
 	}
 });
-
-const findFile = async (options: string[]) => {
-	let entryPoint: string | null = null;
-	let contents: string | null = null;
-	for (const point of options) {
-		const res = await got(point, {
-			throwHttpErrors: false,
-		});
-		if (res.statusCode === 200) {
-			entryPoint = point;
-			contents = res.body;
-			break;
-		}
-	}
-
-	return {entryPoint, contents};
-};

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
 import type {VideoMetadata} from './types';

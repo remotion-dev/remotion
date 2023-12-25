@@ -39,7 +39,7 @@ export const RoundedBox: React.FC<Props> = ({
 
   return (
     <mesh {...otherProps}>
-      <extrudeBufferGeometry attach="geometry" args={[shape, params]} />
+      <extrudeGeometry attach="geometry" args={[shape, params]} />
       {children}
     </mesh>
   );

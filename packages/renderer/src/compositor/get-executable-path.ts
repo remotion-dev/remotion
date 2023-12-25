@@ -1,6 +1,24 @@
 // Adapted from @swc/core package
 
-function isMusl() {
+import type {LogLevel} from '../log-level';
+import {Log} from '../logger';
+
+let warned = false;
+
+function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
+	// @ts-expect-error bun no types
+	if (!process.report && typeof Bun !== 'undefined') {
+		if (!warned) {
+			Log.warn(
+				{indent, logLevel},
+				'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
+			);
+		}
+
+		warned = true;
+		return false;
+	}
+
 	// @ts-expect-error no types
 	const {glibcVersionRuntime} = process.report.getReport().header;
 	return !glibcVersionRuntime;
@@ -8,6 +26,8 @@ function isMusl() {
 
 export const getExecutablePath = (
 	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
+	indent: boolean,
+	logLevel: LogLevel,
 ): string => {
 	if (type === 'compositor' && process.env.COMPOSITOR_PATH) {
 		return process.env.COMPOSITOR_PATH;
@@ -43,16 +63,17 @@ export const getExecutablePath = (
 					throw new Error(`Unsupported architecture on macOS: ${process.arch}`);
 			}
 
-		case 'linux':
+		case 'linux': {
+			const musl = isMusl({indent, logLevel});
 			switch (process.arch) {
 				case 'x64':
-					if (isMusl()) {
+					if (musl) {
 						return require('@remotion/compositor-linux-x64-musl')[key];
 					}
 
 					return require('@remotion/compositor-linux-x64-gnu')[key];
 				case 'arm64':
-					if (isMusl()) {
+					if (musl) {
 						return require('@remotion/compositor-linux-arm64-musl')[key];
 					}
 
@@ -61,6 +82,7 @@ export const getExecutablePath = (
 				default:
 					throw new Error(`Unsupported architecture on Linux: ${process.arch}`);
 			}
+		}
 
 		default:
 			throw new Error(

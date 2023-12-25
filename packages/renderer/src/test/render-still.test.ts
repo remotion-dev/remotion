@@ -12,6 +12,7 @@ test('Need to pass valid metadata', async () => {
 				id: 'hithere',
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			frame: 0,
 			output: '/file/output.png',
@@ -32,6 +33,7 @@ test('Returns buffer in promise result', async () => {
 			id: 'react-svg',
 			defaultProps: {},
 			props: {},
+			defaultCodec: null,
 		},
 		frame: 0,
 		serveUrl:
@@ -52,6 +54,7 @@ test('Need to pass valid metadata', async () => {
 				id: 'hithere',
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			frame: 200,
 			output: '/file/output.png',
@@ -75,6 +78,7 @@ test('Catches invalid image format', () => {
 				id: 'hithere',
 				defaultProps: {},
 				props: {},
+				defaultCodec: null,
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',

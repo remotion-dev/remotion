@@ -22,6 +22,7 @@ describe('Codec tests valid codec input', () => {
 					configFile: null,
 					downloadName: null,
 					uiCodec: null,
+					compositionCodec: null,
 				}),
 			).toEqual({
 				codec: entry,
@@ -48,6 +49,7 @@ describe('Codec tests undefined codec input with known extension', () => {
 					downloadName: null,
 					outName: 'hi.' + entry[1],
 					uiCodec: null,
+					compositionCodec: null,
 				}),
 			).toEqual({
 				codec: entry[0],
@@ -65,6 +67,7 @@ test('Codec tests undefined codec input with unknown extension', () => {
 			configFile: null,
 			downloadName: null,
 			uiCodec: null,
+			compositionCodec: null,
 		}),
 	).toEqual({codec: 'h264', reason: 'default'});
 	expect(
@@ -74,6 +77,7 @@ test('Codec tests undefined codec input with unknown extension', () => {
 			configFile: null,
 			downloadName: null,
 			uiCodec: null,
+			compositionCodec: null,
 		}),
 	).toEqual({codec: 'h264', reason: 'default'});
 });

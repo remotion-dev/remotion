@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "4.0.46",
+	"version": "4.0.81",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -26,7 +26,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"eslint": "8.42.0",

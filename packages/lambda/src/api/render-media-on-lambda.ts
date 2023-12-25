@@ -18,7 +18,11 @@ import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {
+	getCloudwatchRendererUrl,
+	getLambdaInsightsUrl,
+	getS3RenderUrl,
+} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
@@ -58,6 +62,8 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
@@ -76,6 +82,7 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	lambdaInsightsLogs: string;
 	folderInS3Console: string;
 };
 
@@ -108,6 +115,10 @@ export const internalRenderMediaOnLambdaRaw = async (
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
 				renderId: res.renderId,
+				region,
+			}),
+			lambdaInsightsLogs: getLambdaInsightsUrl({
+				functionName,
 				region,
 			}),
 		};
@@ -191,6 +202,8 @@ export const renderMediaOnLambda = (
 		serveUrl: options.serveUrl,
 		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
 		videoBitrate: options.videoBitrate ?? null,
+		encodingMaxRate: options.encodingMaxRate ?? null,
+		encodingBufferSize: options.encodingBufferSize ?? null,
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,

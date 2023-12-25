@@ -15,6 +15,9 @@ import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
 type ResolveCompositionConfigContect = Record<
@@ -42,6 +45,10 @@ type VideoConfigState =
 			type: 'error';
 			error: Error;
 	  };
+
+export const needsResolution = (composition: AnyComposition) => {
+	return Boolean(composition.calculateMetadata);
+};
 
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
@@ -232,10 +239,6 @@ export const ResolveCompositionConfig: React.FC<
 	);
 };
 
-export const needsResolution = (composition: AnyComposition) => {
-	return Boolean(composition.calculateMetadata);
-};
-
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
@@ -268,11 +271,31 @@ export const useResolvedVideoConfig = (
 					id: composition.id,
 					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
+					defaultCodec: currentCompositionMetadata.defaultCodec,
 				},
 			};
 		}
 
 		if (!needsResolution(composition)) {
+			validateDurationInFrames(composition.durationInFrames, {
+				allowFloats: false,
+				component: `in <Composition id="${composition.id}">`,
+			});
+			validateFps(
+				composition.fps,
+				`in <Composition id="${composition.id}">`,
+				false,
+			);
+			validateDimension(
+				composition.width,
+				'width',
+				`in <Composition id="${composition.id}">`,
+			);
+			validateDimension(
+				composition.height,
+				'height',
+				`in <Composition id="${composition.id}">`,
+			);
 			return {
 				type: 'success',
 				result: {
@@ -290,6 +313,7 @@ export const useResolvedVideoConfig = (
 							? {}
 							: getInputProps() ?? {}),
 					},
+					defaultCodec: null,
 				},
 			};
 		}

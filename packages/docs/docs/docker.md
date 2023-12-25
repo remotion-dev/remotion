@@ -8,10 +8,10 @@ crumb: "Building video apps"
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM debian:bookworm
+FROM node:20-bookworm
 
 RUN apt-get update
-RUN apt-get install -y nodejs npm chromium
+RUN apt-get install -y chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
@@ -162,6 +162,13 @@ Use the following command to run the image:
 docker run remotion-app
 ```
 
+## Giving access to the CPUs
+
+By default, Docker containers are not allowed to use all memory CPUs . Consider:
+
+- Changing the resource settings in Docker Desktop settings
+- Using the `--cpus` and `--cpuset-cpus` flags with the `docker run` command. Example: `--cpus=16 --cpuset-cpus=0-15`
+
 ## Emojis
 
 No emojis are installed by default. If you want to use emojis, install an emoji font:
@@ -205,6 +212,8 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 
 ## Changelog
 
+**October 11th, 2023**: Used the node:20-bookworm, which is faster to deploy and also Debian.
+
 **September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.
 
 **May 30th, 2023**: Update document for Remotion 4.0.
@@ -212,3 +221,7 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 **April 15th, 2023**: Unpinning the versions in Debian since it would cause breakage.
 
 **April 3rd, 2023**: Changed the Alpine Docker image to a Debian one, since the versions of Alpine packages cannot be pinned. This makes the Debian one less likely to break.
+
+## See also
+
+- [Deploying the Remotion Studio](/docs/deploy-studio)

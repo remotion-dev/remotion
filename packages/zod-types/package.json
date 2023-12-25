@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/zod-types",
-	"version": "4.0.46",
+	"version": "4.0.81",
 	"description": "A color validator for Zod",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -28,7 +28,7 @@
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.276",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"eslint": "8.42.0",
 		"prettier": "^2.7.1",

@@ -78,17 +78,20 @@ export const PlayerSeekBar: React.FC<{
 		dragging: false,
 	});
 
+	const left = size ? size.left : null;
+	const width = size?.width ?? 0;
+
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (!size) {
+			if (left === null) {
 				throw new Error('Player has no size');
 			}
 
-			const _frame = getFrameFromX(
-				e.clientX - size.left,
-				durationInFrames,
-				size.width,
-			);
+			if (e.button !== 0) {
+				return;
+			}
+
+			const _frame = getFrameFromX(e.clientX - left, durationInFrames, width);
 			pause();
 			seek(_frame);
 			setDragging({
@@ -97,7 +100,7 @@ export const PlayerSeekBar: React.FC<{
 			});
 			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing, onSeekStart],
+		[left, durationInFrames, width, pause, seek, playing, onSeekStart],
 	);
 
 	const onPointerMove = useCallback(
@@ -164,13 +167,12 @@ export const PlayerSeekBar: React.FC<{
 			backgroundColor: 'white',
 			left: Math.max(
 				0,
-				(frame / Math.max(1, durationInFrames - 1)) * (size?.width ?? 0) -
-					KNOB_SIZE / 2,
+				(frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
 		};
-	}, [barHovered, durationInFrames, frame, size]);
+	}, [barHovered, durationInFrames, frame, width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {

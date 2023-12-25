@@ -1,6 +1,6 @@
 ---
 image: /generated/articles-docs-miscellaneous-vercel-functions.png
-sidebar_label: Vercel Functions
+sidebar_label: Vercel Functions / Next.js
 title: Can I render videos using Vercel Serverless functions?
 crumb: "FAQ"
 ---
@@ -23,4 +23,4 @@ Check if your provider has enough disk space for Chromium and Remotion and has s
 **Recommendation:**
 
 - If you plan to deploy to Vercel, we recommend to trigger Remotion Lambda renders from Vercel Serverless functions. See our [Next template](https://github.com/remotion-dev/template-next) or [GitHub Unwrapped project](https://github.com/remotion-dev/github-unwrapped-2022) for an example of how to do so.
-- If you plan to deploy to a long-running server, we recommend rendering in a pure Node.js environment outside of Next.js API routes to avoid the complications of bundling server-side code.
+- If you plan to deploy to a [long-running server, we recommend rendering in a pure Node.js environment](/docs/ssr-node) outside of Next.js API routes to avoid the complications of bundling server-side code.

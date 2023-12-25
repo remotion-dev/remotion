@@ -34,12 +34,12 @@ import music from "./music.mp3";
 
 const MyComp: React.FC = () => {
   const getDuration = useCallback(async () => {
-    const imported = await getAudioDurationInSeconds(music); // 127.452
     const publicFile = await getAudioDurationInSeconds(
-      staticFile("voiceover.wav")
+      staticFile("voiceover.wav"),
     ); // 33.221
+    const imported = await getAudioDurationInSeconds(music); // 127.452
     const remote = await getAudioDurationInSeconds(
-      "https://example.com/remote-audio.aac"
+      "https://example.com/remote-audio.aac",
     ); // 50.24
   }, []);
 

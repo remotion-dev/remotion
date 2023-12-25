@@ -122,6 +122,7 @@ export type TSequence = {
 	showInTimeline: boolean;
 	nonce: number;
 	loopDisplay: LoopDisplay | undefined;
+	stack: string | null;
 } & EnhancedTSequenceData;
 
 export type TRenderAsset = {
@@ -133,6 +134,7 @@ export type TRenderAsset = {
 	mediaFrame: number;
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 export const compositionsRef = React.createRef<{

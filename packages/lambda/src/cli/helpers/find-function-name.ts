@@ -1,3 +1,4 @@
+import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../../api/get-functions';
 import {BINARY_NAME} from '../../shared/constants';
@@ -10,7 +11,7 @@ import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
 import {quit} from './quit';
 
-export const findFunctionName = async () => {
+export const findFunctionName = async (logLevel: LogLevel) => {
 	const remotionLambdas = await getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
@@ -18,6 +19,10 @@ export const findFunctionName = async () => {
 	let lambdasWithMatchingVersion = remotionLambdas.filter(
 		(l) => l.version === VERSION,
 	);
+	const logOptions: LogOptions = {
+		indent: false,
+		logLevel,
+	};
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(
@@ -29,11 +34,12 @@ export const findFunctionName = async () => {
 			);
 		}
 
-		Log.info('Run');
-		Log.info(
+		Log.infoAdvanced(logOptions, 'Run');
+		Log.infoAdvanced(
+			logOptions,
 			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`,
 		);
-		Log.info(`to deploy a new lambda function.`);
+		Log.infoAdvanced(logOptions, `to deploy a new lambda function.`);
 		quit(1);
 	}
 
@@ -47,24 +53,29 @@ export const findFunctionName = async () => {
 				Log.error(
 					`No lambda function with name "${parsedLambdaCli['function-name']}" and version ${VERSION} found in your account.`,
 				);
-				Log.info();
+				Log.infoAdvanced(logOptions);
 
 				if (prevFunctions.length === 0) {
-					Log.info(
+					Log.infoAdvanced(
+						logOptions,
 						`No functions for version ${VERSION} were found, deploy one using:`,
 					);
-					Log.info(
+					Log.infoAdvanced(
+						logOptions,
 						`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`,
 					);
 					quit(1);
 				}
 
-				Log.info('The following functions were found:');
+				Log.infoAdvanced(logOptions, 'The following functions were found:');
 				for (const l of prevFunctions) {
-					Log.info(`- ${l.functionName} (v${l.version})`);
+					Log.infoAdvanced(logOptions, `- ${l.functionName} (v${l.version})`);
 				}
 
-				Log.info('Remove the `--function-name` parameter use one of them.');
+				Log.infoAdvanced(
+					logOptions,
+					'Remove the `--function-name` parameter use one of them.',
+				);
 
 				quit(1);
 			}
@@ -72,23 +83,27 @@ export const findFunctionName = async () => {
 			Log.error(
 				'More than 1 lambda function found in your account. Unsure which one to use.',
 			);
-			Log.info();
-			Log.info('Possible solutions:');
-			Log.info(
+			Log.infoAdvanced(logOptions);
+			Log.infoAdvanced(logOptions, 'Possible solutions:');
+			Log.infoAdvanced(
+				logOptions,
 				'- Define using `--function-name` which function you want to use.',
 			);
-			Log.info(
+			Log.infoAdvanced(
+				logOptions,
 				`- Delete extraneous lambda functions in your AWS console or using:`,
 			);
-			Log.info(
+			Log.infoAdvanced(
+				logOptions,
 				`    npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} $(npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND} -q) -y`,
 			);
-			Log.info();
-			Log.info(
+			Log.infoAdvanced(logOptions);
+			Log.infoAdvanced(
+				logOptions,
 				`The following functions were found (only showing v${VERSION}):`,
 			);
 			for (const l of lambdasWithMatchingVersion) {
-				Log.info(`- ${l.functionName}`);
+				Log.infoAdvanced(logOptions, `- ${l.functionName}`);
 			}
 
 			quit(1);

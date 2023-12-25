@@ -1,7 +1,7 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
-import type {VideoConfig} from 'remotion';
-import {Internals} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
@@ -9,7 +9,9 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -35,7 +37,6 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {
 	validateDimension,
@@ -129,7 +130,7 @@ const innerRenderStill = async ({
 	jpegQuality,
 	onBrowserLog,
 	compositor,
-	sourceMapContext,
+	sourceMapGetter,
 	downloadMap,
 	logLevel,
 	indent,
@@ -140,7 +141,7 @@ const innerRenderStill = async ({
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: Promise<AnySourceMapConsumer | null>;
+	sourceMapGetter: SourceMapGetter;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
 		composition.height,
@@ -163,7 +164,7 @@ const innerRenderStill = async ({
 		allowFloats: false,
 	});
 	validateStillImageFormat(imageFormat);
-	Internals.validateFrame({
+	NoReactInternals.validateFrame({
 		frame,
 		durationInFrames: composition.durationInFrames,
 		allowFloats: false,
@@ -211,11 +212,7 @@ const innerRenderStill = async ({
 			viewport: null,
 			logLevel,
 		}));
-	const page = await browserInstance.newPage(
-		Promise.resolve(sourceMapContext),
-		logLevel,
-		indent,
-	);
+	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -286,6 +283,7 @@ const innerRenderStill = async ({
 			fps: number,
 			height: number,
 			width: number,
+			defaultCodec: Codec,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -295,6 +293,7 @@ const innerRenderStill = async ({
 				compositionFps: fps,
 				compositionHeight: height,
 				compositionWidth: width,
+				compositionDefaultCodec: defaultCodec,
 			});
 		},
 		args: [
@@ -304,15 +303,19 @@ const innerRenderStill = async ({
 			composition.fps,
 			composition.height,
 			composition.width,
+			composition.defaultCodec,
 		],
 		frame: null,
 		page,
+		timeoutInMilliseconds,
 	});
 	await seekToFrame({
 		frame: stillFrame,
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,
+		indent,
+		logLevel,
 	});
 
 	const {buffer} = await takeFrameAndCompose({
@@ -327,6 +330,7 @@ const innerRenderStill = async ({
 		wantsBuffer: !output,
 		compositor,
 		downloadMap,
+		timeoutInMilliseconds,
 	});
 
 	await cleanup();
@@ -360,8 +364,13 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					server;
+				const {
+					serveUrl,
+					offthreadPort,
+					compositor,
+					sourceMap: sourceMapGetter,
+					downloadMap,
+				} = server;
 
 				return innerRenderStill({
 					...options,
@@ -369,7 +378,7 @@ const internalRenderStillRaw = (
 					onError,
 					proxyPort: offthreadPort,
 					compositor,
-					sourceMapContext: sourceMap,
+					sourceMapGetter,
 					downloadMap,
 				});
 			})
@@ -451,11 +460,12 @@ export const renderStill = (
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent: false,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			staticBase: null,
-			indent: undefined,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				staticBase: null,
+				indent: undefined,
+				data: inputProps ?? {},
+			}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,
@@ -468,11 +478,12 @@ export const renderStill = (
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props ?? {},
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props ?? {},
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	});
 };

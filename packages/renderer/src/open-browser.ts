@@ -8,21 +8,13 @@ import {
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-} from './validate-opengl-renderer';
+import {Log} from './logger';
+import type {validOpenGlRenderers} from './options/gl';
+import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
 
-const validRenderers = [
-	'swangle',
-	'angle',
-	'egl',
-	'swiftshader',
-	'vulkan',
-] as const;
+type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
-type OpenGlRenderer = (typeof validRenderers)[number];
-
+// ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
@@ -36,13 +28,17 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
-		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+		return ['--use-gl=angle', '--use-angle=swiftshader'];
+	}
+
+	if (renderer === 'angle-egl') {
+		return ['--use-gl=angle', '--use-angle=gl-egl'];
 	}
 
 	if (renderer === 'vulkan') {
 		return [
 			'--use-angle=vulkan',
-			`--use-vulkan=swiftshader`,
+			'--use-vulkan=swiftshader',
 			'--disable-vulkan-fallback-to-gl-for-testing',
 			'--dignore-gpu-blocklist',
 			'--enable-features=Vulkan,UseSkiaRenderer',
@@ -99,11 +95,31 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser(browserExecutable);
+	await ensureLocalBrowser({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+	});
 
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+
+	Log.verbose(
+		{indent, logLevel, tag: 'openBrowser()'},
+		`Opening browser: gl = ${
+			chromiumOptions.gl
+		}, executable = ${executablePath}, enableMultiProcessOnLinux = ${
+			chromiumOptions.enableMultiProcessOnLinux ?? false
+		}`,
+	);
+
+	if (chromiumOptions.userAgent) {
+		Log.verbose(
+			{indent, logLevel: 'verbose', tag: 'openBrowser()'},
+			`Using custom user agent: ${chromiumOptions.userAgent}`,
+		);
+	}
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
@@ -135,7 +151,7 @@ export const internalOpenBrowser = async ({
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
 			'--no-first-run',
-			'--video-threads=' + getIdealVideoThreadsFlag(),
+			'--video-threads=' + getIdealVideoThreadsFlag(logLevel),
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',

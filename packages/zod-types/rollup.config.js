@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['remotion', 'zod'],
+		external: ['remotion', 'zod', 'remotion/no-react'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',

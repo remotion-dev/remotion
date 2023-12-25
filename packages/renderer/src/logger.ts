@@ -6,7 +6,7 @@ import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
 
-type LogOptions = {
+export type LogOptions = {
 	indent: boolean;
 	logLevel: LogLevel;
 };
@@ -24,10 +24,7 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
-	verbose: (...args: Parameters<typeof console.log>) => {
-		Log.verboseAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-	},
-	verboseAdvanced: (
+	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
@@ -53,15 +50,8 @@ export const Log = {
 			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
 	},
-	warn: (...args: Parameters<typeof console.log>) => {
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'warn')) {
-			Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-		}
-	},
-	warnAdvanced: (
-		options: LogOptions,
-		...args: Parameters<typeof console.log>
-	) => {
+
+	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]

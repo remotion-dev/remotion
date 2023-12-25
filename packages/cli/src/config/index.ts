@@ -25,7 +25,6 @@ import {
 import {getShouldOutputImageSequence} from './image-sequence';
 import {getJpegQuality} from './jpeg-quality';
 import * as Logging from './log';
-import {getMaxTimelineTracks} from './max-timeline-tracks';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -33,7 +32,11 @@ import {
 } from './override-webpack';
 import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
-import {getServerPort} from './preview-server';
+import {
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
+	getStudioPort,
+} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
@@ -52,11 +55,16 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {StudioInternals} from '@remotion/studio';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
+	getEncodingBufferSize,
+	getEncodingMaxRate,
 	getVideoBitrate,
 	setAudioBitrate,
+	setEncodingBufferSize,
+	setEncodingMaxRate,
 	setVideoBitrate,
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
@@ -91,7 +99,6 @@ import {
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
 import {setLogLevel} from './log';
-import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
@@ -106,7 +113,7 @@ import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
-import {setPort} from './preview-server';
+import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {setScale} from './scale';
@@ -136,11 +143,24 @@ declare global {
 		 */
 		readonly setCachingEnabled: (flag: boolean) => void;
 		/**
-		 * Define on which port Remotion should start it's HTTP servers.
+		 * @deprecated
+		 * Use `setStudioPort()` and `setRendererPort()` instead.
+		 */
+		readonly setPort: (port: number | undefined) => void;
+
+		/**
+		 * Set the HTTP port used by the Studio.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
-		readonly setPort: (port: number | undefined) => void;
+		readonly setStudioPort: (port: number | undefined) => void;
+
+		/**
+		 * Set the HTTP port used to host the Webpack bundle.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		readonly setRendererPort: (port: number | undefined) => void;
 		/**
 		 * Define the location of the public/ directory.
 		 * By default it is a folder named "public" inside the current working directory.
@@ -228,11 +248,17 @@ declare global {
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle' and 'vulkan'.
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle', 'vulkan' and 'angle-egl'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader' | 'vulkan',
+			renderer:
+				| 'swangle'
+				| 'angle'
+				| 'egl'
+				| 'swiftshader'
+				| 'vulkan'
+				| 'angle-egl',
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.
@@ -406,6 +432,16 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
+		 * Set a maximum bitrate to be passed to FFmpeg.
+		 */
+		readonly setEncodingMaxRate: (bitrate: string | null) => void;
+
+		/**
+		 * Set a buffer size to be passed to FFmpeg.
+		 */
+		readonly setEncodingBufferSize: (bitrate: string | null) => void;
+
+		/**
 		 * Opt into bt709 rendering.
 		 */
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
@@ -495,7 +531,7 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
-	setMaxTimelineTracks,
+	setMaxTimelineTracks: StudioInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
@@ -503,6 +539,8 @@ export const Config: FlatConfig = {
 	overrideWebpackConfig,
 	setCachingEnabled: setWebpackCaching,
 	setPort,
+	setStudioPort,
+	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
 	setLevel: setLogLevel,
@@ -530,6 +568,8 @@ export const Config: FlatConfig = {
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
+	setEncodingMaxRate,
+	setEncodingBufferSize,
 	setFrameRange,
 	setScale,
 	setEveryNthFrame,
@@ -566,7 +606,9 @@ export const ConfigInternals = {
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,
-	getServerPort,
+	getStudioPort,
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
@@ -587,7 +629,7 @@ export const ConfigInternals = {
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
-	getMaxTimelineTracks,
+	getMaxTimelineTracks: StudioInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,
@@ -598,6 +640,8 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getEncodingBufferSize,
+	getEncodingMaxRate,
 	getHeight,
 	getWidth,
 	getCrfOrUndefined,

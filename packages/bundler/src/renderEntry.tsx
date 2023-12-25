@@ -18,6 +18,7 @@ import {
 	Internals,
 	VERSION,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
@@ -81,13 +82,14 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			}
 
 			compositions.setCurrentCompositionMetadata({
-				props: Internals.deserializeJSONWithCustomFields(
+				props: NoReactInternals.deserializeJSONWithCustomFields(
 					state.serializedResolvedPropsWithSchema,
 				),
 				durationInFrames: state.compositionDurationInFrames,
 				fps: state.compositionFps,
 				height: state.compositionHeight,
 				width: state.compositionWidth,
+				defaultCodec: state.compositionDefaultCodec,
 			});
 		}
 	}, [compositions, compositions.compositions, state, video]);
@@ -315,13 +317,13 @@ if (typeof window !== 'undefined') {
 				return {
 					...data,
 					serializedResolvedPropsWithCustomSchema:
-						Internals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithDate({
 							data: props,
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
 					serializedDefaultPropsWithCustomSchema:
-						Internals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithDate({
 							data: defaultProps,
 							indent: undefined,
 							staticBase: null,
@@ -365,16 +367,18 @@ if (typeof window !== 'undefined') {
 		const {props, defaultProps, ...data} = prom;
 		return {
 			...data,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: props,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
-			serializedDefaultPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: defaultProps,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: props,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
+			serializedDefaultPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: defaultProps,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 		};
 	};
 

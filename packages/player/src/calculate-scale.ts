@@ -127,9 +127,9 @@ export const calculateOuter = ({
 	layout: Layout | null;
 	scale: number;
 	config: VideoConfig | null;
-}): React.CSSProperties => {
+}) => {
 	if (!layout || !config) {
-		return {};
+		return {} as const;
 	}
 
 	const {centerX, centerY} = layout;
@@ -143,5 +143,5 @@ export const calculateOuter = ({
 		left: centerX,
 		top: centerY,
 		overflow: 'hidden',
-	};
+	} as const;
 };

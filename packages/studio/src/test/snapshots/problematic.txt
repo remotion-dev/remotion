@@ -1,0 +1,27 @@
+export const Index: React.FC = () => {
+	return (
+		<>
+			<Composition
+				id="schema-test"
+				component={SchemaTest}
+				width={1200}
+				height={630}
+				fps={30}
+				durationInFrames={150}
+				schema={schemaTestSchema}
+				defaultProps={{
+					title: 'sdasds',
+					delay: 5.2,
+					color: '#df822a',
+					list: [{name: 'first', age: 12}],
+					description: 'Sample description \nOn multiple lines',
+					dropdown: 'a' as const,
+					superSchema: [
+						{type: 'a' as const, a: {a: 'hi'}},
+						{type: 'b' as const, b: {b: 'hi'}},
+					],
+				}}
+			/>
+		</>
+	);
+};

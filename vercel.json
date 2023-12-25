@@ -203,7 +203,17 @@
       "permanent": false
     },
     {
+      "source": "/layout-utils",
+      "destination": "https://www.remotion.dev/docs/layout-utils",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
+      "destination": "https://www.remotion.dev/docs/get-help",
+      "permanent": false
+    },
+    {
+      "source": "/help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
     },
@@ -243,8 +253,28 @@
       "permanent": false
     },
     {
+      "source": "/transitions",
+      "destination": "/docs/transitioning",
+      "permanent": false
+    },
+    {
       "source": "/repro",
       "destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
+      "permanent": false
+    },
+    {
+      "source": "/docs/timeline",
+      "destination": "/docs/studio",
+      "permanent": false
+    },
+    {
+      "source": "/studio",
+      "destination": "/docs/studio",
+      "permanent": false
+    },
+    {
+      "source": "/security",
+      "destination": "/docs/security",
       "permanent": false
     }
   ]

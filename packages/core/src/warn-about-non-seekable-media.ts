@@ -28,8 +28,10 @@ export const warnAboutNonSeekableMedia = (
 		const msg = `The media ${ref.src} cannot be seeked. This could be one of two reasons: 1) The media resource was replaced while the video is playing but it was not loaded yet. 2) The media does not support seeking. Please see https://remotion.dev/docs/non-seekable-media for assistance.`;
 
 		if (type === 'console-error') {
+			// eslint-disable-next-line no-console
 			console.error(msg);
 		} else if (type === 'console-warning') {
+			// eslint-disable-next-line no-console
 			console.warn(
 				`The media ${ref.src} does not support seeking. The video will render fine, but may not play correctly in the Remotion Studio and in the <Player>. See https://remotion.dev/docs/non-seekable-media for an explanation.`,
 			);

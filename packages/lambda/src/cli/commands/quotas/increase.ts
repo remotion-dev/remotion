@@ -4,6 +4,7 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
+import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {exit} from 'node:process';
 import {QUOTAS_COMMAND} from '.';
 import type {AwsRegion} from '../../../client';
@@ -27,7 +28,7 @@ const makeQuotaUrl = ({
 	return `https://${region}.console.aws.amazon.com/servicequotas/home/services/lambda/quotas/${quotaId}`;
 };
 
-export const quotasIncreaseCommand = async () => {
+export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 
 	const [concurrencyLimit, defaultConcurrencyLimit, changes] =
@@ -56,10 +57,16 @@ export const quotasIncreaseCommand = async () => {
 		(r) => r.Status === 'CASE_OPENED',
 	);
 	if (openCase) {
+		const logOptions: LogOptions = {
+			indent: false,
+			logLevel,
+		};
 		Log.warn(
+			logOptions,
 			`A request to increase it to ${openCase.DesiredValue} is already pending:`,
 		);
 		Log.warn(
+			logOptions,
 			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
 		);
 		exit(1);

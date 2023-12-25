@@ -17,10 +17,20 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	DownloadProgress,
+	JobProgressCallback,
+	RenderingProgressInput,
+	RenderStep,
+	StitchingProgressInput,
+} from '@remotion/studio';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
@@ -32,21 +42,12 @@ import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
-import type {BundlingState, CopyingState} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
-import type {
-	AggregateRenderProgress,
-	DownloadProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
-import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
 
@@ -90,6 +91,8 @@ export const renderVideoFlow = async ({
 	x264Preset,
 	pixelFormat,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	numberOfGifLoops,
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
@@ -132,6 +135,8 @@ export const renderVideoFlow = async ({
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
@@ -144,13 +149,6 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace;
 }) => {
 	const downloads: DownloadProgress[] = [];
-	if (browserExecutable) {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			'Browser executable: ',
-			browserExecutable,
-		);
-	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -161,6 +159,8 @@ export const renderVideoFlow = async ({
 		viewport: null,
 		logLevel,
 	});
+
+	let isUsingParallelEncoding = false;
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 	const renderProgress = createOverwriteableCliOutput({
@@ -207,6 +207,7 @@ export const renderVideoFlow = async ({
 			prog: aggregateRenderProgress,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
+			isUsingParallelEncoding,
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
@@ -244,6 +245,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 		updateRenderProgress,
 		updatesDontOverwrite,
+		isUsingParallelEncoding,
 	});
 
 	const puppeteerInstance = await browserInstance;
@@ -291,6 +293,7 @@ export const renderVideoFlow = async ({
 			outputLocationFromUI,
 		),
 		uiCodec,
+		compositionCodec: config.defaultCodec,
 	});
 
 	RenderInternals.validateEvenDimensionsWithCodec({
@@ -314,7 +317,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
@@ -368,7 +371,7 @@ export const renderVideoFlow = async ({
 					path.join(os.tmpdir(), 'react-motion-render'),
 			  );
 
-		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
+		Log.verbose({indent, logLevel}, 'Output dir', outputDir);
 
 		await RenderInternals.internalRenderFrames({
 			imageFormat,
@@ -377,7 +380,9 @@ export const renderVideoFlow = async ({
 				(renderingProgress as RenderingProgressInput).frames = rendered;
 				updateRenderProgress({newline: false, printToConsole: true});
 			},
-			onStart: () => undefined,
+			onStart: ({parallelEncoding}) => {
+				isUsingParallelEncoding = parallelEncoding;
+			},
 			onDownload,
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
@@ -400,12 +405,14 @@ export const renderVideoFlow = async ({
 			onBrowserLog: null,
 			onFrameBuffer: null,
 			logLevel,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				indent: undefined,
-				staticBase: null,
-				data: config.props,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: config.props,
+				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
+			parallelEncodingEnabled: isUsingParallelEncoding,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -456,6 +463,8 @@ export const renderVideoFlow = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		onProgress: (update) => {
 			(stitchingProgress as StitchingProgressInput).doneIn =
 				update.encodedDoneIn;
@@ -480,11 +489,12 @@ export const renderVideoFlow = async ({
 		disallowParallelEncoding,
 		onBrowserLog: null,
 		onStart: () => undefined,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: config.props,
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: config.props,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	});
@@ -495,15 +505,12 @@ export const renderVideoFlow = async ({
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
 
-	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
+	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			`  Frame ${frame} (${time.toFixed(3)}ms)`,
-		);
+		Log.verbose({indent, logLevel}, `  Frame ${frame} (${time.toFixed(3)}ms)`);
 	});
 
 	for (const line of RenderInternals.perf.getPerf()) {
-		Log.verboseAdvanced({indent, logLevel}, line);
+		Log.verbose({indent, logLevel}, line);
 	}
 };

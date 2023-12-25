@@ -91,8 +91,9 @@ A callback function that gets called when the render starts, useful to obtain th
 
 It receives an object with the following properties:
 
-- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
 - `renderId`: The ID of the render.
+- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+- `lambdaInsightsUrl`<AvailableFrom v="4.0.61" />: A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
 
 Example usage:
 
@@ -120,9 +121,10 @@ const otherParameters: RenderStillOnLambdaInput = {
 };
 await renderStillOnLambda({
   ...otherParameters,
-  onInit: ({ cloudWatchLogs, renderId }) => {
+  onInit: ({ cloudWatchLogs, renderId, lambdaInsightsUrl }) => {
     console.log(console.log(`Render invoked with ID = ${renderId}`));
     console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+    console.log(`Lambda Insights (if enabled): ${lambdaInsightsUrl}`);
   },
 });
 ```
@@ -227,21 +229,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromiums default
-
-:::note
-The default for Lambda is `"swangle"`, but `null` elsewhere.
-:::
+<Options id="gl"  />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 

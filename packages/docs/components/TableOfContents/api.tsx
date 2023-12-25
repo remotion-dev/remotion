@@ -88,6 +88,14 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/shapes</strong>
           <div>Generate SVG shapes</div>
         </TOCItem>
+        <TOCItem link="/docs/transitions">
+          <strong>@remotion/transitions</strong>
+          <div>Transition between scenes</div>
+        </TOCItem>
+        <TOCItem link="/docs/layout-utils">
+          <strong>@remotion/layout-utils</strong>
+          <div>Layout helpers</div>
+        </TOCItem>
       </Grid>
     </div>
   );

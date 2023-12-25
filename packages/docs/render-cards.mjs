@@ -16,7 +16,8 @@ const findId = (split, page) => {
 
   return page
     .replace(process.cwd() + path.sep + "docs" + path.sep, "")
-    .replace(/.md$/, "");
+    .replace(/.md$/, "")
+    .replace(/.mdx$/, "");
 };
 
 const findTitle = (split) => {
@@ -57,13 +58,14 @@ for (const page of pages) {
 
   const relativePath = page.replace(process.cwd() + path.sep, "");
   const compId =
-    "articles-" + relativePath.replace(/\//g, "-").replace(/.md$/, "");
+    "articles-" +
+    relativePath.replace(/\//g, "-").replace(/.md$/, "").replace(/.mdx$/, "");
   data.push({ id, title, relativePath, compId, crumb });
 }
 
 fs.writeFileSync(
   path.join(process.cwd(), "src", "data", "articles.ts"),
-  `export const articles = ` + JSON.stringify(data, null, 2)
+  `export const articles = ` + JSON.stringify(data, null, 2),
 );
 
 execSync("pnpm exec prettier src/data/articles.ts --write");
@@ -76,7 +78,7 @@ const serveUrl = await bundle({
 const compositions = await getCompositions(serveUrl);
 
 for (const composition of compositions.filter(
-  (c) => c.id.startsWith("expert") || c.id.startsWith("template")
+  (c) => c.id.startsWith("expert") || c.id.startsWith("template"),
 )) {
   const output = `static/generated/${composition.id}.png`;
   if (fs.existsSync(output)) {

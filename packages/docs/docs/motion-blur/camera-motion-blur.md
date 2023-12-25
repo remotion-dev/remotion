@@ -104,11 +104,17 @@ export const MyComposition = () => {
 
 <CameraMotionBlurExample />
 
-## Credits
-
-The technique was developed by [@marcusstenbeck](https://twitter.com/marcusstenbeck) and inspired by
-the `<Trail>` component developed by [@UmungoBungo](https://github.com/UmungoBungo).
-
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/motion-blur/src/CameraMotionBlur.tsx)
+
+<Credits contributors={[
+{
+username: "UmungoBungo",
+contribution: "Idea"
+},
+{
+username: "marcusstenbeck",
+contribution: "Implementation"
+},
+]} />

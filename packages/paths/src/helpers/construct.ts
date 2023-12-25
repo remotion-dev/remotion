@@ -2,7 +2,7 @@
 
 import {parsePath} from '../parse-path';
 import {makeArc} from './arc';
-import {makeBezier} from './bezier';
+import {makeCubic, makeQuadratic} from './bezier';
 import {makeLinearPosition} from './linear';
 import type {Instruction, Point, PointArray, Properties} from './types';
 
@@ -14,7 +14,10 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
-	let curve: ReturnType<typeof makeBezier> | undefined;
+	let curve:
+		| ReturnType<typeof makeCubic>
+		| ReturnType<typeof makeQuadratic>
+		| undefined;
 	let ringStart: PointArray = [0, 0];
 
 	const segments: Instruction[][] = [];
@@ -129,29 +132,29 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
 		} else if (instruction.type === 'C') {
-			curve = makeBezier({
-				ax: cur[0],
-				ay: cur[1],
-				bx: instruction.cp1x,
-				by: instruction.cp1y,
-				cx: instruction.cp2x,
-				cy: instruction.cp2y,
-				dx: instruction.x,
-				dy: instruction.y,
+			curve = makeCubic({
+				startX: cur[0],
+				startY: cur[1],
+				cp1x: instruction.cp1x,
+				cp1y: instruction.cp1y,
+				cp2x: instruction.cp2x,
+				cp2y: instruction.cp2y,
+				x: instruction.x,
+				y: instruction.y,
 			});
 			length += curve.getTotalLength();
 			cur = [instruction.x, instruction.y];
 			functions.push(curve);
 		} else if (instruction.type === 'c') {
-			curve = makeBezier({
-				ax: cur[0],
-				ay: cur[1],
-				bx: cur[0] + instruction.cp1dx,
-				by: cur[1] + instruction.cp1dy,
-				cx: cur[0] + instruction.cp2dx,
-				cy: cur[1] + instruction.cp2dy,
-				dx: cur[0] + instruction.dx,
-				dy: cur[1] + instruction.dy,
+			curve = makeCubic({
+				startX: cur[0],
+				startY: cur[1],
+				cp1x: cur[0] + instruction.cp1dx,
+				cp1y: cur[1] + instruction.cp1dy,
+				cp2x: cur[0] + instruction.cp2dx,
+				cp2y: cur[1] + instruction.cp2dy,
+				x: cur[0] + instruction.dx,
+				y: cur[1] + instruction.dy,
 			});
 			if (curve.getTotalLength() > 0) {
 				length += curve.getTotalLength();
@@ -172,27 +175,27 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			if (i > 0 && prevWasCurve) {
 				if (curve) {
 					const c = curve.getC();
-					curve = makeBezier({
-						ax: cur[0],
-						ay: cur[1],
-						bx: 2 * cur[0] - c.x,
-						by: 2 * cur[1] - c.y,
-						cx: instruction.cpx,
-						cy: instruction.cpy,
-						dx: instruction.x,
-						dy: instruction.y,
+					curve = makeCubic({
+						startX: cur[0],
+						startY: cur[1],
+						cp1x: 2 * cur[0] - c.x,
+						cp1y: 2 * cur[1] - c.y,
+						cp2x: instruction.cpx,
+						cp2y: instruction.cpy,
+						x: instruction.x,
+						y: instruction.y,
 					});
 				}
 			} else {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: cur[0],
-					by: cur[1],
-					cx: instruction.cpx,
-					cy: instruction.cpy,
-					dx: instruction.x,
-					dy: instruction.y,
+				curve = makeCubic({
+					startX: cur[0],
+					startY: cur[1],
+					cp1x: cur[0],
+					cp1y: cur[1],
+					cp2x: instruction.cpx,
+					cp2y: instruction.cpy,
+					x: instruction.x,
+					y: instruction.y,
 				});
 			}
 
@@ -213,27 +216,27 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				if (curve) {
 					const c = curve.getC();
 					const d = curve.getD();
-					curve = makeBezier({
-						ax: cur[0],
-						ay: cur[1],
-						bx: cur[0] + d.x - c.x,
-						by: cur[1] + d.y - c.y,
-						cx: cur[0] + instruction.cpdx,
-						cy: cur[1] + instruction.cpdy,
-						dx: cur[0] + instruction.dx,
-						dy: cur[1] + instruction.dy,
+					curve = makeCubic({
+						startX: cur[0],
+						startY: cur[1],
+						cp1x: cur[0] + d.x - c.x,
+						cp1y: cur[1] + d.y - c.y,
+						cp2x: cur[0] + instruction.cpdx,
+						cp2y: cur[1] + instruction.cpdy,
+						x: cur[0] + instruction.dx,
+						y: cur[1] + instruction.dy,
 					});
 				}
 			} else {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: cur[0],
-					by: cur[1],
-					cx: cur[0] + instruction.cpdx,
-					cy: cur[1] + instruction.cpdy,
-					dx: cur[0] + instruction.dx,
-					dy: cur[1] + instruction.dy,
+				curve = makeCubic({
+					startX: cur[0],
+					startY: cur[1],
+					cp1x: cur[0],
+					cp1y: cur[1],
+					cp2x: cur[0] + instruction.cpdx,
+					cp2y: cur[1] + instruction.cpdy,
+					x: cur[0] + instruction.dx,
+					y: cur[1] + instruction.dy,
 				});
 			}
 
@@ -255,15 +258,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: instruction.cpx,
-					by: instruction.cpy,
-					cx: instruction.x,
-					cy: instruction.y,
-					dx: null,
-					dy: null,
+				curve = makeQuadratic({
+					startX: cur[0],
+					startY: cur[1],
+					cpx: instruction.cpx,
+					cpy: instruction.cpy,
+					x: instruction.x,
+					y: instruction.y,
 				});
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -282,15 +283,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: cur[0] + instruction.cpdx,
-					by: cur[1] + instruction.cpdy,
-					cx: cur[0] + instruction.dx,
-					cy: cur[1] + instruction.dy,
-					dx: null,
-					dy: null,
+				curve = makeQuadratic({
+					startX: cur[0],
+					startY: cur[1],
+					cpx: cur[0] + instruction.cpdx,
+					cpy: cur[1] + instruction.cpdy,
+					x: cur[0] + instruction.dx,
+					y: cur[1] + instruction.dy,
 				});
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -306,15 +305,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				prev.type === 'T' ||
 				prev.type === 't';
 			if (i > 0 && prevWasQ) {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: 2 * cur[0] - prev_point[0],
-					by: 2 * cur[1] - prev_point[1],
-					cx: instruction.x,
-					cy: instruction.y,
-					dx: null,
-					dy: null,
+				curve = makeQuadratic({
+					startX: cur[0],
+					startY: cur[1],
+					cpx: 2 * cur[0] - prev_point[0],
+					cpy: 2 * cur[1] - prev_point[1],
+					x: instruction.x,
+					y: instruction.y,
 				});
 				functions.push(curve);
 				length += curve.getTotalLength();
@@ -339,15 +336,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				prev.type === 'T' ||
 				prev.type === 't';
 			if (i > 0 && prevWasQ) {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: 2 * cur[0] - prev_point[0],
-					by: 2 * cur[1] - prev_point[1],
-					cx: cur[0] + instruction.dx,
-					cy: cur[1] + instruction.dy,
-					dx: null,
-					dy: null,
+				curve = makeQuadratic({
+					startX: cur[0],
+					startY: cur[1],
+					cpx: 2 * cur[0] - prev_point[0],
+					cpy: 2 * cur[1] - prev_point[1],
+					x: cur[0] + instruction.dx,
+					y: cur[1] + instruction.dy,
 				});
 				length += curve.getTotalLength();
 				functions.push(curve);

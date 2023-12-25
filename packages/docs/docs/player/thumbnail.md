@@ -282,3 +282,10 @@ See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Thumbnail.tsx)
 - [`<Composition>`](/docs/composition)
 - [`<Player>`](/docs/player)
+
+<Credits contributors={[
+{
+username: "Slashgear",
+contribution: "Implementation"
+},
+]} />

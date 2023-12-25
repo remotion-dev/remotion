@@ -1,6 +1,7 @@
 import type {iam} from 'aws-policies';
 import {lambda, logs, s3} from 'aws-policies';
 import {
+	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,
 	REMOTION_BUCKET_PREFIX,
 	RENDER_FN_PREFIX,
@@ -32,9 +33,14 @@ export const rolePermissions: {
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
+		actions: [logs.CreateLogGroup],
+		resource: [`arn:aws:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}`],
+	},
+	{
 		actions: [logs.CreateLogStream, logs.PutLogEvents],
 		resource: [
 			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
+			`arn:aws:logs:*:*:log-group:${LAMBDA_INSIGHTS_PREFIX}:*`,
 		],
 	},
 ];

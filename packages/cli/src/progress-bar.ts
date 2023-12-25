@@ -1,18 +1,19 @@
 import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {AnsiDiff} from './ansi/ansi-diff';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
-import type {
-	AggregateRenderProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from './progress-types';
 import {truthy} from './truthy';
 
 export type OverwriteableCliOutput = {
@@ -54,7 +55,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new AnsiDiff();
+	const diff = new StudioInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -139,16 +140,6 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 	].join('\n');
 };
 
-export type CopyingState = {
-	bytes: number;
-	doneIn: number | null;
-};
-
-export type BundlingState = {
-	progress: number;
-	doneIn: number | null;
-};
-
 export type SymbolicLinksState = {symlinks: string[]};
 
 export const makeBundlingAndCopyProgress = (
@@ -201,10 +192,12 @@ const makeStitchingProgress = ({
 	stitchingProgress,
 	steps,
 	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	stitchingProgress: StitchingProgressInput;
 	steps: number;
 	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }) => {
 	const {frames, totalFrames, doneIn, stage, codec} = stitchingProgress;
 	const progress = frames / totalFrames;
@@ -218,7 +211,7 @@ const makeStitchingProgress = ({
 	return [
 		`(${stitchingStep + 1}/${steps})`,
 		makeProgressBar(progress),
-		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+		stage === 'muxing' && isUsingParallelEncoding
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
@@ -231,10 +224,12 @@ export const makeRenderingAndStitchingProgress = ({
 	prog,
 	steps,
 	stitchingStep,
+	isUsingParallelEncoding,
 }: {
 	prog: AggregateRenderProgress;
 	steps: number;
 	stitchingStep: number;
+	isUsingParallelEncoding: boolean;
 }): {
 	output: string;
 	progress: number;
@@ -250,6 +245,7 @@ export const makeRenderingAndStitchingProgress = ({
 					stitchingProgress: stitching,
 					steps,
 					stitchingStep,
+					isUsingParallelEncoding,
 			  }),
 	]
 		.filter(truthy)
@@ -274,7 +270,9 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+		return `Copying public dir ${StudioInternals.formatBytes(
+			progress.copyingState.bytes,
+		)}`;
 	}
 
 	if (!progress.rendering) {

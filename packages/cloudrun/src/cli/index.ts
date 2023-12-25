@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
 import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
@@ -12,18 +13,22 @@ import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {Log} from './log';
 
-const matchCommand = (args: string[], remotionRoot: string) => {
+const matchCommand = (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	if (parsedCloudrunCli.help || args.length === 0 || args[0] === 'help') {
 		printHelp();
 		quit(0);
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot);
+		return renderCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot);
+		return stillCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === SERVICES_COMMAND) {
@@ -31,7 +36,7 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
@@ -52,9 +57,13 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	quit(1);
 };
 
-export const executeCommand = async (args: string[], remotionRoot: string) => {
+export const executeCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	try {
-		await matchCommand(args, remotionRoot);
+		await matchCommand(args, remotionRoot, logLevel);
 	} catch (err) {
 		const error = err as Error;
 		if (error instanceof RenderInternals.SymbolicateableError) {

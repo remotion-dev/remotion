@@ -73,29 +73,6 @@ export const getInstallCommand = (manager: PackageManager) => {
 	}
 };
 
-export const getDevCommand = (manager: PackageManager, template: Template) => {
-	if (template.cliId === 'remix' || template.cliId === 'next') {
-		return `${getRunCommand(manager)} dev`;
-	}
-
-	return getStartCommand(manager);
-};
-
-export const getRenderCommandForTemplate = (
-	manager: PackageManager,
-	template: Template,
-) => {
-	if (template.cliId === 'remix') {
-		return `${getRunCommand(manager)} remotion:render`;
-	}
-
-	if (template.cliId === 'still') {
-		return `${getRunCommand(manager)} render`;
-	}
-
-	return getRenderCommand(manager);
-};
-
 const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm start`;
@@ -150,6 +127,33 @@ export const getRunCommand = (manager: PackageManager) => {
 	}
 
 	throw new TypeError('unknown package manager');
+};
+
+export const getDevCommand = (manager: PackageManager, template: Template) => {
+	if (
+		template.cliId === 'remix' ||
+		template.cliId === 'next' ||
+		template.cliId === 'next-pages-dir'
+	) {
+		return `${getRunCommand(manager)} dev`;
+	}
+
+	return getStartCommand(manager);
+};
+
+export const getRenderCommandForTemplate = (
+	manager: PackageManager,
+	template: Template,
+) => {
+	if (template.cliId === 'remix') {
+		return `${getRunCommand(manager)} remotion:render`;
+	}
+
+	if (template.cliId === 'still') {
+		return `${getRunCommand(manager)} render`;
+	}
+
+	return getRenderCommand(manager);
 };
 
 export const getPackageManagerVersion = (

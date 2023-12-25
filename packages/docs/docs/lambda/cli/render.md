@@ -239,20 +239,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 ### `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" cli />
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 

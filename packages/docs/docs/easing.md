@@ -5,10 +5,6 @@ title: Easing
 crumb: "API"
 ---
 
-:::info
-The Easing API is the exact same as the one from [React Native](https://reactnative.dev/docs/easing) and the documentation has been copied over. Credit goes to them for this excellent API.
-:::
-
 The `Easing` module implements common easing functions. You can use it with the [`interpolate()`](/docs/interpolate) API.
 
 You can find a visualization of some common easing functions at http://easings.net/
@@ -78,30 +74,30 @@ const MyVideo: React.FC = () => {
 
 ## Methods
 
-### `step0()`
+### `step0`
 
 ```jsx
-static step0(n)
+static step0(n): number
 ```
 
 A stepping function, returns 1 for any positive value of `n`.
 
 ---
 
-### `step1()`
+### `step1`
 
 ```jsx
-static step1(n)
+static step1(n): number
 ```
 
 A stepping function, returns 1 if `n` is greater than or equal to 1.
 
 ---
 
-### `linear()`
+### `linear`
 
 ```jsx
-static linear(t)
+static linear(t): number
 ```
 
 A linear function, `f(t) = t`. Position correlates to elapsed time one to one.
@@ -110,10 +106,10 @@ http://cubic-bezier.com/#0,0,1,1
 
 ---
 
-### `ease()`
+### `ease`
 
 ```jsx
-static ease(t)
+static ease(t): number
 ```
 
 A basic inertial interaction, similar to an object slowly accelerating to speed.
@@ -122,10 +118,10 @@ http://cubic-bezier.com/#.42,0,1,1
 
 ---
 
-### `quad()`
+### `quad`
 
 ```jsx
-static quad(t)
+static quad(t): number
 ```
 
 A quadratic function, `f(t) = t * t`. Position equals the square of elapsed time.
@@ -134,10 +130,10 @@ http://easings.net/#easeInQuad
 
 ---
 
-### `cubic()`
+### `cubic`
 
 ```jsx
-static cubic(t)
+static cubic(t): number
 ```
 
 A cubic function, `f(t) = t * t * t`. Position equals the cube of elapsed time.
@@ -149,7 +145,7 @@ http://easings.net/#easeInCubic
 ### `poly()`
 
 ```jsx
-static poly(n)
+static poly(n): (t) => number
 ```
 
 A power function. Position is equal to the Nth power of elapsed time.
@@ -158,10 +154,10 @@ n = 4: http://easings.net/#easeInQuart n = 5: http://easings.net/#easeInQuint
 
 ---
 
-### `sin()`
+### `sin`
 
 ```jsx
-static sin(t)
+static sin(t): number
 ```
 
 A sinusoidal function.
@@ -170,10 +166,10 @@ http://easings.net/#easeInSine
 
 ---
 
-### `circle()`
+### `circle`
 
 ```jsx
-static circle(t)
+static circle(t): number
 ```
 
 A circular function.
@@ -182,10 +178,10 @@ http://easings.net/#easeInCirc
 
 ---
 
-### `exp()`
+### `exp`
 
 ```jsx
-static exp(t)
+static exp(t): number
 ```
 
 An exponential function.
@@ -197,7 +193,7 @@ http://easings.net/#easeInExpo
 ### `elastic()`
 
 ```jsx
-static elastic(bounciness)
+static elastic(bounciness): (t) =>  number
 ```
 
 A basic elastic interaction, similar to a spring oscillating back and forth.
@@ -211,67 +207,110 @@ http://easings.net/#easeInElastic
 ### `back()`
 
 ```jsx
-static back(s)
+static back(s): (t) => number
 ```
 
 Use with `Animated.parallel()` to create a basic effect where the object animates back slightly as the animation starts.
 
 ---
 
-### `bounce()`
+### `bounce`
 
 ```jsx
-static bounce(t)
+static bounce(t): number
 ```
 
 Provides a basic bouncing effect.
 
 http://easings.net/#easeInBounce
 
+See an example of how you might use it below
+
+```jsx
+interpolate(0.5, [0, 1], [0, 1], {
+  easing: Easing.bounce,
+});
+```
+
 ---
 
 ### `bezier()`
 
 ```jsx
-static bezier(x1, y1, x2, y2)
+static bezier(x1, y1, x2, y2) => (t): number
 ```
 
 Provides a cubic bezier curve, equivalent to CSS Transitions' `transition-timing-function`.
 
 A useful tool to visualize cubic bezier curves can be found at http://cubic-bezier.com/
 
+```jsx
+interpolate(0.5, [0, 1], [0, 1], {
+  easing: Easing.bezier(0.5, 0.01, 0.5, 1),
+});
+```
+
 ---
 
-### `in()`
+### `in(easing)`
 
 <!-- prettier-ignore-start -->
 ```jsx
-static in(easing);
+static in(easing: (t: number) => number): (t: number) => number;
 ```
 <!-- prettier-ignore-end -->
 
 Runs an easing function forwards.
+
+```jsx
+{
+  easing: Easing.in(Easing.ease);
+}
+```
 
 ---
 
 ### `out()`
 
 ```jsx
-static out(easing)
+static out(easing: (t: number) => number): (t: number) => number;
 ```
 
 Runs an easing function backwards.
+
+```jsx
+{
+  easing: Easing.out(Easing.ease);
+}
+```
 
 ---
 
 ### `inOut()`
 
 ```jsx
-static inOut(easing)
+static inOut(easing: (t: number) => number): (t: number) => number;
+```
+
+```jsx
+{
+  easing: Easing.inOut(Easing.ease);
+}
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
 
+## Credits
+
+The Easing API is the exact same as the one from [React Native](https://reactnative.dev/docs/easing) and the documentation has been copied over. Credit goes to them for this excellent API.
+
 ## See also
 
 - [Source code for this helper](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/easing.ts)
+
+<Credits contributors={[
+{
+username: "kaf-lamed-beyt",
+contribution: "Improved function signatures"
+},
+]} />

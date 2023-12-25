@@ -10,6 +10,7 @@ import {
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
@@ -25,6 +26,8 @@ type Options = {
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	audioBitrate: string | null;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -39,6 +42,8 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops,
 		audioCodec,
 		audioBitrate,
+		indent,
+		logLevel,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -79,17 +84,17 @@ export const combineVideos = async (options: Options) => {
 		output,
 	].filter(truthy);
 
-	Log.verbose('Combining command: ', command);
+	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
-		const task = callFf('ffmpeg', command);
+		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
 				if (parsed === undefined) {
-					Log.verbose(data.toString('utf8'));
+					Log.verbose({indent, logLevel}, data.toString('utf8'));
 				} else {
-					Log.verbose(`Combined ${parsed} frames`);
+					Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
 					onProgress(parsed);
 				}
 			}

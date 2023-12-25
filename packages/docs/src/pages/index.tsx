@@ -1,5 +1,4 @@
 import Head from "@docusaurus/Head";
-import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
 import React from "react";
 import { VideoApps } from "../../components/LambdaSplash/VideoApps";
@@ -12,10 +11,6 @@ import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
-
-setTimeout(() => {
-  splitbee.init();
-}, 100);
 
 const NewLanding: React.FC = () => {
   return (

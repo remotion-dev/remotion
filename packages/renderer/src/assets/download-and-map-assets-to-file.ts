@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path, {extname} from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {random} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {random} from 'remotion/no-react';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import type {LogLevel} from '../log-level';
 import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
@@ -150,9 +151,13 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	downloadMap,
+	indent,
+	logLevel,
 }: {
 	src: string;
 	downloadMap: DownloadMap;
+	indent: boolean;
+	logLevel: LogLevel;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
@@ -247,6 +252,8 @@ export const downloadAsset = async ({
 				src,
 				contentType,
 			}),
+		indent,
+		logLevel,
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
@@ -348,15 +355,21 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	renderAsset,
 	onDownload,
 	downloadMap,
+	logLevel,
+	indent,
 }: {
 	renderAsset: TRenderAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
+	logLevel: LogLevel;
+	indent: boolean;
 }): Promise<TRenderAsset> => {
 	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: renderAsset.src,
 		downloadMap,
+		indent,
+		logLevel,
 	});
 	cleanup();
 

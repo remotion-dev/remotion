@@ -37,6 +37,7 @@ export type RenderLoading = (canvas: {
 	width: number;
 }) => React.ReactNode;
 export type RenderPoster = RenderLoading;
+export type PosterFillMode = 'player-size' | 'composition-size';
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
@@ -75,6 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
 		showPlaybackRateControl: boolean | number[];
+		posterFillMode: PosterFillMode;
 	}
 > = (
 	{
@@ -104,6 +106,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton,
 		alwaysShowControls,
 		showPlaybackRateControl,
+		posterFillMode,
 	},
 	ref,
 ) => {
@@ -120,14 +123,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
 
+	const player = usePlayer();
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
+		frameRef: player.remotionInternal_currentFrameRef,
 	});
-	const player = usePlayer();
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {
@@ -345,6 +349,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					setMediaMuted(false);
 				},
 				getScale: () => scale,
+				pauseAndReturnToPlayStart: () => {
+					player.pauseAndReturnToPlayStart();
+				},
 			};
 			return Object.assign(player.emitter, methods);
 		},
@@ -371,7 +378,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return calculateOuterStyle({canvasSize, config, style});
 	}, [canvasSize, config, style]);
 
-	const outer: React.CSSProperties = useMemo(() => {
+	const outer = useMemo(() => {
 		return calculateOuter({config, layout, scale});
 	}, [config, layout, scale]);
 
@@ -457,8 +464,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const poster = renderPoster
 		? renderPoster({
-				height: outerStyle.height as number,
-				width: outerStyle.width as number,
+				height:
+					posterFillMode === 'player-size'
+						? (outerStyle.height as number)
+						: config.height,
+				width:
+					posterFillMode === 'player-size'
+						? (outerStyle.width as number)
+						: config.width,
 		  })
 		: null;
 
@@ -475,6 +488,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
 		].some(Boolean);
+
+	const {left, top, width, height, ...outerWithoutScale} = outer;
 
 	const content = (
 		<>
@@ -494,9 +509,24 @@ const PlayerUI: React.ForwardRefRenderFunction<
 							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
+					{shouldShowPoster && posterFillMode === 'composition-size' ? (
+						<div
+							style={{
+								...outerWithoutScale,
+								width: config.width,
+								height: config.height,
+							}}
+							onClick={clickToPlay ? handleClick : undefined}
+							onDoubleClick={
+								doubleClickToFullscreen ? handleDoubleClick : undefined
+							}
+						>
+							{poster}
+						</div>
+					) : null}
 				</div>
 			</div>
-			{shouldShowPoster ? (
+			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
 					onClick={clickToPlay ? handleClick : undefined}

@@ -13,10 +13,10 @@ export const parseGIF = (arrayBuffer: ArrayBuffer): ParsedGif => {
 export const decompressFrame = (
 	frame: Frame,
 	gct: [number, number, number][],
-) => {
+): ParsedFrameWithoutPatch | null => {
 	if (!frame.image) {
 		console.warn('gif frame does not have associated image.');
-		return;
+		return null;
 	}
 
 	const {image} = frame;

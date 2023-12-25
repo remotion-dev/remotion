@@ -50,6 +50,18 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
+const getPrefix = (environment: Environment) => {
+	return `remotion-v5-${environment}`;
+};
+
+export const getWebpackCacheEnvDir = (environment: Environment) => {
+	return getPrefix(environment);
+};
+
+export const getWebpackCacheName = (environment: Environment, hash: string) => {
+	return [getWebpackCacheEnvDir(environment), hash].join(path.sep);
+};
+
 const remotionCacheLocationForEnv = (
 	remotionRoot: string,
 	environment: Environment,
@@ -75,18 +87,6 @@ export const clearCache = (remotionRoot: string, env: Environment) => {
 	return fs.promises.rm(remotionCacheLocationForEnv(remotionRoot, env), {
 		recursive: true,
 	});
-};
-
-const getPrefix = (environment: Environment) => {
-	return `remotion-v5-${environment}`;
-};
-
-export const getWebpackCacheEnvDir = (environment: Environment) => {
-	return getPrefix(environment);
-};
-
-export const getWebpackCacheName = (environment: Environment, hash: string) => {
-	return [getWebpackCacheEnvDir(environment), hash].join(path.sep);
 };
 
 const hasOtherCache = ({

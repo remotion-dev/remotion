@@ -7,7 +7,7 @@ import type {VideoConfig} from './video-config.js';
 
 export type BaseMetadata = Pick<
 	VideoConfig,
-	'durationInFrames' | 'fps' | 'props' | 'height' | 'width'
+	'durationInFrames' | 'fps' | 'props' | 'height' | 'width' | 'defaultCodec'
 >;
 
 export type CanvasContent =

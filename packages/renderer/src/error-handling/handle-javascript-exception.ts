@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Page} from '../browser/BrowserPage';
 import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
@@ -17,18 +17,22 @@ export class ErrorWithStackFrame extends Error {
 		frame,
 		name,
 		delayRenderCall,
+		stack,
 	}: {
 		message: string;
 		symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 		frame: number | null;
 		name: string;
 		delayRenderCall: SymbolicatedStackFrame[] | null;
+		stack: string | undefined;
 	}) {
 		super(message);
 		this.symbolicatedStackFrames = symbolicatedStackFrames;
 		this.frame = frame;
 		this.name = name;
 		this.delayRenderCall = delayRenderCall;
+		// If error symbolication did not yield any stack frames, we print the original stack
+		this.stack = stack;
 	}
 }
 
@@ -51,7 +55,7 @@ const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
 };
 
 const removeDelayRenderStack = (message: string) => {
-	const index = message.indexOf(Internals.DELAY_RENDER_CALLSTACK_TOKEN);
+	const index = message.indexOf(NoReactInternals.DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return message;
 	}

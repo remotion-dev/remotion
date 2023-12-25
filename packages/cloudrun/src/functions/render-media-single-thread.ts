@@ -2,7 +2,7 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -57,15 +57,18 @@ export const renderMediaSingleThread = async (
 			outputLocation: tempFilePath,
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: composition.props,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: composition.props,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 			jpegQuality: body.jpegQuality,
 			audioCodec: body.audioCodec,
 			audioBitrate: body.audioBitrate,
 			videoBitrate: body.videoBitrate,
+			encodingMaxRate: body.encodingMaxRate,
+			encodingBufferSize: body.encodingBufferSize,
 			crf: body.crf,
 			pixelFormat: body.pixelFormat,
 			imageFormat: body.imageFormat,
@@ -83,7 +86,7 @@ export const renderMediaSingleThread = async (
 			browserExecutable: null,
 			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
 			cancelSignal: undefined,
-			concurrency: body.concurrency ?? '100%',
+			concurrency: body.concurrency ?? null,
 			disallowParallelEncoding: false,
 			enforceAudioTrack: body.enforceAudioTrack,
 			ffmpegOverride: undefined,

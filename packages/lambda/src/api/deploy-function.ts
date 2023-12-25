@@ -26,6 +26,7 @@ export type DeployFunctionInput = {
 	memorySizeInMb: number;
 	diskSizeInMb?: number;
 	customRoleArn?: string;
+	enableLambdaInsights?: boolean;
 };
 
 export type DeployFunctionOutput = {
@@ -80,6 +81,7 @@ const deployFunctionRaw = async (
 		alreadyCreated: Boolean(alreadyDeployed),
 		ephemerealStorageInMb: diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
+		enableLambdaInsights: params.enableLambdaInsights ?? false,
 	});
 
 	if (!created.FunctionName) {

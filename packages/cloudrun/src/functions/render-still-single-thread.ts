@@ -2,7 +2,7 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -23,11 +23,19 @@ export const renderStillSingleThread = async (
 	const renderId = randomHash({randomInTests: true});
 
 	try {
-		Log.verbose('Rendering still frame', body);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Rendering still frame',
+			body,
+		);
 
 		const composition = await getCompositionFromBody(body);
 
-		Log.verbose('Composition loaded', composition);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Composition loaded',
+			composition,
+		);
 
 		const tempFilePath = '/tmp/still.png';
 
@@ -48,11 +56,12 @@ export const renderStillSingleThread = async (
 			output: tempFilePath,
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: composition.props,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: composition.props,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			imageFormat: body.imageFormat,
 			scale: body.scale,

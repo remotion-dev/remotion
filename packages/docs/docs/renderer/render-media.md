@@ -9,9 +9,36 @@ _Available since v3.0 - Part of the `@remotion/renderer` package._
 
 Render a video or an audio programmatically.
 
-## Example
+```tsx twoslash title="render.mjs"
+// @module: esnext
+// @target: es2017
+const serveUrl = "/path/to/bundle";
+const outputLocation = "/path/to/frames";
 
-See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr).
+import { renderMedia, selectComposition } from "@remotion/renderer";
+
+const inputProps = {
+  titleText: "Hello World",
+};
+
+const composition = await selectComposition({
+  serveUrl,
+  id: "my-video",
+  inputProps,
+});
+
+// ---cut---
+
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: "h264",
+  outputLocation,
+  inputProps,
+});
+```
+
+See an [example](/docs/ssr-node) of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`selectComposition()`](/docs/renderer/select-composition) on the [server-side rendering page](/docs/ssr-node).
 
 ## Arguments
 
@@ -44,6 +71,34 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
+### `inputProps?`
+
+_object - optional_
+
+An object of arbitrary shape that:
+
+<Step>1</Step> will be passed as <a href="/docs/parameterized-rendering">props to your component</a><br/>
+<Step>2</Step> can be retrieved using <a href="/docs/get-input-props"><code>getInputProps()</code></a>.<br/><br/>
+
+Make sure to also pass the same `inputProps` to [`selectComposition()`](/docs/renderer/select-composition) for this to work correctly.
+
+### `frameRange?`
+
+_number | [number, number] - optional_
+
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+
+### `concurrency?`
+
+_optional_
+
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
+
 ### `audioCodec?`
 
 _"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
@@ -59,42 +114,25 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
-_string - optional_
-
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-_string - optional_
-
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
-
-### `inputProps?`
-
-_object - optional_
-
-An object of arbitrary shape that will be passed as [props to your composition](/docs/parameterized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
-
-### `concurrency?`
-
-_optional_
-
-A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+<Options id="video-bitrate"/>
 
 ### `crf?`
 
 _number | null - optional_
 
 The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `imageFormat?`
 
@@ -146,12 +184,6 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
-### `frameRange?`
-
-_number | [number, number] - optional_
-
-Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
-
 ### `muted?`<AvailableFrom v="3.2.1" />
 
 _boolean - optional_
@@ -191,8 +223,12 @@ Callback function that gets called once the renderer has prepared to start rende
 ```tsx twoslash
 import { OnStartData } from "@remotion/renderer";
 
-const onStart = ({ frameCount }: OnStartData) => {
+const onStart = ({ frameCount, parallelEncoding }: OnStartData) => {
   console.log(`Beginning to render ${frameCount}.`);
+  // From Remotion v4.0.52
+  if (parallelEncoding) {
+    console.log("Parallel encoding is enabled.");
+  }
 };
 ```
 
@@ -283,11 +319,6 @@ Sets a Preset profile. Only applies to videos rendered with `h264` codec.
 Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
 Default: `medium`
 
-### `logLevel?`<AvailableFrom v="4.0.0"/>
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
-
 ### `onBrowserLog?`
 
 _function - optional_
@@ -353,20 +384,7 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `"vulkan"` (_from Remotion v4.0.41_)
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl"  />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 

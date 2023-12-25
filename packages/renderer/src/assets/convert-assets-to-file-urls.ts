@@ -1,4 +1,5 @@
-import type {TRenderAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import type {LogLevel} from '../log-level';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
 import type {DownloadMap} from './download-map';
@@ -15,10 +16,14 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	onDownload,
 	downloadMap,
+	indent,
+	logLevel,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
+	indent: boolean;
+	logLevel: LogLevel;
 }): Promise<TRenderAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TRenderAsset[][][] = [];
@@ -32,6 +37,8 @@ export const convertAssetsToFileUrls = async ({
 							renderAsset: a,
 							onDownload,
 							downloadMap,
+							indent,
+							logLevel,
 						});
 					}),
 				);

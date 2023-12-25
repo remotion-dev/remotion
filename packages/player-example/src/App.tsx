@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	CallbackListener,
 	ErrorFallback,
@@ -569,8 +570,8 @@ const PlayerOnly: React.FC<
 			ref={playerRef}
 			controls
 			showVolumeControls={showVolumeControls}
-			compositionWidth={500}
-			compositionHeight={432}
+			compositionWidth={1920}
+			compositionHeight={1080}
 			fps={fps}
 			{...props}
 			durationInFrames={durationInFrames}

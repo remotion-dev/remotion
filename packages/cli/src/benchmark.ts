@@ -1,9 +1,10 @@
-import type {InternalRenderMediaOptions} from '@remotion/renderer';
+import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -131,16 +132,27 @@ const makeBenchmarkProgressBar = ({
 export const benchmarkCommand = async (
 	remotionRoot: string,
 	args: string[],
+	logLevel: LogLevel,
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
+	const {file, reason, remainingArgs} = findEntryPoint(
+		args,
+		remotionRoot,
+		logLevel,
+	);
 
 	if (!file) {
 		Log.error('No entry file passed.');
-		Log.info('Pass an additional argument specifying the entry file');
-		Log.info();
-		Log.info(`$ remotion benchmark <entry file>`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Pass an additional argument specifying the entry file',
+		);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`$ remotion benchmark <entry file>`,
+		);
 		process.exit(1);
 	}
 
@@ -151,7 +163,6 @@ export const benchmarkCommand = async (
 		envVariables,
 		browserExecutable,
 		chromiumOptions,
-		port,
 		puppeteerTimeout,
 		browser,
 		scale,
@@ -171,19 +182,27 @@ export const benchmarkCommand = async (
 		ffmpegOverride,
 		audioBitrate,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
+		logLevel,
 	});
 
-	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		fullEntryPoint,
+		'reason:',
+		reason,
+	);
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -215,11 +234,12 @@ export const benchmarkCommand = async (
 
 	const puppeteerInstance = await browserInstance;
 
-	const serializedInputPropsWithCustomSchema = Internals.serializeJSONWithDate({
-		data: inputProps ?? {},
-		indent: undefined,
-		staticBase: null,
-	}).serializedString;
+	const serializedInputPropsWithCustomSchema =
+		NoReactInternals.serializeJSONWithDate({
+			data: inputProps ?? {},
+			indent: undefined,
+			staticBase: null,
+		}).serializedString;
 
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
@@ -227,7 +247,7 @@ export const benchmarkCommand = async (
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		puppeteerInstance,
 		browserExecutable,
 		indent: false,
@@ -267,15 +287,15 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {codec, reason: codecReason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		downloadName: null,
-		outName: null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-	});
-
 	for (const composition of compositions) {
+		const {codec, reason: codecReason} = getFinalOutputCodec({
+			cliFlag: parsedCli.codec,
+			downloadName: null,
+			outName: null,
+			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+			uiCodec: null,
+			compositionCodec: composition.defaultCodec ?? null,
+		});
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
@@ -286,8 +306,9 @@ export const benchmarkCommand = async (
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
 			});
-			Log.info();
-			Log.info(
+			Log.infoAdvanced({indent: false, logLevel});
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
 				)}`,
@@ -318,7 +339,7 @@ export const benchmarkCommand = async (
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 					scale: configFileScale,
-					port,
+					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
 					everyNthFrame,
 					logLevel,
@@ -330,6 +351,8 @@ export const benchmarkCommand = async (
 					codec,
 					audioBitrate,
 					videoBitrate,
+					encodingMaxRate,
+					encodingBufferSize,
 					puppeteerInstance,
 					concurrency: con,
 					audioCodec: null,
@@ -343,7 +366,7 @@ export const benchmarkCommand = async (
 					preferLossless: false,
 					server: undefined,
 					serializedResolvedPropsWithCustomSchema:
-						Internals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithDate({
 							data: composition.props,
 							indent: undefined,
 							staticBase: null,
@@ -371,5 +394,5 @@ export const benchmarkCommand = async (
 		}
 	}
 
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 };

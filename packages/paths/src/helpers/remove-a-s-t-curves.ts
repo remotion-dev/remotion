@@ -23,6 +23,111 @@ function approximate_unit_arc(theta1: number, delta_theta: number) {
 	];
 }
 
+function unit_vector_angle(ux: number, uy: number, vx: number, vy: number) {
+	const sign = ux * vy - uy * vx < 0 ? -1 : 1;
+	let dot = ux * vx + uy * vy;
+
+	// Add this to work with arbitrary vectors:
+	// dot /= Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
+
+	// rounding errors, e.g. -1.0000000000000002 can screw up this
+	if (dot > 1.0) {
+		dot = 1.0;
+	}
+
+	if (dot < -1.0) {
+		dot = -1.0;
+	}
+
+	return sign * Math.acos(dot);
+}
+
+function get_arc_center({
+	x1,
+	y1,
+	x2,
+	y2,
+	largeArcFlag,
+	sweepFlag,
+	rx,
+	ry,
+	sin_phi,
+	cos_phi,
+}: {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	largeArcFlag: boolean;
+	sweepFlag: boolean;
+	rx: number;
+	ry: number;
+	sin_phi: number;
+	cos_phi: number;
+}) {
+	// Step 1.
+	//
+	// Moving an ellipse so origin will be the middlepoint between our two
+	// points. After that, rotate it to line up ellipse axes with coordinate
+	// axes.
+	//
+	const x1p = (cos_phi * (x1 - x2)) / 2 + (sin_phi * (y1 - y2)) / 2;
+	const y1p = (-sin_phi * (x1 - x2)) / 2 + (cos_phi * (y1 - y2)) / 2;
+
+	const rx_sq = rx * rx;
+	const ry_sq = ry * ry;
+	const x1p_sq = x1p * x1p;
+	const y1p_sq = y1p * y1p;
+
+	// Step 2.
+	//
+	// Compute coordinates of the centre of this ellipse (cx', cy')
+	// in the new coordinate system.
+	//
+	let radicant = rx_sq * ry_sq - rx_sq * y1p_sq - ry_sq * x1p_sq;
+
+	if (radicant < 0) {
+		// due to rounding errors it might be e.g. -1.3877787807814457e-17
+		radicant = 0;
+	}
+
+	radicant /= rx_sq * y1p_sq + ry_sq * x1p_sq;
+	radicant = Math.sqrt(radicant) * (largeArcFlag === sweepFlag ? -1 : 1);
+
+	const cxp = ((radicant * rx) / ry) * y1p;
+	const cyp = ((radicant * -ry) / rx) * x1p;
+
+	// Step 3.
+	//
+	// Transform back to get centre coordinates (cx, cy) in the original
+	// coordinate system.
+	//
+	const cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2;
+	const cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2;
+
+	// Step 4.
+	//
+	// Compute angles (theta1, delta_theta).
+	//
+	const v1x = (x1p - cxp) / rx;
+	const v1y = (y1p - cyp) / ry;
+	const v2x = (-x1p - cxp) / rx;
+	const v2y = (-y1p - cyp) / ry;
+
+	const theta1 = unit_vector_angle(1, 0, v1x, v1y);
+	let delta_theta = unit_vector_angle(v1x, v1y, v2x, v2y);
+
+	if (sweepFlag === false && delta_theta > 0) {
+		delta_theta -= TAU;
+	}
+
+	if (sweepFlag === true && delta_theta < 0) {
+		delta_theta += TAU;
+	}
+
+	return [cx, cy, theta1, delta_theta];
+}
+
 function arcToCircle({
 	x1,
 	y1,
@@ -254,108 +359,3 @@ export const removeATSHVInstructions = (
 		},
 	});
 };
-
-function get_arc_center({
-	x1,
-	y1,
-	x2,
-	y2,
-	largeArcFlag,
-	sweepFlag,
-	rx,
-	ry,
-	sin_phi,
-	cos_phi,
-}: {
-	x1: number;
-	y1: number;
-	x2: number;
-	y2: number;
-	largeArcFlag: boolean;
-	sweepFlag: boolean;
-	rx: number;
-	ry: number;
-	sin_phi: number;
-	cos_phi: number;
-}) {
-	// Step 1.
-	//
-	// Moving an ellipse so origin will be the middlepoint between our two
-	// points. After that, rotate it to line up ellipse axes with coordinate
-	// axes.
-	//
-	const x1p = (cos_phi * (x1 - x2)) / 2 + (sin_phi * (y1 - y2)) / 2;
-	const y1p = (-sin_phi * (x1 - x2)) / 2 + (cos_phi * (y1 - y2)) / 2;
-
-	const rx_sq = rx * rx;
-	const ry_sq = ry * ry;
-	const x1p_sq = x1p * x1p;
-	const y1p_sq = y1p * y1p;
-
-	// Step 2.
-	//
-	// Compute coordinates of the centre of this ellipse (cx', cy')
-	// in the new coordinate system.
-	//
-	let radicant = rx_sq * ry_sq - rx_sq * y1p_sq - ry_sq * x1p_sq;
-
-	if (radicant < 0) {
-		// due to rounding errors it might be e.g. -1.3877787807814457e-17
-		radicant = 0;
-	}
-
-	radicant /= rx_sq * y1p_sq + ry_sq * x1p_sq;
-	radicant = Math.sqrt(radicant) * (largeArcFlag === sweepFlag ? -1 : 1);
-
-	const cxp = ((radicant * rx) / ry) * y1p;
-	const cyp = ((radicant * -ry) / rx) * x1p;
-
-	// Step 3.
-	//
-	// Transform back to get centre coordinates (cx, cy) in the original
-	// coordinate system.
-	//
-	const cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2;
-	const cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2;
-
-	// Step 4.
-	//
-	// Compute angles (theta1, delta_theta).
-	//
-	const v1x = (x1p - cxp) / rx;
-	const v1y = (y1p - cyp) / ry;
-	const v2x = (-x1p - cxp) / rx;
-	const v2y = (-y1p - cyp) / ry;
-
-	const theta1 = unit_vector_angle(1, 0, v1x, v1y);
-	let delta_theta = unit_vector_angle(v1x, v1y, v2x, v2y);
-
-	if (sweepFlag === false && delta_theta > 0) {
-		delta_theta -= TAU;
-	}
-
-	if (sweepFlag === true && delta_theta < 0) {
-		delta_theta += TAU;
-	}
-
-	return [cx, cy, theta1, delta_theta];
-}
-
-function unit_vector_angle(ux: number, uy: number, vx: number, vy: number) {
-	const sign = ux * vy - uy * vx < 0 ? -1 : 1;
-	let dot = ux * vx + uy * vy;
-
-	// Add this to work with arbitrary vectors:
-	// dot /= Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
-
-	// rounding errors, e.g. -1.0000000000000002 can screw up this
-	if (dot > 1.0) {
-		dot = 1.0;
-	}
-
-	if (dot < -1.0) {
-		dot = -1.0;
-	}
-
-	return sign * Math.acos(dot);
-}

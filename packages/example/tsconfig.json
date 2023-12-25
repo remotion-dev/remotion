@@ -29,6 +29,8 @@
 		{"path": "../shapes"},
 		{"path": "../skia"},
 		{"path": "../three"},
-		{"path": "../zod-types"}
+		{"path": "../transitions"},
+		{"path": "../zod-types"},
+		{"path": "../layout-utils"}
 	]
 }

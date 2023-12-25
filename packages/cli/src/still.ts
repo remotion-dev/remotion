@@ -1,5 +1,7 @@
-import {Internals} from 'remotion';
+import type {LogLevel} from '@remotion/renderer';
+import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -7,12 +9,16 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
 
-export const still = async (remotionRoot: string, args: string[]) => {
+export const still = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	const {
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot);
+	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -40,19 +46,18 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		height,
 		inputProps,
 		overwrite,
-		port,
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality,
 		scale,
 		stillFrame,
 		width,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
 		remotionRoot,
+		logLevel,
 	});
 
 	await renderStillFlow({
@@ -65,13 +70,14 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		chromiumOptions,
 		envVariables,
 		height,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps,
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		overwrite,
-		port,
+		port: getRendererPortFromConfigFileAndCliFlag(),
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality,

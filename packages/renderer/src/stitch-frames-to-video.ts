@@ -1,7 +1,7 @@
 import fs, {promises} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {Internals} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -56,6 +56,8 @@ const packageJson = fs.existsSync(packageJsonPath)
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -86,6 +88,8 @@ type InternalStitchFramesToVideoOptions = {
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -140,12 +144,14 @@ const getAssetsData = async ({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
 		downloadMap,
+		indent,
+		logLevel,
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel, tag: 'audio'},
 		'asset positions',
 		JSON.stringify(assetPositions),
@@ -169,6 +175,8 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
+					indent,
+					logLevel,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -185,6 +193,8 @@ const getAssetsData = async ({
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
 		remotionRoot,
+		indent,
+		logLevel,
 	});
 
 	onProgress(1);
@@ -221,6 +231,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -245,7 +257,9 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-
+	validateBitrate(encodingMaxRate, 'encodingMaxRate');
+	// encodingBufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
@@ -277,7 +291,7 @@ const innerStitchFramesToVideo = async (
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 		  );
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -286,7 +300,7 @@ const innerStitchFramesToVideo = async (
 		'audioCodec',
 		resolvedAudioCodec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -295,7 +309,7 @@ const innerStitchFramesToVideo = async (
 		'pixelFormat',
 		pixelFormat,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -304,7 +318,7 @@ const innerStitchFramesToVideo = async (
 		'codec',
 		codec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -313,7 +327,7 @@ const innerStitchFramesToVideo = async (
 		'shouldRenderAudio',
 		shouldRenderAudio,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -327,15 +341,15 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = assetsInfo.assets.length;
 
-	const updateProgress = (preStitchProgress: number, muxProgress: number) => {
-		const totalFrameProgress =
-			0.5 * preStitchProgress * expectedFrames + muxProgress * 0.5;
-		onProgress?.(Math.round(totalFrameProgress));
+	const updateProgress = (muxProgress: number) => {
+		onProgress?.(muxProgress);
 	};
 
 	const audio = shouldRenderAudio
@@ -345,7 +359,7 @@ const innerStitchFramesToVideo = async (
 				fps,
 				expectedFrames,
 				logLevel,
-				onProgress: (prog) => updateProgress(prog, 0),
+				onProgress: () => updateProgress(0),
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
@@ -370,7 +384,9 @@ const innerStitchFramesToVideo = async (
 				audioBitrate ? audioBitrate : '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
-			].filter(Internals.truthy),
+			].filter(NoReactInternals.truthy),
+			indent,
+			logLevel,
 		);
 
 		cancelSignal?.(() => {
@@ -411,6 +427,9 @@ const innerStitchFramesToVideo = async (
 					['-s', `${width}x${height}`],
 					['-start_number', String(assetsInfo.firstFrameIndex)],
 					['-i', assetsInfo.imageSequenceName],
+					codec === 'gif'
+						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
+						: null,
 			  ]),
 		audio ? ['-i', audio] : null,
 		numberOfGifLoops === null
@@ -420,6 +439,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
+			encodingMaxRate,
+			encodingBufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -451,7 +472,7 @@ const innerStitchFramesToVideo = async (
 		? ffmpegOverride({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent: indent ?? false,
 			logLevel,
@@ -459,7 +480,7 @@ const innerStitchFramesToVideo = async (
 		},
 		'Generated final FFMPEG command:',
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -468,7 +489,7 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, {
+	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel, {
 		cwd: dir,
 	});
 	cancelSignal?.(() => {
@@ -493,7 +514,7 @@ const innerStitchFramesToVideo = async (
 					}
 				}
 
-				updateProgress(1, parsed);
+				updateProgress(parsed);
 			}
 		}
 	});
@@ -570,12 +591,16 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	x264Preset,
 	colorSpace,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,

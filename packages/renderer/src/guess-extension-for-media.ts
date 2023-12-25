@@ -1,7 +1,16 @@
 import {callFf} from './call-ffmpeg';
+import type {LogLevel} from './log-level';
 
-export const guessExtensionForVideo = async ({src}: {src: string}) => {
-	const {stderr} = await callFf('ffprobe', [src]);
+export const guessExtensionForVideo = async ({
+	src,
+	indent,
+	logLevel,
+}: {
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
+	const {stderr} = await callFf('ffprobe', [src], indent, logLevel);
 	if (stderr.includes('Audio: mp3,')) {
 		return 'mp3';
 	}

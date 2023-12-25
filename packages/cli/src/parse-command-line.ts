@@ -29,8 +29,8 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
 	['number-of-shared-audio-tags']: number;
-	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
-		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
+	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytes
+		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytes.type;
 	[BrowserSafeApis.options.colorSpaceOption
 		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
 	version: string;
@@ -41,6 +41,10 @@ type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
+	[BrowserSafeApis.options.encodingBufferSizeOption
+		.cliFlag]: typeof BrowserSafeApis.options.encodingBufferSizeOption.type;
+	[BrowserSafeApis.options.encodingMaxRateOption
+		.cliFlag]: typeof BrowserSafeApis.options.encodingMaxRateOption.type;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -93,6 +97,7 @@ export const BooleanFlags = [
 	'disable-chunk-optimization',
 	'save-browser-logs',
 	'disable-cloudwatch',
+	'enable-lambda-insights',
 	'yes',
 	'y',
 	'disable-web-security',
@@ -217,7 +222,10 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Log.warn('The --quality flag has been renamed to --jpeg-quality instead.');
+		Log.warn(
+			{indent: false, logLevel: 'info'},
+			'The --quality flag has been renamed to --jpeg-quality instead.',
+		);
 		Config.setJpegQuality(parsedCli.quality);
 	}
 
@@ -227,10 +235,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.setScale(parsedCli.scale);
-	}
-
-	if (typeof parsedCli.port !== 'undefined') {
-		Config.setPort(parsedCli.port);
 	}
 
 	if (typeof parsedCli.muted !== 'undefined') {
@@ -261,6 +265,14 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
 		Config.setVideoBitrate(parsedCli['video-bitrate']);
+	}
+
+	if (typeof parsedCli['buffer-size'] !== 'undefined') {
+		Config.setEncodingBufferSize(parsedCli['buffer-size']);
+	}
+
+	if (typeof parsedCli['max-rate'] !== 'undefined') {
+		Config.setEncodingMaxRate(parsedCli['max-rate']);
 	}
 
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {

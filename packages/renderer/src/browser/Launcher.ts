@@ -94,6 +94,8 @@ export class ChromeLauncher implements ProductLauncher {
 				connection,
 				defaultViewport,
 				closeCallback: runner.close.bind(runner),
+				forgetEventLoop: runner.forgetEventLoop.bind(runner),
+				rememberEventLoop: runner.rememberEventLoop.bind(runner),
 			});
 		} catch (error) {
 			runner.kill();

@@ -55,7 +55,7 @@ const data = files.find((f) => {
 
 ## API
 
-Takes no arguments and returns an array of object, each of which have three entries:
+Takes no arguments and returns an array of object, each of which have four entries:
 
 - `name`: The path relative to the public folder.
   :::note
@@ -68,9 +68,14 @@ Takes no arguments and returns an array of object, each of which have three entr
 
 ## Maximum files
 
-For performance, only the first 1000 items are fetched and displayed.
+For performance, only the first 10000 items are fetched and displayed.
+
+**Changelog**
+
+Before v4.0.64, only the first 1000 items were displayed.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-static-files.ts)
 - [`staticFile()`](/docs/staticfile)
+- [`watchStaticFile()`](/docs/watchstaticfile)

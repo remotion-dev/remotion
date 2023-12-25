@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-render-as-gif.png
 id: render-as-gif
-title: Render as GIF
+title: Rendering GIFs
 crumb: "Techniques"
 ---
 

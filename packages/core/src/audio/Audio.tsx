@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
@@ -16,16 +19,21 @@ import {SharedAudioContext} from './shared-audio-tags.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps & RemotionMainAudioProps
+	RemotionAudioProps &
+		RemotionMainAudioProps & {
+			/**
+			 * @deprecated For internal use only
+			 */
+			stack?: string;
+		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, name, stack, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
-
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
@@ -34,21 +42,25 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const preloadedSrc = usePreload(props.src);
+
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
+			// eslint-disable-next-line no-console
 			console.log(e.currentTarget.error);
 
 			// If there is no `loop` property, we don't need to get the duration
 			// and this does not need to be a fatal error
-			const errMessage = `Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
+			const errMessage = `Could not play audio with src ${preloadedSrc}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
 
 			if (loop) {
 				cancelRender(new Error(errMessage));
 			} else {
+				// eslint-disable-next-line no-console
 				console.warn(errMessage);
 			}
 		},
-		[loop, otherProps.src],
+		[loop, preloadedSrc],
 	);
 
 	const onDuration = useCallback(
@@ -58,8 +70,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
+	if (loop && durations[getAbsoluteSrc(preloadedSrc)] !== undefined) {
+		const duration = Math.floor(durations[getAbsoluteSrc(preloadedSrc)] * fps);
 
 		return (
 			<Loop
@@ -71,7 +83,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 					startFrom,
 				})}
 			>
-				<Audio {...propsOtherThanLoop} ref={ref} />
+				<Audio
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -87,6 +103,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
+				name={name}
 			>
 				<Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
@@ -113,6 +130,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<AudioForDevelopment
+			_remotionInternalNativeLoopPassed={
+				props._remotionInternalNativeLoopPassed ?? false
+			}
+			_remotionInternalStack={stack ?? null}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}
@@ -130,3 +151,5 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
  * @see [Documentation](https://www.remotion.dev/docs/audio)
  */
 export const Audio = forwardRef(AudioRefForwardingFunction);
+
+addSequenceStackTraces(Audio);
