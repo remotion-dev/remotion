@@ -27,17 +27,15 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 
 # Set render still request
 render_params = RenderStillParams(
-    composition="star-test",
-
+    composition="still-helloworld",
     data={
-        'hi': 'there'
+        'message': 'Hello from props!'
     },
 )
 
 render_response = client.render_still_on_lambda(render_params)
 if render_response:
     # Execute render request
-
     print("Render ID:", render_response.render_id)
     print("Bucket name:", render_response.bucket_name)
     print("Render done! File at ", render_response.url)

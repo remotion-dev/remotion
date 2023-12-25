@@ -69,6 +69,7 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {StillHelloWorld} from './StillHelloWorld';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -592,6 +593,13 @@ export const Index: React.FC = () => {
 					component={StillZoom}
 					width={1800}
 					height={2200}
+				/>
+				<Still
+					id="still-helloworld"
+					defaultProps={{message: 'Hello from default!'}}
+					component={StillHelloWorld}
+					width={1920}
+					height={1080}
 				/>
 			</Folder>
 			<Folder name="features">
