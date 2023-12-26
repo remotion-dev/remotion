@@ -173,15 +173,13 @@ class DeleteAfter(Enum):
     THIRTY_DAYS = '30-days'
 
 
-# pylint: disable=too-many-instance-attributes
+@dataclass
 class RenderMediaResponse:
     """
     Response data after rendering.
     """
-
-    def __init__(self, bucketName, renderId):
-        self.bucketName = bucketName
-        self.renderId = renderId
+    bucket_name: str
+    render_id: str
 
 
 @dataclass
