@@ -20,7 +20,7 @@ _from v4.0.81_
 
 - `RenderParams` has been renamed to `RenderMediaParams`.
 - `RenderProgress` has been renamed to `RenderMediaProgress`.
-- `RenderResponse` is now RenderMediaResponse, and its fields have been updated: `renderId` is now `render_id`, and `bucketName` has been changed to `bucket_name`.
+- `RenderResponse` is now `RenderMediaResponse`, and its fields have been updated: `renderId` is now `render_id`, and `bucketName` has been changed to `bucket_name`.
 - The following types have been added: `CostsInfo`,
   `Privacy`, `ValidStillImageFormats`, `LogLevel`, `OpenGlRenderer`,
   `ChromiumOptions`, `CustomCredentialsWithoutSensitiveData`, `CustomCredentials`,

@@ -41,3 +41,4 @@ if render_response:
     print("Render ID:", render_response.render_id)
     print("Bucket name:", render_response.bucket_name)
     print("Render done! File at ", render_response.url)
+    print("Cost Info: ", render_response.estimated_price)
