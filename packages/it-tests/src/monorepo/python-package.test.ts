@@ -36,6 +36,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     "python -m pytest -rP  tests/test_render_client_render_media.py",
     {
       cwd,
+      stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
@@ -102,6 +103,7 @@ test("Python package should create the same progress payload as normal Lambda pa
     "python -m pytest -rP  tests/test_get_render_progress_client.py",
     {
       cwd,
+      stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
@@ -123,6 +125,7 @@ test("Python package should create the same renderStill payload as normal Lambda
     "python -m pytest -rP  tests/test_render_client_render_still.py",
     {
       cwd,
+      stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
