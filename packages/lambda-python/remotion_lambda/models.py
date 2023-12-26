@@ -87,7 +87,7 @@ class ChromiumOptions:
     """
     ignore_certificate_errors: Optional[bool] = None
     disable_web_security: Optional[bool] = None
-    gl: Optional[OpenGlRenderer] = OpenGlRenderer.SWANGLE
+    gl: Optional[OpenGlRenderer] = None
     headless: Optional[bool] = None
     user_agent: Optional[str] = None
     enable_multi_process_on_linux: Optional[bool] = None
@@ -173,8 +173,61 @@ class DeleteAfter(Enum):
     THIRTY_DAYS = '30-days'
 
 
+# pylint: disable=too-many-instance-attributes
+class RenderMediaResponse:
+    """
+    Response data after rendering.
+    """
+
+    def __init__(self, bucketName, renderId):
+        self.bucketName = bucketName
+        self.renderId = renderId
+
+
 @dataclass
-class RenderParams:
+class RenderProgressParams:
+    """
+    Parameters for checking the progress of video rendering.
+    """
+
+    render_id: str
+    bucket_name: str
+    function_name: str
+    region: str
+
+    def serialize_params(self) -> Dict:
+        """
+        Convert instance attributes to a dictionary for serialization.
+        """
+        parameters = {
+            'renderId': self.render_id,
+            'bucketName': self.bucket_name,
+            'type': 'status',
+            "version": VERSION,
+            "s3OutputProvider": None,
+        }
+        return parameters
+
+
+@dataclass
+class CostsInfo:
+    """
+    Represents the cost-related information for a specific service or product.
+
+    Attributes:
+        accrued_so_far (float): The total cost that has been accrued so far.
+        display_cost (str): The cost displayed to the user, possibly formatted as a string.
+        currency (str): The type of currency used for the costs, e.g., 'USD', 'EUR'.
+        disclaimer (str): Any disclaimer or additional information related to the costs.
+    """
+    accrued_so_far: float
+    display_cost: str
+    currency: str
+    disclaimer: str
+
+
+@dataclass
+class RenderMediaParams:
     """
     Parameters for video rendering.
     """
@@ -188,17 +241,17 @@ class RenderParams:
     private_serialized_input_props: Optional[Dict] = None
     codec: str = 'h264'
     version: str = ""
-    image_format: str = 'jpeg'
+    image_format: ValidStillImageFormats = ValidStillImageFormats.JPEG
     crf: Optional[int] = None
     env_variables: Optional[Dict] = None
     max_retries: int = 1
     jpeg_quality: int = 80
-    privacy: str = 'public'
+    privacy: Privacy = Privacy.PUBLIC
     color_space: str = 'default'
-    log_level: str = 'info'
+    log_level: Optional[LogLevel] = LogLevel.INFO
     frame_range: Optional[str] = None
     timeout_in_milliseconds: Optional[int] = 30000
-    chromium_options: Optional[Dict] = None
+    chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[int] = 1
     every_nth_frame: Optional[int] = 1
     number_of_gif_loops: Optional[int] = 0
@@ -285,81 +338,6 @@ class RenderParams:
         return parameters
 
 
-# pylint: disable=too-many-instance-attributes
-class RenderResponse:
-    """
-    Response data after rendering.
-    """
-
-    def __init__(self, bucketName, renderId):
-        self.bucketName = bucketName
-        self.renderId = renderId
-
-
-@dataclass
-class RenderProgressParams:
-    """
-    Parameters for checking the progress of video rendering.
-    """
-
-    render_id: str
-    bucket_name: str
-    function_name: str
-    region: str
-
-    def serialize_params(self) -> Dict:
-        """
-        Convert instance attributes to a dictionary for serialization.
-        """
-        parameters = {
-            'renderId': self.render_id,
-            'bucketName': self.bucket_name,
-            'type': 'status',
-            "version": VERSION,
-            "s3OutputProvider": None,
-        }
-        return parameters
-
-
-@dataclass
-class CostsInfo:
-    """
-    Represents the cost-related information for a specific service or product.
-
-    Attributes:
-        accrued_so_far (float): The total cost that has been accrued so far.
-        display_cost (str): The cost displayed to the user, possibly formatted as a string.
-        currency (str): The type of currency used for the costs, e.g., 'USD', 'EUR'.
-        disclaimer (str): Any disclaimer or additional information related to the costs.
-    """
-    accrued_so_far: float
-    display_cost: str
-    currency: str
-    disclaimer: str
-
-
-@dataclass
-class RenderStillOnLambdaOutput:
-    """
-    Represents the output information of a rendering operation performed on AWS Lambda.
-
-    Attributes:
-        estimated_price (CostsInfo): 
-            An object containing detailed cost information related to the rendering.
-        url (str): The URL where the rendered image is stored or can be accessed.
-        size_in_bytes (int): The size of the rendered image file in bytes.
-        bucket_name (str): The name of the S3 bucket where the rendered image is stored.
-        render_id (str): A unique identifier for the rendering operation.
-        cloud_watch_logs (str): The CloudWatch logs associated with the rendering operation.
-    """
-    estimated_price: CostsInfo
-    url: str
-    size_in_bytes: int
-    bucket_name: str
-    render_id: str
-    cloud_watch_logs: Optional[str] = None
-
-
 @dataclass
 class RenderStillParams:
     """
@@ -380,9 +358,7 @@ class RenderStillParams:
     log_level: Optional[LogLevel] = LogLevel.INFO
     out_name: Optional[Union[str, OutNameInputObject]] = None
     timeout_in_milliseconds: Optional[int] = 30000
-    chromium_options: Optional[ChromiumOptions] = field(
-        default_factory=lambda: ChromiumOptions()
-    )
+    chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[float] = 1
     download_behavior: Dict = field(default_factory=lambda: {
                                     'type': 'play-in-browser'})
@@ -391,6 +367,7 @@ class RenderStillParams:
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
+    offthreadvideo_cache_size_in_bytes: Optional[int] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -403,7 +380,7 @@ class RenderStillParams:
 
             The optional attributes include maxRetries, envVariables, jpegQuality, frame, 
             logLevel, outName, timeoutInMilliseconds, chromiumOptions, scale, downloadBehavior, 
-            forceWidth, forceHeight, forceBucketName, dumpBrowserLogs, and deleteAfter. 
+            forceWidth, forceHeight, forceBucketName, and deleteAfter. 
             Default values are provided for 'inputProps' (empty dictionary) and 'downloadBehavior' 
             ('type': 'play-in-browser') if they are not explicitly set.
 
@@ -411,35 +388,57 @@ class RenderStillParams:
                 Dict: A dictionary containing all the serialized parameters of the object.
         """
         parameters = {
+            'type': 'still',
             'composition': self.composition,
             'inputProps': self.private_serialized_input_props or {},
             'imageFormat': self.image_format,
             'privacy': self.privacy,
             'serveUrl': self.serve_url,
             'version': VERSION,
-            'type': 'still',
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'maxRetries': self.max_retries,
-            'envVariables': self.env_variables,
+            'envVariables': self.env_variables if self.env_variables is not None else {},
             'jpegQuality': self.jpeg_quality,
             'frame': self.frame,
             'logLevel': self.log_level,
             'outName': self.out_name,
-            'chromiumOptions': self.chromium_options,
+            'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,
             'downloadBehavior': self.download_behavior or {'type': 'play-in-browser'},
             'forceWidth': self.force_width,
             'forceHeight': self.force_height,
             'forceBucketName': self.force_bucket_name,
-            'dumpBrowserLogs': self.dump_browser_logs,
             'deleteAfter': self.delete_after,
-            'attempt': self.attempt
+            'attempt': self.attempt,
+            'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes
         }
 
         return parameters
 
 
-class RenderProgress:
+@dataclass
+class RenderStillResponse:
+    """
+    Represents the output information of a rendering operation performed on AWS Lambda.
+
+    Attributes:
+        estimated_price (CostsInfo): 
+            An object containing detailed cost information related to the rendering.
+        url (str): The URL where the rendered image is stored or can be accessed.
+        size_in_bytes (int): The size of the rendered image file in bytes.
+        bucket_name (str): The name of the S3 bucket where the rendered image is stored.
+        render_id (str): A unique identifier for the rendering operation.
+        cloud_watch_logs (str): The CloudWatch logs associated with the rendering operation.
+    """
+    estimated_price: CostsInfo
+    url: str
+    size_in_bytes: int
+    bucket_name: str
+    render_id: str
+    cloud_watch_logs: Optional[str] = None
+
+
+class RenderMediaProgress:
     """
     Progress of video rendering.
     """

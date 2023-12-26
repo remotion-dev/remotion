@@ -1,12 +1,12 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
-from dataclasses import asdict, is_dataclass
+from dataclasses import asdict
 import json
 from math import ceil
 from typing import Union, Literal
 from enum import Enum
 import boto3
-from .models import (CostsInfo, RenderParams, RenderProgress,
-                     RenderResponse, RenderProgressParams, RenderStillOnLambdaOutput,
+from .models import (CostsInfo, RenderMediaParams, RenderMediaProgress,
+                     RenderMediaResponse, RenderProgressParams, RenderStillResponse,
                      RenderStillParams)
 
 
@@ -106,7 +106,7 @@ class RemotionClient:
         response = client.invoke(
             FunctionName=function_name, Payload=payload, )
         result = response['Payload'].read().decode('utf-8')
-        decoded_result = (self._parse_stream(result)[-1])
+        decoded_result = self._parse_stream(result)[-1]
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
 
@@ -122,14 +122,13 @@ class RemotionClient:
 
         if isinstance(obj, Enum):
             return obj.value if hasattr(obj, 'value') else obj.name
-        elif hasattr(obj, '__dict__'):
+        if hasattr(obj, '__dict__'):
             return obj.__dict__
-        elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        if hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
             return list(obj)
-        else:
-            return asdict(obj)
+        return asdict(obj)
 
-    def construct_render_request(self, render_params: Union[RenderParams, RenderStillParams],
+    def construct_render_request(self, render_params: Union[RenderMediaParams, RenderStillParams],
                                  render_type:
                                  Union[Literal["video-or-audio"], Literal["still"]]) -> str:
         """
@@ -170,7 +169,7 @@ class RemotionClient:
         )
         return json.dumps(progress_params.serialize_params())
 
-    def render_media_on_lambda(self, render_params: RenderParams) -> RenderResponse:
+    def render_media_on_lambda(self, render_params: RenderMediaParams) -> RenderMediaResponse:
         """
         Render media using AWS Lambda.
 
@@ -185,11 +184,11 @@ class RemotionClient:
         body_object = self._invoke_lambda(
             function_name=self.function_name, payload=params)
         if body_object:
-            return RenderResponse(body_object['bucketName'], body_object['renderId'])
+            return RenderMediaResponse(body_object['bucketName'], body_object['renderId'])
 
         return None
 
-    def render_still_on_lambda(self, render_params: RenderStillParams) -> RenderResponse:
+    def render_still_on_lambda(self, render_params: RenderStillParams) -> RenderStillResponse:
         """
         Render still using AWS Lambda.
 
@@ -206,7 +205,7 @@ class RemotionClient:
             function_name=self.function_name, payload=params)
 
         if body_object:
-            return RenderStillOnLambdaOutput(
+            return RenderStillResponse(
                 estimated_price=CostsInfo(
                     accrued_so_far=body_object['estimatedPrice']['accruedSoFar'],
                     display_cost=body_object['estimatedPrice']['displayCost'],
@@ -222,7 +221,7 @@ class RemotionClient:
 
         return None
 
-    def get_render_progress(self, render_id: str, bucket_name: str) -> RenderProgress:
+    def get_render_progress(self, render_id: str, bucket_name: str) -> RenderMediaProgress:
         """
         Get the progress of a render.
 
@@ -237,7 +236,7 @@ class RemotionClient:
         progress_response = self._invoke_lambda(
             function_name=self.function_name, payload=params)
         if progress_response:
-            render_progress = RenderProgress()
+            render_progress = RenderMediaProgress()
             render_progress.__dict__.update(progress_response)
             return render_progress
         return None

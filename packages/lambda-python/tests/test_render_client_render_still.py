@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from remotion_lambda.models import RenderParams
+from remotion_lambda.models import RenderStillParams
 from remotion_lambda.remotionclient import RemotionClient
 
 
@@ -9,14 +9,15 @@ class TestRemotionClient(TestCase):
         client = RemotionClient(region="us-east-1",
                                 serve_url="testbed",
                                 function_name="remotion-render")
-        render_params = RenderParams(
-            composition="react-svg",
+        render_still_params = RenderStillParams(
+            composition="still-helloworld",
             data={
-                'hi': 'there'
+                'message': 'Hello from props!'
             },
         )
 
         self.assertEqual(client.region, "us-east-1")
-        self.assertIsNotNone(render_params)
-        self.assertIsNotNone(render_params.data)
-        print(client.construct_render_request(render_params=render_params))
+        self.assertIsNotNone(render_still_params)
+        self.assertIsNotNone(render_still_params.data)
+        print(client.construct_render_request(
+            render_params=render_still_params, render_type='still'))
