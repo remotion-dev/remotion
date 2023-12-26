@@ -53,6 +53,7 @@ import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
 import './style.css';
 import {Tailwind} from './Tailwind';
@@ -69,7 +70,6 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
-import {StillHelloWorld} from './StillHelloWorld';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
