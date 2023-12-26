@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderParams, RenderProgressParams
+from remotion_lambda import RenderMediaParams
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -26,7 +26,7 @@ client = RemotionClient(region=REMOTION_APP_REGION,
                         function_name=REMOTION_APP_FUNCTION_NAME)
 
 # Set render request
-render_params = RenderParams(
+render_params = RenderMediaParams(
     composition="react-svg",
     data={
         'hi': 'there'

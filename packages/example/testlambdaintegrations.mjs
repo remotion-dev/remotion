@@ -5,7 +5,7 @@ const functionName = execSync(`pnpm exec remotion lambda functions ls -q`)
 	.trim()
 	.split(' ')[0];
 
-/* Console.log('=== PHP ===');
+console.log('=== PHP ===');
 execSync(`php src/render.php`, {
 	env: {
 		// eslint-disable-next-line no-undef
@@ -16,10 +16,10 @@ execSync(`php src/render.php`, {
 	},
 	cwd: '../lambda-php-example',
 	stdio: 'inherit',
-}); */
-/* 
-console.log('=== Python ===');
-execSync(`python testclient.py`, {
+});
+
+console.log('=== Python(render media) ===');
+execSync(`python testclient_render_media.py`, {
 	env: {
 		// eslint-disable-next-line no-undef
 		...process.env,
@@ -31,13 +31,12 @@ execSync(`python testclient.py`, {
 	stdio: 'inherit',
 });
 
- */
-console.log('=== Python ===');
+console.log('=== Python(render still) ===');
 execSync(`python testclient_render_still.py`, {
 	env: {
 		// eslint-disable-next-line no-undef
 		...process.env,
-		REMOTION_APP_REGION: 'us-east-1',
+		REMOTION_APP_REGION: 'eu-central-1',
 		REMOTION_APP_FUNCTION_NAME: functionName,
 		REMOTION_APP_SERVE_URL: 'testbed-v6',
 	},
