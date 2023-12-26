@@ -4,7 +4,7 @@ import path from "path";
 import { expect, test } from "vitest";
 import { LambdaInternals } from "@remotion/lambda";
 
-const PYTHON_OUTPUT_MARKER = 11;
+const PYTHON_OUTPUT_MARKER = 12;
 const referenceVersion = readFileSync(
   path.join(process.cwd(), "..", "core", "package.json"),
   "utf-8"
