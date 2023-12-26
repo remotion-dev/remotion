@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderMediaParams
+from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -28,6 +28,8 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 # Set render request
 render_params = RenderMediaParams(
     composition="react-svg",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
     data={
         'hi': 'there'
     },

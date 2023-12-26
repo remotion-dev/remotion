@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderStillParams, RenderProgressParams
+from remotion_lambda import RenderStillParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -28,6 +28,8 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 # Set render still request
 render_params = RenderStillParams(
     composition="still-helloworld",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
     data={
         'message': 'Hello from props!'
     },
