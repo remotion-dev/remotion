@@ -4,7 +4,7 @@ import path from "path";
 import { expect, test } from "vitest";
 import { LambdaInternals } from "@remotion/lambda";
 
-const PYTHON_OUTPUT_MARKER = 12;
+const PYTHON_OUTPUT_MARKER = 10;
 const referenceVersion = readFileSync(
   path.join(process.cwd(), "..", "core", "package.json"),
   "utf-8"
@@ -36,7 +36,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     "python -m pytest -rP  tests/test_render_client_render_media.py",
     {
       cwd,
-      stdio: "inherit",
+      //stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
@@ -103,7 +103,7 @@ test("Python package should create the same progress payload as normal Lambda pa
     "python -m pytest -rP  tests/test_get_render_progress_client.py",
     {
       cwd,
-      stdio: "inherit",
+      //stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
@@ -125,7 +125,7 @@ test("Python package should create the same renderStill payload as normal Lambda
     "python -m pytest -rP  tests/test_render_client_render_still.py",
     {
       cwd,
-      stdio: "inherit",
+      //stdio: "inherit",
     }
   );
   const output = pythonOutput.toString().split("\n");
