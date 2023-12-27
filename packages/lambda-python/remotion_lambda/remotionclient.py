@@ -145,7 +145,7 @@ class RemotionClient:
         render_params.function_name = self.function_name
         render_params.type = render_type
         render_params.private_serialized_input_props = self._serialize_input_props(
-            input_props=render_params.data,
+            input_props=render_params.input_props,
             render_type=render_type
         )
         return json.dumps(render_params.serialize_params(), default=self._custom_serializer)

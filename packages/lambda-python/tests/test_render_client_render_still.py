@@ -11,13 +11,13 @@ class TestRemotionClient(TestCase):
                                 function_name="remotion-render")
         render_still_params = RenderStillParams(
             composition="still-helloworld",
-            data={
+            input_props={
                 'message': 'Hello from props!'
             },
         )
 
         self.assertEqual(client.region, "us-east-1")
         self.assertIsNotNone(render_still_params)
-        self.assertIsNotNone(render_still_params.data)
+        self.assertIsNotNone(render_still_params.input_props)
         print(client.construct_render_request(
             render_params=render_still_params, render_type='still'))

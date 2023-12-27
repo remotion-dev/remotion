@@ -229,7 +229,7 @@ class RenderMediaParams:
     """
     Parameters for video rendering.
     """
-    data: Optional[List] = None
+    input_props: Optional[List] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[str] = None
@@ -343,7 +343,6 @@ class RenderStillParams:
     """
     composition: str
     serve_url: str = ""
-    data: Optional[List] = None
     input_props: Optional[Dict[str, Any]] = None
     private_serialized_input_props: Optional[Dict[str, Any]] = None
     image_format: ValidStillImageFormats = ValidStillImageFormats.JPEG

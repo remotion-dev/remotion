@@ -30,7 +30,7 @@ render_params = RenderMediaParams(
     composition="react-svg",
     privacy=Privacy.PUBLIC,
     image_format=ValidStillImageFormats.JPEG,
-    data={
+    input_props={
         'hi': 'there'
     },
 )

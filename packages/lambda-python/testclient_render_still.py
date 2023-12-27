@@ -30,7 +30,7 @@ render_params = RenderStillParams(
     composition="still-helloworld",
     privacy=Privacy.PUBLIC,
     image_format=ValidStillImageFormats.JPEG,
-    data={
+    input_props={
         'message': 'Hello from props!'
     },
 )

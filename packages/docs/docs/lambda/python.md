@@ -16,8 +16,9 @@ To trigger a Lambda render using Python, install the `remotion-lambda` package u
 
 ### Breaking changes
 
-_from v4.0.81_
+## 4.0.82
 
+- The `data` field is now `input_props`.
 - `RenderParams` has been renamed to `RenderMediaParams`.
 - `RenderProgress` has been renamed to `RenderMediaProgress`.
 - `RenderResponse` is now `RenderMediaResponse`, and its fields have been updated: `renderId` is now `render_id`, and `bucketName` has been changed to `bucket_name`.
@@ -35,8 +36,7 @@ Note the following before continuing:
 
 Below is a snippet showing how to initiate a render request and get its status.
 
-```python title="testclient_render_media.py"
-
+```python title="render_media.py"
 from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
@@ -90,16 +90,13 @@ if render_response:
         progress_response = client.get_render_progress(
             render_id=render_response.render_id, bucket_name=render_response.bucket_name)
     print("Render done!", progress_response.outputFile)
-
-
 ```
 
 ## Rendering an image
 
 Below is a snippet showing how to initiate a still image render. Note that it does not require monitoring the render progress.
 
-```python title="testclient_render_still.py"
-
+```python title="render_still.py"
 from remotion_lambda import RenderStillParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
@@ -142,8 +139,6 @@ if render_response:
     print("Render ID:", render_response.render_id)
     print("Bucket name:", render_response.bucket_name)
     print("Render done! File at ", render_response.url)
-
-
 ```
 
 ## See also
