@@ -24,10 +24,14 @@ import {
   PresignUrlInput,
   getSites,
   speculateFunctionName,
-  getServiceClient, // available from v4.0.60
   CustomCredentials, // available from v4.0.60
+  getAwsClient, // available from v4.0.82
 } from "@remotion/lambda/client";
 ```
+
+:::info
+`getServiceClient()` was included from v4.0.60 to v4.0.81 by mistake. Use [`getAwsClient()`](/docs/lambda/getawsclient) instead.
+:::
 
 These functions don't have any Node.JS dependencies and can be bundled with a bundler such as Webpack or ESBuild.
 
