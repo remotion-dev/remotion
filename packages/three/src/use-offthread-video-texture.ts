@@ -1,3 +1,4 @@
+import {getVideoMetadata} from '@remotion/media-utils';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	cancelRender,
@@ -8,9 +9,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {getExpectedMediaFrameUncorrected} from 'remotion/src/video/get-current-time';
 import * as THREE from 'three';
-import {getVideoMetadata} from '../../media-utils';
 import {useVideoTexture} from './use-video-texture';
 
 export function useVideoDuration({src}: {src: string}) {
@@ -20,19 +19,15 @@ export function useVideoDuration({src}: {src: string}) {
 	);
 
 	useEffect(() => {
-		if (src) {
-			getVideoMetadata(src)
-				.then(({durationInSeconds}) => {
-					setVideoDuration(durationInSeconds);
-					continueRender(videoDurationHandle);
-				})
-				.catch((err) => {
-					console.error(err);
-					cancelRender(err);
-				});
-		} else {
-			continueRender(videoDurationHandle);
-		}
+		getVideoMetadata(src)
+			.then(({durationInSeconds}) => {
+				setVideoDuration(durationInSeconds);
+				continueRender(videoDurationHandle);
+			})
+			.catch((err) => {
+				console.error(err);
+				cancelRender(err);
+			});
 	}, [src, videoDurationHandle]);
 
 	return videoDuration;
@@ -83,30 +78,35 @@ interface UseOffthreadVideoTextureProps {
 	src: string;
 	loop?: boolean;
 	playbackRate?: number;
+	transparent?: boolean;
 }
 
 export function useOffthreadVideoTexture({
 	src,
 	loop = false,
 	playbackRate = 1,
+	transparent = false,
 }: UseOffthreadVideoTextureProps) {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+
+	if (!src) {
+		throw new Error('src must be provided to useOffthreadVideoTexture');
+	}
 
 	const {isRendering} = getRemotionEnvironment();
 
 	const videoDuration = useVideoDuration({src});
 
-	// taken from OffthreadVideoForRendering.tsx as it's not exported yet
 	const currentTime = useMemo(() => {
 		let time =
-			getExpectedMediaFrameUncorrected({
+			NoReactInternals.getExpectedMediaFrameUncorrected({
 				frame,
 				playbackRate,
 				startFrom: 0,
 			}) / fps;
 
-		if (loop && videoDuration) {
+		if (loop && videoDuration !== null) {
 			time %= videoDuration;
 		}
 
@@ -114,16 +114,12 @@ export function useOffthreadVideoTexture({
 	}, [frame, fps, loop, videoDuration, playbackRate]);
 
 	const offthreadVideoFrameSrc = useMemo(() => {
-		if (!src) {
-			return null;
-		}
-
-		return `http://localhost:${
-			window.remotion_proxyPort
-		}/proxy?src=${encodeURIComponent(
-			NoReactInternals.getAbsoluteSrc(src),
-		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(false)}`;
-	}, [currentTime, src]);
+		return NoReactInternals.getOffthreadVideoSource({
+			currentTime,
+			src,
+			transparent,
+		});
+	}, [currentTime, src, transparent]);
 
 	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
 
@@ -153,10 +149,6 @@ export function useOffthreadVideoTexture({
 	const {videoRef} = useVideoRef({src, currentTime});
 
 	const videoTexture = useVideoTexture(videoRef);
-
-	if (!src) {
-		return new THREE.Texture();
-	}
 
 	return isRendering ? imageTexture : videoTexture;
 }

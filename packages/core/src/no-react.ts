@@ -8,7 +8,6 @@ export {
 export type {ClipRegion} from './NativeLayers';
 export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
-import {getAbsoluteSrc} from './absolute-src';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {
 	deserializeJSONWithCustomFields,
@@ -21,6 +20,8 @@ import {validateDefaultAndInputProps} from './validation/validate-default-props'
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
+import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
 	processColor,
@@ -35,5 +36,6 @@ export const NoReactInternals = {
 	bundleMapName: 'bundle.js.map',
 	deserializeJSONWithCustomFields,
 	DELAY_RENDER_CALLSTACK_TOKEN,
-	getAbsoluteSrc,
+	getOffthreadVideoSource,
+	getExpectedMediaFrameUncorrected,
 };

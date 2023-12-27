@@ -16,6 +16,7 @@ import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
+import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {OffthreadVideoProps} from './props.js';
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
@@ -126,13 +127,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
-		return `http://localhost:${
-			window.remotion_proxyPort
-		}/proxy?src=${encodeURIComponent(
-			getAbsoluteSrc(src),
-		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
-			transparent,
-		)}`;
+		return getOffthreadVideoSource({src, currentTime, transparent});
 	}, [currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
