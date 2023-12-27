@@ -7,7 +7,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {getAbsoluteSrc} from 'remotion/src/absolute-src';
+import {NoReactInternals} from 'remotion/no-react';
 import {getExpectedMediaFrameUncorrected} from 'remotion/src/video/get-current-time';
 import * as THREE from 'three';
 import {getVideoMetadata} from '../../media-utils';
@@ -121,7 +121,7 @@ export function useOffthreadVideoTexture({
 		return `http://localhost:${
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
-			getAbsoluteSrc(src),
+			NoReactInternals.getAbsoluteSrc(src),
 		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(false)}`;
 	}, [currentTime, src]);
 
