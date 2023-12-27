@@ -41,8 +41,7 @@ This example uses [`@aws-sdk/s3-request-presigner`](https://github.com/aws/aws-s
 
 ```tsx twoslash title="api/generate-presigned-url.ts"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getAwsClient } from "@remotion/lambda/client";
-import { AwsRegion } from "@remotion/lambda";
+import { AwsRegion, getAwsClient } from "@remotion/lambda/client";
 import { v4 } from "uuid";
 
 export const generatePresignedUrl = async (
