@@ -49,11 +49,11 @@ export const generatePresignedUrl = async (
   contentLength: number,
   expiresIn: number,
   bucketName: string,
-  region: AwsRegion
+  region: AwsRegion,
 ): Promise<{ presignedUrl: string; readUrl: string }> => {
   if (contentLength > 1024 * 1024 * 200) {
     throw new Error(
-      `File may not be over 200MB. Yours is ${contentLength} bytes.`
+      `File may not be over 200MB. Yours is ${contentLength} bytes.`,
     );
   }
 
