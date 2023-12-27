@@ -14,13 +14,30 @@ This feature is new. Please report any issues you encounter.
 
 To trigger a Lambda render using Python, install the `remotion-lambda` package using `pip`, by executing `pip install remotion-lambda` from your python project. Use the same version as the `remotion` version you are using from NPM, e.g. `pip install remotion-lambda==4.0.15` (see [newest version](https://remotion.dev/changelog)).
 
-Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
+### Breaking changes
+
+## 4.0.82
+
+- The `data` field is now `input_props`.
+- `RenderParams` has been renamed to `RenderMediaParams`.
+- `RenderProgress` has been renamed to `RenderMediaProgress`.
+- `RenderResponse` is now `RenderMediaResponse`, and its fields have been updated: `renderId` is now `render_id`, and `bucketName` has been changed to `bucket_name`.
+- The following types have been added: `CostsInfo`,
+  `Privacy`, `ValidStillImageFormats`, `LogLevel`, `OpenGlRenderer`,
+  `ChromiumOptions`, `CustomCredentialsWithoutSensitiveData`, `CustomCredentials`,
+  `OutNameInputObject`, `PlayInBrowser`, `Download`, `DeleteAfter`. These can be used for the fields on `RenderMediaParams` and `RenderStillParams`.
+
+Note the following before continuing:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
 - Sending large input props (>200KB) is not supported with Python at the moment.
 
-```python title="testclient.py"
-from remotion_lambda import RenderParams, RenderProgressParams
+## Rendering a video
+
+Below is a snippet showing how to initiate a render request and get its status.
+
+```python title="render_media.py"
+from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -47,9 +64,10 @@ client = RemotionClient(region=REMOTION_APP_REGION,
                         function_name=REMOTION_APP_FUNCTION_NAME)
 
 # Set render request
-render_params = RenderParams(
+render_params = RenderMediaParams(
     composition="react-svg",
-    # Note: In Python, you pass input props using `data`, not `input_props`
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
     data={
         'hi': 'there'
     },
@@ -59,20 +77,68 @@ render_response = client.render_media_on_lambda(render_params)
 if render_response:
     # Execute render request
 
-    print("Render ID:", render_response.renderId)
-    print("Bucket name:", render_response.bucketName)
-
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
 
     # Execute progress request
     progress_response = client.get_render_progress(
-        render_id=render_response.renderId, bucket_name=render_response.bucketName)
+        render_id=render_response.render_id, bucket_name=render_response.bucket_name)
 
     while progress_response and not progress_response.done:
         print("Overall progress")
         print(str(progress_response.overallProgress * 100) + "%")
         progress_response = client.get_render_progress(
-            render_id=render_response.renderId, bucket_name=render_response.bucketName)
+            render_id=render_response.render_id, bucket_name=render_response.bucket_name)
     print("Render done!", progress_response.outputFile)
+```
+
+## Rendering an image
+
+Below is a snippet showing how to initiate a still image render. Note that it does not require monitoring the render progress.
+
+```python title="render_still.py"
+from remotion_lambda import RenderStillParams, Privacy, ValidStillImageFormats
+from remotion_lambda import RemotionClient
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+# Load env variables
+REMOTION_APP_REGION = os.getenv('REMOTION_APP_REGION')
+if not REMOTION_APP_REGION:
+    raise Exception("REMOTION_APP_REGION is not set")
+
+REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
+if not REMOTION_APP_FUNCTION_NAME:
+    raise Exception("REMOTION_APP_FUNCTION_NAME is not set")
+
+REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_SERVE_URL:
+    raise Exception("REMOTION_APP_SERVE_URL is not set")
+
+# Construct client
+client = RemotionClient(region=REMOTION_APP_REGION,
+                        serve_url=REMOTION_APP_SERVE_URL,
+                        function_name=REMOTION_APP_FUNCTION_NAME)
+
+# Set render still request
+render_params = RenderStillParams(
+    composition="still-helloworld",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
+    data={
+        'message': 'Hello from props!'
+    },
+)
+
+render_response = client.render_still_on_lambda(render_params)
+if render_response:
+    # Execute render request
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
+    print("Render done! File at ", render_response.url)
 ```
 
 ## See also

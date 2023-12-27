@@ -53,6 +53,7 @@ import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
 import './style.css';
 import {Tailwind} from './Tailwind';
@@ -592,6 +593,13 @@ export const Index: React.FC = () => {
 					component={StillZoom}
 					width={1800}
 					height={2200}
+				/>
+				<Still
+					id="still-helloworld"
+					defaultProps={{message: 'Hello from default!'}}
+					component={StillHelloWorld}
+					width={1920}
+					height={1080}
 				/>
 			</Folder>
 			<Folder name="features">

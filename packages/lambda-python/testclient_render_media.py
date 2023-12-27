@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderParams, RenderProgressParams
+from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -26,9 +26,11 @@ client = RemotionClient(region=REMOTION_APP_REGION,
                         function_name=REMOTION_APP_FUNCTION_NAME)
 
 # Set render request
-render_params = RenderParams(
+render_params = RenderMediaParams(
     composition="react-svg",
-    data={
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
+    input_props={
         'hi': 'there'
     },
 )
@@ -37,17 +39,16 @@ render_response = client.render_media_on_lambda(render_params)
 if render_response:
     # Execute render request
 
-    print("Render ID:", render_response.renderId)
-    print("Bucket name:", render_response.bucketName)
-
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
 
     # Execute progress request
     progress_response = client.get_render_progress(
-        render_id=render_response.renderId, bucket_name=render_response.bucketName)
-   
+        render_id=render_response.render_id, bucket_name=render_response.bucket_name)
+
     while progress_response and not progress_response.done:
         print("Overall progress")
         print(str(progress_response.overallProgress * 100) + "%")
         progress_response = client.get_render_progress(
-            render_id=render_response.renderId, bucket_name=render_response.bucketName)
+            render_id=render_response.render_id, bucket_name=render_response.bucket_name)
     print("Render done!", progress_response.outputFile)

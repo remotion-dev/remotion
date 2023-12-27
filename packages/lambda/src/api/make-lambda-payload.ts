@@ -12,15 +12,16 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter} from '../client';
+import type {AwsRegion, DeleteAfter, RenderStillOnLambdaInput} from '../client';
 import type {
+	LambdaPayloads,
 	LambdaStartPayload,
 	LambdaStatusPayload,
 	OutNameInput,
 	Privacy,
 	WebhookOption,
 } from '../defaults';
-import {LambdaRoutines} from '../defaults';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../defaults';
 import {
 	compressInputProps,
 	getNeedsToUpload,
@@ -199,5 +200,73 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
+	};
+};
+
+export const makeLambdaRenderStillPayload = async ({
+	serveUrl,
+	inputProps,
+	imageFormat,
+	envVariables,
+	quality,
+	jpegQuality,
+	region,
+	maxRetries,
+	composition,
+	privacy,
+	frame,
+	logLevel,
+	outName,
+	timeoutInMilliseconds,
+	chromiumOptions,
+	scale,
+	downloadBehavior,
+	forceHeight,
+	forceWidth,
+	forceBucketName,
+	dumpBrowserLogs,
+	offthreadVideoCacheSizeInBytes,
+	deleteAfter,
+}: RenderStillOnLambdaInput): Promise<LambdaPayloads[LambdaRoutines.still]> => {
+	if (quality) {
+		throw new Error(
+			'The `quality` option is deprecated. Use `jpegQuality` instead.',
+		);
+	}
+
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
+	const serializedInputProps = await compressInputProps({
+		stringifiedInputProps,
+		region,
+		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
+		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
+	});
+
+	return {
+		composition,
+		serveUrl,
+		inputProps: serializedInputProps,
+		imageFormat,
+		envVariables,
+		jpegQuality,
+		maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
+		frame: frame ?? 0,
+		privacy,
+		attempt: 1,
+		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		outName: outName ?? null,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+		chromiumOptions: chromiumOptions ?? {},
+		scale: scale ?? 1,
+		downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+		version: VERSION,
+		forceHeight: forceHeight ?? null,
+		forceWidth: forceWidth ?? null,
+		bucketName: forceBucketName ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		deleteAfter: deleteAfter ?? null,
+		type: LambdaRoutines.still,
 	};
 };
