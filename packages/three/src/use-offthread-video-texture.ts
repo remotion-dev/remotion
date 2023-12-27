@@ -97,6 +97,7 @@ export function useOffthreadVideoTexture({
 
 	const videoDuration = useVideoDuration({src});
 
+	// taken from OffthreadVideoForRendering.tsx as it's not exported yet
 	const currentTime = useMemo(() => {
 		let time =
 			getExpectedMediaFrameUncorrected({
