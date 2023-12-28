@@ -129,6 +129,23 @@ Unicode range information about the font.
 }
 ```
 
+### `waitUntilDone`<AvailableFrom v="4.0.83"/>
+
+A function that returns a promise that resolves when the font is loaded.
+
+```tsx title="Load a font in the background"
+import { loadFont } from "@remotion/google-fonts/Lobster";
+
+loadFont("normal", {
+  weights: ["400"],
+  subsets: ["latin"],
+})
+  .waitUntilDone()
+  .then(() => {
+    console.log("Done loading");
+  });
+```
+
 ## See also
 
 - [Fonts](/docs/fonts)
