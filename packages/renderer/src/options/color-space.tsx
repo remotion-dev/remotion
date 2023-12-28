@@ -17,6 +17,18 @@ export const colorSpaceOption = {
 			<code>
 				{'"'}bt709{'"'}
 			</code>
+			.<br />
+			If{' '}
+			<code>
+				{'"'}bt709{'"'}
+			</code>{' '}
+			is used, it is recommended to also use{' '}
+			<code>
+				{'"'}png{'"'}
+			</code>{' '}
+			as the image format to have accurate color transformations throughout.
+			Only since v4.0.83, colorspace conversion is actually performed,
+			previously it would only tag the metadata of the video.
 		</>
 	),
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',

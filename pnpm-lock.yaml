@@ -917,6 +917,9 @@ importers:
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
         version: 3.2.2(prettier@3.0.2)(typescript@4.9.5)
+      sharp:
+        specifier: 0.32.6
+        version: 0.32.6
 
   packages/example-without-zod:
     dependencies:
