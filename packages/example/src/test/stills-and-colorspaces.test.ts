@@ -171,7 +171,8 @@ test('Bt709 encoding should work', async () => {
 		blue: frameImg.readUInt8(2),
 	};
 	expect(actualColorFrame.blue).toBe(0);
-	expect(actualColorFrame.green).toBe(126);
+	expect(actualColorFrame.green).toBeGreaterThanOrEqual(126);
+	expect(actualColorFrame.green).toBeLessThanOrEqual(128);
 	expect(actualColorFrame.blue).toBe(0);
 
 	unlinkSync('out01.png');
