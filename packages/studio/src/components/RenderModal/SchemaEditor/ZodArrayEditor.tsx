@@ -110,7 +110,8 @@ export const ZodArrayEditor: React.FC<{
 										index={i}
 										jsonPath={jsonPath}
 										defaultValue={
-											defaultValue[i] ?? createZodValues(def.type, z, zodTypes)
+											defaultValue?.[i] ??
+											createZodValues(def.type, z, zodTypes)
 										}
 										onSave={onSave}
 										showSaveButton={showSaveButton}
