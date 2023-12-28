@@ -22,6 +22,7 @@ import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
@@ -448,6 +449,14 @@ export const Index: React.FC = () => {
 						color: ['rgba(19, 124, 45, 0.059)' as const],
 					}}
 					schema={betaTextSchema}
+				/>
+				<Composition
+					id="green"
+					component={Green}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={2}
 				/>
 				<Composition
 					id="react-svg"
