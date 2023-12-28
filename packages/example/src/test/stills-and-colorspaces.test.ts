@@ -2,14 +2,17 @@ import {bundle} from '@remotion/bundler';
 import {
 	getCompositions,
 	RenderInternals,
+	renderMedia,
 	renderStill,
 	selectComposition,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {existsSync, unlinkSync} from 'node:fs';
+import {execSync} from 'node:child_process';
+import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {VideoConfig} from 'remotion';
+import sharp from 'sharp';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 // @ts-expect-error it does work
 import {webpackOverride} from '../webpack-override.mjs';
@@ -119,3 +122,57 @@ test(
 		timeout: 90000,
 	},
 );
+
+test('Bt709 encoding should work', async () => {
+	const composition = await selectComposition({
+		serveUrl: bundled,
+		id: 'green',
+	});
+
+	const still = await renderStill({
+		composition,
+		serveUrl: bundled,
+	});
+
+	const img = await sharp(still.buffer as Buffer)
+		.raw()
+		.toBuffer();
+	const actualColor = {
+		red: img.readUInt8(0),
+		green: img.readUInt8(1),
+		blue: img.readUInt8(2),
+	};
+
+	expect(actualColor.blue).toBe(0);
+	expect(actualColor.green).toBe(128);
+	expect(actualColor.blue).toBe(0);
+
+	const {buffer} = await renderMedia({
+		codec: 'h264',
+		composition,
+		imageFormat: 'png',
+		colorSpace: 'bt709',
+		serveUrl: bundled,
+		muted: true,
+	});
+
+	writeFileSync('out.mp4', buffer as Buffer);
+
+	execSync('pnpm exec remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
+		input: buffer as Buffer,
+	});
+
+	const pngBuffer = readFileSync('out01.png');
+
+	const frameImg = await sharp(pngBuffer).raw().toBuffer();
+	const actualColorFrame = {
+		red: frameImg.readUInt8(0),
+		green: frameImg.readUInt8(1),
+		blue: frameImg.readUInt8(2),
+	};
+	expect(actualColorFrame.blue).toBe(0);
+	expect(actualColorFrame.green).toBe(126);
+	expect(actualColorFrame.blue).toBe(0);
+
+	console.log(buffer, actualColorFrame);
+});
