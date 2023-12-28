@@ -85,6 +85,10 @@ export const generateFfmpegArgs = ({
 					['-color_primaries:v', 'bt709'],
 					['-color_trc:v', 'bt709'],
 					['-color_range:v', 'tv'],
+					[
+						'-vf',
+						'colorspace=all=bt709:iprimaries=bt709:itrc=srgb:ispace=bt709',
+					],
 			  ]
 			: [];
 
