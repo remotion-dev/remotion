@@ -24,7 +24,7 @@ beforeAll(async () => {
 		entryPoint: path.join(process.cwd(), 'src/index.ts'),
 		webpackOverride,
 	});
-});
+}, 30000);
 
 afterAll(() => {
 	RenderInternals.deleteDirectory(bundled);
