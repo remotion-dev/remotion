@@ -174,5 +174,6 @@ test('Bt709 encoding should work', async () => {
 	expect(actualColorFrame.green).toBe(126);
 	expect(actualColorFrame.blue).toBe(0);
 
-	console.log(buffer, actualColorFrame);
+	unlinkSync('out01.png');
+	unlinkSync('out.mp4');
 });
