@@ -212,7 +212,11 @@ Only set `transparent` to `true` if you need transparency. It is slower than non
 
 ## Looping a video
 
-Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property. You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+
+You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+
+Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
 
 ```tsx twoslash title="LoopedOffthreadVideo.tsx"
 import { getVideoMetadata } from "@remotion/media-utils";

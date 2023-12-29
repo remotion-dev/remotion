@@ -113,6 +113,10 @@ If set to `true`, frames will be extracted as PNG, enabling transparency but als
 
 If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
+## Looping a texture
+
+Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-video) but can be achieved with the `<Loop>` component.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-offthread-video-texture.ts)
