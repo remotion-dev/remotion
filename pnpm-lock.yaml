@@ -1884,9 +1884,6 @@ importers:
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.2.0)(react@18.2.0)(three@0.158.0)
-      '@remotion/media-utils':
-        specifier: workspace:*
-        version: link:../media-utils
       '@rollup/plugin-typescript':
         specifier: ^8.2.0
         version: 8.5.0(rollup@2.76.0)(typescript@4.9.5)
