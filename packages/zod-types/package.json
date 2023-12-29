@@ -10,7 +10,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "rollup --config rollup.config.js && tsc -d"
+		"build": "rollup --failAfterWarnings --config rollup.config.js && tsc -d"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
