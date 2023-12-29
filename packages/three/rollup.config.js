@@ -14,6 +14,7 @@ export default [
 		external: [
 			'react',
 			'remotion',
+			'@remotion/media-utils',
 			'remotion/no-react',
 			'react/jsx-runtime',
 			'@react-three/fiber',
