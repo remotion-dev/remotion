@@ -5,30 +5,29 @@ title: useOffthreadVideoTexture()
 crumb: "@remotion/three"
 ---
 
-Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()`, simillar to [`useVideoTexture()`](/docs/use-video-texture), but during rendering extracts precise frames from a video during rendering and wraps them into a `THREE.ImageTexture.`
+_available from v4.0.83_
 
-This hook was designed to combat limitations of the default `<Video>` element that is used with `useVideoTexture` hook.
+Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()`, similar to [`useVideoTexture()`](/docs/use-video-texture), but uses [`<OffthreadVideo>`](/docs/offthreadvideo) instead.
+
+This hook only works during rendering. In the Player and the Remotion Studio, use [`useVideoTexture()`](/docs/use-video-texture) instead. See below for an example.
+
+This hook was designed to combat limitations of the default `<Video>` element that is used with `useVideoTexture()` hook.
 See: [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo)
-
-Under the hood, uses `useVideoTexture()` in Remotion Studio and Remotion Player.
 
 The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
 
-```tsx twoslash
+## Example
+
+```tsx twoslash title="Simple usage (only works during rendering)"
 import { ThreeCanvas, useOffthreadVideoTexture } from "@remotion/three";
 import { staticFile, useVideoConfig } from "remotion";
 
 const videoSrc = staticFile("/vid.mp4");
 
-const My3dVideo = () => {
+const My3DVideo = () => {
   const { width, height } = useVideoConfig();
 
-  const videoTexture = useOffthreadVideoTexture({
-    src: videoSrc,
-    loop: false,
-    transparent: false,
-    playbackRate: 1,
-  });
+  const videoTexture = useOffthreadVideoTexture({ src: videoSrc });
 
   return (
     <ThreeCanvas width={width} height={height}>
@@ -39,6 +38,80 @@ const My3dVideo = () => {
   );
 };
 ```
+
+```tsx twoslash title="Use useVideoTexture() only during rendering"
+import {
+  ThreeCanvas,
+  useOffthreadVideoTexture,
+  useVideoTexture,
+} from "@remotion/three";
+import { useRef } from "react";
+import {
+  getRemotionEnvironment,
+  staticFile,
+  useVideoConfig,
+  Video,
+} from "remotion";
+
+const videoSrc = staticFile("/vid.mp4");
+
+const useVideoOrOffthreadVideoTexture = (
+  videoSrc: string,
+  videoRef: React.RefObject<HTMLVideoElement>,
+) => {
+  if (getRemotionEnvironment().isRendering) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useOffthreadVideoTexture({ src: videoSrc });
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useVideoTexture(videoRef);
+};
+
+const My3DVideo = () => {
+  const { width, height } = useVideoConfig();
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoTexture = useVideoOrOffthreadVideoTexture(videoSrc, videoRef);
+
+  return (
+    <>
+      {getRemotionEnvironment().isRendering ? null : (
+        <Video
+          ref={videoRef}
+          src={videoSrc}
+          style={{ position: "absolute", opacity: 0 }}
+        />
+      )}
+      <ThreeCanvas width={width} height={height}>
+        <mesh>
+          {videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}
+        </mesh>
+      </ThreeCanvas>
+    </>
+  );
+};
+```
+
+## API
+
+Takes an object with the following properties:
+
+### `src`
+
+The video source. Can be a URL or a [`staticFile()`](/docs/staticfile).
+
+### `playbackRate`
+
+The playback rate of the video. Defaults to `1`.
+
+### `transparent`
+
+_optional, boolean_
+
+If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
+
+If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
 ## See also
 

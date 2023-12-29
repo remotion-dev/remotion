@@ -78,7 +78,7 @@ Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom
 _optional, boolean_
 If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
 
-If set to `false`(_default_), frames will be extracted as bitmap (BMP), which is faster.
+If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
 ### `volume`
 
