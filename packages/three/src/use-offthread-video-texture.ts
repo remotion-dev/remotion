@@ -1,10 +1,11 @@
 import {getVideoMetadata} from '@remotion/media-utils';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	continueRender,
 	delayRender,
 	getRemotionEnvironment,
+	Internals,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -33,60 +34,21 @@ export function useVideoDuration({src}: {src: string}) {
 	return videoDuration;
 }
 
-const useVideoRef = ({
-	src,
-	currentTime,
-}: {
+export type UseOffthreadVideoTextureOptions = {
 	src: string;
-	currentTime: number;
-}) => {
-	const videoRef = useRef<HTMLVideoElement | null>(null);
-
-	const videoElement = useMemo(() => {
-		const video = document.createElement('video');
-		video.muted = true;
-		video.src = src;
-		video.style.display = 'none';
-
-		// crossOrigin="anonymous" is important to allow CORS-enabled servers
-		// to be read from a canvas
-		video.crossOrigin = 'anonymous';
-
-		return video;
-	}, [src]);
-
-	useEffect(() => {
-		document.body.appendChild(videoElement);
-
-		videoRef.current = videoElement;
-
-		return () => {
-			document.body.removeChild(videoElement);
-		};
-	}, [videoElement]);
-
-	useEffect(() => {
-		if (videoRef.current) {
-			videoRef.current.currentTime = currentTime;
-		}
-	}, [currentTime]);
-
-	return {videoRef};
-};
-
-interface UseOffthreadVideoTextureProps {
-	src: string;
+	videoRef: React.MutableRefObject<HTMLVideoElement | null>;
 	loop?: boolean;
 	playbackRate?: number;
 	transparent?: boolean;
-}
+};
 
 export function useOffthreadVideoTexture({
 	src,
+	videoRef,
 	loop = false,
 	playbackRate = 1,
 	transparent = false,
-}: UseOffthreadVideoTextureProps) {
+}: UseOffthreadVideoTextureOptions) {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -95,15 +57,24 @@ export function useOffthreadVideoTexture({
 	}
 
 	const {isRendering} = getRemotionEnvironment();
+	if (!isRendering) {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		return useVideoTexture(videoRef);
+	}
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	const mediaStartsAt = Internals.useMediaStartsAt();
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const videoDuration = useVideoDuration({src});
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const currentTime = useMemo(() => {
 		let time =
 			NoReactInternals.getExpectedMediaFrameUncorrected({
 				frame,
 				playbackRate,
-				startFrom: 0,
+				startFrom: -mediaStartsAt,
 			}) / fps;
 
 		if (loop && videoDuration !== null) {
@@ -111,8 +82,9 @@ export function useOffthreadVideoTexture({
 		}
 
 		return time;
-	}, [frame, fps, loop, videoDuration, playbackRate]);
+	}, [frame, playbackRate, mediaStartsAt, fps, loop, videoDuration]);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const offthreadVideoFrameSrc = useMemo(() => {
 		return NoReactInternals.getOffthreadVideoSource({
 			currentTime,
@@ -121,8 +93,10 @@ export function useOffthreadVideoTexture({
 		});
 	}, [currentTime, src, transparent]);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame');
 
@@ -140,8 +114,12 @@ export function useOffthreadVideoTexture({
 			.catch((err) => {
 				cancelRender(err);
 			});
+		return () => {
+			continueRender(imageTextureHandle);
+		};
 	}, [offthreadVideoFrameSrc, isRendering]);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	useEffect(() => {
 		fetchTexture();
 	}, [offthreadVideoFrameSrc, fetchTexture]);
@@ -149,9 +127,6 @@ export function useOffthreadVideoTexture({
 	if (isRendering) {
 		return imageTexture;
 	}
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const {videoRef} = useVideoRef({src, currentTime});
 
 	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const videoTexture = useVideoTexture(videoRef);
