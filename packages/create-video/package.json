@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "4.0.82",
+	"version": "4.0.83",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
