@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-use-video-texture.png
+image: /generated/articles-docs-use-offthread-video-texture.png
 id: use-offthread-video-texture
 title: useOffthreadVideoTexture()
 crumb: "@remotion/three"

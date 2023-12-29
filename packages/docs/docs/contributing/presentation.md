@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-contributing-feature.png
+image: /generated/articles-docs-contributing-presentation.png
 title: Contribute your own presentation
 sidebar_label: Adding new presentations
 crumb: Contributing
