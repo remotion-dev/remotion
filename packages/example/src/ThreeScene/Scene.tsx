@@ -6,7 +6,13 @@ import {
 } from '@remotion/three';
 import {zColor} from '@remotion/zod-types';
 import React, {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, staticFile, useVideoConfig, Video} from 'remotion';
+import {
+	AbsoluteFill,
+	getRemotionEnvironment,
+	staticFile,
+	useVideoConfig,
+	Video,
+} from 'remotion';
 import {z} from 'zod';
 import {Phone} from './Phone';
 
@@ -27,6 +33,25 @@ export const myCompSchema = z.object({
 
 type MyCompSchemaType = z.infer<typeof myCompSchema>;
 
+const useVideoOrOffthreadVideoTexture = (
+	textureType: 'video' | 'offthreadvideo',
+	videoSrc: string,
+	videoRef: React.RefObject<HTMLVideoElement>,
+) => {
+	if (textureType === 'video') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		return useVideoTexture(videoRef);
+	}
+
+	if (getRemotionEnvironment().isRendering) {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		return useOffthreadVideoTexture({src: videoSrc});
+	}
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	return useVideoTexture(videoRef);
+};
+
 export const VideoTextureDemo: React.FC<
 	{
 		baseScale: number;
@@ -45,16 +70,17 @@ export const VideoTextureDemo: React.FC<
 			.catch((err) => console.log(err));
 	}, [videoSrc]);
 
-	const texture =
-		textureType === 'offthreadvideo'
-			? // eslint-disable-next-line react-hooks/rules-of-hooks
-			  useOffthreadVideoTexture({src: videoSrc, videoRef})
-			: // eslint-disable-next-line react-hooks/rules-of-hooks
-			  useVideoTexture(videoRef);
+	const texture = useVideoOrOffthreadVideoTexture(
+		textureType,
+		videoSrc,
+		videoRef,
+	);
 
 	return (
 		<AbsoluteFill style={container}>
-			<Video ref={videoRef} src={videoSrc} style={videoStyle} />
+			{getRemotionEnvironment().isRendering ? null : (
+				<Video ref={videoRef} src={videoSrc} style={videoStyle} />
+			)}
 			{videoData ? (
 				<ThreeCanvas linear width={width} height={height}>
 					<ambientLight intensity={1.5} color={0xffffff} />
