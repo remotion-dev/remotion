@@ -20,7 +20,6 @@ import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
-import {warnAboutM2Bug} from './does-have-m2-bug';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -547,7 +546,6 @@ export const internalStitchFramesToVideo = async (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	warnAboutM2Bug(options.codec, options.pixelFormat);
 	const {task, getLogs} = await innerStitchFramesToVideo(options, remotionRoot);
 
 	const happyPath = task.catch(() => {

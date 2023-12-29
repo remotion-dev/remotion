@@ -68,7 +68,7 @@ render_params = RenderMediaParams(
     composition="react-svg",
     privacy=Privacy.PUBLIC,
     image_format=ValidStillImageFormats.JPEG,
-    data={
+    input_props={
         'hi': 'there'
     },
 )
@@ -128,7 +128,7 @@ render_params = RenderStillParams(
     composition="still-helloworld",
     privacy=Privacy.PUBLIC,
     image_format=ValidStillImageFormats.JPEG,
-    data={
+    input_props={
         'message': 'Hello from props!'
     },
 )

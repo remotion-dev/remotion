@@ -2767,6 +2767,13 @@ export const articles = [
     crumb: "@remotion/three",
   },
   {
+    id: "use-offthread-video-texture",
+    title: "useOffthreadVideoTexture()",
+    relativePath: "docs/use-offthread-video-texture.md",
+    compId: "articles-docs-use-offthread-video-texture",
+    crumb: "@remotion/three",
+  },
+  {
     id: "using-audio",
     title: "Using audio",
     relativePath: "docs/using-audio.md",
