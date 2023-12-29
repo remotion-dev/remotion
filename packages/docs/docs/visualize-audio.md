@@ -47,7 +47,7 @@ When set to `true` the returned values will be an average of the current, previo
 
 _`"accuracy" | "speed"`_
 
-Default `"accuracy"`. When set to `"speed"`, a faster Fast Fourier transform is used. Read [user](https://discord.com/channels/809501355504959528/1189048518988550264/1190228606287360030) [experiences](https://discord.com/channels/809501355504959528/1155110845488046111/1155111360481480725) [here](https://github.com/remotion-dev/remotion/issues/2925).
+Default `"accuracy"`. When set to `"speed"`, a faster Fast Fourier transform is used. Recommended for Remotion Lambda and when using a high number of samples. Read [user](https://discord.com/channels/809501355504959528/1189048518988550264/1190228606287360030) [experiences](https://discord.com/channels/809501355504959528/1155110845488046111/1155111360481480725) [here](https://github.com/remotion-dev/remotion/issues/2925).
 
 ## Return value
 
