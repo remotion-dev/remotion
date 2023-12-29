@@ -26,7 +26,12 @@ import type {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 
-export {CustomCredentials, getServiceClient} from './shared/aws-clients';
+export {
+	getAwsClient,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+} from './api/get-aws-client';
+export {CustomCredentials} from './shared/aws-clients';
 export {
 	renderVideoOnLambda,
 	renderMediaOnLambda,
