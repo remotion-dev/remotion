@@ -146,9 +146,15 @@ export function useOffthreadVideoTexture({
 		fetchTexture();
 	}, [offthreadVideoFrameSrc, fetchTexture]);
 
+	if (isRendering) {
+		return imageTexture;
+	}
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const {videoRef} = useVideoRef({src, currentTime});
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const videoTexture = useVideoTexture(videoRef);
 
-	return isRendering ? imageTexture : videoTexture;
+	return videoTexture;
 }
