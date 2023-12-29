@@ -1,5 +1,4 @@
-import {getVideoMetadata} from '@remotion/media-utils';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	continueRender,
@@ -11,80 +10,36 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import * as THREE from 'three';
-import {useVideoTexture} from './use-video-texture';
-
-export function useVideoDuration({src}: {src: string}) {
-	const [videoDuration, setVideoDuration] = useState<null | number>(null);
-	const [videoDurationHandle] = useState(() =>
-		delayRender('fetch video duration'),
-	);
-
-	useEffect(() => {
-		getVideoMetadata(src)
-			.then(({durationInSeconds}) => {
-				setVideoDuration(durationInSeconds);
-				continueRender(videoDurationHandle);
-			})
-			.catch((err) => {
-				console.error(err);
-				cancelRender(err);
-			});
-	}, [src, videoDurationHandle]);
-
-	return videoDuration;
-}
 
 export type UseOffthreadVideoTextureOptions = {
 	src: string;
-	videoRef: React.MutableRefObject<HTMLVideoElement | null>;
-	loop?: boolean;
 	playbackRate?: number;
 	transparent?: boolean;
 };
 
-export function useOffthreadVideoTexture({
+export const useInnerVideoTexture = ({
+	playbackRate,
 	src,
-	videoRef,
-	loop = false,
-	playbackRate = 1,
-	transparent = false,
-}: UseOffthreadVideoTextureOptions) {
+	transparent,
+}: {
+	playbackRate: number;
+	src: string;
+	transparent: boolean;
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-
-	if (!src) {
-		throw new Error('src must be provided to useOffthreadVideoTexture');
-	}
-
-	const {isRendering} = getRemotionEnvironment();
-	if (!isRendering) {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		return useVideoTexture(videoRef);
-	}
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const mediaStartsAt = Internals.useMediaStartsAt();
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const videoDuration = useVideoDuration({src});
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const currentTime = useMemo(() => {
-		let time =
+		return (
 			NoReactInternals.getExpectedMediaFrameUncorrected({
 				frame,
 				playbackRate,
 				startFrom: -mediaStartsAt,
-			}) / fps;
+			}) / fps
+		);
+	}, [frame, playbackRate, mediaStartsAt, fps]);
 
-		if (loop && videoDuration !== null) {
-			time %= videoDuration;
-		}
-
-		return time;
-	}, [frame, playbackRate, mediaStartsAt, fps, loop, videoDuration]);
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const offthreadVideoFrameSrc = useMemo(() => {
 		return NoReactInternals.getOffthreadVideoSource({
 			currentTime,
@@ -93,43 +48,57 @@ export function useOffthreadVideoTexture({
 		});
 	}, [currentTime, src, transparent]);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame');
 
-		if (!offthreadVideoFrameSrc || !isRendering) {
+		if (!offthreadVideoFrameSrc) {
 			continueRender(imageTextureHandle);
 			return;
 		}
 
+		let textureLoaded: THREE.Texture | null = null;
+
 		new THREE.TextureLoader()
 			.loadAsync(offthreadVideoFrameSrc)
 			.then((texture) => {
+				textureLoaded = texture;
 				setImageTexture(texture);
 				continueRender(imageTextureHandle);
 			})
 			.catch((err) => {
 				cancelRender(err);
 			});
+
 		return () => {
+			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
-	}, [offthreadVideoFrameSrc, isRendering]);
+	}, [offthreadVideoFrameSrc]);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchTexture();
 	}, [offthreadVideoFrameSrc, fetchTexture]);
 
-	if (isRendering) {
-		return imageTexture;
+	return imageTexture;
+};
+
+export function useOffthreadVideoTexture({
+	src,
+	playbackRate = 1,
+	transparent = false,
+}: UseOffthreadVideoTextureOptions) {
+	if (!src) {
+		throw new Error('src must be provided to useOffthreadVideoTexture');
 	}
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const videoTexture = useVideoTexture(videoRef);
+	const {isRendering} = getRemotionEnvironment();
+	if (!isRendering) {
+		throw new Error(
+			'useOffthreadVideoTexture() can only be used during rendering. Use getRemotionEnvironment().isRendering to render it conditionally.',
+		);
+	}
 
-	return videoTexture;
+	return useInnerVideoTexture({playbackRate, src, transparent});
 }

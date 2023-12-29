@@ -29,8 +29,7 @@
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0",
 		"three": ">=0.137.0",
-		"remotion": "workspace:*",
-		"@remotion/media-utils": "workspace:*"
+		"remotion": "workspace:*"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
