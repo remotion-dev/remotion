@@ -539,6 +539,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/presentation",
+    title: "Contribute your own presentation",
+    relativePath: "docs/contributing/presentation.md",
+    compId: "articles-docs-contributing-presentation",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/rust",
     title: "Contributing Rust code",
     relativePath: "docs/contributing/rust.md",
@@ -2216,7 +2223,7 @@ export const articles = [
   {
     id: "sequence",
     title: "<Sequence>",
-    relativePath: "docs/sequence.md",
+    relativePath: "docs/sequence.mdx",
     compId: "articles-docs-sequence",
     crumb: "API",
   },
@@ -2753,9 +2760,16 @@ export const articles = [
     crumb: "Best practices",
   },
   {
+    id: "use-offthread-video-texture",
+    title: "useOffthreadVideoTexture()",
+    relativePath: "docs/use-offthread-video-texture.md",
+    compId: "articles-docs-use-offthread-video-texture",
+    crumb: "@remotion/three",
+  },
+  {
     id: "use-video-config",
     title: "useVideoConfig()",
-    relativePath: "docs/use-video-config.md",
+    relativePath: "docs/use-video-config.mdx",
     compId: "articles-docs-use-video-config",
     crumb: "API",
   },

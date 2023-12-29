@@ -269,7 +269,11 @@ module.exports = {
         type: "doc",
         id: "three",
       },
-      items: ["three-canvas", "use-video-texture"],
+      items: [
+        "three-canvas",
+        "use-video-texture",
+        "use-offthread-video-texture",
+      ],
     },
     {
       type: "category",

@@ -56,4 +56,5 @@ const videoTexture = useVideoTexture(videoRef);
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-video-texture.ts)
+- [Example usage: React Three Fiber template](/templates/three)
 - [`<ThreeCanvas />`](/docs/three-canvas)

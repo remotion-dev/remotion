@@ -60,6 +60,7 @@ import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
@@ -778,6 +779,34 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="use-video-texture"
+					component={VideoTextureDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					defaultProps={{
+						baseScale: 1,
+						deviceType: 'phone',
+						phoneColor: 'black',
+						textureType: 'video',
+					}}
+				/>
+				<Composition
+					id="use-offthread-video-texture"
+					component={VideoTextureDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					defaultProps={{
+						baseScale: 1,
+						deviceType: 'phone',
+						phoneColor: 'black',
+						textureType: 'offthreadvideo',
+					}}
 				/>
 			</Folder>
 			<Folder name="lottie">

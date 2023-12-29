@@ -78,7 +78,7 @@ Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom
 _optional, boolean_
 If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
 
-If set to `false`(_default_), frames will be extracted as bitmap (BMP), which is faster.
+If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
 ### `volume`
 
@@ -212,7 +212,11 @@ Only set `transparent` to `true` if you need transparency. It is slower than non
 
 ## Looping a video
 
-Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property. You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+
+You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+
+Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
 
 ```tsx twoslash title="LoopedOffthreadVideo.tsx"
 import { getVideoMetadata } from "@remotion/media-utils";
