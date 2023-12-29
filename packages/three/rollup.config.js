@@ -19,6 +19,7 @@ export default [
 			'react/jsx-runtime',
 			'@react-three/fiber',
 			'three/src/textures/VideoTexture.js',
+			'three/src/loaders/TextureLoader.js',
 		],
 		plugins: [
 			typescript({

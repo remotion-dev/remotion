@@ -9,7 +9,6 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import * as THREE from 'three';
 
 export type UseOffthreadVideoTextureOptions = {
 	src: string;
@@ -48,34 +47,35 @@ export const useInnerVideoTexture = ({
 		});
 	}, [currentTime, src, transparent]);
 
+	const [textLoaderPromise] = useState(
+		() => import('three/src/loaders/TextureLoader.js'),
+	);
+
 	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
 
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame');
 
-		if (!offthreadVideoFrameSrc) {
-			continueRender(imageTextureHandle);
-			return;
-		}
-
 		let textureLoaded: THREE.Texture | null = null;
 
-		new THREE.TextureLoader()
-			.loadAsync(offthreadVideoFrameSrc)
-			.then((texture) => {
-				textureLoaded = texture;
-				setImageTexture(texture);
-				continueRender(imageTextureHandle);
-			})
-			.catch((err) => {
-				cancelRender(err);
-			});
+		textLoaderPromise.then((loader) => {
+			new loader.TextureLoader()
+				.loadAsync(offthreadVideoFrameSrc)
+				.then((texture) => {
+					textureLoaded = texture;
+					setImageTexture(texture);
+					continueRender(imageTextureHandle);
+				})
+				.catch((err) => {
+					cancelRender(err);
+				});
+		});
 
 		return () => {
 			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
-	}, [offthreadVideoFrameSrc]);
+	}, [offthreadVideoFrameSrc, textLoaderPromise]);
 
 	useLayoutEffect(() => {
 		fetchTexture();
