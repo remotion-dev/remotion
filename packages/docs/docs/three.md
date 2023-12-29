@@ -15,7 +15,7 @@ is a package for integrating [React Three Fiber](https://github.com/pmndrs/react
 
 - [`useVideoTexture()`](/docs/use-video-texture) allows you to use a Remotion [`<Video />`](/docs/video) as a texture map.
 
-- [`useOffthreadVideoTexture()`](/docs/use-offthread-video-texture) is an equivalent to [`useVideoTexture()`](/docs/use-video-texture), but displays the exact frame as an `Three.ImageTexture` during rendering, simillarly to [`<OffthreadVideo />`](/docs/offthread-video).
+- [`useOffthreadVideoTexture()`](/docs/use-offthread-video-texture) is an equivalent to [`useVideoTexture()`](/docs/use-video-texture), but displays the exact frame as an `Three.ImageTexture` during rendering, simillarly to [`<OffthreadVideo />`](/docs/offthreadvideo).
 
 These are the only two APIs provided - for everything else you can use the standard [React Three Fiber](https://github.com/pmndrs/react-three-fiber) APIs.
 
