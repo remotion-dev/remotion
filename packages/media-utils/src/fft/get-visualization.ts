@@ -1,10 +1,13 @@
 // Adapted from node-fft project by Joshua Wong and Ben Bryan
 // https://github.com/vail-systems/node-fft
 
-import {fft} from './fft';
+import {fftAccurate} from './fft';
+import {fftFast} from './fft-fast';
 import {fftMag} from './mag';
 import {smoothen} from './smoothing';
 import {toInt16} from './to-int-16';
+
+export type OptimizeFor = 'accuracy' | 'speed';
 
 export const getVisualization = ({
 	sampleSize,
@@ -13,6 +16,7 @@ export const getVisualization = ({
 	frame,
 	fps,
 	maxInt,
+	optimizeFor = 'accuracy',
 }: {
 	sampleSize: number;
 	data: Float32Array;
@@ -20,6 +24,7 @@ export const getVisualization = ({
 	sampleRate: number;
 	fps: number;
 	maxInt: number;
+	optimizeFor: OptimizeFor;
 }): number[] => {
 	const isPowerOfTwo = sampleSize > 0 && (sampleSize & (sampleSize - 1)) === 0;
 	if (!isPowerOfTwo) {
@@ -48,7 +53,9 @@ export const getVisualization = ({
 	ints.set(
 		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x)),
 	);
-	const phasors = fft(ints);
+	const alg = optimizeFor === 'accuracy' ? fftAccurate : fftFast;
+
+	const phasors = alg(ints);
 	const magnitudes = fftMag(phasors).map((p) => p);
 
 	return smoothen(magnitudes).map((m) => m / (sampleSize / 2) / maxInt);
