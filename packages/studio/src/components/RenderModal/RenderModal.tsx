@@ -31,12 +31,14 @@ import {GifIcon} from '../../icons/gif';
 
 import {Button} from '../../error-overlay/remotion-overlay/Button';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import type {EventSourceEvent} from '../../event-source-events';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
+import {subscribeToEvent} from '../../helpers/event-source';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Checkmark} from '../../icons/Checkmark';
@@ -60,6 +62,7 @@ import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
 } from '../OptionsPanel';
+import playBeepSound from '../PlayBeepSound';
 import {
 	addSequenceRenderJob,
 	addStillRenderJob,
@@ -370,6 +373,7 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
+	const [beep, setBeep] = useState<boolean>(false);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
 	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
@@ -1101,7 +1105,23 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-	}, [onClickSequence, onClickStill, onClickVideo, renderDisabled, renderMode]);
+
+		if (beep) {
+			subscribeToEvent('render-queue-updated', (e: EventSourceEvent) => {
+				if (e.type === 'render-queue-updated' && e.queue[0].status === 'done') {
+					playBeepSound();
+					setBeep(false);
+				}
+			});
+		}
+	}, [
+		onClickSequence,
+		onClickStill,
+		onClickVideo,
+		renderDisabled,
+		renderMode,
+		beep,
+	]);
 
 	useEffect(() => {
 		const enter = registerKeybinding({
@@ -1357,6 +1377,8 @@ const RenderModal: React.FC<
 							codec={codec}
 							userAgent={userAgent}
 							setUserAgent={setUserAgent}
+							setBeep={setBeep}
+							beep={beep}
 						/>
 					)}
 				</div>
