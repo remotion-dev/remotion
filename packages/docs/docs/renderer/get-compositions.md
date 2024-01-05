@@ -125,6 +125,10 @@ getCompositions({
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
+#### `port?`
+
+Prefer a specific port that will be used to serve the Remotion project. If not specified, a random port will be used.
+
 #### `logLevel?`<AvailableFrom v="4.0.0"/>
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
