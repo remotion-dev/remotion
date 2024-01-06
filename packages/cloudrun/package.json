@@ -52,6 +52,9 @@
 			],
 			"regions": [
 				"dist/regions.d.ts"
+			],
+			"client": [
+				"dist/client.d.ts"
 			]
 		}
 	}
