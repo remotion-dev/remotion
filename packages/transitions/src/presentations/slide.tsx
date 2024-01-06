@@ -13,6 +13,8 @@ export type SlideDirection =
 
 export type SlideProps = {
 	direction?: SlideDirection;
+	exitStyle?: React.CSSProperties;
+	enterStyle?: React.CSSProperties;
 };
 
 const SlidePresentation: React.FC<
@@ -21,7 +23,7 @@ const SlidePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {direction = 'from-left'},
+	passedProps: {direction = 'from-left', enterStyle, exitStyle},
 }) => {
 	const directionStyle = useMemo((): React.CSSProperties => {
 		if (presentationDirection === 'exiting') {
@@ -76,14 +78,11 @@ const SlidePresentation: React.FC<
 			justifyContent: 'center',
 			alignItems: 'center',
 			...directionStyle,
+			...(presentationDirection === 'entering' ? enterStyle : exitStyle),
 		};
-	}, [directionStyle]);
+	}, [directionStyle, enterStyle, exitStyle, presentationDirection]);
 
-	return (
-		<AbsoluteFill>
-			<AbsoluteFill style={style}>{children}</AbsoluteFill>
-		</AbsoluteFill>
-	);
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
 
 export const slide = (

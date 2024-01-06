@@ -84,6 +84,10 @@ export type WipeDirection =
 
 export type WipeProps = {
 	direction?: WipeDirection;
+	outerEnterStyle?: React.CSSProperties;
+	outerExitStyle?: React.CSSProperties;
+	innerEnterStyle?: React.CSSProperties;
+	innerExitStyle?: React.CSSProperties;
 };
 
 const makePathOut = (progress: number, direction: WipeDirection) => {
@@ -159,7 +163,13 @@ const WipePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {direction = 'from-left'},
+	passedProps: {
+		direction = 'from-left',
+		innerEnterStyle,
+		innerExitStyle,
+		outerEnterStyle,
+		outerExitStyle,
+	},
 }) => {
 	const [clipId] = useState(() => String(random(null)));
 
@@ -180,8 +190,17 @@ const WipePresentation: React.FC<
 			justifyContent: 'center',
 			alignItems: 'center',
 			clipPath: `url(#${clipId})`,
+			...(presentationDirection === 'entering'
+				? innerEnterStyle
+				: innerExitStyle),
 		};
-	}, [clipId]);
+	}, [clipId, innerEnterStyle, innerExitStyle, presentationDirection]);
+
+	const outerStyle = useMemo(() => {
+		return presentationDirection === 'entering'
+			? outerEnterStyle
+			: outerExitStyle;
+	}, [outerEnterStyle, outerExitStyle, presentationDirection]);
 
 	const svgStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -192,7 +211,7 @@ const WipePresentation: React.FC<
 	}, []);
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 			<AbsoluteFill>
 				<svg viewBox="0 0 1 1" style={svgStyle}>

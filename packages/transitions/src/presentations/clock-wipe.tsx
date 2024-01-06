@@ -10,6 +10,10 @@ import type {
 export type ClockWipeProps = {
 	width: number;
 	height: number;
+	outerEnterStyle?: React.CSSProperties;
+	outerExitStyle?: React.CSSProperties;
+	innerEnterStyle?: React.CSSProperties;
+	innerExitStyle?: React.CSSProperties;
 };
 
 const ClockWipePresentation: React.FC<
@@ -36,11 +40,29 @@ const ClockWipePresentation: React.FC<
 			height: '100%',
 			clipPath:
 				presentationDirection === 'exiting' ? undefined : `url(#${clipId})`,
+			...(presentationDirection === 'entering'
+				? passedProps.innerEnterStyle
+				: passedProps.innerExitStyle),
 		};
-	}, [clipId, presentationDirection]);
+	}, [
+		clipId,
+		passedProps.innerEnterStyle,
+		passedProps.innerExitStyle,
+		presentationDirection,
+	]);
+
+	const outerStyle = useMemo(() => {
+		return presentationDirection === 'entering'
+			? passedProps.outerEnterStyle
+			: passedProps.outerExitStyle;
+	}, [
+		passedProps.outerEnterStyle,
+		passedProps.outerExitStyle,
+		presentationDirection,
+	]);
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 			{presentationDirection === 'exiting' ? null : (
 				<AbsoluteFill>

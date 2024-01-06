@@ -14,13 +14,24 @@ export type FlipDirection =
 export type FlipProps = {
 	direction?: FlipDirection;
 	perspective?: number;
+	outerEnterStyle?: React.CSSProperties;
+	outerExitStyle?: React.CSSProperties;
+	innerEnterStyle?: React.CSSProperties;
+	innerExitStyle?: React.CSSProperties;
 };
 
 const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	children,
 	presentationDirection,
 	presentationProgress,
-	passedProps: {direction = 'from-left', perspective = 1000},
+	passedProps: {
+		direction = 'from-left',
+		perspective = 1000,
+		innerEnterStyle,
+		innerExitStyle,
+		outerEnterStyle,
+		outerExitStyle,
+	},
 }) => {
 	const style: React.CSSProperties = useMemo(() => {
 		const startRotationEntering =
@@ -44,16 +55,28 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 			transform: `${rotateProperty}(${rotation}deg)`,
 			backfaceVisibility: 'hidden',
 			WebkitBackfaceVisibility: 'hidden',
+			...(presentationDirection === 'entering'
+				? innerEnterStyle
+				: innerExitStyle),
 		};
-	}, [direction, presentationDirection, presentationProgress]);
+	}, [
+		direction,
+		innerEnterStyle,
+		innerExitStyle,
+		presentationDirection,
+		presentationProgress,
+	]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
 			perspective,
 			// Make children also their backface hidden
 			transformStyle: 'preserve-3d',
+			...(presentationDirection === 'entering'
+				? outerEnterStyle
+				: outerExitStyle),
 		};
-	}, [perspective]);
+	}, [outerEnterStyle, outerExitStyle, perspective, presentationDirection]);
 
 	return (
 		<AbsoluteFill style={outer}>
