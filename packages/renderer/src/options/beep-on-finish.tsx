@@ -8,7 +8,7 @@ export const beepOnFinishOption = {
 			Whether the Remotion Studio tab should beep when the render is finished.
 		</>
 	),
-	ssrName: 'videoBitrate',
+	ssrName: null,
 	docLink: 'https://www.remotion.dev/docs/config#setbeeponfinish',
 	type: false as boolean,
 } satisfies AnyRemotionOption;
