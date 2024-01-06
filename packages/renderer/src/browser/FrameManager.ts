@@ -140,7 +140,7 @@ export class FrameManager extends EventEmitter {
 							autoAttach: true,
 							waitForDebuggerOnStart: false,
 							flatten: true,
-					  }),
+						}),
 			]);
 
 			const {

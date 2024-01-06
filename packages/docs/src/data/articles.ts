@@ -378,6 +378,13 @@ export const articles = [
     crumb: "Cloud Run",
   },
   {
+    id: "cloudrun/light-client",
+    title: "Light client",
+    relativePath: "docs/cloudrun/light-client.md",
+    compId: "articles-docs-cloudrun-light-client",
+    crumb: "Cloud Run",
+  },
+  {
     id: "cloudrun/limits",
     title: "Cloud Run Limits",
     relativePath: "docs/cloudrun/limits.md",

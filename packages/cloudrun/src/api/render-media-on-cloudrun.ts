@@ -11,7 +11,6 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
@@ -177,15 +176,15 @@ const internalRenderMediaOnCloudrunRaw = async ({
 				staticBase: null,
 				data: inputProps ?? {},
 			}).serializedString,
-		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+		jpegQuality: jpegQuality ?? null,
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		crf: crf ?? null,
-		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
-		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
+		pixelFormat: pixelFormat ?? null,
+		imageFormat: imageFormat ?? null,
 		scale: scale ?? 1,
 		proResProfile: proResProfile ?? null,
 		x264Preset: x264Preset ?? null,
@@ -202,8 +201,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		forceHeight,
 		type: 'media',
 		logLevel: logLevel ?? 'info',
-		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? null,
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,

@@ -8,17 +8,17 @@ export type PropsIfHasProps<
 		? {
 				// Neither props nor schema specified
 				inputProps?: z.input<Schema> & Props;
-		  }
+			}
 		: {
 				// Only props specified
 				inputProps: Props;
-		  }
+			}
 	: {} extends Props
-	? {
-			// Only schema specified
-			inputProps: z.input<Schema>;
-	  }
-	: {
-			// Props and schema specified
-			inputProps: z.input<Schema> & Props;
-	  };
+		? {
+				// Only schema specified
+				inputProps: z.input<Schema>;
+			}
+		: {
+				// Props and schema specified
+				inputProps: z.input<Schema> & Props;
+			};

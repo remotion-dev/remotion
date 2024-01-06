@@ -83,7 +83,7 @@ export const resolveVideoConfig = ({
 				defaultProps: composition.defaultProps ?? {},
 				props: originalProps,
 				abortSignal: signal,
-		  })
+			})
 		: null;
 
 	if (

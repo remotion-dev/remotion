@@ -86,7 +86,7 @@ export const generateFfmpegArgs = ({
 					['-color_trc:v', 'bt709'],
 					['-color_range', 'tv'],
 					hasPreencoded ? [] : ['-vf', 'zscale=m=709:min=709:r=limited'],
-			  ]
+				]
 			: [];
 
 	return [

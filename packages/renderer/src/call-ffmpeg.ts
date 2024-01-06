@@ -21,14 +21,14 @@ export const dynamicLibraryPathOptions = (
 			...(process.platform === 'darwin'
 				? {
 						DYLD_LIBRARY_PATH: lib,
-				  }
+					}
 				: process.platform === 'win32'
-				? {
-						PATH: `${lib};${process.env.PATH}`,
-				  }
-				: {
-						LD_LIBRARY_PATH: lib,
-				  }),
+					? {
+							PATH: `${lib};${process.env.PATH}`,
+						}
+					: {
+							LD_LIBRARY_PATH: lib,
+						}),
 		},
 	};
 };

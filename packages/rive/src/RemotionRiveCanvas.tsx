@@ -86,14 +86,14 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 						typeof artboardName === 'string'
 							? file.artboardByName(artboardName)
 							: typeof artboardName === 'number'
-							? file.artboardByIndex(artboardName)
-							: file.defaultArtboard();
+								? file.artboardByIndex(artboardName)
+								: file.defaultArtboard();
 					const animation = new riveCanvasInstance.LinearAnimationInstance(
 						typeof animationIndex === 'number'
 							? artboard.animationByIndex(animationIndex)
 							: typeof animationIndex === 'string'
-							? artboard.animationByName(animationIndex)
-							: artboard.animationByIndex(0),
+								? artboard.animationByName(animationIndex)
+								: artboard.animationByIndex(0),
 						artboard,
 					);
 					setRive({

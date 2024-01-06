@@ -80,7 +80,7 @@ export const makeDeployProgressBar = ({
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
 						totalSize,
-				  )}`
+					)}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 		makeUploadDiff({stats}),

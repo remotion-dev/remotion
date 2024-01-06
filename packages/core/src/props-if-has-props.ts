@@ -16,11 +16,11 @@ export type PropsIfHasProps<
 	? {
 			// Neither props nor schema specified
 			defaultProps?: {};
-	  }
+		}
 	: // All the other cases
-	  {
+		{
 			defaultProps: InferProps<Schema, Props>;
-	  };
+		};
 
 export type InferProps<
 	Schema extends AnyZodObject,
@@ -28,11 +28,11 @@ export type InferProps<
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified
-		  Record<string, unknown>
+			Record<string, unknown>
 		: // Only props specified
-		  Props
+			Props
 	: {} extends Props
-	? // Only schema specified
-	  z.input<Schema>
-	: // Props and schema specified
-	  z.input<Schema> & Props;
+		? // Only schema specified
+			z.input<Schema>
+		: // Props and schema specified
+			z.input<Schema> & Props;

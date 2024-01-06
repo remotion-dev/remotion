@@ -115,7 +115,7 @@ export const RenderSvg = ({
 						}
 
 						return null;
-				  })
+					})
 				: null}
 		</svg>
 	);

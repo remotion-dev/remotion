@@ -107,9 +107,9 @@ export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 				clipRegion && clipRegion !== 'hide'
 					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
 							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${
+						}px, ${clipRegion.width + clipRegion.x}px ${
 							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+						}px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
 					: undefined,
 		};
 	}, [clipRegion]);

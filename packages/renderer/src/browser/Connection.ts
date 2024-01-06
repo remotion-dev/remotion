@@ -229,9 +229,7 @@ export class CDPSession extends EventEmitter {
 		if (!this.#connection) {
 			return Promise.reject(
 				new Error(
-					`Protocol error (${method}): Session closed. Most likely the ${
-						this.#targetType
-					} has been closed.`,
+					`Protocol error (${method}): Session closed. Most likely the ${this.#targetType} has been closed.`,
 				),
 			);
 		}

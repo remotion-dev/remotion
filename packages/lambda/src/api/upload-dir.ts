@@ -65,7 +65,7 @@ async function getFiles(
 								name: res,
 								size,
 							},
-					  ];
+						];
 			}),
 	);
 	return _files.flat(1);
@@ -108,8 +108,8 @@ export const uploadDir = async ({
 					privacy === 'no-acl'
 						? undefined
 						: privacy === 'private'
-						? 'private'
-						: 'public-read';
+							? 'private'
+							: 'public-read';
 
 				const paralellUploads3 = new Upload({
 					client,

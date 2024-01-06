@@ -49,7 +49,7 @@ export const compositionsHandler = async (
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
-			  }).then((b) => b.bucketName);
+				}).then((b) => b.bucketName);
 
 		const bucketName = await bucketNamePromise;
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
