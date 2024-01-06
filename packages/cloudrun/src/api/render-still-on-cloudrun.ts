@@ -5,7 +5,7 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CloudRunCrashResponse,
@@ -205,6 +205,6 @@ const renderStillOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const renderStillOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+export const renderStillOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
 	renderStillOnCloudrunRaw,
 ) as typeof renderStillOnCloudrunRaw;

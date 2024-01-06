@@ -1,5 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
@@ -117,4 +117,4 @@ const deploySiteRaw = async ({
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = PureJSAPIs.wrapWithErrorHandling(deploySiteRaw);
+export const deploySite = NoReactAPIs.wrapWithErrorHandling(deploySiteRaw);

@@ -1,4 +1,4 @@
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -111,7 +111,7 @@ const deployServiceRaw = async ({
 };
 
 export const internalDeployService =
-	PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);
+	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
 
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.

@@ -12,7 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CloudRunCrashResponse,
@@ -289,7 +289,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 

@@ -5,7 +5,7 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -137,6 +137,6 @@ const renderStillOnLambdaRaw = async (
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
-export const renderStillOnLambda = PureJSAPIs.wrapWithErrorHandling(
+export const renderStillOnLambda = NoReactAPIs.wrapWithErrorHandling(
 	renderStillOnLambdaRaw,
 ) as typeof renderStillOnLambdaRaw;

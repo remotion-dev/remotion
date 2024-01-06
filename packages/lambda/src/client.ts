@@ -1,3 +1,5 @@
+import type {DeleteRenderInput} from './api/delete-render';
+import {deleteRender} from './api/delete-render';
 import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import {getFunctions} from './api/get-functions';
 import type {GetRenderProgressInput} from './api/get-render-progress';
@@ -44,6 +46,7 @@ export {
 	getSites,
 	speculateFunctionName,
 	DeleteAfter,
+	deleteRender,
 };
 export type {
 	AwsRegion,
@@ -56,4 +59,5 @@ export type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	GetRenderProgressInput,
+	DeleteRenderInput,
 };

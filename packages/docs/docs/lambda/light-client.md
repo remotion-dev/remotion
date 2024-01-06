@@ -26,6 +26,8 @@ import {
   speculateFunctionName,
   CustomCredentials, // available from v4.0.60
   getAwsClient, // available from v4.0.82
+  deleteRender, // available from v4.0.84
+  DeleteRenderInput, // available from v4.0.84
 } from "@remotion/lambda/client";
 ```
 

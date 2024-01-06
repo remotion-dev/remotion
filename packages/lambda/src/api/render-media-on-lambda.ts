@@ -11,7 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -155,7 +155,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const wrapped = PureJSAPIs.wrapWithErrorHandling(
+	const wrapped = NoReactAPIs.wrapWithErrorHandling(
 		internalRenderMediaOnLambdaRaw,
 	);
 	if (options.quality) {
