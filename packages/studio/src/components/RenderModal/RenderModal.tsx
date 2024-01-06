@@ -229,6 +229,7 @@ type RenderModalProps = {
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
 	initialUserAgent: string | null;
+	initialBeep: boolean;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
@@ -283,6 +284,7 @@ const RenderModal: React.FC<
 	initialMultiProcessOnLinux,
 	defaultConfigurationAudioCodec,
 	defaultConfigurationVideoCodec,
+	initialBeep,
 }) => {
 	const isMounted = useRef(true);
 
@@ -370,6 +372,7 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
+	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
 	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
@@ -718,6 +721,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			multiProcessOnLinux,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -742,6 +746,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -808,6 +813,7 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			encodingBufferSize,
 			encodingMaxRate,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -852,6 +858,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		encodingBufferSize,
 		encodingMaxRate,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -877,6 +884,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			disallowParallelEncoding,
 			multiProcessOnLinux,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -904,6 +912,7 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -1101,7 +1110,7 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-	}, [onClickSequence, onClickStill, onClickVideo, renderDisabled, renderMode]);
+	}, [renderDisabled, renderMode, onClickStill, onClickSequence, onClickVideo]);
 
 	useEffect(() => {
 		const enter = registerKeybinding({
@@ -1357,6 +1366,8 @@ const RenderModal: React.FC<
 							codec={codec}
 							userAgent={userAgent}
 							setUserAgent={setUserAgent}
+							setBeep={setBeepOnFinish}
+							beep={beepOnFinish}
 						/>
 					)}
 				</div>

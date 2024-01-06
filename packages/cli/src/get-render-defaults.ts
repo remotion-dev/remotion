@@ -26,6 +26,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
+	const beepOnFinish = ConfigInternals.getBeepOnFinish();
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
@@ -71,5 +72,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		colorSpace,
 		multiProcessOnLinux,
 		userAgent,
+		beepOnFinish,
 	};
 };

@@ -1,4 +1,5 @@
 import {audioBitrateOption} from './audio-bitrate';
+import {beepOnFinishOption} from './beep-on-finish';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -36,6 +37,7 @@ export const allOptions = {
 	enableLambdaInsights,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	beepOnFinishOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

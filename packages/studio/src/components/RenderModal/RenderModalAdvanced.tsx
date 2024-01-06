@@ -58,6 +58,8 @@ export const RenderModalAdvanced: React.FC<{
 	setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
 	userAgent: string | null;
 	setUserAgent: React.Dispatch<React.SetStateAction<string | null>>;
+	setBeep: React.Dispatch<React.SetStateAction<boolean>>;
+	beep: boolean;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -89,6 +91,8 @@ export const RenderModalAdvanced: React.FC<{
 	setChromiumMultiProcessOnLinux,
 	setUserAgent,
 	userAgent,
+	beep,
+	setBeep,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return [
@@ -170,6 +174,13 @@ export const RenderModalAdvanced: React.FC<{
 			},
 			[setUserAgent],
 		);
+
+	const onPlayBeepSound = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setBeep(e.target.checked);
+		},
+		[setBeep],
+	);
 
 	const openGlOptions = useMemo((): ComboboxValue[] => {
 		return extendedOpenGlOptions.map((option) => {
@@ -386,6 +397,19 @@ export const RenderModalAdvanced: React.FC<{
 					</div>
 				</div>
 			)}
+			<div style={optionRow}>
+				<div style={label}>
+					Beep when finished <OptionExplainerBubble id="beepOnFinishOption" />
+				</div>
+
+				<div style={rightRow}>
+					<Checkbox
+						checked={beep}
+						onChange={onPlayBeepSound}
+						name="beep-when-finished"
+					/>
+				</div>
+			</div>
 			<RenderModalHr />
 			<RenderModalEnvironmentVariables
 				envVariables={envVariables}

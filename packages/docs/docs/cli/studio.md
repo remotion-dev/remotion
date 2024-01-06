@@ -74,6 +74,14 @@ For backwards compatibility, the `BROWSER` environment variable is also supporte
 
 A set of command line flags that should be passed to the browser. Pass them like this:
 
-```console
+```sh
 npx remotion studio --browser-args="--disable-web-security"
+```
+
+### `--beep-on-finish`<AvailableFrom v="4.0.84" />
+
+[Plays a beep sound when the video is finished rendering](/docs/config#setbeeponfinish). This is useful if you are rendering a video in the background and want to be notified when it is finished.
+
+```sh
+npx remotion studio --beep-on-finish
 ```

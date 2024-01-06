@@ -33,6 +33,7 @@ export type RenderDefaults = {
 	headless: boolean;
 	colorSpace: string;
 	multiProcessOnLinux: boolean;
+	beepOnFinish: boolean;
 };
 
 declare global {

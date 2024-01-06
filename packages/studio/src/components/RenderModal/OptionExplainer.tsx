@@ -1,8 +1,8 @@
 import type {AnyRemotionOption} from '@remotion/renderer';
 import React from 'react';
 import {INPUT_BACKGROUND} from '../../helpers/colors';
-import {Spacing} from '../layout';
 import {MenuDivider} from '../Menu/MenuDivider';
+import {Spacing} from '../layout';
 import {CliCopyButton} from './CliCopyButton';
 
 const container: React.CSSProperties = {
@@ -85,12 +85,14 @@ export const OptionExplainer: React.FC<{
 						<CliCopyButton valueToCopy={option.cliFlag} />
 					</div>
 				</div>
-				<div style={infoRow}>
-					<div style={infoRowLabel}>Node.JS option</div>
-					<div style={flexSpacer} />
-					<code>{option.ssrName}</code>
-					<Spacing x={3.75} />
-				</div>
+				{option.ssrName ? (
+					<div style={infoRow}>
+						<div style={infoRowLabel}>Node.JS option</div>
+						<div style={flexSpacer} />
+						<code>{option.ssrName}</code>
+						<Spacing x={3.75} />
+					</div>
+				) : null}
 				<div style={infoRow} />
 			</div>
 		</div>

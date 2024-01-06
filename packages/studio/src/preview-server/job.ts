@@ -148,6 +148,7 @@ export type RenderJob = {
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	multiProcessOnLinux: boolean;
+	beepOnFinish: boolean;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -215,6 +216,7 @@ export type AddRenderRequest = {
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
+	beepOnFinish: boolean;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
