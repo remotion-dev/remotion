@@ -1,19 +1,29 @@
-import {construct} from './construct';
+import type {Constructed} from './construct';
 
-export const getPartAtLength = (p: string, fractionLength: number) => {
-	const constructed = construct(p);
+type SegmentAtLength = {
+	index: number;
+	fraction: number;
+};
+
+export const getSegmentAtLength = (
+	constructed: Constructed,
+	fractionLength: number,
+): SegmentAtLength => {
 	if (fractionLength < 0) {
 		fractionLength = 0;
 	} else if (fractionLength > constructed.length) {
 		fractionLength = constructed.length;
 	}
 
-	let i = constructed.partial_lengths.length - 1;
+	let index = constructed.partialLengths.length - 1;
 
-	while (constructed.partial_lengths[i] >= fractionLength && i > 0) {
-		i--;
+	while (constructed.partialLengths[index] >= fractionLength && index > 0) {
+		index--;
 	}
 
-	i++;
-	return {fraction: fractionLength - constructed.partial_lengths[i - 1], i};
+	index++;
+	return {
+		fraction: fractionLength - constructed.partialLengths[index - 1],
+		index,
+	};
 };

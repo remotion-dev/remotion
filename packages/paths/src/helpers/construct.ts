@@ -6,11 +6,19 @@ import {makeCubic, makeQuadratic} from './bezier';
 import {makeLinearPosition} from './linear';
 import type {Instruction, Point, PointArray, Properties} from './types';
 
+export type Constructed = {
+	segments: Instruction[][];
+	initialPoint: Point | null;
+	length: number;
+	partialLengths: number[];
+	functions: (Properties | null)[];
+};
+
 export const constructFromInstructions = (instructions: Instruction[]) => {
 	let length = 0;
-	const partial_lengths: number[] = [];
+	const partialLengths: number[] = [];
 	const functions: (null | Properties)[] = [];
-	let initial_point: null | Point = null;
+	let initialPoint: null | Point = null;
 
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
@@ -40,7 +48,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			segments.push([instruction]);
 			functions.push(null);
 			if (i === 0) {
-				initial_point = {x: instruction.x, y: instruction.y};
+				initialPoint = {x: instruction.x, y: instruction.y};
 			}
 		} else if (instruction.type === 'm') {
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
@@ -393,19 +401,19 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			functions.push(arcCurve);
 		}
 
-		partial_lengths.push(length);
+		partialLengths.push(length);
 	}
 
 	return {
 		segments,
-		initial_point,
+		initialPoint,
 		length,
-		partial_lengths,
+		partialLengths,
 		functions,
 	};
 };
 
-export const construct = (string: string) => {
+export const construct = (string: string): Constructed => {
 	const parsed = parsePath(string);
 	return constructFromInstructions(parsed);
 };
