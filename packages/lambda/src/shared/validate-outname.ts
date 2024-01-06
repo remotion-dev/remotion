@@ -1,5 +1,5 @@
 import type {AudioCodec, Codec} from '@remotion/renderer';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {OutNameInputWithoutCredentials} from './constants';
 import {validateBucketName} from './validate-bucketname';
 
@@ -36,10 +36,10 @@ export const validateOutname = (
 	}
 
 	if (codec) {
-		PureJSAPIs.validateOutputFilename({
+		NoReactAPIs.validateOutputFilename({
 			codec,
 			audioCodec,
-			extension: PureJSAPIs.getExtensionOfFilename(outName) as string,
+			extension: NoReactAPIs.getExtensionOfFilename(outName) as string,
 			preferLossless: false,
 		});
 	}
