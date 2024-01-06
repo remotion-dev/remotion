@@ -22,4 +22,4 @@ export {reversePath} from './reverse-path';
 export {scalePath} from './scale-path';
 export {serializeInstructions} from './serialize-instructions';
 export {translatePath} from './translate-path';
-export {WarpPathFn, warpPath} from './warp-path';
+export {warpPath, WarpPathFn} from './warp-path';
