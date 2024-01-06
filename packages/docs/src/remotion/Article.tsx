@@ -6,7 +6,12 @@ import "./font.css";
 export const Article: React.FC<{
   articleRelativePath: string;
 }> = ({ articleRelativePath }) => {
-  const expert = articles.find((e) => e.relativePath === articleRelativePath);
+  const article = articles.find((e) => e.relativePath === articleRelativePath);
+  const longestTitle = Math.max(
+    ...article.title.split(" ").map((p) => p.length),
+  );
+
+  const fontSize = longestTitle > 20 ? 70 : 80;
 
   return (
     <AbsoluteFill
@@ -24,7 +29,7 @@ export const Article: React.FC<{
       }}
     >
       <div>
-        {expert.crumb ? (
+        {article.crumb ? (
           <div
             style={{
               flexDirection: "row",
@@ -42,7 +47,7 @@ export const Article: React.FC<{
                 backgroundColor: "white",
               }}
             >
-              {expert.crumb}
+              {article.crumb}
             </div>
           </div>
         ) : null}
@@ -67,10 +72,10 @@ export const Article: React.FC<{
               style={{
                 color: "white",
                 fontFamily: "GTPlanar",
-                fontSize: 80,
+                fontSize,
               }}
             >
-              {expert.title}
+              {article.title}
             </div>
           </div>
         </div>

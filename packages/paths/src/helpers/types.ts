@@ -4,7 +4,7 @@ export interface Properties {
 	getTotalLength(): number;
 	getPointAtLength(pos: number): Point;
 	getTangentAtLength(pos: number): Point;
-	type: string;
+	type: 'linear' | 'cubic-bezier' | 'quadratic-bezier' | 'arc';
 }
 
 export interface Part {

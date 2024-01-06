@@ -1766,6 +1766,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/get-instruction-index-at-length",
+    title: "getInstructionIndexAtLength()",
+    relativePath: "docs/paths/get-instruction-index-at-length.md",
+    compId: "articles-docs-paths-get-instruction-index-at-length",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/get-length",
     title: "getLength()",
     relativePath: "docs/paths/get-length.md",

@@ -325,6 +325,7 @@ module.exports = {
         "paths/get-length",
         "paths/get-point-at-length",
         "paths/get-tangent-at-length",
+        "paths/get-instruction-index-at-length",
         "paths/reverse-path",
         "paths/normalize-path",
         "paths/interpolate-path",
