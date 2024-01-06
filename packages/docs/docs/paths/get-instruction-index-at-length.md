@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-instruction-index-at-length.png
 title: getInstructionIndexAtLength()
 crumb: "@remotion/paths"
 ---
