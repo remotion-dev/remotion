@@ -1,5 +1,5 @@
 import type {Codec} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {OutNameInput, OutNameOutput, RenderMetadata} from '../../defaults';
 import {customOutName, outName, outStillName} from '../../defaults';
 import type {CustomCredentials} from '../../shared/aws-clients';
@@ -55,7 +55,7 @@ export const getExpectedOutName = (
 			renderBucketName: bucketName,
 			key: outName(
 				renderMetadata.renderId,
-				RenderInternals.getFileExtensionFromCodec(
+				BrowserSafeApis.getFileExtensionFromCodec(
 					renderMetadata.codec as Codec,
 					renderMetadata.audioCodec,
 				),
