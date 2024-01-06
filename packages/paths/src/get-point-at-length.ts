@@ -1,5 +1,5 @@
 import {construct} from './helpers/construct';
-import {getSegmentAtLength} from './helpers/get-part-at-length';
+import {getInstructionIndexAtLength} from './helpers/get-part-at-length';
 
 /**
  * @description Gets the coordinates of a point which is on an SVG path.
@@ -9,7 +9,7 @@ import {getSegmentAtLength} from './helpers/get-part-at-length';
  */
 export const getPointAtLength = (path: string, length: number) => {
 	const constructed = construct(path);
-	const fractionPart = getSegmentAtLength(constructed, length);
+	const fractionPart = getInstructionIndexAtLength(constructed, length);
 	const functionAtPart = constructed.functions[fractionPart.index];
 
 	if (functionAtPart) {

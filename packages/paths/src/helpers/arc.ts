@@ -244,10 +244,6 @@ export const makeArc = ({
 	});
 	const length = lengthProperties.arcLength;
 
-	const getTotalLength = () => {
-		return length;
-	};
-
 	const getPointAtLength = (fractionLength: number): Point => {
 		if (fractionLength < 0) {
 			fractionLength = 0;
@@ -269,44 +265,44 @@ export const makeArc = ({
 		return {x: position.x, y: position.y};
 	};
 
-	const getTangentAtLength = (fractionLength: number): Point => {
-		if (fractionLength < 0) {
-			fractionLength = 0;
-		} else if (fractionLength > length) {
-			fractionLength = length;
-		}
-
-		const point_dist = 0.05; // needs testing
-		const p1 = getPointAtLength(fractionLength);
-		let p2: Point;
-
-		if (fractionLength < 0) {
-			fractionLength = 0;
-		} else if (fractionLength > length) {
-			fractionLength = length;
-		}
-
-		if (fractionLength < length - point_dist) {
-			p2 = getPointAtLength(fractionLength + point_dist);
-		} else {
-			p2 = getPointAtLength(fractionLength - point_dist);
-		}
-
-		const xDist = p2.x - p1.x;
-		const yDist = p2.y - p1.y;
-		const dist = Math.sqrt(xDist * xDist + yDist * yDist);
-
-		if (fractionLength < length - point_dist) {
-			return {x: -xDist / dist, y: -yDist / dist};
-		}
-
-		return {x: xDist / dist, y: yDist / dist};
-	};
-
 	return {
 		getPointAtLength,
-		getTangentAtLength,
-		getTotalLength,
+		getTangentAtLength: (fractionLength: number): Point => {
+			if (fractionLength < 0) {
+				fractionLength = 0;
+			} else if (fractionLength > length) {
+				fractionLength = length;
+			}
+
+			const point_dist = 0.05; // needs testing
+			const p1 = getPointAtLength(fractionLength);
+			let p2: Point;
+
+			if (fractionLength < 0) {
+				fractionLength = 0;
+			} else if (fractionLength > length) {
+				fractionLength = length;
+			}
+
+			if (fractionLength < length - point_dist) {
+				p2 = getPointAtLength(fractionLength + point_dist);
+			} else {
+				p2 = getPointAtLength(fractionLength - point_dist);
+			}
+
+			const xDist = p2.x - p1.x;
+			const yDist = p2.y - p1.y;
+			const dist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+			if (fractionLength < length - point_dist) {
+				return {x: -xDist / dist, y: -yDist / dist};
+			}
+
+			return {x: xDist / dist, y: yDist / dist};
+		},
+		getTotalLength: () => {
+			return length;
+		},
 		type: 'arc',
 	};
 };

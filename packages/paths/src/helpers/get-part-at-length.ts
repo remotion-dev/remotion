@@ -5,7 +5,7 @@ type SegmentAtLength = {
 	fraction: number;
 };
 
-export const getSegmentAtLength = (
+export const getInstructionIndexAtLength = (
 	constructed: Constructed,
 	fractionLength: number,
 ): SegmentAtLength => {

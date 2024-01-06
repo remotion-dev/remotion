@@ -1,5 +1,5 @@
 import {construct} from './helpers/construct';
-import {getSegmentAtLength} from './helpers/get-part-at-length';
+import {getInstructionIndexAtLength} from './helpers/get-part-at-length';
 
 /**
  * @description Gets tangent values x and y of a point which is on an SVG path
@@ -11,7 +11,7 @@ import {getSegmentAtLength} from './helpers/get-part-at-length';
 export const getTangentAtLength = (path: string, length: number) => {
 	const constructed = construct(path);
 
-	const fractionPart = getSegmentAtLength(constructed, length);
+	const fractionPart = getInstructionIndexAtLength(constructed, length);
 	const functionAtPart = constructed.functions[fractionPart.index];
 	if (functionAtPart) {
 		return functionAtPart.getTangentAtLength(fractionPart.fraction);
