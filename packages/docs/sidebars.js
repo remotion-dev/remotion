@@ -646,6 +646,7 @@ module.exports = {
         "cloudrun/instancecount",
         "cloudrun/multiple-buckets",
         "cloudrun/limits",
+        "cloudrun/light-client",
         "cloudrun/upgrading",
         "cloudrun/uninstall",
       ],

@@ -54,7 +54,7 @@ const mock: TRenderAsset[][] = new Array(2934)
 						mediaFrame: 0,
 						allowAmplificationDuringRender: false,
 						toneFrequency: null,
-				  }
+					}
 				: null,
 			{
 				type: 'audio' as const,

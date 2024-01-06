@@ -44,10 +44,10 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 			? makeProgressBar(
 					progresses.reduce((a, b) => a + (b.progress as number), 0) /
 						progresses.length,
-			  )
+				)
 			: getFileSizeDownloadBar(
 					progresses.reduce((a, b) => a + b.downloaded, 0),
-			  ),
+				),
 		`Downloading ${progresses.length} files`,
 	]
 		.filter(truthy)

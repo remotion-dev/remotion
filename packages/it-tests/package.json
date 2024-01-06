@@ -12,6 +12,7 @@
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/lambda": "workspace:*",
+    "@remotion/cloudrun": "workspace:*",
     "@remotion/renderer": "workspace:*",
     "@types/sharp": "^0.28.5",
     "create-video": "workspace:*",

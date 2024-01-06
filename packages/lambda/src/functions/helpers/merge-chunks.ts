@@ -217,7 +217,7 @@ export const mergeChunksAndFinishRender = async (options: {
 					bucket: options.bucketName,
 					contents,
 					jobs,
-			  });
+				});
 
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		bucketName: options.bucketName,

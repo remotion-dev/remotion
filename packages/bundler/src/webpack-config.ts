@@ -80,10 +80,10 @@ export const webpackConfig = ({
 			lazyCompilation: isBun
 				? false
 				: environment === 'production'
-				? false
-				: {
-						entries: false,
-				  },
+					? false
+					: {
+							entries: false,
+						},
 		},
 		watchOptions: {
 			poll: poll ?? undefined,
@@ -118,7 +118,7 @@ export const webpackConfig = ({
 								keyboardShortcutsEnabled,
 						}),
 						new AllowOptionalDependenciesPlugin(),
-				  ]
+					]
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
@@ -129,7 +129,7 @@ export const webpackConfig = ({
 							}
 						}),
 						new AllowOptionalDependenciesPlugin(),
-				  ],
+					],
 		output: {
 			hashFunction: 'xxhash64',
 			filename: NoReactInternals.bundleName,
@@ -174,7 +174,7 @@ export const webpackConfig = ({
 						environment === 'development'
 							? {
 									loader: require.resolve('./fast-refresh/loader.js'),
-							  }
+								}
 							: null,
 					].filter(truthy),
 				},
@@ -193,7 +193,7 @@ export const webpackConfig = ({
 						environment === 'development'
 							? {
 									loader: require.resolve('./fast-refresh/loader.js'),
-							  }
+								}
 							: null,
 					].filter(truthy),
 				},
@@ -212,7 +212,7 @@ export const webpackConfig = ({
 						type: 'filesystem',
 						name: getWebpackCacheName(environment, hash),
 						version: hash,
-				  }
+					}
 				: false,
 			output: {
 				...conf.output,

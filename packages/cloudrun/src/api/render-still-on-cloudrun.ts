@@ -4,8 +4,7 @@ import type {
 	StillImageFormat,
 	ToOptions,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {PureJSAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
@@ -127,7 +126,7 @@ const renderStillOnCloudrunRaw = async ({
 		type: 'still',
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	};
 

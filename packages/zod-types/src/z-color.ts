@@ -29,6 +29,6 @@ export const zColor = () =>
 					return false;
 				}
 			},
-			{message: 'Invalid color'}
+			{message: 'Invalid color'},
 		)
 		.describe(REMOTION_COLOR_BRAND);

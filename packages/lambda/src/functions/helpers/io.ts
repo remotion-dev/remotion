@@ -126,8 +126,8 @@ export const tryLambdaWriteFile = async ({
 				privacy === 'no-acl'
 					? undefined
 					: privacy === 'private'
-					? 'private'
-					: 'public-read',
+						? 'private'
+						: 'public-read',
 			ExpectedBucketOwner: customCredentials
 				? undefined
 				: expectedBucketOwner ?? undefined,

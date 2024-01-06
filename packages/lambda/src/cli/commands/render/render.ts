@@ -35,7 +35,7 @@ function getTotalFrames(status: RenderProgress): number | null {
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
 				status.renderMetadata.everyNthFrame,
-		  ).length
+			).length
 		: null;
 }
 
@@ -208,7 +208,7 @@ export const renderCommand = async (
 					url: parsedLambdaCli.webhook,
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 					customData: webhookCustomData,
-			  }
+				}
 			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,

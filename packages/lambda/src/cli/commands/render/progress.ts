@@ -160,7 +160,7 @@ const makeDownloadProgress = (
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
-			  ),
+				),
 		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
 		downloadInfo.doneIn === null
 			? [
@@ -168,7 +168,7 @@ const makeDownloadProgress = (
 					downloadInfo.totalSize === null
 						? null
 						: `${CliInternals.formatBytes(downloadInfo.totalSize)}`,
-			  ]
+				]
 					.filter(NoReactInternals.truthy)
 					.join('/')
 			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
@@ -188,7 +188,7 @@ export const makeMultiProgressFromStatus = (
 				? RenderInternals.getFramesToRender(
 						status.renderMetadata.frameRange,
 						status.renderMetadata.everyNthFrame,
-				  ).length
+					).length
 				: null,
 		},
 		encodingProgress: {

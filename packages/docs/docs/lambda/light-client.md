@@ -33,7 +33,7 @@ import {
 `getServiceClient()` was included from v4.0.60 to v4.0.81 by mistake. Use [`getAwsClient()`](/docs/lambda/getawsclient) instead.
 :::
 
-These functions don't have any Node.JS dependencies and can be bundled with a bundler such as Webpack or ESBuild.
+These functions don't have any Node.JS or Bun dependencies and can be bundled with a bundler such as Webpack or ESBuild.
 
 **We don't recommend calling these functions from the browser directly, as you will leak your AWS credentials.**
 

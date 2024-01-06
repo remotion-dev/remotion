@@ -199,8 +199,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		absoluteFrame < cumulatedFrom + from
 			? null
 			: absoluteFrame > endThreshold
-			? null
-			: children;
+				? null
+				: children;
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
 

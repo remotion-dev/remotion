@@ -211,7 +211,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 						? {
 								accessKeyId: customCredentials.accessKeyId,
 								secretAccessKey: customCredentials.secretAccessKey,
-						  }
+							}
 						: undefined,
 				endpoint: customCredentials.endpoint,
 			});

@@ -111,7 +111,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
-			  })
+				})
 			: null;
 	}, [outerStyle.height, outerStyle.width, renderLoading]);
 

@@ -107,7 +107,7 @@ const AvailableCompositions: React.FC = () => {
 					? []
 					: state.comps.map((c) => {
 							return <li key={c}>{c}</li>;
-					  })}
+						})}
 			</ul>
 		</div>
 	);

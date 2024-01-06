@@ -81,7 +81,7 @@ export const takeFrameAndCompose = async ({
 							`${frame}-final.${imageFormat}`,
 						),
 					clipRegion: clipRegion as ClipRegion,
-			  };
+				};
 	if (clipRegion !== 'hide') {
 		const shouldMakeBuffer = wantsBuffer && !needsComposing;
 
@@ -135,7 +135,7 @@ export const takeFrameAndCompose = async ({
 								x: needsComposing.clipRegion.x * scale,
 								y: needsComposing.clipRegion.y * scale,
 							},
-					  },
+						},
 			].filter(truthy),
 			output: needsComposing.finalOutFile,
 			downloadMap,
