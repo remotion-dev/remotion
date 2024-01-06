@@ -32,8 +32,8 @@
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"eslint": "8.42.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "^3.2.4",
 		"ts-node": "^10.8.0",
 		"vitest": "0.31.1"
 	},
