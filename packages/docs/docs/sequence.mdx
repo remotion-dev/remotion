@@ -112,7 +112,7 @@ All the examples below are based on the following animation of a blue square:
 
 <br />
 
-```tsx twoslash
+```tsx twoslash title="MyVideo.tsx"
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
@@ -127,7 +127,7 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 <SequenceForwardExample type="delay" />
 <br />
 
-```tsx twoslash
+```tsx twoslash title="delay.tsx"
 // @include: example-BlueSquare
 import { Sequence } from "remotion";
 // ---cut---
@@ -142,28 +142,52 @@ const MyVideo = () => {
 
 ### Trim end
 
-We can clip some content so it only stays visible for a certain time by specifying a non-finite `durationInFrames` number.
-In this example, we wrap the square in `<Sequence durationInFrames={45}>` and as you can see, it disappears after 45 frames.
+Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to make it unmount after the duration has passed.
 
 <SequenceForwardExample type="clip" />
 <br />
 
+```tsx twoslash title="trim-end.tsx"
+// @include: example-BlueSquare
+import { Sequence } from "remotion";
+// ---cut---
+const ClipExample: React.FC = () => {
+  return (
+    <Sequence durationInFrames={45}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
 ### Trim start
 
-To trim the start of some content, we can pass a negative value to `from`.
-In this example, we wrap the square in `<Sequence from={-15}>` and as a result, the animation has already progressed by 15 frames at the start of the video.
+Wrap the square in `<Sequence>` with a negative `from` value to trim the beginning of the content.  
+By shifting the time backwards, the animation has already progressed by 15 frames when the content appears.
 
 <SequenceForwardExample type="trim-start" />
+<br />
+
+```tsx title="trim-start.tsx"
+const TrimStartExample: React.FC = () => {
+  return (
+    <Sequence from={-15}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
 
 ### Trim and delay
 
-What if you want to trim the start of the content and delay it at the same time?
-You need to wrap the videos in two sequences. To the inner one we pass a negative start value `from={-15}` to trim away the first 15 frames of the content, to the outer one we pass a positive value `from={30}` to then shift it forwards by 30 frames.
+Wrap the content in two `<Sequence>`'s.  
+To the inner one, pass a negative start value `from={-15}` to trim away the first 15 frames of the content.  
+To the outer one we pass a positive value `from={30}` to then shift it forwards by 30 frames.
 
 <SequenceForwardExample type="trim-and-delay" />
 <br />
 
-```tsx twoslash
+```tsx twoslash title="trim-and-delay.tsx"
 // @include: example-BlueSquare
 import { Sequence } from "remotion";
 // ---cut---
