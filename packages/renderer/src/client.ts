@@ -3,6 +3,7 @@ import {
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './audio-codec';
+import { DEFAULT_TIMEOUT } from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -47,6 +48,7 @@ export const BrowserSafeApis = {
 	validVideoImageFormats,
 	validStillImageFormats,
 	DEFAULT_PIXEL_FORMAT,
+	DEFAULT_TIMEOUT,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,

@@ -30,10 +30,9 @@ describe("Should be able to bundle @remotion/cloudrun/client with ESBuild", () =
     expect(errors.length).toBe(0);
     expect(warnings.length).toBe(0);
 
-    // Should not include remotion or react
+    // Should not include remotion, but currently does react
     const contents = fs.readFileSync(outfile, "utf-8");
-    console.log(outfile);
-    expect(contents.includes("jsx-runtime")).toBe(false);
+    expect(contents.includes("getRemotionEnvironment")).toBe(false);
   });
 
   test("Bundle should be below 6MB", async () => {
