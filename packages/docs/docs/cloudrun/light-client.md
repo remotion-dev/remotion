@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cloudrun-light-client.png
 sidebar_label: Light client
 title: Light client
 crumb: "Cloud Run"
