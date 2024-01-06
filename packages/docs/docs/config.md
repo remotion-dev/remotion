@@ -675,7 +675,7 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-## `setEncodingBufferSize`<AvailableFrom v="4.0.78" />
+## `setEncodingBufferSize()`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
 
@@ -687,7 +687,7 @@ Config.setEncodingBufferSize("10000k");
 
 The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
 
-## `setEncodingMaxRate`<AvailableFrom v="4.0.78" />
+## `setEncodingMaxRate()`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
 
@@ -699,7 +699,7 @@ Config.setEncodingMaxRate("5000k");
 
 The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
 
-## `setAudioBitrate`<AvailableFrom v="3.2.32" />
+## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
@@ -715,7 +715,7 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
-## `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
+## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
@@ -729,7 +729,7 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-## `setDeleteAfter`<AvailableFrom v="4.0.32" />
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
@@ -743,7 +743,21 @@ import { Config } from "@remotion/cli/config";
 Config.setDeleteAfter("3-days");
 ```
 
-## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
+## `setBeepOnFinish()`<AvailableFrom v="4.0.84" />
+
+<Options id="beep-on-finish" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBeepOnFinish(true);
+```
+
+The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+
+## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 

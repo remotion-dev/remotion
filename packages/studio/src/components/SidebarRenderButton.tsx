@@ -82,6 +82,7 @@ export const SidebarRenderButton: React.FC<{
 				initialEncodingBufferSize: defaults.encodingBufferSize,
 				initialEncodingMaxRate: defaults.encodingMaxRate,
 				initialUserAgent: defaults.userAgent,
+				initialBeep: defaults.beepOnFinish,
 			});
 		},
 		[composition.defaultProps, composition.id, props, setSelectedModal],

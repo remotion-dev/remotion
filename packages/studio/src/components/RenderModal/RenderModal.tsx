@@ -31,14 +31,12 @@ import {GifIcon} from '../../icons/gif';
 
 import {Button} from '../../error-overlay/remotion-overlay/Button';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import type {EventSourceEvent} from '../../event-source-events';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
-import {subscribeToEvent} from '../../helpers/event-source';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Checkmark} from '../../icons/Checkmark';
@@ -62,7 +60,6 @@ import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
 } from '../OptionsPanel';
-import playBeepSound from '../PlayBeepSound';
 import {
 	addSequenceRenderJob,
 	addStillRenderJob,
@@ -232,6 +229,7 @@ type RenderModalProps = {
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
 	initialUserAgent: string | null;
+	initialBeep: boolean;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
@@ -286,6 +284,7 @@ const RenderModal: React.FC<
 	initialMultiProcessOnLinux,
 	defaultConfigurationAudioCodec,
 	defaultConfigurationVideoCodec,
+	initialBeep,
 }) => {
 	const isMounted = useRef(true);
 
@@ -373,7 +372,7 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
-	const [beep, setBeep] = useState<boolean>(false);
+	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
 	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
@@ -722,6 +721,7 @@ const RenderModal: React.FC<
 			inputProps,
 			offthreadVideoCacheSizeInBytes,
 			multiProcessOnLinux,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -746,6 +746,7 @@ const RenderModal: React.FC<
 		inputProps,
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -812,6 +813,7 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			encodingBufferSize,
 			encodingMaxRate,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -856,6 +858,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		encodingBufferSize,
 		encodingMaxRate,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -881,6 +884,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			disallowParallelEncoding,
 			multiProcessOnLinux,
+			beepOnFinish,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -908,6 +912,7 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
+		beepOnFinish,
 		onClose,
 	]);
 
@@ -1105,23 +1110,7 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-
-		if (beep) {
-			subscribeToEvent('render-queue-updated', (e: EventSourceEvent) => {
-				if (e.type === 'render-queue-updated' && e.queue[0].status === 'done') {
-					playBeepSound();
-					setBeep(false);
-				}
-			});
-		}
-	}, [
-		onClickSequence,
-		onClickStill,
-		onClickVideo,
-		renderDisabled,
-		renderMode,
-		beep,
-	]);
+	}, [renderDisabled, renderMode, onClickStill, onClickSequence, onClickVideo]);
 
 	useEffect(() => {
 		const enter = registerKeybinding({
@@ -1377,8 +1366,8 @@ const RenderModal: React.FC<
 							codec={codec}
 							userAgent={userAgent}
 							setUserAgent={setUserAgent}
-							setBeep={setBeep}
-							beep={beep}
+							setBeep={setBeepOnFinish}
+							beep={beepOnFinish}
 						/>
 					)}
 				</div>

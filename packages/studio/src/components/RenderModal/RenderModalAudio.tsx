@@ -4,17 +4,16 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
-import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
-import {humanReadableAudioCodec} from './human-readable-audio-codecs';
-import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
+import {humanReadableAudioCodec} from './human-readable-audio-codecs';
+import {input, label, optionRow, rightRow} from './layout';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -123,9 +122,10 @@ export const RenderModalAudio: React.FC<{
 
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>
-					<div style={label}>Custom audio bitrate</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="audioBitrateOption" />
+					<div style={label}>
+						Custom audio bitrate{' '}
+						<OptionExplainerBubble id="audioBitrateOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={shouldHaveCustomTargetAudioBitrate}

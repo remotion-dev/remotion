@@ -57,6 +57,7 @@ import type {
 } from '@remotion/renderer';
 import {StudioInternals} from '@remotion/studio';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
+import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
 	getAudioBitrate,
 	getEncodingBufferSize,
@@ -455,6 +456,11 @@ declare global {
 		readonly setChromiumMultiProcessOnLinux: (
 			multiProcessOnLinux: boolean,
 		) => void;
+
+		/**
+		 * Whether the Remotion Studio should play a beep sound when a render has finished.
+		 */
+		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
 	}
 }
 
@@ -593,6 +599,7 @@ export const Config: FlatConfig = {
 	setOffthreadVideoCacheSizeInBytes,
 	setDeleteAfter,
 	setColorSpace,
+	setBeepOnFinish,
 	setEnableFolderExpiry,
 };
 
@@ -626,6 +633,7 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
+	getBeepOnFinish,
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,

@@ -1,5 +1,13 @@
-const playBeepSound = async () => {
-	const beepAudio = new Audio('https://bigsoundbank.com/UPLOAD/wav/2066.wav');
+const beeped: Record<string, boolean> = {};
+
+const playBeepSound = async (renderId: string) => {
+	if (beeped[renderId]) {
+		return;
+	}
+
+	beeped[renderId] = true;
+
+	const beepAudio = new Audio('/beep.wav');
 	try {
 		await beepAudio.play();
 	} catch (error) {

@@ -398,7 +398,10 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			)}
 			<div style={optionRow}>
-				<div style={label}>Beep when finished</div>
+				<div style={label}>
+					Beep when finished <OptionExplainerBubble id="beepOnFinishOption" />
+				</div>
+
 				<div style={rightRow}>
 					<Checkbox
 						checked={beep}

@@ -106,6 +106,7 @@ export const RenderButton: React.FC = () => {
 			initialEncodingBufferSize: defaults.encodingBufferSize,
 			initialEncodingMaxRate: defaults.encodingMaxRate,
 			initialUserAgent: defaults.userAgent,
+			initialBeep: defaults.beepOnFinish,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 
