@@ -66,8 +66,8 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops === null
 			? null
 			: typeof numberOfGifLoops === 'number'
-			? String(numberOfGifLoops)
-			: '-1',
+				? String(numberOfGifLoops)
+				: '-1',
 		isAudioCodec(codec) ? null : '-c:v',
 		isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 		resolvedAudioCodec ? '-c:a' : null,

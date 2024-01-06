@@ -288,7 +288,7 @@ const innerStitchFramesToVideo = async (
 		: path.join(
 				assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
-		  );
+			);
 
 	Log.verbose(
 		{
@@ -362,7 +362,7 @@ const innerStitchFramesToVideo = async (
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
-		  })
+			})
 		: null;
 
 	if (mediaSupport.audio && !mediaSupport.video) {
@@ -429,7 +429,7 @@ const innerStitchFramesToVideo = async (
 					codec === 'gif'
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
-			  ]),
+				]),
 		audio ? ['-i', audio] : null,
 		numberOfGifLoops === null
 			? null

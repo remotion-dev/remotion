@@ -129,7 +129,7 @@ export const getProgress = async ({
 					renderId,
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner,
-			  })
+				})
 			: null,
 		inspectErrors({
 			contents,
@@ -159,7 +159,7 @@ export const getProgress = async ({
 				renderMetadata,
 				region,
 				customCredentials,
-		  })
+			})
 		: null;
 
 	const priceFromBucket = estimatePriceFromBucket({
@@ -193,7 +193,7 @@ export const getProgress = async ({
 				frameRange: renderMetadata.frameRange,
 				framesPerLambda: renderMetadata.framesPerLambda,
 				renderId,
-		  })
+			})
 		: 0;
 
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
@@ -215,7 +215,7 @@ export const getProgress = async ({
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
 				renderMetadata.everyNthFrame,
-		  ).length
+			).length
 		: null;
 
 	const encodingStatus = getEncodingMetadata({
@@ -268,7 +268,7 @@ export const getProgress = async ({
 					chunks,
 					renderId,
 					missingChunks: missingChunks ?? [],
-			  })
+				})
 			: null,
 		...errorExplanations,
 	].filter(NoReactInternals.truthy);
@@ -297,7 +297,7 @@ export const getProgress = async ({
 					contents,
 					renderId,
 					type: 'absolute-time',
-			  })
+				})
 			: null,
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
@@ -307,7 +307,7 @@ export const getProgress = async ({
 					: 0,
 			invoking: renderMetadata
 				? lambdasInvokedStats.lambdasInvoked /
-				  renderMetadata.estimatedRenderLambdaInvokations
+					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 			frames: frameCount === null ? 0 : framesRendered / frameCount,

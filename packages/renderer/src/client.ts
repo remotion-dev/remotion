@@ -3,7 +3,7 @@ import {
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './audio-codec';
-import { DEFAULT_TIMEOUT } from './browser/TimeoutSettings';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -15,12 +15,12 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
-import { validStillImageFormats, validVideoImageFormats } from './image-format';
+import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
-import { logLevels } from './log-level';
+import {logLevels} from './log-level';
 import {allOptions} from './options';
 import {validColorSpaces} from './options/color-space';
-import { validOpenGlRenderers } from './options/gl';
+import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
 import {
 	DEFAULT_PIXEL_FORMAT,
@@ -59,5 +59,5 @@ export const BrowserSafeApis = {
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
-	logLevels
+	logLevels,
 };

@@ -82,15 +82,15 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
 					? null
 					: hasPrev.type === TransitionSeriesTransition
-					? (hasPrev as TransitionType<Record<string, unknown>>)
-					: null;
+						? (hasPrev as TransitionType<Record<string, unknown>>)
+						: null;
 
 			const next: TransitionType<Record<string, unknown>> | null =
 				typeof nextPrev === 'string' || typeof nextPrev === 'undefined'
 					? null
 					: nextPrev.type === TransitionSeriesTransition
-					? (nextPrev as TransitionType<Record<string, unknown>>)
-					: null;
+						? (nextPrev as TransitionType<Record<string, unknown>>)
+						: null;
 
 			const prevIsTransition =
 				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
@@ -186,14 +186,14 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							durationInFrames +
 							next.props.timing.getDurationInFrames({fps}),
 						fps,
-				  })
+					})
 				: null;
 
 			const prevProgress = prev
 				? prev.props.timing.getProgress({
 						frame: frame - actualStartFrame,
 						fps,
-				  })
+					})
 				: null;
 
 			if (

@@ -369,7 +369,7 @@ export const renderVideoFlow = async ({
 			? absoluteOutputFile
 			: await fs.promises.mkdtemp(
 					path.join(os.tmpdir(), 'react-motion-render'),
-			  );
+				);
 
 		Log.verbose({indent, logLevel}, 'Output dir', outputDir);
 

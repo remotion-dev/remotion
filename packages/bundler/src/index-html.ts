@@ -111,7 +111,7 @@ ${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps),
-				  )};</script>
+					)};</script>
 			`
 				: ''
 		}
@@ -119,7 +119,7 @@ ${
 			renderQueue
 				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
 						renderQueue,
-				  )};</script>
+					)};</script>
 			`
 				: ''
 		}

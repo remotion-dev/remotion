@@ -122,7 +122,7 @@ export const getCliOptions = async (options: {
 			? true
 			: getAndValidateShouldOutputImageSequence({
 					frameRange,
-			  });
+				});
 
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,

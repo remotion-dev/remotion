@@ -9,15 +9,17 @@ const WEBPACK_OR_ESBUILD = 'esbuild';
 export const webpackOverride = (currentConfiguration) => {
 	const replaced = (() => {
 		if (WEBPACK_OR_ESBUILD === 'webpack') {
-			const {replaceLoadersWithBabel} = require(path.join(
-				// eslint-disable-next-line no-undef
-				process.cwd(),
-				'..',
-				'..',
-				'example',
-				'node_modules',
-				'@remotion/babel-loader',
-			));
+			const {replaceLoadersWithBabel} = require(
+				path.join(
+					// eslint-disable-next-line no-undef
+					process.cwd(),
+					'..',
+					'..',
+					'example',
+					'node_modules',
+					'@remotion/babel-loader',
+				),
+			);
 			return replaceLoadersWithBabel(currentConfiguration);
 		}
 
