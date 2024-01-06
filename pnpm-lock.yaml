@@ -1037,6 +1037,9 @@ importers:
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
+      '@remotion/cloudrun':
+        specifier: workspace:*
+        version: link:../cloudrun
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda

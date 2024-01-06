@@ -20,7 +20,9 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			port: null,
 			puppeteerInstance: undefined,
 			server: undefined,
-			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+			timeoutInMilliseconds:
+				body.delayRenderTimeoutInMilliseconds ??
+				RenderInternals.DEFAULT_TIMEOUT,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 		},
 	);

@@ -42,6 +42,7 @@
 		".": "./dist/index.js",
 		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
+		"./client": "./dist/client.js",
 		"./permissions.json": "./dist/shared/sa-permissions.json"
 	},
 	"typesVersions": {
