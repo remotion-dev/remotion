@@ -6,7 +6,7 @@ crumb: "How to avoid"
 ---
 
 <YouTube
-  minutes={2}
+  minutes={6}
   href="https://www.youtube.com/watch?v=M7BOPECeqV8"
   thumb="https://i.ytimg.com/vi/M7BOPECeqV8/hq720.jpg"
   title="Avoid this common mistake in Remotion"
