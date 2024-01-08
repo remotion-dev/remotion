@@ -13,7 +13,7 @@ The Lambda function [includes FFMPEG, Chrome and base fonts by default](/docs/la
 In some advanced use cases, you want to replace certain parts of the stack:
 
 - Use another Chrome version (you may need to [build it yourself](https://github.com/remotion-dev/chrome-build-instructions/tree/main))
-- Replace default fonts or emojis (such as Apple Emoji font)
+- Replace default fonts or emojis (such as [Apple Emoji font](https://github.com/samuelngs/apple-emoji-linux))
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
