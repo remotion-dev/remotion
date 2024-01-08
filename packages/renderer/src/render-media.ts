@@ -387,7 +387,7 @@ const internalRenderMediaRaw = ({
 		? path.join(
 				workingDir,
 				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
-		  )
+			)
 		: null;
 
 	if (onCtrlCExit && workingDir) {
@@ -596,7 +596,7 @@ const internalRenderMediaRaw = ({
 								setFrameToStitch(
 									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
 								);
-						  }
+							}
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
 					onBrowserLog,
