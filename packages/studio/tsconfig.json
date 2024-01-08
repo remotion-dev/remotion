@@ -18,6 +18,9 @@
 			"path": "../zod-types"
 		},
 		{
+			"path": "../renderer"
+		},
+		{
 			"path": "../player"
 		}
 	]

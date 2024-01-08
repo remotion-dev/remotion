@@ -12,6 +12,7 @@ import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
+import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
 import {scaleOption} from './scale';
 import {videoBitrate} from './video-bitrate';
@@ -38,6 +39,7 @@ export const allOptions = {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	beepOnFinishOption,
+	numberOfGifLoopsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

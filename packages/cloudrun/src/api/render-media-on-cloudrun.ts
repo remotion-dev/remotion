@@ -56,7 +56,6 @@ type InternalRenderMediaOnCloudrun = {
 	imageFormat: VideoImageFormat | undefined;
 	scale: number | undefined;
 	everyNthFrame: number | undefined;
-	numberOfGifLoops: number | null;
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
@@ -96,7 +95,6 @@ export type RenderMediaOnCloudrunInput = {
 	imageFormat?: VideoImageFormat;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;

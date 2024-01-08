@@ -25,6 +25,7 @@ const {
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -38,7 +39,7 @@ type CommandLineOptions = {
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
-	['number-of-gif-loops']: number;
+	[numberOfGifLoopsOption.cliFlag]: number;
 	['number-of-shared-audio-tags']: number;
 	[offthreadVideoCacheSizeInBytes.cliFlag]: typeof offthreadVideoCacheSizeInBytes.type;
 	[colorSpaceOption.cliFlag]: typeof colorSpaceOption.type;
@@ -132,8 +133,8 @@ export const parseCommandLine = () => {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['number-of-gif-loops']) {
-		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	if (parsedCli[numberOfGifLoopsOption.cliFlag]) {
+		Config.setNumberOfGifLoops(parsedCli[numberOfGifLoopsOption.cliFlag]);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {

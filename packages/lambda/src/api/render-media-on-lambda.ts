@@ -55,7 +55,6 @@ export type RenderMediaOnLambdaInput = {
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;

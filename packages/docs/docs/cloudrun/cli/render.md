@@ -151,7 +151,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--number-of-gif-loops`
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--frames`
 
