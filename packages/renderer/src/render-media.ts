@@ -98,7 +98,6 @@ export type InternalRenderMediaOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	numberOfGifLoops: number | null;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	overwrite: boolean;
 	onProgress: RenderMediaOnProgress;
@@ -152,7 +151,6 @@ export type RenderMediaOptions = Prettify<{
 	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	puppeteerInstance?: HeadlessBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -180,7 +178,6 @@ export type RenderMediaOptions = Prettify<{
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
-	videoBitrate?: string | null;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
@@ -188,9 +185,9 @@ export type RenderMediaOptions = Prettify<{
 	serveUrl: string;
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
 	colorSpace?: ColorSpace;
-}>;
+}> &
+	Partial<MoreRenderMediaOptions>;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 

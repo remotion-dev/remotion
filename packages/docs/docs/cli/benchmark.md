@@ -147,7 +147,7 @@ Inherited from [`npx remotion render`](/docs/cli/render#--port)
 
 _optional_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--number-of-gif-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--every-nth-frame`
 

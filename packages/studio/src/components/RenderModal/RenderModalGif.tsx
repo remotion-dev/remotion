@@ -1,9 +1,11 @@
 import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import {label, optionRow, rightRow} from './layout';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
 import {NumberSetting} from './NumberSetting';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -41,7 +43,10 @@ export const RenderModalGif: React.FC<{
 				step={1}
 			/>
 			<div style={optionRow}>
-				<div style={label}>Limit GIF loops</div>
+				<div style={label}>
+					Limit GIF loops <Spacing x={0.5} />
+					<OptionExplainerBubble id="numberOfGifLoopsOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={limitNumberOfGifLoops}

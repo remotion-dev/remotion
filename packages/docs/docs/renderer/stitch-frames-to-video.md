@@ -132,7 +132,7 @@ const onDownload = (src: string) => {
 
 _optional_
 
-Set the looping behavior. This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `muted?`<AvailableFrom v="3.2.1" />
 

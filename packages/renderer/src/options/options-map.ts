@@ -1,3 +1,4 @@
+import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
 import {videoBitrate} from './video-bitrate';
 
@@ -5,6 +6,7 @@ export const optionsMap = {
 	renderMedia: {
 		offthreadVideoCacheSizeInBytes,
 		videoBitrate,
+		numberOfGifLoops: numberOfGifLoopsOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes,
@@ -21,6 +23,7 @@ export const optionsMap = {
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes,
 		videoBitrate,
+		numberOfGifLoops: numberOfGifLoopsOption,
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes,
@@ -30,6 +33,7 @@ export const optionsMap = {
 	},
 	renderMediaOnCloudRun: {
 		offthreadVideoCacheSizeInBytes,
+		numberOfGifLoops: numberOfGifLoopsOption,
 	},
 	renderStillOnCloudRun: {
 		offthreadVideoCacheSizeInBytes,

@@ -458,7 +458,7 @@ The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` 
 
 ## setNumberOfGifLoops()
 
-This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
+<Options id="number-of-gif-loops" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

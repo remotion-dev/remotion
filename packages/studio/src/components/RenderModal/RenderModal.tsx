@@ -344,7 +344,7 @@ const RenderModal: React.FC<
 				? BrowserSafeApis.getFileExtensionFromCodec(
 						initialVideoCodec,
 						initialAudioCodec,
-				  )
+					)
 				: initialStillImageFormat,
 			type: 'asset',
 		});
@@ -385,8 +385,8 @@ const RenderModal: React.FC<
 		initialUserAgent === null
 			? null
 			: initialUserAgent.trim() === ''
-			? null
-			: initialUserAgent,
+				? null
+				: initialUserAgent,
 	);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
@@ -451,7 +451,7 @@ const RenderModal: React.FC<
 	);
 
 	const [numberOfGifLoopsSetting, setNumberOfGifLoopsSetting] = useState(
-		() => initialNumberOfGifLoops ?? 1,
+		() => initialNumberOfGifLoops ?? 0,
 	);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		() => initialDelayRenderTimeout,
