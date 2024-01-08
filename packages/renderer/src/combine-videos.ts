@@ -9,6 +9,7 @@ import {
 } from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
+import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -65,9 +66,7 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops === null ? null : '-loop',
 		numberOfGifLoops === null
 			? null
-			: typeof numberOfGifLoops === 'number'
-				? String(numberOfGifLoops)
-				: '-1',
+			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
 		isAudioCodec(codec) ? null : '-c:v',
 		isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 		resolvedAudioCodec ? '-c:a' : null,
