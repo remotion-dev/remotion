@@ -6,6 +6,6 @@ test('Libc requirement', () => {
 
 	const message = gLibCErrorMessage('2.34');
 	expect(message).toBe(
-		'Remotion requires glibc 2.35 or higher. Your system has glibc 2.34.',
+		'Rendering videos requires glibc 2.35 or higher. Your system has glibc 2.34.',
 	);
 });

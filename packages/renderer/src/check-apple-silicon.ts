@@ -1,3 +1,6 @@
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
+
 export const gLibCErrorMessage = (libCString: string) => {
 	const split = libCString.split('.');
 	if (split.length !== 2) {
@@ -15,7 +18,7 @@ export const gLibCErrorMessage = (libCString: string) => {
 	return `Remotion requires glibc 2.35 or higher. Your system has glibc ${libCString}.`;
 };
 
-const checkLibCRequirement = () => {
+const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
 	const {report} = process;
 	if (report) {
 		// @ts-expect-error no types
@@ -26,12 +29,15 @@ const checkLibCRequirement = () => {
 
 		const error = gLibCErrorMessage(glibcVersionRuntime as string);
 		if (error) {
-			throw new Error(error);
+			Log.warn({logLevel, indent}, error);
 		}
 	}
 };
 
-export const checkNodeVersionAndWarnAboutRosetta = () => {
+export const checkNodeVersionAndWarnAboutRosetta = (
+	logLevel: LogLevel,
+	indent: boolean,
+) => {
 	const version = process.version.replace('v', '').split('.');
 	const majorVersion = Number(version[0]);
 	const requiredNodeVersion = 16;
@@ -42,5 +48,5 @@ export const checkNodeVersionAndWarnAboutRosetta = () => {
 		);
 	}
 
-	checkLibCRequirement();
+	checkLibCRequirement(logLevel, indent);
 };

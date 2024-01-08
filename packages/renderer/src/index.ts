@@ -224,4 +224,4 @@ export const RenderInternals = {
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-checkNodeVersionAndWarnAboutRosetta();
+checkNodeVersionAndWarnAboutRosetta('info', false);
