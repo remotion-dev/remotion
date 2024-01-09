@@ -32,8 +32,8 @@ https://us-east-1.console.aws.amazon.com/support/home#/case/?displayId=974278145
 The maximum amount of Lambda functions which can concurrently execute.
 Run `npx remotion lambda quotas increase` to ask AWS to increase your limit.
 
-Burst concurrency: 3000, but only 1000 effective because of concurrency limit
-The maximum amount of Lambda functions that can spawn in a short amount of time
+Burst concurrency: 1000
+The maximum amount of concurrency increase in 10 seconds
 
 </pre>
 </details>
