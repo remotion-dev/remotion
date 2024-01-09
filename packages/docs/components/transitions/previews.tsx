@@ -1,18 +1,13 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
 import type {
   TransitionPresentation,
   TransitionTiming,
 } from "@remotion/transitions";
-import { springTiming, TransitionSeries } from "@remotion/transitions";
-import { clockWipe } from "@remotion/transitions/clock-wipe";
-import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
-import { flip } from "@remotion/transitions/flip";
 import type { SlideDirection } from "@remotion/transitions/slide";
-import { slide } from "@remotion/transitions/slide";
 import type { WipeDirection } from "@remotion/transitions/wipe";
-import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import type { SpringConfig } from "remotion";
 import { AbsoluteFill, measureSpring, spring, useVideoConfig } from "remotion";
@@ -21,6 +16,19 @@ import {
   presentationCompositionWidth,
 } from "../TableOfContents/transitions/presentations";
 import { customPresentation } from "./custom-transition";
+const { springTiming, TransitionSeries } =
+  require("@remotion/transitions") as typeof import("@remotion/transitions");
+const { clockWipe } =
+  require("@remotion/transitions/clock-wipe") as typeof import("@remotion/transitions/clock-wipe");
+
+const { fade } =
+  require("@remotion/transitions/fade") as typeof import("@remotion/transitions/fade");
+const { flip } =
+  require("@remotion/transitions/flip") as typeof import("@remotion/transitions/flip");
+const { slide } =
+  require("@remotion/transitions/slide") as typeof import("@remotion/transitions/slide");
+const { wipe } =
+  require("@remotion/transitions/wipe") as typeof import("@remotion/transitions/wipe");
 
 const SceneA: React.FC = () => {
   return (
