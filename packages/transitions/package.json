@@ -6,7 +6,6 @@
 	"main": "dist/cjs/index.js",
 	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
-	"type": "module",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
