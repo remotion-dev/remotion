@@ -434,7 +434,11 @@ module.exports = {
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
             "transitions/presentations/clock-wipe",
-            "transitions/presentations/cube",
+            {
+              type: "doc",
+              id: "transitions/presentations/cube",
+              className: "pro-item",
+            },
             "transitions/presentations/custom",
             "transitions/audio-transitions",
           ],
