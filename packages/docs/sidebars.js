@@ -434,6 +434,7 @@ module.exports = {
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
             "transitions/presentations/clock-wipe",
+            "transitions/presentations/cube",
             "transitions/presentations/custom",
             "transitions/audio-transitions",
           ],
