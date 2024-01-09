@@ -19,6 +19,11 @@ export const Presentations: React.FC = () => {
   const flip = useImport(import("@remotion/transitions/flip"));
   const clockWipe = useImport(import("@remotion/transitions/clock-wipe"));
   const slide = useImport(import("@remotion/transitions/slide"));
+
+  if (!fade || !wipe || !flip || !clockWipe || !slide) {
+    return null;
+  }
+
   return (
     <Grid>
       <TOCItem link="/docs/transitions/presentations">
