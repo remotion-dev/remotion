@@ -15,7 +15,7 @@ export const gLibCErrorMessage = (libCString: string) => {
 		return null;
 	}
 
-	return `Remotion requires glibc 2.35 or higher. Your system has glibc ${libCString}.`;
+	return `Rendering videos requires glibc 2.35 or higher. Your system has glibc ${libCString}.`;
 };
 
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
