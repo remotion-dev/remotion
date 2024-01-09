@@ -13,7 +13,7 @@ If you already have a Remotion project, read on how you can render stills.
 
 ## Defining a still
 
-Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](/docs/composition) one to define a still. The timeline will disappear, and you will not have to define a duration or FPs value.
+Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](/docs/composition) one to define a still. The timeline will disappear, and you will not have to define a duration or FPS value.
 
 ## Rendering via CLI
 
