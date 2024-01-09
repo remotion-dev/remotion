@@ -1,20 +1,13 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+import { fade } from "@remotion/transitions/fade";
+import { flip } from "@remotion/transitions/flip";
+import { slide } from "@remotion/transitions/slide";
+
+import { clockWipe } from "@remotion/transitions/clock-wipe";
+import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
 import { Grid } from "../Grid";
 import { TOCItem } from "../TOCItem";
-
-// Docusaurus ESM import troubles
-const { fade } =
-  require("@remotion/transitions/fade") as typeof import("@remotion/transitions/fade");
-const { flip } =
-  require("@remotion/transitions/flip") as typeof import("@remotion/transitions/flip");
-const { slide } =
-  require("@remotion/transitions/slide") as typeof import("@remotion/transitions/slide");
-const { clockWipe } =
-  require("@remotion/transitions/clock-wipe") as typeof import("@remotion/transitions/clock-wipe");
-const { wipe } =
-  require("@remotion/transitions/wipe") as typeof import("@remotion/transitions/wipe");
 
 const row: React.CSSProperties = {
   display: "flex",
