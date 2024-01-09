@@ -1,8 +1,3 @@
-import { flip } from "@remotion/transitions/flip";
-import { slide } from "@remotion/transitions/slide";
-
-import { clockWipe } from "@remotion/transitions/clock-wipe";
-import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
 import { useImport } from "../../transitions/use-import";
@@ -20,6 +15,10 @@ export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC = () => {
   const fade = useImport(import("@remotion/transitions/fade"));
+  const wipe = useImport(import("@remotion/transitions/wipe"));
+  const flip = useImport(import("@remotion/transitions/flip"));
+  const clockWipe = useImport(import("@remotion/transitions/clock-wipe"));
+  const slide = useImport(import("@remotion/transitions/slide"));
   return (
     <Grid>
       <TOCItem link="/docs/transitions/presentations">
@@ -32,7 +31,10 @@ export const Presentations: React.FC = () => {
       </TOCItem>
       <TOCItem link="/docs/transitions/presentations/fade">
         <div style={row}>
-          <PresentationPreview durationRestThreshold={0.001} effect={fade()} />
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={fade.fade()}
+          />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
               <code>{"fade()"}</code>
@@ -43,7 +45,10 @@ export const Presentations: React.FC = () => {
       </TOCItem>
       <TOCItem link="/docs/transitions/presentations/slide">
         <div style={row}>
-          <PresentationPreview durationRestThreshold={0.001} effect={slide()} />
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={slide.slide()}
+          />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
               <code>{"slide()"}</code>
@@ -54,7 +59,10 @@ export const Presentations: React.FC = () => {
       </TOCItem>
       <TOCItem link="/docs/transitions/presentations/wipe">
         <div style={row}>
-          <PresentationPreview durationRestThreshold={0.001} effect={wipe()} />
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={wipe.wipe()}
+          />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
               <code>{"wipe()"}</code>
@@ -65,7 +73,10 @@ export const Presentations: React.FC = () => {
       </TOCItem>
       <TOCItem link="/docs/transitions/presentations/flip">
         <div style={row}>
-          <PresentationPreview durationRestThreshold={0.001} effect={flip()} />
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={flip.flip()}
+          />
           <div style={{ flex: 1, marginLeft: 10 }}>
             <strong>
               <code>{"flip()"}</code>
@@ -78,7 +89,7 @@ export const Presentations: React.FC = () => {
         <div style={row}>
           <PresentationPreview
             durationRestThreshold={0.001}
-            effect={clockWipe({
+            effect={clockWipe.clockWipe({
               width: presentationCompositionWidth,
               height: presentationCompositionHeight,
             })}
