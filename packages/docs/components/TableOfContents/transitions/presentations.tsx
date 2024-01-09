@@ -1,4 +1,3 @@
-import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
 
@@ -6,6 +5,7 @@ import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
+import { useImport } from "../../transitions/use-import";
 import { Grid } from "../Grid";
 import { TOCItem } from "../TOCItem";
 
@@ -19,6 +19,7 @@ export const presentationCompositionWidth = 540;
 export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC = () => {
+  const fade = useImport(import("@remotion/transitions/fade"));
   return (
     <Grid>
       <TOCItem link="/docs/transitions/presentations">
