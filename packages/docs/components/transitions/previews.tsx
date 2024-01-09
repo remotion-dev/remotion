@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
 import type {
