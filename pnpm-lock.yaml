@@ -1040,12 +1040,45 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/layout-utils':
+        specifier: workspace:*
+        version: link:../layout-utils
+      '@remotion/lottie':
+        specifier: workspace:*
+        version: link:../lottie
+      '@remotion/media-utils':
+        specifier: workspace:*
+        version: link:../media-utils
+      '@remotion/motion-blur':
+        specifier: workspace:*
+        version: link:../motion-blur
+      '@remotion/noise':
+        specifier: workspace:*
+        version: link:../noise
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
+      '@remotion/preload':
+        specifier: workspace:*
+        version: link:../preload
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/shapes':
+        specifier: workspace:*
+        version: link:../shapes
+      '@remotion/transitions':
+        specifier: workspace:*
+        version: link:../transitions
+      '@remotion/zod-types':
+        specifier: workspace:*
+        version: link:../zod-types
       '@types/sharp':
         specifier: ^0.28.5
         version: 0.28.6
