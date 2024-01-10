@@ -538,6 +538,9 @@ importers:
       '@mdx-js/react':
         specifier: ^1.6.21
         version: 1.6.22(react@18.2.0)
+      '@remotion-dev/cube-presentation':
+        specifier: https://www.remotion.pro/pkg/cube-transition/1.0.1/docs
+        version: '@www.remotion.pro/pkg/cube-transition/1.0.1/docs(@remotion/transitions@packages+transitions)(react@18.2.0)(remotion@packages+core)'
       '@remotion/babel-loader':
         specifier: workspace:*
         version: link:../babel-loader
@@ -22552,4 +22555,19 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+    dev: false
+
+  '@www.remotion.pro/pkg/cube-transition/1.0.1/docs(@remotion/transitions@packages+transitions)(react@18.2.0)(remotion@packages+core)':
+    resolution: {tarball: https://www.remotion.pro/pkg/cube-transition/1.0.1/docs}
+    id: '@www.remotion.pro/pkg/cube-transition/1.0.1/docs'
+    name: '@remotion-dev/cube-presentation'
+    version: 1.0.1
+    peerDependencies:
+      '@remotion/transitions': ^4.0.84
+      react: ^18.2.0
+      remotion: '*'
+    dependencies:
+      '@remotion/transitions': link:packages/transitions
+      react: 18.2.0
+      remotion: link:packages/core
     dev: false

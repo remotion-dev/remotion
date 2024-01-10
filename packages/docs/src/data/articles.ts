@@ -2578,6 +2578,13 @@ export const articles = [
     crumb: "@remotion/transitions - Presentations",
   },
   {
+    id: "transitions/presentations/cube",
+    title: "cube()",
+    relativePath: "docs/transitions/presentations/cube.mdx",
+    compId: "articles-docs-transitions-presentations-cube",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/custom",
     title: "Custom presentations",
     relativePath: "docs/transitions/presentations/custom.mdx",
