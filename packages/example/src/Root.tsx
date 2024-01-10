@@ -11,6 +11,7 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
+import {NativeBufferState} from './BufferState/Simple';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -632,6 +633,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="native-buffer-state"
+					component={NativeBufferState}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
 				/>
 				<Composition
 					id="default-codec"

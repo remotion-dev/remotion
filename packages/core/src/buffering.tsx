@@ -69,7 +69,9 @@ const createBufferManager = (): BufferManager => {
 	};
 };
 
-const BufferingContextReact = React.createContext<BufferManager | null>(null);
+export const BufferingContextReact = React.createContext<BufferManager | null>(
+	null,
+);
 
 export const BufferingProvider: React.FC<{
 	children: React.ReactNode;
