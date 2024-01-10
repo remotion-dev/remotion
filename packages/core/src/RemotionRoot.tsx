@@ -5,6 +5,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {BufferingProvider} from './buffering.js';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {EditorPropsProvider} from './EditorProps.js';
@@ -108,7 +109,7 @@ export const RemotionRoot: React.FC<{
 									numberOfAudioTags={numberOfAudioTags}
 								>
 									<DurationsContextProvider>
-										{children}
+										<BufferingProvider>{children}</BufferingProvider>
 									</DurationsContextProvider>
 								</CompositionManagerProvider>
 							</NativeLayersProvider>
