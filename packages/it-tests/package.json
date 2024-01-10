@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "4.0.81",
+  "version": "4.0.84",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/monorepo --run && vitest src/rendering --run",
@@ -12,6 +12,7 @@
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/lambda": "workspace:*",
+    "@remotion/cloudrun": "workspace:*",
     "@remotion/renderer": "workspace:*",
     "@types/sharp": "^0.28.5",
     "create-video": "workspace:*",

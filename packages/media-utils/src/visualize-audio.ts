@@ -9,6 +9,7 @@ type FnParameters = {
 	frame: number;
 	fps: number;
 	numberOfSamples: number;
+	optimizeFor?: 'accuracy' | 'speed';
 };
 
 /**
@@ -21,6 +22,7 @@ const visualizeAudioFrame = ({
 	frame,
 	fps,
 	numberOfSamples,
+	optimizeFor,
 }: FnParameters) => {
 	const cacheKey = metadata.resultId + frame + fps + numberOfSamples;
 	if (cache[cacheKey]) {
@@ -36,6 +38,7 @@ const visualizeAudioFrame = ({
 		fps,
 		sampleRate: metadata.sampleRate,
 		maxInt,
+		optimizeFor: optimizeFor ?? 'accuracy',
 	});
 };
 

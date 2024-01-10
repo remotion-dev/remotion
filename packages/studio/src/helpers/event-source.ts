@@ -1,6 +1,7 @@
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
 import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
 import type {EventSourceEvent} from '../event-source-events';
 import {studioServerConnectionRef} from './client-id';
@@ -46,6 +47,11 @@ export const openEventSource = () => {
 
 		if (newEvent.type === 'render-queue-updated') {
 			renderJobsRef.current?.updateRenderJobs(newEvent.queue);
+			for (const job of newEvent.queue) {
+				if (job.status === 'done' && job.beepOnFinish) {
+					playBeepSound(job.id);
+				}
+			}
 		}
 
 		if (newEvent.type === 'render-job-failed') {

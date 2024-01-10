@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "4.0.81",
+	"version": "4.0.84",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -42,8 +42,8 @@
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.11",
 		"eslint": "8.42.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"vitest": "0.31.1"

@@ -16,6 +16,18 @@ import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
+const {
+	beepOnFinishOption,
+	colorSpaceOption,
+	offthreadVideoCacheSizeInBytes,
+	encodingBufferSizeOption,
+	encodingMaxRateOption,
+	deleteAfterOption,
+	folderExpiryOption,
+	enableMultiprocessOnLinuxOption,
+	numberOfGifLoopsOption,
+} = BrowserSafeApis.options;
+
 type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
@@ -27,12 +39,11 @@ type CommandLineOptions = {
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
-	['number-of-gif-loops']: number;
+	[numberOfGifLoopsOption.cliFlag]: number;
 	['number-of-shared-audio-tags']: number;
-	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytes
-		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytes.type;
-	[BrowserSafeApis.options.colorSpaceOption
-		.cliFlag]: typeof BrowserSafeApis.options.colorSpaceOption.type;
+	[offthreadVideoCacheSizeInBytes.cliFlag]: typeof offthreadVideoCacheSizeInBytes.type;
+	[colorSpaceOption.cliFlag]: typeof colorSpaceOption.type;
+	[beepOnFinishOption.cliFlag]: typeof beepOnFinishOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -41,10 +52,8 @@ type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
-	[BrowserSafeApis.options.encodingBufferSizeOption
-		.cliFlag]: typeof BrowserSafeApis.options.encodingBufferSizeOption.type;
-	[BrowserSafeApis.options.encodingMaxRateOption
-		.cliFlag]: typeof BrowserSafeApis.options.encodingMaxRateOption.type;
+	[encodingBufferSizeOption.cliFlag]: typeof encodingBufferSizeOption.type;
+	[encodingMaxRateOption.cliFlag]: typeof encodingMaxRateOption.type;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -78,9 +87,9 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
-	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: string | undefined;
-	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
-	[BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag]: boolean;
+	[deleteAfterOption.cliFlag]: string | undefined;
+	[folderExpiryOption.cliFlag]: boolean | undefined;
+	[enableMultiprocessOnLinuxOption.cliFlag]: boolean;
 };
 
 export const BooleanFlags = [
@@ -106,6 +115,7 @@ export const BooleanFlags = [
 	'disable-keyboard-shortcuts',
 	'default-only',
 	'no-open',
+	beepOnFinishOption.cliFlag,
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -123,8 +133,8 @@ export const parseCommandLine = () => {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['number-of-gif-loops']) {
-		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	if (parsedCli[numberOfGifLoopsOption.cliFlag]) {
+		Config.setNumberOfGifLoops(parsedCli[numberOfGifLoopsOption.cliFlag]);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
@@ -273,6 +283,10 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['max-rate'] !== 'undefined') {
 		Config.setEncodingMaxRate(parsedCli['max-rate']);
+	}
+
+	if (typeof parsedCli['beep-on-finish'] !== 'undefined') {
+		Config.setBeepOnFinish(parsedCli['beep-on-finish']);
 	}
 
 	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {

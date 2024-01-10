@@ -1,4 +1,4 @@
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -107,6 +107,6 @@ const deployFunctionRaw = async (
  * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
  */
 
-export const deployFunction = PureJSAPIs.wrapWithErrorHandling(
+export const deployFunction = NoReactAPIs.wrapWithErrorHandling(
 	deployFunctionRaw,
 ) as typeof deployFunctionRaw;

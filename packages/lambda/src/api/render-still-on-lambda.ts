@@ -5,23 +5,18 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
-import {VERSION} from 'remotion/version';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {
-	compressInputProps,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '../shared/compress-props';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
 	getCloudwatchMethodUrl,
 	getLambdaInsightsUrl,
 } from '../shared/get-aws-urls';
+import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -69,77 +64,15 @@ export type RenderStillOnLambdaOutput = {
 	cloudWatchLogs: string;
 };
 
-const renderStillOnLambdaRaw = async ({
-	functionName,
-	serveUrl,
-	inputProps,
-	imageFormat,
-	envVariables,
-	quality,
-	jpegQuality,
-	region,
-	maxRetries,
-	composition,
-	privacy,
-	frame,
-	logLevel,
-	outName,
-	timeoutInMilliseconds,
-	chromiumOptions,
-	scale,
-	downloadBehavior,
-	forceHeight,
-	forceWidth,
-	forceBucketName,
-	dumpBrowserLogs,
-	onInit,
-	offthreadVideoCacheSizeInBytes,
-	deleteAfter,
-}: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	if (quality) {
-		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.',
-		);
-	}
-
-	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
-
-	const serializedInputProps = await compressInputProps({
-		stringifiedInputProps,
-		region,
-		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
-		userSpecifiedBucketName: forceBucketName ?? null,
-		propsType: 'input-props',
-	});
-
+const renderStillOnLambdaRaw = async (
+	input: RenderStillOnLambdaInput,
+): Promise<RenderStillOnLambdaOutput> => {
+	const {functionName, region, onInit} = input;
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.still,
-			payload: {
-				composition,
-				serveUrl,
-				inputProps: serializedInputProps,
-				imageFormat,
-				envVariables,
-				jpegQuality,
-				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
-				frame: frame ?? 0,
-				privacy,
-				attempt: 1,
-				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
-				outName: outName ?? null,
-				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {},
-				scale: scale ?? 1,
-				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-				version: VERSION,
-				forceHeight: forceHeight ?? null,
-				forceWidth: forceWidth ?? null,
-				bucketName: forceBucketName ?? null,
-				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-				deleteAfter: deleteAfter ?? null,
-			},
+			payload: await makeLambdaRenderStillPayload(input),
 			region,
 			receivedStreamingPayload: (payload) => {
 				if (payload.type === 'render-id-determined') {
@@ -204,6 +137,6 @@ const renderStillOnLambdaRaw = async ({
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
-export const renderStillOnLambda = PureJSAPIs.wrapWithErrorHandling(
+export const renderStillOnLambda = NoReactAPIs.wrapWithErrorHandling(
 	renderStillOnLambdaRaw,
 ) as typeof renderStillOnLambdaRaw;

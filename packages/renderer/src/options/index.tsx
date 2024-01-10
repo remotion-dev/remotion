@@ -1,4 +1,5 @@
 import {audioBitrateOption} from './audio-bitrate';
+import {beepOnFinishOption} from './beep-on-finish';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -11,6 +12,7 @@ import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
+import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
 import {scaleOption} from './scale';
 import {videoBitrate} from './video-bitrate';
@@ -36,6 +38,8 @@ export const allOptions = {
 	enableLambdaInsights,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	beepOnFinishOption,
+	numberOfGifLoopsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

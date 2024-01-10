@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "4.0.81",
+	"version": "4.0.84",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -10,7 +10,7 @@
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup-no-react.config.js && rollup --config rollup.config.js",
+		"build": "tsc -d && rollup --failAfterWarnings --config rollup-version.config.js && rollup --failAfterWarnings --config rollup-no-react.config.js && rollup --failAfterWarnings --config rollup.config.js",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -36,8 +36,8 @@
 		"eslint": "8.42.0",
 		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "21.1.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"rimraf": "^3.0.2",

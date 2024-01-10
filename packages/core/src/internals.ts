@@ -2,6 +2,7 @@ import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
+import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -140,6 +141,7 @@ export const Internals = {
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
+	useMediaStartsAt,
 } as const;
 
 export type {

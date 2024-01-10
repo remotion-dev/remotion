@@ -107,9 +107,9 @@ export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 				clipRegion && clipRegion !== 'hide'
 					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
 							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${
+						}px, ${clipRegion.width + clipRegion.x}px ${
 							clipRegion.height + clipRegion.y
-					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+						}px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
 					: undefined,
 		};
 	}, [clipRegion]);
@@ -193,7 +193,7 @@ export const Composition = <
 			id,
 			folderName,
 			component: lazy,
-			defaultProps: defaultProps as z.infer<Schema> & Props,
+			defaultProps: defaultProps as z.output<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,

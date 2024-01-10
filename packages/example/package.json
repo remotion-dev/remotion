@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.81",
+	"version": "4.0.84",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -57,18 +57,20 @@
 		"@types/react": "18.0.26",
 		"@types/styled-components": "^5.1.26",
 		"@types/web": "0.0.78",
+		"@types/three": "0.157.2",
 		"babel-loader": "^8.2.2",
 		"dotenv": "9.0.2",
 		"hls.js": "^0.14.17",
 		"lottie-web": "5.12.2",
 		"opentype.js": "^1.3.4",
 		"polished": "^4.0.5",
-		"prettier": "3.0.2",
+		"prettier": "3.1.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-is": "^18.2.0",
 		"remotion": "workspace:*",
 		"styled-components": "^5.3.6",
+		"three": "0.158.0",
 		"ts-unused-exports": "^7.0.1",
 		"use-asset": "^1.0.4",
 		"vitest": "0.31.1",
@@ -79,7 +81,8 @@
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier-plugin-organize-imports": "^3.2.2"
+		"prettier-plugin-organize-imports": "3.2.4",
+		"sharp": "0.32.6"
 	},
 	"publishConfig": {
 		"access": "public"

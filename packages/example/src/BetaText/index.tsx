@@ -144,12 +144,12 @@ const BetaText = ({
 									key === 7
 										? 'ONE'
 										: key === 5
-										? 'REMOTION'
-										: key === 3
-										? word1 ?? 'COOL'
-										: key === 1
-										? 'LIT'
-										: 'BETA'
+											? 'REMOTION'
+											: key === 3
+												? word1 ?? 'COOL'
+												: key === 1
+													? 'LIT'
+													: 'BETA'
 								}
 								i={key}
 								videoWidth={videoConfig.width}

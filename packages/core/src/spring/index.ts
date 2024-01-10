@@ -61,20 +61,20 @@ export function spring({
 				from,
 				to,
 				threshold: durationRestThreshold,
-		  })
+			})
 		: undefined;
 
 	const naturalDurationGetter = needsToCalculateNaturalDuration
 		? {
 				get: () => naturalDuration as number,
-		  }
+			}
 		: {
 				get: () => {
 					throw new Error(
 						'did not calculate natural duration, this is an error with Remotion. Please report',
 					);
 				},
-		  };
+			};
 
 	const reverseProcessed = reverse
 		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame

@@ -37,10 +37,10 @@ export const getExecutablePath = (
 		type === 'compositor'
 			? 'binaryPath'
 			: type === 'ffmpeg'
-			? 'ffmpegPath'
-			: type === 'ffprobe'
-			? 'ffprobePath'
-			: 'ffmpegCwd';
+				? 'ffmpegPath'
+				: type === 'ffprobe'
+					? 'ffprobePath'
+					: 'ffmpegCwd';
 
 	switch (process.platform) {
 		case 'win32':

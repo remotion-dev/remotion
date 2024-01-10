@@ -25,7 +25,7 @@ const getSearchPathsForProduct = () => {
 			: null,
 		process.platform === 'win32'
 			? os.homedir() +
-			  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
+				'\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
 			: null,
 		process.platform === 'win32'
 			? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
@@ -35,7 +35,7 @@ const getSearchPathsForProduct = () => {
 			: null,
 		process.platform === 'win32'
 			? os.homedir() +
-			  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
+				'\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 			: null,
 	].filter(Boolean) as string[];
 };

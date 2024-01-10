@@ -6,11 +6,21 @@ import {makeCubic, makeQuadratic} from './bezier';
 import {makeLinearPosition} from './linear';
 import type {Instruction, Point, PointArray, Properties} from './types';
 
-export const constructFromInstructions = (instructions: Instruction[]) => {
-	let length = 0;
-	const partial_lengths: number[] = [];
+export type Constructed = {
+	segments: Instruction[][];
+	initialPoint: Point | null;
+	totalLength: number;
+	partialLengths: number[];
+	functions: (Properties | null)[];
+};
+
+export const constructFromInstructions = (
+	instructions: Instruction[],
+): Constructed => {
+	let totalLength = 0;
+	const partialLengths: number[] = [];
 	const functions: (null | Properties)[] = [];
-	let initial_point: null | Point = null;
+	let initialPoint: null | Point = null;
 
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
@@ -40,16 +50,20 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			segments.push([instruction]);
 			functions.push(null);
 			if (i === 0) {
-				initial_point = {x: instruction.x, y: instruction.y};
+				initialPoint = {x: instruction.x, y: instruction.y};
 			}
-		} else if (instruction.type === 'm') {
+		}
+
+		if (instruction.type === 'm') {
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 			ringStart = [cur[0], cur[1]];
 			segments.push([{type: 'M', x: cur[0], y: cur[1]}]);
 			functions.push(null);
 			// lineTo
-		} else if (instruction.type === 'L') {
-			length += Math.sqrt(
+		}
+
+		if (instruction.type === 'L') {
+			totalLength += Math.sqrt(
 				(cur[0] - instruction.x) ** 2 + (cur[1] - instruction.y) ** 2,
 			);
 			functions.push(
@@ -61,8 +75,10 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				}),
 			);
 			cur = [instruction.x, instruction.y];
-		} else if (instruction.type === 'l') {
-			length += Math.sqrt(instruction.dx ** 2 + instruction.dy ** 2);
+		}
+
+		if (instruction.type === 'l') {
+			totalLength += Math.sqrt(instruction.dx ** 2 + instruction.dy ** 2);
 			functions.push(
 				makeLinearPosition({
 					x0: cur[0],
@@ -72,8 +88,10 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				}),
 			);
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
-		} else if (instruction.type === 'H') {
-			length += Math.abs(cur[0] - instruction.x);
+		}
+
+		if (instruction.type === 'H') {
+			totalLength += Math.abs(cur[0] - instruction.x);
 			functions.push(
 				makeLinearPosition({
 					x0: cur[0],
@@ -83,8 +101,10 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				}),
 			);
 			cur[0] = instruction.x;
-		} else if (instruction.type === 'h') {
-			length += Math.abs(instruction.dx);
+		}
+
+		if (instruction.type === 'h') {
+			totalLength += Math.abs(instruction.dx);
 			functions.push(
 				makeLinearPosition({
 					x0: cur[0],
@@ -95,7 +115,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			);
 			cur[0] = instruction.dx + cur[0];
 		} else if (instruction.type === 'V') {
-			length += Math.abs(cur[1] - instruction.y);
+			totalLength += Math.abs(cur[1] - instruction.y);
 			functions.push(
 				makeLinearPosition({
 					x0: cur[0],
@@ -105,8 +125,10 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				}),
 			);
 			cur[1] = instruction.y;
-		} else if (instruction.type === 'v') {
-			length += Math.abs(instruction.dy);
+		}
+
+		if (instruction.type === 'v') {
+			totalLength += Math.abs(instruction.dy);
 			functions.push(
 				makeLinearPosition({
 					x0: cur[0],
@@ -118,7 +140,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			cur[1] = instruction.dy + cur[1];
 			// Close path
 		} else if (instruction.type === 'Z') {
-			length += Math.sqrt(
+			totalLength += Math.sqrt(
 				(ringStart[0] - cur[0]) ** 2 + (ringStart[1] - cur[1]) ** 2,
 			);
 			functions.push(
@@ -131,7 +153,9 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			);
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
-		} else if (instruction.type === 'C') {
+		}
+
+		if (instruction.type === 'C') {
 			curve = makeCubic({
 				startX: cur[0],
 				startY: cur[1],
@@ -142,7 +166,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				x: instruction.x,
 				y: instruction.y,
 			});
-			length += curve.getTotalLength();
+			totalLength += curve.getTotalLength();
 			cur = [instruction.x, instruction.y];
 			functions.push(curve);
 		} else if (instruction.type === 'c') {
@@ -157,7 +181,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				y: cur[1] + instruction.dy,
 			});
 			if (curve.getTotalLength() > 0) {
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				functions.push(curve);
 				cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 			} else {
@@ -165,7 +189,9 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					makeLinearPosition({x0: cur[0], x1: cur[0], y0: cur[1], y1: cur[1]}),
 				);
 			}
-		} else if (instruction.type === 'S') {
+		}
+
+		if (instruction.type === 'S') {
 			const prev = instructions[i - 1];
 			const prevWasCurve =
 				prev.type === 'C' ||
@@ -200,11 +226,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			}
 
 			if (curve) {
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				cur = [instruction.x, instruction.y];
 				functions.push(curve);
 			}
-		} else if (instruction.type === 's') {
+		}
+
+		if (instruction.type === 's') {
 			const prev = instructions[i - 1];
 			const prevWasCurve =
 				prev.type === 'C' ||
@@ -241,13 +269,14 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			}
 
 			if (curve) {
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 				functions.push(curve);
 			}
 		}
+
 		// Quadratic Bezier curves
-		else if (instruction.type === 'Q') {
+		if (instruction.type === 'Q') {
 			if (cur[0] === instruction.cpx && cur[1] === instruction.cpy) {
 				const linearCurve = makeLinearPosition({
 					x0: instruction.cpx,
@@ -255,7 +284,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					y0: instruction.cpy,
 					y1: instruction.y,
 				});
-				length += linearCurve.getTotalLength();
+				totalLength += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
 				curve = makeQuadratic({
@@ -266,13 +295,15 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x: instruction.x,
 					y: instruction.y,
 				});
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				functions.push(curve);
 			}
 
 			cur = [instruction.x, instruction.y];
 			prev_point = [instruction.cpx, instruction.cpy];
-		} else if (instruction.type === 'q') {
+		}
+
+		if (instruction.type === 'q') {
 			if (instruction.cpdx === 0 && instruction.cpdy === 0) {
 				const linearCurve = makeLinearPosition({
 					x0: cur[0] + instruction.cpdx,
@@ -280,7 +311,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					y0: cur[1] + instruction.dx,
 					y1: cur[1] + instruction.dy,
 				});
-				length += linearCurve.getTotalLength();
+				totalLength += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
 				curve = makeQuadratic({
@@ -291,13 +322,15 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x: cur[0] + instruction.dx,
 					y: cur[1] + instruction.dy,
 				});
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				functions.push(curve);
 			}
 
 			prev_point = [cur[0] + instruction.cpdx, cur[1] + instruction.cpdy];
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
-		} else if (instruction.type === 'T') {
+		}
+
+		if (instruction.type === 'T') {
 			const prev = instructions[i - 1];
 			const prevWasQ =
 				prev.type === 'Q' ||
@@ -314,7 +347,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					y: instruction.y,
 				});
 				functions.push(curve);
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 			} else {
 				const linearCurve = makeLinearPosition({
 					x0: cur[0],
@@ -323,12 +356,14 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					y1: instruction.y,
 				});
 				functions.push(linearCurve);
-				length += linearCurve.getTotalLength();
+				totalLength += linearCurve.getTotalLength();
 			}
 
 			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
 			cur = [instruction.x, instruction.y];
-		} else if (instruction.type === 't') {
+		}
+
+		if (instruction.type === 't') {
 			const prev = instructions[i - 1];
 			const prevWasQ =
 				prev.type === 'Q' ||
@@ -344,7 +379,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x: cur[0] + instruction.dx,
 					y: cur[1] + instruction.dy,
 				});
-				length += curve.getTotalLength();
+				totalLength += curve.getTotalLength();
 				functions.push(curve);
 			} else {
 				const linearCurve = makeLinearPosition({
@@ -353,13 +388,15 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					y0: cur[1],
 					y1: cur[1] + instruction.dy,
 				});
-				length += linearCurve.getTotalLength();
+				totalLength += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			}
 
 			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
-		} else if (instruction.type === 'A') {
+		}
+
+		if (instruction.type === 'A') {
 			const arcCurve = makeArc({
 				x0: cur[0],
 				y0: cur[1],
@@ -372,10 +409,12 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				y1: instruction.y,
 			});
 
-			length += arcCurve.getTotalLength();
+			totalLength += arcCurve.getTotalLength();
 			cur = [instruction.x, instruction.y];
 			functions.push(arcCurve);
-		} else if (instruction.type === 'a') {
+		}
+
+		if (instruction.type === 'a') {
 			const arcCurve = makeArc({
 				x0: cur[0],
 				y0: cur[1],
@@ -388,24 +427,24 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				y1: cur[1] + instruction.dy,
 			});
 
-			length += arcCurve.getTotalLength();
+			totalLength += arcCurve.getTotalLength();
 			cur = [cur[0] + instruction.dx, cur[1] + instruction.dy];
 			functions.push(arcCurve);
 		}
 
-		partial_lengths.push(length);
+		partialLengths.push(totalLength);
 	}
 
 	return {
 		segments,
-		initial_point,
-		length,
-		partial_lengths,
+		initialPoint,
+		totalLength,
+		partialLengths,
 		functions,
 	};
 };
 
-export const construct = (string: string) => {
+export const construct = (string: string): Constructed => {
 	const parsed = parsePath(string);
 	return constructFromInstructions(parsed);
 };

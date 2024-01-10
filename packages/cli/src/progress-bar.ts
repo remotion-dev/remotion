@@ -205,8 +205,8 @@ const makeStitchingProgress = ({
 		codec === 'gif'
 			? 'GIF'
 			: RenderInternals.isAudioCodec(codec)
-			? 'audio'
-			: 'video';
+				? 'audio'
+				: 'video';
 
 	return [
 		`(${stitchingStep + 1}/${steps})`,
@@ -246,7 +246,7 @@ export const makeRenderingAndStitchingProgress = ({
 					steps,
 					stitchingStep,
 					isUsingParallelEncoding,
-			  }),
+				}),
 	]
 		.filter(truthy)
 		.join('\n');

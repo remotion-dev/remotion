@@ -198,6 +198,19 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	readStream.pipe(response);
 };
 
+const handleBeep = (_: IncomingMessage, response: ServerResponse) => {
+	const filePath = path.join(__dirname, '..', 'web', 'beep.wav');
+	const stat = statSync(filePath);
+
+	response.writeHead(200, {
+		'Content-Type': 'audio/wav',
+		'Content-Length': stat.size,
+	});
+
+	const readStream = createReadStream(filePath);
+	readStream.pipe(response);
+};
+
 const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
 	const filePath = path.resolve(
 		require.resolve('source-map'),
@@ -292,6 +305,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/remotion.png') {
 		return handleFavicon(request, response);
+	}
+
+	if (url.pathname === '/beep.wav') {
+		return handleBeep(request, response);
 	}
 
 	if (url.pathname === SOURCE_MAP_ENDPOINT) {

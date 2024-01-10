@@ -38,8 +38,8 @@ export const writeMockS3File = ({
 			privacy === 'no-acl'
 				? 'none'
 				: privacy === 'public'
-				? 'public-read'
-				: 'private',
+					? 'public-read'
+					: 'private',
 		bucketName,
 		key,
 		region,

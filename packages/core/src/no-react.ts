@@ -20,6 +20,8 @@ import {validateDefaultAndInputProps} from './validation/validate-default-props'
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
+import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
 	processColor,
@@ -34,4 +36,6 @@ export const NoReactInternals = {
 	bundleMapName: 'bundle.js.map',
 	deserializeJSONWithCustomFields,
 	DELAY_RENDER_CALLSTACK_TOKEN,
+	getOffthreadVideoSource,
+	getExpectedMediaFrameUncorrected,
 };

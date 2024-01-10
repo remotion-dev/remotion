@@ -48,6 +48,10 @@ The `numberOfGifLoops` option can be set:
 
 Wondering how to import other GIFs into a Remotion project? [See here.](/docs/gif)
 
+## Transparent GIFs
+
+To render a transparent GIF, the [`imageFormat`](/docs/renderer/render-media) option must be set to `"png"`. In the Remotion Studio, this can be set in the "Picture" tab.
+
 ## See also
 
 - [Encoding guide](/docs/encoding)

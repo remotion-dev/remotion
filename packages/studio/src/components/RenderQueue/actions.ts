@@ -68,6 +68,7 @@ export const addStillRenderJob = ({
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
 	multiProcessOnLinux,
+	beepOnFinish,
 }: {
 	compositionId: string;
 	outName: string;
@@ -82,6 +83,7 @@ export const addStillRenderJob = ({
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
+	beepOnFinish: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -103,6 +105,7 @@ export const addStillRenderJob = ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
+		beepOnFinish,
 	});
 };
 
@@ -123,6 +126,7 @@ export const addSequenceRenderJob = ({
 	jpegQuality,
 	disallowParallelEncoding,
 	multiProcessOnLinux,
+	beepOnFinish,
 }: {
 	compositionId: string;
 	outName: string;
@@ -140,6 +144,7 @@ export const addSequenceRenderJob = ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	disallowParallelEncoding: boolean;
 	multiProcessOnLinux: boolean;
+	beepOnFinish: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -164,6 +169,7 @@ export const addSequenceRenderJob = ({
 		offthreadVideoCacheSizeInBytes,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
+		beepOnFinish,
 	});
 };
 
@@ -199,6 +205,7 @@ export const addVideoRenderJob = ({
 	multiProcessOnLinux,
 	encodingMaxRate,
 	encodingBufferSize,
+	beepOnFinish,
 }: {
 	compositionId: string;
 	outName: string;
@@ -231,6 +238,7 @@ export const addVideoRenderJob = ({
 	multiProcessOnLinux: boolean;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	beepOnFinish: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -270,6 +278,7 @@ export const addVideoRenderJob = ({
 		multiProcessOnLinux,
 		encodingBufferSize,
 		encodingMaxRate,
+		beepOnFinish,
 	});
 };
 

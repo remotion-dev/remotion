@@ -454,7 +454,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
-			  })
+				})
 			: null;
 	}, [outerStyle.height, outerStyle.width, renderLoading]);
 
@@ -472,7 +472,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					posterFillMode === 'player-size'
 						? (outerStyle.width as number)
 						: config.width,
-		  })
+			})
 		: null;
 
 	if (poster === undefined) {

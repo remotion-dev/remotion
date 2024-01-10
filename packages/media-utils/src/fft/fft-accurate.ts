@@ -4,7 +4,7 @@
 import {complexAdd, complexMultiply, complexSubtract} from './complex';
 import {exponent} from './exponent';
 
-export const fft = function (vector: Int16Array): [number, number][] {
+export const fftAccurate = function (vector: Int16Array): [number, number][] {
 	const X: [number, number][] = [];
 	const N = vector.length;
 
@@ -19,9 +19,9 @@ export const fft = function (vector: Int16Array): [number, number][] {
 	}
 
 	// Recurse: all even samples
-	const X_evens = fft(vector.filter((_, ix) => ix % 2 === 0));
+	const X_evens = fftAccurate(vector.filter((_, ix) => ix % 2 === 0));
 	// Recurse: all odd samples
-	const X_odds = fft(vector.filter((__, ix) => ix % 2 === 1));
+	const X_odds = fftAccurate(vector.filter((__, ix) => ix % 2 === 1));
 
 	// Now, perform N/2 operations!
 	for (let k = 0; k < N / 2; k++) {

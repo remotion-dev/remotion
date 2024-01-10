@@ -162,6 +162,13 @@ Use the following command to run the image:
 docker run remotion-app
 ```
 
+## Giving access to the CPUs
+
+By default, Docker containers are not allowed to use all memory CPUs . Consider:
+
+- Changing the resource settings in Docker Desktop settings
+- Using the `--cpus` and `--cpuset-cpus` flags with the `docker run` command. Example: `--cpus=16 --cpuset-cpus=0-15`
+
 ## Emojis
 
 No emojis are installed by default. If you want to use emojis, install an emoji font:

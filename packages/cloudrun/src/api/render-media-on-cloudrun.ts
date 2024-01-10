@@ -11,9 +11,8 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CloudRunCrashResponse,
@@ -57,7 +56,6 @@ type InternalRenderMediaOnCloudrun = {
 	imageFormat: VideoImageFormat | undefined;
 	scale: number | undefined;
 	everyNthFrame: number | undefined;
-	numberOfGifLoops: number | null;
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
@@ -97,7 +95,6 @@ export type RenderMediaOnCloudrunInput = {
 	imageFormat?: VideoImageFormat;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
@@ -177,15 +174,15 @@ const internalRenderMediaOnCloudrunRaw = async ({
 				staticBase: null,
 				data: inputProps ?? {},
 			}).serializedString,
-		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+		jpegQuality: jpegQuality ?? null,
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		crf: crf ?? null,
-		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
-		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
+		pixelFormat: pixelFormat ?? null,
+		imageFormat: imageFormat ?? null,
 		scale: scale ?? 1,
 		proResProfile: proResProfile ?? null,
 		x264Preset: x264Preset ?? null,
@@ -202,8 +199,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		forceHeight,
 		type: 'media',
 		logLevel: logLevel ?? 'info',
-		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? null,
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
@@ -291,7 +287,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 

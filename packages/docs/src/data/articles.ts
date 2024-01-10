@@ -378,6 +378,13 @@ export const articles = [
     crumb: "Cloud Run",
   },
   {
+    id: "cloudrun/light-client",
+    title: "Light client",
+    relativePath: "docs/cloudrun/light-client.md",
+    compId: "articles-docs-cloudrun-light-client",
+    crumb: "Cloud Run",
+  },
+  {
     id: "cloudrun/limits",
     title: "Cloud Run Limits",
     relativePath: "docs/cloudrun/limits.md",
@@ -536,6 +543,13 @@ export const articles = [
     title: "Implementing a new option",
     relativePath: "docs/contributing/option.md",
     compId: "articles-docs-contributing-option",
+    crumb: "Contributing",
+  },
+  {
+    id: "contributing/presentation",
+    title: "Contribute your own presentation",
+    relativePath: "docs/contributing/presentation.md",
+    compId: "articles-docs-contributing-presentation",
     crumb: "Contributing",
   },
   {
@@ -1759,6 +1773,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/get-instruction-index-at-length",
+    title: "getInstructionIndexAtLength()",
+    relativePath: "docs/paths/get-instruction-index-at-length.md",
+    compId: "articles-docs-paths-get-instruction-index-at-length",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/get-length",
     title: "getLength()",
     relativePath: "docs/paths/get-length.md",
@@ -2216,7 +2237,7 @@ export const articles = [
   {
     id: "sequence",
     title: "<Sequence>",
-    relativePath: "docs/sequence.md",
+    relativePath: "docs/sequence.mdx",
     compId: "articles-docs-sequence",
     crumb: "API",
   },
@@ -2557,6 +2578,13 @@ export const articles = [
     crumb: "@remotion/transitions - Presentations",
   },
   {
+    id: "transitions/presentations/cube",
+    title: "cube()",
+    relativePath: "docs/transitions/presentations/cube.mdx",
+    compId: "articles-docs-transitions-presentations-cube",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
     id: "transitions/presentations/custom",
     title: "Custom presentations",
     relativePath: "docs/transitions/presentations/custom.mdx",
@@ -2753,9 +2781,16 @@ export const articles = [
     crumb: "Best practices",
   },
   {
+    id: "use-offthread-video-texture",
+    title: "useOffthreadVideoTexture()",
+    relativePath: "docs/use-offthread-video-texture.md",
+    compId: "articles-docs-use-offthread-video-texture",
+    crumb: "@remotion/three",
+  },
+  {
     id: "use-video-config",
     title: "useVideoConfig()",
-    relativePath: "docs/use-video-config.md",
+    relativePath: "docs/use-video-config.mdx",
     compId: "articles-docs-use-video-config",
     crumb: "API",
   },

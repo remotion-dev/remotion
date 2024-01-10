@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.81",
+  "version": "4.0.84",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -28,6 +28,7 @@
     "@docusaurus/types": "2.4.1",
     "@jonny/eslint-config": "3.0.276",
     "@mdx-js/react": "^1.6.21",
+    "@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.1/docs",
     "@remotion/babel-loader": "workspace:*",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
@@ -35,6 +36,7 @@
     "@remotion/gif": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/lambda": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
     "@remotion/lottie": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/motion-blur": "workspace:*",
@@ -47,9 +49,8 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/skia": "workspace:*",
     "@remotion/tailwind": "workspace:*",
-    "@remotion/transitions": "workspace:*",
     "@remotion/three": "workspace:*",
-    "@remotion/layout-utils": "workspace:*",
+    "@remotion/transitions": "workspace:*",
     "@rive-app/canvas-advanced": "2.3.0",
     "@shopify/react-native-skia": "^0.1.191",
     "@swc/core": "^1.3.80",
@@ -84,8 +85,8 @@
     "@types/react": "18.0.26",
     "eslint": "8.42.0",
     "lodash.sortby": "^4.7.0",
-    "prettier": "3.0.2",
-    "prettier-plugin-organize-imports": "^3.2.2",
+    "prettier": "3.1.1",
+    "prettier-plugin-organize-imports": "3.2.4",
     "url-loader": "^4.1.1"
   }
 }

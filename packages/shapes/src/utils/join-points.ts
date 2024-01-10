@@ -120,7 +120,7 @@ export const joinPoints = (
 								dy: prevVectorLength[1] + nextVectorMinusRadius[1],
 								largeArcFlag: false,
 								sweepFlag: true,
-						  }
+							}
 						: {
 								type: 'C',
 								x:
@@ -131,7 +131,7 @@ export const joinPoints = (
 								cp1y: y,
 								cp2x: x,
 								cp2y: y,
-						  },
+							},
 				];
 			}
 

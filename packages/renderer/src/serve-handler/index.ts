@@ -260,9 +260,8 @@ export const serveHandler = async (
 	const headers = getHeaders(absolutePath, stats);
 
 	if (streamOpts !== null) {
-		headers[
-			'Content-Range'
-		] = `bytes ${streamOpts.start}-${streamOpts.end}/${stats.size}`;
+		headers['Content-Range'] =
+			`bytes ${streamOpts.start}-${streamOpts.end}/${stats.size}`;
 		headers['Content-Length'] = String(streamOpts.end - streamOpts.start + 1);
 	}
 

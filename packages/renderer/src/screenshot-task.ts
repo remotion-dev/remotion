@@ -66,14 +66,14 @@ export const screenshotTask = async ({
 								height: clipRegion.height,
 								scale: 1,
 								width: clipRegion.width,
-						  }
+							}
 						: {
 								x: 0,
 								y: 0,
 								height,
 								scale: 1,
 								width,
-						  },
+							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
 			});

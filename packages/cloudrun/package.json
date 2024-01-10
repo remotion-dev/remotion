@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cloudrun",
-	"version": "4.0.81",
+	"version": "4.0.84",
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
@@ -32,8 +32,8 @@
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"eslint": "8.42.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "^3.2.4",
 		"ts-node": "^10.8.0",
 		"vitest": "0.31.1"
 	},
@@ -42,6 +42,7 @@
 		".": "./dist/index.js",
 		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
+		"./client": "./dist/client.js",
 		"./permissions.json": "./dist/shared/sa-permissions.json"
 	},
 	"typesVersions": {
@@ -51,6 +52,9 @@
 			],
 			"regions": [
 				"dist/regions.d.ts"
+			],
+			"client": [
+				"dist/client.d.ts"
 			]
 		}
 	}

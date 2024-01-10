@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/preload",
-	"version": "4.0.81",
+	"version": "4.0.84",
 	"description": "Utility functions for preloading assets in HTML5",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -23,8 +23,8 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
 		"eslint": "8.42.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2"
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"keywords": [
 		"remotion",
