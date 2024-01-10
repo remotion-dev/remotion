@@ -3,7 +3,7 @@ import {
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import {BufferingProvider} from './buffering.js';
+import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -144,6 +144,7 @@ export const Internals = {
 	addSequenceStackTraces,
 	useMediaStartsAt,
 	BufferingProvider,
+	BufferingContextReact,
 } as const;
 
 export type {

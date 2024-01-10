@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {useEffect, useRef} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
@@ -31,6 +31,28 @@ export const usePlayback = ({
 	const isBackgroundedRef = useIsBackgrounded();
 
 	const lastTimeUpdateEvent = useRef<number | null>(null);
+
+	const context = useContext(Internals.BufferingContextReact);
+	if (!context) {
+		throw new Error(
+			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
+		);
+	}
+
+	useEffect(() => {
+		const onBufferClear = context.listenForBuffering(() => {
+			console.log('buffering');
+		});
+
+		const onResume = context.listenForResume(() => {
+			console.log('resume');
+		});
+
+		return () => {
+			onBufferClear.remove();
+			onResume.remove();
+		};
+	}, [context]);
 
 	useEffect(() => {
 		if (!config) {

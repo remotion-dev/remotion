@@ -18,6 +18,7 @@ type UsePlayerMethods = {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
+	isBuffering: () => boolean;
 	/**
 	 * @deprecated Remotion internal API
 	 */
@@ -28,6 +29,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
 	const [hasPlayed, setHasPlayed] = useState(false);
+	const buffering = useRef(false);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const playStart = useRef(frame);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
@@ -183,8 +185,9 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame: () => frameRef.current as number,
-			isPlaying: () => imperativePlaying.current as boolean,
+			getCurrentFrame: () => frameRef.current,
+			isPlaying: () => imperativePlaying.current,
+			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
 			remotionInternal_currentFrameRef: frameRef,
