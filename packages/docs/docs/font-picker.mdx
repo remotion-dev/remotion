@@ -7,9 +7,14 @@ crumb: "Building video apps"
 
 To show various Google fonts in a font picker and load them once the user selects them, first install `@remotion/google-fonts` (at least v3.3.64).
 
-This feature is only available if `@remotion/google-fonts` is imported as an ES Module. If it is imported as a CommonJS module instead, loading a font will throw an error.
+This feature is only available if `@remotion/google-fonts` is imported as an ES Module.  
+If it is imported as a CommonJS module instead, loading a font will throw an error.
 
-Call [`getAvailableFonts()`](/docs/google-fonts/get-available-fonts) to get a list of Google Fonts and call `.load()` to load a specific font. Afterwards, you can call `getInfo()` to retrieve available styles and weights.
+Call [`getAvailableFonts()`](/docs/google-fonts/get-available-fonts) to get a list of Google Fonts and call `.load()` to load the metadata of a font.  
+Afterwards, on the object you retrieve:
+
+- You can call `getInfo()` to retrieve available styles and weights.
+- You can call `loadFont()` to load the font itself.
 
 Use the `fontFamily` CSS property to apply a font.
 
