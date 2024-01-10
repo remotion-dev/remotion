@@ -1,11 +1,6 @@
 import type {AnyRemotionOption} from './option';
 
-export const validColorSpaces = [
-	'default',
-	'bt709',
-	'bt2020-ncl',
-	'bt2020-cl',
-] as const;
+export const validColorSpaces = ['default', 'bt709', 'bt2020-ncl'] as const;
 
 export type ColorSpace = (typeof validColorSpaces)[number];
 

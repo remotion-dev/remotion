@@ -87,27 +87,17 @@ export const generateFfmpegArgs = ({
 					['-color_range', 'tv'],
 					hasPreencoded ? [] : ['-vf', 'zscale=m=709:min=709:r=limited'],
 				]
-			: colorSpace === 'bt2020-cl'
+			: colorSpace === 'bt2020-ncl'
 				? [
-						['-colorspace:v', 'bt2020cl'],
+						['-colorspace:v', 'bt2020nc'],
 						['-color_primaries:v', 'bt2020'],
 						['-color_trc:v', 'arib-std-b67'],
 						['-color_range', 'tv'],
 						hasPreencoded
 							? []
-							: ['-vf', 'zscale=m=2020_cl:min=2020_cl:r=limited'],
+							: ['-vf', 'zscale=m=2020_ncl:min=2020_ncl:r=limited'],
 					]
-				: colorSpace === 'bt2020-ncl'
-					? [
-							['-colorspace:v', 'bt2020nc'],
-							['-color_primaries:v', 'bt2020'],
-							['-color_trc:v', 'arib-std-b67'],
-							['-color_range', 'tv'],
-							hasPreencoded
-								? []
-								: ['-vf', 'zscale=m=2020_ncl:min=2020_ncl:r=limited'],
-						]
-					: [];
+				: [];
 
 	return [
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
