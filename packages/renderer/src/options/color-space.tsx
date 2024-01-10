@@ -1,6 +1,11 @@
 import type {AnyRemotionOption} from './option';
 
-export const validColorSpaces = ['default', 'bt709'] as const;
+export const validColorSpaces = [
+	'default',
+	'bt709',
+	'bt2020-ncl',
+	'bt2020-cl',
+] as const;
 
 export type ColorSpace = (typeof validColorSpaces)[number];
 
@@ -16,13 +21,17 @@ export const colorSpaceOption = {
 			,{' '}
 			<code>
 				{'"'}bt709{'"'}
-			</code>
-			.<br />
-			If{' '}
-			<code>
-				{'"'}bt709{'"'}
 			</code>{' '}
-			is used, it is recommended to also use{' '}
+			(since v4.0.28),{' '}
+			<code>
+				{'"'}bt2020-ncl{'"'}
+			</code>{' '}
+			(since v4.0.88),{' '}
+			<code>
+				{'"'}bt2020-cl{'"'}
+			</code>{' '}
+			(since v4.0.88), .<br />
+			If a non-default colorspace is used, it is recommended to also use{' '}
 			<code>
 				{'"'}png{'"'}
 			</code>{' '}
