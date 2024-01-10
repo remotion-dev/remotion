@@ -780,6 +780,7 @@ module.exports = {
         "miscellaneous/thorium-browser",
         "gl-options",
         "bun",
+        "standalone",
       ],
     },
     {

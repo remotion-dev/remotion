@@ -2424,6 +2424,13 @@ export const articles = [
     crumb: "The power of",
   },
   {
+    id: "standalone",
+    title: "Useful functions outside of Remotion",
+    relativePath: "docs/standalone.md",
+    compId: "articles-docs-standalone",
+    crumb: null,
+  },
+  {
     id: "staticfile-relative-paths",
     title: "staticFile() does not support relative paths",
     relativePath: "docs/static-file-relative-paths.md",
