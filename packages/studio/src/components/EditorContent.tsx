@@ -11,6 +11,13 @@ import {TopPanel} from './TopPanel';
 
 const noop = () => undefined;
 
+const container: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	flex: 1,
+	height: 0,
+};
+
 export const EditorContent: React.FC = () => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -20,13 +27,7 @@ export const EditorContent: React.FC = () => {
 		canvasContent === null || isStill || canvasContent.type !== 'composition';
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				flex: 1,
-			}}
-		>
+		<div style={container}>
 			<InitialCompositionLoader />
 			<MenuToolbar />
 			{onlyTopPanel ? (
