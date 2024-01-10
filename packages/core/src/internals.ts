@@ -3,6 +3,7 @@ import {
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -142,6 +143,7 @@ export const Internals = {
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
 	useMediaStartsAt,
+	BufferingProvider,
 } as const;
 
 export type {
