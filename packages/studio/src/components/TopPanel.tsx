@@ -9,8 +9,6 @@ import {
 } from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
-import {InitialCompositionLoader} from './InitialCompositionLoader';
-import {MenuToolbar} from './MenuToolbar';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -86,8 +84,6 @@ export const TopPanel: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<InitialCompositionLoader />
-			<MenuToolbar />
 			<div style={row}>
 				<SplitterContainer
 					minFlex={0.15}
