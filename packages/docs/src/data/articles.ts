@@ -674,7 +674,7 @@ export const articles = [
   {
     id: "font-picker",
     title: "Build a Google Font picker",
-    relativePath: "docs/font-picker.md",
+    relativePath: "docs/font-picker.mdx",
     compId: "articles-docs-font-picker",
     crumb: "Building video apps",
   },
@@ -1516,6 +1516,13 @@ export const articles = [
     title: "Using the GPU in the cloud",
     relativePath: "docs/miscellaneous/cloud-gpu.md",
     compId: "articles-docs-miscellaneous-cloud-gpu",
+    crumb: "FAQ",
+  },
+  {
+    id: "miscellaneous/ec2-docker-gpu",
+    title: "Setup EC2 for Docker with GPU",
+    relativePath: "docs/miscellaneous/ec2-docker-gpu.md",
+    compId: "articles-docs-miscellaneous-ec2-docker-gpu",
     crumb: "FAQ",
   },
   {

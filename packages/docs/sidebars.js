@@ -541,6 +541,7 @@ module.exports = {
         "miscellaneous/linux-single-process",
         "gpu",
         "miscellaneous/cloud-gpu",
+        "miscellaneous/ec2-docker-gpu",
       ],
     },
     {
