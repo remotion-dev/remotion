@@ -2,6 +2,7 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
+import {getRepro, withRepro} from './repro';
 import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
@@ -23,7 +24,7 @@ export const secondverboseTag = (str: string) => {
 	return isColorSupported() ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
 
-export const Log = {
+const LogInternal = {
 	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
@@ -81,6 +82,10 @@ export const Log = {
 		}
 	},
 };
+
+export type LogInstance = typeof LogInternal;
+
+export const Log = getRepro() ? withRepro(LogInternal) : LogInternal;
 
 let logLevel: LogLevel = 'info';
 
