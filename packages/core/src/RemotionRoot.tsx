@@ -19,6 +19,7 @@ import type {
 	TimelineContextValue,
 } from './timeline-position-state.js';
 import {
+	getInitialFrameState,
 	SetTimelineContext,
 	TimelineContext,
 } from './timeline-position-state.js';
@@ -35,7 +36,9 @@ export const RemotionRoot: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<Record<string, number>>({});
+	const [frame, setFrame] = useState<Record<string, number>>(() =>
+		getInitialFrameState(),
+	);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);

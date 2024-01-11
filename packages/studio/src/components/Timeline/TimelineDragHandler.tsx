@@ -416,8 +416,11 @@ const Inner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			Internals.persistCurrentFrame(frame, videoConfig.id);
-			setFrame((c) => ({...c, [videoConfig.id]: frame}));
+			setFrame((c) => {
+				const newObj = {...c, [videoConfig.id]: frame};
+				Internals.persistCurrentFrame(newObj);
+				return newObj;
+			});
 
 			if (dragging.wasPlaying) {
 				play();
