@@ -22,7 +22,7 @@ import { preloadAudio, preloadVideo } from "@remotion/preload";
 
 const unpreloadVideo = preloadVideo("https://example.com/video.mp4");
 const unpreloadAudio = preloadAudio(
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
 );
 
 // Later, you can optionally clean up the preload
@@ -103,7 +103,7 @@ free();
   No guarantee, just a signal to the browser
     </td>
     <td style={{color: "green"}}>
-  Guaranteed to be ready
+  Guaranteed to be ready, posssible to track progress of loading
     </td>
   </tr>
     <tr>

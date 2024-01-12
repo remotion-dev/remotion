@@ -251,6 +251,12 @@ export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsOptions,
 ): Promise<VideoConfig[]> => {
+	if (!serveUrlOrWebpackUrl) {
+		throw new Error(
+			'No serve URL or webpack bundle directory was passed to getCompositions().',
+		);
+	}
+
 	const {
 		browserExecutable,
 		chromiumOptions,
