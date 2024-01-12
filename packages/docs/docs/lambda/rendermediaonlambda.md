@@ -72,9 +72,9 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 ### `frameRange?`
 
-_optional_
+_number | [number, number] - optional_
 
-Render a subset of a video. Example: `[0, 9]` to select the first 10 frames. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `serveUrl`
 
