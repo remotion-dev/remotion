@@ -5,7 +5,7 @@ type Params = Pick<LottieProps, 'direction' | 'loop'> & {
 	totalFrames: number;
 };
 
-export const getNextFrame = ({
+export const getLottieFrame = ({
 	currentFrame,
 	direction,
 	loop,
