@@ -33,7 +33,7 @@ const blobToBase64 = function (blob: Blob): Promise<string> {
 export type PrefetchOnProgress = (options: {
 	totalBytes: number | null;
 	loadedBytes: number;
-}) => {};
+}) => void;
 
 const getBlobFromReader = async ({
 	reader,

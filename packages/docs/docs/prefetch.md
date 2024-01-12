@@ -76,6 +76,7 @@ Set a content type for the blob. By default, the content type from the HTTP resp
 Callback for progress events.
 
 ```tsx twoslash
+import { prefetch } from "remotion";
 import type { PrefetchOnProgress } from "remotion";
 
 const onProgress: PrefetchOnProgress = (progress) => {
@@ -91,6 +92,10 @@ const onProgress: PrefetchOnProgress = (progress) => {
     Math.round(progress.loadedBytes / progress.totalBytes / 100) + "%",
   );
 };
+
+prefetch("https://example.com/video.mp4", {
+  onProgress,
+});
 ```
 
 ## Return value
