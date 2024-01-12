@@ -9,6 +9,9 @@ const Inside: React.FC = () => {
 		setTimeout(() => {
 			block.unblock();
 		}, 5000);
+		return () => {
+			block.unblock();
+		};
 	}, [block]);
 
 	return (

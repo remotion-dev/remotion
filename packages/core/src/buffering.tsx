@@ -37,6 +37,9 @@ const createBufferManager = (): BufferManager => {
 		return {
 			unblock: () => {
 				blocks = blocks.filter((b) => b !== block);
+				if (blocks.length === 0) {
+					onResumeCallback.forEach((callback) => callback());
+				}
 			},
 		};
 	};
