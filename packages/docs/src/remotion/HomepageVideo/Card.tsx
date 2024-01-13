@@ -3,6 +3,7 @@ import { AbsoluteFill, spring } from "remotion";
 import { CurrentCountry } from "./CurrentCountry";
 import styles from "./player-styles.module.css";
 import { Temperature } from "./Temperature";
+import { TrendingRepos } from "./TrendingRepos";
 
 export const paddingAndMargin = 20;
 const height = 360;
@@ -316,7 +317,7 @@ export const Cards: React.FC<{
           ) : index === 1 ? (
             <Temperature theme={theme} />
           ) : i === 2 ? (
-            "🐭"
+            <TrendingRepos theme={theme} />
           ) : (
             "🐹"
           );
