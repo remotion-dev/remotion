@@ -1,5 +1,6 @@
 import React, { createRef, useCallback, useRef, useState } from "react";
 import { AbsoluteFill, spring } from "remotion";
+import { CurrentCountry } from "./CurrentCountry";
 import styles from "./player-styles.module.css";
 
 export const paddingAndMargin = 20;
@@ -282,6 +283,7 @@ const Card: React.FC<{
         }}
         className={styles.content}
       >
+        <CurrentCountry />
         {content}
       </AbsoluteFill>
     </div>
