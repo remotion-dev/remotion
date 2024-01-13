@@ -16,10 +16,10 @@ export const Comp: React.FC = () => {
         backgroundColor: "white",
       }}
     >
-      <Card refToUse={refs[0]} index={0} />
-      <Card refToUse={refs[1]} index={1} />
-      <Card refToUse={refs[2]} index={2} />
-      <Card refToUse={refs[3]} index={3} />
+      <Card refsToUse={refs} index={0} />
+      <Card refsToUse={refs} index={1} />
+      <Card refsToUse={refs} index={2} />
+      <Card refsToUse={refs} index={3} />
     </AbsoluteFill>
   );
 };
