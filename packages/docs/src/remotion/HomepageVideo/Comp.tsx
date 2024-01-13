@@ -1,25 +1,22 @@
-import React, { createRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { AbsoluteFill } from "remotion";
-import { Card, paddingAndMargin } from "./Card";
+import { Cards } from "./Card";
 
 export const Comp: React.FC = () => {
-  const [refs] = useState(() => {
-    return new Array(4).fill(true).map(() => {
-      return createRef<HTMLDivElement>();
-    });
-  });
+  const [rerenders, setRerenders] = useState(0);
+
+  const onUpdate = useCallback(() => {
+    console.log("updated");
+    setRerenders((i) => i + 1);
+  }, []);
 
   return (
     <AbsoluteFill
       style={{
-        padding: paddingAndMargin,
         backgroundColor: "white",
       }}
     >
-      <Card refsToUse={refs} index={0} />
-      <Card refsToUse={refs} index={1} />
-      <Card refsToUse={refs} index={2} />
-      <Card refsToUse={refs} index={3} />
+      <Cards key={rerenders} onUpdate={onUpdate} />
     </AbsoluteFill>
   );
 };

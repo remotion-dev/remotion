@@ -1,0 +1,8 @@
+.card {
+  scale: 1;
+  transition: scale 0.2s ease;
+}
+
+.active {
+  scale: 1.05;
+}

@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
-import { spring } from "remotion";
+import React, { createRef, useCallback, useRef, useState } from "react";
+import { AbsoluteFill, spring } from "remotion";
+import styles from "./player-styles.module.css";
 
 export const paddingAndMargin = 20;
 const height = 360;
@@ -7,7 +8,12 @@ const width = 640;
 export const cardHeight = (height - paddingAndMargin * 3) / 2;
 export const cardWidth = (width - paddingAndMargin * 3) / 2;
 
-const getPositionForIndex = (index: number) => {
+type Position = {
+  x: number;
+  y: number;
+};
+
+const getPositionForIndex = (index: number): Position => {
   const x =
     index % 2 === 0 ? paddingAndMargin : cardWidth + paddingAndMargin * 2;
   const y = index < 2 ? paddingAndMargin : cardHeight + paddingAndMargin * 2;
@@ -18,9 +24,6 @@ const getPositionForIndex = (index: number) => {
 const getInitialPositions = () => {
   return new Array(4).fill(true).map((_, i) => getPositionForIndex(i));
 };
-
-const positions = getInitialPositions();
-let shouldBePositions = getInitialPositions();
 
 const getIndexFromPosition = (clientX: number, clientY: number) => {
   const left = clientX < cardWidth / 2 + paddingAndMargin;
@@ -43,25 +46,45 @@ const getIndexFromPosition = (clientX: number, clientY: number) => {
   }
 };
 
-const arePositionsEqual = (a: typeof positions, b: typeof positions) => {
+const arePositionsEqual = (a: Position[], b: Position[]) => {
   return a.every((pos, i) => {
     return pos.x === b[i].x && pos.y === b[i].y;
   });
 };
 
-export const Card: React.FC<{
+const Card: React.FC<{
   index: number;
   refsToUse: React.MutableRefObject<HTMLDivElement>[];
-}> = ({ index, refsToUse }) => {
+  onUpdate: (newIndices: number[]) => void;
+  content: React.ReactNode;
+  positions: React.MutableRefObject<Position[]>;
+  shouldBePositions: React.MutableRefObject<Position[]>;
+}> = ({
+  positions,
+  shouldBePositions,
+  index,
+  refsToUse,
+  onUpdate,
+  content,
+}) => {
   const refToUse = refsToUse[index];
+  const stopPrevious = useRef<(() => void)[]>([]);
 
   const applyPositions = useCallback(
     (except: number | null) => {
-      positions.forEach((_, i) => {
-        const shouldBe = shouldBePositions[i];
+      let stopped = false;
+      stopPrevious.current.push(() => {
+        stopped = true;
+      });
+      positions.current.forEach((_, i) => {
+        const shouldBe = shouldBePositions.current[i];
         const ref = refsToUse[i].current;
         if (!ref) {
           return;
+        }
+
+        if (except === null) {
+          ref.style.pointerEvents = "none";
         }
 
         if (i === except) {
@@ -70,20 +93,24 @@ export const Card: React.FC<{
           return;
         }
 
-        ref.style.zIndex = "1";
         let animationI = 0;
-        const duration = 60;
+        const duration = 30;
 
-        const releasePositionX = positions[i].x;
-        const releasePositionY = positions[i].y;
+        const releasePositionX = positions.current[i].x;
+        const releasePositionY = positions.current[i].y;
 
         const update = () => {
+          if (stopped) {
+            return;
+          }
+
           const progress = spring({
             fps: 30,
             frame: animationI,
             config: {
               damping: 200,
             },
+            durationRestThreshold: 0.01,
           });
           const newX =
             progress * (shouldBe.x - releasePositionX) + releasePositionX;
@@ -91,12 +118,22 @@ export const Card: React.FC<{
             progress * (shouldBe.y - releasePositionY) + releasePositionY;
           ref.style.left = `${newX}px`;
           ref.style.top = `${newY}px`;
-          positions[i] = {
+          positions.current[i] = {
             x: newX,
             y: newY,
           };
           animationI++;
-          if (animationI === duration) {
+          if (animationI === duration && except === null) {
+            refsToUse.forEach((r) => {
+              r.current.style.zIndex = "1";
+              r.current.classList.remove(styles.active);
+            });
+            if (i === 0) {
+              setTimeout(() => {
+                onUpdate([0, 1, 2, 3]);
+              }, 200);
+            }
+
             return;
           }
 
@@ -106,7 +143,7 @@ export const Card: React.FC<{
         update();
       });
     },
-    [refsToUse],
+    [onUpdate, positions, refsToUse, shouldBePositions],
   );
 
   const onPointerDown = useCallback(
@@ -120,6 +157,7 @@ export const Card: React.FC<{
       let translateX = 0;
       let translateY = 0;
       const onMove = (evt: PointerEvent) => {
+        refToUse.current.classList.add(styles.active);
         const scale =
           refToUse.current.getBoundingClientRect().width / cardWidth;
 
@@ -132,16 +170,18 @@ export const Card: React.FC<{
         );
 
         if (position === index) {
-          if (!arePositionsEqual(getInitialPositions(), shouldBePositions)) {
-            shouldBePositions = getInitialPositions();
+          if (
+            !arePositionsEqual(getInitialPositions(), shouldBePositions.current)
+          ) {
+            shouldBePositions.current = getInitialPositions();
             applyPositions(index);
           }
         } else {
           const newPos = getInitialPositions();
           newPos[position] = getPositionForIndex(index);
           newPos[index] = getPositionForIndex(position);
-          if (!arePositionsEqual(newPos, shouldBePositions)) {
-            shouldBePositions = newPos;
+          if (!arePositionsEqual(newPos, shouldBePositions.current)) {
+            shouldBePositions.current = newPos;
             applyPositions(index);
           }
         }
@@ -153,7 +193,7 @@ export const Card: React.FC<{
       refToUse.current.addEventListener(
         "pointerup",
         () => {
-          positions[index] = {
+          positions.current[index] = {
             x: cardLeft + translateX,
             y: cardTop + translateY,
           };
@@ -168,7 +208,7 @@ export const Card: React.FC<{
 
       refToUse.current.addEventListener("pointermove", onMove);
     },
-    [applyPositions, index, refToUse],
+    [applyPositions, index, positions, refToUse, shouldBePositions],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -180,6 +220,7 @@ export const Card: React.FC<{
   return (
     <div
       ref={refToUse}
+      className={styles.card}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       style={{
@@ -190,9 +231,42 @@ export const Card: React.FC<{
         position: "absolute",
         left: x,
         top: y,
+        userSelect: "none",
       }}
     >
-      {index}
+      {content}
     </div>
+  );
+};
+
+export const Cards: React.FC<{
+  onUpdate: (newIndices: number[]) => void;
+}> = ({ onUpdate }) => {
+  const [refs] = useState(() => {
+    return new Array(4).fill(true).map(() => {
+      return createRef<HTMLDivElement>();
+    });
+  });
+
+  const positions = useRef(getInitialPositions());
+  const shouldBePositions = useRef(getInitialPositions());
+
+  return (
+    <AbsoluteFill>
+      {new Array(4).fill(true).map((_, i) => {
+        return (
+          <Card
+            // eslint-disable-next-line react/no-array-index-key
+            key={i}
+            onUpdate={onUpdate}
+            refsToUse={refs}
+            index={i}
+            content={i + "()"}
+            positions={positions}
+            shouldBePositions={shouldBePositions}
+          />
+        );
+      })}
+    </AbsoluteFill>
   );
 };
