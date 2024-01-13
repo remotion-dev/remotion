@@ -3,6 +3,14 @@
   transition: scale 0.2s ease;
 }
 
+.content {
+  transition: opacity 0.2s ease;
+}
+
+.passive .content {
+  opacity: 0.6;
+}
+
 .active {
   scale: 1.05;
 }

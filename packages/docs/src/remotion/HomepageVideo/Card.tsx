@@ -72,7 +72,8 @@ const Card: React.FC<{
   const refToUse = refsToUse[index];
   const stopPrevious = useRef<(() => void)[]>([]);
 
-  let newIndices = null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let newIndices = [...indices];
 
   const applyPositions = useCallback(
     (except: number | null) => {
@@ -109,12 +110,13 @@ const Card: React.FC<{
           }
 
           const progress = spring({
-            fps: 30,
+            fps: 60,
             frame: animationI,
             config: {
               damping: 200,
             },
-            durationRestThreshold: 0.01,
+            durationInFrames: duration,
+            durationRestThreshold: 0.001,
           });
           const newX =
             progress * (shouldBe.x - releasePositionX) + releasePositionX;
@@ -131,6 +133,7 @@ const Card: React.FC<{
             refsToUse.forEach((r) => {
               r.current.style.zIndex = "1";
               r.current.classList.remove(styles.active);
+              r.current.classList.remove(styles.passive);
             });
             if (i === 0) {
               setTimeout(() => {
@@ -161,6 +164,11 @@ const Card: React.FC<{
       let translateX = 0;
       let translateY = 0;
       const onMove = (evt: PointerEvent) => {
+        refsToUse.forEach((r) => {
+          if (r !== refToUse) {
+            r.current.classList.add(styles.passive);
+          }
+        });
         refToUse.current.classList.add(styles.active);
         const scale =
           refToUse.current.getBoundingClientRect().width / cardWidth;
@@ -234,17 +242,25 @@ const Card: React.FC<{
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       style={{
-        backgroundColor: "#eee",
-        borderRadius: 13,
         width: cardWidth,
         height: cardHeight,
         position: "absolute",
         left: x,
         top: y,
         userSelect: "none",
+        border: "1px solid #eee",
+        borderRadius: 13,
       }}
     >
-      {content}
+      <AbsoluteFill
+        style={{
+          backgroundColor: "#eee",
+          borderRadius: 13,
+        }}
+        className={styles.content}
+      >
+        {content}
+      </AbsoluteFill>
     </div>
   );
 };
