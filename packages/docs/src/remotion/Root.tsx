@@ -1,11 +1,12 @@
 import { CreateVideoInternals } from "create-video";
 import React from "react";
-import { Folder, Still } from "remotion";
+import { Composition, Folder, Still } from "remotion";
 import { articles } from "../data/articles";
 import { experts } from "../data/experts";
 import { AllTemplates } from "./AllTemplates";
 import { Article } from "./Article";
 import { Expert } from "./Expert";
+import { Comp } from "./HomepageVideo/Comp";
 import { TemplateComp } from "./Template";
 
 export const RemotionRoot: React.FC = () => {
@@ -64,6 +65,14 @@ export const RemotionRoot: React.FC = () => {
         width={1200}
         height={630}
         id="template-all"
+      />
+      <Composition
+        component={Comp}
+        id="HomepageVideo"
+        width={640}
+        height={360}
+        durationInFrames={120}
+        fps={30}
       />
     </>
   );
