@@ -78,6 +78,9 @@ const Card: React.FC<{
   const applyPositions = useCallback(
     (except: number | null) => {
       let stopped = false;
+      stopPrevious.current.forEach((s) => {
+        s();
+      });
       stopPrevious.current.push(() => {
         stopped = true;
       });
@@ -98,8 +101,8 @@ const Card: React.FC<{
           return;
         }
 
-        let animationI = 0;
-        const duration = 30;
+        let animationI = 1;
+        const duration = 20;
 
         const releasePositionX = positions.current[i].x;
         const releasePositionY = positions.current[i].y;
@@ -215,6 +218,11 @@ const Card: React.FC<{
             x: cardLeft + translateX,
             y: cardTop + translateY,
           };
+          console.log(
+            "release",
+            positions.current[index].x,
+            positions.current[index].y,
+          );
           refToUse.current.style.left = `${cardLeft + translateX}px`;
           refToUse.current.style.top = `${cardTop + translateY}px`;
           refToUse.current.style.transform = `translateX(0px) translateY(0px)`;
