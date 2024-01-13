@@ -1,8 +1,14 @@
-import React from "react";
+import React, { createRef, useState } from "react";
 import { AbsoluteFill } from "remotion";
 import { Card, paddingAndMargin } from "./Card";
 
 export const Comp: React.FC = () => {
+  const [refs] = useState(() => {
+    return new Array(4).fill(true).map(() => {
+      return createRef<HTMLDivElement>();
+    });
+  });
+
   return (
     <AbsoluteFill
       style={{
@@ -10,10 +16,10 @@ export const Comp: React.FC = () => {
         backgroundColor: "white",
       }}
     >
-      <Card index={0} />
-      <Card index={1} />
-      <Card index={2} />
-      <Card index={3} />
+      <Card refToUse={refs[0]} index={0} />
+      <Card refToUse={refs[1]} index={1} />
+      <Card refToUse={refs[2]} index={2} />
+      <Card refToUse={refs[3]} index={3} />
     </AbsoluteFill>
   );
 };
