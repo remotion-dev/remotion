@@ -59,6 +59,7 @@ const Card: React.FC<{
   content: React.ReactNode;
   positions: React.MutableRefObject<Position[]>;
   shouldBePositions: React.MutableRefObject<Position[]>;
+  indices: number[];
 }> = ({
   positions,
   shouldBePositions,
@@ -66,9 +67,12 @@ const Card: React.FC<{
   refsToUse,
   onUpdate,
   content,
+  indices,
 }) => {
   const refToUse = refsToUse[index];
   const stopPrevious = useRef<(() => void)[]>([]);
+
+  let newIndices = null;
 
   const applyPositions = useCallback(
     (except: number | null) => {
@@ -130,7 +134,7 @@ const Card: React.FC<{
             });
             if (i === 0) {
               setTimeout(() => {
-                onUpdate([0, 1, 2, 3]);
+                onUpdate([...newIndices]);
               }, 200);
             }
 
@@ -143,7 +147,7 @@ const Card: React.FC<{
         update();
       });
     },
-    [onUpdate, positions, refsToUse, shouldBePositions],
+    [newIndices, onUpdate, positions, refsToUse, shouldBePositions],
   );
 
   const onPointerDown = useCallback(
@@ -180,6 +184,12 @@ const Card: React.FC<{
           const newPos = getInitialPositions();
           newPos[position] = getPositionForIndex(index);
           newPos[index] = getPositionForIndex(position);
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          newIndices = [...indices];
+          const prevIndexPosition = newIndices[position];
+          newIndices[position] = newIndices[index];
+          newIndices[index] = prevIndexPosition;
+
           if (!arePositionsEqual(newPos, shouldBePositions.current)) {
             shouldBePositions.current = newPos;
             applyPositions(index);
@@ -241,7 +251,8 @@ const Card: React.FC<{
 
 export const Cards: React.FC<{
   onUpdate: (newIndices: number[]) => void;
-}> = ({ onUpdate }) => {
+  indices: number[];
+}> = ({ onUpdate, indices }) => {
   const [refs] = useState(() => {
     return new Array(4).fill(true).map(() => {
       return createRef<HTMLDivElement>();
@@ -261,9 +272,10 @@ export const Cards: React.FC<{
             onUpdate={onUpdate}
             refsToUse={refs}
             index={i}
-            content={i + "()"}
+            content={indices[i]}
             positions={positions}
             shouldBePositions={shouldBePositions}
+            indices={indices}
           />
         );
       })}

@@ -3,11 +3,16 @@ import { AbsoluteFill } from "remotion";
 import { Cards } from "./Card";
 
 export const Comp: React.FC = () => {
-  const [rerenders, setRerenders] = useState(0);
+  const [state, setRerenders] = useState({
+    rerenders: 0,
+    indices: [0, 1, 2, 3],
+  });
 
-  const onUpdate = useCallback(() => {
-    console.log("updated");
-    setRerenders((i) => i + 1);
+  const onUpdate = useCallback((newIndices: number[]) => {
+    setRerenders((i) => ({
+      indices: newIndices,
+      rerenders: i.rerenders + 1,
+    }));
   }, []);
 
   return (
@@ -16,7 +21,11 @@ export const Comp: React.FC = () => {
         backgroundColor: "white",
       }}
     >
-      <Cards key={rerenders} onUpdate={onUpdate} />
+      <Cards
+        key={state.rerenders}
+        onUpdate={onUpdate}
+        indices={state.indices}
+      />
     </AbsoluteFill>
   );
 };
