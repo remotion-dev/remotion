@@ -316,7 +316,7 @@ export const Cards: React.FC<{
             <CurrentCountry theme={theme} />
           ) : index === 1 ? (
             <Temperature theme={theme} />
-          ) : i === 2 ? (
+          ) : index === 2 ? (
             <TrendingRepos theme={theme} />
           ) : (
             "🐹"

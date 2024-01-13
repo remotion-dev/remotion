@@ -12,7 +12,7 @@ export const TrendingRepos: React.FC<{
     fontFeatureSettings: "'ss03' 1",
   };
 
-  const fill = theme === "light" ? "#666" : "#222";
+  const fill = theme === "light" ? "#666" : "#999";
 
   return (
     <AbsoluteFill>
