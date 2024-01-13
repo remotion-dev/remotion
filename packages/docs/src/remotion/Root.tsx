@@ -6,7 +6,7 @@ import { experts } from "../data/experts";
 import { AllTemplates } from "./AllTemplates";
 import { Article } from "./Article";
 import { Expert } from "./Expert";
-import { Comp } from "./HomepageVideo/Comp";
+import { Comp, schema } from "./HomepageVideo/Comp";
 import { TemplateComp } from "./Template";
 
 export const RemotionRoot: React.FC = () => {
@@ -73,6 +73,10 @@ export const RemotionRoot: React.FC = () => {
         height={360}
         durationInFrames={120}
         fps={30}
+        defaultProps={{
+          theme: "light",
+        }}
+        schema={schema}
       />
     </>
   );

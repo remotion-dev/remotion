@@ -61,6 +61,7 @@ const Card: React.FC<{
   positions: React.MutableRefObject<Position[]>;
   shouldBePositions: React.MutableRefObject<Position[]>;
   indices: number[];
+  theme: "dark" | "light";
 }> = ({
   positions,
   shouldBePositions,
@@ -69,6 +70,7 @@ const Card: React.FC<{
   onUpdate,
   content,
   indices,
+  theme,
 }) => {
   const refToUse = refsToUse[index];
   const stopPrevious = useRef<(() => void)[]>([]);
@@ -258,7 +260,7 @@ const Card: React.FC<{
   }, []);
 
   const { x, y } = getPositionForIndex(index);
-
+  const color = theme === "light" ? " #EAEAEA" : "#333";
   return (
     <div
       ref={refToUse}
@@ -272,18 +274,18 @@ const Card: React.FC<{
         left: x,
         top: y,
         userSelect: "none",
-        border: "1px solid #EAEAEA",
+        border: `1px solid ${color}`,
         borderRadius: 13,
         overflow: "hidden",
       }}
     >
       <AbsoluteFill
         style={{
-          backgroundColor: "#EAEAEA",
+          backgroundColor: color,
         }}
         className={styles.content}
       >
-        {content}{" "}
+        {content}
       </AbsoluteFill>
     </div>
   );
@@ -292,7 +294,8 @@ const Card: React.FC<{
 export const Cards: React.FC<{
   onUpdate: (newIndices: number[]) => void;
   indices: number[];
-}> = ({ onUpdate, indices }) => {
+  theme: "dark" | "light";
+}> = ({ onUpdate, indices, theme }) => {
   const [refs] = useState(() => {
     return new Array(4).fill(true).map(() => {
       return createRef<HTMLDivElement>();
@@ -308,7 +311,7 @@ export const Cards: React.FC<{
         const index = indices[i];
         const content =
           index === 0 ? (
-            <CurrentCountry />
+            <CurrentCountry theme={theme} />
           ) : index === 1 ? (
             "🐱"
           ) : i === 2 ? (
@@ -327,6 +330,7 @@ export const Cards: React.FC<{
             positions={positions}
             shouldBePositions={shouldBePositions}
             indices={indices}
+            theme={theme}
           />
         );
       })}

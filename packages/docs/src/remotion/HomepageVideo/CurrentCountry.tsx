@@ -3,7 +3,9 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 import { countriesPaths, ISO_3166_ALPHA_2_MAPPINGS } from "./paths";
 
-export const CurrentCountry: React.FC = () => {
+export const CurrentCountry: React.FC<{
+  theme: "dark" | "light";
+}> = ({ theme }) => {
   const country = "FR";
   const paths = countriesPaths.filter((c) => c.class === country);
   const joined = paths.map((p) => p.d).join(" ");
@@ -19,7 +21,7 @@ export const CurrentCountry: React.FC = () => {
             scale: "0.8",
           }}
         >
-          <path fill="#bbb" d={reset} />
+          <path fill={theme === "light" ? "#bbb" : "#222"} d={reset} />
         </svg>
       </AbsoluteFill>
       <AbsoluteFill />
@@ -49,6 +51,7 @@ export const CurrentCountry: React.FC = () => {
             textAlign: "center",
             fontWeight: "500",
             fontSize: 30,
+            color: theme === "dark" ? "white" : "black",
           }}
         >
           {ISO_3166_ALPHA_2_MAPPINGS[country]}
