@@ -7,6 +7,7 @@ export const Comp: React.FC = () => {
     <AbsoluteFill
       style={{
         padding: paddingAndMargin,
+        backgroundColor: "white",
       }}
     >
       <Card index={0} />
