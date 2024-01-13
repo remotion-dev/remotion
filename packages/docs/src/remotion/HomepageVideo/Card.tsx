@@ -2,6 +2,7 @@ import React, { createRef, useCallback, useRef, useState } from "react";
 import { AbsoluteFill, spring } from "remotion";
 import { CurrentCountry } from "./CurrentCountry";
 import styles from "./player-styles.module.css";
+import { Temperature } from "./Temperature";
 
 export const paddingAndMargin = 20;
 const height = 360;
@@ -313,7 +314,7 @@ export const Cards: React.FC<{
           index === 0 ? (
             <CurrentCountry theme={theme} />
           ) : index === 1 ? (
-            "🐱"
+            <Temperature theme={theme} />
           ) : i === 2 ? (
             "🐭"
           ) : (

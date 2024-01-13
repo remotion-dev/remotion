@@ -40,6 +40,7 @@ export const CurrentCountry: React.FC<{
             fontWeight: "500",
             fontSize: 13,
             textAlign: "center",
+            marginTop: -10,
           }}
         >
           Your location
