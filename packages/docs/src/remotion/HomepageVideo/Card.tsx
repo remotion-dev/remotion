@@ -283,8 +283,7 @@ const Card: React.FC<{
         }}
         className={styles.content}
       >
-        <CurrentCountry />
-        {content}
+        {content}{" "}
       </AbsoluteFill>
     </div>
   );
@@ -306,6 +305,17 @@ export const Cards: React.FC<{
   return (
     <AbsoluteFill>
       {new Array(4).fill(true).map((_, i) => {
+        const index = indices[i];
+        const content =
+          index === 0 ? (
+            <CurrentCountry />
+          ) : index === 1 ? (
+            "🐱"
+          ) : i === 2 ? (
+            "🐭"
+          ) : (
+            "🐹"
+          );
         return (
           <Card
             // eslint-disable-next-line react/no-array-index-key
@@ -313,7 +323,7 @@ export const Cards: React.FC<{
             onUpdate={onUpdate}
             refsToUse={refs}
             index={i}
-            content={indices[i]}
+            content={content}
             positions={positions}
             shouldBePositions={shouldBePositions}
             indices={indices}
