@@ -107,6 +107,29 @@ const Card: React.FC<{
         const releasePositionX = positions.current[i].x;
         const releasePositionY = positions.current[i].y;
 
+        const finishAnimation = () => {
+          refsToUse.forEach((r) => {
+            r.current.style.zIndex = "1";
+            r.current.classList.remove(styles.active);
+            r.current.classList.remove(styles.passive);
+          });
+          if (i === 0) {
+            setTimeout(() => {
+              onUpdate([...newIndices]);
+            }, 200);
+          }
+        };
+
+        if (
+          releasePositionX === shouldBe.x &&
+          releasePositionY === shouldBe.y &&
+          animationI === duration &&
+          except === null
+        ) {
+          finishAnimation();
+          return;
+        }
+
         const update = () => {
           if (stopped) {
             return;
@@ -133,16 +156,7 @@ const Card: React.FC<{
           };
           animationI++;
           if (animationI === duration && except === null) {
-            refsToUse.forEach((r) => {
-              r.current.style.zIndex = "1";
-              r.current.classList.remove(styles.active);
-              r.current.classList.remove(styles.passive);
-            });
-            if (i === 0) {
-              setTimeout(() => {
-                onUpdate([...newIndices]);
-              }, 200);
-            }
+            finishAnimation();
 
             return;
           }
@@ -166,13 +180,14 @@ const Card: React.FC<{
 
       let translateX = 0;
       let translateY = 0;
+      refToUse.current.classList.add(styles.active);
+
       const onMove = (evt: PointerEvent) => {
         refsToUse.forEach((r) => {
           if (r !== refToUse) {
             r.current.classList.add(styles.passive);
           }
         });
-        refToUse.current.classList.add(styles.active);
         const scale =
           refToUse.current.getBoundingClientRect().width / cardWidth;
 
@@ -256,14 +271,14 @@ const Card: React.FC<{
         left: x,
         top: y,
         userSelect: "none",
-        border: "1px solid #eee",
+        border: "1px solid #EAEAEA",
         borderRadius: 13,
+        overflow: "hidden",
       }}
     >
       <AbsoluteFill
         style={{
-          backgroundColor: "#eee",
-          borderRadius: 13,
+          backgroundColor: "#EAEAEA",
         }}
         className={styles.content}
       >
