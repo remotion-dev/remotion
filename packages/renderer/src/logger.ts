@@ -2,7 +2,7 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
-import {getRepro, withRepro} from './repro';
+import {getRepro, getReproWrite} from './repro'
 import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
@@ -24,11 +24,19 @@ export const secondverboseTag = (str: string) => {
 	return isColorSupported() ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
 
-const LogInternal = {
+const writeInRepro = (level: string, ...args: Parameters<typeof console.log>) => {
+	if (getRepro()) {
+		const repro = getReproWrite();
+		repro.write(level, ...args);
+	}
+}
+
+export const Log = {
 	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('verbose', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
 			return console.log(
 				...[
@@ -41,6 +49,7 @@ const LogInternal = {
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
+		writeInRepro('info', ...args);
 		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	infoAdvanced: (
@@ -53,6 +62,7 @@ const LogInternal = {
 	},
 
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
+		writeInRepro('warn', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
@@ -62,6 +72,7 @@ const LogInternal = {
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
+		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
@@ -82,10 +93,6 @@ const LogInternal = {
 		}
 	},
 };
-
-export type LogInstance = typeof LogInternal;
-
-export const Log = getRepro() ? withRepro(LogInternal) : LogInternal;
 
 let logLevel: LogLevel = 'info';
 

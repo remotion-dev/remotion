@@ -67,6 +67,7 @@ import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
+import {reproRenderSucceed} from "./repro"
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -697,6 +698,8 @@ const internalRenderMediaRaw = ({
 					buffer,
 					slowestFrames,
 				};
+
+				reproRenderSucceed(absoluteOutputLocation);
 				resolve(result);
 			})
 			.catch((err) => {

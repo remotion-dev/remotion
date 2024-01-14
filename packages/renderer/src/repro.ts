@@ -1,17 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {LogInstance, LogOptions} from './logger';
 
 /**
  * TODO:
- * 1. Log methods replace console methods
- * 2. Write the process.argv、node version、os version、remotion version、os platform
+ * 1. x - Log methods replace console methods
+ * 2. x - Write the process.argv、node version、os version、remotion version、os platform
  * 3. Save the bundle(serveURL is url or directory path)
  * 		- repro folder name: repro-<bundleName>-<startTime>
  * 		- directory path: CWD or project root
  * 4. if successful copy render output to repro folder
  * 5. zip the repro folder
+ * 6. renderMedia method add repro parameter
  */
 
 const readyDirSync = (dir: string) => {
@@ -40,8 +40,23 @@ const reproWriter = () => {
 	const serializeArgs = (args: Parameters<typeof console.log>[]) =>
 		JSON.stringify(args);
 
+	process.on('exit',(code) => {
+		// TODO: zip the repro folder
+		reproLogWriteStream.write(`process exit code: ${code}`);
+		reproLogWriteStream.end();
+		reproLogWriteStream.close();
+	})
+
 	return {
-		open() {},
+		start() {
+			const versions = [
+				`[${new Date().toISOString()}] render start`,
+				`	args: ${JSON.stringify(process.argv)}`,
+				`	node version: ${process.version}`,
+				`	os: ${process.platform} ${process.arch}`,
+			]
+			reproLogWriteStream.write(versions.join('\n') + '\n');
+		},
 		write(level: string, ...args: Parameters<typeof console.log>[]) {
 			if (!args.length) return;
 			const startTime = new Date().toISOString();
@@ -49,41 +64,49 @@ const reproWriter = () => {
 
 			reproLogWriteStream.write(line + '\n');
 		},
-		// TODO: close the stream on exit
-		close() {
-			reproLogWriteStream.end();
-			reproLogWriteStream.close();
-		},
+
+		renderSucceed(output: string | null) {
+			if (output) {
+				const outdir = path.resolve(reproFolder, 'out');
+				readyDirSync(outdir);
+
+				const fileName = path.basename(output);
+				const targetPath = path.join(outdir, fileName);
+
+				fs.copyFileSync(output, targetPath);
+			}
+
+			const versions = [
+				`[${new Date().toISOString()}] render end`,
+				`	output: ${JSON.stringify(output || '')}`,
+			]
+			reproLogWriteStream.write(versions.join('\n') + '\n');
+		}
 	};
 };
 
-export function withRepro(log: LogInstance): LogInstance {
-	const reproWrite = reproWriter();
-	return {
-		...log,
-		verbose: (...args: Parameters<typeof console.log>) => {
-			reproWrite.write('verbose', ...args);
-			return log.verbose(...args);
-		},
-		info: (...args: Parameters<typeof console.log>) => {
-			reproWrite.write('info', ...args);
-			return log.info(...args);
-		},
-		warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
-			reproWrite.write('warn', ...args);
-			return log.warn(options, ...args);
-		},
-		error: (...args: Parameters<typeof console.log>) => {
-			reproWrite.write('error', ...args);
-			return log.error(...args);
-		},
-	};
+const memoizeReproWriter = () => {
+	let instance: ReturnType<typeof reproWriter>;
+	return () => {
+		if (!instance) {
+			instance = reproWriter();
+		}
+		return instance;
+	}
 }
+
+export const getReproWrite = memoizeReproWriter();
 
 let shouldOutputRepro = false;
 
 export const setRepro = (should: boolean) => {
 	shouldOutputRepro = should;
+
+	should && getReproWrite().start();
 };
 
 export const getRepro = () => shouldOutputRepro;
+
+export const reproRenderSucceed = (output: string | null) => {
+	getRepro() && getReproWrite().renderSucceed(output);
+}

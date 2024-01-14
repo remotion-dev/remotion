@@ -462,11 +462,6 @@ declare global {
 		 * Whether the Remotion Studio should play a beep sound when a render has finished.
 		 */
 		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
-
-		/**
-		 * Should output repro for render
-		 */
-		readonly setRepro: (shouldOutputRepro: boolean) => void;
 	}
 }
 
