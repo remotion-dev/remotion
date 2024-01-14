@@ -12,6 +12,7 @@ import {findRemotionRoot} from './find-closest-package-json';
  * 4. if successful copy render output to repro folder
  * 5. zip the repro folder
  * 6. renderMedia method add repro parameter
+ * 7. change repro state in cli
  */
 
 const readyDirSync = (dir: string) => {
