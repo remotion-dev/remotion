@@ -71,7 +71,7 @@ Call [`selectComposition()`](/docs/renderer/select-composition) or [`getComposit
 
 ### `codec`
 
-_"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
+_"h264" | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
