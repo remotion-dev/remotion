@@ -1,6 +1,6 @@
 import { BundlerInternals } from "@remotion/bundler";
 import { execSync } from "node:child_process";
-import { ffmpegCwd, binaryPath } from "@remotion/compositor-darwin-arm64";
+import { RenderInternals } from "@remotion/renderer";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -20,6 +20,17 @@ test("Should be able to bundle the renderer", () => {
   });
   expect(errors.length).toBe(0);
   expect(warnings.length).toBe(0);
+  const binaryPath = RenderInternals.getExecutablePath(
+    "compositor",
+    false,
+    "info"
+  );
+  const ffmpegCwd = RenderInternals.getExecutablePath(
+    "ffmpeg-cwd",
+    false,
+    "info"
+  );
+
   copyFileSync(binaryPath, path.join(outputdir, path.basename(binaryPath)));
   cpSync(ffmpegCwd, path.join(outputdir, path.basename(ffmpegCwd)), {
     recursive: true,
