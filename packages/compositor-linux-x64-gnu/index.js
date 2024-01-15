@@ -1,4 +1,6 @@
-exports.binaryPath = require.resolve("./compositor");
-exports.ffmpegPath = require.resolve("./ffmpeg/remotion/bin/ffmpeg");
-exports.ffprobePath = require.resolve("./ffmpeg/remotion/bin/ffprobe");
-exports.ffmpegCwd = __dirname + "/ffmpeg";
+const path = require("path");
+
+exports.binaryPath = `${__dirname}/compositor`;
+exports.ffmpegPath = `${__dirname}/ffmpeg/remotion/bin/ffmpeg`;
+exports.ffprobePath = `${__dirname}/ffmpeg/remotion/bin/ffprobe`;
+exports.ffmpegCwd = `${__dirname}/ffmpeg`;
