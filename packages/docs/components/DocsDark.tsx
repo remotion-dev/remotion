@@ -16,7 +16,7 @@ export const SingleVideoDemo: React.FC<{
     () => ({
       display: "flex",
     }),
-    []
+    [],
   );
 
   const videoContainer: React.CSSProperties = useMemo(() => {
@@ -41,7 +41,7 @@ export const SingleVideoDemo: React.FC<{
       },
       {
         once: true,
-      }
+      },
     );
   }, [colorMode]);
 
@@ -85,7 +85,7 @@ export const DualVideoDemo: React.FC<{
       display: "flex",
       flexDirection: mobile ? "column" : "row",
     }),
-    [mobile]
+    [mobile],
   );
 
   const videoContainer: React.CSSProperties = useMemo(() => {
@@ -106,12 +106,12 @@ export const DualVideoDemo: React.FC<{
   useEffect(() => {
     Promise.all([
       new Promise<void>((resolve) => {
-        ref1.current.addEventListener("progress", () => resolve(), {
+        ref1.current.addEventListener("canplay", () => resolve(), {
           once: true,
         });
       }),
       new Promise<void>((resolve) => {
-        ref2.current.addEventListener("progress", () => resolve(), {
+        ref2.current.addEventListener("canplay", () => resolve(), {
           once: true,
         });
       }),

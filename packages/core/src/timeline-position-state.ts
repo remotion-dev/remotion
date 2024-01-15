@@ -45,18 +45,28 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	},
 });
 
-const makeKey = (composition: string) => {
-	return `remotion.time.${composition}`;
+type CurrentTimePerComposition = Record<string, number>;
+
+const makeKey = () => {
+	return `remotion.time-all`;
 };
 
-export const persistCurrentFrame = (frame: number, composition: string) => {
-	localStorage.setItem(makeKey(composition), String(frame));
+export const persistCurrentFrame = (time: CurrentTimePerComposition) => {
+	localStorage.setItem(makeKey(), JSON.stringify(time));
+};
+
+export const getInitialFrameState = () => {
+	const item = localStorage.getItem(makeKey()) ?? '{}';
+	const obj: CurrentTimePerComposition = JSON.parse(item);
+	return obj;
 };
 
 export const getFrameForComposition = (composition: string) => {
-	const frame = localStorage.getItem(makeKey(composition));
-	return frame
-		? Number(frame)
+	const item = localStorage.getItem(makeKey()) ?? '{}';
+	const obj: CurrentTimePerComposition = JSON.parse(item);
+
+	return obj[composition]
+		? Number(obj[composition])
 		: (typeof window === 'undefined' ? 0 : window.remotion_initialFrame ?? 0) ??
 				0;
 };

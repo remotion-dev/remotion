@@ -6,11 +6,16 @@ export const FramePersistor: React.FC = () => {
 	const [playing] = Internals.Timeline.usePlayingState();
 	const config = useVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
+	const setFrame = Internals.useTimelineSetFrame();
 
 	useEffect(() => {
 		if (!playing) {
-			Internals.persistCurrentFrame(frame, config.id);
+			setFrame((f) => {
+				const newObj = {...f, [config.id]: frame};
+				Internals.persistCurrentFrame(newObj);
+				return newObj;
+			});
 		}
-	}, [config.id, frame, playing]);
+	}, [config.id, frame, playing, setFrame]);
 	return null;
 };
