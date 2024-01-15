@@ -32,6 +32,7 @@ const getMissedFramesforCodec = async (
       "--image-format",
       "png",
       "--sequence",
+      "--log=verbose",
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -84,7 +85,7 @@ const getMissedFramesforCodec = async (
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - WebM onthread", async () => {
+test.only("should render correct frames from embedded videos - WebM onthread", async () => {
   const missedFrames = await getMissedFramesforCodec("webm", false);
   expect(missedFrames).toBeLessThanOrEqual(0);
 });
