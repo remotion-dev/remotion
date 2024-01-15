@@ -65,29 +65,23 @@ It includes `entrypoint.sh`, which will run the render command and upload the ou
 ## Dockerfile.example
 
 ```bash
-FROM debian:bookworm-slim
-RUN apt-get update && \
-    apt-get install -y curl gnupg git chromium ffmpeg && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && \
-    apt-get install -y nodejs && \
-    # Enable Corepack
-    corepack enable && \
-    # Install linux dependencies
-    # apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release xdg-utils wget libgbm-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+FROM node:20-bookworm
+RUN apt-get update
+RUN apt-get install -y curl gnupg git chromium
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" > /etc/apt/sources.list.d/nodesource.list
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
 
 # Clone the repo
-RUN git clone https://github.com/UmungoBungo/remotion-gpu-test.git
-WORKDIR /remotion-gpu-test
-RUN pnpm install
+RUN git clone https://github.com/remotion-dev/gpu-scene.git
+WORKDIR /gpu-scene
+RUN npm install
 
 # Copy the entrypoint script into the image
 COPY entrypoint.sh .
 
-CMD ["./entrypoint.sh"]
+CMD ["sh", "./entrypoint.sh"]
 ```
 
 ## entrypoint.sh
@@ -96,14 +90,15 @@ CMD ["./entrypoint.sh"]
 #!/bin/bash
 
 # Run the render-angle command
-pnpm render-angle-egl
+npx remotion render --gl=angle-egl Scene out/video.mp4
 
 # Upload the file once rendering is finished
-curl --upload-file ./out/angle.mp4 https://transfer.sh/angle.mp4
+curl --upload-file ./out/video.mp4 https://transfer.sh/angle.mp4
 ```
 
 ## Run dockerfile
 
 ```bash
-sudo docker run --gpus all --runtime=nvidia -e "NVIDIA_DRIVER_CAPABILITIES=all" <docker-image-name>
+sudo docker build . -t remotion-docker-gpu
+sudo docker run --gpus all --runtime=nvidia -e "NVIDIA_DRIVER_CAPABILITIES=all" remotion-docker-gpu
 ```
