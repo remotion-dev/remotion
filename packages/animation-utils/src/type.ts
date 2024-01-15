@@ -1,4 +1,4 @@
-import {
+import type {
   matrix,
   matrix3d,
   perspective,
@@ -21,7 +21,7 @@ import {
   translateY,
   translateZ,
 } from "./transformation-helpers/make-transform";
-import { breakDownValueIntoUnitNumberAndFunctions } from "./transformation-helpers/use-interpolate-styles/utils";
+import type { breakDownValueIntoUnitNumberAndFunctions } from "./transformation-helpers/use-interpolate-styles/utils";
 
 type TransformFunction = () => string;
 type LengthUnit =

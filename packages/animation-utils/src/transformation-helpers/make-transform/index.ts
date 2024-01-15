@@ -1,4 +1,4 @@
-import { TransformFunctionReturnType } from "../../type";
+import type { TransformFunctionReturnType } from "../../type";
 import {
   matrix,
   matrix3d,

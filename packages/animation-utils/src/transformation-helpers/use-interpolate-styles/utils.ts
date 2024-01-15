@@ -1,4 +1,4 @@
-import { CSSPropertiesValue, ColorMatchers } from "../../type";
+import type { CSSPropertiesValue, ColorMatchers } from "../../type";
 import { NUMBER, PERCENTAGE, STANDARD_COLOR_NAMES } from "./constants";
 
 function call(...args: unknown[]): string {
@@ -86,6 +86,7 @@ const classifyArgsOfFunction = (value: string) => {
       currentValue += char;
     }
   }
+
   if (currentValue) values.push(currentValue.trim());
 
   // Classify each value
@@ -96,6 +97,7 @@ const classifyArgsOfFunction = (value: string) => {
       const unit = numberUnitMatch[2];
       return unit ? { number, unit } : { number };
     }
+
     return { unit: val };
   });
 };
@@ -104,6 +106,7 @@ const isColorValue = (value: string) => {
   if (STANDARD_COLOR_NAMES.includes(value)) {
     return true;
   }
+
   const matchers = getColorMatchers();
   return (
     matchers.rgb?.test(value) ||
@@ -152,6 +155,7 @@ const breakDownValueIntoUnitNumberAndFunctions = (
   if (typeof value !== "string") {
     return [];
   }
+
   const valueParts = extractOrderedPartsOfValue(value);
   return classifyParts(valueParts);
 };

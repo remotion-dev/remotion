@@ -6,7 +6,7 @@ import {
   interpolateColors,
 } from "remotion";
 import { breakDownValueIntoUnitNumberAndFunctions } from "./utils";
-import {
+import type {
   CSSPropertiesKey,
   CSSPropertiesValue,
   InterpolateStylesParams,
@@ -27,18 +27,21 @@ const getInterpolatedPartValue = (
       `The start and end values must be of the same type. Start value: ${startValue}, end value: ${endValue}`
     );
   }
+
   if (startValuePart.color) {
     if (!endValuePart.color) {
       throw new TypeError(
         `The start and end values must be of the same type. Start value: ${startValue}, end value: ${endValue}`
       );
     }
+
     const interpolatedColor = interpolateColors(currentFrame, inputRange, [
       startValuePart.color,
       endValuePart.color as string,
     ]);
     return `${interpolatedColor}`;
   }
+
   if (startValuePart.function) {
     if (
       !endValuePart?.function ||
@@ -48,6 +51,7 @@ const getInterpolatedPartValue = (
         `The start and end values must be of the same type. Start value: ${startValue}, end value: ${endValue}`
       );
     }
+
     const endValuePartFunction = endValuePart.function;
     const endValuePartFunctionArgs = endValuePartFunction.values || [];
     const interpolatedFunctionArgs = startValuePart.function.values.reduce(
@@ -73,11 +77,13 @@ const getInterpolatedPartValue = (
   if (typeof startValuePart.number === "undefined") {
     return `${startValuePart.unit}`;
   }
+
   if (startValuePart.unit !== endValuePart.unit) {
     throw new TypeError(
       `The units of the start and end values must match. Start value: ${startValue}, end value: ${endValue}`
     );
   }
+
   const startNumber = startValuePart.number;
   const endNumber = endValuePart.number || 0;
   const interpolatedNumber = interpolate(currentFrame, inputRange, [
@@ -97,6 +103,7 @@ const getInterpolatedPropertyValue = (
   if (typeof startValue !== typeof endValue) {
     return startValue;
   }
+
   if (typeof startValue === "number") {
     return interpolate(currentFrame, inputRange, [
       startValue,
@@ -191,10 +198,12 @@ export const useInterpolateStyles = ({
       if (!areInputsValid) {
         return outputStyles[0] || {};
       }
+
       if (frame < interpolateFrameSteps[0]) {
         setCurrentStyles(outputStyles[0]);
         return;
       }
+
       if (frame >= interpolateFrameSteps[interpolateFrameSteps.length - 1]) {
         setCurrentStyles(outputStyles[outputStyles.length - 1]);
         return;
@@ -215,6 +224,7 @@ export const useInterpolateStyles = ({
       );
       setCurrentStyles(currentFrameStyles);
     };
+
     updateCurrentStyles();
   }, [areInputsValid, frame, interpolateFrameSteps, outputStyles]);
 

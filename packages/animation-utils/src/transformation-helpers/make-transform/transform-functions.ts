@@ -1,6 +1,6 @@
 /* eslint-disable max-params */
 
-import {
+import type {
   TransformFunction,
   LengthUnit,
   LengthPercentageUnit,
