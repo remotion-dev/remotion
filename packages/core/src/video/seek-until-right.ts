@@ -2,6 +2,7 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	element.currentTime = desiredTime;
 
 	let cancel: number;
+	let cancelSeeked: null | (() => void) = null;
 	const prom = new Promise<number>((resolve) => {
 		cancel = element.requestVideoFrameCallback((_cb, metadata) => {
 			resolve(metadata.mediaTime);
@@ -9,15 +10,16 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	});
 
 	const waitForSeekedEvent = new Promise<void>((resolve) => {
-		element.addEventListener(
-			'seeked',
-			() => {
-				resolve();
-			},
-			{
-				once: true,
-			},
-		);
+		const onDone = () => {
+			resolve();
+		};
+
+		element.addEventListener('seeked', onDone, {
+			once: true,
+		});
+		cancelSeeked = () => {
+			element.removeEventListener('seeked', onDone);
+		};
 	});
 
 	return {
@@ -25,6 +27,7 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 			([time]) => time,
 		),
 		cancel: () => {
+			cancelSeeked?.();
 			element.cancelVideoFrameCallback(cancel);
 		},
 	};
