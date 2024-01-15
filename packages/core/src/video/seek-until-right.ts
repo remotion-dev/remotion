@@ -41,15 +41,7 @@ export const seekToTimeMultipleUntilRight = (
 			newSeek.wait
 				.then((newTime) => {
 					const newDifference = Math.abs(desiredTime - newTime);
-					console.log(
-						ident,
-						'before',
-						seekedTo,
-						'after',
-						newTime,
-						'desired',
-						desiredTime,
-					);
+
 					if (newDifference < threshold) {
 						return resolve();
 					}
