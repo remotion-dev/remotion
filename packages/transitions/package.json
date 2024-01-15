@@ -55,8 +55,8 @@
 	},
 	"exports": {
 		".": {
-			"module": "./dist/index.mjs",
-			"import": "./dist/index.mjs",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
 			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js"
 		},
