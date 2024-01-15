@@ -89,6 +89,7 @@ npx remotion render --browser-executable=/usr/bin/google-chrome-stable --gl=angl
 
 ## See also
 
+- [Run this in a Docker container](/docs/cloud-gpu-docker)
 - [How To Enable Hardware Acceleration on Chrome, Chromium & Puppeteer on AWS in Headless mode](https://mirzabilal.com/how-to-enable-hardware-acceleration-on-chrome-chromium-puppeteer-on-aws-in-headless-mode), on which this document is based on.
 
 <Credits contributors={[
