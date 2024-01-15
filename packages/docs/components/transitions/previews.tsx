@@ -4,9 +4,15 @@ import type {
   TransitionPresentation,
   TransitionTiming,
 } from "@remotion/transitions";
+import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
+import { fade } from "@remotion/transitions/fade";
 import type { FlipDirection } from "@remotion/transitions/flip";
+import { flip } from "@remotion/transitions/flip";
 import type { SlideDirection } from "@remotion/transitions/slide";
+import { slide } from "@remotion/transitions/slide";
 import type { WipeDirection } from "@remotion/transitions/wipe";
+import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import type { SpringConfig } from "remotion";
 import { AbsoluteFill, measureSpring, spring, useVideoConfig } from "remotion";
@@ -15,7 +21,6 @@ import {
   presentationCompositionWidth,
 } from "../TableOfContents/transitions/presentations";
 import { customPresentation } from "./custom-transition";
-import { useImport } from "./use-import";
 
 const SceneA: React.FC = () => {
   return (
@@ -58,13 +63,6 @@ export const SampleTransition: React.FC<{
   durationRestThreshold: number;
   transition?: TransitionTiming;
 }> = ({ durationRestThreshold, effect, transition }) => {
-  const t = useImport(import("@remotion/transitions"));
-  if (!t) {
-    return null;
-  }
-
-  const { TransitionSeries, springTiming } = t;
-
   return (
     <TransitionSeries>
       <TransitionSeries.Sequence durationInFrames={60}>
@@ -91,25 +89,15 @@ export const SampleTransition: React.FC<{
 };
 
 export const FadeDemo: React.FC = () => {
-  const t = useImport(import("@remotion/transitions/fade"));
-  if (!t) {
-    return null;
-  }
-
-  return <SampleTransition effect={t.fade()} durationRestThreshold={0.001} />;
+  return <SampleTransition effect={fade()} durationRestThreshold={0.001} />;
 };
 
 export const SlideDemo: React.FC<{
   direction: SlideDirection;
 }> = ({ direction }) => {
-  const t = useImport(import("@remotion/transitions/slide"));
-  if (!t) {
-    return null;
-  }
-
   return (
     <SampleTransition
-      effect={t.slide({ direction })}
+      effect={slide({ direction })}
       durationRestThreshold={0.001}
     />
   );
@@ -118,14 +106,9 @@ export const SlideDemo: React.FC<{
 export const FlipDemo: React.FC<{
   direction: FlipDirection;
 }> = ({ direction }) => {
-  const t = useImport(import("@remotion/transitions/flip"));
-  if (!t) {
-    return null;
-  }
-
   return (
     <SampleTransition
-      effect={t.flip({ direction })}
+      effect={flip({ direction })}
       durationRestThreshold={0.001}
     />
   );
@@ -134,14 +117,9 @@ export const FlipDemo: React.FC<{
 export const SlideDemoLongDurationRest: React.FC<{
   direction: SlideDirection;
 }> = ({ direction }) => {
-  const t = useImport(import("@remotion/transitions/slide"));
-  if (!t) {
-    return null;
-  }
-
   return (
     <SampleTransition
-      effect={t.slide({ direction })}
+      effect={slide({ direction })}
       durationRestThreshold={0.005}
     />
   );
@@ -150,14 +128,9 @@ export const SlideDemoLongDurationRest: React.FC<{
 export const WipeDemo: React.FC<{
   direction: WipeDirection;
 }> = ({ direction }) => {
-  const t = useImport(import("@remotion/transitions/wipe"));
-  if (!t) {
-    return null;
-  }
-
   return (
     <SampleTransition
-      effect={t.wipe({ direction })}
+      effect={wipe({ direction })}
       durationRestThreshold={0.001}
     />
   );
@@ -165,14 +138,10 @@ export const WipeDemo: React.FC<{
 
 export const ClockWipeDemo: React.FC<{}> = () => {
   const { width, height } = useVideoConfig();
-  const t = useImport(import("@remotion/transitions/clock-wipe"));
-  if (!t) {
-    return null;
-  }
 
   return (
     <SampleTransition
-      effect={t.clockWipe({ width, height })}
+      effect={clockWipe({ width, height })}
       durationRestThreshold={0.001}
     />
   );
@@ -222,14 +191,9 @@ const customTiming = ({
 };
 
 export const CustomTimingDemo: React.FC<{}> = () => {
-  const t = useImport(import("@remotion/transitions/slide"));
-  if (!t) {
-    return null;
-  }
-
   return (
     <SampleTransition
-      effect={t.slide({ direction: "from-left" })}
+      effect={slide({ direction: "from-left" })}
       transition={customTiming({ pauseDuration: 5 })}
       durationRestThreshold={0.001}
     />
