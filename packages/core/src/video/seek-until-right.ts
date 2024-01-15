@@ -8,8 +8,22 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 		});
 	});
 
+	const waitForSeekedEvent = new Promise<void>((resolve) => {
+		element.addEventListener(
+			'seeked',
+			() => {
+				resolve();
+			},
+			{
+				once: true,
+			},
+		);
+	});
+
 	return {
-		wait: prom,
+		wait: Promise.all([prom, waitForSeekedEvent] as const).then(
+			([time]) => time,
+		),
 		cancel: () => {
 			element.cancelVideoFrameCallback(cancel);
 		},
