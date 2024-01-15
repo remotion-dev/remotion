@@ -12,10 +12,10 @@ If you get an error message:
 TooManyRequestsException: Rate Exceeded.
 ```
 
-while calling a Lambda function, it means your concurrency limit or burst limit has been reached.
+while calling a Lambda function, it means your concurrency limit has been reached.
 
 - **Concurrency limit**: The maximum amount of Lambda functions that can run concurrently per region per account.
-- **Burst limit**: The maximum amount of Lambda functions which can spawn in a short amount of time.
+- **Burst limit**: The maximum amount of concurrency increase in 10 seconds (the burst limit is 1000)
 
 ## Default concurrency limits
 

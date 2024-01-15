@@ -57,12 +57,17 @@ export const useInnerVideoTexture = ({
 		const imageTextureHandle = delayRender('fetch offthread video frame');
 
 		let textureLoaded: THREE.Texture | null = null;
+		let cleanedUp = false;
 
 		textLoaderPromise.then((loader) => {
 			new loader.TextureLoader()
 				.loadAsync(offthreadVideoFrameSrc)
 				.then((texture) => {
 					textureLoaded = texture;
+					if (cleanedUp) {
+						return;
+					}
+
 					setImageTexture(texture);
 					continueRender(imageTextureHandle);
 				})
@@ -72,13 +77,18 @@ export const useInnerVideoTexture = ({
 		});
 
 		return () => {
+			cleanedUp = true;
 			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
 	}, [offthreadVideoFrameSrc, textLoaderPromise]);
 
 	useLayoutEffect(() => {
-		fetchTexture();
+		const cleanup = fetchTexture();
+
+		return () => {
+			cleanup();
+		};
 	}, [offthreadVideoFrameSrc, fetchTexture]);
 
 	return imageTexture;

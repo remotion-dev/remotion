@@ -276,6 +276,11 @@
       "source": "/security",
       "destination": "/docs/security",
       "permanent": false
+    },
+    {
+      "source": "/standalone",
+      "destination": "/docs/standalone",
+      "permanent": false
     }
   ]
 }

@@ -6,7 +6,7 @@ slug: /lambda/getrenderprogress
 crumb: "Lambda API"
 ---
 
-Gets the current status of a render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+Gets the current status of a non-[still](https://www.remotion.dev/docs/lambda/renderstillonlambda) render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 ## Example
 
@@ -26,6 +26,10 @@ const progress = await getRenderProgress({
 
 :::note
 Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
+
+:::note
+You don't need to call this function while rendering a [still](/docs/still). Once you have obtained the [`renderId`](/docs/lambda/renderstillonlambda#renderid) from [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), the render should already be done!
 :::
 
 ## API

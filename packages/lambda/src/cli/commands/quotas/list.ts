@@ -104,7 +104,7 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			'The maximum amount of Lambda functions that can spawn in a short amount of time',
+			'The maximum amount of concurrency increase in 10 seconds',
 		),
 	);
 };

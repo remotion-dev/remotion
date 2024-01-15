@@ -434,6 +434,11 @@ module.exports = {
             "transitions/presentations/wipe",
             "transitions/presentations/flip",
             "transitions/presentations/clock-wipe",
+            {
+              type: "doc",
+              id: "transitions/presentations/cube",
+              className: "pro-item",
+            },
             "transitions/presentations/custom",
             "transitions/audio-transitions",
           ],
@@ -775,6 +780,7 @@ module.exports = {
         "miscellaneous/thorium-browser",
         "gl-options",
         "bun",
+        "standalone",
       ],
     },
     {

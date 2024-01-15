@@ -2424,6 +2424,13 @@ export const articles = [
     crumb: "The power of",
   },
   {
+    id: "standalone",
+    title: "Useful functions outside of Remotion",
+    relativePath: "docs/standalone.md",
+    compId: "articles-docs-standalone",
+    crumb: null,
+  },
+  {
     id: "staticfile-relative-paths",
     title: "staticFile() does not support relative paths",
     relativePath: "docs/static-file-relative-paths.md",
@@ -2575,6 +2582,13 @@ export const articles = [
     title: "clockWipe()",
     relativePath: "docs/transitions/presentations/clock-wipe.mdx",
     compId: "articles-docs-transitions-presentations-clock-wipe",
+    crumb: "@remotion/transitions - Presentations",
+  },
+  {
+    id: "transitions/presentations/cube",
+    title: "cube()",
+    relativePath: "docs/transitions/presentations/cube.mdx",
+    compId: "articles-docs-transitions-presentations-cube",
     crumb: "@remotion/transitions - Presentations",
   },
   {

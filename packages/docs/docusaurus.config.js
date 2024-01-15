@@ -182,6 +182,10 @@ const config = (mode) => ({
               label: "TikTok",
               href: "https://www.tiktok.com/@remotion",
             },
+            {
+              label: "Threads",
+              href: "https://www.threads.net/@remotion",
+            },
           ],
         },
         {
