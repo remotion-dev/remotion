@@ -28,7 +28,6 @@ export const seekToTimeMultipleUntilRight = (
 		const firstSeek = seekToTime(element, desiredTime + threshold);
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
-			const ident = Math.random();
 
 			if (difference < threshold) {
 				return resolve();
