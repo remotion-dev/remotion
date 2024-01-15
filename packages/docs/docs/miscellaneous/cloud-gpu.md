@@ -1,6 +1,6 @@
 ---
 image: /generated/articles-docs-miscellaneous-cloud-gpu.png
-sidebar_label: GPU in the cloud
+sidebar_label: GPU in the cloud (bare)
 title: Using the GPU in the cloud
 crumb: "FAQ"
 ---
