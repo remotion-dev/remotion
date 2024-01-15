@@ -5,16 +5,16 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	let cancelSeeked: null | (() => void) = null;
 	const prom = new Promise<number>((resolve) => {
 		cancel = element.requestVideoFrameCallback((now, metadata) => {
-			// eslint-disable-next-line no-console
-			console.log(
-				'seeked to',
-				JSON.stringify({
-					metadata,
-					now,
-					inFuture: now >= metadata.expectedDisplayTime,
-				}),
-			);
-			resolve(metadata.mediaTime);
+			const displayIn = metadata.expectedDisplayTime - now;
+			if (displayIn <= 0) {
+				resolve(metadata.mediaTime);
+
+				return;
+			}
+
+			setTimeout(() => {
+				resolve(metadata.mediaTime);
+			}, displayIn + 50);
 		});
 	});
 
