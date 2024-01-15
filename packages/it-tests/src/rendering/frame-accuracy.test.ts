@@ -32,11 +32,9 @@ const getMissedFramesforCodec = async (
       "--image-format",
       "png",
       "--sequence",
-      "--log=verbose",
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      stdio: "inherit",
     }
   );
 
