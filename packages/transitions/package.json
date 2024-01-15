@@ -3,18 +3,18 @@
 	"version": "4.0.84",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
-	"main": "dist/cjs/index.js",
-	"module": "dist/index.js",
+	"main": "dist/esm/index.mjs",
+	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",
-		"build": "rollup --config rollup.config.js && tsc -d"
+		"build": "tsc -d && rollup --config rollup.config.js"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
-	"license": "MIT",
+	"license": "UNLICENSED",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
@@ -55,39 +55,39 @@
 	},
 	"exports": {
 		".": {
-			"module": "./dist/index.js",
-			"import": "./dist/index.js",
+			"module": "./dist/index.mjs",
+			"import": "./dist/index.mjs",
 			"types": "./dist/index.d.ts",
-			"require": "./dist/cjs/index.js"
+			"require": "./dist/index.js"
 		},
 		"./fade": {
-			"module": "./dist/presentations/fade.js",
-			"import": "./dist/presentations/fade.js",
-			"require": "./dist/cjs/presentations/fade.js",
+			"module": "./dist/esm/presentations/fade.mjs",
+			"import": "./dist/esm/presentations/fade.mjs",
+			"require": "./dist/presentations/fade.js",
 			"types": "./dist/presentations/fade.d.ts"
 		},
 		"./slide": {
-			"module": "./dist/presentations/slide.js",
-			"import": "./dist/presentations/slide.js",
-			"require": "./dist/cjs/presentations/slide.js",
+			"module": "./dist/esm/presentations/slide.mjs",
+			"import": "./dist/esm/presentations/slide.mjs",
+			"require": "./dist/presentations/slide.js",
 			"types": "./dist/presentations/slide.d.ts"
 		},
 		"./wipe": {
-			"module": "./dist/presentations/wipe.js",
-			"import": "./dist/presentations/wipe.js",
-			"require": "./dist/cjs/presentations/wipe.js",
+			"module": "./dist/esm/presentations/wipe.mjs",
+			"import": "./dist/esm/presentations/wipe.mjs",
+			"require": "./dist/presentations/wipe.js",
 			"types": "./dist/presentations/wipe.d.ts"
 		},
 		"./flip": {
-			"module": "./dist/presentations/flip.js",
-			"import": "./dist/presentations/flip.js",
-			"require": "./dist/cjs/presentations/flip.js",
+			"module": "./dist/esm/presentations/flip.mjs",
+			"import": "./dist/esm/presentations/flip.mjs",
+			"require": "./dist/presentations/flip.js",
 			"types": "./dist/presentations/flip.d.ts"
 		},
 		"./clock-wipe": {
-			"module": "./dist/presentations/clock-wipe.js",
-			"import": "./dist/presentations/clock-wipe.js",
-			"require": "./dist/cjs/presentations/clock-wipe.js",
+			"module": "./dist/esm/presentations/clock-wipe.mjs",
+			"import": "./dist/esm/presentations/clock-wipe.mjs",
+			"require": "./dist/presentations/clock-wipe.js",
 			"types": "./dist/presentations/clock-wipe.d.ts"
 		},
 		"./package.json": "./package.json"
