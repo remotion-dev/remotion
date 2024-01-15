@@ -14,6 +14,7 @@
     "@remotion/lambda": "workspace:*",
     "@remotion/cloudrun": "workspace:*",
     "@remotion/renderer": "workspace:*",
+    "@remotion/compositor-darwin-arm64": "workspace:*",
     "@types/sharp": "^0.28.5",
     "create-video": "workspace:*",
     "execa": "5.1.1",

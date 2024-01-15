@@ -1043,6 +1043,9 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/compositor-darwin-arm64':
+        specifier: workspace:*
+        version: link:../compositor-darwin-arm64
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
