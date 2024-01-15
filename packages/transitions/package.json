@@ -61,32 +61,32 @@
 			"require": "./dist/index.js"
 		},
 		"./fade": {
-			"module": "./dist/esm/presentations/fade.mjs",
-			"import": "./dist/esm/presentations/fade.mjs",
+			"module": "./dist/esm/fade.mjs",
+			"import": "./dist/esm/fade.mjs",
 			"require": "./dist/presentations/fade.js",
 			"types": "./dist/presentations/fade.d.ts"
 		},
 		"./slide": {
-			"module": "./dist/esm/presentations/slide.mjs",
-			"import": "./dist/esm/presentations/slide.mjs",
+			"module": "./dist/esm/slide.mjs",
+			"import": "./dist/esm/slide.mjs",
 			"require": "./dist/presentations/slide.js",
 			"types": "./dist/presentations/slide.d.ts"
 		},
 		"./wipe": {
-			"module": "./dist/esm/presentations/wipe.mjs",
-			"import": "./dist/esm/presentations/wipe.mjs",
+			"module": "./dist/esm/wipe.mjs",
+			"import": "./dist/esm/wipe.mjs",
 			"require": "./dist/presentations/wipe.js",
 			"types": "./dist/presentations/wipe.d.ts"
 		},
 		"./flip": {
-			"module": "./dist/esm/presentations/flip.mjs",
-			"import": "./dist/esm/presentations/flip.mjs",
+			"module": "./dist/esm/flip.mjs",
+			"import": "./dist/esm/flip.mjs",
 			"require": "./dist/presentations/flip.js",
 			"types": "./dist/presentations/flip.d.ts"
 		},
 		"./clock-wipe": {
-			"module": "./dist/esm/presentations/clock-wipe.mjs",
-			"import": "./dist/esm/presentations/clock-wipe.mjs",
+			"module": "./dist/esm/clock-wipe.mjs",
+			"import": "./dist/esm/clock-wipe.mjs",
 			"require": "./dist/presentations/clock-wipe.js",
 			"types": "./dist/presentations/clock-wipe.d.ts"
 		},
