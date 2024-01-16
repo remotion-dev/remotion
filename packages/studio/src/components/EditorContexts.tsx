@@ -32,7 +32,9 @@ export const EditorContexts: React.FC<{
 										<PreviewSizeProvider>
 											<ModalsProvider>
 												<MediaVolumeProvider>
-													<PlayerInternals.PlayerEmitterProvider>
+													<PlayerInternals.PlayerEmitterProvider
+														currentPlaybackRate={null}
+													>
 														<SidebarContextProvider>
 															<FolderContextProvider>
 																<HighestZIndexProvider>

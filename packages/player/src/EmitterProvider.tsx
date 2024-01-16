@@ -5,7 +5,7 @@ import {PlayerEmitter} from './event-emitter.js';
 
 export const PlayerEmitterProvider: React.FC<{
 	children: React.ReactNode;
-	currentPlaybackRate: number;
+	currentPlaybackRate: number | null;
 }> = ({children, currentPlaybackRate}) => {
 	const [emitter] = useState(() => new PlayerEmitter());
 	const bufferManager = useContext(Internals.BufferingContextReact);
@@ -14,7 +14,9 @@ export const PlayerEmitterProvider: React.FC<{
 	}
 
 	useEffect(() => {
-		emitter.dispatchRateChange(currentPlaybackRate);
+		if (currentPlaybackRate) {
+			emitter.dispatchRateChange(currentPlaybackRate);
+		}
 	}, [emitter, currentPlaybackRate]);
 
 	useEffect(() => {
