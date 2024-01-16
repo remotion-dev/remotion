@@ -264,7 +264,7 @@ export const PlayPause: React.FC<{
 					if (!stopped) {
 						setShowBufferState(true);
 					}
-				}, 500);
+				}, 300);
 			});
 		};
 

@@ -175,6 +175,12 @@ const ControlsOnly: React.FC<{
 				'mutechange ' + e.detail.isMuted + ' ' + Date.now(),
 			]);
 		};
+		const waitingCallbackListener: CallbackListener<'waiting'> = () => {
+			setLogs((l) => [...l, 'waiting ' + Date.now()]);
+		};
+		const resumeCallbackListener: CallbackListener<'resume'> = () => {
+			setLogs((l) => [...l, 'resume ' + Date.now()]);
+		};
 
 		const {current} = ref;
 		if (!current) {
@@ -196,6 +202,8 @@ const ControlsOnly: React.FC<{
 			'fullscreenchange',
 			fullscreenChangeCallbackListener,
 		);
+		current.addEventListener('waiting', waitingCallbackListener);
+		current.addEventListener('resume', resumeCallbackListener);
 
 		return () => {
 			current.removeEventListener('play', playCallbackListener);
@@ -213,6 +221,8 @@ const ControlsOnly: React.FC<{
 				'fullscreenchange',
 				fullscreenChangeCallbackListener,
 			);
+			current.removeEventListener('waiting', waitingCallbackListener);
+			current.removeEventListener('resume', resumeCallbackListener);
 		};
 	}, [ref]);
 
