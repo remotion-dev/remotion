@@ -5,12 +5,17 @@ import {PlayerEmitter} from './event-emitter.js';
 
 export const PlayerEmitterProvider: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	currentPlaybackRate: number;
+}> = ({children, currentPlaybackRate}) => {
 	const [emitter] = useState(() => new PlayerEmitter());
 	const bufferManager = useContext(Internals.BufferingContextReact);
 	if (!bufferManager) {
 		throw new Error('BufferingContextReact not found');
 	}
+
+	useEffect(() => {
+		emitter.dispatchRateChange(currentPlaybackRate);
+	}, [emitter, currentPlaybackRate]);
 
 	useEffect(() => {
 		const clear1 = bufferManager.listenForBuffering(() => {

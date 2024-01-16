@@ -16,8 +16,7 @@ import type {
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
-import {PlayerEventEmitterContext} from './emitter-context.js';
-import {PlayerEmitter} from './event-emitter.js';
+import {PlayerEmitterProvider} from './EmitterProvider.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {
@@ -170,7 +169,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	}));
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
-	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
@@ -286,10 +284,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	validatePlaybackRate(currentPlaybackRate);
 
 	useEffect(() => {
-		emitter.dispatchRateChange(currentPlaybackRate);
-	}, [emitter, currentPlaybackRate]);
-
-	useEffect(() => {
 		setCurrentPlaybackRate(playbackRate);
 	}, [playbackRate]);
 
@@ -343,7 +337,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
 				>
-					<PlayerEventEmitterContext.Provider value={emitter}>
+					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
 						<PlayerUI
 							ref={rootRef}
 							posterFillMode={posterFillMode}
@@ -378,7 +372,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
 						/>
-					</PlayerEventEmitterContext.Provider>
+					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
