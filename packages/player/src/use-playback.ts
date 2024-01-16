@@ -140,6 +140,7 @@ export const usePlayback = ({
 					}
 
 					startedTime = performance.now();
+					framesAdvanced = 0;
 					callback();
 				});
 				return;

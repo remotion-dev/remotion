@@ -248,11 +248,15 @@ export const PlayPause: React.FC<{
 
 	useEffect(() => {
 		const onBuffer = () => {
-			setBuffering(true);
+			requestAnimationFrame(() => {
+				setBuffering(true);
+			});
 		};
 
 		const onResume = () => {
-			setBuffering(false);
+			requestAnimationFrame(() => {
+				setBuffering(false);
+			});
 		};
 
 		emitter.addEventListener('waiting', onBuffer);
