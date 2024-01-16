@@ -40,7 +40,6 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [, setBuffering] = useState(false);
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	const {
@@ -259,7 +258,6 @@ export const PlayPause: React.FC<{
 
 		const onBuffer = () => {
 			requestAnimationFrame(() => {
-				setBuffering(true);
 				timeout = setTimeout(() => {
 					if (!stopped) {
 						setShowBufferState(true);
@@ -270,7 +268,6 @@ export const PlayPause: React.FC<{
 
 		const onResume = () => {
 			requestAnimationFrame(() => {
-				setBuffering(false);
 				setShowBufferState(false);
 				if (timeout) {
 					clearTimeout(timeout);
@@ -285,7 +282,6 @@ export const PlayPause: React.FC<{
 			emitter.removeEventListener('waiting', onBuffer);
 			emitter.removeEventListener('resume', onResume);
 
-			setBuffering(false);
 			setShowBufferState(false);
 
 			if (timeout) {
