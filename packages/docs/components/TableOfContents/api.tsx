@@ -52,6 +52,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/media-utils</strong>
           <div>Obtain info about video and audio</div>
         </TOCItem>
+        <TOCItem link="/docs/animation-utils">
+          <strong>@remotion/animation-utils</strong>
+          <div>Utilities for animation</div>
+        </TOCItem>
         <TOCItem link="/docs/tailwind/tailwind">
           <strong>@remotion/tailwind</strong>
           <div>Utilities for using TailwindCSS in Remotion</div>

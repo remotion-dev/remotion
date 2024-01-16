@@ -1407,6 +1407,27 @@ export const articles = [
     crumb: "@remotion/layout-utils",
   },
   {
+    id: "animation-utils/index",
+    title: "@remotion/animation-utils",
+    relativePath: "docs/animation-utils/index.md",
+    compId: "articles-docs-animation-utils-index",
+    crumb: null,
+  },
+  {
+    id: "animation-utils/use-interpolate-styles",
+    title: "useInterpolateStyles()",
+    relativePath: "docs/animation-utils/use-interpolate-styles.md",
+    compId: "articles-docs-animation-utils-use-interpolate-styles",
+    crumb: "@remotion/animation-utils",
+  },
+  {
+    id: "animation-utils/make-transform",
+    title: "makeTransform()",
+    relativePath: "docs/animation-utils/make-transform.md",
+    compId: "articles-docs-animation-utils-make-transform",
+    crumb: "@remotion/animation-utils",
+  },
+  {
     id: "legacy-babel",
     title: "Using legacy Babel transpilation",
     relativePath: "docs/legacy-babel-loader.md",

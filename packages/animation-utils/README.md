@@ -1,22 +1,88 @@
-## `@remotion/animation-utils`
+# `@remotion/animation-utils`
 
-A React hook for use with [Remotion](https://remotion.dev/) that returns the current second.
+## useInterpolateStyles
+
+A React hook to interpolate styles based on the current frame.
+
+**Documentation: https://remotion.dev/animation-utils**
 
 ### Usage
 
 ```tsx
-import { useCurrentSecond } from "@remotion/animation-utils";
-import { AbsoluteFill } from "remotion";
+import {useInterpolateStyles} from '@remotion/animation-utils';
+import {useMemo} from 'react';
+import {AbsoluteFill} from 'remotion';
 
-export const Example: React.FC = () => {
-  const second = useCurrentSecond();
+export default function Example() {
+	const inputRangeInFrames = useMemo(() => [0, 100], []);
+	const outputStyles = useMemo(
+		() => [
+			{
+				backgroundColor: 'red',
+			},
+			{
+				backgroundColor: 'blue',
+			},
+		],
+		[],
+	);
+	const styles = useInterpolateStyles({
+		inputRangeInFrames,
+		outputStyles,
+	});
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+			}}
+		>
+			<h1
+				style={{
+					fontSize: 200,
+					...styles,
+				}}
+			>
+				Testing
+			</h1>
+		</AbsoluteFill>
+	);
+}
+```
 
-  return (
-    <AbsoluteFill>
-      <h1>Second: {second}</h1>
-    </AbsoluteFill>
-  );
-};
+## makeTransform
+
+A type-safe function to create string for the `transform` CSS property.
+
+### Usage
+
+```tsx
+import {makeTransform, rotate, translateX} from '@remotion/animation-utils';
+import {AbsoluteFill} from 'remotion';
+
+export default function Example() {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+			}}
+		>
+			<h1
+				style={{
+					fontSize: 200,
+					transform: makeTransform([translateX(100), rotate(90)]),
+				}}
+			>
+				Testing
+			</h1>
+		</AbsoluteFill>
+	);
+}
 ```
 
 ## License

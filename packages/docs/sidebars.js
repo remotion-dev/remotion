@@ -180,6 +180,18 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/animation-utils",
+      link: {
+        type: "doc",
+        id: "animation-utils/index",
+      },
+      items: [
+        "animation-utils/make-transform",
+        "animation-utils/use-interpolate-styles",
+      ],
+    },
+    {
+      type: "category",
       label: "@remotion/motion-blur",
       link: {
         type: "doc",

@@ -33,5 +33,9 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"keywords": [
+		"remotion",
+		"animation-utils"
+	]
 }
