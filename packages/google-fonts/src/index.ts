@@ -29,7 +29,6 @@ type FontInfo = {
     fontFamily: string;
     fonts: Record<string, Record<string, Record<string, string>>>;
     unicodeRanges: Record<string, string>;
-    waitUntilDone: () => Promise<undefined>;
   };
 };
 
