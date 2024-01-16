@@ -1,12 +1,5 @@
 import type {SyntheticEvent} from 'react';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
@@ -36,7 +29,6 @@ export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const buffering = useRef(false);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const playStart = useRef(frame);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
@@ -66,7 +58,7 @@ export const usePlayer = (): UsePlayerMethods => {
 		);
 	}
 
-	const {listenForResume, listenForBuffering} = bufferingContext;
+	const {buffering} = bufferingContext;
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -190,22 +182,6 @@ export const usePlayer = (): UsePlayerMethods => {
 		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
 
-	useEffect(() => {
-		const clear1 = listenForBuffering(() => {
-			buffering.current = true;
-			emitter.dispatchWaiting({});
-		});
-		const clear2 = listenForResume(() => {
-			buffering.current = false;
-			emitter.dispatchResume({});
-		});
-
-		return () => {
-			clear1.remove();
-			clear2.remove();
-		};
-	}, [emitter, listenForBuffering, listenForResume]);
-
 	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {
 			frameBack,
@@ -235,8 +211,9 @@ export const usePlayer = (): UsePlayerMethods => {
 		seek,
 		isFirstFrame,
 		pauseAndReturnToPlayStart,
-		imperativePlaying,
 		hasPlayed,
+		imperativePlaying,
+		buffering,
 	]);
 
 	return returnValue;

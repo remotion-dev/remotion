@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import type {MutableRefObject} from 'react';
+import React, {createRef, useState} from 'react';
 
 type Block = {
 	id: string;
@@ -24,12 +25,15 @@ type BufferManager = {
 	addBlock: AddBlock;
 	listenForBuffering: ListenForBuffering;
 	listenForResume: ListenForResume;
+	buffering: React.MutableRefObject<boolean>;
 };
 
 const createBufferManager = (): BufferManager => {
 	let blocks: Block[] = [];
 	let onBufferingCallback: OnBufferingCallback[] = [];
 	let onResumeCallback: OnBufferingCallback[] = [];
+	const buffering = createRef() as MutableRefObject<boolean>;
+	buffering.current = false;
 
 	const addBlock: AddBlock = (block: Block) => {
 		blocks.push(block);
@@ -69,6 +73,7 @@ const createBufferManager = (): BufferManager => {
 		addBlock,
 		listenForBuffering,
 		listenForResume,
+		buffering,
 	};
 };
 
