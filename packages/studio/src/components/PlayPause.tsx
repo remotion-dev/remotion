@@ -28,13 +28,20 @@ const forwardBackStyle = {
 	color: 'white',
 };
 
+const iconButton: React.CSSProperties = {
+	height: 14,
+	width: 14,
+	color: 'white',
+};
+
 export const PlayPause: React.FC<{
 	playbackRate: number;
 	loop: boolean;
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [buffering, setBuffering] = useState(false);
+	const [, setBuffering] = useState(false);
+	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	const {
 		playing,
@@ -247,15 +254,27 @@ export const PlayPause: React.FC<{
 	]);
 
 	useEffect(() => {
+		let timeout: NodeJS.Timeout | null = null;
+		let stopped = false;
+
 		const onBuffer = () => {
 			requestAnimationFrame(() => {
 				setBuffering(true);
+				timeout = setTimeout(() => {
+					if (!stopped) {
+						setShowBufferState(true);
+					}
+				}, 500);
 			});
 		};
 
 		const onResume = () => {
 			requestAnimationFrame(() => {
 				setBuffering(false);
+				setShowBufferState(false);
+				if (timeout) {
+					clearTimeout(timeout);
+				}
 			});
 		};
 
@@ -265,6 +284,15 @@ export const PlayPause: React.FC<{
 		return () => {
 			emitter.removeEventListener('waiting', onBuffer);
 			emitter.removeEventListener('resume', onResume);
+
+			setBuffering(false);
+			setShowBufferState(false);
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			stopped = true;
 		};
 	}, [emitter]);
 
@@ -294,25 +322,13 @@ export const PlayPause: React.FC<{
 				disabled={!videoConfig}
 			>
 				{playing ? (
-					buffering ? (
+					showBufferIndicator ? (
 						<BufferingIndicator />
 					) : (
-						<Pause
-							style={{
-								height: 14,
-								width: 14,
-								color: 'white',
-							}}
-						/>
+						<Pause style={iconButton} />
 					)
 				) : (
-					<Play
-						style={{
-							height: 14,
-							width: 14,
-							color: 'white',
-						}}
-					/>
+					<Play style={iconButton} />
 				)}
 			</ControlButton>
 
