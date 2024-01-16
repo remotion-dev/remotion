@@ -99,6 +99,7 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -147,6 +148,7 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
+	repro?: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -497,6 +499,7 @@ export const renderVideoFlow = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		repro,
 	});
 
 	updateRenderProgress({newline: true, printToConsole: true});

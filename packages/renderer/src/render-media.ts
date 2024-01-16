@@ -67,7 +67,7 @@ import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
-import {reproRenderSucceed} from "./repro"
+import {enableRepro, reproRenderSucceed} from "./repro"
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -130,6 +130,7 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
+	repro?: boolean;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -187,6 +188,7 @@ export type RenderMediaOptions = Prettify<{
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
 	colorSpace?: ColorSpace;
+	repro?: boolean;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -243,7 +245,12 @@ const internalRenderMediaRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	if (repro) {
+		enableRepro(serveUrl);
+	}
+
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({
 		crf,
@@ -807,6 +814,7 @@ export const renderMedia = ({
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -871,5 +879,6 @@ export const renderMedia = ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
+		repro,
 	});
 };

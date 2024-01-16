@@ -1,3 +1,7 @@
-import {RenderInternals} from '@remotion/renderer';
+let enableRepro = false;
 
-export const {setRepro, getRepro} = RenderInternals;
+export const setRepro = (should: boolean) => {
+	enableRepro = should;
+};
+
+export const getRepro = () => enableRepro;

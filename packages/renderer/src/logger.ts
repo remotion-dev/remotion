@@ -2,7 +2,7 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
-import {getRepro, getReproWrite} from './repro'
+import {writeInRepro} from './repro';
 import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
@@ -23,13 +23,6 @@ export const verboseTag = (str: string) => {
 export const secondverboseTag = (str: string) => {
 	return isColorSupported() ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
-
-const writeInRepro = (level: string, ...args: Parameters<typeof console.log>) => {
-	if (getRepro()) {
-		const repro = getReproWrite();
-		repro.write(level, ...args);
-	}
-}
 
 export const Log = {
 	verbose: (

@@ -462,6 +462,11 @@ declare global {
 		 * Whether the Remotion Studio should play a beep sound when a render has finished.
 		 */
 		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
+
+		/**
+		 * Generate a report during rendering.
+		 */
+		readonly setRepro: (enableRepro: boolean) => void;
 	}
 }
 
@@ -602,6 +607,7 @@ export const Config: FlatConfig = {
 	setColorSpace,
 	setBeepOnFinish,
 	setEnableFolderExpiry,
+	setRepro,
 };
 
 export const ConfigInternals = {
@@ -635,6 +641,7 @@ export const ConfigInternals = {
 	getWebpackCaching,
 	getOutputLocation,
 	getBeepOnFinish,
+	getRepro,
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
@@ -664,6 +671,4 @@ export const ConfigInternals = {
 	getColorSpace,
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
-	setRepro,
-	getRepro,
 };

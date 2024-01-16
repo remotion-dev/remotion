@@ -128,7 +128,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 
 export const parseCommandLine = () => {
 	if (parsedCli.repro) {
-		ConfigInternals.setRepro(true);
+		Config.setRepro(true);
 	}
 
 	if (parsedCli['pixel-format']) {

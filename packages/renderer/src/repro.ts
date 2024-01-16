@@ -1,19 +1,20 @@
+import {execSync} from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {findRemotionRoot} from './find-closest-package-json';
+import {isServeUrl} from './is-serve-url';
 
 /**
- * TODO:
- * 1. x - Log methods replace console methods
- * 2. x - Write the process.argv、node version、os version、remotion version、os platform
- * 3. Save the bundle(serveURL is url or directory path)
- * 		- repro folder name: repro-<bundleName>-<startTime>
- * 		- directory path: CWD or project root
- * 4. if successful copy render output to repro folder
- * 5. zip the repro folder
- * 6. renderMedia method add repro parameter
- * 7. change repro state in cli
+ * TODO: update docs
  */
+
+const REPRO_DIR = '.remotionrepro';
+const LOG_FILE_NAME = 'repro.log';
+const INPUT_DIR = 'input';
+const OUTPUT_DIR = 'output';
+
+const getZipFileName = () => `remotion-render-repro-${Date.now()}.zip`;
 
 const readyDirSync = (dir: string) => {
 	let items;
@@ -29,10 +30,27 @@ const readyDirSync = (dir: string) => {
 	});
 };
 
+const zipFolder = (sourceFolder: string, targetZip: string) => {
+	const platform = os.platform();
+	try {
+		if (platform === 'win32') {
+			execSync(
+				`powershell.exe Compress-Archive -Path "${sourceFolder}" -DestinationPath "${targetZip}"`,
+				{stdio: 'inherit'},
+			);
+		} else {
+			execSync(`zip -r "${targetZip}" "${sourceFolder}"`, {stdio: 'inherit'});
+		}
+	} catch (error) {
+		getReproWrite().write('error', ['Failed to repro zip folder:', error]);
+	}
+};
+
 const reproWriter = () => {
 	const root = findRemotionRoot();
-	const reproFolder = path.join(root, '.repro');
-	const logPath = path.join(reproFolder, 'repro.log');
+	const reproFolder = path.join(root, REPRO_DIR);
+	const logPath = path.join(reproFolder, LOG_FILE_NAME);
+	const zipFile = path.join(root, getZipFileName());
 
 	readyDirSync(reproFolder);
 
@@ -41,21 +59,25 @@ const reproWriter = () => {
 	const serializeArgs = (args: Parameters<typeof console.log>[]) =>
 		JSON.stringify(args);
 
-	process.on('exit',(code) => {
-		// TODO: zip the repro folder
-		reproLogWriteStream.write(`process exit code: ${code}`);
-		reproLogWriteStream.end();
-		reproLogWriteStream.close();
-	})
-
 	return {
-		start() {
+		start(serveUrl: string) {
+			const isServe = isServeUrl(serveUrl);
+
+			if (!isServe) {
+				const inputDir = path.resolve(reproFolder, INPUT_DIR);
+				readyDirSync(inputDir);
+
+				fs.cpSync(serveUrl, inputDir, {recursive: true});
+			}
+
 			const versions = [
-				`[${new Date().toISOString()}] render start`,
-				`	args: ${JSON.stringify(process.argv)}`,
-				`	node version: ${process.version}`,
-				`	os: ${process.platform} ${process.arch}`,
-			]
+				`[${new Date().toISOString()}]`,
+				`	render start`,
+				`	- args: ${JSON.stringify(process.argv.slice(2))}`,
+				`	- node version: ${process.version}`,
+				`	- os: ${process.platform}-${process.arch}`,
+				`	- serveUrl: ${serveUrl}`,
+			];
 			reproLogWriteStream.write(versions.join('\n') + '\n');
 		},
 		write(level: string, ...args: Parameters<typeof console.log>[]) {
@@ -65,24 +87,31 @@ const reproWriter = () => {
 
 			reproLogWriteStream.write(line + '\n');
 		},
-
 		renderSucceed(output: string | null) {
 			if (output) {
-				const outdir = path.resolve(reproFolder, 'out');
-				readyDirSync(outdir);
+				const outputDir = path.resolve(reproFolder, OUTPUT_DIR);
+				readyDirSync(outputDir);
 
 				const fileName = path.basename(output);
-				const targetPath = path.join(outdir, fileName);
+				const targetPath = path.join(outputDir, fileName);
 
 				fs.copyFileSync(output, targetPath);
 			}
 
 			const versions = [
-				`[${new Date().toISOString()}] render end`,
-				`	output: ${JSON.stringify(output || '')}`,
-			]
+				`[${new Date().toISOString()}]`,
+				' render success',
+				`	- output: ${JSON.stringify(output || '')}`,
+			];
+
 			reproLogWriteStream.write(versions.join('\n') + '\n');
-		}
+
+			disableRepro();
+
+			reproLogWriteStream.close(() => {
+				zipFolder(reproFolder, zipFile);
+			});
+		},
 	};
 };
 
@@ -92,22 +121,37 @@ const memoizeReproWriter = () => {
 		if (!instance) {
 			instance = reproWriter();
 		}
+
 		return instance;
-	}
-}
+	};
+};
 
 export const getReproWrite = memoizeReproWriter();
 
-let shouldOutputRepro = false;
-
-export const setRepro = (should: boolean) => {
-	shouldOutputRepro = should;
-
-	should && getReproWrite().start();
+export const writeInRepro = (
+	level: string,
+	...args: Parameters<typeof console.log>
+) => {
+	if (isEnableRepro()) {
+		getReproWrite().write(level, ...args);
+	}
 };
 
-export const getRepro = () => shouldOutputRepro;
-
 export const reproRenderSucceed = (output: string | null) => {
-	getRepro() && getReproWrite().renderSucceed(output);
-}
+	if (isEnableRepro()) {
+		getReproWrite().renderSucceed(output);
+	}
+};
+
+let shouldRepro = false;
+
+export const enableRepro = (serveUrl: string) => {
+	shouldRepro = true;
+	getReproWrite().start(serveUrl);
+};
+
+export const disableRepro = () => {
+	shouldRepro = false;
+};
+
+export const isEnableRepro = () => shouldRepro;
