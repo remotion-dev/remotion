@@ -1,5 +1,12 @@
 import type {SyntheticEvent} from 'react';
-import {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
@@ -51,6 +58,15 @@ export const usePlayer = (): UsePlayerMethods => {
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
 	}
+
+	const bufferingContext = useContext(Internals.BufferingContextReact);
+	if (!bufferingContext) {
+		throw new Error(
+			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
+		);
+	}
+
+	const {listenForResume, listenForBuffering} = bufferingContext;
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -173,6 +189,22 @@ export const usePlayer = (): UsePlayerMethods => {
 		},
 		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
+
+	useEffect(() => {
+		const clear1 = listenForBuffering(() => {
+			buffering.current = true;
+			emitter.dispatchWaiting({});
+		});
+		const clear2 = listenForResume(() => {
+			buffering.current = false;
+			emitter.dispatchResume({});
+		});
+
+		return () => {
+			clear1.remove();
+			clear2.remove();
+		};
+	}, [emitter, listenForBuffering, listenForResume]);
 
 	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {

@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -9,6 +9,7 @@ import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
+import {BufferingIndicator} from './BufferingIndicator';
 import {ControlButton} from './ControlButton';
 import {
 	getCurrentDuration,
@@ -33,6 +34,7 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const [buffering, setBuffering] = useState(false);
 
 	const {
 		playing,
@@ -45,6 +47,7 @@ export const PlayPause: React.FC<{
 		isLastFrame,
 		isFirstFrame,
 		remotionInternal_currentFrameRef,
+		emitter,
 	} = PlayerInternals.usePlayer();
 
 	PlayerInternals.usePlayback({
@@ -243,6 +246,24 @@ export const PlayPause: React.FC<{
 		onSpace,
 	]);
 
+	useEffect(() => {
+		const onBuffer = () => {
+			setBuffering(true);
+		};
+
+		const onResume = () => {
+			setBuffering(false);
+		};
+
+		emitter.addEventListener('waiting', onBuffer);
+		emitter.addEventListener('resume', onResume);
+
+		return () => {
+			emitter.removeEventListener('waiting', onBuffer);
+			emitter.removeEventListener('resume', onResume);
+		};
+	}, [emitter]);
+
 	return (
 		<>
 			<ControlButton
@@ -269,13 +290,17 @@ export const PlayPause: React.FC<{
 				disabled={!videoConfig}
 			>
 				{playing ? (
-					<Pause
-						style={{
-							height: 14,
-							width: 14,
-							color: 'white',
-						}}
-					/>
+					buffering ? (
+						<BufferingIndicator />
+					) : (
+						<Pause
+							style={{
+								height: 14,
+								width: 14,
+								color: 'white',
+							}}
+						/>
+					)
 				) : (
 					<Play
 						style={{
