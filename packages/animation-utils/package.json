@@ -1,32 +1,37 @@
 {
-  "name": "@remotion/animation-utils",
-  "author": {
-    "name": "Chetan Karwa",
-    "email": "cbkarwa@gmail.com"
-  },
-  "version": "4.0.85",
-  "description": "A set of animation utilities for Remotion",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "formatting": "prettier src --check",
-    "lint": "eslint src --ext ts,tsx",
-    "watch": "tsc -w",
-    "build": "tsc -d"
-  },
-  "dependencies": {
-    "remotion": "workspace:*"
-  },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
-  },
-  "devDependencies": {
-    "@types/react": "18.0.26"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"name": "@remotion/animation-utils",
+	"author": {
+		"name": "Chetan Karwa",
+		"email": "cbkarwa@gmail.com"
+	},
+	"version": "4.0.85",
+	"description": "A set of animation utilities for Remotion",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+		"formatting": "prettier src --check",
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "tsc -d"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@types/react": "18.0.26",
+		"@types/node": "18.14.6",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "3.2.4",
+		"eslint": "8.42.0",
+		"@jonny/eslint-config": "3.0.276"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }
