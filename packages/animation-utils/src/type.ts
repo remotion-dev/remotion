@@ -1,3 +1,4 @@
+import type {breakDownValueIntoUnitNumberAndFunctions} from './transformation-helpers/interpolate-styles/utils';
 import type {
 	matrix,
 	matrix3d,
@@ -21,7 +22,6 @@ import type {
 	translateY,
 	translateZ,
 } from './transformation-helpers/make-transform';
-import type {breakDownValueIntoUnitNumberAndFunctions} from './transformation-helpers/use-interpolate-styles/utils';
 
 type TransformFunction = () => string;
 type LengthUnit =
@@ -99,18 +99,6 @@ type Style = React.CSSProperties;
 type CSSPropertiesKey = keyof Style;
 type CSSPropertiesValue = Style[CSSPropertiesKey];
 
-type InterpolateStylesParams =
-	| {
-			inputRangeInFrames: number[];
-			inputRangeInSeconds?: number[];
-			outputStyles: Style[];
-	  }
-	| {
-			inputRangeInFrames?: number[];
-			inputRangeInSeconds: number[];
-			outputStyles: Style[];
-	  };
-
 type UnitNumberAndFunctions = ReturnType<
 	typeof breakDownValueIntoUnitNumberAndFunctions
 >;
@@ -127,6 +115,5 @@ export type {
 	Style,
 	CSSPropertiesKey,
 	CSSPropertiesValue,
-	InterpolateStylesParams,
 	UnitNumberAndFunction,
 };

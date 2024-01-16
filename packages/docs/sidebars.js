@@ -187,7 +187,7 @@ module.exports = {
       },
       items: [
         "animation-utils/make-transform",
-        "animation-utils/use-interpolate-styles",
+        "animation-utils/interpolate-styles",
       ],
     },
     {

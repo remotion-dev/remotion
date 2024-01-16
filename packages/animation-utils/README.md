@@ -1,20 +1,21 @@
 # `@remotion/animation-utils`
 
-## useInterpolateStyles
+## interpolateStyles
 
-A React hook to interpolate styles based on the current frame.
+_Available from v2.0.3_
+
+Allows you to map a range of values to styles.
 
 **Documentation: https://remotion.dev/animation-utils**
 
 ### Usage
 
-```tsx
-import {useInterpolateStyles} from '@remotion/animation-utils';
+```tsx twoslash
+import {interpolateStyles} from '@remotion/animation-utils';
 import {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
 
 export default function Example() {
-	const inputRangeInFrames = useMemo(() => [0, 100], []);
 	const outputStyles = useMemo(
 		() => [
 			{
@@ -26,10 +27,8 @@ export default function Example() {
 		],
 		[],
 	);
-	const styles = useInterpolateStyles({
-		inputRangeInFrames,
-		outputStyles,
-	});
+	const frame = useCurrentFrame();
+	const styles = interpolateStyles(frame, [0, 100], outputStyles);
 	return (
 		<AbsoluteFill
 			style={{
@@ -58,7 +57,7 @@ A type-safe function to create string for the `transform` CSS property.
 
 ### Usage
 
-```tsx
+```tsx twoslash
 import {makeTransform, rotate, translateX} from '@remotion/animation-utils';
 import {AbsoluteFill} from 'remotion';
 

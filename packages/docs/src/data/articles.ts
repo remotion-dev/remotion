@@ -1414,10 +1414,10 @@ export const articles = [
     crumb: null,
   },
   {
-    id: "animation-utils/use-interpolate-styles",
-    title: "useInterpolateStyles()",
-    relativePath: "docs/animation-utils/use-interpolate-styles.md",
-    compId: "articles-docs-animation-utils-use-interpolate-styles",
+    id: "animation-utils/interpolate-styles",
+    title: "interpolateStyles()",
+    relativePath: "docs/animation-utils/interpolate-styles.md",
+    compId: "articles-docs-animation-utils-interpolate-styles",
     crumb: "@remotion/animation-utils",
   },
   {

@@ -20,6 +20,17 @@ Generates a combined CSS transform property string by applying an array of trans
 - **transforms**: _Required_.
   An array of transformation functions obtained from the provided utility functions.
 
+## Usage
+
+```ts twoslash
+import { makeTransform, rotate, translate } from "@remotion/animation-utils";
+
+const transforms = [rotate(45), translate(50, 50)];
+
+const combinedTransform = makeTransform(transforms);
+// Result: "rotate(45deg) translate(50px, 50px)"
+```
+
 ## Transformation Functions
 
 | Function                                             | Description                                                  |
@@ -45,17 +56,6 @@ Generates a combined CSS transform property string by applying an array of trans
 | **translateX(x, unit = 'px')**                       | Translates an element along the horizontal axis in 2D space. |
 | **translateY(y, unit = 'px')**                       | Translates an element along the vertical axis in 2D space.   |
 | **translateZ(z, unit = 'px')**                       | Translates an element along the z-axis in 3D space.          |
-
-## Usage
-
-```typescript
-import { makeTransform, rotate, translate } from "@remotion/animation-utils";
-
-const transforms = [rotate(45), translate(50, 50)];
-
-const combinedTransform = makeTransform(transforms);
-// Result: "rotate(45deg) translate(50px, 50px)"
-```
 
 ## See also
 

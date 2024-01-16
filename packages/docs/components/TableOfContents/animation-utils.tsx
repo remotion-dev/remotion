@@ -12,11 +12,9 @@ export const TableOfContents: React.FC = () => {
             Type-safe function to create string for the transform CSS property
           </div>
         </TOCItem>
-        <TOCItem link="/docs/animation-utils/use-interpolate-styles">
-          <strong>useInterpolateStyles()</strong>
-          <div>
-            React hook to interpolate styles based on the current frame.
-          </div>
+        <TOCItem link="/docs/animation-utils/interpolate-styles">
+          <strong>interpolateStyles()</strong>
+          <div>Map a range of values to Styles</div>
         </TOCItem>
       </Grid>
     </div>
