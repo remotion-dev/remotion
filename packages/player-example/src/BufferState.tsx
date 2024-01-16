@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {AbsoluteFill, Series, useBuffer} from 'remotion';
 
 const Inside: React.FC = () => {
 	const buffer = useBuffer();
-	const [block] = useState(() => buffer.delayPlayback());
 
 	useEffect(() => {
+		const block = buffer.delayPlayback();
 		setTimeout(() => {
 			block.unblock();
 		}, 5000);
@@ -13,7 +13,7 @@ const Inside: React.FC = () => {
 		return () => {
 			block.unblock();
 		};
-	}, [block]);
+	}, [buffer]);
 
 	return (
 		<AbsoluteFill

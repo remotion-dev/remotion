@@ -1,5 +1,4 @@
-import type {MutableRefObject} from 'react';
-import React, {createRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 type Block = {
 	id: string;
@@ -21,60 +20,69 @@ type AddBlock = (block: Block) => {
 };
 
 type BufferManager = {
-	blocks: Block[];
 	addBlock: AddBlock;
 	listenForBuffering: ListenForBuffering;
 	listenForResume: ListenForResume;
 	buffering: React.MutableRefObject<boolean>;
 };
 
-const createBufferManager = (): BufferManager => {
-	let blocks: Block[] = [];
-	let onBufferingCallback: OnBufferingCallback[] = [];
-	let onResumeCallback: OnBufferingCallback[] = [];
-	const buffering = createRef() as MutableRefObject<boolean>;
-	buffering.current = false;
+const useBufferManager = (): BufferManager => {
+	const [blocks, setBlocks] = useState<Block[]>([]);
+	const [onBufferingCallbacks, setOnBufferingCallbacks] = useState<
+		OnBufferingCallback[]
+	>([]);
+	const [onResumeCallbacks, setOnResumeCallbacks] = useState<
+		OnBufferingCallback[]
+	>([]);
 
-	const addBlock: AddBlock = (block: Block) => {
-		blocks.push(block);
-		onBufferingCallback.forEach((callback) => callback());
+	const buffering = useRef(false);
+
+	const addBlock: AddBlock = useCallback((block: Block) => {
+		setBlocks((b) => [...b, block]);
 		return {
 			unblock: () => {
-				blocks = blocks.filter((b) => b !== block);
-				if (blocks.length === 0) {
-					onResumeCallback.forEach((callback) => callback());
-				}
+				setBlocks((b) => b.filter((bx) => bx !== block));
 			},
 		};
-	};
+	}, []);
 
-	const listenForBuffering: ListenForBuffering = (
-		callback: OnBufferingCallback,
-	) => {
-		onBufferingCallback.push(callback);
-		return {
-			remove: () => {
-				onBufferingCallback = onBufferingCallback.filter((c) => c !== callback);
-			},
-		};
-	};
+	const listenForBuffering: ListenForBuffering = useCallback(
+		(callback: OnBufferingCallback) => {
+			setOnBufferingCallbacks((c) => [...c, callback]);
 
-	const listenForResume: ListenForResume = (callback: OnResumeCallback) => {
-		onResumeCallback.push(callback);
-		return {
-			remove: () => {
-				onResumeCallback = onResumeCallback.filter((c) => c !== callback);
-			},
-		};
-	};
+			return {
+				remove: () => {
+					setOnBufferingCallbacks((c) => c.filter((cb) => cb !== callback));
+				},
+			};
+		},
+		[],
+	);
 
-	return {
-		blocks,
-		addBlock,
-		listenForBuffering,
-		listenForResume,
-		buffering,
-	};
+	const listenForResume: ListenForResume = useCallback(
+		(callback: OnResumeCallback) => {
+			setOnResumeCallbacks((c) => [...c, callback]);
+
+			return {
+				remove: () => {
+					setOnResumeCallbacks((c) => c.filter((cb) => cb !== callback));
+				},
+			};
+		},
+		[],
+	);
+
+	useEffect(() => {
+		if (blocks.length > 0) {
+			onBufferingCallbacks.forEach((c) => c());
+		} else {
+			onResumeCallbacks.forEach((c) => c());
+		}
+	}, [blocks, onBufferingCallbacks, onResumeCallbacks]);
+
+	return useMemo(() => {
+		return {addBlock, listenForBuffering, listenForResume, buffering};
+	}, [addBlock, buffering, listenForBuffering, listenForResume]);
 };
 
 export const BufferingContextReact = React.createContext<BufferManager | null>(
@@ -84,9 +92,7 @@ export const BufferingContextReact = React.createContext<BufferManager | null>(
 export const BufferingProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [bufferManager] = useState(() => {
-		return createBufferManager();
-	});
+	const bufferManager = useBufferManager();
 
 	return (
 		<BufferingContextReact.Provider value={bufferManager}>

@@ -1,4 +1,4 @@
-import {useContext} from 'react';
+import {useContext, useMemo} from 'react';
 import {BufferingContextReact} from './buffering';
 
 export const useBuffer = () => {
@@ -10,13 +10,16 @@ export const useBuffer = () => {
 		);
 	}
 
-	return {
-		delayPlayback: () => {
-			const {unblock} = buffer.addBlock({
-				id: String(Math.random()),
-			});
+	return useMemo(
+		() => ({
+			delayPlayback: () => {
+				const {unblock} = buffer.addBlock({
+					id: String(Math.random()),
+				});
 
-			return {unblock};
-		},
-	};
+				return {unblock};
+			},
+		}),
+		[buffer],
+	);
 };
