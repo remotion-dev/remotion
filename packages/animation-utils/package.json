@@ -14,7 +14,8 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d && rollup --config rollup.config.js"
+		"build": "tsc -d && rollup --config rollup.config.js",
+		"test": "vitest --run"
 	},
 	"dependencies": {
 		"remotion": "workspace:*"

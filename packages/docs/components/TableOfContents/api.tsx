@@ -100,6 +100,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/layout-utils</strong>
           <div>Layout helpers</div>
         </TOCItem>
+        <TOCItem link="/docs/animation-utils">
+          <strong>@remotion/animation-utils</strong>
+          <div>Keyframing utilities</div>
+        </TOCItem>
       </Grid>
     </div>
   );
