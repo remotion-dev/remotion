@@ -7,14 +7,21 @@ import type {
 } from '../../type';
 import {breakDownValueIntoUnitNumberAndFunctions} from './utils';
 
-const interpolatedPropertyPart = (
-	inputValue: number,
-	inputRange: number[],
-	initialStylePropertyPart: UnitNumberAndFunction,
-	finalStylePropertyPart: UnitNumberAndFunction,
-	initialStyleProperty: CSSPropertiesValue,
-	finalStyleProperty: CSSPropertiesValue,
-): string => {
+const interpolatedPropertyPart = ({
+	inputValue,
+	inputRange,
+	initialStylePropertyPart,
+	finalStylePropertyPart,
+	initialStyleProperty,
+	finalStyleProperty,
+}: {
+	inputValue: number;
+	inputRange: number[];
+	initialStylePropertyPart: UnitNumberAndFunction;
+	finalStylePropertyPart: UnitNumberAndFunction;
+	initialStyleProperty: CSSPropertiesValue;
+	finalStyleProperty: CSSPropertiesValue;
+}): string => {
 	if (finalStylePropertyPart === undefined) {
 		throw new TypeError(
 			`The start and end values must be of the same type. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
@@ -52,14 +59,14 @@ const interpolatedPropertyPart = (
 			initialStylePropertyPart.function.values.reduce(
 				(acc: string, startValuePartFunctionArg, index) => {
 					const endValuePartFunctionArg = endValuePartFunctionArgs[index];
-					const interpolatedArg = interpolatedPropertyPart(
+					const interpolatedArg = interpolatedPropertyPart({
 						inputValue,
 						inputRange,
-						startValuePartFunctionArg,
-						endValuePartFunctionArg,
+						initialStylePropertyPart: startValuePartFunctionArg,
+						finalStylePropertyPart: endValuePartFunctionArg,
 						initialStyleProperty,
 						finalStyleProperty,
-					);
+					});
 					return `${acc}, ${interpolatedArg}`;
 				},
 				'',
@@ -113,14 +120,14 @@ const interpolateProperty = (
 
 	const interpolatedValue = initialStylePropertyParts.reduce(
 		(acc, initialStylePropertyPart, index) => {
-			return `${acc} ${interpolatedPropertyPart(
+			return `${acc} ${interpolatedPropertyPart({
 				inputValue,
 				inputRange,
 				initialStylePropertyPart,
-				finalStylePropertyParts[index],
+				finalStylePropertyPart: finalStylePropertyParts[index],
 				initialStyleProperty,
 				finalStyleProperty,
-			)}`;
+			})}`;
 		},
 		'',
 	);
