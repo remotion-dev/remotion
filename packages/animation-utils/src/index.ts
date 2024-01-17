@@ -4,6 +4,5 @@ export type {
 	AngleUnit,
 	LengthPercentageUnit,
 	LengthUnit,
-	TransformFunction,
 	TransformFunctionReturnType,
 } from './type';

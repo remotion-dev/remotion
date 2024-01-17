@@ -23,7 +23,6 @@ import type {
 	translateZ,
 } from './transformation-helpers/make-transform';
 
-type TransformFunction = () => string;
 type LengthUnit =
 	| 'cap'
 	| 'ch'
@@ -52,6 +51,8 @@ type LengthUnit =
 	| 'in'
 	| 'pc'
 	| 'pt';
+
+export type LengthUnitString = `${number}${LengthUnit}`;
 
 type LengthPercentageUnit = LengthUnit | '%';
 
@@ -106,7 +107,6 @@ type UnitNumberAndFunctions = ReturnType<
 type UnitNumberAndFunction = UnitNumberAndFunctions[0];
 
 export type {
-	TransformFunction,
 	LengthUnit,
 	LengthPercentageUnit,
 	AngleUnit,

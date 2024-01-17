@@ -1,11 +1,6 @@
 /* eslint-disable max-params */
 
-import type {
-	AngleUnit,
-	LengthPercentageUnit,
-	LengthUnit,
-	TransformFunction,
-} from '../../type';
+import type {AngleUnit, LengthPercentageUnit, LengthUnit} from '../../type';
 
 /* Matrix transformation */
 
@@ -48,14 +43,14 @@ function matrix(
 	d: number,
 	tx: number,
 	ty: number,
-): TransformFunction {
+): string {
 	checkNumber({num: a, param: 'a', api: 'matrix'});
 	checkNumber({num: b, param: 'b', api: 'matrix'});
 	checkNumber({num: c, param: 'c', api: 'matrix'});
 	checkNumber({num: d, param: 'd', api: 'matrix'});
 	checkNumber({num: tx, param: 'tx', api: 'matrix'});
 	checkNumber({num: ty, param: 'ty', api: 'matrix'});
-	return () => `matrix(${a}, ${b}, ${c}, ${d}, ${tx}, ${ty})`;
+	return `matrix(${a}, ${b}, ${c}, ${d}, ${tx}, ${ty})`;
 }
 
 function matrix3d(
@@ -75,7 +70,7 @@ function matrix3d(
 	b4: number,
 	c4: number,
 	d4: number,
-): TransformFunction {
+): string {
 	checkNumber({num: a1, param: 'a1', api: 'matrix3d'});
 	checkNumber({num: b1, param: 'b1', api: 'matrix3d'});
 	checkNumber({num: c1, param: 'c1', api: 'matrix3d'});
@@ -93,26 +88,22 @@ function matrix3d(
 	checkNumber({num: c4, param: 'c4', api: 'matrix3d'});
 	checkNumber({num: d4, param: 'd4', api: 'matrix3d'});
 
-	return () =>
-		`matrix3d(${a1}, ${b1}, ${c1}, ${d1}, ${a2}, ${b2}, ${c2}, ${d2}, ${a3}, ${b3}, ${c3}, ${d3}, ${a4}, ${b4}, ${c4}, ${d4})`;
+	return `matrix3d(${a1}, ${b1}, ${c1}, ${d1}, ${a2}, ${b2}, ${c2}, ${d2}, ${a3}, ${b3}, ${c3}, ${d3}, ${a4}, ${b4}, ${c4}, ${d4})`;
 }
 
 /* Perspective */
 
-function perspective(
-	length: number,
-	unit: LengthUnit = 'px',
-): TransformFunction {
+function perspective(length: number, unit: LengthUnit = 'px'): string {
 	checkNumber({num: length, param: 'length', api: 'perspective'});
 
-	return () => `perspective(${length}${unit})`;
+	return `perspective(${length}${unit})`;
 }
 
 /* Rotation */
 
-function rotate(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function rotate(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'rotate'});
-	return () => `rotate(${angle}${unit})`;
+	return `rotate(${angle}${unit})`;
 }
 
 function rotate3d(
@@ -121,88 +112,84 @@ function rotate3d(
 	z: number,
 	angle: number,
 	unit: AngleUnit = 'deg',
-): TransformFunction {
+): string {
 	checkNumber({num: x, param: 'x', api: 'rotate3d'});
 	checkNumber({num: y, param: 'y', api: 'rotate3d'});
 	checkNumber({num: z, param: 'z', api: 'rotate3d'});
 	checkNumber({num: angle, param: 'angle', api: 'rotate3d'});
 
-	return () => `rotate3d(${x}, ${y}, ${z}, ${angle}${unit})`;
+	return `rotate3d(${x}, ${y}, ${z}, ${angle}${unit})`;
 }
 
-function rotateX(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function rotateX(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'rotateX'});
 
-	return () => `rotateX(${angle}${unit})`;
+	return `rotateX(${angle}${unit})`;
 }
 
-function rotateY(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function rotateY(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'rotateY'});
 
-	return () => `rotateY(${angle}${unit})`;
+	return `rotateY(${angle}${unit})`;
 }
 
-function rotateZ(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function rotateZ(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'rotateZ'});
 
-	return () => `rotateZ(${angle}${unit})`;
+	return `rotateZ(${angle}${unit})`;
 }
 
 /* Scale */
 
-function scale(x: number, y: number = x): TransformFunction {
+function scale(x: number, y: number = x): string {
 	checkNumber({num: x, param: 'x', api: 'scale'});
-	return () => `scale(${x}, ${y})`;
+	return `scale(${x}, ${y})`;
 }
 
-function scale3d(x: number, y: number, z: number): TransformFunction {
+function scale3d(x: number, y: number, z: number): string {
 	checkNumber({num: x, param: 'x', api: 'scale3d'});
 	checkNumber({num: y, param: 'y', api: 'scale3d'});
 	checkNumber({num: z, param: 'z', api: 'scale3d'});
 
-	return () => `scale3d(${x}, ${y}, ${z})`;
+	return `scale3d(${x}, ${y}, ${z})`;
 }
 
-function scaleX(x: number): TransformFunction {
+function scaleX(x: number): string {
 	checkNumber({num: x, param: 'x', api: 'scaleX'});
 
-	return () => `scaleX(${x})`;
+	return `scaleX(${x})`;
 }
 
-function scaleY(y: number): TransformFunction {
+function scaleY(y: number): string {
 	checkNumber({num: y, param: 'y', api: 'scaleY'});
 
-	return () => `scaleY(${y})`;
+	return `scaleY(${y})`;
 }
 
-function scaleZ(z: number): TransformFunction {
+function scaleZ(z: number): string {
 	checkNumber({num: z, param: 'z', api: 'scaleZ'});
 
-	return () => `scaleZ(${z})`;
+	return `scaleZ(${z})`;
 }
 
 /* Skew */
 
-function skew(
-	x: number,
-	y: number = x,
-	unit: AngleUnit = 'deg',
-): TransformFunction {
+function skew(x: number, y: number = x, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: x, param: 'x', api: 'skew'});
 
-	return () => `skew(${x}${unit}, ${y}${unit})`;
+	return `skew(${x}${unit}, ${y}${unit})`;
 }
 
-function skewX(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function skewX(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'skewX'});
 
-	return () => `skewX(${angle}${unit})`;
+	return `skewX(${angle}${unit})`;
 }
 
-function skewY(angle: number, unit: AngleUnit = 'deg'): TransformFunction {
+function skewY(angle: number, unit: AngleUnit = 'deg'): string {
 	checkNumber({num: angle, param: 'angle', api: 'skewY'});
 
-	return () => `skewY(${angle}${unit})`;
+	return `skewY(${angle}${unit})`;
 }
 
 /* Translation */
@@ -212,10 +199,10 @@ function translate(
 	y = 0,
 	unitX: LengthPercentageUnit = 'px',
 	unitY: LengthPercentageUnit = unitX,
-): TransformFunction {
+): string {
 	checkNumber({num: x, param: 'x', api: 'translate'});
 
-	return () => `translate(${x}${unitX}, ${y}${unitY})`;
+	return `translate(${x}${unitX}, ${y}${unitY})`;
 }
 
 function translate3d(
@@ -225,35 +212,29 @@ function translate3d(
 	unitX: LengthPercentageUnit = 'px',
 	unitY: LengthPercentageUnit = unitX,
 	unitZ: LengthUnit = 'px',
-): TransformFunction {
+): string {
 	checkNumber({num: x, param: 'x', api: 'translate3d'});
 	checkNumber({num: y, param: 'y', api: 'translate3d'});
 	checkNumber({num: z, param: 'z', api: 'translate3d'});
 
-	return () => `translate3d(${x}${unitX}, ${y}${unitY}, ${z}${unitZ})`;
+	return `translate3d(${x}${unitX}, ${y}${unitY}, ${z}${unitZ})`;
 }
 
-function translateX(
-	x: number,
-	unit: LengthPercentageUnit = 'px',
-): TransformFunction {
+function translateX(x: number, unit: LengthPercentageUnit = 'px'): string {
 	checkNumber({num: x, param: 'x', api: 'translateX'});
 
-	return () => `translateX(${x}${unit})`;
+	return `translateX(${x}${unit})`;
 }
 
-function translateY(
-	y: number,
-	unit: LengthPercentageUnit = 'px',
-): TransformFunction {
+function translateY(y: number, unit: LengthPercentageUnit = 'px'): string {
 	checkNumber({num: y, param: 'y', api: 'translateY'});
-	return () => `translateY(${y}${unit})`;
+	return `translateY(${y}${unit})`;
 }
 
-function translateZ(z: number, unit: LengthUnit = 'px'): TransformFunction {
+function translateZ(z: number, unit: LengthUnit = 'px'): string {
 	checkNumber({num: z, param: 'z', api: 'translateZ'});
 
-	return () => `translateZ(${z}${unit})`;
+	return `translateZ(${z}${unit})`;
 }
 
 export {

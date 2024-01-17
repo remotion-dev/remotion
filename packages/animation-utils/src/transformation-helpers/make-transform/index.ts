@@ -26,7 +26,7 @@ import {
 export function makeTransform(
 	transforms: TransformFunctionReturnType[],
 ): string {
-	return transforms.map((transform) => transform()).join(' ');
+	return transforms.join(' ');
 }
 
 export {
