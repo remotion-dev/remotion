@@ -54,12 +54,7 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
-import {
-	disableRepro,
-	enableRepro,
-	isEnableRepro,
-	reproRenderSucceed,
-} from './repro';
+import {enableRepro, isEnableRepro, reproRenderSucceed} from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
@@ -760,7 +755,6 @@ const internalRenderMediaRaw = ({
 					deleteDirectory(workingDir);
 				}
 
-				disableRepro();
 				cleanupServerFn?.(false);
 			});
 	});
