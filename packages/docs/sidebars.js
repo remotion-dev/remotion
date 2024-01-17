@@ -178,18 +178,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
-    {
-      type: "category",
-      label: "@remotion/animation-utils",
-      link: {
-        type: "doc",
-        id: "animation-utils/index",
-      },
-      items: [
-        "animation-utils/make-transform",
-        "animation-utils/interpolate-styles",
-      ],
-    },
+
     {
       type: "category",
       label: "@remotion/motion-blur",
@@ -474,6 +463,18 @@ module.exports = {
         id: "layout-utils/index",
       },
       items: ["layout-utils/measure-text", "layout-utils/fill-text-box"],
+    },
+    {
+      type: "category",
+      label: "@remotion/animation-utils",
+      link: {
+        type: "doc",
+        id: "animation-utils/index",
+      },
+      items: [
+        "animation-utils/make-transform",
+        "animation-utils/interpolate-styles",
+      ],
     },
   ],
   mainSidebar: [

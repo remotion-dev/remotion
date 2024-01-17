@@ -23,40 +23,46 @@ import type {
 	translateZ,
 } from './transformation-helpers/make-transform';
 
-type LengthUnit =
-	| 'cap'
-	| 'ch'
-	| 'em'
-	| 'ex'
-	| 'ic'
-	| 'lh'
-	| 'rem'
-	| 'rlh'
-	| 'vh'
-	| 'vw'
-	| 'vmax'
-	| 'vmin'
-	| 'vb'
-	| 'vi'
-	| 'cqw'
-	| 'cqh'
-	| 'cqi'
-	| 'cqb'
-	| 'cqmin'
-	| 'cqmax'
-	| 'px'
-	| 'cm'
-	| 'mm'
-	| 'Q'
-	| 'in'
-	| 'pc'
-	| 'pt';
+export const lengthUnits = [
+	'px',
+	'em',
+	'rem',
+	'pt',
+	'cap',
+	'ch',
+	'ex',
+	'ic',
+	'lh',
+	'rlh',
+	'vmax',
+	'vmin',
+	'vb',
+	'vi',
+	'cqw',
+	'vh',
+	'vw',
+	'cqh',
+	'cqi',
+	'cqb',
+	'cqmin',
+	'cqmax',
+	'cm',
+	'mm',
+	'Q',
+	'in',
+	'pc',
+] as const;
+export const angleUnits = ['rad', 'deg', 'grad', 'turn'] as const;
+
+export const lengthPercentageUnits = ['%', ...lengthUnits] as const;
+
+type LengthUnit = (typeof lengthUnits)[number];
+type AngleUnit = (typeof angleUnits)[number];
+type LengthPercentageUnit = (typeof lengthPercentageUnits)[number];
 
 export type LengthUnitString = `${number}${LengthUnit}`;
-
-type LengthPercentageUnit = LengthUnit | '%';
-
-type AngleUnit = 'deg' | 'grad' | 'rad' | 'turn';
+export type LengthPercentageUnitString = `${number}${LengthPercentageUnit}`;
+export type AngleUnitString = `${number}${AngleUnit}`;
 
 type TransformFunctionReturnType = ReturnType<
 	| typeof matrix
