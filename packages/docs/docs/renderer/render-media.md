@@ -478,6 +478,12 @@ _removed in v4.0, optional_
 
 An absolute path overriding the `ffprobe` executable to use.
 
+### `repro?`<AvailableFrom v="4.0.85" />
+
+_boolean - default `false`_
+
+During the execution of the render, a report will be generated in the directory.
+
 ## Return Value
 
 _**from v4.0.0:**_
