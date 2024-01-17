@@ -156,6 +156,12 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 					</Row>
 					<Row align="center">
 						<div style={left}>
+							<kbd style={key}>G</kbd>
+						</div>
+						<div style={right}>Go to frame</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
 							<kbd style={key}>Enter</kbd>
 						</div>
 						<div style={right}>Pause & return to playback start</div>
