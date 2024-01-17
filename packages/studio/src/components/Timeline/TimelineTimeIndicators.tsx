@@ -17,7 +17,7 @@ import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
-export const TIMELINE_TIME_INDICATOR_HEIGHT = 30;
+export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
 const container: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT - 4,
