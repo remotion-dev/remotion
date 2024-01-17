@@ -52,6 +52,12 @@ importers:
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
+      rollup:
+        specifier: ^2.70.1
+        version: 2.76.0
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
 
   packages/astro-example:
     dependencies:
@@ -15864,6 +15870,7 @@ packages:
 
   /loupe@2.3.6:
     resolution: {integrity: sha512-RaPMZKiMy8/JruncMU5Bt6na1eftNoo++R4Y+N2FrxkDVTrGvcyzFTsaGif4QTeKESheMGegbhw6iUAq+5A8zA==}
+    deprecated: Please upgrade to 2.3.7 which fixes GHSA-4q6p-r6v2-jvc5
     dependencies:
       get-func-name: 2.0.0
 
