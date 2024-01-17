@@ -4,15 +4,13 @@ import os from 'node:os';
 import path from 'node:path';
 import {findRemotionRoot} from './find-closest-package-json';
 import {isServeUrl} from './is-serve-url';
-
-/**
- * TODO: update docs
- */
+import {Log} from './logger';
 
 const REPRO_DIR = '.remotionrepro';
 const LOG_FILE_NAME = 'repro.log';
 const INPUT_DIR = 'input';
 const OUTPUT_DIR = 'output';
+const LINE_SPLIT = '\n';
 
 const getZipFileName = () => `remotion-render-repro-${Date.now()}.zip`;
 
@@ -41,8 +39,13 @@ const zipFolder = (sourceFolder: string, targetZip: string) => {
 		} else {
 			execSync(`zip -r "${targetZip}" "${sourceFolder}"`, {stdio: 'inherit'});
 		}
+
+		Log.info(`${LINE_SPLIT}Zipped repro folder ${targetZip}`);
 	} catch (error) {
-		getReproWrite().write('error', ['Failed to repro zip folder:', error]);
+		Log.error(
+			`Failed to zip repro folder, The repro folder is ${sourceFolder}. You can try manually zip it.`,
+		);
+		Log.error(error);
 	}
 };
 
@@ -59,95 +62,111 @@ const reproWriter = () => {
 	const serializeArgs = (args: Parameters<typeof console.log>[]) =>
 		JSON.stringify(args);
 
-	return {
-		start(serveUrl: string) {
-			const isServe = isServeUrl(serveUrl);
+	const writeLine = (
+		level: string,
+		...args: Parameters<typeof console.log>[]
+	) => {
+		if (!args.length) return;
+		const startTime = new Date().toISOString();
+		const line = `[${startTime}] ${level} ${serializeArgs(args)}`;
 
-			if (!isServe) {
-				const inputDir = path.resolve(reproFolder, INPUT_DIR);
-				readyDirSync(inputDir);
-
-				fs.cpSync(serveUrl, inputDir, {recursive: true});
-			}
-
-			const versions = [
-				`[${new Date().toISOString()}]`,
-				`	render start`,
-				`	- args: ${JSON.stringify(process.argv.slice(2))}`,
-				`	- node version: ${process.version}`,
-				`	- os: ${process.platform}-${process.arch}`,
-				`	- serveUrl: ${serveUrl}`,
-			];
-			reproLogWriteStream.write(versions.join('\n') + '\n');
-		},
-		write(level: string, ...args: Parameters<typeof console.log>[]) {
-			if (!args.length) return;
-			const startTime = new Date().toISOString();
-			const line = `[${startTime}] ${level} ${serializeArgs(args)}`;
-
-			reproLogWriteStream.write(line + '\n');
-		},
-		renderSucceed(output: string | null) {
-			if (output) {
-				const outputDir = path.resolve(reproFolder, OUTPUT_DIR);
-				readyDirSync(outputDir);
-
-				const fileName = path.basename(output);
-				const targetPath = path.join(outputDir, fileName);
-
-				fs.copyFileSync(output, targetPath);
-			}
-
-			const versions = [
-				`[${new Date().toISOString()}]`,
-				' render success',
-				`	- output: ${JSON.stringify(output || '')}`,
-			];
-
-			reproLogWriteStream.write(versions.join('\n') + '\n');
-
-			disableRepro();
-
-			reproLogWriteStream.close(() => {
-				zipFolder(reproFolder, zipFile);
-			});
-		},
+		reproLogWriteStream.write(line + LINE_SPLIT);
 	};
-};
 
-const memoizeReproWriter = () => {
-	let instance: ReturnType<typeof reproWriter>;
-	return () => {
-		if (!instance) {
-			instance = reproWriter();
+	const start = (serveUrl: string) => {
+		const isServe = isServeUrl(serveUrl);
+
+		if (!isServe) {
+			const inputDir = path.resolve(reproFolder, INPUT_DIR);
+			readyDirSync(inputDir);
+
+			fs.cpSync(serveUrl, inputDir, {recursive: true});
 		}
 
-		return instance;
+		const versions = [
+			`[${new Date().toISOString()}] render start`,
+			`	args: ${JSON.stringify(process.argv.slice(2))}`,
+			`	node version: ${process.version}`,
+			`	os: ${process.platform}-${process.arch}`,
+			`	serveUrl: ${serveUrl}`,
+		];
+		reproLogWriteStream.write(versions.join(LINE_SPLIT) + LINE_SPLIT);
+	};
+
+	const onRenderSucceed = (output: string | null) => {
+		return new Promise<void>((resolve, reject) => {
+			try {
+				const versions = [
+					`[${new Date().toISOString()}] render success`,
+					` output: ${JSON.stringify(output || '')}`,
+				];
+				reproLogWriteStream.write(versions.join(LINE_SPLIT) + LINE_SPLIT);
+
+				if (output) {
+					const outputDir = path.resolve(reproFolder, OUTPUT_DIR);
+					readyDirSync(outputDir);
+
+					const fileName = path.basename(output);
+					const targetPath = path.join(outputDir, fileName);
+
+					fs.copyFileSync(output, targetPath);
+				}
+
+				disableRepro();
+
+				reproLogWriteStream.end(() => {
+					reproLogWriteStream.close(() => {
+						zipFolder(reproFolder, zipFile);
+						resolve();
+					});
+				});
+			} catch (error) {
+				Log.error(`repro render success error:`);
+				Log.error(error);
+				reject(error);
+			}
+		});
+	};
+
+	return {
+		start,
+		writeLine,
+		onRenderSucceed,
 	};
 };
 
-export const getReproWrite = memoizeReproWriter();
+let reproWriteInstance: ReturnType<typeof reproWriter> | null = null;
+
+const getReproWriter = () => {
+	if (!reproWriteInstance) {
+		reproWriteInstance = reproWriter();
+	}
+
+	return reproWriteInstance;
+};
 
 export const writeInRepro = (
 	level: string,
 	...args: Parameters<typeof console.log>
 ) => {
 	if (isEnableRepro()) {
-		getReproWrite().write(level, ...args);
+		getReproWriter().writeLine(level, ...args);
 	}
 };
 
 export const reproRenderSucceed = (output: string | null) => {
 	if (isEnableRepro()) {
-		getReproWrite().renderSucceed(output);
+		return getReproWriter().onRenderSucceed(output);
 	}
+
+	return Promise.resolve();
 };
 
 let shouldRepro = false;
 
 export const enableRepro = (serveUrl: string) => {
 	shouldRepro = true;
-	getReproWrite().start(serveUrl);
+	getReproWriter().start(serveUrl);
 };
 
 export const disableRepro = () => {

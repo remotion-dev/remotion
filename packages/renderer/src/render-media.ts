@@ -54,6 +54,12 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
+import {
+	disableRepro,
+	enableRepro,
+	isEnableRepro,
+	reproRenderSucceed,
+} from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
@@ -67,7 +73,6 @@ import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
-import {enableRepro, reproRenderSucceed} from "./repro"
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -706,8 +711,17 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				reproRenderSucceed(absoluteOutputLocation);
-				resolve(result);
+				if (isEnableRepro()) {
+					reproRenderSucceed(absoluteOutputLocation)
+						.then(() => {
+							resolve(result);
+						})
+						.catch(() => {
+							resolve(result);
+						});
+				} else {
+					resolve(result);
+				}
 			})
 			.catch((err) => {
 				/**
@@ -746,6 +760,7 @@ const internalRenderMediaRaw = ({
 					deleteDirectory(workingDir);
 				}
 
+				disableRepro();
 				cleanupServerFn?.(false);
 			});
 	});
