@@ -9,7 +9,7 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/animation-utils/make-transform">
           <strong>makeTransform()</strong>
           <div>
-            Type-safe function to create string for the transform CSS property
+            Typesafe function to create a string for the CSS <code>transform</code> property
           </div>
         </TOCItem>
         <TOCItem link="/docs/animation-utils/interpolate-styles">
