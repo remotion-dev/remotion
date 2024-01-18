@@ -54,7 +54,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/animation-utils">
           <strong>@remotion/animation-utils</strong>
-          <div>Utilities for animation</div>
+          <div>Animation utilities</div>
         </TOCItem>
         <TOCItem link="/docs/tailwind/tailwind">
           <strong>@remotion/tailwind</strong>
@@ -99,10 +99,6 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/layout-utils">
           <strong>@remotion/layout-utils</strong>
           <div>Layout helpers</div>
-        </TOCItem>
-        <TOCItem link="/docs/animation-utils">
-          <strong>@remotion/animation-utils</strong>
-          <div>Keyframing utilities</div>
         </TOCItem>
       </Grid>
     </div>

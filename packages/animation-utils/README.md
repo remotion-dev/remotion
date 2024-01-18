@@ -2,7 +2,7 @@
 
 ## interpolateStyles
 
-_Available from v2.0.3_
+_Available from v4.0.89_
 
 Allows you to map a range of values to styles.
 

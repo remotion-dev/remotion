@@ -34,14 +34,15 @@ import {
 } from "@remotion/animation-utils";
 
 const MyComponent: React.FC = () => {
-  const animatedStyles = interpolateStyles({
-    inputRangeInFrames: [0, 30, 60],
-    outputStyles: [
+  const animatedStyles = interpolateStyles(
+    15,
+    [0, 30, 60],
+    [
       { opacity: 0, transform: makeTransform([translateY(-50)]) },
       { opacity: 1, transform: makeTransform([translateY(0)]) },
       { opacity: 0, transform: makeTransform([translateY(50)]) },
     ],
-  });
+  );
 
   return <div style={animatedStyles}>Animating Styles!</div>;
 };
