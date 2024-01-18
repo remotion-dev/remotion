@@ -72,6 +72,7 @@ export const render = async (
 		numberOfGifLoops,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		repro,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -136,5 +137,6 @@ export const render = async (
 		disallowParallelEncoding: false,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		repro,
 	});
 };

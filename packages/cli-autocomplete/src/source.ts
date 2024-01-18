@@ -207,6 +207,11 @@ const localRenderOptions: Fig.Option[] = [
     name: "--muted",
     description: "Mute the output video",
   },
+  {
+    name: "--repro",
+    description:
+      "Collect information that you can submit to Remotion if asked for a reproduction",
+  },
 ];
 
 const stillOptions: Fig.Option[] = [

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/layout-utils",
-	"version": "4.0.86",
+	"version": "4.0.88",
 	"description": "Layout Utils for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -34,9 +34,7 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"dependencies": {
-		"remotion": "workspace:*"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
 		"@rollup/plugin-typescript": "^8.2.0",

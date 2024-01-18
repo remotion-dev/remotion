@@ -1,5 +1,7 @@
 import type {Instruction} from '@remotion/paths';
 import React, {useMemo} from 'react';
+import {version} from 'react-dom';
+import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
 export type AllShapesProps = Omit<
 	React.SVGProps<SVGPathElement>,
@@ -40,6 +42,9 @@ export const RenderSvg = ({
 		};
 	}, [pathStyle]);
 
+	const reactSupportsTransformOrigin =
+		doesReactSupportTransformOriginProperty(version);
+
 	return (
 		<svg
 			width={width}
@@ -50,7 +55,13 @@ export const RenderSvg = ({
 		>
 			<path
 				// eslint-disable-next-line react/no-unknown-property
-				transform-origin={transformOrigin}
+				transform-origin={
+					reactSupportsTransformOrigin ? undefined : transformOrigin
+				}
+				// @ts-expect-error
+				transformOrigin={
+					reactSupportsTransformOrigin ? transformOrigin : undefined
+				}
 				d={path}
 				style={actualPathStyle}
 				{...props}

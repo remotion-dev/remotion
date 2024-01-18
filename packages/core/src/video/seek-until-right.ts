@@ -14,7 +14,7 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 
 			setTimeout(() => {
 				resolve(metadata.mediaTime);
-			}, displayIn + 50);
+			}, displayIn + 150);
 		});
 	});
 

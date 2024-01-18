@@ -201,5 +201,6 @@ export const getCliOptions = async (options: {
 			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 		deleteAfter: ConfigInternals.getDeleteAfter(),
 		colorSpace: ConfigInternals.getColorSpace(),
+		repro: ConfigInternals.getRepro(),
 	};
 };
