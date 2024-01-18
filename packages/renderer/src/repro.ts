@@ -11,7 +11,7 @@ import {Log} from './logger';
 
 const REPRO_DIR = '.remotionrepro';
 const LOG_FILE_NAME = 'repro.log';
-const INPUT_DIR = 'input';
+const INPUT_DIR = 'bundle';
 const OUTPUT_DIR = 'output';
 const LINE_SPLIT = '\n';
 
@@ -70,7 +70,11 @@ const zipFolder = ({
 };
 
 type ReproWriter = {
-	start: (serveUrl: string) => void;
+	start: (options: {
+		serveUrl: string;
+		serializedInputPropsWithCustomSchema: string;
+		serializedResolvedPropsWithCustomSchema: string;
+	}) => void;
 	writeLine: (level: string, ...args: Parameters<typeof console.log>[]) => void;
 	onRenderSucceed: (options: {
 		output: string | null;
@@ -103,7 +107,15 @@ const reproWriter = (name: string): ReproWriter => {
 		reproLogWriteStream.write(line + LINE_SPLIT);
 	};
 
-	const start = (serveUrl: string) => {
+	const start = ({
+		serveUrl,
+		serializedInputPropsWithCustomSchema,
+		serializedResolvedPropsWithCustomSchema,
+	}: {
+		serveUrl: string;
+		serializedInputPropsWithCustomSchema: string;
+		serializedResolvedPropsWithCustomSchema: string;
+	}) => {
 		const isServe = isServeUrl(serveUrl);
 
 		if (!isServe) {
@@ -112,6 +124,18 @@ const reproWriter = (name: string): ReproWriter => {
 
 			fs.cpSync(serveUrl, inputDir, {recursive: true});
 		}
+
+		const serializedProps = path.resolve(reproFolder, 'input-props.json');
+		fs.writeFileSync(serializedProps, serializedInputPropsWithCustomSchema);
+
+		const serializedResolvedProps = path.resolve(
+			reproFolder,
+			'resolved-props.json',
+		);
+		fs.writeFileSync(
+			serializedResolvedProps,
+			serializedResolvedPropsWithCustomSchema,
+		);
 
 		writeLine('info', [`Args: ${JSON.stringify(process.argv)}`]);
 		writeLine('info', [`Node/Bun version: ${process.version}`]);
@@ -190,10 +214,24 @@ export const writeInRepro = (
 
 let shouldRepro = false;
 
-export const enableRepro = (serveUrl: string, compositionName: string) => {
+export const enableRepro = ({
+	serveUrl,
+	compositionName,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
+}: {
+	serveUrl: string;
+	compositionName: string;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+}) => {
 	shouldRepro = true;
 	reproWriteInstance = reproWriter(compositionName);
-	getReproWriter().start(serveUrl);
+	getReproWriter().start({
+		serveUrl,
+		serializedInputPropsWithCustomSchema,
+		serializedResolvedPropsWithCustomSchema,
+	});
 };
 
 export const disableRepro = () => {

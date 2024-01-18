@@ -254,7 +254,12 @@ const internalRenderMediaRaw = ({
 	finishRenderProgress,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
-		enableRepro(serveUrl, composition.id);
+		enableRepro({
+			serveUrl,
+			compositionName: composition.id,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+		});
 	} else {
 		disableRepro();
 	}
