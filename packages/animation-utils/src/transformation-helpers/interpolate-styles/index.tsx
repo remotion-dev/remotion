@@ -232,8 +232,8 @@ function checkStylesRange(arr: readonly Style[]) {
 }
 
 /**
- * @description This function allows you to map a range of values to colors using a concise syntax.
- * @see [Documentation](https://www.remotion.dev/docs/interpolate-colors)
+ * @description A function that interpolates between two styles based on an input range.
+ * @see [Documentation](https://www.remotion.dev/docs/animation-utils/interpolate-styles)
  */
 export const interpolateStyles = (
 	input: number,
