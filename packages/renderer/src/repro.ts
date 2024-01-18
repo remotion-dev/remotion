@@ -10,7 +10,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
 const REPRO_DIR = '.remotionrepro';
-const LOG_FILE_NAME = 'repro.log';
+const LOG_FILE_NAME = 'logs.txt';
 const INPUT_DIR = 'bundle';
 const OUTPUT_DIR = 'output';
 const LINE_SPLIT = '\n';
