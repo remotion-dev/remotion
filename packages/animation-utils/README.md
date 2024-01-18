@@ -86,5 +86,4 @@ export default function Example() {
 
 ## License
 
-See the [LICENSE.md](LICENSE.md) file for the license of this repo.  
-To use Remotion, a company license is needed for some entities. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+MIT
