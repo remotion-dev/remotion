@@ -225,6 +225,6 @@ _removed in v4.0_
 
 [Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
-### `--repro`<AvailableFrom v="4.0.85" />
+### `--repro`<AvailableFrom v="4.0.88" />
 
-During the execution of the render, a report will be generated in the directory.
+<Options id="repro" />
