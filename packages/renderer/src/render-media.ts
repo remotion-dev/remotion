@@ -254,7 +254,7 @@ const internalRenderMediaRaw = ({
 	finishRenderProgress,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
-		enableRepro(serveUrl);
+		enableRepro(serveUrl, composition.id);
 	} else {
 		disableRepro();
 	}
@@ -722,7 +722,11 @@ const internalRenderMediaRaw = ({
 							resolve(result);
 						})
 						.catch((err) => {
-							Log.error('Could not print err', err);
+							Log.errorAdvanced(
+								{indent, logLevel},
+								'Could not create reproduction',
+								err,
+							);
 						});
 				} else {
 					resolve(result);

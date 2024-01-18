@@ -14,7 +14,8 @@ const INPUT_DIR = 'input';
 const OUTPUT_DIR = 'output';
 const LINE_SPLIT = '\n';
 
-const getZipFileName = () => `remotion-render-repro-${Date.now()}.zip`;
+const getZipFileName = (name: string) =>
+	`remotion-repro-${name}-${Date.now()}.zip`;
 
 const readyDirSync = (dir: string) => {
 	let items;
@@ -77,11 +78,11 @@ type ReproWriter = {
 	}) => Promise<void>;
 };
 
-const reproWriter = (): ReproWriter => {
+const reproWriter = (name: string): ReproWriter => {
 	const root = findRemotionRoot();
 	const reproFolder = path.join(root, REPRO_DIR);
 	const logPath = path.join(reproFolder, LOG_FILE_NAME);
-	const zipFile = path.join(root, getZipFileName());
+	const zipFile = path.join(root, getZipFileName(name));
 
 	readyDirSync(reproFolder);
 
@@ -180,7 +181,7 @@ let reproWriteInstance: ReturnType<typeof reproWriter> | null = null;
 
 export const getReproWriter = () => {
 	if (!reproWriteInstance) {
-		reproWriteInstance = reproWriter();
+		throw new Error('reproWriteInstance is not initialized');
 	}
 
 	return reproWriteInstance;
@@ -197,9 +198,9 @@ export const writeInRepro = (
 
 let shouldRepro = false;
 
-export const enableRepro = (serveUrl: string) => {
+export const enableRepro = (serveUrl: string, compositionName: string) => {
 	shouldRepro = true;
-	reproWriteInstance = reproWriter();
+	reproWriteInstance = reproWriter(compositionName);
 	getReproWriter().start(serveUrl);
 };
 
