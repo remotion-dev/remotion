@@ -14,7 +14,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/animation-utils/interpolate-styles">
           <strong>interpolateStyles()</strong>
-          <div>Map a range of values to Styles</div>
+          <div>Map a range of values to CSS <code>style</code> values</div>
         </TOCItem>
       </Grid>
     </div>
