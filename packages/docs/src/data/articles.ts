@@ -1393,9 +1393,16 @@ export const articles = [
     crumb: "@remotion/layout-utils",
   },
   {
+    id: "layout-utils/fit-text",
+    title: "fitText()",
+    relativePath: "docs/layout-utils/fit-text.md",
+    compId: "articles-docs-layout-utils-fit-text",
+    crumb: "@remotion/layout-utils",
+  },
+  {
     id: "layout-utils/index",
     title: "@remotion/layout-utils",
-    relativePath: "docs/layout-utils/index.md",
+    relativePath: "docs/layout-utils/index.mdx",
     compId: "articles-docs-layout-utils-index",
     crumb: null,
   },

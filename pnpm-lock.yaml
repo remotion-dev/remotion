@@ -1223,10 +1223,6 @@ importers:
         version: link:../core
 
   packages/layout-utils:
-    dependencies:
-      remotion:
-        specifier: workspace:*
-        version: link:../core
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.276
