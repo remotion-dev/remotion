@@ -71,7 +71,7 @@ test('Throw error on incompatible shorthands', () => {
 	);
 });
 
-test.skip('Should throw an error on non-animateable properties', () => {
+test('Should throw an error on non-animatable properties', () => {
 	expect(() =>
 		interpolateStyles(
 			0.5,
@@ -85,10 +85,12 @@ test.skip('Should throw an error on non-animateable properties', () => {
 				},
 			],
 		),
-	).throws(/some good error/);
+	).throws(
+		/Non-animatable values cannot be interpolated. Start value: center, end value: left/,
+	);
 });
 
-test.skip('Should be able to interpolate transform strings - edge', () => {
+test('Should be able to interpolate transform strings - edge', () => {
 	expect(
 		interpolateStyles(
 			0,
@@ -105,7 +107,7 @@ test.skip('Should be able to interpolate transform strings - edge', () => {
 	).toEqual({transform: `scale(0.5)`});
 });
 
-test.skip('Should be able to interpolate transform strings - middle', () => {
+test('Should be able to interpolate transform strings - middle', () => {
 	expect(
 		interpolateStyles(
 			2.5,
@@ -162,7 +164,7 @@ test('Should throw on units mismatch', () => {
 	);
 });
 
-test.skip('Should handle `border`', () => {
+test('Should handle `border`', () => {
 	expect(
 		interpolateStyles(
 			0.5,
@@ -176,7 +178,7 @@ test.skip('Should handle `border`', () => {
 				},
 			],
 		),
-	).toBe({
+	).toEqual({
 		border: '5.5px solid rgba(128, 0, 0, 1)',
 	});
 
@@ -193,5 +195,26 @@ test.skip('Should handle `border`', () => {
 				},
 			],
 		),
-	).throws(/some/);
+	).throws(
+		/Non-animatable values cannot be interpolated. Start value: 1px solid black, end value: 10px dotted red/,
+	);
+});
+
+test('Should interpolate between 0 and values with units', () => {
+	expect(
+		interpolateStyles(
+			0.5,
+			[0, 1],
+			[
+				{
+					padding: 0,
+				},
+				{
+					padding: '10px',
+				},
+			],
+		),
+	).toEqual({
+		padding: '5px',
+	});
 });

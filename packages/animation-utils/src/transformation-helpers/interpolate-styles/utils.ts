@@ -98,6 +98,12 @@ const classifyArgsOfFunction = (value: string) => {
 			return unit ? {number, unit} : {number};
 		}
 
+		const numberMatch = val.match(/^(\d+(?:\.\d+)?)$/);
+		if (numberMatch) {
+			const number = parseFloat(numberMatch[1]);
+			return {number};
+		}
+
 		return {unit: val};
 	});
 };
@@ -144,6 +150,13 @@ const classifyParts = (parts: string[]) => {
 			return unit ? {number, unit} : {number};
 		}
 
+		// Check for a number without a unit
+		const numberMatch = part.match(/^(\d+(?:\.\d+)?)$/);
+		if (numberMatch) {
+			const number = parseFloat(numberMatch[1]);
+			return {number};
+		}
+
 		// If neither, treat as a unit (like 'solid', 'none', etc.)
 		return {unit: part};
 	});
@@ -152,6 +165,10 @@ const classifyParts = (parts: string[]) => {
 const breakDownValueIntoUnitNumberAndFunctions = (
 	value: CSSPropertiesValue,
 ) => {
+	if (typeof value === 'number') {
+		return [{number: value}];
+	}
+
 	if (typeof value !== 'string') {
 		return [];
 	}

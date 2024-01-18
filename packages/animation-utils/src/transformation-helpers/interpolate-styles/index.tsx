@@ -21,7 +21,7 @@ const interpolatedPropertyPart = ({
 	finalStylePropertyPart: UnitNumberAndFunction;
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
-}): string => {
+}): string | number => {
 	if (finalStylePropertyPart === undefined) {
 		throw new TypeError(
 			`The start and end values must be of the same type. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
@@ -77,10 +77,20 @@ const interpolatedPropertyPart = ({
 	}
 
 	if (typeof initialStylePropertyPart.number === 'undefined') {
+		if (initialStylePropertyPart.unit !== finalStylePropertyPart.unit) {
+			throw new TypeError(
+				`Non-animatable values cannot be interpolated. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
+			);
+		}
+
 		return `${initialStylePropertyPart.unit}`;
 	}
 
-	if (initialStylePropertyPart.unit !== finalStylePropertyPart.unit) {
+	if (
+		initialStylePropertyPart.unit !== finalStylePropertyPart.unit &&
+		initialStylePropertyPart.number !== 0 &&
+		finalStylePropertyPart.number !== 0
+	) {
 		throw new TypeError(
 			`The units of the start and end values must match. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
 		);
@@ -92,7 +102,13 @@ const interpolatedPropertyPart = ({
 		startNumber,
 		endNumber,
 	]);
-	const interpolatedUnit = initialStylePropertyPart.unit;
+	const interpolatedUnit =
+		initialStylePropertyPart.unit || finalStylePropertyPart.unit || '';
+
+	if (!interpolatedUnit) {
+		return interpolatedNumber;
+	}
+
 	return `${interpolatedNumber}${interpolatedUnit}`;
 };
 
@@ -102,21 +118,26 @@ const interpolateProperty = (
 	initialStyleProperty: CSSPropertiesValue,
 	finalStyleProperty: CSSPropertiesValue,
 ) => {
-	if (typeof initialStyleProperty !== typeof finalStyleProperty) {
-		return initialStyleProperty;
-	}
-
-	if (typeof initialStyleProperty === 'number') {
-		return interpolate(inputValue, inputRange, [
-			initialStyleProperty,
-			finalStyleProperty as number,
-		]);
+	if (
+		typeof initialStyleProperty !== typeof finalStyleProperty &&
+		initialStyleProperty !== 0 &&
+		finalStyleProperty !== 0
+	) {
+		throw new TypeError(
+			`The start and end values must be of the same type. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
+		);
 	}
 
 	const initialStylePropertyParts =
 		breakDownValueIntoUnitNumberAndFunctions(initialStyleProperty);
 	const finalStylePropertyParts =
 		breakDownValueIntoUnitNumberAndFunctions(finalStyleProperty);
+
+	console.log(
+		'initialStylePropertyParts',
+		initialStylePropertyParts,
+		finalStylePropertyParts,
+	);
 
 	const interpolatedValue = initialStylePropertyParts.reduce(
 		(acc, initialStylePropertyPart, index) => {
@@ -141,14 +162,31 @@ const interpolateStylesFunction = (
 	finalStyle: Style,
 ): Style => {
 	return Object.keys(initialStyle).reduce((acc, key) => {
+		if (!finalStyle[key as CSSPropertiesKey]) {
+			return {
+				...acc,
+				[key]: initialStyle[key as CSSPropertiesKey],
+			};
+		}
+
+		const finalStyleValue = interpolateProperty(
+			inputValue,
+			[startingValue, endingValue],
+			initialStyle[key as CSSPropertiesKey],
+			finalStyle[key as CSSPropertiesKey],
+		);
+
+		// Avoid number to be a string
+		if (!isNaN(Number(finalStyleValue))) {
+			return {
+				...acc,
+				[key]: Number(finalStyleValue),
+			};
+		}
+
 		return {
 			...acc,
-			[key]: interpolateProperty(
-				inputValue,
-				[startingValue, endingValue],
-				initialStyle[key as CSSPropertiesKey],
-				finalStyle[key as CSSPropertiesKey],
-			),
+			[key]: finalStyleValue,
 		};
 	}, {});
 };
