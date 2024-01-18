@@ -54,6 +54,12 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
+import {
+	disableRepro,
+	enableRepro,
+	getReproWriter,
+	isReproEnabled,
+} from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
@@ -129,6 +135,7 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
+	finishRenderProgress: () => void;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -186,6 +193,7 @@ export type RenderMediaOptions = Prettify<{
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
 	colorSpace?: ColorSpace;
+	repro?: boolean;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -242,7 +250,20 @@ const internalRenderMediaRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
+	finishRenderProgress,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	if (repro) {
+		enableRepro({
+			serveUrl,
+			compositionName: composition.id,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+		});
+	} else {
+		disableRepro();
+	}
+
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({
 		crf,
@@ -697,7 +718,24 @@ const internalRenderMediaRaw = ({
 					buffer,
 					slowestFrames,
 				};
-				resolve(result);
+
+				finishRenderProgress();
+				if (isReproEnabled()) {
+					getReproWriter()
+						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
+						.then(() => {
+							resolve(result);
+						})
+						.catch((err) => {
+							Log.errorAdvanced(
+								{indent, logLevel},
+								'Could not create reproduction',
+								err,
+							);
+						});
+				} else {
+					resolve(result);
+				}
 			})
 			.catch((err) => {
 				/**
@@ -804,6 +842,7 @@ export const renderMedia = ({
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -868,5 +907,7 @@ export const renderMedia = ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
+		repro: repro ?? false,
+		finishRenderProgress: () => undefined,
 	});
 };

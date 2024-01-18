@@ -56,6 +56,7 @@ export const Modals: React.FC = () => {
 					initialMultiProcessOnLinux={
 						modalContextType.initialMultiProcessOnLinux
 					}
+					initialRepro={modalContextType.initialRepro}
 					initialBeep={modalContextType.initialBeep}
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
