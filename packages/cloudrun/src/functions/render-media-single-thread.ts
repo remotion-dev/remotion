@@ -105,6 +105,8 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
+			repro: false,
+			finishRenderProgress: () => undefined,
 		});
 
 		const storage = new Storage();

@@ -127,6 +127,7 @@ export const addSequenceRenderJob = ({
 	disallowParallelEncoding,
 	multiProcessOnLinux,
 	beepOnFinish,
+	repro,
 }: {
 	compositionId: string;
 	outName: string;
@@ -145,6 +146,7 @@ export const addSequenceRenderJob = ({
 	disallowParallelEncoding: boolean;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	repro: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -170,6 +172,7 @@ export const addSequenceRenderJob = ({
 		disallowParallelEncoding,
 		multiProcessOnLinux,
 		beepOnFinish,
+		repro,
 	});
 };
 
@@ -206,6 +209,7 @@ export const addVideoRenderJob = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	beepOnFinish,
+	repro,
 }: {
 	compositionId: string;
 	outName: string;
@@ -239,6 +243,7 @@ export const addVideoRenderJob = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	beepOnFinish: boolean;
+	repro: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -279,6 +284,7 @@ export const addVideoRenderJob = ({
 		encodingBufferSize,
 		encodingMaxRate,
 		beepOnFinish,
+		repro,
 	});
 };
 

@@ -55,6 +55,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				colorSpace: input.colorSpace,
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
+				repro: input.repro,
 			},
 			logLevel,
 		});
@@ -89,6 +90,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
+				repro: input.repro,
 			},
 			logLevel,
 		});
@@ -119,6 +121,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
+				repro: false,
 			},
 			entryPoint,
 			remotionRoot,

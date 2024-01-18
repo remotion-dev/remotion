@@ -125,6 +125,7 @@ const renderHandler = async (
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
+			repro: false,
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
@@ -224,6 +225,7 @@ const renderHandler = async (
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
+			finishRenderProgress: () => undefined,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

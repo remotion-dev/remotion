@@ -49,6 +49,7 @@ export type RenderModalState = {
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
 	initialBeep: boolean;
+	initialRepro: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;
