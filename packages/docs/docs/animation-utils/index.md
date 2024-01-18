@@ -3,7 +3,7 @@ image: /generated/articles-docs-animation-utils-index.png
 title: "@remotion/animation-utils"
 ---
 
-_Available from v4.0.86_
+_Available from v4.0.89_
 
 Utility functions that create a remotion animation.
 
