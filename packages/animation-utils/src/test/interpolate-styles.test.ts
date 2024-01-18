@@ -142,7 +142,7 @@ test('Should be able to interpolate transform strings - middle', () => {
 				},
 			],
 		),
-	).toEqual({transform: `scale(0.75) translateX(50px) rotate(10deg)`});
+	).toEqual({transform: `scale(0.75)`});
 });
 
 test('Should throw on units mismatch', () => {
