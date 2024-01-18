@@ -54,7 +54,12 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
-import {enableRepro, isEnableRepro, reproRenderSucceed} from './repro';
+import {
+	disableRepro,
+	enableRepro,
+	getReproWriter,
+	isReproEnabled,
+} from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
@@ -130,6 +135,7 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
+	finishRenderProgress: () => void;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -245,9 +251,12 @@ const internalRenderMediaRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
+	finishRenderProgress,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro(serveUrl);
+	} else {
+		disableRepro();
 	}
 
 	validateJpegQuality(jpegQuality);
@@ -705,13 +714,15 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				if (isEnableRepro()) {
-					reproRenderSucceed(absoluteOutputLocation)
+				finishRenderProgress();
+				if (isReproEnabled()) {
+					getReproWriter()
+						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
 						.then(() => {
 							resolve(result);
 						})
-						.catch(() => {
-							resolve(result);
+						.catch((err) => {
+							Log.error('Could not print err', err);
 						});
 				} else {
 					resolve(result);
@@ -888,5 +899,6 @@ export const renderMedia = ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
 		repro: repro ?? false,
+		finishRenderProgress: () => undefined,
 	});
 };

@@ -42,13 +42,13 @@ export const Log = {
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
-		writeInRepro('info', ...args);
 		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	infoAdvanced: (
 		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('info', ...args);
 		return console.log(
 			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
@@ -74,6 +74,7 @@ export const Log = {
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
 			return console.log(
 				...[

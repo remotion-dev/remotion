@@ -1,9 +1,11 @@
 import {execSync} from 'node:child_process';
-import fs from 'node:fs';
+import fs, {rmSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {chalk} from './chalk';
 import {findRemotionRoot} from './find-closest-package-json';
 import {isServeUrl} from './is-serve-url';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
 const REPRO_DIR = '.remotionrepro';
@@ -28,28 +30,54 @@ const readyDirSync = (dir: string) => {
 	});
 };
 
-const zipFolder = (sourceFolder: string, targetZip: string) => {
+const zipFolder = ({
+	sourceFolder,
+	targetZip,
+	indent,
+	logLevel,
+}: {
+	sourceFolder: string;
+	targetZip: string;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
 	const platform = os.platform();
 	try {
+		Log.infoAdvanced({indent, logLevel}, '+ Creating reproduction ZIP');
 		if (platform === 'win32') {
 			execSync(
 				`powershell.exe Compress-Archive -Path "${sourceFolder}" -DestinationPath "${targetZip}"`,
-				{stdio: 'inherit'},
 			);
 		} else {
-			execSync(`zip -r "${targetZip}" "${sourceFolder}"`, {stdio: 'inherit'});
+			execSync(`zip -r "${targetZip}" "${sourceFolder}"`);
 		}
 
-		Log.info(`${LINE_SPLIT}Zipped repro folder ${targetZip}`);
+		rmSync(sourceFolder, {recursive: true});
+
+		Log.infoAdvanced(
+			{indent, logLevel},
+			`${chalk.blue(`+ Repro: ${targetZip}`)}`,
+		);
 	} catch (error) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent, logLevel},
 			`Failed to zip repro folder, The repro folder is ${sourceFolder}. You can try manually zip it.`,
 		);
-		Log.error(error);
+		Log.errorAdvanced({indent, logLevel}, error);
 	}
 };
 
-const reproWriter = () => {
+type ReproWriter = {
+	start: (serveUrl: string) => void;
+	writeLine: (level: string, ...args: Parameters<typeof console.log>[]) => void;
+	onRenderSucceed: (options: {
+		output: string | null;
+		logLevel: LogLevel;
+		indent: boolean;
+	}) => Promise<void>;
+};
+
+const reproWriter = (): ReproWriter => {
 	const root = findRemotionRoot();
 	const reproFolder = path.join(root, REPRO_DIR);
 	const logPath = path.join(reproFolder, LOG_FILE_NAME);
@@ -93,7 +121,15 @@ const reproWriter = () => {
 		reproLogWriteStream.write(versions.join(LINE_SPLIT) + LINE_SPLIT);
 	};
 
-	const onRenderSucceed = (output: string | null) => {
+	const onRenderSucceed = ({
+		indent,
+		logLevel,
+		output,
+	}: {
+		output: string | null;
+		logLevel: LogLevel;
+		indent: boolean;
+	}) => {
 		return new Promise<void>((resolve, reject) => {
 			try {
 				const versions = [
@@ -116,7 +152,12 @@ const reproWriter = () => {
 
 				reproLogWriteStream.end(() => {
 					reproLogWriteStream.close(() => {
-						zipFolder(reproFolder, zipFile);
+						zipFolder({
+							sourceFolder: reproFolder,
+							targetZip: zipFile,
+							indent,
+							logLevel,
+						});
 						resolve();
 					});
 				});
@@ -137,7 +178,7 @@ const reproWriter = () => {
 
 let reproWriteInstance: ReturnType<typeof reproWriter> | null = null;
 
-const getReproWriter = () => {
+export const getReproWriter = () => {
 	if (!reproWriteInstance) {
 		reproWriteInstance = reproWriter();
 	}
@@ -149,23 +190,16 @@ export const writeInRepro = (
 	level: string,
 	...args: Parameters<typeof console.log>
 ) => {
-	if (isEnableRepro()) {
+	if (isReproEnabled()) {
 		getReproWriter().writeLine(level, ...args);
 	}
-};
-
-export const reproRenderSucceed = (output: string | null) => {
-	if (isEnableRepro()) {
-		return getReproWriter().onRenderSucceed(output);
-	}
-
-	return Promise.resolve();
 };
 
 let shouldRepro = false;
 
 export const enableRepro = (serveUrl: string) => {
 	shouldRepro = true;
+	reproWriteInstance = reproWriter();
 	getReproWriter().start(serveUrl);
 };
 
@@ -173,4 +207,4 @@ export const disableRepro = () => {
 	shouldRepro = false;
 };
 
-export const isEnableRepro = () => shouldRepro;
+export const isReproEnabled = () => shouldRepro;

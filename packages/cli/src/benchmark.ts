@@ -374,6 +374,7 @@ export const benchmarkCommand = async (
 					offthreadVideoCacheSizeInBytes,
 					colorSpace,
 					repro: false,
+					finishRenderProgress: () => undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

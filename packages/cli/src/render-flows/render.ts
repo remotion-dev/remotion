@@ -500,9 +500,11 @@ export const renderVideoFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro: repro ?? false,
+		finishRenderProgress: () => {
+			updateRenderProgress({newline: true, printToConsole: true});
+		},
 	});
 
-	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
