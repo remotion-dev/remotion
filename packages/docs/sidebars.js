@@ -568,6 +568,7 @@ module.exports = {
         "player/current-time",
         "player/preloading",
         "player/best-practices",
+        "player/buffer-state",
         "troubleshooting/player-flicker",
       ],
     },

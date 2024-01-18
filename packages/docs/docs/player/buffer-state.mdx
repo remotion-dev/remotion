@@ -1,0 +1,124 @@
+---
+title: "The Player buffer state"
+sidebar_label: Buffer state
+crumb: Best practices
+---
+
+_available from 4.1 // FIXME_
+
+Just like regular video players, it is possible that the content being displayed in the Player is not yet fully loaded.  
+In this case, the best practice is to briefly pause the video, let the content load and then resume playback.
+
+Remotion has a native buffer state, which can be used to pause the video when the buffer is empty.
+
+## Mechanic
+
+### Activating the buffer state
+
+A component can tell the player to switch into a buffer state by first using the `useBuffer()` hook and then calling `buffer.delayPlayback()`:
+
+```tsx twoslash title="MyComp.tsx"
+import React from "react";
+import { useBuffer } from "remotion";
+
+const MyComp: React.FC = () => {
+  const buffer = useBuffer();
+
+  React.useEffect(() => {
+    const delayHandle = buffer.delayPlayback();
+
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return <></>;
+};
+```
+
+To clear the handle, call `.unblock()` on the return value of `delayPlayback()`.
+
+When activating the buffer state, pay attention to the following:
+
+<details>
+<summary>Clear the handle when the component unmounts</summary>
+
+Use the cleanup function of <code>useEffect()</code> to clear the handle when your component is unmounted. The user might seek to a different portion of the video which is immediately available.
+
+```tsx twoslash title="❌ Causes problems with React strict mode"
+import React, { useState } from "react";
+import { useBuffer } from "remotion";
+
+const MyComp: React.FC = () => {
+  const buffer = useBuffer();
+  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+  }, []);
+
+  return <></>;
+};
+```
+
+</details>
+<details>
+<summary>Don't use <code>delayPlayback()</code> inside a <code>useState()</code></summary>
+
+While the following implementation works in production, it fails in React Strict mode, because the `useState()` hook is called twice, which causes the first invocation of the buffer to never be cleared.
+
+```tsx twoslash title="❌ Doesn't clear the buffer handle when seeking to a different portion of a video"
+import React, { useState } from "react";
+import { useBuffer } from "remotion";
+
+const MyComp: React.FC = () => {
+  const buffer = useBuffer();
+  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return <></>;
+};
+```
+
+</details>
+<details>
+<summary>It doesn't replace <code>delayRender()</code></summary>
+<a href="/docs/delay-render">delayRender()</a> is a different API which controls when a screenshot is taken during rendering.
+</details>
+
+### Components with built-in buffering
+
+You can enable buffering on the following components:
+
+- [`Audio`](/docs/audio)
+- [`Video`](/docs/video)
+- [`OffthreadVideo`](/docs/offthreadvideo)
+
+// FIXME: How?
+
+### State management
+
+Whether a player is buffering does not internally change the `playing` / `paused` state. Therefore, a player can be in four playback states:
+
+<Step>1</Step> <code>playing</code> and not buffering <br />
+<Step>2</Step> <code>playing</code> and buffering <br />
+<Step>3</Step> <code>paused</code> and not buffering <br />
+<Step>4</Step> <code>paused</code> and buffering <br />
+<br />
+
+Only <InlineStep>1</InlineStep> will move the timeline forward.
