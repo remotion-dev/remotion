@@ -53,7 +53,7 @@ export default function Example() {
 
 ## makeTransform
 
-A type-safe function to create string for the `transform` CSS property.
+A type-safe function to create a string to be passed to the `transform` CSS property.
 
 ### Usage
 
