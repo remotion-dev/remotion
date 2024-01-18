@@ -213,6 +213,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="enable-multiprocess-on-linux" />
 
+### `--repro`<AvailableFrom v="4.0.88" />
+
+<Options id="repro" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_
@@ -224,7 +228,3 @@ _removed in v4.0_
 _removed in v4.0_
 
 [Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
-
-### `--repro`<AvailableFrom v="4.0.88" />
-
-<Options id="repro" />
