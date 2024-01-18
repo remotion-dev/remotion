@@ -2,6 +2,7 @@ import {execSync} from 'node:child_process';
 import fs, {rmSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {VERSION} from 'remotion/version';
 import {chalk} from './chalk';
 import {findRemotionRoot} from './find-closest-package-json';
 import {isServeUrl} from './is-serve-url';
@@ -112,14 +113,11 @@ const reproWriter = (name: string): ReproWriter => {
 			fs.cpSync(serveUrl, inputDir, {recursive: true});
 		}
 
-		const versions = [
-			`[${new Date().toISOString()}] render start`,
-			`	args: ${JSON.stringify(process.argv.slice(2))}`,
-			`	node version: ${process.version}`,
-			`	os: ${process.platform}-${process.arch}`,
-			`	serveUrl: ${serveUrl}`,
-		];
-		reproLogWriteStream.write(versions.join(LINE_SPLIT) + LINE_SPLIT);
+		writeLine('info', [`Args: ${JSON.stringify(process.argv)}`]);
+		writeLine('info', [`Node/Bun version: ${process.version}`]);
+		writeLine('info', [`OS: ${process.platform}-${process.arch}`]);
+		writeLine('info', [`Serve URL: ${serveUrl}`]);
+		writeLine('info', [`Remotion version: ${VERSION}`]);
 	};
 
 	const onRenderSucceed = ({
@@ -133,12 +131,6 @@ const reproWriter = (name: string): ReproWriter => {
 	}) => {
 		return new Promise<void>((resolve, reject) => {
 			try {
-				const versions = [
-					`[${new Date().toISOString()}] render success`,
-					` output: ${JSON.stringify(output || '')}`,
-				];
-				reproLogWriteStream.write(versions.join(LINE_SPLIT) + LINE_SPLIT);
-
 				if (output) {
 					const outputDir = path.resolve(reproFolder, OUTPUT_DIR);
 					readyDirSync(outputDir);
