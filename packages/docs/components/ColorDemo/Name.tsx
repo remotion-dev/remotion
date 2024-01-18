@@ -1,12 +1,12 @@
-import { interpolateStyles, translateY } from "@remotion/animation-utils";
 import React from "react";
 import {
   AbsoluteFill,
+  interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { defaultStyles } from "./styles";
+import { defaultStyles } from './styles';
 
 export const Name: React.FC<{
   name: string;
@@ -29,14 +29,13 @@ export const Name: React.FC<{
       }}
     >
       <div
-        style={interpolateStyles(
-          progress,
-          [0, 1],
-          [
-            { transform: translateY(1000), opacity: 1 },
-            { transform: translateY(0), opacity: 0 },
-          ],
-        )}
+        style={{
+          transform: `translateY(${interpolate(
+            progress,
+            [0, 1],
+            [1000, 0]
+          )}px)`,
+        }}
       >
         <span
           style={{
