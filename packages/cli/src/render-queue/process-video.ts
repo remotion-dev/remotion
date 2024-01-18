@@ -83,5 +83,6 @@ export const processVideoJob = async ({
 			job.type === 'video' ? job.disallowParallelEncoding : false,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		colorSpace: job.type === 'video' ? job.colorSpace : 'default',
+		repro: job.repro,
 	});
 };

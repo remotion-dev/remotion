@@ -148,7 +148,7 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
-	repro?: boolean;
+	repro: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 

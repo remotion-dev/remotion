@@ -59,6 +59,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEncodingMaxRate: defaults.encodingMaxRate,
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
+			initialRepro: job.repro,
 		};
 	}
 
@@ -105,6 +106,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEncodingMaxRate: defaults.encodingMaxRate,
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
+			initialRepro: job.repro,
 		};
 	}
 
@@ -152,6 +154,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEncodingMaxRate: job.encodingMaxRate,
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
+			initialRepro: job.repro,
 		};
 	}
 

@@ -38,6 +38,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
 	const multiProcessOnLinux = ConfigInternals.getChromiumMultiProcessOnLinux();
+	const repro = ConfigInternals.getRepro();
 
 	return {
 		jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
@@ -73,5 +74,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		multiProcessOnLinux,
 		userAgent,
 		beepOnFinish,
+		repro,
 	};
 };
