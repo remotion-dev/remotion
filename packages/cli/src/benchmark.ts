@@ -373,6 +373,7 @@ export const benchmarkCommand = async (
 						}).serializedString,
 					offthreadVideoCacheSizeInBytes,
 					colorSpace,
+					repro: false,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -130,7 +130,6 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
-	repro?: boolean;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -888,6 +887,6 @@ export const renderMedia = ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
-		repro,
+		repro: repro ?? false,
 	});
 };

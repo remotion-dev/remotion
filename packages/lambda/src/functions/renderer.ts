@@ -125,6 +125,7 @@ const renderHandler = async (
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
+			repro: false,
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,

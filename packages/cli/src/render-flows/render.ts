@@ -499,7 +499,7 @@ export const renderVideoFlow = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
-		repro,
+		repro: repro ?? false,
 	});
 
 	updateRenderProgress({newline: true, printToConsole: true});

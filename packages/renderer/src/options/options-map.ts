@@ -1,5 +1,6 @@
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {reproOption} from './repro';
 import {videoBitrate} from './video-bitrate';
 
 export const optionsMap = {
@@ -7,6 +8,7 @@ export const optionsMap = {
 		offthreadVideoCacheSizeInBytes,
 		videoBitrate,
 		numberOfGifLoops: numberOfGifLoopsOption,
+		repro: reproOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes,

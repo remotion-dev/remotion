@@ -464,7 +464,7 @@ declare global {
 		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
 
 		/**
-		 * Generate a report during rendering.
+		 * Collect information that you can submit to Remotion if asked for a reproduction.
 		 */
 		readonly setRepro: (enableRepro: boolean) => void;
 	}
