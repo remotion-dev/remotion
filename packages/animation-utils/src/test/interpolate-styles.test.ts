@@ -67,7 +67,7 @@ test('Throw error on incompatible shorthands', () => {
 			],
 		),
 	).throws(
-		/The start and end values must be of the same type. Start value: 20px 40px, end value: 80px/,
+		/The start and end values must have the same structure. Start value: 20px 40px, end value: 80px/,
 	);
 });
 
@@ -107,7 +107,7 @@ test('Should be able to interpolate transform strings - edge', () => {
 	).toEqual({transform: `scale(0.5)`});
 });
 
-test('Should be able to interpolate transform strings - middle', () => {
+test('Should be able to interpolate transform strings - edge', () => {
 	expect(
 		interpolateStyles(
 			2.5,
@@ -125,8 +125,10 @@ test('Should be able to interpolate transform strings - middle', () => {
 			],
 		),
 	).toEqual({transform: `scale(2) translateX(300px) rotate(60deg)`});
+});
 
-	expect(
+test('Should not be able to interpolate transform with different structure', () => {
+	expect(() =>
 		interpolateStyles(
 			0.5,
 			[0, 1, 2],
@@ -142,7 +144,9 @@ test('Should be able to interpolate transform strings - middle', () => {
 				},
 			],
 		),
-	).toEqual({transform: `scale(0.75)`});
+	).toThrow(
+		/The start and end values must have the same structure. Start value: scale\(0.5\), end value: scale\(1\) translateX\(100px\) rotate\(20deg\)/,
+	);
 });
 
 test('Should throw on units mismatch', () => {

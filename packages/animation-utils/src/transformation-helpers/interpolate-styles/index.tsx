@@ -133,11 +133,11 @@ const interpolateProperty = (
 	const finalStylePropertyParts =
 		breakDownValueIntoUnitNumberAndFunctions(finalStyleProperty);
 
-	console.log(
-		'initialStylePropertyParts',
-		initialStylePropertyParts,
-		finalStylePropertyParts,
-	);
+	if (initialStylePropertyParts.length !== finalStylePropertyParts.length) {
+		throw new TypeError(
+			`The start and end values must have the same structure. Start value: ${initialStyleProperty}, end value: ${finalStyleProperty}`,
+		);
+	}
 
 	const interpolatedValue = initialStylePropertyParts.reduce(
 		(acc, initialStylePropertyPart, index) => {
