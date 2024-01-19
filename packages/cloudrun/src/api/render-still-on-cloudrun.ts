@@ -7,6 +7,7 @@ import type {
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -128,6 +129,7 @@ const renderStillOnCloudrunRaw = async ({
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		clientVersion: VERSION,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
