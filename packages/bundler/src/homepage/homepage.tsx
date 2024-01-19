@@ -170,10 +170,15 @@ const TestCORS: React.FC = () => {
 	);
 };
 
-export const Homepage: React.FC = () => {
+export const Homepage: React.FC<{
+	rootComponent: React.FC;
+}> = ({rootComponent}) => {
 	const url = window.location.origin + window.location.pathname;
+
+	const Root = rootComponent;
 	return (
 		<div style={container}>
+			<Root />
 			<h1>Remotion Bundle</h1>
 			This is a website which contains a bundled Remotion video. You can render
 			videos based on this URL.

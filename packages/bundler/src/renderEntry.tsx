@@ -146,29 +146,6 @@ const videoContainer = document.getElementById(
 	'video-container',
 ) as HTMLElement;
 
-const WaitForRoot: React.FC = () => {
-	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-
-	useEffect(() => {
-		if (Root) {
-			continueRender(waitForRootHandle);
-			return;
-		}
-
-		const cleanup = Internals.waitForRoot((NewRoot) => {
-			setRoot(() => NewRoot);
-		});
-
-		return () => cleanup();
-	}, [Root]);
-
-	if (Root === null) {
-		return null;
-	}
-
-	return <Root />;
-};
-
 let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
 
 const getRootForElement = () => {
@@ -192,13 +169,13 @@ const renderToDOM = (content: React.ReactElement) => {
 	}
 };
 
-const renderContent = () => {
+const renderContent = (Root: React.FC) => {
 	const bundleMode = getBundleMode();
 
 	if (bundleMode.type === 'composition') {
 		const markup = (
 			<Internals.RemotionRoot numberOfAudioTags={0}>
-				<WaitForRoot />
+				<Root />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
@@ -210,10 +187,10 @@ const renderContent = () => {
 		const markup = (
 			<>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
-					<WaitForRoot />
+					<Root />
 					<GetVideo state={bundleMode} />
 				</Internals.RemotionRoot>
-				<Homepage />
+				<Homepage rootComponent={Root} />
 			</>
 		);
 
@@ -221,15 +198,20 @@ const renderContent = () => {
 	}
 
 	if (bundleMode.type === 'index') {
-		renderToDOM(<Homepage />);
+		renderToDOM(<Homepage rootComponent={Root} />);
 	}
 };
 
-renderContent();
+Internals.waitForRoot((Root) => {
+	renderContent(Root);
+	continueRender(waitForRootHandle);
+});
 
 export const setBundleModeAndUpdate = (state: BundleState) => {
 	setBundleMode(state);
-	renderContent();
+	Internals.waitForRoot((Root) => {
+		renderContent(Root);
+	});
 };
 
 if (typeof window !== 'undefined') {
