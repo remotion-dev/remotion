@@ -66,6 +66,7 @@ export const listCompositionsCommand = async (
 			},
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
+			outDir: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

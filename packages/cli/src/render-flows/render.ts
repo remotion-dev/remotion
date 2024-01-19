@@ -237,6 +237,7 @@ export const renderVideoFlow = async ({
 			},
 			quietProgress: updatesDontOverwrite,
 			quietFlag: quietFlagProvided(),
+			outDir: null,
 		},
 	);
 

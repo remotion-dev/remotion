@@ -24,6 +24,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	onDirectoryCreated,
 	quietProgress,
 	quietFlag,
+	outDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -39,6 +40,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
 	quietFlag: boolean;
+	outDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -72,6 +74,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		onDirectoryCreated,
 		quietProgress,
 		quietFlag,
+		outDir,
 	});
 
 	return {
@@ -92,6 +95,7 @@ export const bundleOnCli = async ({
 	onDirectoryCreated,
 	quietProgress,
 	quietFlag,
+	outDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -107,6 +111,7 @@ export const bundleOnCli = async ({
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
 	quietFlag: boolean;
+	outDir: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -225,6 +230,7 @@ export const bundleOnCli = async ({
 			updateProgress(false);
 		},
 		onDirectoryCreated,
+		outDir: outDir ?? undefined,
 		...options,
 	});
 
