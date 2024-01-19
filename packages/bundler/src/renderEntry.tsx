@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import type {render, unmountComponentAtNode} from 'react-dom';
+import type {render} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
@@ -22,7 +22,9 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
-Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
+Internals.CSSUtils.injectCSS(
+	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+);
 
 const getCanSerializeDefaultProps = (object: unknown) => {
 	try {
@@ -136,25 +138,13 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	);
 };
 
-const videoContainer = document.getElementById(
-	'video-container',
-) as HTMLElement;
-
-const explainerContainer = document.getElementById(
-	'explainer-container',
-) as HTMLElement;
-
-let cleanupVideoContainer = () => {
-	videoContainer.innerHTML = '';
-};
-
-let cleanupExplainerContainer = () => {
-	explainerContainer.innerHTML = '';
-};
-
 const waitForRootHandle = delayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 );
+
+const videoContainer = document.getElementById(
+	'video-container',
+) as HTMLElement;
 
 const WaitForRoot: React.FC = () => {
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
@@ -179,10 +169,18 @@ const WaitForRoot: React.FC = () => {
 	return <Root />;
 };
 
+const renderToDOM = (content: React.ReactElement, element: HTMLElement) => {
+	if (ReactDOM.createRoot) {
+		ReactDOM.createRoot(element).render(content);
+	} else {
+		(ReactDOM as unknown as {render: typeof render}).render(content, element);
+	}
+};
+
 const renderContent = () => {
 	const bundleMode = getBundleMode();
 
-	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
+	if (bundleMode.type === 'composition') {
 		const markup = (
 			<Internals.RemotionRoot numberOfAudioTags={0}>
 				<WaitForRoot />
@@ -190,54 +188,25 @@ const renderContent = () => {
 			</Internals.RemotionRoot>
 		);
 
-		if (ReactDOM.createRoot) {
-			const root = ReactDOM.createRoot(videoContainer);
-			root.render(markup);
-			cleanupVideoContainer = () => {
-				root.unmount();
-			};
-		} else {
-			(ReactDOM as unknown as {render: typeof render}).render(
-				markup,
-				videoContainer,
-			);
-			cleanupVideoContainer = () => {
-				(
-					ReactDOM as unknown as {
-						unmountComponentAtNode: typeof unmountComponentAtNode;
-					}
-				).unmountComponentAtNode(videoContainer);
-			};
-		}
-	} else {
-		cleanupVideoContainer();
-		cleanupVideoContainer = () => {
-			videoContainer.innerHTML = '';
-		};
+		renderToDOM(markup, videoContainer);
 	}
 
-	if (bundleMode.type === 'index' || bundleMode.type === 'evaluation') {
-		if (ReactDOM.createRoot) {
-			const root = ReactDOM.createRoot(explainerContainer);
-			root.render(<Homepage />);
-			cleanupExplainerContainer = () => {
-				root.unmount();
-			};
-		} else {
-			const root = ReactDOM as unknown as {
-				render: typeof render;
-				unmountComponentAtNode: typeof unmountComponentAtNode;
-			};
-			root.render(<Homepage />, explainerContainer);
-			cleanupExplainerContainer = () => {
-				root.unmountComponentAtNode(explainerContainer);
-			};
-		}
-	} else {
-		cleanupExplainerContainer();
-		cleanupExplainerContainer = () => {
-			explainerContainer.innerHTML = '';
-		};
+	if (bundleMode.type === 'evaluation') {
+		const markup = (
+			<>
+				<Internals.RemotionRoot numberOfAudioTags={0}>
+					<WaitForRoot />
+					<GetVideo state={bundleMode} />
+				</Internals.RemotionRoot>
+				<Homepage />
+			</>
+		);
+
+		renderToDOM(markup, videoContainer);
+	}
+
+	if (bundleMode.type === 'index') {
+		renderToDOM(<Homepage />, videoContainer);
 	}
 };
 
