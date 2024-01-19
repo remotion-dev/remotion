@@ -169,11 +169,26 @@ const WaitForRoot: React.FC = () => {
 	return <Root />;
 };
 
-const renderToDOM = (content: React.ReactElement, element: HTMLElement) => {
+let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
+
+const getRootForElement = () => {
+	if (root) {
+		return root;
+	}
+
+	root = ReactDOM.createRoot(videoContainer);
+	return root;
+};
+
+const renderToDOM = (content: React.ReactElement) => {
+	// @ts-expect-error
 	if (ReactDOM.createRoot) {
-		ReactDOM.createRoot(element).render(content);
+		getRootForElement().render(content);
 	} else {
-		(ReactDOM as unknown as {render: typeof render}).render(content, element);
+		(ReactDOM as unknown as {render: typeof render}).render(
+			content,
+			videoContainer,
+		);
 	}
 };
 
@@ -188,7 +203,7 @@ const renderContent = () => {
 			</Internals.RemotionRoot>
 		);
 
-		renderToDOM(markup, videoContainer);
+		renderToDOM(markup);
 	}
 
 	if (bundleMode.type === 'evaluation') {
@@ -202,11 +217,11 @@ const renderContent = () => {
 			</>
 		);
 
-		renderToDOM(markup, videoContainer);
+		renderToDOM(markup);
 	}
 
 	if (bundleMode.type === 'index') {
-		renderToDOM(<Homepage />, videoContainer);
+		renderToDOM(<Homepage />);
 	}
 };
 

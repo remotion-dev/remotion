@@ -44,7 +44,7 @@ export const TitleUpdater: React.FC = () => {
 export const CurrentCompositionKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();
-	const {type} = useContext(StudioServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const openRenderModal = useCallback(() => {
 		if (!video) {
