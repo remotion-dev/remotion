@@ -1,0 +1,1 @@
+export const DEFAULT_TIMELINE_TRACKS = 90;

@@ -5,14 +5,14 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
-import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
+import {getFileSource} from '../../studio/src/error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
-} from './error-overlay/react-overlay/utils/open-in-editor';
-import {SOURCE_MAP_ENDPOINT} from './error-overlay/react-overlay/utils/source-map-endpoint';
-import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+} from '../../studio/src/error-overlay/react-overlay/utils/open-in-editor';
+import {SOURCE_MAP_ENDPOINT} from '../../studio/src/error-overlay/react-overlay/utils/source-map-endpoint';
+import type {SymbolicatedStackFrame} from '../../studio/src/error-overlay/react-overlay/utils/stack-frame';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {
 	ApiHandler,

@@ -1,5 +1,3 @@
-import type {EnumPath} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
-
 import type {
 	AudioCodec,
 	Codec,
@@ -13,6 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {EnumPath} from '../enum-path';
 import type {RequiredChromiumOptions} from '../required-chromium-options';
 import type {PackageManager} from './get-package-manager';
 

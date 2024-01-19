@@ -14,9 +14,8 @@ import {
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getRemotionVersion} from './preview-server/update-available';
 import {startStudio} from './start-studio';
-
 export type {AnsiDiff} from './ansi/ansi-diff';
-export type {EnumPath} from './components/RenderModal/SchemaEditor/extract-enum-json-paths';
+export type {EnumPath} from './enum-path';
 export type {PackageManager} from './preview-server/get-package-manager';
 export type {
 	AggregateRenderProgress,

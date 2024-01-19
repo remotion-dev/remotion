@@ -2,9 +2,10 @@ import React from 'react';
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
+import {startErrorOverlay} from '../../studio/src/error-overlay/entry-basic';
+import {Studio} from '../../studio/src/Studio';
 import '../styles/styles.css';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
-import {Studio} from './components/Studio';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
@@ -37,4 +38,5 @@ renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
 	renderToDOM(<Studio rootComponent={NewRoot} />);
+	startErrorOverlay();
 });

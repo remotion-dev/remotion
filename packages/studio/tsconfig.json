@@ -1,0 +1,27 @@
+{
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "dist",
+    "skipLibCheck": true
+  },
+  "include": ["src", "../studio-server/src/helpers/format-bytes.ts"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../media-utils"
+    },
+    {
+      "path": "../zod-types"
+    },
+    {
+      "path": "../renderer"
+    },
+    {
+      "path": "../player"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import {DEFAULT_TIMELINE_TRACKS} from './components/Timeline/MaxTimelineTracks';
+import {DEFAULT_TIMELINE_TRACKS} from './default-max-timeline-tracks';
 
 let maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
 

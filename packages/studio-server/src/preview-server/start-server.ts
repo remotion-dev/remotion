@@ -4,7 +4,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import {DEFAULT_TIMELINE_TRACKS} from '../components/Timeline/MaxTimelineTracks';
+import {DEFAULT_TIMELINE_TRACKS} from '../default-max-timeline-tracks';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
@@ -46,10 +46,7 @@ export const startServer = async (options: {
 		environment: 'development',
 		webpackOverride: options?.webpackOverride,
 		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
-		entryPoints: [
-			require.resolve('./hot-middleware/client'),
-			require.resolve('../error-overlay/entry-basic.js'),
-		],
+		entryPoints: [require.resolve('./hot-middleware/client')],
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,

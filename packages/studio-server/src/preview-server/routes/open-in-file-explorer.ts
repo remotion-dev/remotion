@@ -1,4 +1,4 @@
-import {openDirectoryInFinder} from '../../helpers/open-directory-in-finder';
+import {openDirectoryInFinder} from '../../open-directory-in-finder';
 import type {ApiHandler} from '../api-types';
 import type {OpenInFileExplorerRequest} from '../job';
 

@@ -1,4 +1,4 @@
-import type {EnumPath} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
+import type {EnumPath} from '../enum-path';
 import {stringifyDefaultProps} from './stringify-with-path';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
