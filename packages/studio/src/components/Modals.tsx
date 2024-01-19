@@ -9,7 +9,9 @@ import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC = () => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
-	const canRender = useContext(StudioServerConnectionCtx).type === 'connected';
+	const canRender =
+		useContext(StudioServerConnectionCtx).previewServerState.type ===
+		'connected';
 
 	return (
 		<>

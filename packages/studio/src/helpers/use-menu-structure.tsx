@@ -50,7 +50,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorShowGuidesContext,
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {type} = useContext(StudioServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const {
 		setSidebarCollapsedState,

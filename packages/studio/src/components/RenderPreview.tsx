@@ -25,7 +25,8 @@ export const RenderPreview: React.FC<{
 }> = ({path, assetMetadata}) => {
 	const fileType = getPreviewFileType(path);
 	const src = remotion_outputsBase + path;
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 
 	if (connectionStatus === 'disconnected') {
 		return <div style={errMsgStyle}>Studio server disconnected</div>;

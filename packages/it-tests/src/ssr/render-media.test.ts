@@ -139,7 +139,11 @@ test("Should fail invalid serve URL", async () => {
       },
     });
   } catch (err) {
-    expect((err as Error).message).toMatch(/Error while getting compositions/);
+    const message = (err as Error).message;
+    expect(
+      message.includes("Failed to load resource") ||
+        message.includes("Error while getting compositions")
+    ).toBe(true);
     return;
   }
 

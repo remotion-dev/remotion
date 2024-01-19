@@ -11,7 +11,6 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {subscribeToEvent} from '../../helpers/event-source';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -246,6 +245,10 @@ export const DataEditor: React.FC<{
 		checkIfCanSaveDefaultProps();
 	}, [checkIfCanSaveDefaultProps]);
 
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+
 	useEffect(() => {
 		const unsub = subscribeToEvent(
 			'root-file-changed',
@@ -255,7 +258,7 @@ export const DataEditor: React.FC<{
 		return () => {
 			unsub();
 		};
-	}, [checkIfCanSaveDefaultProps]);
+	}, [checkIfCanSaveDefaultProps, subscribeToEvent]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -339,7 +342,7 @@ export const DataEditor: React.FC<{
 		],
 	);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = previewServerState.type;
 
 	const warnings = useMemo(() => {
 		return getRenderModalWarnings({
@@ -428,7 +431,7 @@ export const DataEditor: React.FC<{
 									type="warning"
 								/>
 							</React.Fragment>
-					  ))
+						))
 					: null}
 			</div>
 
