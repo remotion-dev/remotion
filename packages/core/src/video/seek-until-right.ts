@@ -55,7 +55,7 @@ export const seekToTimeMultipleUntilRight = (
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
 
-			if (difference < threshold) {
+			if (difference <= threshold) {
 				return resolve();
 			}
 
@@ -67,13 +67,13 @@ export const seekToTimeMultipleUntilRight = (
 				.then((newTime) => {
 					const newDifference = Math.abs(desiredTime - newTime);
 
-					if (newDifference < threshold) {
+					if (newDifference <= threshold) {
 						return resolve();
 					}
 
 					const thirdSeek = seekToTime(element, desiredTime);
 					currentCancel = thirdSeek.cancel;
-					thirdSeek.wait.then(() => {
+					return thirdSeek.wait.then(() => {
 						resolve();
 					});
 				})
