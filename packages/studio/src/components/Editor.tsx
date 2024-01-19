@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {continueRender, delayRender, Internals} from 'remotion';
+import React, {useEffect} from 'react';
+import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {TimelineZoomContext} from '../state/timeline-zoom';
@@ -7,7 +7,6 @@ import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
-import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 
 const background: React.CSSProperties = {
@@ -19,17 +18,7 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-export const Editor: React.FC = () => {
-	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-
-	const [waitForRoot] = useState(() => {
-		if (Root) {
-			return 0;
-		}
-
-		return delayRender('Waiting for registerRoot()');
-	});
-
+export const Editor: React.FC<{Root: React.FC}> = ({Root}) => {
 	useEffect(() => {
 		const listenToChanges = (e: BeforeUnloadEvent) => {
 			if (window.remotion_unsavedProps) {
@@ -44,28 +33,13 @@ export const Editor: React.FC = () => {
 		};
 	}, []);
 
-	useEffect(() => {
-		if (Root) {
-			return;
-		}
-
-		const cleanup = Internals.waitForRoot((NewRoot) => {
-			setRoot(() => NewRoot);
-			continueRender(waitForRoot);
-		});
-
-		return () => {
-			cleanup();
-		};
-	}, [Root, waitForRoot]);
-
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<div style={background}>
-					{Root === null ? null : <Root />}
+					<Root />
 					<Internals.CanUseRemotionHooksProvider>
-						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
+						<EditorContent />
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
