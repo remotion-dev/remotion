@@ -1,4 +1,31 @@
-import {AnsiDiff} from './ansi/ansi-diff';
+export type {EnumPath} from './enum-path';
+export {EventSourceEvent} from './event-source-events';
+export {ApiRoutes} from './preview-server/api-types';
+export type {PackageManager} from './preview-server/get-package-manager';
+export type {
+	HotMiddlewareOptions,
+	ModuleMap,
+} from './preview-server/hot-middleware/types';
+export {
+	CopyStillToClipboardRequest,
+	OpenInFileExplorerRequest,
+} from './preview-server/job';
+export type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	DownloadProgress,
+	JobProgressCallback,
+	RenderingProgressInput,
+	RenderJob,
+	RenderJobWithCleanup,
+	RenderStep,
+	StitchingProgressInput,
+} from './preview-server/job';
+export type {
+	RequiredChromiumOptions,
+	UiOpenGlOptions,
+} from './required-chromium-options';
 import {installFileWatcher} from './file-watcher';
 import {getDefaultOutLocation} from './get-default-out-name';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
@@ -14,21 +41,6 @@ import {
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getRemotionVersion} from './preview-server/update-available';
 import {startStudio} from './start-studio';
-export type {AnsiDiff} from './ansi/ansi-diff';
-export type {EnumPath} from './enum-path';
-export type {PackageManager} from './preview-server/get-package-manager';
-export type {
-	AggregateRenderProgress,
-	BundlingState,
-	CopyingState,
-	DownloadProgress,
-	JobProgressCallback,
-	RenderingProgressInput,
-	RenderJob,
-	RenderJobWithCleanup,
-	RenderStep,
-	StitchingProgressInput,
-} from './preview-server/job';
 
 export const StudioInternals = {
 	startStudio,
@@ -42,5 +54,4 @@ export const StudioInternals = {
 	getLatestRemotionVersion,
 	getDefaultOutLocation,
 	installFileWatcher,
-	AnsiDiff,
 };

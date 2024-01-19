@@ -1,167 +1,167 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import type {WatchRemotionStaticFilesPayload} from 'remotion';
-import {Internals} from 'remotion';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
-import playBeepSound from '../components/PlayBeepSound';
-import {renderJobsRef} from '../components/RenderQueue/context';
-import type {EventSourceEvent} from '../event-source-events';
+import type { EventSourceEvent } from "@remotion/studio-server";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import type { WatchRemotionStaticFilesPayload } from "remotion";
+import { Internals } from "remotion";
+import { sendErrorNotification } from "../components/Notifications/NotificationCenter";
+import playBeepSound from "../components/PlayBeepSound";
+import { renderJobsRef } from "../components/RenderQueue/context";
 
 type PreviewServerState =
-	| {
-			type: 'init';
-	  }
-	| {
-			type: 'connected';
-			clientId: string;
-	  }
-	| {
-			type: 'disconnected';
-	  };
+  | {
+      type: "init";
+    }
+  | {
+      type: "connected";
+      clientId: string;
+    }
+  | {
+      type: "disconnected";
+    };
 
 type Context = {
-	previewServerState: PreviewServerState;
-	subscribeToEvent: (
-		type: EventSourceEvent['type'],
-		listener: (event: EventSourceEvent) => void,
-	) => () => void;
+  previewServerState: PreviewServerState;
+  subscribeToEvent: (
+    type: EventSourceEvent["type"],
+    listener: (event: EventSourceEvent) => void
+  ) => () => void;
 };
 
 export const StudioServerConnectionCtx = React.createContext<Context>({
-	previewServerState: {
-		type: 'init',
-	},
-	subscribeToEvent: () => {
-		throw new Error('Context not initalized');
-	},
+  previewServerState: {
+    type: "init",
+  },
+  subscribeToEvent: () => {
+    throw new Error("Context not initalized");
+  },
 });
 
 type Listeners = {
-	type: string;
-	listener: (event: EventSourceEvent) => void;
+  type: string;
+  listener: (event: EventSourceEvent) => void;
 }[];
 
 export const PreviewServerConnection: React.FC<{
-	children: React.ReactNode;
-}> = ({children}) => {
-	const listeners = useRef<Listeners>([]);
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const listeners = useRef<Listeners>([]);
 
-	const subscribeToEvent = useCallback(
-		(
-			type: EventSourceEvent['type'],
-			listener: (event: EventSourceEvent) => void,
-		) => {
-			listeners.current.push({type, listener});
+  const subscribeToEvent = useCallback(
+    (
+      type: EventSourceEvent["type"],
+      listener: (event: EventSourceEvent) => void
+    ) => {
+      listeners.current.push({ type, listener });
 
-			return () => {
-				listeners.current = listeners.current.filter(
-					(l) => l.type !== type || l.listener !== listener,
-				);
-			};
-		},
-		[],
-	);
+      return () => {
+        listeners.current = listeners.current.filter(
+          (l) => l.type !== type || l.listener !== listener
+        );
+      };
+    },
+    []
+  );
 
-	const openEventSource = useCallback(() => {
-		const source = new EventSource('/events');
+  const openEventSource = useCallback(() => {
+    const source = new EventSource("/events");
 
-		source.addEventListener('message', (event) => {
-			const newEvent = JSON.parse(event.data) as EventSourceEvent;
-			if (
-				newEvent.type === 'new-input-props' ||
-				newEvent.type === 'new-env-variables'
-			) {
-				window.location.reload();
-			}
+    source.addEventListener("message", (event) => {
+      const newEvent = JSON.parse(event.data) as EventSourceEvent;
+      if (
+        newEvent.type === "new-input-props" ||
+        newEvent.type === "new-env-variables"
+      ) {
+        window.location.reload();
+      }
 
-			if (newEvent.type === 'init') {
-				setState({
-					type: 'connected',
-					clientId: newEvent.clientId,
-				});
-			}
+      if (newEvent.type === "init") {
+        setState({
+          type: "connected",
+          clientId: newEvent.clientId,
+        });
+      }
 
-			if (newEvent.type === 'render-queue-updated') {
-				renderJobsRef.current?.updateRenderJobs(newEvent.queue);
-				for (const job of newEvent.queue) {
-					if (job.status === 'done' && job.beepOnFinish) {
-						playBeepSound(job.id);
-					}
-				}
-			}
+      if (newEvent.type === "render-queue-updated") {
+        renderJobsRef.current?.updateRenderJobs(newEvent.queue);
+        for (const job of newEvent.queue) {
+          if (job.status === "done" && job.beepOnFinish) {
+            playBeepSound(job.id);
+          }
+        }
+      }
 
-			if (newEvent.type === 'render-job-failed') {
-				sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
-			}
+      if (newEvent.type === "render-job-failed") {
+        sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
+      }
 
-			if (newEvent.type === 'new-public-folder') {
-				const payload: WatchRemotionStaticFilesPayload = {
-					files: newEvent.files,
-				};
+      if (newEvent.type === "new-public-folder") {
+        const payload: WatchRemotionStaticFilesPayload = {
+          files: newEvent.files,
+        };
 
-				window.dispatchEvent(
-					new CustomEvent(Internals.WATCH_REMOTION_STATIC_FILES, {
-						detail: payload,
-					}),
-				);
-				window.remotion_staticFiles = newEvent.files;
-				window.remotion_publicFolderExists = newEvent.folderExists;
-			}
+        window.dispatchEvent(
+          new CustomEvent(Internals.WATCH_REMOTION_STATIC_FILES, {
+            detail: payload,
+          })
+        );
+        window.remotion_staticFiles = newEvent.files;
+        window.remotion_publicFolderExists = newEvent.folderExists;
+      }
 
-			listeners.current.forEach((l) => {
-				if (l.type === newEvent.type) {
-					l.listener(newEvent);
-				}
-			});
-		});
+      listeners.current.forEach((l) => {
+        if (l.type === newEvent.type) {
+          l.listener(newEvent);
+        }
+      });
+    });
 
-		source.addEventListener('open', () => {
-			(source as EventSource).addEventListener(
-				'error',
-				() => {
-					setState({type: 'disconnected'});
-					// Display an error message that the studio server has disconnected.
-					source?.close();
+    source.addEventListener("open", () => {
+      (source as EventSource).addEventListener(
+        "error",
+        () => {
+          setState({ type: "disconnected" });
+          // Display an error message that the studio server has disconnected.
+          source?.close();
 
-					// Retry later
-					setTimeout(() => {
-						openEventSource();
-					}, 1000);
-				},
-				{once: true},
-			);
-		});
+          // Retry later
+          setTimeout(() => {
+            openEventSource();
+          }, 1000);
+        },
+        { once: true }
+      );
+    });
 
-		const close = () => {
-			source.close();
-		};
+    const close = () => {
+      source.close();
+    };
 
-		return {
-			close,
-		};
-	}, []);
+    return {
+      close,
+    };
+  }, []);
 
-	useEffect(() => {
-		const {close} = openEventSource();
+  useEffect(() => {
+    const { close } = openEventSource();
 
-		return () => {
-			close();
-		};
-	}, [openEventSource]);
+    return () => {
+      close();
+    };
+  }, [openEventSource]);
 
-	const [state, setState] = React.useState<PreviewServerState>({
-		type: 'init',
-	});
+  const [state, setState] = React.useState<PreviewServerState>({
+    type: "init",
+  });
 
-	const context: Context = useMemo(() => {
-		return {
-			previewServerState: state,
-			subscribeToEvent,
-		};
-	}, [state, subscribeToEvent]);
+  const context: Context = useMemo(() => {
+    return {
+      previewServerState: state,
+      subscribeToEvent,
+    };
+  }, [state, subscribeToEvent]);
 
-	return (
-		<StudioServerConnectionCtx.Provider value={context}>
-			{children}
-		</StudioServerConnectionCtx.Provider>
-	);
+  return (
+    <StudioServerConnectionCtx.Provider value={context}>
+      {children}
+    </StudioServerConnectionCtx.Provider>
+  );
 };

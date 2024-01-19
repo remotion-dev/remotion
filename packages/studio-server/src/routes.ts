@@ -5,14 +5,12 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
-import {getFileSource} from '../../studio/src/error-overlay/react-overlay/utils/get-file-source';
+import {getFileSource} from './helpers/get-file-source';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
-} from '../../studio/src/error-overlay/react-overlay/utils/open-in-editor';
-import {SOURCE_MAP_ENDPOINT} from '../../studio/src/error-overlay/react-overlay/utils/source-map-endpoint';
-import type {SymbolicatedStackFrame} from '../../studio/src/error-overlay/react-overlay/utils/stack-frame';
+} from './helpers/open-in-editor';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {
 	ApiHandler,
@@ -27,6 +25,8 @@ import {parseRequestBody} from './preview-server/parse-body';
 import {getProjectInfo} from './preview-server/project-info';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
+import type {SymbolicatedStackFrame} from './stack-frame';
 
 const editorGuess = guessEditor();
 

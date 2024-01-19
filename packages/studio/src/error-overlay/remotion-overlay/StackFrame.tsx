@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Button } from "../../components/Button";
-import type { SymbolicatedStackFrame } from "../react-overlay/utils/stack-frame";
+import type { SymbolicatedStackFrame } from "@remotion/studio-server/src/stack-frame";
 import { CaretDown, CaretRight } from "./carets";
 import { CodeFrame } from "./CodeFrame";
 import { formatLocation } from "./format-location";

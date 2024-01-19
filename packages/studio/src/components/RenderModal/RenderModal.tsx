@@ -40,7 +40,7 @@ import { Checkmark } from "../../icons/Checkmark";
 import type {
   RequiredChromiumOptions,
   UiOpenGlOptions,
-} from "../../required-chromium-options";
+} from "@remotion/studio-server";
 import { ModalsContext } from "../../state/modals";
 import { SidebarContext } from "../../state/sidebar";
 import { Spacing } from "../layout";
@@ -78,6 +78,7 @@ import { RenderModalGif } from "./RenderModalGif";
 import type { QualityControl } from "./RenderModalPicture";
 import { RenderModalPicture } from "./RenderModalPicture";
 import { Button } from "../Button";
+import { ShortcutHint } from "../../error-overlay/remotion-overlay/ShortcutHint";
 
 type State =
   | {

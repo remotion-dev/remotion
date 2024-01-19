@@ -6,7 +6,7 @@
     "outDir": "dist",
     "skipLibCheck": true
   },
-  "include": ["src", "../studio-server/src/helpers/format-bytes.ts"],
+  "include": ["src"],
   "references": [
     {
       "path": "../core"

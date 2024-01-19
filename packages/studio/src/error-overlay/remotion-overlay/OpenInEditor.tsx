@@ -9,7 +9,7 @@ import React, {
 import { Button } from "../../components/Button";
 import { openInEditor } from "../../helpers/open-in-editor";
 import { useKeybinding } from "../../helpers/use-keybinding";
-import type { SymbolicatedStackFrame } from "../react-overlay/utils/stack-frame";
+import type { SymbolicatedStackFrame } from "@remotion/studio-server/src/stack-frame";
 import { ShortcutHint } from "./ShortcutHint";
 
 type State =

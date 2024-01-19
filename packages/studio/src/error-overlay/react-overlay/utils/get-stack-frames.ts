@@ -9,23 +9,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {parseError} from './parser';
-import type {SymbolicatedStackFrame} from './stack-frame';
-import {unmap} from './unmapper';
+import { parseError } from "./parser";
+import type { SymbolicatedStackFrame } from "@remotion/studio-server/src/stack-frame";
+import { unmap } from "./unmapper";
 
 export const getStackFrames = async (
-	error: Error,
-	contextSize: number,
+  error: Error,
+  contextSize: number
 ): Promise<SymbolicatedStackFrame[] | null> => {
-	const parsedFrames = await parseError(error, contextSize);
-	const enhancedFrames = await unmap(parsedFrames, contextSize);
-	if (
-		enhancedFrames
-			.map((f) => f.originalFileName)
-			.filter((f_1) => f_1 !== null && f_1 !== undefined).length === 0
-	) {
-		return null;
-	}
+  const parsedFrames = await parseError(error, contextSize);
+  const enhancedFrames = await unmap(parsedFrames, contextSize);
+  if (
+    enhancedFrames
+      .map((f) => f.originalFileName)
+      .filter((f_1) => f_1 !== null && f_1 !== undefined).length === 0
+  ) {
+    return null;
+  }
 
-	return enhancedFrames;
+  return enhancedFrames;
 };
