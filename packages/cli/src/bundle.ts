@@ -1,6 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {StudioInternals} from '@remotion/studio';
+import {existsSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
@@ -56,6 +57,20 @@ export const bundleCommand = async (
 		'.gitignore',
 	);
 	const existed = existsSync(outputPath);
+	if (existed) {
+		if (!existsSync(path.join(outputPath, 'index.html'))) {
+			Log.error(
+				`The folder at ${outputPath} already exists, and needs to be deleted before a new bundle can be created.`,
+			);
+			Log.error(
+				'However, it does not look like the folder was created by `npx remotion bundle` (no index.html).',
+			);
+			Log.error('Aborting to prevent accidental data loss.');
+			process.exit(1);
+		}
+
+		rmSync(outputPath, {recursive: true});
+	}
 
 	const output = await bundleOnCli({
 		fullPath: file,
@@ -67,7 +82,22 @@ export const bundleCommand = async (
 		publicDir,
 		steps: 1,
 		remotionRoot,
-		onProgressCallback: () => {},
+		onProgressCallback: ({bundling, copying}) => {
+			// Handle floating point inaccuracies
+			if (bundling.progress < 0.99999) {
+				if (updatesDontOverwrite) {
+					Log.info(`Bundling ${Math.round(bundling.progress * 100)}%`);
+				}
+			}
+
+			if (copying.doneIn === null) {
+				if (updatesDontOverwrite) {
+					return `Copying public dir ${StudioInternals.formatBytes(
+						copying.bytes,
+					)}`;
+				}
+			}
+		},
 		quietFlag: quietFlagProvided(),
 		outDir: outputPath,
 	});
@@ -99,7 +129,7 @@ export const bundleCommand = async (
 
 	const answer = await yesOrNo({
 		defaultValue: true,
-		question: `Do you want to add ${chalk.bold(
+		question: `Recommended: Add ${chalk.bold(
 			relativePathToGitIgnore,
 		)} to your ${chalk.bold('.gitignore')} file? (Y/n)`,
 	});
