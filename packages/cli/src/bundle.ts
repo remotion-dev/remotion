@@ -3,6 +3,7 @@ import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
+import {quietFlagProvided} from './parse-command-line';
 import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 
@@ -11,7 +12,21 @@ export const bundleCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const explicitlyPassed = args[0];
+	if (
+		explicitlyPassed &&
+		reason !== 'argument passed' &&
+		reason !== 'argument passed - found in cwd' &&
+		reason !== 'argument passed - found in root'
+	) {
+		Log.error(
+			`Entry point was specified as ${chalk.bold(
+				explicitlyPassed,
+			)}, but it was not found.`,
+		);
+		process.exit(1);
+	}
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
@@ -38,6 +53,7 @@ export const bundleCommand = async (
 		steps: 1,
 		remotionRoot,
 		onProgressCallback: () => {},
+		quietFlag: quietFlagProvided(),
 	});
 
 	// TODO: Not + if already existed

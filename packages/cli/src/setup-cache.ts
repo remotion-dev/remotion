@@ -5,7 +5,6 @@ import {RenderInternals} from '@remotion/renderer';
 import type {BundlingState, CopyingState} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
 import type {SymbolicLinksState} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -24,6 +23,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -38,6 +38,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -70,6 +71,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		steps,
 		onDirectoryCreated,
 		quietProgress,
+		quietFlag,
 	});
 
 	return {
@@ -89,6 +91,7 @@ export const bundleOnCli = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -103,6 +106,7 @@ export const bundleOnCli = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -200,7 +204,7 @@ export const bundleOnCli = async ({
 
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
-		quiet: quietProgress || quietFlagProvided(),
+		quiet: quietProgress || quietFlag,
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,

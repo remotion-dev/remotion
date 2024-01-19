@@ -6,6 +6,7 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
+import {quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
@@ -64,6 +65,7 @@ export const listCompositionsCommand = async (
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: false,
+			quietFlag: quietFlagProvided(),
 		});
 
 	registerCleanupJob(() => cleanupBundle());
