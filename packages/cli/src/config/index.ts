@@ -55,7 +55,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {

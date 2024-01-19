@@ -39,7 +39,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/studio": "workspace:*",
+		"@remotion/studio-server": "workspace:*",
 		"dotenv": "9.0.2",
 		"minimist": "1.2.6",
 		"prompts": "2.4.2",

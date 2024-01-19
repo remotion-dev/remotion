@@ -1,6 +1,6 @@
 import type {LogLevel, RenderMediaOnDownload} from '@remotion/renderer';
-import type {DownloadProgress} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+import type {DownloadProgress} from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import {Log} from './log';
 
 export const makeOnDownload = ({

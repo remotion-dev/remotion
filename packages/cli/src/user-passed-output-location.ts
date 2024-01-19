@@ -1,4 +1,4 @@
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 

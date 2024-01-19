@@ -4,8 +4,8 @@ import type {
 	JobProgressCallback,
 	RenderJob,
 	RenderJobWithCleanup,
-} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+} from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';

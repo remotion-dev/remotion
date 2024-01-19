@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {bundleCommand} from './bundle';

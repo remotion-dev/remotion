@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import {existsSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';

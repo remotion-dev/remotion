@@ -6,8 +6,8 @@ import type {
 	CopyingState,
 	RenderingProgressInput,
 	StitchingProgressInput,
-} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+} from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,

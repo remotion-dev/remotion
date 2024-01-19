@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';

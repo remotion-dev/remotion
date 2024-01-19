@@ -1,5 +1,5 @@
-import type {DownloadProgress} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+import type {DownloadProgress} from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
 

@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import {Log} from './log';
 
 export const cloudrunCommand = async (

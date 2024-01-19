@@ -197,9 +197,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@remotion/studio':
+      '@remotion/studio-server':
         specifier: workspace:*
-        version: link:../studio
+        version: link:../studio-server
       dotenv:
         specifier: 9.0.2
         version: 9.0.2
@@ -1752,7 +1752,7 @@ importers:
         specifier: ^2.70.1
         version: 2.76.0
 
-  packages/studio:
+  packages/studio-server:
     dependencies:
       '@remotion/bundler':
         specifier: workspace:*

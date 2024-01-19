@@ -6,7 +6,7 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals} from '@remotion/studio-server';
 import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';

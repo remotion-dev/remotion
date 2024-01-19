@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {PackageManager} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+import type {PackageManager} from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
