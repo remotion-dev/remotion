@@ -28,6 +28,5 @@ renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
 	renderToDOM(<Studio rootComponent={NewRoot} />);
+	openEventSource();
 });
-
-openEventSource();
