@@ -228,6 +228,8 @@ export const benchmarkCommand = async (
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: false,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

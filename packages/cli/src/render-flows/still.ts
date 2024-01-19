@@ -169,6 +169,8 @@ export const renderStillFlow = async ({
 				});
 			},
 			quietProgress: updatesDontOverwrite,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		},
 	);
 
