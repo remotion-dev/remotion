@@ -30,7 +30,7 @@
     "execa": "5.1.1",
     "remotion": "workspace:*",
     "sharp": "0.32.6",
-    "vite": "^4.0.5",
+    "vite": "^4.5.2",
     "vitest": "0.31.1"
   }
 }
