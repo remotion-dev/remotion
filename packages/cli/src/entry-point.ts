@@ -22,6 +22,14 @@ const findCommonPath = (remotionRoot: string) => {
 	);
 };
 
+type FoundReason =
+	| 'argument passed - found in cwd'
+	| 'argument passed - found in root'
+	| 'argument passed'
+	| 'config file'
+	| 'common paths'
+	| 'none found';
+
 export const findEntryPoint = (
 	args: string[],
 	remotionRoot: string,
@@ -29,7 +37,7 @@ export const findEntryPoint = (
 ): {
 	file: string | null;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
 	const result = findEntryPointInner(args, remotionRoot, logLevel);
 	if (result.file === null) {
@@ -62,7 +70,7 @@ const findEntryPointInner = (
 ): {
 	file: string | null;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
 	// 1st priority: Explicitly passed entry point
 	let file: string | null = args[0];

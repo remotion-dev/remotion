@@ -119,19 +119,26 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 
 const recursionLimit = 5;
 
-const findClosestPackageJsonFolder = (currentDir: string): string | null => {
-	let possiblePackageJson = '';
+export const findClosestFolderWithFile = (
+	currentDir: string,
+	file: string,
+): string | null => {
+	let possibleFile = '';
 	for (let i = 0; i < recursionLimit; i++) {
-		possiblePackageJson = path.join(currentDir, 'package.json');
-		const exists = fs.existsSync(possiblePackageJson);
+		possibleFile = path.join(currentDir, file);
+		const exists = fs.existsSync(possibleFile);
 		if (exists) {
-			return path.dirname(possiblePackageJson);
+			return path.dirname(possibleFile);
 		}
 
 		currentDir = path.dirname(currentDir);
 	}
 
 	return null;
+};
+
+const findClosestPackageJsonFolder = (currentDir: string): string | null => {
+	return findClosestFolderWithFile(currentDir, 'package.json');
 };
 
 const validateEntryPoint = async (entryPoint: string) => {

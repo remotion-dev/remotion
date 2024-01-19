@@ -1,4 +1,4 @@
-import {getConfig} from './bundle';
+import {findClosestFolderWithFile, getConfig} from './bundle';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
 import {cacheExists, clearCache} from './webpack-cache';
@@ -14,6 +14,7 @@ export const BundlerInternals = {
 	clearCache,
 	getConfig,
 	readRecursively,
+	findClosestFolderWithFile,
 };
 
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';

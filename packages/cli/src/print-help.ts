@@ -7,13 +7,15 @@ const packagejson = require('../package.json');
 
 export const printHelp = () => {
 	Log.info(`@remotion/cli ${packagejson.version}`);
-	Log.info(`© ${new Date().getFullYear()} The Remotion AG`);
+	Log.info(`© ${new Date().getFullYear()} Remotion AG`);
 	Log.info();
 	Log.info('Available commands:');
-	Log.info('');
+
+	Log.info();
 	Log.info(chalk.blue('remotion studio') + chalk.gray(' <entry-point.ts>'));
 	Log.info('Start the Remotion studio.');
 	Log.info(chalk.gray('https://www.remotion.dev/docs/cli/studio'));
+
 	Log.info();
 	Log.info(
 		chalk.blue('remotion render') +
@@ -29,6 +31,11 @@ export const printHelp = () => {
 	);
 	Log.info('Render a still frame and save it as an image.');
 	Log.info(chalk.gray('https://www.remotion.dev/docs/cli/still'));
+
+	Log.info();
+	Log.info(chalk.blue('remotion bundle') + chalk.gray(' <entry-point.ts>'));
+	Log.info('Create a Remotion bundle to be deployed to the web.');
+	Log.info(chalk.gray('https://www.remotion.dev/docs/cli/bundle'));
 
 	Log.info();
 	Log.info(
@@ -49,6 +56,7 @@ export const printHelp = () => {
 	Log.info(chalk.blue('remotion ' + VERSIONS_COMMAND));
 	Log.info('Prints and validates versions of all Remotion packages.');
 	Log.info(chalk.gray('https://www.remotion.dev/docs/cli/versions'));
+
 	Log.info();
 	Log.info(chalk.blue('remotion ' + GPU_COMMAND));
 	Log.info('Prints information about how Chrome uses the CPU.');
