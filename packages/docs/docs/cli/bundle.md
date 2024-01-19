@@ -7,7 +7,8 @@ crumb: CLI Reference
 
 _available from v4.0.89_
 
-Creates a [Remotion Bundle](/docs/terminology#bundle) on the command line. Equivalent to the [`bundle()`](/docs/bundle) Node.JS API.
+Creates a [Remotion Bundle](/docs/terminology#bundle) on the command line.  
+Equivalent to the [`bundle()`](/docs/bundle) Node.JS API.
 
 ```bash
 npx remotion bundle <entry-file?>
