@@ -14,6 +14,7 @@ module.exports = {
         "cli/render",
         "cli/still",
         "cli/compositions",
+        "cli/bundle",
         {
           type: "category",
           label: "lambda",

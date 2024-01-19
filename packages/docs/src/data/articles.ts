@@ -147,6 +147,13 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
+    id: "cli/bundle",
+    title: "npx remotion bundle",
+    relativePath: "docs/cli/bundle.md",
+    compId: "articles-docs-cli-bundle",
+    crumb: "CLI Reference",
+  },
+  {
     id: "cli",
     title: "Command line reference",
     relativePath: "docs/cli/cli.md",

@@ -7,7 +7,7 @@ import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
@@ -51,7 +51,10 @@ export const bundleCommand = async (
 		logLevel,
 	});
 
-	const outputPath = path.join(remotionRoot, 'build');
+	const outputPath = parsedCli['out-dir']
+		? path.resolve(process.cwd(), parsedCli['out-dir'])
+		: path.join(remotionRoot, 'build');
+
 	const gitignoreFolder = BundlerInternals.findClosestFolderWithFile(
 		outputPath,
 		'.gitignore',
