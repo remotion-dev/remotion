@@ -209,8 +209,14 @@ Internals.waitForRoot((Root) => {
 
 export const setBundleModeAndUpdate = (state: BundleState) => {
 	setBundleMode(state);
+	const delay = delayRender(
+		'Waiting for root component to load - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
+	);
 	Internals.waitForRoot((Root) => {
 		renderContent(Root);
+		requestAnimationFrame(() => {
+			continueRender(delay);
+		});
 	});
 };
 
