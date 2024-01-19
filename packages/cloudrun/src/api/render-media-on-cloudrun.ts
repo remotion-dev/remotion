@@ -14,6 +14,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -205,6 +206,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
+		clientVersion: VERSION,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

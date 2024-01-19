@@ -54,6 +54,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		preferLossless: z.boolean(),
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 		colorSpace: z.enum(BrowserSafeApis.validColorSpaces),
+		clientVersion: z.string(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -74,6 +75,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
+		clientVersion: z.string(),
 	}),
 ]);
 
