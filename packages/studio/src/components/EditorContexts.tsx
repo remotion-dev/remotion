@@ -19,10 +19,11 @@ import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
 export const EditorContexts: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	readOnlyStudio: boolean;
+}> = ({children, readOnlyStudio}) => {
 	return (
 		<ZodProvider>
-			<PreviewServerConnection>
+			<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
 				<RenderQueueContextProvider>
 					<KeybindingContextProvider>
 						<CheckerboardProvider>

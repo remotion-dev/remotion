@@ -11,6 +11,7 @@ import type {
 } from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
 	EnumPath,
 	OpenInFileExplorerRequest,
@@ -357,7 +358,17 @@ export const updateDefaultProps = (
 	});
 };
 
-export const canUpdateDefaultProps = (compositionId: string) => {
+export const canUpdateDefaultProps = (
+	compositionId: string,
+	readOnlyStudio: boolean,
+): Promise<CanUpdateDefaultPropsResponse> => {
+	if (readOnlyStudio) {
+		return Promise.resolve({
+			canUpdate: false,
+			reason: 'Read-only studio',
+		});
+	}
+
 	return callApi('/api/can-update-default-props', {
 		compositionId,
 	});

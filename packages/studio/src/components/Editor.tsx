@@ -51,7 +51,7 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
 				</div>
-				<Modals />
+				<Modals readOnlyStudio={readOnlyStudio} />
 			</TimelineZoomContext>
 		</HigherZIndex>
 	);

@@ -133,7 +133,7 @@ export const TopPanel: React.FC<{
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-			<PreviewToolbar />
+			<PreviewToolbar readOnlyStudio={readOnlyStudio} />
 			<CurrentCompositionKeybindings />
 			<TitleUpdater />
 		</div>

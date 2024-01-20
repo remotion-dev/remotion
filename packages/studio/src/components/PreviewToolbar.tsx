@@ -45,7 +45,9 @@ const padding: React.CSSProperties = {
 	width: TIMELINE_PADDING,
 };
 
-export const PreviewToolbar: React.FC = () => {
+export const PreviewToolbar: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
 	);
@@ -94,7 +96,7 @@ export const PreviewToolbar: React.FC = () => {
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
-				<RenderButton />
+				{readOnlyStudio ? null : <RenderButton />}
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />

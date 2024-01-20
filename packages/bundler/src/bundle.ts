@@ -75,7 +75,7 @@ export const getConfig = ({
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 90,
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: false,
+		keyboardShortcutsEnabled: true,
 		poll: null,
 	});
 };

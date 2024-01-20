@@ -37,7 +37,10 @@ const rotate: React.CSSProperties = {
 };
 const ICON_SIZE = 16;
 
-export const useMenuStructure = (closeMenu: () => void) => {
+export const useMenuStructure = (
+	closeMenu: () => void,
+	readOnlyStudio: boolean,
+) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
@@ -138,74 +141,95 @@ export const useMenuStructure = (closeMenu: () => void) => {
 				label: 'File',
 				leaveLeftPadding: false,
 				items: [
-					{
-						id: 'new-sequence',
-						value: 'new-sequence',
-						label: 'New composition...',
-						onClick: () => {
-							closeMenu();
-							setSelectedModal({
-								compType: 'composition',
-								type: 'new-comp',
-							});
-						},
-						type: 'item' as const,
-						keyHint: 'N',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'New composition...',
-					},
-					{
-						id: 'new-still',
-						value: 'new-still',
-						label: 'New still...',
-						onClick: () => {
-							closeMenu();
-							setSelectedModal({
-								compType: 'still',
-								type: 'new-comp',
-							});
-						},
-						type: 'item' as const,
-						keyHint: null,
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'New still...',
-					},
-					{
-						type: 'divider' as const,
-						id: 'new-divider',
-					},
-					{
-						id: 'render',
-						value: 'render',
-						label: 'Render...',
-						onClick: () => {
-							closeMenu();
-							if (type !== 'connected') {
-								sendErrorNotification('Restart the studio to render');
-								return;
+					readOnlyStudio
+						? {
+								id: 'read-only',
+								value: 'replace-me',
+								label: '// TODO',
+								onClick: () => {
+									closeMenu();
+								},
+								type: 'item' as const,
+								keyHint: 'A',
+								leftItem: null,
+								subMenu: null,
+								// TODO: Replace me
+								quickSwitcherLabel: 'TODO Replace me...',
 							}
+						: {
+								id: 'new-sequence',
+								value: 'new-sequence',
+								label: 'New composition...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										compType: 'composition',
+										type: 'new-comp',
+									});
+								},
+								type: 'item' as const,
+								keyHint: 'N',
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'New composition...',
+							},
+					readOnlyStudio
+						? null
+						: {
+								id: 'new-still',
+								value: 'new-still',
+								label: 'New still...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										compType: 'still',
+										type: 'new-comp',
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'New still...',
+							},
+					readOnlyStudio
+						? null
+						: {
+								type: 'divider' as const,
+								id: 'new-divider',
+							},
+					readOnlyStudio
+						? null
+						: {
+								id: 'render',
+								value: 'render',
+								label: 'Render...',
+								onClick: () => {
+									closeMenu();
+									if (type !== 'connected') {
+										sendErrorNotification('Restart the studio to render');
+										return;
+									}
 
-							const renderButton = document.getElementById(
-								'render-modal-button',
-							) as HTMLDivElement;
+									const renderButton = document.getElementById(
+										'render-modal-button',
+									) as HTMLDivElement;
 
-							renderButton.click();
-						},
-						type: 'item' as const,
-						keyHint: 'R',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Render...',
-					},
-					window.remotion_editorName
+									renderButton.click();
+								},
+								type: 'item' as const,
+								keyHint: 'R',
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Render...',
+							},
+					window.remotion_editorName && !readOnlyStudio
 						? {
 								type: 'divider' as const,
 								id: 'open-in-editor-divider',
 							}
 						: null,
-					window.remotion_editorName
+					window.remotion_editorName && !readOnlyStudio
 						? {
 								id: 'open-in-editor',
 								value: 'open-in-editor',
@@ -704,18 +728,32 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Follow Remotion on Instagram',
 					},
 					{
-						id: 'twitter',
-						value: 'twitter',
-						label: 'Twitter',
+						id: 'x',
+						value: 'x',
+						label: 'X',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://twitter.com/remotion');
+							openExternal('https://x.com/remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Follow Remotion on Twitter',
+						quickSwitcherLabel: 'Follow Remotion on X',
+					},
+					{
+						id: 'youtube',
+						value: 'youtube',
+						label: 'YouTube',
+						onClick: () => {
+							closeMenu();
+							openExternal('https://www.youtube/@remotion_dev');
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Watch Remotion on YouTube',
 					},
 					{
 						id: 'linkedin',
@@ -751,8 +789,11 @@ export const useMenuStructure = (closeMenu: () => void) => {
 
 		return struct;
 	}, [
+		readOnlyStudio,
 		sizes,
 		editorZoomGestures,
+		editorShowRulers,
+		editorShowGuides,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -763,12 +804,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		size.size,
 		setSize,
 		setEditorZoomGestures,
+		setEditorShowRulers,
+		setEditorShowGuides,
 		setSidebarCollapsedState,
 		setCheckerboard,
-		editorShowRulers,
-		setEditorShowRulers,
-		editorShowGuides,
-		setEditorShowGuides,
 	]);
 
 	return structure;

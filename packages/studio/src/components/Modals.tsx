@@ -7,7 +7,9 @@ import {RenderModalWithLoader} from './RenderModal/RenderModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
-export const Modals: React.FC = () => {
+export const Modals: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
 	const canRender =
 		useContext(StudioServerConnectionCtx).previewServerState.type ===
@@ -87,6 +89,7 @@ export const Modals: React.FC = () => {
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
+					readOnlyStudio={readOnlyStudio}
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 				/>

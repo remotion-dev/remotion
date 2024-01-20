@@ -1337,6 +1337,7 @@ const RenderModal: React.FC<
 							propsEditType="input-props"
 							saving={saving}
 							setSaving={setSaving}
+							readOnlyStudio={false}
 						/>
 					) : (
 						<RenderModalAdvanced

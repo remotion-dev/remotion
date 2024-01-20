@@ -39,7 +39,9 @@ const flex: React.CSSProperties = {
 	flex: 1,
 };
 
-export const MenuToolbar: React.FC = () => {
+export const MenuToolbar: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 
 	const itemClicked = useCallback(
@@ -62,7 +64,7 @@ export const MenuToolbar: React.FC = () => {
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu);
+	const structure = useMenuStructure(closeMenu, readOnlyStudio);
 
 	const menus = useMemo(() => {
 		return structure.map((s) => s.id);
@@ -116,7 +118,7 @@ export const MenuToolbar: React.FC = () => {
 						/>
 					);
 				})}
-				<UpdateCheck />
+				{readOnlyStudio ? null : <UpdateCheck />}
 			</div>
 			<div style={flex} />
 			<MenuBuildIndicator />

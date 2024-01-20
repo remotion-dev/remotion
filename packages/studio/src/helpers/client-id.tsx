@@ -42,7 +42,8 @@ type Listeners = {
 
 export const PreviewServerConnection: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	readOnlyStudio: boolean;
+}> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
 
 	const subscribeToEvent = useCallback(
@@ -141,12 +142,16 @@ export const PreviewServerConnection: React.FC<{
 	}, []);
 
 	useEffect(() => {
+		if (readOnlyStudio) {
+			return;
+		}
+
 		const {close} = openEventSource();
 
 		return () => {
 			close();
 		};
-	}, [openEventSource]);
+	}, [openEventSource, readOnlyStudio]);
 
 	const [state, setState] = React.useState<PreviewServerState>({
 		type: 'init',

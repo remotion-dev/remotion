@@ -194,6 +194,7 @@ export const OptionsPanel: React.FC<{
 					propsEditType="default-props"
 					saving={saving}
 					setSaving={setSaving}
+					readOnlyStudio={readOnlyStudio}
 				/>
 			) : readOnlyStudio ? null : (
 				<RenderQueue />

@@ -18,7 +18,7 @@ export const Studio: React.FC<{
 		<Internals.RemotionRoot
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 		>
-			<EditorContexts>
+			<EditorContexts readOnlyStudio={readOnly}>
 				<Editor readOnlyStudio={readOnly} Root={rootComponent} />
 				{readOnly
 					? null

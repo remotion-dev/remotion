@@ -31,7 +31,7 @@ export const EditorContent: React.FC<{
 	return (
 		<div style={container}>
 			<InitialCompositionLoader />
-			<MenuToolbar />
+			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
 				<TopPanel readOnlyStudio={readOnlyStudio} />
 			) : (

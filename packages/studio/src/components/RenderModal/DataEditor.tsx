@@ -119,6 +119,7 @@ export const DataEditor: React.FC<{
 	propsEditType: PropsEditType;
 	saving: boolean;
 	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
 	inputProps,
@@ -127,6 +128,7 @@ export const DataEditor: React.FC<{
 	propsEditType,
 	saving,
 	setSaving,
+	readOnlyStudio,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
@@ -210,7 +212,10 @@ export const DataEditor: React.FC<{
 
 	const checkIfCanSaveDefaultProps = useCallback(async () => {
 		try {
-			const can = await canUpdateDefaultProps(unresolvedComposition.id);
+			const can = await canUpdateDefaultProps(
+				unresolvedComposition.id,
+				readOnlyStudio,
+			);
 
 			if (can.canUpdate) {
 				setCanSaveDefaultProps((prevState) => ({
@@ -239,7 +244,7 @@ export const DataEditor: React.FC<{
 				},
 			}));
 		}
-	}, [unresolvedComposition.id]);
+	}, [readOnlyStudio, unresolvedComposition.id]);
 
 	useEffect(() => {
 		checkIfCanSaveDefaultProps();

@@ -70,6 +70,11 @@ export const webpackConfig = ({
 
 	const isBun = typeof Bun !== 'undefined';
 
+	const define = new webpack.DefinePlugin({
+		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
+		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
+	});
+
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
 			minimize: false,
@@ -109,11 +114,7 @@ export const webpackConfig = ({
 				? [
 						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
-						new webpack.DefinePlugin({
-							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
-							'process.env.KEYBOARD_SHORTCUTS_ENABLED':
-								keyboardShortcutsEnabled,
-						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
 					]
 				: [
@@ -125,6 +126,7 @@ export const webpackConfig = ({
 								}
 							}
 						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
 					],
 		output: {
