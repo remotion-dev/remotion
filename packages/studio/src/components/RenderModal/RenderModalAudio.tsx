@@ -8,12 +8,12 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
+import {humanReadableAudioCodec} from './human-readable-audio-codecs';
+import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
-import {humanReadableAudioCodec} from './human-readable-audio-codecs';
-import {input, label, optionRow, rightRow} from './layout';
 
 const container: React.CSSProperties = {
 	flex: 1,

@@ -63,8 +63,8 @@ export const Tab: React.FC<{
 			backgroundColor: selected
 				? BACKGROUND
 				: hovered
-				? CLEAR_HOVER
-				: INPUT_BACKGROUND,
+					? CLEAR_HOVER
+					: INPUT_BACKGROUND,
 			color: selected ? 'white' : LIGHT_TEXT,
 			borderTop: selected ? '2px solid ' + BLUE : '2px solid transparent',
 			boxShadow: selected ? 'none' : undefined,

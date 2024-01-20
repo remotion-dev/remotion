@@ -519,13 +519,13 @@ export async function launchEditor({
 	const args = shouldOpenVsCodeNewWindow
 		? ['--new-window', fileName]
 		: lineNumber
-		? getArgumentsForLineNumber(
-				editor.command,
-				fileName,
-				String(lineNumber),
-				colNumber,
-		  )
-		: [fileName];
+			? getArgumentsForLineNumber(
+					editor.command,
+					fileName,
+					String(lineNumber),
+					colNumber,
+				)
+			: [fileName];
 
 	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached

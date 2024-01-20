@@ -21,6 +21,9 @@
       "path": "../renderer"
     },
     {
+      "path": "../studio-server"
+    },
+    {
       "path": "../player"
     }
   ]

@@ -57,12 +57,12 @@ export const getInputBorderColor = ({
 	status === 'warning'
 		? WARNING_COLOR
 		: status === 'error'
-		? FAIL_COLOR
-		: isFocused
-		? SELECTED_BACKGROUND
-		: isHovered
-		? INPUT_BORDER_COLOR_HOVERED
-		: INPUT_BORDER_COLOR_UNHOVERED;
+			? FAIL_COLOR
+			: isFocused
+				? SELECTED_BACKGROUND
+				: isHovered
+					? INPUT_BORDER_COLOR_HOVERED
+					: INPUT_BORDER_COLOR_UNHOVERED;
 
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,

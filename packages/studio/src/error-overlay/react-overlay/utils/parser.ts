@@ -9,139 +9,135 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { getLocationFromBuildError } from "@remotion/studio-server/src/helpers/map-error-to-react-stack";
-import { resolveFileSource } from "../effects/resolve-file-source";
-import type {
-  SomeStackFrame,
-  StackFrame,
-} from "@remotion/studio-server/src/stack-frame";
-import { makeStackFrame } from "@remotion/studio-server/src/stack-frame";
+import type {SomeStackFrame, StackFrame} from '@remotion/studio-server';
+import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import {resolveFileSource} from '../effects/resolve-file-source';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 
 function extractLocation(token: string): [string, number, number] {
-  const execed = regexExtractLocation.exec(token);
-  if (!execed) {
-    throw new Error("Could not match in extractLocation");
-  }
+	const execed = regexExtractLocation.exec(token);
+	if (!execed) {
+		throw new Error('Could not match in extractLocation');
+	}
 
-  return execed.slice(1).map((v) => {
-    const p = Number(v);
-    if (!isNaN(p)) {
-      return p;
-    }
+	return execed.slice(1).map((v) => {
+		const p = Number(v);
+		if (!isNaN(p)) {
+			return p;
+		}
 
-    return v;
-  }) as [string, number, number];
+		return v;
+	}) as [string, number, number];
 }
 
 const regexValidFrame_Chrome = /^\s*(at|in)\s.+(:\d+)/;
 const regexValidFrame_FireFox =
-  /(^|@)\S+:\d+|.+line\s+\d+\s+>\s+(eval|Function).+/;
+	/(^|@)\S+:\d+|.+line\s+\d+\s+>\s+(eval|Function).+/;
 
 export function parseStack(stack: string[]): StackFrame[] {
-  const frames = stack
-    .filter(
-      (e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e)
-    )
-    .map((e) => {
-      if (regexValidFrame_FireFox.test(e)) {
-        // Strip eval, we don't care about it
-        let isEval = false;
-        if (/ > (eval|Function)/.test(e)) {
-          e = e.replace(
-            / line (\d+)(?: > eval line \d+)* > (eval|Function):\d+:\d+/g,
-            ":$1"
-          );
-          isEval = true;
-        }
+	const frames = stack
+		.filter(
+			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e),
+		)
+		.map((e) => {
+			if (regexValidFrame_FireFox.test(e)) {
+				// Strip eval, we don't care about it
+				let isEval = false;
+				if (/ > (eval|Function)/.test(e)) {
+					e = e.replace(
+						/ line (\d+)(?: > eval line \d+)* > (eval|Function):\d+:\d+/g,
+						':$1',
+					);
+					isEval = true;
+				}
 
-        const _data = e.split(/[@]/g);
-        const _last = _data.pop();
-        if (!_last) {
-          throw new Error("could not get last");
-        }
+				const _data = e.split(/[@]/g);
+				const _last = _data.pop();
+				if (!_last) {
+					throw new Error('could not get last');
+				}
 
-        const [_fileName, _lineNumber, _columnNumber] = extractLocation(_last);
-        return makeStackFrame({
-          functionName: _data.join("@") || (isEval ? "eval" : null),
-          fileName: _fileName,
-          lineNumber: _lineNumber,
-          columnNumber: _columnNumber,
-        });
-      }
+				const [_fileName, _lineNumber, _columnNumber] = extractLocation(_last);
+				return StudioServerClientAPIs.makeStackFrame({
+					functionName: _data.join('@') || (isEval ? 'eval' : null),
+					fileName: _fileName,
+					lineNumber: _lineNumber,
+					columnNumber: _columnNumber,
+				});
+			}
 
-      // Strip eval, we don't care about it
-      if (e.indexOf("(eval ") !== -1) {
-        e = e.replace(/(\(eval at [^()]*)|(\),.*$)/g, "");
-      }
+			// Strip eval, we don't care about it
+			if (e.indexOf('(eval ') !== -1) {
+				e = e.replace(/(\(eval at [^()]*)|(\),.*$)/g, '');
+			}
 
-      if (e.indexOf("(at ") !== -1) {
-        e = e.replace(/\(at /, "(");
-      }
+			if (e.indexOf('(at ') !== -1) {
+				e = e.replace(/\(at /, '(');
+			}
 
-      const data = e.trim().split(/\s+/g).slice(1);
-      const last = data.pop();
-      if (!last) {
-        throw new Error("could not get last");
-      }
+			const data = e.trim().split(/\s+/g).slice(1);
+			const last = data.pop();
+			if (!last) {
+				throw new Error('could not get last');
+			}
 
-      const [fileName, lineNumber, columnNumber] = extractLocation(last);
-      return makeStackFrame({
-        functionName: data.join(" ") || null,
-        fileName,
-        lineNumber,
-        columnNumber,
-      });
-    });
-  return frames;
+			const [fileName, lineNumber, columnNumber] = extractLocation(last);
+			return StudioServerClientAPIs.makeStackFrame({
+				functionName: data.join(' ') || null,
+				fileName,
+				lineNumber,
+				columnNumber,
+			});
+		});
+	return frames;
 }
 
 export const parseError = async (
-  error: Error | string | string[],
-  contextLines: number
+	error: Error | string | string[],
+	contextLines: number,
 ): Promise<SomeStackFrame[]> => {
-  if (error === null) {
-    throw new Error("You cannot pass a null object.");
-  }
+	if (error === null) {
+		throw new Error('You cannot pass a null object.');
+	}
 
-  if (typeof error === "string") {
-    return parseStack(error.split("\n")).map((frame): SomeStackFrame => {
-      return {
-        type: "transpiled",
-        frame,
-      };
-    });
-  }
+	if (typeof error === 'string') {
+		return parseStack(error.split('\n')).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
+	}
 
-  if (Array.isArray(error)) {
-    return parseStack(error).map((frame): SomeStackFrame => {
-      return {
-        type: "transpiled",
-        frame,
-      };
-    });
-  }
+	if (Array.isArray(error)) {
+		return parseStack(error).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
+	}
 
-  const errorLocation = getLocationFromBuildError(error);
+	const errorLocation = StudioServerClientAPIs.getLocationFromBuildError(error);
 
-  if (errorLocation) {
-    return [
-      {
-        type: "symbolicated",
-        frame: await resolveFileSource(errorLocation, contextLines),
-      },
-    ];
-  }
+	if (errorLocation) {
+		return [
+			{
+				type: 'symbolicated',
+				frame: await resolveFileSource(errorLocation, contextLines),
+			},
+		];
+	}
 
-  if (typeof error.stack === "string") {
-    return parseStack(error.stack.split("\n")).map((frame): SomeStackFrame => {
-      return {
-        type: "transpiled",
-        frame,
-      };
-    });
-  }
+	if (typeof error.stack === 'string') {
+		return parseStack(error.stack.split('\n')).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
+	}
 
-  return [];
+	return [];
 };

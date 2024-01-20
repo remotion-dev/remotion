@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button} from '../error-overlay/remotion-overlay/Button';
 import {copyText} from '../helpers/copy-text';
+import {Button} from './Button';
 import {Spacing} from './layout';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 

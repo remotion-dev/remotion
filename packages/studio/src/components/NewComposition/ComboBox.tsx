@@ -184,18 +184,18 @@ export const Combobox: React.FC<{
 				? {
 						...menuContainerTowardsBottom,
 						top: size.top + size.height,
-				  }
+					}
 				: {
 						...menuContainerTowardsTop,
 						bottom: size.windowSize.height - size.top,
-				  }),
+					}),
 			...(horizontalLayout === 'left'
 				? {
 						left: size.left,
-				  }
+					}
 				: {
 						right: size.windowSize.width - size.left - size.width,
-				  }),
+					}),
 		};
 	}, [opened, size, spaceToBottom, spaceToTop]);
 
@@ -215,8 +215,8 @@ export const Combobox: React.FC<{
 			borderColor: opened
 				? SELECTED_BACKGROUND
 				: hovered
-				? INPUT_BORDER_COLOR_HOVERED
-				: INPUT_BORDER_COLOR_UNHOVERED,
+					? INPUT_BORDER_COLOR_HOVERED
+					: INPUT_BORDER_COLOR_UNHOVERED,
 		};
 	}, [customStyle, hovered, opened]);
 
@@ -265,7 +265,7 @@ export const Combobox: React.FC<{
 							</div>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

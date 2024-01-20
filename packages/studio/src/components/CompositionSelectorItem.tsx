@@ -212,7 +212,7 @@ export const CompositionSelectorItem: React.FC<{
 									toggleFolder={toggleFolder}
 								/>
 							);
-					  })
+						})
 					: null}
 			</>
 		);

@@ -8,7 +8,8 @@
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
-		"test": "vitest --run"
+		"test": "vitest --run",
+		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],

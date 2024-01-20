@@ -41,8 +41,8 @@ export const VerticalTab: React.FC<{
 			backgroundColor: selected
 				? SELECTED_BACKGROUND
 				: hovered
-				? CLEAR_HOVER
-				: 'transparent',
+					? CLEAR_HOVER
+					: 'transparent',
 			color: selected ? 'white' : LIGHT_TEXT,
 			boxShadow: selected ? 'none' : undefined,
 			...style,

@@ -220,8 +220,8 @@ const AssetSelectorItem: React.FC<{
 					? SELECTED_BACKGROUND
 					: CLEAR_HOVER
 				: selected
-				? SELECTED_BACKGROUND
-				: 'transparent',
+					? SELECTED_BACKGROUND
+					: 'transparent',
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);

@@ -9,7 +9,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { ScriptLine } from "@remotion/studio-server/src/stack-frame";
+import type {ScriptLine} from '@remotion/studio-server';
 
 /**
  *
@@ -18,22 +18,22 @@ import type { ScriptLine } from "@remotion/studio-server/src/stack-frame";
  * @param {string[] | string} lines The source code.
  */
 export function getLinesAround(
-  line: number,
-  count: number,
-  lines: string[]
+	line: number,
+	count: number,
+	lines: string[],
 ): ScriptLine[] {
-  const result: ScriptLine[] = [];
-  for (
-    let index = Math.max(0, line - 1 - count);
-    index <= Math.min(lines.length - 1, line - 1 + count);
-    ++index
-  ) {
-    result.push({
-      lineNumber: index + 1,
-      content: lines[index],
-      highlight: index === line - 1,
-    });
-  }
+	const result: ScriptLine[] = [];
+	for (
+		let index = Math.max(0, line - 1 - count);
+		index <= Math.min(lines.length - 1, line - 1 + count);
+		++index
+	) {
+		result.push({
+			lineNumber: index + 1,
+			content: lines[index],
+			highlight: index === line - 1,
+		});
+	}
 
-  return result;
+	return result;
 }

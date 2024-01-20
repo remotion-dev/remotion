@@ -1,6 +1,6 @@
 import type {z} from 'zod';
-import {Button} from '../../../error-overlay/remotion-overlay/Button';
 import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
+import {Button} from '../../Button';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import {ZodErrorMessages} from './ZodErrorMessages';

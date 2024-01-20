@@ -92,8 +92,8 @@ const mapQueryToMode = (query: string): QuickSwitcherMode => {
 	return query.startsWith('>')
 		? 'commands'
 		: query.startsWith('?')
-		? 'docs'
-		: 'compositions';
+			? 'docs'
+			: 'compositions';
 };
 
 const mapModeToQuery = (mode: QuickSwitcherMode): string => {

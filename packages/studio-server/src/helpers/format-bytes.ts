@@ -86,8 +86,8 @@ export const formatBytes = (
 			? BIBIT_UNITS
 			: BIT_UNITS
 		: options.binary
-		? BIBYTE_UNITS
-		: BYTE_UNITS;
+			? BIBYTE_UNITS
+			: BYTE_UNITS;
 
 	if (options.signed && number === 0) {
 		return `0 $ {

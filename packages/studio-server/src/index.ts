@@ -1,5 +1,6 @@
 export type {EnumPath} from './enum-path';
 export {EventSourceEvent} from './event-source-events';
+export {ErrorLocation} from './helpers/map-error-to-react-stack';
 export {ApiRoutes} from './preview-server/api-types';
 export type {PackageManager} from './preview-server/get-package-manager';
 export type {
@@ -22,10 +23,18 @@ export type {
 	RenderStep,
 	StitchingProgressInput,
 } from './preview-server/job';
+export type {ProjectInfo} from './preview-server/project-info';
 export type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
 } from './required-chromium-options';
+export type {
+	ScriptLine,
+	SomeStackFrame,
+	StackFrame,
+	SymbolicatedStackFrame,
+} from './stack-frame';
+
 import {installFileWatcher} from './file-watcher';
 import {getDefaultOutLocation} from './get-default-out-name';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';

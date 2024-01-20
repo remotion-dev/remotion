@@ -1,5 +1,5 @@
+import type {RenderJob} from '@remotion/studio-server';
 import React, {useMemo} from 'react';
-import type {RenderJob} from '../../preview-server/job';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 export const RenderQueueOutputName: React.FC<{

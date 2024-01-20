@@ -119,8 +119,8 @@ export const startStudio = async ({
 						files.length > 0
 							? publicDir
 							: existsSync(publicDir)
-							? publicDir
-							: null,
+								? publicDir
+								: null,
 				});
 			});
 		},
