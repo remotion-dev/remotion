@@ -36,11 +36,12 @@ const MyComponent: React.FC = () => {
 
 ## API
 
-A function that takes three arguments:
+A function that takes 3-4 arguments:
 
 1. The input value.
 2. The range of values that you expect the input to assume.
 3. The range of output styles that you want the input to map to.
+4. Options object, same as the options of [`interpolate()`](/docs/interpolate#options) (_optional_)
 
 ## Return value
 
