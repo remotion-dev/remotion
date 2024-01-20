@@ -39,6 +39,10 @@ const getCanSerializeDefaultProps = (object: unknown) => {
 	}
 };
 
+const isInHeadlessBrowser = () => {
+	return typeof window.remotion_puppeteerTimeout !== 'undefined';
+};
+
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
@@ -194,6 +198,10 @@ const renderContent = (Root: React.FC) => {
 	}
 
 	if (bundleMode.type === 'index') {
+		if (isInHeadlessBrowser()) {
+			return;
+		}
+
 		renderToDOM(<div>Loading Remotion Studio...</div>);
 		import('@remotion/studio')
 			.then(({Studio}) => {
