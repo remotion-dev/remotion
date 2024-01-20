@@ -4,6 +4,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
+import path from 'node:path';
 import {openBrowser} from './better-opn';
 import {getNetworkAddress} from './get-network-address';
 import type {QueueMethods} from './preview-server/api-types';
@@ -129,7 +130,7 @@ export const startStudio = async ({
 	});
 
 	const {port, liveEventsServer} = await startServer({
-		entry: previewEntry,
+		entry: path.resolve(previewEntry),
 		userDefinedComponent: fullEntryPath,
 		getCurrentInputProps,
 		getEnvVariables,
