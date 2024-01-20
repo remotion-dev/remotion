@@ -1,3 +1,4 @@
+import {Easing} from 'remotion';
 import {expect, test} from 'vitest';
 import {interpolateStyles} from '../transformation-helpers/interpolate-styles';
 
@@ -148,6 +149,27 @@ test('Should be able to use extrapolateRight: "clamp"', () => {
 			},
 		),
 	).toEqual({transform: `scale(2) translateX(300px) rotate(60deg)`});
+});
+
+test('Should be able to use Easing', () => {
+	expect(
+		interpolateStyles(
+			0.5,
+			[0, 1],
+			[
+				{
+					transform: `scale(0.5)`,
+				},
+				{
+					transform: `scale(1)`,
+				},
+			],
+			{
+				extrapolateRight: 'clamp',
+				easing: Easing.circle,
+			},
+		),
+	).toEqual({transform: `scale(0.5669872981077807)`});
 });
 
 test('Should not be able to interpolate transform with different structure', () => {
