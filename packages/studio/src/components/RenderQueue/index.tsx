@@ -36,7 +36,8 @@ const renderQueue: React.CSSProperties = {
 };
 
 export const RenderQueue: React.FC = () => {
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const {jobs} = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const previousJobCount = React.useRef(jobs.length);

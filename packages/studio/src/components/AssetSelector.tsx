@@ -1,9 +1,9 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
-import {subscribeToEvent} from '../helpers/event-source';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
@@ -50,6 +50,8 @@ export const AssetSelector: React.FC = () => {
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
 
+	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
+
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
 			return {
@@ -75,7 +77,7 @@ export const AssetSelector: React.FC = () => {
 		return () => {
 			unsub();
 		};
-	}, []);
+	}, [subscribeToEvent]);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {

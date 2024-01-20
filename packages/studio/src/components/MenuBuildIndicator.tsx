@@ -27,7 +27,7 @@ const noSpinner: React.CSSProperties = {
 
 export const MenuBuildIndicator: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
-	const ctx = useContext(StudioServerConnectionCtx);
+	const ctx = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const showButton = window.remotion_editorName && ctx.type === 'connected';
 	useEffect(() => {

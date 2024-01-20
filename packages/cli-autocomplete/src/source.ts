@@ -22,6 +22,13 @@ const alwaysOptions: Fig.Option[] = [
       }),
     },
   },
+  {
+    name: "--config",
+    description: "Custom location for a Remotion config file",
+    args: {
+      template: "filepaths",
+    },
+  },
 ];
 
 const propsOption: Fig.Option = {
@@ -122,13 +129,6 @@ const localRenderAndStillOptions: Fig.Option[] = [
     },
   },
   {
-    name: "--config",
-    description: "Custom location for a Remotion config file",
-    args: {
-      template: "filepaths",
-    },
-  },
-  {
     name: "--public-dir",
     description: "Location of the public/ directory",
     args: {
@@ -206,6 +206,11 @@ const localRenderOptions: Fig.Option[] = [
   {
     name: "--muted",
     description: "Mute the output video",
+  },
+  {
+    name: "--repro",
+    description:
+      "Collect information that you can submit to Remotion if asked for a reproduction",
   },
 ];
 
@@ -806,6 +811,32 @@ const completionSpec: Fig.Spec = {
         },
       ],
       options: globalLambdaOptions,
+    },
+    {
+      name: "bundle",
+      priority: 100,
+      description: "Bundle a Remotion project",
+      args: {
+        name: "entry",
+        template: ["filepaths"],
+      },
+      options: [
+        ...alwaysOptions,
+        {
+          name: "--public-dir",
+          description: "Location of the public/ directory",
+          args: {
+            template: "folders",
+          },
+        },
+        {
+          name: "--out-dir",
+          description: "Define the location of the resulting bundle",
+          args: {
+            template: "folders",
+          },
+        },
+      ],
     },
     {
       name: "render",

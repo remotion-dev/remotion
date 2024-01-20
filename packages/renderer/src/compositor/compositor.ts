@@ -334,7 +334,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			}
 
 			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(`Compositor quit: ${runningStatus.error}`);
+				throw new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}: ${runningStatus.error}`,
+				);
 			}
 
 			return new Promise<Buffer>((_resolve, _reject) => {

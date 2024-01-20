@@ -18,7 +18,7 @@ Before you go live, go through this checklist to make sure Cloud Run is running 
 
 ### Optimizing for memory
 
-Adding too much memory to your Cloud Run services can make rendering more costly. Reducing the memory of your service by 25% will also decrease your cost by 25%! Redeploy your service multiple times and lower the memory size as much as possible until you feel you hit the sweet spot between low costs and confidence that your video will render reliably.
+Adding too much memory to your Cloud Run services can make rendering more costly. Redeploy your service multiple times and lower the memory size as much as possible until you feel you hit the sweet spot between low costs and confidence that your video will render reliably.
 
 ### Maximum file size
 

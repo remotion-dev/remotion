@@ -58,8 +58,10 @@ export const RenderModalAdvanced: React.FC<{
 	setChromiumMultiProcessOnLinux: React.Dispatch<React.SetStateAction<boolean>>;
 	userAgent: string | null;
 	setUserAgent: React.Dispatch<React.SetStateAction<string | null>>;
-	setBeep: React.Dispatch<React.SetStateAction<boolean>>;
 	beep: boolean;
+	setBeep: React.Dispatch<React.SetStateAction<boolean>>;
+	repro: boolean;
+	setRepro: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -93,6 +95,8 @@ export const RenderModalAdvanced: React.FC<{
 	userAgent,
 	beep,
 	setBeep,
+	repro,
+	setRepro,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return [
@@ -180,6 +184,13 @@ export const RenderModalAdvanced: React.FC<{
 			setBeep(e.target.checked);
 		},
 		[setBeep],
+	);
+
+	const onReproToggle = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setRepro(e.target.checked);
+		},
+		[setRepro],
 	);
 
 	const openGlOptions = useMemo((): ComboboxValue[] => {
@@ -397,6 +408,15 @@ export const RenderModalAdvanced: React.FC<{
 					</div>
 				</div>
 			)}
+			<div style={optionRow}>
+				<div style={label}>
+					Create a reproduction <OptionExplainerBubble id="reproOption" />
+				</div>
+
+				<div style={rightRow}>
+					<Checkbox checked={repro} onChange={onReproToggle} name="repro" />
+				</div>
+			</div>
 			<div style={optionRow}>
 				<div style={label}>
 					Beep when finished <OptionExplainerBubble id="beepOnFinishOption" />

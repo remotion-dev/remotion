@@ -228,6 +228,8 @@ export const benchmarkCommand = async (
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: false,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -373,6 +375,8 @@ export const benchmarkCommand = async (
 						}).serializedString,
 					offthreadVideoCacheSizeInBytes,
 					colorSpace,
+					repro: false,
+					finishRenderProgress: () => undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "4.0.86",
+	"version": "4.0.89",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -20,6 +20,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
+		"@types/react-dom": "18.0.11",
 		"@jonny/eslint-config": "3.0.276",
 		"@testing-library/react": "^13.4.0",
 		"@types/node": "18.14.6",

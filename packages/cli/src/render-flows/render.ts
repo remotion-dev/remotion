@@ -41,7 +41,7 @@ import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
-import {parsedCli} from '../parse-command-line';
+import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
@@ -99,6 +99,7 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -147,6 +148,7 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
+	repro: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -234,6 +236,8 @@ export const renderVideoFlow = async ({
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: updatesDontOverwrite,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		},
 	);
 
@@ -497,9 +501,12 @@ export const renderVideoFlow = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		repro: repro ?? false,
+		finishRenderProgress: () => {
+			updateRenderProgress({newline: true, printToConsole: true});
+		},
 	});
 
-	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),

@@ -8,6 +8,7 @@ import {sendErrorNotification} from '../components/Notifications/NotificationCen
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
+import {timeValueRef} from '../components/TimeValue';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
 import {canvasRef} from '../state/canvas-ref';
@@ -49,7 +50,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorShowGuidesContext,
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {type} = useContext(StudioServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const {
 		setSidebarCollapsedState,
@@ -202,7 +203,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						? {
 								type: 'divider' as const,
 								id: 'open-in-editor-divider',
-						  }
+							}
 						: null,
 					window.remotion_editorName
 						? {
@@ -238,7 +239,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								leftItem: null,
 								subMenu: null,
 								quickSwitcherLabel: 'Open in editor...',
-						  }
+							}
 						: null,
 				].filter(NoReactInternals.truthy),
 				quickSwitcherLabel: null,
@@ -553,6 +554,20 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
 					},
 					{
+						id: 'goto-time',
+						keyHint: 'G',
+						label: 'Go to frame',
+						leftItem: null,
+						onClick: () => {
+							closeMenu();
+							timeValueRef.current?.goToFrame();
+						},
+						subMenu: null,
+						type: 'item' as const,
+						value: 'clear-marks',
+						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
+					},
+					{
 						id: 'fullscreen-divider',
 						type: 'divider' as const,
 					},
@@ -570,7 +585,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								type: 'item' as const,
 								value: 'fullscreen',
 								quickSwitcherLabel: 'Go Fullscreen',
-						  }
+							}
 						: null,
 				].filter(Internals.truthy),
 			},
@@ -596,7 +611,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							},
 						],
 						quickSwitcherLabel: null,
-				  }
+					}
 				: null,
 			{
 				id: 'help' as const,

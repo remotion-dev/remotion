@@ -87,9 +87,11 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	['out-dir']: string;
 	[deleteAfterOption.cliFlag]: string | undefined;
 	[folderExpiryOption.cliFlag]: boolean | undefined;
 	[enableMultiprocessOnLinuxOption.cliFlag]: boolean;
+	repro: boolean;
 };
 
 export const BooleanFlags = [
@@ -116,6 +118,7 @@ export const BooleanFlags = [
 	'default-only',
 	'no-open',
 	beepOnFinishOption.cliFlag,
+	'repro',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -125,6 +128,10 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 };
 
 export const parseCommandLine = () => {
+	if (parsedCli.repro) {
+		Config.setRepro(true);
+	}
+
 	if (parsedCli['pixel-format']) {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}

@@ -438,6 +438,12 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 <Options id="color-space" />
 
+### `repro?`<AvailableFrom v="4.0.88" />
+
+_boolean - default `false`_
+
+<Options id="repro" />
+
 ### ~~`parallelism?`~~
 
 Renamed to `concurrency` in v3.2.17.

@@ -32,7 +32,8 @@ export const SidebarRenderButton: React.FC<{
 		};
 	}, []);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -83,6 +84,7 @@ export const SidebarRenderButton: React.FC<{
 				initialEncodingMaxRate: defaults.encodingMaxRate,
 				initialUserAgent: defaults.userAgent,
 				initialBeep: defaults.beepOnFinish,
+				initialRepro: defaults.repro,
 			});
 		},
 		[composition.defaultProps, composition.id, props, setSelectedModal],

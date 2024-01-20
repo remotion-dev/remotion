@@ -14,6 +14,7 @@ module.exports = {
         "cli/render",
         "cli/still",
         "cli/compositions",
+        "cli/bundle",
         {
           type: "category",
           label: "lambda",
@@ -462,7 +463,11 @@ module.exports = {
         type: "doc",
         id: "layout-utils/index",
       },
-      items: ["layout-utils/measure-text", "layout-utils/fill-text-box"],
+      items: [
+        "layout-utils/measure-text",
+        "layout-utils/fill-text-box",
+        "layout-utils/fit-text",
+      ],
     },
     {
       type: "category",

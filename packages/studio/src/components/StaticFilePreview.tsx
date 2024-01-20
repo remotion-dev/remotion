@@ -26,7 +26,8 @@ export const StaticFilePreview: React.FC<{
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
 	const staticFiles = getStaticFiles();
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 
 	const exists = staticFiles.find((file) => file.name === currentAsset);
 

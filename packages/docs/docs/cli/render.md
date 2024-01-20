@@ -213,6 +213,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="enable-multiprocess-on-linux" />
 
+### `--repro`<AvailableFrom v="4.0.88" />
+
+<Options id="repro" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_

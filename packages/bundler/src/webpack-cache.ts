@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {VERSION} from 'remotion/version';
 
 type Environment = 'development' | 'production';
 
@@ -51,7 +52,7 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 };
 
 const getPrefix = (environment: Environment) => {
-	return `remotion-v5-${environment}`;
+	return `remotion-${environment}-${VERSION}`;
 };
 
 export const getWebpackCacheEnvDir = (environment: Environment) => {

@@ -149,6 +149,7 @@ export type RenderJob = {
 	serializedInputPropsWithCustomSchema: string;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	repro: boolean;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -174,6 +175,7 @@ type AddRenderRequestDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			disallowParallelEncoding: boolean;
+			repro: boolean;
 	  }
 	| {
 			type: 'video';
@@ -200,6 +202,7 @@ type AddRenderRequestDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			colorSpace: ColorSpace;
+			repro: boolean;
 	  };
 
 export type CancelRenderRequest = {

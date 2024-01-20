@@ -1,42 +1,40 @@
+import React from 'react';
 import type {render} from 'react-dom';
-import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import '../styles/styles.css';
-import {Editor} from './components/Editor';
-import {EditorContexts} from './components/EditorContexts';
-import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
-import {openEventSource} from './helpers/event-source';
+import {NoRegisterRoot} from './components/NoRegisterRoot';
+import {Studio} from './components/Studio';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
 );
 
-const getServerDisconnectedDomElement = () => {
-	return document.getElementById('server-disconnected-overlay');
+let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
+
+const getRootForElement = () => {
+	if (root) {
+		return root;
+	}
+
+	root = ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement);
+	return root;
 };
 
-const content = (
-	<Internals.RemotionRoot numberOfAudioTags={window.remotion_numberOfAudioTags}>
-		<EditorContexts>
-			<Editor />
-			{createPortal(
-				<ServerDisconnected />,
-				getServerDisconnectedDomElement() as HTMLElement,
-			)}
-		</EditorContexts>
-	</Internals.RemotionRoot>
-);
+const renderToDOM = (content: React.ReactElement) => {
+	// @ts-expect-error
+	if (ReactDOM.createRoot) {
+		getRootForElement().render(content);
+	} else {
+		(ReactDOM as unknown as {render: typeof render}).render(
+			content,
+			Internals.getPreviewDomElement(),
+		);
+	}
+};
 
-if (ReactDOM.createRoot) {
-	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
-		content,
-	);
-} else {
-	(ReactDOM as unknown as {render: typeof render}).render(
-		content,
-		Internals.getPreviewDomElement(),
-	);
-}
+renderToDOM(<NoRegisterRoot />);
 
-openEventSource();
+Internals.waitForRoot((NewRoot) => {
+	renderToDOM(<Studio rootComponent={NewRoot} />);
+});

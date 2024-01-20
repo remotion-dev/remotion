@@ -34,6 +34,7 @@ export type RenderDefaults = {
 	colorSpace: string;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
+	repro: boolean;
 };
 
 declare global {
@@ -92,7 +93,6 @@ ${
     <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
     <script>window.remotion_staticBase = "${staticHash}";</script>
 		<div id="video-container"></div>
-		<div id="explainer-container"></div>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`

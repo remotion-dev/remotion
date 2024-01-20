@@ -33,12 +33,12 @@ const label: React.CSSProperties = {
 export const RenderButton: React.FC = () => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {type} = useContext(StudioServerConnectionCtx);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
-		type === 'connected'
+		connectionStatus === 'connected'
 			? 'Export the current composition ' + shortcut
 			: 'Connect to the Studio server to render';
 
@@ -107,6 +107,7 @@ export const RenderButton: React.FC = () => {
 			initialEncodingMaxRate: defaults.encodingMaxRate,
 			initialUserAgent: defaults.userAgent,
 			initialBeep: defaults.beepOnFinish,
+			initialRepro: defaults.repro,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

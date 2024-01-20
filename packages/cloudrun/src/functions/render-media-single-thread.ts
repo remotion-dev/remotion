@@ -3,6 +3,7 @@ import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -17,6 +18,18 @@ export const renderMediaSingleThread = async (
 ) => {
 	if (body.type !== 'media') {
 		throw new Error('expected type media');
+	}
+
+	if (body.clientVersion !== VERSION) {
+		if (!body.clientVersion) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnCloudRun(), you called a service which has the version ${VERSION} but the @remotion/cloudrun package is an older version. Deploy a new service with matchin version and use it to call renderMediaOnCloudRun().`,
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+		);
 	}
 
 	const renderId = randomHash({randomInTests: true});
@@ -105,6 +118,8 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
+			repro: false,
+			finishRenderProgress: () => undefined,
 		});
 
 		const storage = new Storage();

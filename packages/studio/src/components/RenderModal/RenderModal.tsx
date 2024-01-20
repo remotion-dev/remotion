@@ -230,6 +230,7 @@ type RenderModalProps = {
 	initialEncodingBufferSize: string | null;
 	initialUserAgent: string | null;
 	initialBeep: boolean;
+	initialRepro: boolean;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
@@ -285,6 +286,7 @@ const RenderModal: React.FC<
 	defaultConfigurationAudioCodec,
 	defaultConfigurationVideoCodec,
 	initialBeep,
+	initialRepro,
 }) => {
 	const isMounted = useRef(true);
 
@@ -355,6 +357,7 @@ const RenderModal: React.FC<
 	);
 
 	const [mutedState, setMuted] = useState(() => initialMuted);
+	const [repro, setRepro] = useState(() => initialRepro);
 	const [enforceAudioTrackState, setEnforceAudioTrackState] = useState(
 		() => initialEnforceAudioTrack,
 	);
@@ -814,6 +817,7 @@ const RenderModal: React.FC<
 			encodingBufferSize,
 			encodingMaxRate,
 			beepOnFinish,
+			repro,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -859,6 +863,7 @@ const RenderModal: React.FC<
 		encodingBufferSize,
 		encodingMaxRate,
 		beepOnFinish,
+		repro,
 		onClose,
 	]);
 
@@ -885,6 +890,7 @@ const RenderModal: React.FC<
 			disallowParallelEncoding,
 			multiProcessOnLinux,
 			beepOnFinish,
+			repro,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -913,6 +919,7 @@ const RenderModal: React.FC<
 		disallowParallelEncoding,
 		multiProcessOnLinux,
 		beepOnFinish,
+		repro,
 		onClose,
 	]);
 
@@ -1368,6 +1375,8 @@ const RenderModal: React.FC<
 							setUserAgent={setUserAgent}
 							setBeep={setBeepOnFinish}
 							beep={beepOnFinish}
+							repro={repro}
+							setRepro={setRepro}
 						/>
 					)}
 				</div>

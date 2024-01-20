@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/preload",
-	"version": "4.0.86",
+	"version": "4.0.89",
 	"description": "Utility functions for preloading assets in HTML5",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

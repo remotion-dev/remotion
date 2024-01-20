@@ -14,6 +14,7 @@ import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {videoBitrate} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
@@ -40,6 +41,7 @@ export const allOptions = {
 	encodingBufferSizeOption,
 	beepOnFinishOption,
 	numberOfGifLoopsOption,
+	reproOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
