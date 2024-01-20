@@ -1,5 +1,6 @@
+import {Internals} from 'remotion';
 import type {ColorMatchers, CSSPropertiesValue} from '../../type';
-import {NUMBER, PERCENTAGE, STANDARD_COLOR_NAMES} from './constants';
+import {NUMBER, PERCENTAGE} from './constants';
 
 function call(...args: unknown[]): string {
 	return '\\(\\s*(' + args.join(')\\s*,\\s*(') + ')\\s*\\)';
@@ -109,7 +110,7 @@ const classifyArgsOfFunction = (value: string) => {
 };
 
 const isColorValue = (value: string) => {
-	if (STANDARD_COLOR_NAMES.includes(value)) {
+	if (Object.keys(Internals.colorNames).includes(value)) {
 		return true;
 	}
 
