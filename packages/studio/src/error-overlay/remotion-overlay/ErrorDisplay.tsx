@@ -1,4 +1,4 @@
-import {getLocationFromBuildError} from '@remotion/studio-server';
+import {StudioServerClientAPIs} from '@remotion/studio-server/client';
 import React, {useMemo} from 'react';
 import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
@@ -48,7 +48,9 @@ export const ErrorDisplay: React.FC<{
 
 	const message = useMemo(() => {
 		// Format compilation errors
-		const location = getLocationFromBuildError(display.error);
+		const location = StudioServerClientAPIs.getLocationFromBuildError(
+			display.error,
+		);
 		if (!location) {
 			return display.error.message;
 		}
