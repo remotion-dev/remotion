@@ -7,6 +7,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
+import {StudioInternals} from '@remotion/studio-server';
 import {StudioServerClientAPIs} from '@remotion/studio-server/client';
 import {chalk} from './chalk';
 import {
@@ -55,7 +56,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new StudioServerClientAPIs.AnsiDiff();
+	const diff = new StudioInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());

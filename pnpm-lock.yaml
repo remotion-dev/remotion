@@ -197,6 +197,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       '@remotion/studio-server':
         specifier: workspace:*
         version: link:../studio-server

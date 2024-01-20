@@ -1,4 +1,3 @@
-import {AnsiDiff} from './ansi-diff';
 import {splitAnsi, stripAnsi} from './ansi-split';
 import {stringifyDefaultProps} from './codemods/stringify-with-path';
 import {DEFAULT_TIMELINE_TRACKS} from './default-max-timeline-tracks';
@@ -13,7 +12,6 @@ export const StudioServerClientAPIs = {
 	stringifyDefaultProps,
 	DEFAULT_TIMELINE_TRACKS,
 	getDefaultOutLocation,
-	AnsiDiff,
 	splitAnsi,
 	formatBytes,
 	hotMiddlewareOptions,

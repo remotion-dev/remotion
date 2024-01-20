@@ -4,7 +4,6 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
-import path from 'path';
 import {openBrowser} from './better-opn';
 import {getNetworkAddress} from './get-network-address';
 import type {QueueMethods} from './preview-server/api-types';
@@ -72,6 +71,7 @@ export const startStudio = async ({
 	numberOfAudioTags,
 	queueMethods,
 	parsedCliOpen,
+	previewEntry,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -92,6 +92,7 @@ export const startStudio = async ({
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	parsedCliOpen: boolean;
+	previewEntry: string;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
@@ -128,7 +129,7 @@ export const startStudio = async ({
 	});
 
 	const {port, liveEventsServer} = await startServer({
-		entry: path.resolve(__dirname, 'previewEntry.js'),
+		entry: previewEntry,
 		userDefinedComponent: fullEntryPath,
 		getCurrentInputProps,
 		getEnvVariables,

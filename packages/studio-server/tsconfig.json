@@ -9,6 +9,9 @@
 	"include": ["src"],
 	"references": [
 		{
+			"path": "../bundler"
+		},
+		{
 			"path": "../core"
 		},
 		{

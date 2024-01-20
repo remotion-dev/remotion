@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {previewIndex} from '@remotion/studio';
 import {StudioInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
@@ -83,6 +84,7 @@ export const studioCommand = async (
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
 	await StudioInternals.startStudio({
+		previewEntry: previewIndex,
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,
 		logLevel,
