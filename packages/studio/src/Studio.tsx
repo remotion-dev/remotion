@@ -11,17 +11,20 @@ const getServerDisconnectedDomElement = () => {
 
 export const Studio: React.FC<{
 	rootComponent: React.FC;
-}> = ({rootComponent}) => {
+	readOnly: boolean;
+}> = ({rootComponent, readOnly}) => {
 	return (
 		<Internals.RemotionRoot
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 		>
 			<EditorContexts>
-				<Editor Root={rootComponent} />
-				{createPortal(
-					<ServerDisconnected />,
-					getServerDisconnectedDomElement() as HTMLElement,
-				)}
+				<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+				{readOnly
+					? null
+					: createPortal(
+							<ServerDisconnected />,
+							getServerDisconnectedDomElement() as HTMLElement,
+						)}
 			</EditorContexts>
 		</Internals.RemotionRoot>
 	);

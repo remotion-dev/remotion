@@ -18,7 +18,9 @@ const container: React.CSSProperties = {
 	height: 0,
 };
 
-export const EditorContent: React.FC = () => {
+export const EditorContent: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -31,7 +33,7 @@ export const EditorContent: React.FC = () => {
 			<InitialCompositionLoader />
 			<MenuToolbar />
 			{onlyTopPanel ? (
-				<TopPanel />
+				<TopPanel readOnlyStudio={readOnlyStudio} />
 			) : (
 				<SplitterContainer
 					orientation="horizontal"
@@ -41,7 +43,7 @@ export const EditorContent: React.FC = () => {
 					defaultFlex={0.75}
 				>
 					<SplitterElement sticky={null} type="flexer">
-						<TopPanel />
+						<TopPanel readOnlyStudio={readOnlyStudio} />
 					</SplitterElement>
 					<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 					<SplitterElement sticky={null} type="anti-flexer">

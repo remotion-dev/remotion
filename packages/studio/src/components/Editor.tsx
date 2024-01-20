@@ -18,8 +18,15 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-export const Editor: React.FC<{Root: React.FC}> = ({Root}) => {
+export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
+	Root,
+	readOnlyStudio,
+}) => {
 	useEffect(() => {
+		if (readOnlyStudio) {
+			return;
+		}
+
 		const listenToChanges = (e: BeforeUnloadEvent) => {
 			if (window.remotion_unsavedProps) {
 				e.returnValue = 'Are you sure you want to leave?';
@@ -31,7 +38,7 @@ export const Editor: React.FC<{Root: React.FC}> = ({Root}) => {
 		return () => {
 			window.removeEventListener('beforeunload', listenToChanges);
 		};
-	}, []);
+	}, [readOnlyStudio]);
 
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
@@ -39,7 +46,7 @@ export const Editor: React.FC<{Root: React.FC}> = ({Root}) => {
 				<div style={background}>
 					<Root />
 					<Internals.CanUseRemotionHooksProvider>
-						<EditorContent />
+						<EditorContent readOnlyStudio={readOnlyStudio} />
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
