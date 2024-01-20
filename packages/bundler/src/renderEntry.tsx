@@ -20,7 +20,6 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getBundleMode, setBundleMode} from './bundle-mode';
-import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
@@ -185,20 +184,24 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
-			<>
-				<Internals.RemotionRoot numberOfAudioTags={0}>
-					<Root />
-					<GetVideo state={bundleMode} />
-				</Internals.RemotionRoot>
-				<Homepage rootComponent={Root} />
-			</>
+			<Internals.RemotionRoot numberOfAudioTags={0}>
+				<Root />
+				<GetVideo state={bundleMode} />
+			</Internals.RemotionRoot>
 		);
 
 		renderToDOM(markup);
 	}
 
 	if (bundleMode.type === 'index') {
-		renderToDOM(<Homepage rootComponent={Root} />);
+		renderToDOM(<div>Loading Remotion Studio...</div>);
+		import('@remotion/studio')
+			.then(({Studio}) => {
+				renderToDOM(<Studio readOnly rootComponent={Root} />);
+			})
+			.catch((err) => {
+				renderToDOM(<div>Failed to load Remotion Studio: {err.message}</div>);
+			});
 	}
 };
 
