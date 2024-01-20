@@ -2,6 +2,7 @@ import type {RenderDefaults, WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {RenderJob} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {DEFAULT_TIMELINE_TRACKS} from '../default-max-timeline-tracks';
@@ -9,7 +10,6 @@ import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
-import type {RenderJob} from './job';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 

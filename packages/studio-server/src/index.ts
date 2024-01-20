@@ -1,3 +1,17 @@
+export type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	DownloadProgress,
+	JobProgressCallback,
+	RenderingProgressInput,
+	RenderJob,
+	RenderJobWithCleanup,
+	RenderStep,
+	RequiredChromiumOptions,
+	StitchingProgressInput,
+	UiOpenGlOptions,
+} from '@remotion/studio-shared';
 export type {EnumPath} from './enum-path';
 export {EventSourceEvent} from './event-source-events';
 export {ErrorLocation} from './helpers/map-error-to-react-stack';
@@ -11,23 +25,7 @@ export {
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 } from './preview-server/job';
-export type {
-	AggregateRenderProgress,
-	BundlingState,
-	CopyingState,
-	DownloadProgress,
-	JobProgressCallback,
-	RenderingProgressInput,
-	RenderJob,
-	RenderJobWithCleanup,
-	RenderStep,
-	StitchingProgressInput,
-} from './preview-server/job';
 export type {ProjectInfo} from './preview-server/project-info';
-export type {
-	RequiredChromiumOptions,
-	UiOpenGlOptions,
-} from './required-chromium-options';
 export type {
 	ScriptLine,
 	SomeStackFrame,

@@ -1,6 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {RenderDefaults} from '@remotion/bundler/dist/index-html';
 import type {LogLevel} from '@remotion/renderer';
+import type {RenderJob} from '@remotion/studio-shared';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
@@ -19,7 +20,6 @@ import type {
 } from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {handleRequest} from './preview-server/handler';
-import type {RenderJob} from './preview-server/job';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {getProjectInfo} from './preview-server/project-info';

@@ -111,6 +111,9 @@
       "path": "./packages/studio-server"
     },
     {
+      "path": "./packages/studio-shared"
+    },
+    {
       "path": "./packages/test-utils"
     },
     {

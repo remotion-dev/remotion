@@ -1772,9 +1772,6 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@remotion/studio-server':
-        specifier: workspace:*
-        version: link:../studio-server
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -1848,6 +1845,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/studio-shared':
+        specifier: workspace:*
+        version: link:../studio-shared
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -1900,6 +1900,36 @@ importers:
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
+
+  packages/studio-shared:
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.276
+        version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.42.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.42.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.42.0)
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
 
   packages/tailwind:
     dependencies:
@@ -13322,7 +13352,7 @@ packages:
       glob-parent: 6.0.2
       globals: 13.20.0
       graphemer: 1.4.0
-      ignore: 5.2.0
+      ignore: 5.2.4
       import-fresh: 3.3.0
       imurmurhash: 0.1.4
       is-glob: 4.0.3
@@ -14875,10 +14905,6 @@ packages:
 
   /ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
-
-  /ignore@5.2.0:
-    resolution: {integrity: sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==}
-    engines: {node: '>= 4'}
 
   /ignore@5.2.4:
     resolution: {integrity: sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==}

@@ -1,5 +1,5 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import type {StaticFile} from 'remotion';
-import type {RenderJob} from './preview-server/job';
 
 export type EventSourceEvent =
 	| {

@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import type {RenderJobWithCleanup} from '@remotion/studio-shared';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {
 	AddRenderRequest,
@@ -9,7 +10,6 @@ import type {
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
-	RenderJobWithCleanup,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,

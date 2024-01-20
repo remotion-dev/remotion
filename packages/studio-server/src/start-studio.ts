@@ -2,6 +2,7 @@ import type {WebpackOverrideFn} from '@remotion/bundler';
 import type {RenderDefaults} from '@remotion/bundler/dist/index-html';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {RenderJob} from '@remotion/studio-shared';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
@@ -9,7 +10,6 @@ import {openBrowser} from './better-opn';
 import {getNetworkAddress} from './get-network-address';
 import type {QueueMethods} from './preview-server/api-types';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
-import type {RenderJob} from './preview-server/job';
 import {
 	setLiveEventsListener,
 	waitForLiveEventsListener,

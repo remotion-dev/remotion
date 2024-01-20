@@ -24,6 +24,7 @@ export const listOfRemotionPackages = [
 	'@remotion/shapes',
 	'@remotion/studio',
 	'@remotion/studio-server',
+	'@remotion/studio-shared',
 	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'@remotion/transitions',
