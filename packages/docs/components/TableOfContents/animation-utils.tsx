@@ -9,12 +9,14 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/animation-utils/make-transform">
           <strong>makeTransform()</strong>
           <div>
-            Typesafe function to create a string for the CSS <code>transform</code> property
+            Create a value for the CSS <code>transform</code> property
           </div>
         </TOCItem>
         <TOCItem link="/docs/animation-utils/interpolate-styles">
           <strong>interpolateStyles()</strong>
-          <div>Map a range of values to CSS <code>style</code> values</div>
+          <div>
+            Map a range of values to CSS <code>style</code> values
+          </div>
         </TOCItem>
       </Grid>
     </div>

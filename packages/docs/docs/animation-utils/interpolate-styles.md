@@ -9,21 +9,7 @@ _Part of the [`@remotion/animation-utils`](/docs/animation-utils) package._
 
 This function provides a convenient way to interpolate styles based on a specified range of values, allowing for smooth animations between different styles.
 
-## API
-
-### `interpolateStyles(options: InterpolateStylesParams): Style`
-
-### Params
-
-1. The input value.
-2. The range of values that you expect the input to assume.
-3. The range of output styles that you want the input to map to.
-
-### Return value
-
-- A style object representing the interpolated styles based on the current frame.
-
-### Example
+## Example
 
 ```tsx twoslash
 // ---cut---
@@ -44,11 +30,23 @@ const MyComponent: React.FC = () => {
     ],
   );
 
-  return <div style={animatedStyles}>Animating Styles!</div>;
+  return <div style={animatedStyles} />;
 };
 ```
 
-### Usage Notes
+## API
+
+A function that takes three arguments:
+
+1. The input value.
+2. The range of values that you expect the input to assume.
+3. The range of output styles that you want the input to map to.
+
+## Return value
+
+- A style object representing the interpolated styles based on the current frame.
+
+## Usage Notes
 
 - Ensure that the `inputRange` and `outputStylesRange` arrays contain at least two values to facilitate interpolation between styles.
 

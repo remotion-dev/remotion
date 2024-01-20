@@ -1,3 +1,4 @@
+import type {InterpolateOptions} from 'remotion';
 import {interpolate, interpolateColors} from 'remotion';
 import type {
 	CSSPropertiesKey,
@@ -7,6 +8,8 @@ import type {
 } from '../../type';
 import {breakDownValueIntoUnitNumberAndFunctions} from './utils';
 
+type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+
 const interpolatedPropertyPart = ({
 	inputValue,
 	inputRange,
@@ -14,6 +17,7 @@ const interpolatedPropertyPart = ({
 	finalStylePropertyPart,
 	initialStyleProperty,
 	finalStyleProperty,
+	options,
 }: {
 	inputValue: number;
 	inputRange: number[];
@@ -21,6 +25,7 @@ const interpolatedPropertyPart = ({
 	finalStylePropertyPart: UnitNumberAndFunction;
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
+	options: Required<InterpolateOptions>;
 }): string | number => {
 	if (finalStylePropertyPart === undefined) {
 		throw new TypeError(
@@ -66,6 +71,7 @@ const interpolatedPropertyPart = ({
 						finalStylePropertyPart: endValuePartFunctionArg,
 						initialStyleProperty,
 						finalStyleProperty,
+						options,
 					});
 					return `${acc}, ${interpolatedArg}`;
 				},
@@ -98,10 +104,12 @@ const interpolatedPropertyPart = ({
 
 	const startNumber = initialStylePropertyPart.number;
 	const endNumber = finalStylePropertyPart.number || 0;
-	const interpolatedNumber = interpolate(inputValue, inputRange, [
-		startNumber,
-		endNumber,
-	]);
+	const interpolatedNumber = interpolate(
+		inputValue,
+		inputRange,
+		[startNumber, endNumber],
+		options,
+	);
 	const interpolatedUnit =
 		initialStylePropertyPart.unit || finalStylePropertyPart.unit || '';
 
@@ -112,12 +120,19 @@ const interpolatedPropertyPart = ({
 	return `${interpolatedNumber}${interpolatedUnit}`;
 };
 
-const interpolateProperty = (
-	inputValue: number,
-	inputRange: number[],
-	initialStyleProperty: CSSPropertiesValue,
-	finalStyleProperty: CSSPropertiesValue,
-) => {
+const interpolateProperty = ({
+	inputValue,
+	inputRange,
+	initialStyleProperty,
+	finalStyleProperty,
+	options,
+}: {
+	inputValue: number;
+	inputRange: number[];
+	initialStyleProperty: CSSPropertiesValue;
+	finalStyleProperty: CSSPropertiesValue;
+	options: Required<InterpolateOptions>;
+}) => {
 	if (
 		typeof initialStyleProperty !== typeof finalStyleProperty &&
 		initialStyleProperty !== 0 &&
@@ -148,6 +163,7 @@ const interpolateProperty = (
 				finalStylePropertyPart: finalStylePropertyParts[index],
 				initialStyleProperty,
 				finalStyleProperty,
+				options,
 			})}`;
 		},
 		'',
@@ -155,12 +171,20 @@ const interpolateProperty = (
 	return interpolatedValue.slice(1);
 };
 
-const interpolateStylesFunction = (
-	inputValue: number,
-	[startingValue, endingValue]: number[],
-	initialStyle: Style,
-	finalStyle: Style,
-): Style => {
+const interpolateStylesFunction = ({
+	inputValue,
+	inputRange,
+	initialStyle,
+	finalStyle,
+	options,
+}: {
+	inputValue: number;
+	inputRange: number[];
+	initialStyle: Style;
+	finalStyle: Style;
+	options: Required<InterpolateOptions>;
+}): Style => {
+	const [startingValue, endingValue] = inputRange;
 	return Object.keys(initialStyle).reduce((acc, key) => {
 		if (!finalStyle[key as CSSPropertiesKey]) {
 			return {
@@ -169,12 +193,13 @@ const interpolateStylesFunction = (
 			};
 		}
 
-		const finalStyleValue = interpolateProperty(
+		const finalStyleValue = interpolateProperty({
 			inputValue,
-			[startingValue, endingValue],
-			initialStyle[key as CSSPropertiesKey],
-			finalStyle[key as CSSPropertiesKey],
-		);
+			inputRange: [startingValue, endingValue],
+			initialStyleProperty: initialStyle[key as CSSPropertiesKey],
+			finalStyleProperty: finalStyle[key as CSSPropertiesKey],
+			options,
+		});
 
 		// Avoid number to be a string
 		if (!isNaN(Number(finalStyleValue))) {
@@ -239,6 +264,7 @@ export const interpolateStyles = (
 	input: number,
 	inputRange: number[],
 	outputStylesRange: Style[],
+	options?: InterpolateOptions,
 ) => {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
@@ -265,24 +291,32 @@ export const interpolateStyles = (
 	checkInputRange(inputRange);
 	checkStylesRange(outputStylesRange);
 
-	if (input < inputRange[0]) {
-		return outputStylesRange[0];
+	let startIndex = inputRange.findIndex((step) => input < step) - 1;
+	if (startIndex === -2) {
+		startIndex = inputRange.length - 2;
 	}
 
-	if (input >= inputRange[inputRange.length - 1]) {
-		return outputStylesRange[outputStylesRange.length - 1];
-	}
-
-	const startIndex = inputRange.findIndex((step) => input < step) - 1;
 	const endIndex = startIndex + 1;
 	const startingValue = inputRange[startIndex];
 	const endingValue = inputRange[endIndex];
 	const initialStyle = outputStylesRange[startIndex];
 	const finalStyle = outputStylesRange[endIndex];
-	return interpolateStylesFunction(
-		input,
-		[startingValue, endingValue],
+
+	const easing = options?.easing ?? ((num: number): number => num);
+
+	const extrapolateLeft: ExtrapolateType = options?.extrapolateLeft ?? 'extend';
+	const extrapolateRight: ExtrapolateType =
+		options?.extrapolateRight ?? 'extend';
+
+	return interpolateStylesFunction({
+		inputValue: input,
+		inputRange: [startingValue, endingValue],
 		initialStyle,
 		finalStyle,
-	);
+		options: {
+			easing,
+			extrapolateLeft,
+			extrapolateRight,
+		},
+	});
 };

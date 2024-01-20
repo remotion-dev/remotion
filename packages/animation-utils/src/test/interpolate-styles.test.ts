@@ -124,6 +124,29 @@ test('Should be able to interpolate transform strings - edge', () => {
 				},
 			],
 		),
+	).toEqual({transform: `scale(2.5) translateX(400px) rotate(80deg)`});
+});
+
+test('Should be able to use extrapolateRight: "clamp"', () => {
+	expect(
+		interpolateStyles(
+			2.5,
+			[0, 1, 2],
+			[
+				{
+					transform: `scale(0.5)`,
+				},
+				{
+					transform: `scale(1) translateX(100px) rotate(20deg)`,
+				},
+				{
+					transform: `scale(2) translateX(300px) rotate(60deg)`,
+				},
+			],
+			{
+				extrapolateRight: 'clamp',
+			},
+		),
 	).toEqual({transform: `scale(2) translateX(300px) rotate(60deg)`});
 });
 

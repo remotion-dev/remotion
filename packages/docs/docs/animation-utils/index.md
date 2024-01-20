@@ -3,9 +3,9 @@ image: /generated/articles-docs-animation-utils-index.png
 title: "@remotion/animation-utils"
 ---
 
-_Available from v4.0.89_
+_Available from v4.0.90_
 
-Utility functions that create a remotion animation.
+Functions that support you in animating CSS styles.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
