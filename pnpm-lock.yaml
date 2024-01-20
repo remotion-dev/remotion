@@ -121,6 +121,9 @@ importers:
 
   packages/bundler:
     dependencies:
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       css-loader:
         specifier: 5.2.7
         version: 5.2.7(webpack@5.83.1)
