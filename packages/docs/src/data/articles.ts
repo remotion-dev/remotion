@@ -49,6 +49,27 @@ export const articles = [
     crumb: "The basics",
   },
   {
+    id: "animation-utils/index",
+    title: "@remotion/animation-utils",
+    relativePath: "docs/animation-utils/index.md",
+    compId: "articles-docs-animation-utils-index",
+    crumb: null,
+  },
+  {
+    id: "interpolate-styles",
+    title: "interpolateStyles()",
+    relativePath: "docs/animation-utils/interpolate-styles.md",
+    compId: "articles-docs-animation-utils-interpolate-styles",
+    crumb: "@remotion/animation-utils",
+  },
+  {
+    id: "make-transform",
+    title: "makeTransform()",
+    relativePath: "docs/animation-utils/make-transform.md",
+    compId: "articles-docs-animation-utils-make-transform",
+    crumb: "@remotion/animation-utils",
+  },
+  {
     id: "api",
     title: "API overview",
     relativePath: "docs/api.md",
