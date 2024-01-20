@@ -2,7 +2,6 @@ import React from 'react';
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
-import '../styles.css';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
 import {startErrorOverlay} from './error-overlay/entry-basic';
 import {enableHotMiddleware} from './hot-middleware-client/client';
