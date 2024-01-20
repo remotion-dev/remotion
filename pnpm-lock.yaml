@@ -1842,12 +1842,6 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
-      '@remotion/media-utils':
-        specifier: workspace:*
-        version: link:../media-utils
-      '@remotion/player':
-        specifier: workspace:*
-        version: link:../player
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -1870,18 +1864,12 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
-      '@remotion/zod-types':
-        specifier: workspace:*
-        version: link:../zod-types
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
         specifier: 18.0.26
         version: 18.0.26
-      '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
@@ -1906,15 +1894,9 @@ importers:
       react:
         specifier: 18.2.0
         version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
-      zod:
-        specifier: ^3.22.3
-        version: 3.22.3
 
   packages/tailwind:
     dependencies:
