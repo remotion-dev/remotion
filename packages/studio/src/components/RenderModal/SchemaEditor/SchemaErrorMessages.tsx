@@ -34,9 +34,7 @@ const errorContainer: React.CSSProperties = {
 };
 
 const openDocs = () => {
-	window.open(
-		'https://www.remotion.dev/docs/parameterized-rendering#define-a-schema-',
-	);
+	window.open('https://www.remotion.dev/docs/schemas');
 };
 
 export const ZodNotInstalled = () => {
