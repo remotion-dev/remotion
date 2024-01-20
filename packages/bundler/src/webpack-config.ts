@@ -86,7 +86,7 @@ export const webpackConfig = ({
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
-			ignored: ['**/.git/**', '**/node_modules/**'],
+			ignored: ['**/.git/**', '**/.turbo/**', '**/node_modules/**'],
 		},
 		// Higher source map quality in development to power line numbers for stack traces
 		devtool:
