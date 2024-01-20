@@ -46,7 +46,6 @@ export const startServer = async (options: {
 		environment: 'development',
 		webpackOverride: options?.webpackOverride,
 		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
-		entryPoints: [],
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,

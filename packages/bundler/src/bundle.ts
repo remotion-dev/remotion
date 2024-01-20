@@ -74,7 +74,6 @@ export const getConfig = ({
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 90,
-		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
 		poll: null,

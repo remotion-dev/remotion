@@ -50,7 +50,6 @@ export const webpackConfig = ({
 	onProgress,
 	enableCaching = true,
 	maxTimelineTracks,
-	entryPoints,
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	poll,
@@ -64,7 +63,6 @@ export const webpackConfig = ({
 	enableCaching?: boolean;
 	maxTimelineTracks: number;
 	keyboardShortcutsEnabled: boolean;
-	entryPoints: string[];
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
@@ -101,7 +99,6 @@ export const webpackConfig = ({
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
 			require.resolve('./setup-environment'),
-			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
