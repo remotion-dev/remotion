@@ -1,7 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {StudioInternals} from '@remotion/studio-server';
-import {existsSync, readFileSync, rmSync, writeFileSync} from 'fs';
+import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
@@ -61,7 +61,9 @@ export const bundleCommand = async (
 	);
 	const existed = existsSync(outputPath);
 	if (existed) {
-		if (!existsSync(path.join(outputPath, 'index.html'))) {
+		const existsIndexHtml = existsSync(path.join(outputPath, 'index.html'));
+		const isEmpty = readdirSync(outputPath).length === 0;
+		if (!existsIndexHtml && !isEmpty) {
 			Log.error(
 				`The folder at ${outputPath} already exists, and needs to be deleted before a new bundle can be created.`,
 			);
