@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
 import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod-values';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
