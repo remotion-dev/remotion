@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
@@ -97,7 +97,7 @@ export const bundleCommand = async (
 
 			if (copying.doneIn === null) {
 				if (updatesDontOverwrite) {
-					return `Copying public dir ${StudioInternals.formatBytes(
+					return `Copying public dir ${StudioServerInternals.formatBytes(
 						copying.bytes,
 					)}`;
 				}

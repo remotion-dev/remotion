@@ -1,4 +1,4 @@
-import type {SymbolicatedStackFrame} from '@remotion/studio-server';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
 import {CaretDown, CaretRight} from './carets';

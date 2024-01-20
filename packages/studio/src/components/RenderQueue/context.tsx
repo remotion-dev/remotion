@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {createRef, useImperativeHandle, useMemo, useState} from 'react';
 
 declare global {

@@ -9,7 +9,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {SymbolicatedStackFrame} from '@remotion/studio-server';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {parseError} from './parser';
 import {unmap} from './unmapper';
 

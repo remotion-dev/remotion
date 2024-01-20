@@ -1,4 +1,4 @@
-import type {PackageManager} from '@remotion/studio-server';
+import type {PackageManager} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,

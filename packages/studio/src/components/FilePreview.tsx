@@ -1,4 +1,4 @@
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {JSONViewer} from './JSONViewer';
@@ -52,9 +52,7 @@ export const FilePreview: React.FC<{
 		<>
 			<div style={msgStyle}>{currentAsset}</div>
 			<Spacing y={0.5} />
-			<div style={msgStyle}>
-				Size: {StudioServerClientAPIs.formatBytes(assetMetadata.size)}{' '}
-			</div>
+			<div style={msgStyle}>Size: {formatBytes(assetMetadata.size)} </div>
 		</>
 	);
 };

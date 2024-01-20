@@ -14,8 +14,8 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
-} from '@remotion/studio-server';
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+} from '@remotion/studio-shared';
+import {getDefaultOutLocation} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -339,7 +339,7 @@ const RenderModal: React.FC<
 	);
 
 	const [initialOutName] = useState(() => {
-		return StudioServerClientAPIs.getDefaultOutLocation({
+		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension: isVideo
 				? BrowserSafeApis.getFileExtensionFromCodec(

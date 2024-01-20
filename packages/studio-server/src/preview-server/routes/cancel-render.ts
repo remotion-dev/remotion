@@ -1,5 +1,8 @@
+import type {
+	CancelRenderRequest,
+	CancelRenderResponse,
+} from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
-import type {CancelRenderRequest, CancelRenderResponse} from '../job';
 
 export const handleCancelRender: ApiHandler<
 	CancelRenderRequest,

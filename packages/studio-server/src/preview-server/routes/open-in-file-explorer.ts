@@ -1,6 +1,6 @@
+import type {OpenInFileExplorerRequest} from '@remotion/studio-shared';
 import {openDirectoryInFinder} from '../../open-directory-in-finder';
 import type {ApiHandler} from '../api-types';
-import type {OpenInFileExplorerRequest} from '../job';
 
 export const handleOpenInFileExplorer: ApiHandler<
 	OpenInFileExplorerRequest,

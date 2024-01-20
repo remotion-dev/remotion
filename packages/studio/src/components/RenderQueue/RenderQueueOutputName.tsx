@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useMemo} from 'react';
 import {renderQueueItemSubtitleStyle} from './item-style';
 

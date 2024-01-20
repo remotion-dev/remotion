@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
@@ -60,7 +60,7 @@ export const studioCommand = async (
 	const fullEntryPath = convertEntryPointToServeUrl(file);
 
 	let inputProps = getInputProps((newProps) => {
-		StudioInternals.waitForLiveEventsListener().then((listener) => {
+		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
 			listener.sendEventToClient({
 				type: 'new-input-props',
@@ -69,7 +69,7 @@ export const studioCommand = async (
 		});
 	}, logLevel);
 	let envVariables = getEnvironmentVariables((newEnvVariables) => {
-		StudioInternals.waitForLiveEventsListener().then((listener) => {
+		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			envVariables = newEnvVariables;
 			listener.sendEventToClient({
 				type: 'new-env-variables',
@@ -82,7 +82,7 @@ export const studioCommand = async (
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
-	await StudioInternals.startStudio({
+	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,

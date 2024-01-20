@@ -1,4 +1,4 @@
-import type {ProjectInfo} from '@remotion/studio-server';
+import type {ProjectInfo} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 

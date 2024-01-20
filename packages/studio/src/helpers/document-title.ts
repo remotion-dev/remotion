@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 
 let currentItemName: string | null = null;

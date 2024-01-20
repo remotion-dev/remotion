@@ -1,4 +1,4 @@
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import {stringifyDefaultProps} from '@remotion/studio-shared';
 import {expect, test} from 'vitest';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
@@ -6,7 +6,7 @@ import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
 test('Should stringify default props correctly', () => {
-	const result = StudioServerClientAPIs.stringifyDefaultProps({
+	const result = stringifyDefaultProps({
 		props: {
 			abc: 'def',
 			newDate: 'remotion-date:2022-01-02',
@@ -32,7 +32,7 @@ test('Should stringify default props correctly', () => {
 	const enumPaths = extractEnumJsonPaths(schema, z, []);
 	expect(enumPaths).toStrictEqual([['abc'], ['array', '[]']]);
 
-	const result = StudioServerClientAPIs.stringifyDefaultProps({
+	const result = stringifyDefaultProps({
 		props: values,
 		enumPaths,
 	});

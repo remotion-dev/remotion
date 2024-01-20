@@ -1,7 +1,12 @@
 import {BundlerInternals} from '@remotion/bundler';
-import type {RenderDefaults} from '@remotion/bundler/dist/index-html';
 import type {LogLevel} from '@remotion/renderer';
-import type {RenderJob} from '@remotion/studio-shared';
+import type {
+	ApiRoutes,
+	RenderDefaults,
+	RenderJob,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
+import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
@@ -13,11 +18,7 @@ import {
 	launchEditor,
 } from './helpers/open-in-editor';
 import {allApiRoutes} from './preview-server/api-routes';
-import type {
-	ApiHandler,
-	ApiRoutes,
-	QueueMethods,
-} from './preview-server/api-types';
+import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -25,8 +26,6 @@ import {parseRequestBody} from './preview-server/parse-body';
 import {getProjectInfo} from './preview-server/project-info';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
-import {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
-import type {SymbolicatedStackFrame} from './stack-frame';
 
 const editorGuess = guessEditor();
 

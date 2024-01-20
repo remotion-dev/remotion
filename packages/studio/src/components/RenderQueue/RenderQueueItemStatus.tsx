@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';

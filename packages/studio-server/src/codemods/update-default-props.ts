@@ -1,5 +1,5 @@
-import type {EnumPath} from '../enum-path';
-import {stringifyDefaultProps} from './stringify-with-path';
+import type {EnumPath} from '@remotion/studio-shared';
+import {stringifyDefaultProps} from '@remotion/studio-shared';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 type PrettierType = typeof import('prettier');

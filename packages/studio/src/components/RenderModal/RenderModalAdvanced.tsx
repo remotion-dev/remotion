@@ -1,10 +1,9 @@
 import type {Codec, LogLevel, X264Preset} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {UiOpenGlOptions} from '@remotion/studio-shared';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {labelx264Preset} from '../../helpers/presets-labels';
-
-import type {UiOpenGlOptions} from '@remotion/studio-server';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';

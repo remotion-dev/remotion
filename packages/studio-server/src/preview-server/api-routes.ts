@@ -1,4 +1,5 @@
-import type {ApiHandler, ApiRoutes} from './api-types';
+import type {ApiRoutes} from '@remotion/studio-shared';
+import type {ApiHandler} from './api-types';
 import {handleAddRender} from './routes/add-render';
 import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';

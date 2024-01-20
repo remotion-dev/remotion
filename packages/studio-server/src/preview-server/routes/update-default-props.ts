@@ -1,10 +1,10 @@
-import {readFileSync, writeFileSync} from 'node:fs';
-import {updateDefaultProps} from '../../codemods/update-default-props';
-import type {ApiHandler} from '../api-types';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
-} from '../job';
+} from '@remotion/studio-shared';
+import {readFileSync, writeFileSync} from 'node:fs';
+import {updateDefaultProps} from '../../codemods/update-default-props';
+import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 

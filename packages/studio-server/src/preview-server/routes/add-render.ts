@@ -1,6 +1,6 @@
 import {makeCancelSignal} from '@remotion/renderer';
+import type {AddRenderRequest} from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
-import type {AddRenderRequest} from '../job';
 
 export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	input,

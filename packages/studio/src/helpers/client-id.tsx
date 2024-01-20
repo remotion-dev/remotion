@@ -1,4 +1,4 @@
-import type {EventSourceEvent} from '@remotion/studio-server';
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';

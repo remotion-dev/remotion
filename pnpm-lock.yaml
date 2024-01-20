@@ -1760,9 +1760,6 @@ importers:
 
   packages/studio:
     dependencies:
-      '@remotion/bundler':
-        specifier: workspace:*
-        version: link:../bundler
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
@@ -1772,6 +1769,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@remotion/studio-shared':
+        specifier: workspace:*
+        version: link:../studio-shared
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -1902,6 +1902,10 @@ importers:
         version: 0.31.1(jsdom@20.0.1)
 
   packages/studio-shared:
+    dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.276

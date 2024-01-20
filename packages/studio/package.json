@@ -23,10 +23,10 @@
 	"dependencies": {
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
-		"@remotion/bundler": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
 		"open": "^8.4.2"

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type {SymbolicatedStackFrame} from '@remotion/studio-server';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useEffect,

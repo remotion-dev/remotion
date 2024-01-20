@@ -1,10 +1,6 @@
+import type {ProjectInfo} from '@remotion/studio-shared';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-
-export type ProjectInfo = {
-	videoFile: string | null;
-	relativeVideoFile: string | null;
-};
 
 export const getProjectInfo = (remotionRoot: string): Promise<ProjectInfo> => {
 	const pathsToLookFor = [

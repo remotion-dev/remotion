@@ -1,6 +1,6 @@
+import type {UnsubscribeFromFileExistenceRequest} from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
 import {unsubscribeFromFileExistenceWatchers} from '../file-existence-watchers';
-import type {UnsubscribeFromFileExistenceRequest} from '../job';
 
 export const unsubscribeFromFileExistence: ApiHandler<
 	UnsubscribeFromFileExistenceRequest,

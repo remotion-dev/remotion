@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import type {RenderInlineAction} from '../InlineAction';

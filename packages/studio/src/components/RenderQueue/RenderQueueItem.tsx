@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server/dist';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,

@@ -3,7 +3,7 @@ import type {
 	RenderingProgressInput,
 	RenderJob,
 	StitchingProgressInput,
-} from '@remotion/studio-server';
+} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';

@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {bundleCommand} from './bundle';
@@ -131,6 +130,8 @@ export const cli = async () => {
 	}
 };
 
+import {StudioServerInternals} from '@remotion/studio-server';
+
 export const CliInternals = {
 	createOverwriteableCliOutput,
 	chalk,
@@ -138,12 +139,12 @@ export const CliInternals = {
 	Log,
 	getCliOptions,
 	loadConfig,
+	formatBytes: StudioServerInternals.formatBytes,
 	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
 	printError,
-	formatBytes: StudioInternals.formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,

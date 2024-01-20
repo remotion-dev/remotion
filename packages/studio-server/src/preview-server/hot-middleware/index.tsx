@@ -6,10 +6,11 @@
 
 import type {webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
+import type {HotMiddlewareMessage, ModuleMap} from '@remotion/studio-shared';
+import {hotMiddlewareOptions} from '@remotion/studio-shared';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {parse} from 'node:url';
-import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
-import {hotMiddlewareOptions} from './types';
+import type {WebpackStats} from './types';
 
 declare global {
 	const __webpack_hash__: unknown;

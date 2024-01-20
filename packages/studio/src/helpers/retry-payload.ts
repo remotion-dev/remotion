@@ -6,7 +6,7 @@ import type {
 	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderModalState} from '../state/modals';
 

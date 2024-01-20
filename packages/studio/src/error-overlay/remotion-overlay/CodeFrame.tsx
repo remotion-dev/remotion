@@ -1,4 +1,4 @@
-import type {ScriptLine} from '@remotion/studio-server';
+import type {ScriptLine} from '@remotion/studio-shared';
 import React from 'react';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {BLUE} from '../../helpers/colors';

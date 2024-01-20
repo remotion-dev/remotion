@@ -15,7 +15,7 @@ import type {
 	SomeStackFrame,
 	StackFrame,
 	SymbolicatedStackFrame,
-} from '@remotion/studio-server';
+} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import type {SourceMapConsumer} from 'source-map';
 import {getLinesAround} from './get-lines-around';

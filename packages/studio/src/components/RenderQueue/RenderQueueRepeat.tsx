@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-server';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {makeRetryPayload} from '../../helpers/retry-payload';
 import {ModalsContext} from '../../state/modals';

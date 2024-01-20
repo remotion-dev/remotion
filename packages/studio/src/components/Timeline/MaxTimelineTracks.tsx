@@ -1,10 +1,10 @@
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import React from 'react';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
 export const MAX_TIMELINE_TRACKS =
 	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined'
-		? StudioServerClientAPIs.DEFAULT_TIMELINE_TRACKS
+		? DEFAULT_TIMELINE_TRACKS
 		: Number(process.env.MAX_TIMELINE_TRACKS);
 
 export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;

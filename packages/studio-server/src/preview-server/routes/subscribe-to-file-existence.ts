@@ -1,9 +1,9 @@
-import type {ApiHandler} from '../api-types';
-import {subscribeToFileExistenceWatchers} from '../file-existence-watchers';
 import type {
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
-} from '../job';
+} from '@remotion/studio-shared';
+import type {ApiHandler} from '../api-types';
+import {subscribeToFileExistenceWatchers} from '../file-existence-watchers';
 
 export const subscribeToFileExistence: ApiHandler<
 	SubscribeToFileExistenceRequest,

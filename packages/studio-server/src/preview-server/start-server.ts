@@ -1,11 +1,11 @@
-import type {RenderDefaults, WebpackOverrideFn} from '@remotion/bundler';
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderJob} from '@remotion/studio-shared';
+import type {RenderDefaults, RenderJob} from '@remotion/studio-shared';
+import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import {DEFAULT_TIMELINE_TRACKS} from '../default-max-timeline-tracks';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';

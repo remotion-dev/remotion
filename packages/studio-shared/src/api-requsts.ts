@@ -9,9 +9,22 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {RequiredChromiumOptions} from '@remotion/studio-shared';
-import type {EnumPath} from '../enum-path';
-import type {PackageManager} from './get-package-manager';
+import type {PackageManager} from './package-manager';
+import type {RequiredChromiumOptions} from './render-job';
+import type {EnumPath} from './stringify-default-props';
+
+export type OpenInFileExplorerRequest = {
+	directory: string;
+};
+
+export type CopyStillToClipboardRequest = {
+	outName: string;
+};
+
+type ReqAndRes<A, B> = {
+	Request: A;
+	Response: B;
+};
 
 type AddRenderRequestDynamicFields =
 	| {
@@ -83,14 +96,6 @@ export type RemoveRenderRequest = {
 	jobId: string;
 };
 
-export type OpenInFileExplorerRequest = {
-	directory: string;
-};
-
-export type CopyStillToClipboardRequest = {
-	outName: string;
-};
-
 export type SubscribeToFileExistenceRequest = {
 	file: string;
 	clientId: string;
@@ -141,4 +146,32 @@ export type UpdateAvailableResponse = {
 	updateAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type ApiRoutes = {
+	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
+	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
+	'/api/unsubscribe-from-file-existence': ReqAndRes<
+		UnsubscribeFromFileExistenceRequest,
+		undefined
+	>;
+	'/api/subscribe-to-file-existence': ReqAndRes<
+		SubscribeToFileExistenceRequest,
+		SubscribeToFileExistenceResponse
+	>;
+	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
+	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/copy-still-to-clipboard': ReqAndRes<CopyStillToClipboardRequest, void>;
+	'/api/update-default-props': ReqAndRes<
+		UpdateDefaultPropsRequest,
+		UpdateDefaultPropsResponse
+	>;
+	'/api/can-update-default-props': ReqAndRes<
+		CanUpdateDefaultPropsRequest,
+		CanUpdateDefaultPropsResponse
+	>;
+	'/api/update-available': ReqAndRes<
+		UpdateAvailableRequest,
+		UpdateAvailableResponse
+	>;
 };

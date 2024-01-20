@@ -1,4 +1,4 @@
-import {splitAnsi} from './ansi-split';
+import {splitAnsi} from '@remotion/studio-shared';
 
 const CLEAR_LINE = Buffer.from([0x1b, 0x5b, 0x30, 0x4b]);
 const NEWLINE = Buffer.from('\n');

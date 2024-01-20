@@ -55,7 +55,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
@@ -543,7 +543,7 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
-	setMaxTimelineTracks: StudioInternals.setMaxTimelineTracks,
+	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
@@ -645,7 +645,7 @@ export const ConfigInternals = {
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
-	getMaxTimelineTracks: StudioInternals.getMaxTimelineTracks,
+	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,

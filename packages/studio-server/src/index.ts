@@ -1,9 +1,20 @@
+import {formatBytes} from '@remotion/studio-shared';
+export {
+	ApiRoutes,
+	CopyStillToClipboardRequest,
+	getDefaultOutLocation,
+	OpenInFileExplorerRequest,
+} from '@remotion/studio-shared';
 export type {
 	AggregateRenderProgress,
 	BundlingState,
 	CopyingState,
 	DownloadProgress,
+	HotMiddlewareOptions,
 	JobProgressCallback,
+	ModuleMap,
+	PackageManager,
+	ProjectInfo,
 	RenderingProgressInput,
 	RenderJob,
 	RenderJobWithCleanup,
@@ -12,32 +23,10 @@ export type {
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
-export type {EnumPath} from './enum-path';
-export {EventSourceEvent} from './event-source-events';
-export {ErrorLocation} from './helpers/map-error-to-react-stack';
-export {ApiRoutes} from './preview-server/api-types';
-export type {PackageManager} from './preview-server/get-package-manager';
-export type {
-	HotMiddlewareOptions,
-	ModuleMap,
-} from './preview-server/hot-middleware/types';
-export {
-	CopyStillToClipboardRequest,
-	OpenInFileExplorerRequest,
-} from './preview-server/job';
-export type {ProjectInfo} from './preview-server/project-info';
-export type {
-	ScriptLine,
-	SomeStackFrame,
-	StackFrame,
-	SymbolicatedStackFrame,
-} from './stack-frame';
 
 import {AnsiDiff} from './ansi-diff';
 import {installFileWatcher} from './file-watcher';
-import {getDefaultOutLocation} from './get-default-out-name';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
-import {formatBytes} from './helpers/format-bytes';
 import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -50,7 +39,7 @@ import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getRemotionVersion} from './preview-server/update-available';
 import {startStudio} from './start-studio';
 
-export const StudioInternals = {
+export const StudioServerInternals = {
 	startStudio,
 	getRemotionVersion,
 	waitForLiveEventsListener,
@@ -58,9 +47,8 @@ export const StudioInternals = {
 	getPackageManager,
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
-	formatBytes,
 	getLatestRemotionVersion,
-	getDefaultOutLocation,
 	installFileWatcher,
 	AnsiDiff,
+	formatBytes,
 };

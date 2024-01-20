@@ -1,8 +1,7 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import type {RenderDefaults} from '@remotion/bundler/dist/index-html';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderJob} from '@remotion/studio-shared';
+import type {RenderDefaults, RenderJob} from '@remotion/studio-shared';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';

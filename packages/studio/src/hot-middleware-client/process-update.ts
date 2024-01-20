@@ -11,7 +11,7 @@
  * Original copyright Tobias Koppers @sokra (MIT license)
  */
 
-import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-server';
+import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-shared';
 import {notificationCenter} from '../components/Notifications/NotificationCenter';
 
 if (!__webpack_module__.hot) {

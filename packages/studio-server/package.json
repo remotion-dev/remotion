@@ -43,5 +43,9 @@
 		"@types/semver": "^7.3.4",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"vitest": "0.31.1"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./package.json": "./package.json"
 	}
 }

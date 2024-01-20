@@ -1,4 +1,4 @@
-import {DEFAULT_TIMELINE_TRACKS} from './default-max-timeline-tracks';
+import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 
 let maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
 

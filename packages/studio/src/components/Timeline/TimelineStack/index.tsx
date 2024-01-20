@@ -1,4 +1,4 @@
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {SourceMapConsumer} from 'source-map';
@@ -18,7 +18,7 @@ import {getOriginalSourceAttribution} from './source-attribution';
 
 // @ts-expect-error
 SourceMapConsumer.initialize({
-	'lib/mappings.wasm': StudioServerClientAPIs.SOURCE_MAP_ENDPOINT,
+	'lib/mappings.wasm': SOURCE_MAP_ENDPOINT,
 });
 
 export const TimelineStack: React.FC<{

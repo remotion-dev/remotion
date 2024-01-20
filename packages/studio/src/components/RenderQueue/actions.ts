@@ -16,7 +16,7 @@ import type {
 	OpenInFileExplorerRequest,
 	RenderJob,
 	RequiredChromiumOptions,
-} from '@remotion/studio-server';
+} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(

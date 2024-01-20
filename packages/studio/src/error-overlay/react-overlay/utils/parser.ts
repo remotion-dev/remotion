@@ -9,9 +9,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {SomeStackFrame, StackFrame} from '@remotion/studio-server';
-import {StudioServerClientAPIs} from '@remotion/studio-server/client';
+import type {SomeStackFrame, StackFrame} from '@remotion/studio-shared';
+import {getLocationFromBuildError} from '@remotion/studio-shared';
 import {resolveFileSource} from '../effects/resolve-file-source';
+import {makeStackFrame} from './make-stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 
@@ -59,7 +60,7 @@ export function parseStack(stack: string[]): StackFrame[] {
 				}
 
 				const [_fileName, _lineNumber, _columnNumber] = extractLocation(_last);
-				return StudioServerClientAPIs.makeStackFrame({
+				return makeStackFrame({
 					functionName: _data.join('@') || (isEval ? 'eval' : null),
 					fileName: _fileName,
 					lineNumber: _lineNumber,
@@ -83,7 +84,7 @@ export function parseStack(stack: string[]): StackFrame[] {
 			}
 
 			const [fileName, lineNumber, columnNumber] = extractLocation(last);
-			return StudioServerClientAPIs.makeStackFrame({
+			return makeStackFrame({
 				functionName: data.join(' ') || null,
 				fileName,
 				lineNumber,
@@ -119,7 +120,7 @@ export const parseError = async (
 		});
 	}
 
-	const errorLocation = StudioServerClientAPIs.getLocationFromBuildError(error);
+	const errorLocation = getLocationFromBuildError(error);
 
 	if (errorLocation) {
 		return [

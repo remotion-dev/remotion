@@ -1,12 +1,12 @@
 import type {DownloadProgress} from '@remotion/studio-server';
-import {StudioInternals} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
 
-	return `[${StudioInternals.formatBytes(downloaded).padEnd(
+	return `[${StudioServerInternals.formatBytes(downloaded).padEnd(
 		desiredLength - 2,
 		' ',
 	)}]`;

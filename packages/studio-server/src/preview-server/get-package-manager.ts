@@ -1,6 +1,6 @@
+import type {PackageManager} from '@remotion/studio-shared';
 import fs from 'node:fs';
 import path from 'node:path';
-export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 type LockfilePath = {
 	manager: PackageManager;
