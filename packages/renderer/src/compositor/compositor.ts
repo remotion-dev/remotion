@@ -15,7 +15,7 @@ import type {
 } from './payloads';
 
 export type Compositor = {
-	finishCommands: () => void;
+	finishCommands: () => Promise<void>;
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
 		payload: CompositorCommand[T],
@@ -301,7 +301,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				reject = rej;
 			});
 		},
-		finishCommands: () => {
+		finishCommands: (): Promise<void> => {
 			if (runningStatus.type === 'quit-with-error') {
 				throw new Error(
 					`Compositor quit${
@@ -318,7 +318,16 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				);
 			}
 
-			child.stdin.write('EOF\n');
+			return new Promise<void>((res, rej) => {
+				child.stdin.write('EOF\n', (e) => {
+					if (e) {
+						rej(e);
+						return;
+					}
+
+					res();
+				});
+			});
 		},
 
 		executeCommand: <Type extends keyof CompositorCommand>(
@@ -350,7 +359,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 						params,
 					},
 				};
-				child.stdin.write(JSON.stringify(composed) + '\n');
+				child.stdin.write(JSON.stringify(composed) + '\n', (e) => {
+					if (e) {
+						_reject(e);
+					}
+				});
 				waiters.set(nonce, {
 					resolve: _resolve,
 					reject: _reject,

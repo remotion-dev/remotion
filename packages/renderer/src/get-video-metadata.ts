@@ -16,7 +16,7 @@ export const getVideoMetadata = async (
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
 		src: videoSource,
 	});
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 	return JSON.parse(metadataResponse.toString('utf-8')) as VideoMetadata;
 };
