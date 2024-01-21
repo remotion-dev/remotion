@@ -58,10 +58,11 @@ export const RenderSvg = ({
 				transform-origin={
 					reactSupportsTransformOrigin ? undefined : transformOrigin
 				}
-				// @ts-expect-error
-				transformOrigin={
-					reactSupportsTransformOrigin ? transformOrigin : undefined
-				}
+				{...(reactSupportsTransformOrigin
+					? {
+							transformOrigin,
+						}
+					: {})}
 				d={path}
 				style={actualPathStyle}
 				{...props}
