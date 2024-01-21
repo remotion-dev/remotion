@@ -132,16 +132,20 @@ export const TimelineStack: React.FC<{
 		setTitleHovered(false);
 	}, []);
 
+	const hoverable =
+		(originalLocation && isCompact) ||
+		(assetPath && window.remotion_editorName);
+
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
 			color: opening
 				? VERY_LIGHT_TEXT
-				: stackHovered
+				: stackHovered && hoverable
 					? LIGHT_TEXT
 					: VERY_LIGHT_TEXT,
 			marginLeft: 10,
-			cursor: 'pointer',
+			cursor: hoverable ? 'pointer' : undefined,
 			display: 'flex',
 			flexDirection: 'row',
 			alignItems: 'center',
@@ -150,11 +154,7 @@ export const TimelineStack: React.FC<{
 			overflow: 'hidden',
 			flexShrink: 100000,
 		};
-	}, [stackHovered, opening]);
-
-	const hoverable =
-		(originalLocation && isCompact) ||
-		(assetPath && window.remotion_editorName);
+	}, [opening, stackHovered, hoverable]);
 
 	const textStyle: React.CSSProperties = useMemo(() => {
 		const hoverEffect = titleHovered && hoverable;
