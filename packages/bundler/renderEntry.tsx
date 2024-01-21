@@ -14,6 +14,7 @@ import type {
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
+	AbsoluteFill,
 	Internals,
 	VERSION,
 	continueRender,
@@ -44,6 +45,38 @@ const getCanSerializeDefaultProps = (object: unknown) => {
 
 const isInHeadlessBrowser = () => {
 	return typeof window.remotion_puppeteerTimeout !== 'undefined';
+};
+
+const DelayedSpinner: React.FC = () => {
+	const [show, setShow] = useState(false);
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setShow(true);
+		}, 2000);
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, []);
+
+	if (!show) {
+		return null;
+	}
+
+	return (
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: 13,
+				opacity: 0.6,
+				color: 'white',
+				fontFamily: 'Helvetica, Arial, sans-serif',
+			}}
+		>
+			Loading Studio
+		</AbsoluteFill>
+	);
 };
 
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
@@ -205,7 +238,11 @@ const renderContent = (Root: React.FC) => {
 			return;
 		}
 
-		renderToDOM(<div>Loading Remotion Studio...</div>);
+		renderToDOM(
+			<div>
+				<DelayedSpinner />
+			</div>,
+		);
 		import('@remotion/studio')
 			.then(({Studio}) => {
 				renderToDOM(<Studio readOnly rootComponent={Root} />);
