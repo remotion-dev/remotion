@@ -1,3 +1,4 @@
+import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -275,6 +276,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 	fs.copyFileSync(
 		path.join(__dirname, '../favicon.ico'),
 		path.join(outDir, 'favicon.ico'),
+	);
+	fs.copyFileSync(
+		path.resolve(require.resolve('source-map'), '..', 'lib', 'mappings.wasm'),
+		path.join(outDir, SOURCE_MAP_ENDPOINT.replace('/', '')),
 	);
 	return outDir;
 }

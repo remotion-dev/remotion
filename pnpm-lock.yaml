@@ -124,6 +124,9 @@ importers:
       '@remotion/studio':
         specifier: workspace:*
         version: link:../studio
+      '@remotion/studio-shared':
+        specifier: workspace:*
+        version: link:../studio-shared
       css-loader:
         specifier: 5.2.7
         version: 5.2.7(webpack@5.83.1)

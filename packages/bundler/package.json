@@ -31,6 +31,7 @@
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
 		"webpack": "5.83.1"
 	},

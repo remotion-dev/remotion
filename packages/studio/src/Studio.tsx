@@ -16,6 +16,7 @@ export const Studio: React.FC<{
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
 		window.remotion_isStudio = true;
+		Internals.enableSequenceStackTraces();
 	}, []);
 	return (
 		<Internals.RemotionRoot

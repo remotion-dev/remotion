@@ -26,7 +26,7 @@ export const reloadUrl = () => {
 
 export const getPathname = () => {
 	if (getUrlHandlingType() === 'query-string') {
-		return window.location.search.substring(2);
+		return window.location.search.substring(1);
 	}
 
 	return window.location.pathname;
