@@ -146,20 +146,20 @@ export const callCompositor = (
 			return;
 		}
 
-		child.stdin.write(payload, (err) => {
-			if (err) {
+		try {
+			child.stdin.write(payload);
+		} catch (err) {
+			if (err instanceof Error && err.message.includes('EPIPE')) {
 				reject(
 					new Error(
 						'Compositor stdin closed unexpectedly,' +
-							err.stack +
 							Buffer.concat(stderrChunks).toString('utf-8'),
 					),
 				);
-			} else {
-				child.stdin.end(() => {
-					resolve();
-				});
+				return;
 			}
-		});
+		}
+
+		child.stdin.end();
 	});
 };
