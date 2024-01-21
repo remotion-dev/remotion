@@ -48,13 +48,13 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
+import {INDENT_TOKEN, Log, getLogLevel, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
 	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
 	validOpenGlRenderers,
+	validateOpenGlRenderer,
 } from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
@@ -88,14 +88,14 @@ export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {GetCompositionsOptions, getCompositions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
+export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,
-	validateSelectedPixelFormatAndImageFormatCombination,
 	VideoImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
 export type {LogLevel} from './log-level';
 export {LogOptions} from './logger';
@@ -108,29 +108,30 @@ export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {renderFrames, RenderFramesOptions} from './render-frames';
+export {RenderFramesOptions, renderFrames} from './render-frames';
 export {
 	InternalRenderMediaOptions,
-	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
 	SlowFrame,
 	StitchingState,
+	renderMedia,
 } from './render-media';
-export {renderStill, RenderStillOptions} from './render-still';
+export {RenderStillOptions, renderStill} from './render-still';
 export {
-	selectComposition,
 	SelectCompositionOptions,
+	selectComposition,
 } from './select-composition';
 export {
-	stitchFramesToVideo,
 	StitchFramesToVideoOptions,
+	stitchFramesToVideo,
 } from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
 export {X264Preset} from './x264-preset';
 
+import {makeDownloadMap} from './assets/download-map';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -221,6 +222,7 @@ export const RenderInternals = {
 	isIpV6Supported,
 	getChromiumGpuInformation,
 	getPortConfig,
+	makeDownloadMap,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
