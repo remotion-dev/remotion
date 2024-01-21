@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run && vitest src/monorepo --run",
-    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr src/bundle --run --fileParallelism=false",
+    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr src/bundle --run",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,

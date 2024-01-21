@@ -7,18 +7,14 @@ test("Bundle studio", async () => {
   await execa("pnpm", ["exec", "remotion", "bundle"], {
     cwd: path.join(process.cwd(), "..", "example"),
   });
-  const selectedPort = RenderInternals.getDesiredPort({
-    desiredPort: undefined,
-    from: 3000,
-    to: 3100,
-    hostsToTry: ["::", "::1"],
-  });
+
   const browser = openBrowser("chrome");
+
   const tab = await (await browser).newPage(() => null, "info", false);
   const { port, close } = await RenderInternals.serveStatic(
     path.join(process.cwd(), "..", "example", "build"),
     {
-      port: (await selectedPort).port,
+      port: null,
       concurrency: 1,
       downloadMap: RenderInternals.makeDownloadMap(),
       indent: false,
