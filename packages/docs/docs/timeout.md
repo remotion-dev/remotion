@@ -32,10 +32,6 @@ If you rely on network assets such as fonts, images, videos or audio and you don
 
 Chrome has the codecs needed for displaying MP4 videos, but Chromium doesn't. If you try to load an MP4 video or an unsupported audio codec in Chromium, it currently leads to a timeout.
 
-:::warning
-On Linux, if no version of Chrome is installed, one will be downloaded that does not contain codecs for MP3 or MP4. We will address this in a future version of Remotion.
-:::
-
 **Workaround**: Convert videos to WebM or use Chrome instead of Chromium.
 
 ### Memory pressure
