@@ -10,17 +10,15 @@ const getEnvVariables = (): Record<string, string> => {
 		return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
 	}
 
-	if (getRemotionEnvironment().isStudio) {
-		// For the Studio, we already set the environment variables in index-html.ts.
-		// We just add NODE_ENV here.
-		return {
-			NODE_ENV: 'development',
-		};
+	// For the Studio, we already set the environment variables in index-html.ts.
+	// We just add NODE_ENV here.
+	if (!process.env.NODE_ENV) {
+		throw new Error('process.env.NODE_ENV is not set');
 	}
 
-	throw new Error(
-		'Can only call getEnvVariables() if environment is `rendering` or `preview`',
-	);
+	return {
+		NODE_ENV: process.env.NODE_ENV,
+	};
 };
 
 export const setupEnvVariables = () => {
