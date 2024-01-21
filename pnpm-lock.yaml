@@ -998,7 +998,7 @@ importers:
         specifier: 18.2.48
         version: 18.2.48
       '@types/react-dom':
-        specifier: ^18.2.18
+        specifier: 18.2.18
         version: 18.2.18
 
   packages/gif:
@@ -1020,7 +1020,7 @@ importers:
         specifier: 18.2.48
         version: 18.2.48
       '@types/react-dom':
-        specifier: ^18.2.18
+        specifier: 18.2.18
         version: 18.2.18
       esbuild:
         specifier: 0.18.6
@@ -1905,8 +1905,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
@@ -10158,14 +10158,6 @@ packages:
       '@types/history': 4.7.11
       '@types/react': 18.2.48
     dev: false
-
-  /@types/react@18.0.26:
-    resolution: {integrity: sha512-hCR3PJQsAIXyxhTNSiDFY//LhnMZWpNNr5etoCqx/iUfGc5gXWtQR2Phl908jVR6uPXacojQWTg4qRpkxTuGug==}
-    dependencies:
-      '@types/prop-types': 15.7.4
-      '@types/scheduler': 0.16.2
-      csstype: 3.1.1
-    dev: true
 
   /@types/react@18.2.48:
     resolution: {integrity: sha512-qboRCl6Ie70DQQG9hhNREz81jqC1cs9EVNcjQ1AU+jH6NFfSAhVVbrrY/+nSF+Bsk4AOwm9Qa61InvMCyV+H3w==}
