@@ -72,6 +72,9 @@
       "path": "./packages/media-utils"
     },
     {
+      "path": "./packages/animation-utils"
+    },
+    {
       "path": "./packages/motion-blur"
     },
     {

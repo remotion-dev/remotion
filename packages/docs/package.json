@@ -39,6 +39,7 @@
     "@remotion/layout-utils": "workspace:*",
     "@remotion/lottie": "workspace:*",
     "@remotion/media-utils": "workspace:*",
+    "@remotion/animation-utils": "workspace:*",
     "@remotion/motion-blur": "workspace:*",
     "@remotion/noise": "workspace:*",
     "@remotion/paths": "workspace:*",

@@ -31,6 +31,7 @@ import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
+import {colorNames} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
@@ -146,6 +147,7 @@ export const Internals = {
 	addSequenceStackTraces,
 	useMediaStartsAt,
 	enableSequenceStackTraces,
+	colorNames,
 } as const;
 
 export type {

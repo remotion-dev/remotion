@@ -28,5 +28,6 @@ export const listOfRemotionPackages = [
 	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'@remotion/transitions',
+	'@remotion/animation-utils',
 	'remotion',
 ];

@@ -208,6 +208,11 @@
       "permanent": false
     },
     {
+      "source": "/animation-utils",
+      "destination": "https://www.remotion.dev/docs/animation-utils",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
