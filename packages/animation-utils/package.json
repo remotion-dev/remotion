@@ -30,7 +30,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@types/react": "18.0.26",
+		"@types/react": "18.2.48",
 		"@types/node": "18.14.6",
 		"prettier": "3.1.1",
 		"prettier-plugin-organize-imports": "3.2.4",

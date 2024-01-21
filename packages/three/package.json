@@ -36,7 +36,7 @@
 		"@react-three/fiber": "8.13.5",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
-		"@types/react": "18.0.26",
+		"@types/react": "18.2.48",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.78",

@@ -41,8 +41,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -57,13 +57,13 @@ importers:
         version: 2.76.0
       vitest:
         specifier: 0.31.1
-        version: 0.31.1(jsdom@20.0.1)
+        version: 0.31.1
 
   packages/astro-example:
     dependencies:
       '@astrojs/react':
         specifier: ^2.0.2
-        version: 2.0.2(@types/react-dom@18.0.11)(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0)
+        version: 2.0.2(@types/react-dom@18.2.18)(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0)
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -83,11 +83,11 @@ importers:
         specifier: workspace:*
         version: link:../three
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       astro:
         specifier: ^2.0.14
         version: 2.0.14(@types/node@18.14.6)
@@ -184,11 +184,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       bun-types:
         specifier: 0.8.0
         version: 0.8.0
@@ -272,11 +272,11 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       bun-types:
         specifier: 0.8.0
         version: 0.8.0
@@ -440,11 +440,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.0.0(vite@3.0.0)
@@ -519,8 +519,8 @@ importers:
         specifier: ^2.0.12
         version: 2.0.14
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/tar':
         specifier: 6.1.1
         version: 6.1.1
@@ -565,7 +565,7 @@ importers:
         version: 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/preset-classic':
         specifier: 2.4.1
-        version: 2.4.1(@algolia/client-search@4.14.2)(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
+        version: 2.4.1(@algolia/client-search@4.14.2)(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/theme-common':
         specifier: 2.4.1
         version: 2.4.1(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
@@ -739,8 +739,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -891,8 +891,8 @@ importers:
         specifier: ^1.3.4
         version: 1.3.4
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -989,11 +989,11 @@ importers:
         version: link:../core
     devDependencies:
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: ^18.0.11
-        version: 18.0.11
+        specifier: ^18.2.18
+        version: 18.2.18
 
   packages/gif:
     dependencies:
@@ -1011,11 +1011,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: ^18.2.18
+        version: 18.2.18
       esbuild:
         specifier: 0.18.6
         version: 0.18.6
@@ -1305,11 +1305,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1351,8 +1351,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1376,8 +1376,8 @@ importers:
         specifier: ^8.2.0
         version: 8.5.0(rollup@2.76.0)(typescript@4.9.5)
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1471,11 +1471,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.0.0(vite@3.0.0)
@@ -1540,11 +1540,11 @@ importers:
         specifier: workspace:*
         version: link:../preload
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1639,11 +1639,11 @@ importers:
         specifier: 2.0.5
         version: 2.0.5
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1682,11 +1682,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: ^18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1722,11 +1722,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.0.0(vite@3.0.0)
@@ -1768,8 +1768,8 @@ importers:
         specifier: ^0.1.191
         version: 0.1.191(react@18.2.0)
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-native':
         specifier: ^0.69.2
         version: 0.69.2
@@ -1832,11 +1832,11 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
@@ -1932,8 +1932,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -1972,8 +1972,8 @@ importers:
         specifier: 18.14.6
         version: 18.14.6
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-reconciler':
         specifier: ^0.26.4
         version: 0.26.4
@@ -2027,11 +2027,11 @@ importers:
         specifier: ^8.2.0
         version: 8.5.0(rollup@2.76.0)(typescript@4.9.5)
       '@types/react':
-        specifier: 18.0.26
-        version: 18.0.26
+        specifier: 18.2.48
+        version: 18.2.48
       '@types/react-dom':
-        specifier: 18.0.11
-        version: 18.0.11
+        specifier: 18.2.18
+        version: 18.2.18
       '@vitejs/plugin-react':
         specifier: ^2.0.0
         version: 2.0.0(vite@3.0.0)
@@ -2277,7 +2277,7 @@ packages:
       prismjs: 1.28.0
     dev: false
 
-  /@astrojs/react@2.0.2(@types/react-dom@18.0.11)(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0):
+  /@astrojs/react@2.0.2(@types/react-dom@18.2.18)(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-UmQNvzJul5M/Q9aZJXnqz4z0ODZXkLuaNvgsYoKB7OdM8c2v85FsTjMZZJ7BvFo4On31jJ0rL/gwTaCeuYqmpw==}
     engines: {node: '>=16.12.0'}
     peerDependencies:
@@ -2288,8 +2288,8 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@babel/plugin-transform-react-jsx': 7.18.6(@babel/core@7.18.6)
-      '@types/react': 18.0.26
-      '@types/react-dom': 18.0.11
+      '@types/react': 18.2.48
+      '@types/react-dom': 18.2.18
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -6367,7 +6367,7 @@ packages:
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
     dev: false
 
-  /@docsearch/react@3.2.1(@algolia/client-search@4.14.2)(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0):
+  /@docsearch/react@3.2.1(@algolia/client-search@4.14.2)(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-EzTQ/y82s14IQC5XVestiK/kFFMe2aagoYFuTAIfIb/e+4FU7kSMKonRtLwsCiLQHmjvNQq+HO+33giJ5YVtaQ==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
@@ -6384,7 +6384,7 @@ packages:
       '@algolia/autocomplete-core': 1.7.1
       '@algolia/autocomplete-preset-algolia': 1.7.1(@algolia/client-search@4.14.2)(algoliasearch@4.14.2)
       '@docsearch/css': 3.2.1
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       algoliasearch: 4.14.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -6553,7 +6553,7 @@ packages:
       '@docusaurus/react-loadable': 5.5.2(react@18.2.0)
       '@docusaurus/types': 2.4.1(@swc/core@1.3.80)(react-dom@18.2.0)(react@18.2.0)
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       '@types/react-router-config': 5.0.6
       '@types/react-router-dom': 5.3.1
       react: 18.2.0
@@ -6685,7 +6685,7 @@ packages:
       - webpack-cli
     dev: false
 
-  /@docusaurus/plugin-debug@2.4.1(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
+  /@docusaurus/plugin-debug@2.4.1(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
     resolution: {integrity: sha512-7Yu9UPzRShlrH/G8btOpR0e6INFZr0EegWplMjOqelIwAcx3PKyR8mgPTxGTxcqiYj6hxSCRN0D8R7YrzImwNA==}
     engines: {node: '>=16.14'}
     peerDependencies:
@@ -6698,7 +6698,7 @@ packages:
       fs-extra: 10.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-json-view: 1.21.3(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0)
+      react-json-view: 1.21.3(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0)
       tslib: 2.5.0
     transitivePeerDependencies:
       - '@parcel/css'
@@ -6844,7 +6844,7 @@ packages:
       - webpack-cli
     dev: false
 
-  /@docusaurus/preset-classic@2.4.1(@algolia/client-search@4.14.2)(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
+  /@docusaurus/preset-classic@2.4.1(@algolia/client-search@4.14.2)(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
     resolution: {integrity: sha512-P4//+I4zDqQJ+UDgoFrjIFaQ1MeS9UD1cvxVQaI6O7iBmiHQm0MGROP1TbE7HlxlDPXFJjZUK3x3cAoK63smGQ==}
     engines: {node: '>=16.14'}
     peerDependencies:
@@ -6855,14 +6855,14 @@ packages:
       '@docusaurus/plugin-content-blog': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-content-docs': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-content-pages': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
-      '@docusaurus/plugin-debug': 2.4.1(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
+      '@docusaurus/plugin-debug': 2.4.1(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-google-analytics': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-google-gtag': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-google-tag-manager': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/plugin-sitemap': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/theme-classic': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/theme-common': 2.4.1(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
-      '@docusaurus/theme-search-algolia': 2.4.1(@algolia/client-search@4.14.2)(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
+      '@docusaurus/theme-search-algolia': 2.4.1(@algolia/client-search@4.14.2)(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/types': 2.4.1(@swc/core@1.3.80)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -6891,7 +6891,7 @@ packages:
     peerDependencies:
       react: '*'
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -6962,7 +6962,7 @@ packages:
       '@docusaurus/utils': 2.4.1(@docusaurus/types@2.4.1)(@swc/core@1.3.80)
       '@docusaurus/utils-common': 2.4.1(@docusaurus/types@2.4.1)
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       '@types/react-router-config': 5.0.6
       clsx: 1.2.1
       parse-numeric-range: 1.3.0
@@ -6990,14 +6990,14 @@ packages:
       - webpack-cli
     dev: false
 
-  /@docusaurus/theme-search-algolia@2.4.1(@algolia/client-search@4.14.2)(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(@types/react@18.0.26)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
+  /@docusaurus/theme-search-algolia@2.4.1(@algolia/client-search@4.14.2)(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5):
     resolution: {integrity: sha512-6BcqW2lnLhZCXuMAvPRezFs1DpmEKzXFKlYjruuas+Xy3AQeFzDJKTJFIm49N77WFCTyxff8d3E4Q9pi/+5McQ==}
     engines: {node: '>=16.14'}
     peerDependencies:
       react: ^16.8.4 || ^17.0.0
       react-dom: ^16.8.4 || ^17.0.0
     dependencies:
-      '@docsearch/react': 3.2.1(@algolia/client-search@4.14.2)(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0)
+      '@docsearch/react': 3.2.1(@algolia/client-search@4.14.2)(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0)
       '@docusaurus/core': 2.4.1(@docusaurus/types@2.4.1)(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/logger': 2.4.1
       '@docusaurus/plugin-content-docs': 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
@@ -7050,7 +7050,7 @@ packages:
       react-dom: ^16.8.4 || ^17.0.0
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       commander: 5.1.0
       joi: 17.6.0
       react: 18.2.0
@@ -8100,7 +8100,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.5
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       react: 18.2.0
     dev: false
 
@@ -9221,7 +9221,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.17.9
       '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.0.11
+      '@types/react-dom': 18.2.18
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -9235,7 +9235,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.17.9
       '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.0.11
+      '@types/react-dom': 18.2.18
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -9249,7 +9249,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.19.0
       '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.0.11
+      '@types/react-dom': 18.2.18
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -9263,7 +9263,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.19.0
       '@testing-library/dom': 9.0.0
-      '@types/react-dom': 18.0.11
+      '@types/react-dom': 18.2.18
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -9495,7 +9495,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       hoist-non-react-statics: 3.3.2
     dev: false
 
@@ -9680,38 +9680,38 @@ packages:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: false
 
-  /@types/react-dom@18.0.11:
-    resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
+  /@types/react-dom@18.2.18:
+    resolution: {integrity: sha512-TJxDm6OfAX2KJWJdMEVTwWke5Sc/E/RlnPGvGfS0W7+6ocy2xhDVQVh/KvC2Uf7kACs+gDytdusDSdWfWkaNzw==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
 
   /@types/react-native@0.69.2:
     resolution: {integrity: sha512-AVdWv4B8/++T5QQdnpveb2OVqD+0i8SOoT63ZRD+lNtQIYxzDak91V0k6olthy+H261d4t/MRBC1cfX1Rwsb6A==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
     dev: true
 
   /@types/react-reconciler@0.26.4:
     resolution: {integrity: sha512-bdx4aIBkQRDAnzc23JBFeZmVpmfLJHfHikmQukEt9qs4bQtq9f+PDbNwhR9u74FkIUyIDz1I1qJ8OF6RwadKpw==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
     dev: true
 
   /@types/react-reconciler@0.26.7:
     resolution: {integrity: sha512-mBDYl8x+oyPX/VBb3E638N0B7xG+SPk/EAMcVPeexqus/5aTpTphQi0curhhshOqRrc9t6OPoJfEUkbymse/lQ==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
 
   /@types/react-reconciler@0.28.0:
     resolution: {integrity: sha512-5cjk9ottZAj7eaTsqzPUIlrVbh3hBAO2YaEL1rkjHKB3xNAId7oU8GhzvAX+gfmlfoxTwJnBjPxEHyxkEA1Ffg==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
 
   /@types/react-router-config@5.0.6:
     resolution: {integrity: sha512-db1mx37a1EJDf1XeX8jJN7R3PZABmJQXR8r28yUjVMFSjkmnQo6X6pOEEmNl+Tp2gYQOGPdYbFIipBtdElZ3Yg==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       '@types/react-router': 5.1.17
     dev: false
 
@@ -9719,7 +9719,7 @@ packages:
     resolution: {integrity: sha512-UvyRy73318QI83haXlaMwmklHHzV9hjl3u71MmM6wYNu0hOVk9NLTa0vGukf8zXUqnwz4O06ig876YSPpeK28A==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       '@types/react-router': 5.1.17
     dev: false
 
@@ -9727,11 +9727,11 @@ packages:
     resolution: {integrity: sha512-RNSXOyb3VyRs/EOGmjBhhGKTbnN6fHWvy5FNLzWfOWOGjgVUKqJZXfpKzLmgoU8h6Hj8mpALj/mbXQASOb92wQ==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
     dev: false
 
-  /@types/react@18.0.26:
-    resolution: {integrity: sha512-hCR3PJQsAIXyxhTNSiDFY//LhnMZWpNNr5etoCqx/iUfGc5gXWtQR2Phl908jVR6uPXacojQWTg4qRpkxTuGug==}
+  /@types/react@18.2.48:
+    resolution: {integrity: sha512-qboRCl6Ie70DQQG9hhNREz81jqC1cs9EVNcjQ1AU+jH6NFfSAhVVbrrY/+nSF+Bsk4AOwm9Qa61InvMCyV+H3w==}
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
@@ -9812,7 +9812,7 @@ packages:
     resolution: {integrity: sha512-KuKJ9Z6xb93uJiIyxo/+ksS7yLjS1KzG6iv5i78dhVg/X3u5t1H7juRWqVmodIdz6wGVaIApo1u01kmFRdJHVw==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       csstype: 3.1.1
     dev: false
 
@@ -19057,7 +19057,7 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: false
 
-  /react-json-view@1.21.3(@types/react@18.0.26)(react-dom@18.2.0)(react@18.2.0):
+  /react-json-view@1.21.3(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-13p8IREj9/x/Ye4WI/JpjhoIwuzEgUAtgJZNBJckfzJt1qyh24BdTm6UQNGnyTq9dapQdrqvquZTo3dz1X6Cjw==}
     peerDependencies:
       react: ^17.0.0 || ^16.3.0 || ^15.5.4
@@ -19068,7 +19068,7 @@ packages:
       react-base16-styling: 0.6.0
       react-dom: 18.2.0(react@18.2.0)
       react-lifecycles-compat: 3.0.4
-      react-textarea-autosize: 8.3.3(@types/react@18.0.26)(react@18.2.0)
+      react-textarea-autosize: 8.3.3(@types/react@18.2.48)(react@18.2.0)
     transitivePeerDependencies:
       - '@types/react'
       - encoding
@@ -19158,7 +19158,7 @@ packages:
       tiny-warning: 1.0.3
     dev: false
 
-  /react-textarea-autosize@8.3.3(@types/react@18.0.26)(react@18.2.0):
+  /react-textarea-autosize@8.3.3(@types/react@18.2.48)(react@18.2.0):
     resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -19167,7 +19167,7 @@ packages:
       '@babel/runtime': 7.19.0
       react: 18.2.0
       use-composed-ref: 1.1.0(react@18.2.0)
-      use-latest: 1.2.0(@types/react@18.0.26)(react@18.2.0)
+      use-latest: 1.2.0(@types/react@18.2.48)(react@18.2.0)
     transitivePeerDependencies:
       - '@types/react'
     dev: false
@@ -21740,7 +21740,7 @@ packages:
       ts-essentials: 2.0.12
     dev: false
 
-  /use-isomorphic-layout-effect@1.1.1(@types/react@18.0.26)(react@18.2.0):
+  /use-isomorphic-layout-effect@1.1.1(@types/react@18.2.48)(react@18.2.0):
     resolution: {integrity: sha512-L7Evj8FGcwo/wpbv/qvSfrkHFtOpCzvM5yl2KVyDJoylVuSvzphiiasmjgQPttIGBAy2WKiBNR98q8w7PiNgKQ==}
     peerDependencies:
       '@types/react': '*'
@@ -21749,11 +21749,11 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       react: 18.2.0
     dev: false
 
-  /use-latest@1.2.0(@types/react@18.0.26)(react@18.2.0):
+  /use-latest@1.2.0(@types/react@18.2.48)(react@18.2.0):
     resolution: {integrity: sha512-d2TEuG6nSLKQLAfW3By8mKr8HurOlTkul0sOpxbClIv4SQ4iOd7BYr7VIzdbktUCnv7dua/60xzd8igMU6jmyw==}
     peerDependencies:
       '@types/react': '*'
@@ -21762,9 +21762,9 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.2.48
       react: 18.2.0
-      use-isomorphic-layout-effect: 1.1.1(@types/react@18.0.26)(react@18.2.0)
+      use-isomorphic-layout-effect: 1.1.1(@types/react@18.2.48)(react@18.2.0)
     dev: false
 
   /use-sync-external-store@1.2.0(react@18.2.0):
@@ -22076,7 +22076,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.1.3(@types/node@18.14.6)
+      vite: 4.5.2(@types/node@18.14.6)
       vite-node: 0.31.1(@types/node@18.14.6)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
@@ -22142,7 +22142,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.5.2(@types/node@18.14.6)
+      vite: 4.1.3(@types/node@18.14.6)
       vite-node: 0.31.1(@types/node@18.14.6)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
@@ -22209,7 +22209,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.5.2(@types/node@18.14.6)
+      vite: 4.1.3(@types/node@18.14.6)
       vite-node: 0.31.1(@types/node@18.14.6)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
