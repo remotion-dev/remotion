@@ -7,7 +7,6 @@ import { RenderInternals, openBrowser } from "@remotion/renderer";
 test("Bundle studio", async () => {
   await execa("pnpm", ["exec", "remotion", "bundle"], {
     cwd: path.join(process.cwd(), "..", "example"),
-    stdio: "inherit",
   });
   const port = RenderInternals.getDesiredPort({
     desiredPort: undefined,
@@ -20,9 +19,14 @@ test("Bundle studio", async () => {
     ["exec", "serve", "-l", `${(await port).port}`, "build"],
     {
       cwd: path.join(process.cwd(), "..", "example"),
+      stdio: "inherit",
     }
   );
-
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null);
+    }, 3000);
+  });
   const browser = openBrowser("chrome");
   const tab = await (await browser).newPage(() => null, "info", false);
   await tab.goto({
@@ -30,11 +34,7 @@ test("Bundle studio", async () => {
     timeout: 10000,
     options: {},
   });
-  await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(null);
-    }, 3000);
-  });
+
   const result = await tab.evaluateHandle(() => {
     return document.querySelectorAll(".css-reset").length;
   });
