@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     testTimeout: 90000,
     maxConcurrency: 1,
-    threads: false,
+    pool: "forks",
+    setupFiles: ["src/tests/setup.ts"],
   },
 });

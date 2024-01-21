@@ -48,7 +48,6 @@
 		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.11",
-		"@vitejs/plugin-react": "^2.0.0",
 		"csstype": "^3.1.1",
 		"eslint": "8.42.0",
 		"eslint-plugin-require-extensions": "^0.1.2",
@@ -59,7 +58,7 @@
 		"react-dom": "18.2.0",
 		"rollup": "^2.70.1",
 		"rollup-plugin-banner2": "^1.2.2",
-		"vitest": "0.31.1",
+		"vitest": "1.2.1",
 		"webpack": "5.83.1",
 		"zod": "^3.22.3"
 	},

@@ -75,7 +75,7 @@
     "swc-loader": "^0.2.3",
     "three": "0.158.0",
     "uuid": "^8.3.2",
-    "vitest": "0.31.1",
+    "vitest": "1.2.1",
     "zod": "^3.22.3"
   },
   "devDependencies": {

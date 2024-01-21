@@ -54,7 +54,7 @@
 		"prettier": "3.1.1",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"ts-node": "^10.8.0",
-		"vitest": "0.31.1",
+		"vitest": "1.2.1",
 		"zip-lib": "^0.7.2"
 	},
 	"peerDependencies": {

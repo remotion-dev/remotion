@@ -73,7 +73,7 @@
 		"three": "0.158.0",
 		"ts-unused-exports": "^7.0.1",
 		"use-asset": "^1.0.4",
-		"vitest": "0.31.1",
+		"vitest": "1.2.1",
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {

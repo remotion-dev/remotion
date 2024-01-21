@@ -3,7 +3,7 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-vitest.config.ts
+vitest.config.mts
 *.tgz
 .turbo
 tsconfig.json

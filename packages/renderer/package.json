@@ -46,7 +46,7 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"vitest": "0.31.1"
+		"vitest": "1.2.1"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",
