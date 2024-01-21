@@ -41,9 +41,6 @@ vi.mock('../shared/bundle-site', () =>
 vi.mock('../shared/get-account-id', () =>
 	vi.importActual('../shared/__mocks__/get-account-id'),
 );
-vi.mock('../shared/aws-clients', () =>
-	vi.importActual('../shared/__mocks__/aws-clients'),
-);
 vi.mock('../api/create-bucket', () =>
 	vi.importActual('../api/__mocks__/create-bucket'),
 );

@@ -1,5 +1,6 @@
 import {CloudWatchLogsClient} from '@aws-sdk/client-cloudwatch-logs';
 import {IAMClient} from '@aws-sdk/client-iam';
+import type {InvokeWithResponseStreamCommandInput} from '@aws-sdk/client-lambda';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
@@ -246,6 +247,32 @@ export const getLambdaClient = (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_timeoutInTest?: number,
 ): LambdaClient => {
+	if (process.env.VITEST) {
+		return {
+			config: {
+				requestHandler: {},
+				apiVersion: 'fake',
+			},
+			destroy: () => undefined,
+			middlewareStack: undefined,
+			send: async (params: {
+				FunctionName: undefined;
+				Payload: InvokeWithResponseStreamCommandInput;
+				InvocationType: 'Event';
+			}) => {
+				// @ts-expect-error
+				const payload = JSON.parse(params.input.Payload);
+
+				const {handler} = await import('../functions/index');
+
+				return handler(payload, {
+					invokedFunctionArn: 'arn:fake',
+					getRemainingTimeInMillis: () => _timeoutInTest ?? 120000,
+				});
+			},
+		} as unknown as LambdaClient;
+	}
+
 	return getServiceClient({
 		region,
 		service: 'lambda',

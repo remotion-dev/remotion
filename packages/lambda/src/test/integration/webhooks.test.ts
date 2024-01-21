@@ -1,15 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-	vi,
-} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
@@ -33,20 +24,18 @@ beforeEach(() => {
 			};
 		},
 	);
-});
-
-afterEach(() => {
-	mockableHttpClients.http = originalFetch;
+	return () => {
+		mockableHttpClients.http = originalFetch;
+	};
 });
 
 beforeAll(() => {
 	disableLogs();
-});
+	return async () => {
+		enableLogs();
 
-afterAll(async () => {
-	enableLogs();
-
-	await RenderInternals.killAllBrowsers();
+		await RenderInternals.killAllBrowsers();
+	};
 });
 
 const TEST_URL = 'http://localhost:8000';
@@ -54,6 +43,7 @@ const TEST_URL = 'http://localhost:8000';
 describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
+		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
 
 		const res = await callLambda({
 			type: LambdaRoutines.start,
