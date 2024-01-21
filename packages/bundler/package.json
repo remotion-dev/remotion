@@ -20,6 +20,7 @@
 	"files": [
 		"dist",
 		"react-shim.js",
+		"renderEntry.tsx",
 		"favicon.ico"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",

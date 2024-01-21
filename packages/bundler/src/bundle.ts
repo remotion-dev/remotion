@@ -63,7 +63,7 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = require.resolve('./renderEntry');
+	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
 
 	return webpackConfig({
 		entry,

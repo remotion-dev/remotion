@@ -1,3 +1,6 @@
+// This file is not compiled by Typescript, but by ESBuild
+// to keep the dynamic import
+
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import type {render} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
@@ -11,15 +14,15 @@ import type {
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
+	Internals,
+	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
-	Internals,
-	VERSION,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {getBundleMode, setBundleMode} from './bundle-mode';
+import {getBundleMode, setBundleMode} from './src/bundle-mode';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
