@@ -1,5 +1,19 @@
+type UrlHandling = 'spa' | 'query-string';
+
+const getUrlHandlingType = (): UrlHandling => {
+	if (window.process.env.NODE_ENV === 'production') {
+		return 'query-string';
+	}
+
+	return 'spa';
+};
+
 export const pushUrl = (url: string) => {
-	window.history.pushState({}, 'Studio', url);
+	if (getUrlHandlingType() === 'query-string') {
+		window.history.pushState({}, 'Studio', `/?${url}`);
+	} else {
+		window.history.pushState({}, 'Studio', url);
+	}
 };
 
 export const clearUrl = () => {
@@ -11,5 +25,9 @@ export const reloadUrl = () => {
 };
 
 export const getPathname = () => {
+	if (getUrlHandlingType() === 'query-string') {
+		return window.location.search.substring(2);
+	}
+
 	return window.location.pathname;
 };
