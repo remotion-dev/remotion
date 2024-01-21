@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import '../styles.css';
@@ -14,6 +14,9 @@ export const Studio: React.FC<{
 	rootComponent: React.FC;
 	readOnly: boolean;
 }> = ({rootComponent, readOnly}) => {
+	useLayoutEffect(() => {
+		window.remotion_isStudio = true;
+	}, []);
 	return (
 		<Internals.RemotionRoot
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
