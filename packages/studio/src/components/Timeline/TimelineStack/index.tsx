@@ -9,6 +9,7 @@ import {
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {openInEditor} from '../../../helpers/open-in-editor';
+import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
 import {Spacing} from '../../layout';
 import {sendErrorNotification} from '../../Notifications/NotificationCenter';
@@ -53,7 +54,7 @@ export const TimelineStack: React.FC<{
 	const navigateToAsset = useCallback(
 		(asset: string) => {
 			selectAsset(asset);
-			window.history.pushState({}, 'Studio', `/assets/${asset}`);
+			pushUrl(`/assets/${asset}`);
 		},
 		[selectAsset],
 	);

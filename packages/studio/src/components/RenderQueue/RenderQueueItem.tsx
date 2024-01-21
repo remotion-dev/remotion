@@ -9,6 +9,7 @@ import React, {
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import {
 	RenderQueueCopyToClipboard,
@@ -103,7 +104,7 @@ export const RenderQueueItem: React.FC<{
 
 			return {type: 'output', path: `/${job.outName}`};
 		});
-		window.history.pushState({}, 'Studio', `/outputs/${job.outName}`);
+		pushUrl(`/outputs/${job.outName}`);
 	}, [
 		job.outName,
 		job.status,

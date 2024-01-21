@@ -13,6 +13,7 @@
 
 import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-shared';
 import {notificationCenter} from '../components/Notifications/NotificationCenter';
+import {reloadUrl} from '../helpers/url-state';
 
 if (!__webpack_module__.hot) {
 	throw new Error('[Fast refresh] Hot Module Replacement is disabled.');
@@ -171,7 +172,7 @@ export const processUpdate = function (
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message),
 			);
 			if (!window.remotion_unsavedProps) {
-				window.location.reload();
+				reloadUrl();
 			}
 		}
 	}
@@ -191,7 +192,7 @@ export const processUpdate = function (
 				duration: 1,
 			});
 		} else {
-			window.location.reload();
+			reloadUrl();
 		}
 	}
 };

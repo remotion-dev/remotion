@@ -16,6 +16,7 @@ import {
  * LICENSE file in the root directory of this source tree.
  */
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import {reloadUrl} from '../../helpers/url-state';
 import {
 	register as registerError,
 	unregister as unregisterError,
@@ -74,7 +75,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		console.log('Hook order changed. Reloading app...');
 
 		window.remotion_unsavedProps = false;
-		window.location.reload();
+		reloadUrl();
 	} else {
 		setErrorsRef.current?.addError(error);
 

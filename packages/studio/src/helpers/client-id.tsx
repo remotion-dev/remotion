@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
+import {reloadUrl} from './url-state';
 
 type PreviewServerState =
 	| {
@@ -71,7 +72,7 @@ export const PreviewServerConnection: React.FC<{
 				newEvent.type === 'new-input-props' ||
 				newEvent.type === 'new-env-variables'
 			) {
-				window.location.reload();
+				reloadUrl();
 			}
 
 			if (newEvent.type === 'init') {

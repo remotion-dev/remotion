@@ -9,6 +9,7 @@ import {
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
+import {pushUrl} from '../helpers/url-state';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -208,7 +209,7 @@ const AssetSelectorItem: React.FC<{
 			? parentFolder + '/' + item.name
 			: item.name;
 		setCanvasContent({type: 'asset', asset: relativePath});
-		window.history.pushState({}, 'Studio', `/assets/${relativePath}`);
+		pushUrl(`/assets/${relativePath}`);
 	}, [item.name, parentFolder, setCanvasContent]);
 
 	const style: React.CSSProperties = useMemo(() => {
