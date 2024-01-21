@@ -48,13 +48,13 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {INDENT_TOKEN, Log, getLogLevel, setLogLevel} from './logger';
+import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
 	DEFAULT_OPENGL_RENDERER,
-	validOpenGlRenderers,
 	validateOpenGlRenderer,
+	validOpenGlRenderers,
 } from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
@@ -88,14 +88,14 @@ export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {GetCompositionsOptions, getCompositions} from './get-compositions';
+export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
+export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,
-	VideoImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
+	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
 export {LogOptions} from './logger';
@@ -108,23 +108,23 @@ export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {RenderFramesOptions, renderFrames} from './render-frames';
+export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
 	InternalRenderMediaOptions,
+	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
 	SlowFrame,
 	StitchingState,
-	renderMedia,
 } from './render-media';
-export {RenderStillOptions, renderStill} from './render-still';
+export {renderStill, RenderStillOptions} from './render-still';
 export {
-	SelectCompositionOptions,
 	selectComposition,
+	SelectCompositionOptions,
 } from './select-composition';
 export {
-	StitchFramesToVideoOptions,
 	stitchFramesToVideo,
+	StitchFramesToVideoOptions,
 } from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
