@@ -54,7 +54,7 @@
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"rollup": "^2.70.1",
-		"vitest": "1.2.1"
+		"vitest": "0.31.1"
 	},
 	"keywords": [
 		"remotion",
