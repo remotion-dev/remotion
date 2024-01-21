@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test('Should be able to "import" frontend in node', async () => {
   execSync(

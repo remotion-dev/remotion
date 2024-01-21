@@ -62,6 +62,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -97,7 +98,7 @@ jobs:
       - name: Test SSR
         timeout-minutes: 8
         run: |
-          cd packages/it-tests && pnpm run testssr
+          cd packages/it-tests && bun run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting

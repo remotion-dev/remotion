@@ -1131,6 +1131,9 @@ importers:
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
+      '@types/bun':
+        specifier: ^1.0.3
+        version: 1.0.3
       '@types/sharp':
         specifier: ^0.28.5
         version: 0.28.6
@@ -9797,6 +9800,12 @@ packages:
       '@types/node': 18.14.6
     dev: false
 
+  /@types/bun@1.0.3:
+    resolution: {integrity: sha512-sHp0vCkml/FTnJ2aY9wjMxbpsuB5WGg5hAtxfTjIHE5B8mXXWrnTChVl8HxCuvjG0ORP6vQ7XHYHBf1kPehEjw==}
+    dependencies:
+      bun-types: 1.0.24
+    dev: true
+
   /@types/cacheable-request@6.0.2:
     resolution: {integrity: sha512-B3xVo+dlKM6nnKTcmm5ZtY/OL8bOAOd2Olee9M1zft65ox50OzjEHW91sDiU9j6cvW8Ejg1/Qkf4xd2kugApUA==}
     dependencies:
@@ -10281,7 +10290,6 @@ packages:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
       '@types/node': 18.14.6
-    dev: false
 
   /@types/yargs-parser@21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -11846,6 +11854,14 @@ packages:
 
   /bun-types@0.8.0:
     resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
+    dev: true
+
+  /bun-types@1.0.24:
+    resolution: {integrity: sha512-nocKV7PwMtxDqUibC12H9hjKMuJjwz5CZLBq8qz/CP+BJGm+9XZeHNAuc3KTtUKkHTurV5vVrJnthuYooW0cAQ==}
+    dependencies:
+      '@types/node': 18.14.6
+      '@types/ws': 8.5.3
+      undici-types: 5.28.2
     dev: true
 
   /busboy@1.6.0:
@@ -21906,6 +21922,10 @@ packages:
   /underscore@1.13.6:
     resolution: {integrity: sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==}
     dev: false
+
+  /undici-types@5.28.2:
+    resolution: {integrity: sha512-W71OLwDqzIO0d3k07qg1xc7d4cX8SsSwuCO4bQ4V7ITwduXXie/lcImofabP5VV+NvuvSe8ovKvHVJcizVc1JA==}
+    dev: true
 
   /undici@5.18.0:
     resolution: {integrity: sha512-1iVwbhonhFytNdg0P4PqyIAXbdlVZVebtPDvuM36m66mRw4OGrCm2MYynJv/UENFLdP13J1nPVQzVE2zTs1OeA==}

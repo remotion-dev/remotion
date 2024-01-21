@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import { getCompositions, renderMedia, openBrowser } from "@remotion/renderer";
 import { existsSync } from "fs";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
