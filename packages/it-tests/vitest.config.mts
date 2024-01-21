@@ -4,6 +4,12 @@ export default defineConfig({
   test: {
     testTimeout: 90000,
     maxConcurrency: 1,
-    poolOptions: {},
+    pool: "threads",
+    poolOptions: {
+      threads: {
+        maxThreads: 1,
+        minThreads: 0,
+      },
+    },
   },
 });
