@@ -7,7 +7,6 @@ export default defineConfig({
 		testTimeout: 90000,
 		poolOptions: {
 			maxThreads: 1,
-			minThreads: 1,
 		},
 	},
 });
