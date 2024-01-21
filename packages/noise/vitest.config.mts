@@ -5,11 +5,6 @@ export default defineConfig({
 		testTimeout: 90000,
 		maxConcurrency: 1,
 		pool: 'threads',
-		poolOptions: {
-			threads: {
-				maxThreads: 1,
-				minThreads: 0,
-			},
-		},
+		poolOptions: {},
 	},
 });
