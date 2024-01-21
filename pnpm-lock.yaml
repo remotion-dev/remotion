@@ -1059,9 +1059,6 @@ importers:
       '@types/prettier':
         specifier: ^2.7.1
         version: 2.7.1
-      got:
-        specifier: ^11
-        version: 11.8.5
       postcss:
         specifier: ^8.4.31
         version: 8.4.31
