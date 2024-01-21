@@ -7,6 +7,7 @@ import { RenderInternals, openBrowser } from "@remotion/renderer";
 test("Bundle studio", async () => {
   await execa("pnpm", ["exec", "remotion", "bundle"], {
     cwd: path.join(process.cwd(), "..", "example"),
+    stdio: "inherit",
   });
   const port = RenderInternals.getDesiredPort({
     desiredPort: undefined,
