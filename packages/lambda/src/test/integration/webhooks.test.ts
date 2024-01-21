@@ -40,7 +40,7 @@ beforeAll(() => {
 
 const TEST_URL = 'http://localhost:8000';
 
-describe.skip('Webhooks', () => {
+describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
