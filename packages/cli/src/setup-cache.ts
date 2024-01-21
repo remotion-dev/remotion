@@ -2,7 +2,7 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {BundlingState, CopyingState} from '@remotion/studio';
+import type {BundlingState, CopyingState} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 import type {SymbolicLinksState} from './progress-bar';

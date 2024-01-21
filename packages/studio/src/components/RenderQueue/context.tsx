@@ -1,9 +1,9 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {createRef, useImperativeHandle, useMemo, useState} from 'react';
-import type {RenderJob} from '../../preview-server/job';
 
 declare global {
 	interface Window {
-		remotion_initialRenderQueue: RenderJob[];
+		remotion_initialRenderQueue: RenderJob[] | null;
 	}
 }
 
@@ -23,7 +23,7 @@ export const RenderQueueContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [jobs, setJobs] = useState<RenderJob[]>(
-		window.remotion_initialRenderQueue,
+		window.remotion_initialRenderQueue ?? [],
 	);
 
 	const value: RenderQueueContextType = useMemo(() => {

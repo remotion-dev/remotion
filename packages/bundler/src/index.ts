@@ -18,6 +18,5 @@ export const BundlerInternals = {
 };
 
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
-export type {RenderDefaults} from './index-html';
 export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
 export {webpack};

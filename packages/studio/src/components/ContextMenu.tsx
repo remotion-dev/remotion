@@ -98,17 +98,17 @@ export const ContextMenu: React.FC<{
 			...(verticalLayout === 'top'
 				? {
 						top: opened.top,
-				  }
+					}
 				: {
 						bottom: size.windowSize.height - opened.top,
-				  }),
+					}),
 			...(horizontalLayout === 'left'
 				? {
 						left: opened.left,
-				  }
+					}
 				: {
 						right: size.windowSize.width - opened.left,
-				  }),
+					}),
 		};
 	}, [opened, spaceToBottom, spaceToTop, size]);
 
@@ -142,7 +142,7 @@ export const ContextMenu: React.FC<{
 							</div>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

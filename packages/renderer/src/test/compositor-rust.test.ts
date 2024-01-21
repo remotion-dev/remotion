@@ -24,7 +24,7 @@ test(
 			}),
 		);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 		expect(matching.every((m) => m)).toBe(true);
 	},

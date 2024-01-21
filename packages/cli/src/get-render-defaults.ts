@@ -1,5 +1,5 @@
-import type {RenderDefaults} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
+import type {RenderDefaults} from '@remotion/studio';
 import {ConfigInternals} from './config';
 
 export const getRenderDefaults = (): RenderDefaults => {

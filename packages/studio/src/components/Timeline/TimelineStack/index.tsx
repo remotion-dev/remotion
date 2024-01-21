@@ -1,14 +1,15 @@
+import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
-import {SOURCE_MAP_ENDPOINT} from '../../../error-overlay/react-overlay/utils/source-map-endpoint';
 import {
 	LIGHT_COLOR,
 	LIGHT_TEXT,
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {openInEditor} from '../../../helpers/open-in-editor';
+import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
 import {Spacing} from '../../layout';
 import {sendErrorNotification} from '../../Notifications/NotificationCenter';
@@ -53,7 +54,7 @@ export const TimelineStack: React.FC<{
 	const navigateToAsset = useCallback(
 		(asset: string) => {
 			selectAsset(asset);
-			window.history.pushState({}, 'Studio', `/assets/${asset}`);
+			pushUrl(`/assets/${asset}`);
 		},
 		[selectAsset],
 	);
@@ -131,16 +132,20 @@ export const TimelineStack: React.FC<{
 		setTitleHovered(false);
 	}, []);
 
+	const hoverable =
+		(originalLocation && isCompact) ||
+		(assetPath && window.remotion_editorName);
+
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
 			color: opening
 				? VERY_LIGHT_TEXT
-				: stackHovered
-				? LIGHT_TEXT
-				: VERY_LIGHT_TEXT,
+				: stackHovered && hoverable
+					? LIGHT_TEXT
+					: VERY_LIGHT_TEXT,
 			marginLeft: 10,
-			cursor: 'pointer',
+			cursor: hoverable ? 'pointer' : undefined,
 			display: 'flex',
 			flexDirection: 'row',
 			alignItems: 'center',
@@ -149,11 +154,7 @@ export const TimelineStack: React.FC<{
 			overflow: 'hidden',
 			flexShrink: 100000,
 		};
-	}, [stackHovered, opening]);
-
-	const hoverable =
-		(originalLocation && isCompact) ||
-		(assetPath && window.remotion_editorName);
+	}, [opening, stackHovered, hoverable]);
 
 	const textStyle: React.CSSProperties = useMemo(() => {
 		const hoverEffect = titleHovered && hoverable;

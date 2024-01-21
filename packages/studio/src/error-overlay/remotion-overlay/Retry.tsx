@@ -1,4 +1,4 @@
-import {Button} from './Button';
+import {Button} from '../../components/Button';
 
 export const RetryButton: React.FC<{
 	onClick: () => void;

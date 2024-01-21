@@ -182,7 +182,7 @@ export const MenuSubItem: React.FC<{
 								subMenuActivated={subMenuActivated}
 							/>,
 							getPortal(currentZIndex),
-					  )
+						)
 					: null}
 			</Row>
 		</div>

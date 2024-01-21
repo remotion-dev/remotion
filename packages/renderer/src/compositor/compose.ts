@@ -147,7 +147,14 @@ export const callCompositor = (
 		}
 
 		try {
-			child.stdin.write(payload);
+			child.stdin.write(payload, (e) => {
+				if (e) {
+					reject(e);
+					return;
+				}
+
+				child.stdin.end();
+			});
 		} catch (err) {
 			if (err instanceof Error && err.message.includes('EPIPE')) {
 				reject(
@@ -156,10 +163,7 @@ export const callCompositor = (
 							Buffer.concat(stderrChunks).toString('utf-8'),
 					),
 				);
-				return;
 			}
 		}
-
-		child.stdin.end();
 	});
 };

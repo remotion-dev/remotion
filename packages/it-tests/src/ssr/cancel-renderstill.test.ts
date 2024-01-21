@@ -1,5 +1,5 @@
 import { makeCancelSignal, renderStill } from "@remotion/renderer";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should be able to cancel render", async () => {
   try {

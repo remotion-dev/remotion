@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "incremental": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "skipLibCheck": true
   },
   "include": [],
   "references": [
@@ -109,6 +110,12 @@
     },
     {
       "path": "./packages/studio"
+    },
+    {
+      "path": "./packages/studio-server"
+    },
+    {
+      "path": "./packages/studio-shared"
     },
     {
       "path": "./packages/test-utils"

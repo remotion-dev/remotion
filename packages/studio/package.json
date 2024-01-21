@@ -8,7 +8,8 @@
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
-		"test": "vitest --run"
+		"test": "vitest --run",
+		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -22,10 +23,10 @@
 	"dependencies": {
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
-		"@remotion/bundler": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
 		"open": "^8.4.2"
@@ -47,5 +48,17 @@
 		"vitest": "0.31.1",
 		"zod": "^3.22.3",
 		"@remotion/zod-types": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.js"
+		},
+		"./package.json": "./package.json",
+		"./entry": "./dist/previewEntry.js"
 	}
 }

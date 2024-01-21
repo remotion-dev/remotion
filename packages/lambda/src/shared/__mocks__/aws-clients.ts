@@ -2,8 +2,8 @@ import type {
 	InvokeWithResponseStreamCommandInput,
 	LambdaClient,
 } from '@aws-sdk/client-lambda';
-import type {getLambdaClient as original} from '../../shared/aws-clients';
 
+import type {getLambdaClient as original} from '../../shared/aws-clients';
 export const getLambdaClient: typeof original = (region, timeoutInTest) => {
 	return {
 		config: {

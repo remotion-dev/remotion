@@ -37,7 +37,7 @@
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
-		"@types/react-dom": "^18.2.18",
+		"@types/react-dom": "18.2.18",
 		"esbuild": "0.18.6",
 		"eslint": "8.42.0",
 		"prettier": "3.1.1",

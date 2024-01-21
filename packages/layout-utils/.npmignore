@@ -4,7 +4,7 @@ src
 tsconfig.tsbuildinfo
 *.tgz
 .turbo
-vitest.config.ts
+vitest.config.mts
 tsconfig.json
 .prettierrc.js
 .rollup

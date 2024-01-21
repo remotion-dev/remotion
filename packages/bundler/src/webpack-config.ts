@@ -50,7 +50,6 @@ export const webpackConfig = ({
 	onProgress,
 	enableCaching = true,
 	maxTimelineTracks,
-	entryPoints,
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	poll,
@@ -64,13 +63,17 @@ export const webpackConfig = ({
 	enableCaching?: boolean;
 	maxTimelineTracks: number;
 	keyboardShortcutsEnabled: boolean;
-	entryPoints: string[];
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
 	let lastProgress = 0;
 
 	const isBun = typeof Bun !== 'undefined';
+
+	const define = new webpack.DefinePlugin({
+		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
+		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
+	});
 
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
@@ -88,7 +91,7 @@ export const webpackConfig = ({
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
-			ignored: ['**/.git/**', '**/node_modules/**'],
+			ignored: ['**/.git/**', '**/.turbo/**', '**/node_modules/**'],
 		},
 		// Higher source map quality in development to power line numbers for stack traces
 		devtool:
@@ -101,7 +104,6 @@ export const webpackConfig = ({
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
 			require.resolve('./setup-environment'),
-			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
@@ -112,11 +114,7 @@ export const webpackConfig = ({
 				? [
 						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
-						new webpack.DefinePlugin({
-							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
-							'process.env.KEYBOARD_SHORTCUTS_ENABLED':
-								keyboardShortcutsEnabled,
-						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
 					]
 				: [
@@ -128,6 +126,7 @@ export const webpackConfig = ({
 								}
 							}
 						}),
+						define,
 						new AllowOptionalDependenciesPlugin(),
 					],
 		output: {

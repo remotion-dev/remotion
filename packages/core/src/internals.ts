@@ -19,7 +19,10 @@ import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	enableSequenceStackTraces,
+} from './enable-sequence-stack-traces.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -143,6 +146,7 @@ export const Internals = {
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
 	useMediaStartsAt,
+	enableSequenceStackTraces,
 	colorNames,
 } as const;
 

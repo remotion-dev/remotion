@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
-import {Button} from '../../error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../helpers/colors';
+import {Button} from '../Button';
 import {Spacing} from '../layout';
 import {EnvInput} from './EnvInput';
 

@@ -26,7 +26,7 @@ import type {
 	RenderingProgressInput,
 	RenderStep,
 	StitchingProgressInput,
-} from '@remotion/studio';
+} from '@remotion/studio-server';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';

@@ -174,7 +174,7 @@ export const MenuItem: React.FC<{
 							</HigherZIndex>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

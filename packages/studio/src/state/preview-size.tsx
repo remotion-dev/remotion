@@ -73,7 +73,7 @@ export const PreviewSizeProvider: React.FC<{
 							x: 0,
 							y: 0,
 						},
-				  },
+					},
 			setSize,
 			translation,
 			setTranslation,

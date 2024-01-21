@@ -30,7 +30,7 @@ test(
 		});
 		expect(data2.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 
 		expect(data.subarray(0, 1000)).not.toEqual(data2.subarray(0, 1000));
@@ -68,7 +68,7 @@ test(
 			expect(data[170001] / 100).toBeCloseTo(0.33, 0.01);
 		}
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -123,7 +123,7 @@ test('Should be able to seek backwards', async () => {
 	});
 	expect(data2.length).toBe(2764854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -144,7 +144,7 @@ test(
 		});
 		expect(data.length).toBe(3499254);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -176,7 +176,7 @@ test(
 		expect(topLeftPixelG / 100).toBeCloseTo(1.13, 0.01);
 		expect(topLeftPixelB / 100).toBeCloseTo(1.96, 0.01);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -204,7 +204,7 @@ test(
 		expect(data[1645650] / 100).toBeCloseTo(0.41, 0.01);
 		expect(data[2000000] / 100).toBeCloseTo(0.2, 0.01);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 20000},
@@ -236,7 +236,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(data[0x0012dd58]).approximately(159, 2);
 	expect(data[0x00019108]).approximately(209, 2);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -343,7 +343,7 @@ test('Last frame should be fast', async () => {
 	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
 	expect(data4.length).not.toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -363,7 +363,7 @@ test('Should get from a screen recording', async () => {
 
 	expect(data.length).toBe(15230038);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -383,7 +383,7 @@ test('Should get from video with no fps', async () => {
 
 	expect(data.length).toBe(3044334);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -403,7 +403,7 @@ test('Should get from broken webcam video', async () => {
 
 	expect(data.length).toBe(921654);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -423,7 +423,7 @@ test('Should get from iPhone video', async () => {
 
 	expect(data.length).toBe(24883254);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -443,7 +443,7 @@ test('Should get from AV1 video', async () => {
 
 	expect(data.length).toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -467,7 +467,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 
 	expect(data.length).toBe(2764854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -491,7 +491,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 
 	expect(data.length).toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -569,7 +569,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(statsJson.open_streams).toBe(2);
 	expect(statsJson.open_videos).toBe(1);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 

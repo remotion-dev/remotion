@@ -158,11 +158,11 @@ export const ensureFrameIsInViewport = ({
 					? getScrollPositionForCursorOnRightEdge({
 							nextFrame: frame,
 							durationInFrames,
-					  })
+						})
 					: getScrollPositionForCursorOnLeftEdge({
 							nextFrame: frame,
 							durationInFrames,
-					  }),
+						}),
 			);
 		}
 	}

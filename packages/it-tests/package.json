@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run && vitest src/monorepo --run",
-    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr --run",
+    "testssr": "bun test src/ssr src/bundle --timeout 20000",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,
@@ -26,6 +26,7 @@
     "@remotion/google-fonts": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@types/sharp": "^0.28.5",
+    "@types/bun": "^1.0.3",
     "create-video": "workspace:*",
     "execa": "5.1.1",
     "remotion": "workspace:*",

@@ -41,7 +41,9 @@ export const TitleUpdater: React.FC = () => {
 	return null;
 };
 
-export const CurrentCompositionKeybindings: React.FC = () => {
+export const CurrentCompositionKeybindings: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
@@ -49,6 +51,10 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 	const openRenderModal = useCallback(() => {
 		if (!video) {
 			return;
+		}
+
+		if (readOnlyStudio) {
+			return sendErrorNotification('Studio is read-only');
 		}
 
 		if (type !== 'connected') {
@@ -61,7 +67,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		) as HTMLDivElement;
 
 		renderButton.click();
-	}, [type, video]);
+	}, [readOnlyStudio, type, video]);
 
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({

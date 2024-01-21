@@ -6,8 +6,8 @@ import type {
 	CopyingState,
 	RenderingProgressInput,
 	StitchingProgressInput,
-} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
@@ -15,7 +15,6 @@ import {
 } from './download-progress';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
-
 export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
@@ -55,7 +54,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new StudioInternals.AnsiDiff();
+	const diff = new StudioServerInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -270,7 +269,7 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${StudioInternals.formatBytes(
+		return `Copying public dir ${StudioServerInternals.formatBytes(
 			progress.copyingState.bytes,
 		)}`;
 	}

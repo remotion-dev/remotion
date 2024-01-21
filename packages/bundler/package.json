@@ -20,6 +20,7 @@
 	"files": [
 		"dist",
 		"react-shim.js",
+		"renderEntry.tsx",
 		"favicon.ico"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -29,6 +30,8 @@
 		"esbuild": "0.18.6",
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
+		"@remotion/studio": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
 		"webpack": "5.83.1"
 	},

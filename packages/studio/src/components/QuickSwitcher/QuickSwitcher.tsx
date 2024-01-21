@@ -7,7 +7,8 @@ import {QuickSwitcherContent} from './QuickSwitcherContent';
 const QuickSwitcher: React.FC<{
 	initialMode: QuickSwitcherMode;
 	invocationTimestamp: number;
-}> = ({initialMode, invocationTimestamp}) => {
+	readOnlyStudio: boolean;
+}> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
@@ -18,6 +19,7 @@ const QuickSwitcher: React.FC<{
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<QuickSwitcherContent
+				readOnlyStudio={readOnlyStudio}
 				invocationTimestamp={invocationTimestamp}
 				initialMode={initialMode}
 			/>
