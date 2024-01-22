@@ -3,7 +3,7 @@ image: /generated/articles-docs-animation-utils-index.png
 title: "@remotion/animation-utils"
 ---
 
-_Available from v4.0.91_
+_Available from v4.0.92_
 
 Functions that support you in animating CSS styles.
 

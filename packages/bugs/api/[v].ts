@@ -8,10 +8,16 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Broken release",
+    description: "Rendering may fail. Upgrade to 4.0.92.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.90", "4.0.91"],
+  },
+  {
     title: "<Video> seeking breaks during rendering for some videos",
     description: "A timeout would occur on some videos.",
     link: "https://remotion.dev/changelog",
-    versions: ["4.0.86", "4.0.87", "4.088"],
+    versions: ["4.0.86", "4.0.87", "4.0.88"],
   },
   {
     title: "Lambda throws an undefined variable error",
