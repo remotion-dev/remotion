@@ -1,5 +1,5 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
-import type {RenderJob} from '../../preview-server/job';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {

@@ -26,7 +26,7 @@ import type {
 	RenderingProgressInput,
 	RenderStep,
 	StitchingProgressInput,
-} from '@remotion/studio';
+} from '@remotion/studio-server';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -41,7 +41,7 @@ import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
-import {parsedCli} from '../parse-command-line';
+import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
@@ -236,6 +236,8 @@ export const renderVideoFlow = async ({
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: updatesDontOverwrite,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		},
 	);
 

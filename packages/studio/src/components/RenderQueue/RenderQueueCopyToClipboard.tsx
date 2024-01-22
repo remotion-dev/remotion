@@ -1,6 +1,6 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import {useCallback} from 'react';
 import {ClipboardIcon} from '../../icons/clipboard';
-import type {RenderJob} from '../../preview-server/job';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {

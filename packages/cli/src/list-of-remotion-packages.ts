@@ -23,8 +23,11 @@ export const listOfRemotionPackages = [
 	'@remotion/gif',
 	'@remotion/shapes',
 	'@remotion/studio',
+	'@remotion/studio-server',
+	'@remotion/studio-shared',
 	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'@remotion/transitions',
+	'@remotion/animation-utils',
 	'remotion',
 ];

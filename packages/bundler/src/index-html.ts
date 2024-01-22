@@ -1,47 +1,7 @@
+import type {RenderDefaults} from '@remotion/studio';
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
-
-export type RenderDefaults = {
-	jpegQuality: number;
-	scale: number;
-	logLevel: string;
-	codec: string;
-	concurrency: number;
-	minConcurrency: number;
-	muted: boolean;
-	maxConcurrency: number;
-	stillImageFormat: 'png' | 'jpeg' | 'webp' | 'pdf';
-	videoImageFormat: 'png' | 'jpeg' | 'none';
-	audioCodec: string | null;
-	enforceAudioTrack: boolean;
-	proResProfile: string;
-	x264Preset: string;
-	pixelFormat: string;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingBufferSize: string | null;
-	encodingMaxRate: string | null;
-	userAgent: string | null;
-	everyNthFrame: number;
-	numberOfGifLoops: number | null;
-	delayRenderTimeout: number;
-	disableWebSecurity: boolean;
-	openGlRenderer: string | null;
-	ignoreCertificateErrors: boolean;
-	offthreadVideoCacheSizeInBytes: number | null;
-	headless: boolean;
-	colorSpace: string;
-	multiProcessOnLinux: boolean;
-	beepOnFinish: boolean;
-	repro: boolean;
-};
-
-declare global {
-	interface Window {
-		remotion_renderDefaults: RenderDefaults | undefined;
-	}
-}
 
 export const indexHtml = ({
 	baseDir,
@@ -93,7 +53,6 @@ ${
     <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
     <script>window.remotion_staticBase = "${staticHash}";</script>
 		<div id="video-container"></div>
-		<div id="explainer-container"></div>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`

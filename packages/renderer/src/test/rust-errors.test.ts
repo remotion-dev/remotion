@@ -51,7 +51,7 @@ test('Handle panics', async () => {
 	}
 
 	try {
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor quit');

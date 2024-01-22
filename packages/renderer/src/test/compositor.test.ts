@@ -31,7 +31,7 @@ test('Should handle the overlay', async () => {
 			compositor,
 		});
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 
 		throw new Error('should not reach here');
@@ -74,7 +74,7 @@ test('Should handle valid', async () => {
 		compositor,
 	});
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 
 	unlinkSync('test.png');

@@ -9,16 +9,16 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/no-react';
-import type {ApiRoutes} from '../../preview-server/api-types';
 import type {
+	ApiRoutes,
+	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
+	EnumPath,
 	OpenInFileExplorerRequest,
 	RenderJob,
-} from '../../preview-server/job';
-import type {RequiredChromiumOptions} from '../../required-chromium-options';
-
-import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
+	RequiredChromiumOptions,
+} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -26,7 +26,7 @@ const callApi = <Endpoint extends keyof ApiRoutes>(
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
-		fetch(endpoint, {
+		fetch(endpoint as string, {
 			method: 'post',
 			headers: {
 				'content-type': 'application/json',
@@ -358,7 +358,17 @@ export const updateDefaultProps = (
 	});
 };
 
-export const canUpdateDefaultProps = (compositionId: string) => {
+export const canUpdateDefaultProps = (
+	compositionId: string,
+	readOnlyStudio: boolean,
+): Promise<CanUpdateDefaultPropsResponse> => {
+	if (readOnlyStudio) {
+		return Promise.resolve({
+			canUpdate: false,
+			reason: 'Read-only studio',
+		});
+	}
+
 	return callApi('/api/can-update-default-props', {
 		compositionId,
 	});

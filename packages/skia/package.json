@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/skia",
-	"version": "4.0.88",
+	"version": "4.0.89",
 	"description": "Utilities for using react-native-skia in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -34,7 +34,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@shopify/react-native-skia": "^0.1.191",
-		"@types/react": "18.0.26",
+		"@types/react": "18.2.48",
 		"@types/react-native": "^0.69.2",
 		"eslint": "8.42.0",
 		"prettier": "3.1.1",

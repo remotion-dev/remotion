@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import { getCompositions, renderMedia, openBrowser } from "@remotion/renderer";
 import { existsSync } from "fs";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
@@ -139,7 +139,11 @@ test("Should fail invalid serve URL", async () => {
       },
     });
   } catch (err) {
-    expect((err as Error).message).toMatch(/Error while getting compositions/);
+    const message = (err as Error).message;
+    expect(
+      message.includes("Failed to load resource") ||
+        message.includes("Error while getting compositions")
+    ).toBe(true);
     return;
   }
 

@@ -5,6 +5,6 @@ tsconfig.tsbuildinfo
 *.tgz
 .turbo
 ensure-version-match.js
-vitest.config.ts
+vitest.config.mts
 tsconfig.json
 .prettierrc.js

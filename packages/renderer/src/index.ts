@@ -131,6 +131,7 @@ export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
 export {X264Preset} from './x264-preset';
 
+import {makeDownloadMap} from './assets/download-map';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -221,6 +222,7 @@ export const RenderInternals = {
 	isIpV6Supported,
 	getChromiumGpuInformation,
 	getPortConfig,
+	makeDownloadMap,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

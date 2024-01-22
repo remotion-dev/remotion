@@ -34,7 +34,7 @@ const makeProperty = (
 						{val}
 						{'"'}
 					</span>,
-			  ]
+				]
 			: [
 					'{',
 					<span
@@ -47,7 +47,7 @@ const makeProperty = (
 						{val}
 					</span>,
 					'}',
-			  ],
+				],
 		<br key={key + 'br'} />,
 	];
 };

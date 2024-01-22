@@ -11,15 +11,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Internals} from 'remotion';
-import type {SourceMapConsumer} from 'source-map';
-import {getLinesAround} from './get-lines-around';
-import {getOriginalPosition, getSourceMap} from './get-source-map';
 import type {
 	SomeStackFrame,
 	StackFrame,
 	SymbolicatedStackFrame,
-} from './stack-frame';
+} from '@remotion/studio-shared';
+import {Internals} from 'remotion';
+import type {SourceMapConsumer} from 'source-map';
+import {getLinesAround} from './get-lines-around';
+import {getOriginalPosition, getSourceMap} from './get-source-map';
 
 export const getFileContents = async (fileName: string) => {
 	const res = await fetch(fileName as string);

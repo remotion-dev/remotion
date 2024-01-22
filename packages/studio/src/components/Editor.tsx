@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {continueRender, delayRender, Internals} from 'remotion';
+import React, {useEffect} from 'react';
+import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {TimelineZoomContext} from '../state/timeline-zoom';
@@ -7,7 +7,6 @@ import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
-import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 
 const background: React.CSSProperties = {
@@ -19,18 +18,15 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-export const Editor: React.FC = () => {
-	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-
-	const [waitForRoot] = useState(() => {
-		if (Root) {
-			return 0;
+export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
+	Root,
+	readOnlyStudio,
+}) => {
+	useEffect(() => {
+		if (readOnlyStudio) {
+			return;
 		}
 
-		return delayRender('Waiting for registerRoot()');
-	});
-
-	useEffect(() => {
 		const listenToChanges = (e: BeforeUnloadEvent) => {
 			if (window.remotion_unsavedProps) {
 				e.returnValue = 'Are you sure you want to leave?';
@@ -42,35 +38,20 @@ export const Editor: React.FC = () => {
 		return () => {
 			window.removeEventListener('beforeunload', listenToChanges);
 		};
-	}, []);
-
-	useEffect(() => {
-		if (Root) {
-			return;
-		}
-
-		const cleanup = Internals.waitForRoot((NewRoot) => {
-			setRoot(() => NewRoot);
-			continueRender(waitForRoot);
-		});
-
-		return () => {
-			cleanup();
-		};
-	}, [Root, waitForRoot]);
+	}, [readOnlyStudio]);
 
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<div style={background}>
-					{Root === null ? null : <Root />}
+					<Root />
 					<Internals.CanUseRemotionHooksProvider>
-						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
+						<EditorContent readOnlyStudio={readOnlyStudio} />
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
 				</div>
-				<Modals />
+				<Modals readOnlyStudio={readOnlyStudio} />
 			</TimelineZoomContext>
 		</HigherZIndex>
 	);

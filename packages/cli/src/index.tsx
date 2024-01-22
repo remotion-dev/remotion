@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
+import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
@@ -78,7 +78,9 @@ export const cli = async () => {
 	handleCtrlC({indent: false, logLevel});
 
 	try {
-		if (command === 'compositions') {
+		if (command === 'bundle') {
+			await bundleCommand(remotionRoot, args, logLevel);
+		} else if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args, logLevel);
 		} else if (isStudio) {
 			await studioCommand(remotionRoot, args, logLevel);
@@ -128,6 +130,8 @@ export const cli = async () => {
 	}
 };
 
+import {StudioServerInternals} from '@remotion/studio-server';
+
 export const CliInternals = {
 	createOverwriteableCliOutput,
 	chalk,
@@ -135,12 +139,12 @@ export const CliInternals = {
 	Log,
 	getCliOptions,
 	loadConfig,
+	formatBytes: StudioServerInternals.formatBytes,
 	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
 	printError,
-	formatBytes: StudioInternals.formatBytes,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,

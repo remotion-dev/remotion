@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {PackageManager} from '@remotion/studio';
-import {StudioInternals} from '@remotion/studio';
+import type {PackageManager} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -45,18 +45,18 @@ export const upgrade = async (
 		targetVersion = version;
 		Log.info('Upgrading to specified version: ' + version);
 	} else {
-		targetVersion = await StudioInternals.getLatestRemotionVersion();
+		targetVersion = await StudioServerInternals.getLatestRemotionVersion();
 		Log.info('Newest Remotion version is', targetVersion);
 	}
 
-	const manager = StudioInternals.getPackageManager(
+	const manager = StudioServerInternals.getPackageManager(
 		remotionRoot,
 		packageManager,
 	);
 
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${StudioInternals.lockFilePaths
+			`No lockfile was found in your project (one of ${StudioServerInternals.lockFilePaths
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`,
 		);

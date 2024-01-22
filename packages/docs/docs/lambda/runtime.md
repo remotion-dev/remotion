@@ -58,17 +58,17 @@ The amount of cores inside a Lambda is dependent on the amount of memory you giv
 
 You can render multiple frames at once inside a Lambda function by using the [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) option.
 
-## Chromium
+## Chrome
 
-The function already includes a running version of Chromium.
+The function already includes a running version of Chrome.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-| Remotion version | Chromium version |
-| ---------------- | ---------------- |
-| From 4.0.0       | 114.0.5731.1     |
-| From 3.2.0       | 104.0.5112.64    |
-| From 3.0.8       | 101.0.4951.68    |
-| From 3.0.0       | 98.0.4758.139    |
+| Remotion version | Chrome version |
+| ---------------- | -------------- |
+| From 4.0.0       | 114.0.5731.1   |
+| From 3.2.0       | 104.0.5112.64  |
+| From 3.0.8       | 101.0.4951.68  |
+| From 3.0.0       | 98.0.4758.139  |
 
 ## FFMPEG
 

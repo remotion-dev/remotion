@@ -22,6 +22,13 @@ const alwaysOptions: Fig.Option[] = [
       }),
     },
   },
+  {
+    name: "--config",
+    description: "Custom location for a Remotion config file",
+    args: {
+      template: "filepaths",
+    },
+  },
 ];
 
 const propsOption: Fig.Option = {
@@ -119,13 +126,6 @@ const localRenderAndStillOptions: Fig.Option[] = [
     args: {
       name: "port",
       default: "3333",
-    },
-  },
-  {
-    name: "--config",
-    description: "Custom location for a Remotion config file",
-    args: {
-      template: "filepaths",
     },
   },
   {
@@ -811,6 +811,32 @@ const completionSpec: Fig.Spec = {
         },
       ],
       options: globalLambdaOptions,
+    },
+    {
+      name: "bundle",
+      priority: 100,
+      description: "Bundle a Remotion project",
+      args: {
+        name: "entry",
+        template: ["filepaths"],
+      },
+      options: [
+        ...alwaysOptions,
+        {
+          name: "--public-dir",
+          description: "Location of the public/ directory",
+          args: {
+            template: "folders",
+          },
+        },
+        {
+          name: "--out-dir",
+          description: "Define the location of the resulting bundle",
+          args: {
+            template: "folders",
+          },
+        },
+      ],
     },
     {
       name: "render",

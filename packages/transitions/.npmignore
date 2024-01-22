@@ -10,5 +10,5 @@ jest.config.js
 tsconfig-cjs.tsbuildinfo
 tsconfig-cjs.json
 tsconfig.json
-vitest.config.ts
+vitest.config.mts
 .prettierrc.mjs

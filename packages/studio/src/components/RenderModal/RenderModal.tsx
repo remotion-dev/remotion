@@ -11,6 +11,11 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {
+	RequiredChromiumOptions,
+	UiOpenGlOptions,
+} from '@remotion/studio-shared';
+import {getDefaultOutLocation} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -22,16 +27,7 @@ import React, {
 } from 'react';
 import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
-import {AudioIcon} from '../../icons/audio';
-import {DataIcon} from '../../icons/data';
-import {FileIcon} from '../../icons/file';
-import {PicIcon} from '../../icons/frame';
-import {GearIcon} from '../../icons/gear';
-import {GifIcon} from '../../icons/gif';
-
-import {Button} from '../../error-overlay/remotion-overlay/Button';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {getDefaultOutLocation} from '../../get-default-out-name';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
@@ -39,13 +35,16 @@ import {
 } from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {AudioIcon} from '../../icons/audio';
 import {Checkmark} from '../../icons/Checkmark';
-import type {
-	RequiredChromiumOptions,
-	UiOpenGlOptions,
-} from '../../required-chromium-options';
+import {DataIcon} from '../../icons/data';
+import {FileIcon} from '../../icons/file';
+import {PicIcon} from '../../icons/frame';
+import {GearIcon} from '../../icons/gear';
+import {GifIcon} from '../../icons/gif';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
+import {Button} from '../Button';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {inlineCodeSnippet} from '../Menu/styles';
@@ -1338,6 +1337,7 @@ const RenderModal: React.FC<
 							propsEditType="input-props"
 							saving={saving}
 							setSaving={setSaving}
+							readOnlyStudio={false}
 						/>
 					) : (
 						<RenderModalAdvanced

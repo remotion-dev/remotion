@@ -1,16 +1,17 @@
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import {useContext, useEffect, useRef, useState} from 'react';
 import {
 	subscribeToFileExistenceWatcher,
 	unsubscribeFromFileExistenceWatcher,
 } from '../components/RenderQueue/actions';
-import type {EventSourceEvent} from '../event-source-events';
 import {StudioServerConnectionCtx} from './client-id';
-import {subscribeToEvent} from './event-source';
 
 export const useFileExistence = (outName: string) => {
 	const [exists, setExists] = useState(false);
 
-	const state = useContext(StudioServerConnectionCtx);
+	const {previewServerState: state, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 
 	const currentOutName = useRef('');
@@ -54,7 +55,7 @@ export const useFileExistence = (outName: string) => {
 		return () => {
 			unsub();
 		};
-	}, [outName]);
+	}, [outName, subscribeToEvent]);
 
 	useEffect(() => {
 		const listener = (event: EventSourceEvent) => {
@@ -75,7 +76,7 @@ export const useFileExistence = (outName: string) => {
 		return () => {
 			unsub();
 		};
-	}, [outName]);
+	}, [outName, subscribeToEvent]);
 
 	return exists;
 };

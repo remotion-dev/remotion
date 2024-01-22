@@ -1,5 +1,7 @@
-import type {SymbolicatedStackFrame} from '../utils/stack-frame';
-import type {ErrorLocation} from './map-error-to-react-stack';
+import type {
+	ErrorLocation,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
 
 export const resolveFileSource = async (
 	location: ErrorLocation,

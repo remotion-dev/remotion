@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const label: React.CSSProperties = {
 	fontSize: 13,
@@ -7,10 +8,8 @@ const label: React.CSSProperties = {
 };
 
 const container: React.CSSProperties = {
-	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	flex: 1,
 	flexDirection: 'column',
 	textAlign: 'center',
 	lineHeight: 1.5,
@@ -41,7 +40,7 @@ export const NoRegisterRoot: React.FC = () => {
 	}
 
 	return (
-		<div style={container}>
+		<AbsoluteFill style={container}>
 			<div style={label}>Waiting for registerRoot() to get called.</div>
 			<div style={label}>
 				Learn more:{' '}
@@ -53,6 +52,6 @@ export const NoRegisterRoot: React.FC = () => {
 					remotion.dev/docs/register-root
 				</a>
 			</div>
-		</div>
+		</AbsoluteFill>
 	);
 };

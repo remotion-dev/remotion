@@ -67,7 +67,7 @@ export const getTimelineSequenceLayout = ({
 		lastFrame === 0
 			? 0
 			: (startFromWithOffset / lastFrame) *
-			  (windowWidth - TIMELINE_PADDING * 2);
+				(windowWidth - TIMELINE_PADDING * 2);
 
 	const nonNegativeMarginLeft = Math.min(marginLeft, 0);
 

@@ -49,6 +49,27 @@ export const articles = [
     crumb: "The basics",
   },
   {
+    id: "animation-utils/index",
+    title: "@remotion/animation-utils",
+    relativePath: "docs/animation-utils/index.md",
+    compId: "articles-docs-animation-utils-index",
+    crumb: null,
+  },
+  {
+    id: "interpolate-styles",
+    title: "interpolateStyles()",
+    relativePath: "docs/animation-utils/interpolate-styles.md",
+    compId: "articles-docs-animation-utils-interpolate-styles",
+    crumb: "@remotion/animation-utils",
+  },
+  {
+    id: "make-transform",
+    title: "makeTransform()",
+    relativePath: "docs/animation-utils/make-transform.md",
+    compId: "articles-docs-animation-utils-make-transform",
+    crumb: "@remotion/animation-utils",
+  },
+  {
     id: "api",
     title: "API overview",
     relativePath: "docs/api.md",
@@ -144,6 +165,13 @@ export const articles = [
     title: "npx remotion benchmark",
     relativePath: "docs/cli/benchmark.md",
     compId: "articles-docs-cli-benchmark",
+    crumb: "CLI Reference",
+  },
+  {
+    id: "cli/bundle",
+    title: "npx remotion bundle",
+    relativePath: "docs/cli/bundle.md",
+    compId: "articles-docs-cli-bundle",
     crumb: "CLI Reference",
   },
   {

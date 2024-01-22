@@ -1,3 +1,4 @@
+import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -63,7 +64,7 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = require.resolve('./renderEntry');
+	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
 
 	return webpackConfig({
 		entry,
@@ -74,9 +75,8 @@ export const getConfig = ({
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 90,
-		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: false,
+		keyboardShortcutsEnabled: true,
 		poll: null,
 	});
 };
@@ -119,19 +119,26 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 
 const recursionLimit = 5;
 
-const findClosestPackageJsonFolder = (currentDir: string): string | null => {
-	let possiblePackageJson = '';
+export const findClosestFolderWithFile = (
+	currentDir: string,
+	file: string,
+): string | null => {
+	let possibleFile = '';
 	for (let i = 0; i < recursionLimit; i++) {
-		possiblePackageJson = path.join(currentDir, 'package.json');
-		const exists = fs.existsSync(possiblePackageJson);
+		possibleFile = path.join(currentDir, file);
+		const exists = fs.existsSync(possibleFile);
 		if (exists) {
-			return path.dirname(possiblePackageJson);
+			return path.dirname(possibleFile);
 		}
 
 		currentDir = path.dirname(currentDir);
 	}
 
 	return null;
+};
+
+const findClosestPackageJsonFolder = (currentDir: string): string | null => {
+	return findClosestFolderWithFile(currentDir, 'package.json');
 };
 
 const validateEntryPoint = async (entryPoint: string) => {
@@ -269,6 +276,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 	fs.copyFileSync(
 		path.join(__dirname, '../favicon.ico'),
 		path.join(outDir, 'favicon.ico'),
+	);
+	fs.copyFileSync(
+		path.resolve(require.resolve('source-map'), '..', 'lib', 'mappings.wasm'),
+		path.join(outDir, SOURCE_MAP_ENDPOINT.replace('/', '')),
 	);
 	return outDir;
 }

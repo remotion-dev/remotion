@@ -2,10 +2,9 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {BundlingState, CopyingState} from '@remotion/studio';
+import type {BundlingState, CopyingState} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
 import type {SymbolicLinksState} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -24,6 +23,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
+	outDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -38,6 +39,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
+	outDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -70,6 +73,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		steps,
 		onDirectoryCreated,
 		quietProgress,
+		quietFlag,
+		outDir,
 	});
 
 	return {
@@ -78,7 +83,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	};
 };
 
-const bundleOnCli = async ({
+export const bundleOnCli = async ({
 	fullPath,
 	remotionRoot,
 	publicDir,
@@ -89,6 +94,8 @@ const bundleOnCli = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
+	outDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -103,6 +110,8 @@ const bundleOnCli = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
+	outDir: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -200,7 +209,7 @@ const bundleOnCli = async ({
 
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
-		quiet: quietProgress || quietFlagProvided(),
+		quiet: quietProgress || quietFlag,
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
@@ -221,6 +230,7 @@ const bundleOnCli = async ({
 			updateProgress(false);
 		},
 		onDirectoryCreated,
+		outDir: outDir ?? undefined,
 		...options,
 	});
 

@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {JobProgressCallback, RenderJob} from '@remotion/studio';
+import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';

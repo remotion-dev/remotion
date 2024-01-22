@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "4.0.88",
+	"version": "4.0.89",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -31,7 +31,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/node": "18.14.6",
 		"@types/prompts": "^2.0.12",
-		"@types/react": "18.0.26",
+		"@types/react": "18.2.48",
 		"@types/tar": "6.1.1",
 		"eslint": "8.42.0",
 		"got": "^11",

@@ -49,7 +49,9 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	return actualStateLeft;
 };
 
-export const TopPanel: React.FC = () => {
+export const TopPanel: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
@@ -124,15 +126,15 @@ export const TopPanel: React.FC = () => {
 							) : null}
 							{actualStateRight === 'expanded' ? (
 								<SplitterElement sticky={null} type="anti-flexer">
-									<OptionsPanel />
+									<OptionsPanel readOnlyStudio={readOnlyStudio} />
 								</SplitterElement>
 							) : null}
 						</SplitterContainer>
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-			<PreviewToolbar />
-			<CurrentCompositionKeybindings />
+			<PreviewToolbar readOnlyStudio={readOnlyStudio} />
+			<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
 			<TitleUpdater />
 		</div>
 	);

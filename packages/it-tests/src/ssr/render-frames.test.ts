@@ -7,7 +7,7 @@ import {
   renderFrames,
   stitchFramesToVideo,
 } from "@remotion/renderer";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 import { RenderInternals } from "@remotion/renderer";
 
 test("Legacy SSR way of rendering videos should still work", async () => {

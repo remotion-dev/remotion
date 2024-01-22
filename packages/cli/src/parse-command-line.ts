@@ -87,6 +87,7 @@ type CommandLineOptions = {
 	['browser']: string;
 	['browser-args']: string;
 	['user-agent']: string;
+	['out-dir']: string;
 	[deleteAfterOption.cliFlag]: string | undefined;
 	[folderExpiryOption.cliFlag]: boolean | undefined;
 	[enableMultiprocessOnLinuxOption.cliFlag]: boolean;

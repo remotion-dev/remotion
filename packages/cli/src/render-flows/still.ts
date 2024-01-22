@@ -14,7 +14,7 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 	RenderStep,
-} from '@remotion/studio';
+} from '@remotion/studio-server';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -169,6 +169,8 @@ export const renderStillFlow = async ({
 				});
 			},
 			quietProgress: updatesDontOverwrite,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
 		},
 	);
 

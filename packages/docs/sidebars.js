@@ -14,6 +14,7 @@ module.exports = {
         "cli/render",
         "cli/still",
         "cli/compositions",
+        "cli/bundle",
         {
           type: "category",
           label: "lambda",
@@ -178,6 +179,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
+
     {
       type: "category",
       label: "@remotion/motion-blur",
@@ -465,6 +467,18 @@ module.exports = {
         "layout-utils/measure-text",
         "layout-utils/fill-text-box",
         "layout-utils/fit-text",
+      ],
+    },
+    {
+      type: "category",
+      label: "@remotion/animation-utils",
+      link: {
+        type: "doc",
+        id: "animation-utils/index",
+      },
+      items: [
+        "animation-utils/make-transform",
+        "animation-utils/interpolate-styles",
       ],
     },
   ],
