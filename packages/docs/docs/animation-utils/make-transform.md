@@ -24,6 +24,15 @@ const transform = makeTransform([rotate(45), translate(50, 50)]);
 const markup = <div style={{ transform }} />;
 ```
 
+```tsx twoslash
+import { rotate } from "@remotion/animation-utils";
+
+const transform = rotate(45));
+// => "rotate(45deg)"
+
+const markup = <div style={{ transform }} />;
+```
+
 ## Transformation Functions
 
 ### matrix()
