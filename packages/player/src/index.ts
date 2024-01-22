@@ -1,3 +1,4 @@
+import {BufferingIndicator} from './BufferingIndicator.js';
 import {
 	calculateCanvasTransformation,
 	calculateScale,
@@ -42,4 +43,5 @@ export const PlayerInternals = {
 	updateAllElementsSizes,
 	calculateScale,
 	PlayerEmitterProvider,
+	BufferingIndicator,
 };

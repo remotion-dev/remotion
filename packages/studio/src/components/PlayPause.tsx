@@ -9,7 +9,6 @@ import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
-import {BufferingIndicator} from './BufferingIndicator';
 import {ControlButton} from './ControlButton';
 import {
 	getCurrentDuration,
@@ -319,7 +318,7 @@ export const PlayPause: React.FC<{
 			>
 				{playing ? (
 					showBufferIndicator ? (
-						<BufferingIndicator />
+						<PlayerInternals.BufferingIndicator type="studio" />
 					) : (
 						<Pause style={iconButton} />
 					)

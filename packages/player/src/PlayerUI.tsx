@@ -278,6 +278,47 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isMuted,
 		});
 	}, [player.emitter, isMuted]);
+	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
+
+	useEffect(() => {
+		let timeout: NodeJS.Timeout | null = null;
+		let stopped = false;
+
+		const onBuffer = () => {
+			requestAnimationFrame(() => {
+				timeout = setTimeout(() => {
+					if (!stopped) {
+						setShowBufferState(true);
+					}
+				}, 300);
+			});
+		};
+
+		const onResume = () => {
+			requestAnimationFrame(() => {
+				setShowBufferState(false);
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+			});
+		};
+
+		player.emitter.addEventListener('waiting', onBuffer);
+		player.emitter.addEventListener('resume', onResume);
+
+		return () => {
+			player.emitter.removeEventListener('waiting', onBuffer);
+			player.emitter.removeEventListener('resume', onResume);
+
+			setShowBufferState(false);
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			stopped = true;
+		};
+	}, [player.emitter]);
 
 	useImperativeHandle(
 		ref,
@@ -559,6 +600,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
+					buffering={showBufferIndicator}
 				/>
 			) : null}
 		</>

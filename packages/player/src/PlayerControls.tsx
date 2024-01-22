@@ -1,8 +1,9 @@
 import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
+import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
 import {formatTime} from './format-time.js';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
+import {FullscreenIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
@@ -14,7 +15,10 @@ import {
 } from './use-video-controls-resize.js';
 import type {Size} from './utils/use-element-size.js';
 
-export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
+export type RenderPlayPauseButton = (props: {
+	playing: boolean;
+	buffering: boolean;
+}) => ReactNode;
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
@@ -94,9 +98,6 @@ declare global {
 	}
 }
 
-const PlayPauseButton: React.FC<{playing: boolean}> = ({playing}) =>
-	playing ? <PauseIcon /> : <PlayIcon />;
-
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -118,6 +119,7 @@ export const Controls: React.FC<{
 	alwaysShowControls: boolean;
 	showPlaybackRateControl: boolean | number[];
 	containerRef: React.RefObject<HTMLDivElement>;
+	buffering: boolean;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -139,6 +141,7 @@ export const Controls: React.FC<{
 	alwaysShowControls,
 	showPlaybackRateControl,
 	containerRef,
+	buffering,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -275,9 +278,12 @@ export const Controls: React.FC<{
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
 						{renderPlayPauseButton === null ? (
-							<PlayPauseButton playing={player.playing} />
+							<DefaultPlayPauseButton
+								buffering={buffering}
+								playing={player.playing}
+							/>
 						) : (
-							renderPlayPauseButton({playing: player.playing})
+							renderPlayPauseButton({playing: player.playing, buffering})
 						)}
 					</button>
 					{showVolumeControls ? (
