@@ -105,20 +105,86 @@ const MyComp: React.FC = () => {
 
 You can enable buffering on the following components:
 
-- [`Audio`](/docs/audio)
-- [`Video`](/docs/video)
-- [`OffthreadVideo`](/docs/offthreadvideo)
+- [`<Audio>`](/docs/audio)
+- [`<Video>`](/docs/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)
+- [`<Img>`](/docs/img)
 
 // FIXME: How?
 
+### Listening to buffer events
+
+If the `<Player />` is entering a buffer state, it will emit the `waiting` event.  
+Once it resumes, it emits the `resume` event.
+
+```tsx twoslash title="Listening to waiting and resume events"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player, PlayerRef } from "@remotion/player";
+import { useEffect, useRef, useState } from "react";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  const playerRef = useRef<PlayerRef>(null);
+  const [buffering, setBuffering] = useState(false);
+
+  useEffect(() => {
+    const { current } = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onBuffering = () => {
+      setBuffering(true);
+    };
+    const onResume = () => {
+      setBuffering(false);
+    };
+
+    current.addEventListener("waiting", onBuffering);
+    current.addEventListener("resume", onResume);
+    return () => {
+      current.removeEventListener("waiting", onBuffering);
+      current.removeEventListener("resume", onResume);
+    };
+  }, [setBuffering]);
+
+  return (
+    <Player
+      ref={playerRef}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+    />
+  );
+};
+```
+
 ### State management
 
-Whether a player is buffering does not internally change the `playing` / `paused` state. Therefore, a player can be in four playback states:
+Whether a player is buffering does not internally change the `playing` / `paused` state.  
+Therefore, a player can be in four playback states:
 
-<Step>1</Step> <code>playing</code> and not buffering <br />
-<Step>2</Step> <code>playing</code> and buffering <br />
-<Step>3</Step> <code>paused</code> and not buffering <br />
-<Step>4</Step> <code>paused</code> and buffering <br />
+<Step>1</Step> <code>playing && !buffering</code> <br />
+<Step>2</Step> <code>playing && buffering</code> <br />
+<Step>3</Step> <code>paused && !buffering</code> <br />
+<Step>4</Step> <code>paused && buffering</code> <br />
 <br />
 
-Only <InlineStep>1</InlineStep> will move the timeline forward.
+Only in state <InlineStep>1</InlineStep> the time moves forward.
+
+By default, Remotion will display the following UI based on the state of the player:
+
+<Step>1</Step> Pause button <br />
+<Step>2</Step> Pause button, then after 500ms (TODO), show a spinner instead <br />
+<Step>3</Step>
+<Step>4</Step> Play button <br />
+<br />
+
+You may add additional UI to this, for example by overlaying the player with a spinner when the player is buffering.
