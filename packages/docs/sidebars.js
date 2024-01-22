@@ -687,7 +687,6 @@ module.exports = {
         },
         "brownfield",
         "video-uploads",
-        "buffer-state",
         "presigned-urls",
         "font-picker",
       ],
