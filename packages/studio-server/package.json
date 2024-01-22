@@ -20,6 +20,9 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"dependencies": {
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
