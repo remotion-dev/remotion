@@ -39,7 +39,7 @@ export const stillCommand = async (
 		width,
 		browserExecutable,
 		offthreadVideoCacheSizeInBytes,
-	} = await CliInternals.getCliOptions({
+	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,

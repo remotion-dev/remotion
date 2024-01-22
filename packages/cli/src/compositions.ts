@@ -44,7 +44,7 @@ export const listCompositionsCommand = async (
 		puppeteerTimeout,
 		publicDir,
 		offthreadVideoCacheSizeInBytes,
-	} = await getCliOptions({
+	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,

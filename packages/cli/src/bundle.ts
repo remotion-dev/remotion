@@ -44,7 +44,7 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const {publicDir} = await getCliOptions({
+	const {publicDir} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,

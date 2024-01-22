@@ -67,7 +67,7 @@ export const renderCommand = async (
 		enforceAudioTrack,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
-	} = await CliInternals.getCliOptions({
+	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
