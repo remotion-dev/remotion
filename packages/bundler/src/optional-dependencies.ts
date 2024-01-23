@@ -14,10 +14,13 @@ const SOURCE_MAP_IGNORE = ['path', 'fs'];
 
 export class AllowOptionalDependenciesPlugin {
 	checkIgnore = (resolveData: webpack.ResolveData) => {
+		if (OPTIONAL_DEPENDENCIES.includes(resolveData.request)) {
+			return false;
+		}
+
 		if (
 			resolveData.context.includes('source-map') &&
-			(SOURCE_MAP_IGNORE.includes(resolveData.request) ||
-				OPTIONAL_DEPENDENCIES.includes(resolveData.request))
+			SOURCE_MAP_IGNORE.includes(resolveData.request)
 		) {
 			return false;
 		}
