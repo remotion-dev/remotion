@@ -16,7 +16,12 @@ export const openDirectoryInFinder = (
 
 	if (platform() === 'win32') {
 		return new Promise<void>((resolve, reject) => {
-			exec(`start ${dirToOpen}`, (error) => {
+			exec(`explorer.exe /select,${resolved}`, (error) => {
+				if (error?.code === 1) {
+					resolve();
+					return;
+				}
+
 				if (error) {
 					reject(error);
 				}
