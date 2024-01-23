@@ -62,6 +62,12 @@ export const validateVersionsBeforeCommand = async (
 		return;
 	}
 
+	// Could be a global install of @remotion/cli.
+	// If you render a bundle with a different version, it will give a warning accordingly.
+	if (installedVersions.length === 0) {
+		return;
+	}
+
 	const logOptions: LogOptions = {indent: false, logLevel};
 	Log.warn(logOptions, '-------------');
 	Log.warn(logOptions, 'Version mismatch:');
@@ -128,6 +134,16 @@ export const versionsCommand = async (
 		}
 
 		Log.info();
+	}
+
+	if (installedVersions.length === 0) {
+		Log.info('No Remotion packages found.');
+		Log.info('Maybe @remotion/cli is installed globally.');
+
+		Log.info(
+			'If you try to render a video that was bundled with a different version, you will get a warning.',
+		);
+		process.exit(1);
 	}
 
 	if (installedVersions.length === 1) {
