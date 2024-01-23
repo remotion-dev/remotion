@@ -85,7 +85,7 @@ export const renderCommand = async (
 		colorSpace,
 		deleteAfter,
 		x264Preset,
-	} = await CliInternals.getCliOptions({
+	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,

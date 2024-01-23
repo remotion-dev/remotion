@@ -49,7 +49,6 @@ export const render = async (
 		inputProps,
 		envVariables,
 		jpegQuality,
-		browser,
 		browserExecutable,
 		scale,
 		chromiumOptions,
@@ -73,7 +72,7 @@ export const render = async (
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,
-	} = await getCliOptions({
+	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
@@ -88,7 +87,7 @@ export const render = async (
 		browserExecutable,
 		indent: false,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
-		browser,
+		browser: 'chrome',
 		chromiumOptions,
 		scale,
 		shouldOutputImageSequence,

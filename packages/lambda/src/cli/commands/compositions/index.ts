@@ -29,7 +29,7 @@ export const compositionsCommand = async (
 	}
 
 	const {chromiumOptions, envVariables, inputProps, puppeteerTimeout} =
-		await CliInternals.getCliOptions({
+		CliInternals.getCliOptions({
 			type: 'get-compositions',
 			isLambda: true,
 			remotionRoot,

@@ -21,19 +21,18 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {publicDir, browserExecutable, browser, puppeteerTimeout} =
-		await getCliOptions({
-			isLambda: false,
-			type: 'still',
-			remotionRoot,
-			logLevel: job.logLevel,
-		});
+	const {publicDir, browserExecutable, puppeteerTimeout} = getCliOptions({
+		isLambda: false,
+		type: 'still',
+		remotionRoot,
+		logLevel: job.logLevel,
+	});
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
 	await renderStillFlow({
 		remotionRoot,
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as Studio',
