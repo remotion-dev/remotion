@@ -126,7 +126,7 @@ export async function generateEnv(projectID: string) {
 
 	// generate .env file
 	execSync(
-		`echo "REMOTION_GCP_PRIVATE_KEY=$(jq '.private_key' key.json)" >> .env && echo "REMOTION_GCP_CLIENT_EMAIL=$(jq '.client_email' key.json)" >> .env && echo "REMOTION_GCP_PROJECT_ID=${projectID}" >> .env`,
+		`echo "REMOTION_GCP_PRIVATE_KEY=$(jq --raw-output '.private_key' key.json)" >> .env && echo "REMOTION_GCP_CLIENT_EMAIL=$(jq --raw-output '.client_email' key.json)" >> .env && echo "REMOTION_GCP_PROJECT_ID=${projectID}" >> .env`,
 		{stdio: 'inherit'},
 	);
 
