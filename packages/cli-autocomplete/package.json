@@ -1,5 +1,5 @@
 {
-  "version": "4.0.92",
+  "version": "4.0.93",
   "name": "@remotion/fig-autocomplete",
   "private": true,
   "devDependencies": {
