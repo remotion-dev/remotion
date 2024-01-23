@@ -27,7 +27,7 @@ const markup = <div style={{ transform }} />;
 ```tsx twoslash
 import { rotate } from "@remotion/animation-utils";
 
-const transform = rotate(45));
+const transform = rotate(45);
 // => "rotate(45deg)"
 
 const markup = <div style={{ transform }} />;
