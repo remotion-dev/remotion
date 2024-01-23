@@ -10,10 +10,10 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-point|serve-url?> <composition-id> <output-location>
+npx remotion render <entry-point|serve-url>? <composition-id> <output-location>
 ```
 
-You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 If `composition-id` is not passed, Remotion will ask you to select a composition.  
 If `output-location` is not passed, the media will be rendered into the `out` folder.

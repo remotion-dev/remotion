@@ -10,7 +10,7 @@ _Alias: npx remotion preview_
 Start the [Remotion Studio](/docs/studio).
 
 ```bash
-npx remotion studio <entry-point?>
+npx remotion studio <entry-point>?
 ```
 
 You may pass an [entry point](/docs/terminology/entry-point) as an argument, otherwise it will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).

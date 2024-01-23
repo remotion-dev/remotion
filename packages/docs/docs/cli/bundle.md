@@ -11,14 +11,10 @@ Creates a [Remotion Bundle](/docs/terminology/bundle) on the command line.
 Equivalent to the [`bundle()`](/docs/bundle) Node.JS API.
 
 ```bash
-npx remotion bundle <entry-file?>
+npx remotion bundle <serve-url|entry-file>?
 ```
 
-If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
-
-1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
-3. Fail as entry point could not be determined.
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 ## Flags
 
