@@ -136,6 +136,12 @@ export const versionsCommand = async (
 		Log.info();
 	}
 
+	if (installedVersions.length === 0) {
+		Log.info('No Remotion packages found.');
+		Log.info('Maybe @remotion/cli is installed globally.');
+		process.exit(1);
+	}
+
 	if (installedVersions.length === 1) {
 		Log.info(`✅ Great! All packages have the same version.`);
 	} else {
