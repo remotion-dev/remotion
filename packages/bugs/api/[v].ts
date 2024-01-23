@@ -8,8 +8,15 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Too tight dependency on zod",
+    description:
+      "Remotion would require zod and @remotion/zod-types even though it should be optional.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.92", "4.0.93"],
+  },
+  {
     title: "Broken release",
-    description: "Rendering may fail. Upgrade to 4.0.92.",
+    description: "Rendering may fail. Upgrade to 4.0.94.",
     link: "https://remotion.dev/changelog",
     versions: ["4.0.90", "4.0.91"],
   },
