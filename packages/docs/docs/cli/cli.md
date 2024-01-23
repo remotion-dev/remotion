@@ -10,7 +10,15 @@ import {TableOfContents} from '../../components/TableOfContents/cli';
 
 ## How to use
 
-- You can access the CLI by running `npx remotion` inside a npm project using remotion, `yarn remotion` inside a yarn project and `pnpm exec remotion` inside a pnpm project. For compactness, in the documentation we always say `npx remotion`.
+You can run the CLI by installing `@remotion/cli` and running:
+
+- `npx remotion` inside a npm project
+- `yarn remotion` inside a yarn project
+- `pnpm exec remotion` inside a pnpm project.
+- `bunx remotion` inside a Bun project
+
+For brevity, in the documentation we always say `npx remotion`.
+
 - Inside an npm script, you don't need the `npx` prefix.
 
 ## Commands

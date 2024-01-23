@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 ## Import audio
 
 [Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.  
-Add an [`<Audio/>`](/docs/audio) tag to your [composition](/docs/terminology#composition) to add sound to it.
+Add an [`<Audio/>`](/docs/audio) tag to your component to add sound to it.
 
 ```tsx twoslash
 import { AbsoluteFill, Audio, staticFile } from "remotion";

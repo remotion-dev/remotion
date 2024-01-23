@@ -5,7 +5,7 @@ slug: /player/player
 crumb: "@remotion/player"
 ---
 
-A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
+A component which can be rendered in a regular React App (for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a Remotion video.
 
 ```tsx twoslash title="MyApp.tsx"
 // @allowUmdGlobalAccess

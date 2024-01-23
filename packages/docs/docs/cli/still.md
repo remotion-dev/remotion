@@ -12,8 +12,10 @@ _Available from v2.3._
 Render a still frame based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion still <entry-file> [<composition-id>] [<output-location>]
+npx remotion still <serve-url|entry-point>? [<composition-id>] [<output-location>]
 ```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 If `output-location` is not passed, the still will be rendered into the `out` folder.  
 If `composition-id` is also not passed, Remotion will let you select a composition.
