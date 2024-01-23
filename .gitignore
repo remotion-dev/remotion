@@ -30,3 +30,4 @@ packages/example/public/offthreadvideoregression
 .git
 
 packages/example/build
+packages/example-without-zod/build
