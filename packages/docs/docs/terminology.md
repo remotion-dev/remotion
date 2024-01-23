@@ -10,7 +10,7 @@ Here we try to explain the meaning of some terms that are used often in the docu
 
 A composition is the definition of a renderable asset. It consists of a React component, width, height, FPS and a duration. It can be registered in the [Remotion Studio](#remotion-studio) by rendering a [`<Composition>`](/docs/composition) (to render video or audio render target) or a [`<Still>`](/docs/still).
 
-In the [Remotion Player](#remotion-player), you don't use the `<Composition>` component, rather you pass the component and metadata directly to the [`<Player>`](/docs/player).
+In the [Remotion Player](/docs/terminology/player), you don't use the `<Composition>` component, rather you pass the component and metadata directly to the [`<Player>`](/docs/player).
 
 ## Sequence
 
@@ -59,15 +59,15 @@ In the [Remotion Player](#remotion-player), there is no concept of an entry poin
 
 ## Remotion Studio
 
-The Remotion Studio is the editor that opens that when you run [`npx remotion studio`](/docs/cli/studio) or `npx remotion preview`. It allows fast editing and playback of [compositions](#composition). It is included in the `@remotion/cli` package. It is not the same as the [Remotion Player](#remotion-player).
+[Remotion Studio](/docs/terminology/studio)
 
 ## Remotion Preview
 
-The former name of the [Remotion Studio](#remotion-studio), renamed in v4.0. Since the Preview gained more capabilities than just previewing, the name was not fitting anymore.
+[Remotion Preview](/docs/terminology/studio#remotion-preview)
 
 ## Remotion Player
 
-The Remotion Player is a React component [`<Player>`](/docs/player) that can be embedded into a React app. It can be used by installing the `@remotion/player` package into a React app (for example: Create React App, Next.JS, Remix). It is not the same as the [Remotion Studio](#remotion-studio).
+[Remotion Player](/docs/terminology/player)
 
 ## Concurrency
 

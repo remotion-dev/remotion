@@ -150,6 +150,7 @@ module.exports = {
         type: "doc",
         id: "player/installation",
       },
+
       label: "@remotion/player",
       items: ["player/api", "player/thumbnail"],
     },
@@ -756,7 +757,15 @@ module.exports = {
       href: "/docs/api",
       label: "API Reference",
     },
-    "terminology",
+    {
+      type: "category",
+      label: "Terminology",
+      link: {
+        type: "doc",
+        id: "terminology",
+      },
+      items: ["terminology/player", "terminology/studio"],
+    },
     "resources",
     {
       type: "category",
