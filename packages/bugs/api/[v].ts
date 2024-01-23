@@ -12,7 +12,7 @@ const bugs: Bug[] = [
     description:
       "Remotion would require zod and @remotion/zod-types even though it should be optional.",
     link: "https://remotion.dev/changelog",
-    versions: ["4.0.92", "4.0.93", "4.0.94"],
+    versions: ["4.0.92", "4.0.93", "4.0.94", "4.0.95"],
   },
   {
     title: "Broken release",
