@@ -5,7 +5,7 @@ crumb: "Terminology"
 ---
 
 The [Remotion Studio](/docs/studio) is the editor that opens that when you run [`npx remotion studio`](/docs/cli/studio).  
-It allows for fast editing and playback of [compositions](/docs/terminology/compositions).  
+It allows for fast editing and playback of [compositions](/docs/terminology/composition).  
 It is included in the [`@remotion/cli`](https://npmjs.org/packages/@remotion/cli) package.
 
 Not to be confused with the [Remotion Player](/docs/player).
