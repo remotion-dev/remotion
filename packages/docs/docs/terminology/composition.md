@@ -12,7 +12,7 @@ A composition is something you can render. It consists of:
 <Step>4</Step> a duration value<br/>
 <Step>5</Step> an identifier <code>id</code><br/><br/>
 
-It can be registered in the [Remotion Studio](#remotion-studio) by rendering a [`<Composition>`](/docs/composition) component.  
+It can be registered in the [Remotion Studio](/docs/terminology/studio) by rendering a [`<Composition>`](/docs/composition) component.  
 A composition with a duration of 1 frame is also called a [`<Still>`](/docs/still).
 
 In the [Remotion Player](/docs/terminology/player), you don't use the `<Composition>` component, rather you pass the component and metadata directly to the [`<Player>`](/docs/player/player).

@@ -5,7 +5,7 @@ crumb: "Terminology"
 ---
 
 The Remotion Root is the directory in which Remotion commands get executed in.  
-It influences the default location of the [public dir](#public-dir), the `.env` file and the [config file](/docs/config) amongst others.
+It influences the default location of the [public dir](/docs/terminology/public-dir), the `.env` file and the [config file](/docs/config) amongst others.
 
 ## Which directory is the Remotion Root?
 
