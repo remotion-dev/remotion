@@ -25,7 +25,7 @@ In your project, you can access the variable using `process.env.REMOTION_MY_VAR`
 
 [Dotenv](https://www.npmjs.com/package/dotenv) support is built in if you use the CLI.
 
-Place a `.env` file in the [root](/docs/terminology#remotion-root) of your project and fill it with key-value pairs.
+Place a `.env` file in the [root](/docs/terminology/remotion-root) of your project and fill it with key-value pairs.
 
 ```ini title=".env"
 MY_VAR=hello

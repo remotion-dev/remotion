@@ -1,12 +1,14 @@
 ---
+image: /generated/articles-docs-terminology-studio.png
 title: Remotion Studio
 crumb: "Terminology"
 ---
 
 The [Remotion Studio](/docs/studio) is the editor that opens that when you run [`npx remotion studio`](/docs/cli/studio).  
-It allows fast editing and playback of [compositions](/docs/terminology/compositions).  
-It is included in the [`@remotion/cli`](https://npmjs.org/packages/@remotion/cli) package.  
-It is not the same as the [Remotion Player](/docs/player).
+It allows for fast editing and playback of [compositions](/docs/terminology/compositions).  
+It is included in the [`@remotion/cli`](https://npmjs.org/packages/@remotion/cli) package.
+
+Not to be confused with the [Remotion Player](/docs/player).
 
 You can [deploy the Remotion Studio](/docs/deploy-studio) to render on a VPS.  
 Since v4.0.93, the Studio is also embedded in every [Remotion Bundle](/docs/terminology/bundle), albeit it does not support rendering.

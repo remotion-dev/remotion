@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-terminology-player.png
 title: Remotion Player
 crumb: "Terminology"
 ---

@@ -7,7 +7,7 @@ crumb: CLI Reference
 
 _available from v4.0.89_
 
-Creates a [Remotion Bundle](/docs/terminology#bundle) on the command line.  
+Creates a [Remotion Bundle](/docs/terminology/bundle) on the command line.  
 Equivalent to the [`bundle()`](/docs/bundle) Node.JS API.
 
 ```bash
@@ -36,4 +36,4 @@ Specify a location for the Remotion config file.
 
 ### `--out-dir`
 
-Define the location of the resulting bundle. By default it is a folder called `./build`, adjacent to the [Remotion Root](/docs/terminology#remotion-root).
+Define the location of the resulting bundle. By default it is a folder called `./build`, adjacent to the [Remotion Root](/docs/terminology/remotion-root).

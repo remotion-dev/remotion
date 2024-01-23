@@ -40,7 +40,7 @@ export const bundleCommand = async (
 		Log.error(
 			'Pass another argument to the command specifying the entry point.',
 		);
-		Log.error('See: https://www.remotion.dev/docs/terminology#entry-point');
+		Log.error('See: https://www.remotion.dev/docs/terminology/entry-point');
 		process.exit(1);
 	}
 
