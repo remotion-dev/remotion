@@ -139,6 +139,10 @@ export const versionsCommand = async (
 	if (installedVersions.length === 0) {
 		Log.info('No Remotion packages found.');
 		Log.info('Maybe @remotion/cli is installed globally.');
+
+		Log.info(
+			'If you try to render a video that was bundled with a different version, you will get a warning.',
+		);
 		process.exit(1);
 	}
 
