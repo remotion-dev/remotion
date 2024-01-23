@@ -62,6 +62,12 @@ export const validateVersionsBeforeCommand = async (
 		return;
 	}
 
+	// Could be a global install of @remotion/cli.
+	// If you render a bundle with a different version, it will give a warning accordingly.
+	if (installedVersions.length === 0) {
+		return;
+	}
+
 	const logOptions: LogOptions = {indent: false, logLevel};
 	Log.warn(logOptions, '-------------');
 	Log.warn(logOptions, 'Version mismatch:');
