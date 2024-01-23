@@ -6,7 +6,8 @@
       "outputs": ["dist/**", ".rollup.cache"],
       "outputMode": "new-only"
     },
-    "docs": {
+    "build-docs": {
+      "dependsOn": ["^build", "build"],
       "outputs": [
         "build/**",
         ".docusaurus",
