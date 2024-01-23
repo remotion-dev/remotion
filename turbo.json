@@ -32,7 +32,7 @@
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["dist/**", "target/**"],
+      "outputs": ["dist/**", "target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
