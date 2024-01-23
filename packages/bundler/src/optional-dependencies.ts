@@ -16,7 +16,8 @@ export class AllowOptionalDependenciesPlugin {
 	checkIgnore = (resolveData: webpack.ResolveData) => {
 		if (
 			resolveData.context.includes('source-map') &&
-			SOURCE_MAP_IGNORE.includes(resolveData.request)
+			(SOURCE_MAP_IGNORE.includes(resolveData.request) ||
+				OPTIONAL_DEPENDENCIES.includes(resolveData.request))
 		) {
 			return false;
 		}
