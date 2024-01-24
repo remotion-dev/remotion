@@ -12,7 +12,7 @@ import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';

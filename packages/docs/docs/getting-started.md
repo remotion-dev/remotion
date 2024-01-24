@@ -107,7 +107,7 @@ Watch out for `apt` wanting to uninstall critical packages (e.g the Desktop) in 
 
 </Tabs>
 
-Linux distros that use libc need at least version 2.35 of it. [Check here](https://github.com/remotion-dev/remotion/issues/2439) if your distro has it.
+Linux distros that use libc need at least version 2.31 of it. [Check here](https://github.com/remotion-dev/remotion/issues/2439) if your distro has it.
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
 

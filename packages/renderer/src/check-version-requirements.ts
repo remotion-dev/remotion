@@ -1,21 +1,48 @@
+import {isMusl} from './compositor/get-executable-path';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
+const getRequired = () => {
+	if (process.platform !== 'linux') {
+		return null;
+	}
+
+	if (isMusl({indent: false, logLevel: 'warn'})) {
+		return null;
+	}
+
+	// Uses Amazon Linux 2 to compile
+	if (process.arch === 'arm64') {
+		return [2, 26];
+	}
+
+	// Uses Ubuntu 20.04 to compile
+	return [2, 31];
+};
+
+const required = getRequired();
+
 export const gLibCErrorMessage = (libCString: string) => {
+	if (required === null) {
+		return null;
+	}
+
 	const split = libCString.split('.');
 	if (split.length !== 2) {
 		return null;
 	}
 
-	if (split[0] === '2' && Number(split[1]) >= 35) {
+	if (split[0] === String(required[0]) && Number(split[1]) >= required[1]) {
 		return null;
 	}
 
-	if (Number(split[0]) > 2) {
+	if (Number(split[0]) > required[0]) {
 		return null;
 	}
 
-	return `Rendering videos requires glibc 2.35 or higher. Your system has glibc ${libCString}.`;
+	return `Rendering videos requires glibc ${required.join(
+		'.',
+	)} on your or higher on your OS. Your system has glibc ${libCString}.`;
 };
 
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {

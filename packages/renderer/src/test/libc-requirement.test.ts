@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {gLibCErrorMessage} from '../check-apple-silicon';
+import {gLibCErrorMessage} from '../check-version-requirements';
 
 test('Libc requirement', () => {
 	expect(gLibCErrorMessage('2.35')).toBe(null);
