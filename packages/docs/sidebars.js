@@ -491,7 +491,7 @@ module.exports = {
         "the-fundamentals",
         "animating-properties",
         "reusability",
-        "studio",
+        "preview",
         "render",
       ],
     },
@@ -527,7 +527,11 @@ module.exports = {
         "props-resolution",
       ],
     },
-
+    {
+      type: "category",
+      label: "Studio",
+      items: ["studio/studio", "studio/shortcuts"],
+    },
     {
       type: "category",
       label: "Rendering",

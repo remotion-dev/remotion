@@ -202,7 +202,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 					</Row>
 					<Row align="center">
 						<div style={left}>
-							<kbd style={key}>esc</kbd>
+							<kbd style={key}>Esc</kbd>
 						</div>
 						<div style={right}>Exit fullscreen</div>
 					</Row>
