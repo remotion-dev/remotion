@@ -1,5 +1,6 @@
 // Adapted from @swc/core package
 
+import path from 'path';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 
@@ -25,28 +26,43 @@ function isMusl({indent, logLevel}: {indent: boolean; logLevel: LogLevel}) {
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
+	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'lib',
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
-	if (type === 'compositor' && process.env.COMPOSITOR_PATH) {
-		return process.env.COMPOSITOR_PATH;
-	}
+	const base = getExecutableDir(indent, logLevel);
+	switch (type) {
+		case 'compositor':
+			if (process.platform === 'win32') {
+				return path.join(base, 'compositor.exe');
+			}
 
-	const key =
-		type === 'compositor'
-			? 'binaryPath'
-			: type === 'ffmpeg'
-				? 'ffmpegPath'
-				: type === 'ffprobe'
-					? 'ffprobePath'
-					: 'ffmpegCwd';
+			return path.join(base, 'compositor');
+
+		case 'ffmpeg':
+			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
+		case 'ffprobe':
+			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
+		case 'lib':
+			return path.join(base, 'remotion', 'lib');
+		default:
+			throw new Error(`Unknown executable type: ${type}`);
+	}
+};
+
+export const getExecutableDir = (
+	indent: boolean,
+	logLevel: LogLevel,
+): string => {
+	if (process.env.COMPOSITOR_DIR) {
+		return process.env.COMPOSITOR_DIR;
+	}
 
 	switch (process.platform) {
 		case 'win32':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-win32-x64-msvc')[key];
+					return require('@remotion/compositor-win32-x64-msvc').dir;
 				default:
 					throw new Error(
 						`Unsupported architecture on Windows: ${process.arch}`,
@@ -56,9 +72,9 @@ export const getExecutablePath = (
 		case 'darwin':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-darwin-x64')[key];
+					return require('@remotion/compositor-darwin-x64').dir;
 				case 'arm64':
-					return require('@remotion/compositor-darwin-arm64')[key];
+					return require('@remotion/compositor-darwin-arm64').dir;
 				default:
 					throw new Error(`Unsupported architecture on macOS: ${process.arch}`);
 			}
@@ -68,16 +84,16 @@ export const getExecutablePath = (
 			switch (process.arch) {
 				case 'x64':
 					if (musl) {
-						return require('@remotion/compositor-linux-x64-musl')[key];
+						return require('@remotion/compositor-linux-x64-musl').dir;
 					}
 
-					return require('@remotion/compositor-linux-x64-gnu')[key];
+					return require('@remotion/compositor-linux-x64-gnu').dir;
 				case 'arm64':
 					if (musl) {
-						return require('@remotion/compositor-linux-arm64-musl')[key];
+						return require('@remotion/compositor-linux-arm64-musl').dir;
 					}
 
-					return require('@remotion/compositor-linux-arm64-gnu')[key];
+					return require('@remotion/compositor-linux-arm64-gnu').dir;
 
 				default:
 					throw new Error(`Unsupported architecture on Linux: ${process.arch}`);
