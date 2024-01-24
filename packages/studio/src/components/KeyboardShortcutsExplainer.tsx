@@ -226,7 +226,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>T</kbd>
 						</div>
-						<div style={right}>Toggle checkerboard transparency</div>
+						<div style={right}>Toggle checkerboard background</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>

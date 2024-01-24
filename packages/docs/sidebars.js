@@ -530,7 +530,7 @@ module.exports = {
     {
       type: "category",
       label: "Studio",
-      items: ["studio/studio", "studio/shortcuts"],
+      items: ["studio/studio", "studio/shortcuts", "studio/quick-switcher"],
     },
     {
       type: "category",
