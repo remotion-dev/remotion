@@ -40,8 +40,16 @@ export const getExecutablePath = (
 			return path.join(base, 'compositor');
 
 		case 'ffmpeg':
+			if (process.platform === 'win32') {
+				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg.exe');
+			}
+
 			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
 		case 'ffprobe':
+			if (process.platform === 'win32') {
+				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe.exe');
+			}
+
 			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
 		case 'lib':
 			return path.join(base, 'ffmpeg', 'remotion', 'lib');
