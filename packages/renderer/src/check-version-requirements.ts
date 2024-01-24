@@ -2,7 +2,7 @@ import {isMusl} from './compositor/get-executable-path';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
-const getRequired = () => {
+const getRequiredLibCVersion = () => {
 	if (process.platform !== 'linux') {
 		return null;
 	}
@@ -20,7 +20,7 @@ const getRequired = () => {
 	return [2, 31];
 };
 
-const required = getRequired();
+const required = getRequiredLibCVersion();
 
 export const gLibCErrorMessage = (libCString: string) => {
 	if (required === null) {
