@@ -44,7 +44,7 @@ export const getExecutablePath = (
 		case 'ffprobe':
 			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
 		case 'lib':
-			return path.join(base, 'remotion', 'lib');
+			return path.join(base, 'ffmpeg', 'remotion', 'lib');
 		default:
 			throw new Error(`Unknown executable type: ${type}`);
 	}
