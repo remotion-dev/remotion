@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {spawnSync} from 'node:child_process';
 import {chmodSync} from 'node:fs';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 
 export const ffmpegCommand = (_root: string, args: string[]) => {
@@ -12,7 +13,7 @@ export const ffmpegCommand = (_root: string, args: string[]) => {
 	}
 
 	const done = spawnSync(binary, args, {
-		...RenderInternals.dynamicLibraryPathOptions(false, logLevel),
+		cwd: path.dirname(binary),
 		stdio: 'inherit',
 	});
 	process.exit(done.status as number);
@@ -27,7 +28,7 @@ export const ffprobeCommand = (_root: string, args: string[]) => {
 	}
 
 	const done = spawnSync(binary, args, {
-		...RenderInternals.dynamicLibraryPathOptions(false, logLevel),
+		cwd: path.dirname(binary),
 		stdio: 'inherit',
 	});
 	process.exit(done.status as number);
