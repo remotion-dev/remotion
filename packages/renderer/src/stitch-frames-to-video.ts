@@ -72,7 +72,6 @@ type InternalStitchFramesToVideoOptions = {
 	onDownload: undefined | RenderMediaOnDownload;
 	proResProfile: undefined | ProResProfile;
 	logLevel: LogLevel;
-	dir: string;
 	cancelSignal: CancelSignal | null;
 	preEncodedFileLocation: string | null;
 	preferLossless: boolean;
@@ -104,7 +103,6 @@ export type StitchFramesToVideoOptions = {
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
-	dir: string;
 	cancelSignal?: CancelSignal;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -214,7 +212,6 @@ const innerStitchFramesToVideo = async (
 		cancelSignal,
 		codec,
 		crf,
-		dir,
 		enforceAudioTrack,
 		ffmpegOverride,
 		force,
@@ -575,7 +572,6 @@ export const stitchFramesToVideo = ({
 	cancelSignal,
 	codec,
 	crf,
-	dir,
 	enforceAudioTrack,
 	ffmpegOverride,
 	muted,
@@ -601,7 +597,6 @@ export const stitchFramesToVideo = ({
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
-		dir,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
 		force,
