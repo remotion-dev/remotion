@@ -1,3 +1,4 @@
+import {interpolateStyles} from '@remotion/animation-utils';
 import React from 'react';
 import {
 	Audio,
@@ -30,6 +31,14 @@ const AudioTestingMute: React.FC = () => {
 		},
 		[fps, frame],
 	);
+
+	const styles = interpolateStyles(
+		20,
+		[0, 40],
+		[{left: '-10px'}, {left: '10px'}],
+	);
+
+	console.log({styles});
 
 	return (
 		<div>
