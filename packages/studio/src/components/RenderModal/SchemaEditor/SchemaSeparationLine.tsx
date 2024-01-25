@@ -67,11 +67,11 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 			display: 'flex',
 			justifyContent: 'center',
 			height: VERTICAL_GUIDE_HEIGHT,
-			opacity: outerHovered ? 1 : 0,
+			opacity: outerHovered || isLast ? 1 : 0,
 			position: 'relative',
 			marginTop: -4,
 		};
-	}, [outerHovered]);
+	}, [isLast, outerHovered]);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
