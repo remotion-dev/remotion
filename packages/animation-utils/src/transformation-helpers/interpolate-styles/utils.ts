@@ -151,7 +151,7 @@ const classifyParts = (parts: string[]) => {
 			return unit ? {number, unit} : {number};
 		}
 
-		// Check for a number without a unit like '10' or '-10
+		// Check for a number without a unit like '10' or '-10'
 		const numberMatch = part.match(/^(-?\d+(?:\.\d+)?)$/);
 		if (numberMatch) {
 			const number = parseFloat(numberMatch[1]);
