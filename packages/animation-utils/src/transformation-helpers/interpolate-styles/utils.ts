@@ -143,16 +143,16 @@ const classifyParts = (parts: string[]) => {
 			return {function: {name: functionName, values: functionValues}};
 		}
 
-		// Check for a number possibly followed by a unit
-		const numberUnitMatch = part.match(/^(\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
+		// Check for a number possibly followed by a unit like '10px' or '10' or '-10px'
+		const numberUnitMatch = part.match(/^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
 		if (numberUnitMatch) {
 			const number = parseFloat(numberUnitMatch[1]);
 			const unit = numberUnitMatch[2];
 			return unit ? {number, unit} : {number};
 		}
 
-		// Check for a number without a unit
-		const numberMatch = part.match(/^(\d+(?:\.\d+)?)$/);
+		// Check for a number without a unit like '10' or '-10
+		const numberMatch = part.match(/^(-?\d+(?:\.\d+)?)$/);
 		if (numberMatch) {
 			const number = parseFloat(numberMatch[1]);
 			return {number};
