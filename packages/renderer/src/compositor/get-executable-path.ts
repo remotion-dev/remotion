@@ -32,7 +32,7 @@ export function isMusl({
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'lib',
+	type: 'compositor' | 'ffmpeg' | 'ffprobe',
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
@@ -47,18 +47,17 @@ export const getExecutablePath = (
 
 		case 'ffmpeg':
 			if (process.platform === 'win32') {
-				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg.exe');
+				return path.join(base, 'ffmpeg.exe');
 			}
 
-			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
+			return path.join(base, 'ffmpeg');
 		case 'ffprobe':
 			if (process.platform === 'win32') {
-				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe.exe');
+				return path.join(base, 'ffprobe.exe');
 			}
 
-			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
-		case 'lib':
-			return path.join(base, 'ffmpeg', 'remotion', 'lib');
+			return path.join(base, 'ffprobe');
+
 		default:
 			throw new Error(`Unknown executable type: ${type}`);
 	}
