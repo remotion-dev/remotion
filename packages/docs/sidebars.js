@@ -530,7 +530,13 @@ module.exports = {
     {
       type: "category",
       label: "Studio",
-      items: ["studio/studio", "studio/shortcuts", "studio/quick-switcher"],
+      items: [
+        "studio/studio",
+        "studio/shortcuts",
+        "studio/quick-switcher",
+        "studio/deploy-static",
+        "studio/deploy-server",
+      ],
     },
     {
       type: "category",
@@ -559,7 +565,6 @@ module.exports = {
         "ssr",
         "ssr-node",
         "docker",
-        "deploy-studio",
         "miscellaneous/linux-single-process",
         "gpu",
         "miscellaneous/cloud-gpu",
