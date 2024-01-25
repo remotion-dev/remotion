@@ -25,11 +25,7 @@ test("Should be able to bundle the renderer", () => {
     false,
     "info"
   );
-  const ffmpegCwd = RenderInternals.getExecutablePath(
-    "ffmpeg-cwd",
-    false,
-    "info"
-  );
+  const ffmpegCwd = path.join(path.dirname(binaryPath), "ffmpeg");
 
   copyFileSync(binaryPath, path.join(outputdir, path.basename(binaryPath)));
   cpSync(ffmpegCwd, path.join(outputdir, path.basename(ffmpegCwd)), {

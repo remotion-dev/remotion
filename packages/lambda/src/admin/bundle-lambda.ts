@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath, ffmpegCwd} from '@remotion/compositor-linux-arm64-gnu';
+import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import fs from 'node:fs';
 import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
@@ -38,8 +38,8 @@ const bundleLambda = async () => {
 	});
 
 	const compositorFile = `${outdir}/compositor`;
-	fs.copyFileSync(binaryPath, compositorFile);
-	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+	fs.copyFileSync(path.join(dir, 'compositor'), compositorFile);
+	fs.cpSync(path.join(dir, 'ffmpeg'), `${outdir}/ffmpeg`, {recursive: true});
 	fs.cpSync(
 		path.join(
 			__dirname,

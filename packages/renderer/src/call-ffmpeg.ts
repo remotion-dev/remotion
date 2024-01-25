@@ -1,6 +1,5 @@
 import execa from 'execa';
 import {chmodSync} from 'node:fs';
-import path from 'node:path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import type {LogLevel} from './log-level';
 import {truthy} from './truthy';
@@ -9,11 +8,7 @@ export const dynamicLibraryPathOptions = (
 	indent: boolean,
 	logLevel: LogLevel,
 ) => {
-	const lib = path.join(
-		getExecutablePath('ffmpeg-cwd', indent, logLevel),
-		'remotion',
-		'lib',
-	);
+	const lib = getExecutablePath('lib', indent, logLevel);
 
 	return {
 		env: {
