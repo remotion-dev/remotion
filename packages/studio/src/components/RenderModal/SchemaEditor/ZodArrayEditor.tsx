@@ -102,6 +102,7 @@ export const ZodArrayEditor: React.FC<{
 						{localValue.value.map((child, i) => {
 							return (
 								// eslint-disable-next-line react/no-array-index-key
+
 								<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
 									<ZodArrayItemEditor
 										onChange={onChange}
@@ -128,6 +129,14 @@ export const ZodArrayEditor: React.FC<{
 								</React.Fragment>
 							);
 						})}
+						{value.length === 0 ? (
+							<SchemaArrayItemSeparationLine
+								schema={schema}
+								index={0}
+								onChange={onChange}
+								isLast
+							/>
+						) : null}
 					</SchemaVerticalGuide>
 				</RevisionContextProvider>
 			) : null}
