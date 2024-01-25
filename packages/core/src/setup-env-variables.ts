@@ -13,7 +13,9 @@ const getEnvVariables = (): Record<string, string> => {
 	// For the Studio, we already set the environment variables in index-html.ts.
 	// We just add NODE_ENV here.
 	if (!process.env.NODE_ENV) {
-		throw new Error('process.env.NODE_ENV is not set');
+		// https://github.com/remotion-dev/remotion/issues/3412#issuecomment-1910120552
+		// eslint-disable-next-line no-useless-concat
+		throw new Error('process.en' + '' + 'v.NODE_ENV is not set');
 	}
 
 	return {
