@@ -5,7 +5,10 @@ import {
 	lstatSync,
 	mkdirSync,
 	readdirSync,
+	renameSync,
+	rmdirSync,
 	rmSync,
+	statSync,
 	unlinkSync,
 } from 'node:fs';
 import os from 'node:os';
@@ -179,20 +182,68 @@ const binariesDirectory = path.join(path.dirname(manifest), 'zips');
 const archs = all
 	? targets
 	: lambda
-	? ['aarch64-unknown-linux-gnu']
-	: cloudrun
-	? ['x86_64-unknown-linux-gnu']
-	: [nativeArch];
+		? ['aarch64-unknown-linux-gnu']
+		: cloudrun
+			? ['x86_64-unknown-linux-gnu']
+			: [nativeArch];
 
 for (const arch of archs) {
 	const ffmpegFolder = path.join(copyDestinations[arch].dir, 'ffmpeg');
-	if (!existsSync(ffmpegFolder)) {
-		mkdirSync(ffmpegFolder);
+	if (existsSync(ffmpegFolder)) {
+		rmSync(ffmpegFolder, {recursive: true});
 	}
 
-	execSync(`tar xf ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder}`, {
-		stdio: 'inherit',
+	mkdirSync(ffmpegFolder);
+
+	// strip-components: extract in a flat folder structure
+	execSync(
+		`tar xf  ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder} --strip-components 2`,
+		{
+			stdio: 'inherit',
+		},
+	);
+	const filesInFfmpegFolder = readdirSync(ffmpegFolder);
+	const filesToDelete = filesInFfmpegFolder.filter((file) => {
+		return (
+			file.endsWith('.h') ||
+			file.endsWith('.a') ||
+			file.endsWith('.la') ||
+			file.endsWith('.hpp') ||
+			statSync(path.join(ffmpegFolder, file)).isDirectory()
+		);
 	});
+	for (const file of filesToDelete) {
+		rmSync(path.join(ffmpegFolder, file), {recursive: true});
+	}
+
+	const filesInFfmpegFolder2 = readdirSync(ffmpegFolder);
+	for (const file of filesInFfmpegFolder2) {
+		if (file === 'ffmpeg') {
+			renameSync(
+				path.join(ffmpegFolder, file),
+				path.join(ffmpegFolder, '..', 'ffmpeg_'),
+			);
+			continue;
+		}
+
+		renameSync(
+			path.join(ffmpegFolder, file),
+			path.join(ffmpegFolder, '..', file),
+		);
+	}
+
+	rmdirSync(path.join(ffmpegFolder, '..', 'ffmpeg'));
+	if (existsSync(path.join(ffmpegFolder, '..', 'bin'))) {
+		rmSync(path.join(ffmpegFolder, '..', 'bin'), {recursive: true});
+	}
+
+	if (existsSync(path.join(ffmpegFolder, '..', 'ffmpeg_'))) {
+		renameSync(
+			path.join(ffmpegFolder, '..', 'ffmpeg_'),
+			path.join(ffmpegFolder, '..', 'ffmpeg'),
+		);
+	}
+
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
@@ -222,7 +273,7 @@ for (const arch of archs) {
 					: path.join(
 							process.cwd(),
 							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc',
-					  ),
+						),
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
@@ -231,54 +282,6 @@ for (const arch of archs) {
 	});
 	const copyInstructions = copyDestinations[arch];
 
-	const libDir = path.join(
-		copyDestinations[arch].dir,
-		'ffmpeg',
-		'remotion',
-		'lib',
-	);
-	const binDir = path.join(
-		copyDestinations[arch].dir,
-		'ffmpeg',
-		'remotion',
-		'bin',
-	);
-	const files = readdirSync(libDir);
-	for (const file of files) {
-		if (file.endsWith('.a')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.dylib') && file.split('.').length === 3) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.la')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.def')) {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.includes('libvpx') && arch !== 'x86_64-pc-windows-gnu') {
-			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.lib')) {
-			unlinkSync(path.join(libDir, file));
-		}
-	}
-
-	const binFiles = readdirSync(binDir);
-	for (const file of binFiles) {
-		if (!file.includes('ffmpeg') && !file.includes('ffprobe')) {
-			unlinkSync(path.join(binDir, file));
-		}
-	}
-
-	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
-		recursive: true,
-	});
-	rmSync(
-		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
-		{
-			recursive: true,
-		},
-	);
-	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
-		recursive: true,
-	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 
 	const output = execSync('npm pack --json', {
