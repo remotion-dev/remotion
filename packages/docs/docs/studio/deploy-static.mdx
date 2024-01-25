@@ -26,7 +26,7 @@ We recommend to add `build` to your `.gitignore` file. The command will offer to
 
 ## Deploy to Vercel
 
-To deploy to Vercel, [click here to connect your repository](https://vercel.com/new).
+To deploy to Vercel, connect your repository to Vercel.
 
 In the "Build and Output" settings, set the following:
 
@@ -37,6 +37,15 @@ In the "Build and Output" settings, set the following:
 :::note
 Using bunx as a script runner is slightly faster than using `npx`.
 :::
+
+## Deploy to Netlify
+
+Connect your repository to Netlify.
+
+- **Base directory**: _Leave default_
+- **Build command**: `npx remotion bundle`
+- **Publish directory**: `build`
+- **Functions directory**: _Leave default_
 
 ## Rendering from a URL
 
