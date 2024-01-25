@@ -688,7 +688,6 @@ const internalRenderMediaRaw = ({
 						onDownload,
 						numberOfGifLoops,
 						logLevel,
-						dir: workingDir,
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
 						enforceAudioTrack,
