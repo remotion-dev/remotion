@@ -13,9 +13,9 @@ export const createSilentAudio = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 }) => {
-	await callFf(
-		'ffmpeg',
-		[
+	await callFf({
+		bin: 'ffmpeg',
+		args: [
 			'-f',
 			'lavfi',
 			'-i',
@@ -30,5 +30,5 @@ export const createSilentAudio = async ({
 		],
 		indent,
 		logLevel,
-	);
+	});
 };

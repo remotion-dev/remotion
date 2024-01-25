@@ -369,9 +369,9 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const ffmpegTask = callFf(
-			'ffmpeg',
-			[
+		const ffmpegTask = callFf({
+			bin: 'ffmpeg',
+			args: [
 				'-i',
 				audio,
 				'-c:a',
@@ -383,7 +383,7 @@ const innerStitchFramesToVideo = async (
 			].filter(NoReactInternals.truthy),
 			indent,
 			logLevel,
-		);
+		});
 
 		cancelSignal?.(() => {
 			ffmpegTask.kill();
@@ -485,7 +485,12 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel);
+	const task = callFf({
+		bin: 'ffmpeg',
+		args: finalFfmpegString,
+		indent,
+		logLevel,
+	});
 	cancelSignal?.(() => {
 		task.kill();
 	});

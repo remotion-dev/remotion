@@ -64,7 +64,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await callFf('ffmpeg', args, indent, logLevel);
+	await callFf({bin: 'ffmpeg', args, indent, logLevel});
 
 	cleanup();
 	return {outName, filter};
