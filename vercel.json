@@ -286,6 +286,11 @@
       "source": "/standalone",
       "destination": "/docs/standalone",
       "permanent": false
+    },
+    {
+      "source": "/docs/deploy-studio",
+      "destination": "/docs/studio/deploy-server",
+      "permanent": false
     }
   ]
 }

@@ -491,7 +491,7 @@ module.exports = {
         "the-fundamentals",
         "animating-properties",
         "reusability",
-        "studio",
+        "preview",
         "render",
       ],
     },
@@ -527,7 +527,17 @@ module.exports = {
         "props-resolution",
       ],
     },
-
+    {
+      type: "category",
+      label: "Studio",
+      items: [
+        "studio/studio",
+        "studio/shortcuts",
+        "studio/quick-switcher",
+        "studio/deploy-static",
+        "studio/deploy-server",
+      ],
+    },
     {
       type: "category",
       label: "Rendering",
@@ -555,7 +565,6 @@ module.exports = {
         "ssr",
         "ssr-node",
         "docker",
-        "deploy-studio",
         "miscellaneous/linux-single-process",
         "gpu",
         "miscellaneous/cloud-gpu",
