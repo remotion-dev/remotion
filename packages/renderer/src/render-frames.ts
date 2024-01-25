@@ -351,6 +351,8 @@ const innerRenderFrames = async ({
 		stopped = true;
 	});
 
+	const frameDir = outputDir ?? downloadMap.compositingDir;
+
 	const renderFrameWithOptionToReject = async ({
 		frame,
 		index,
@@ -418,8 +420,6 @@ const innerRenderFrames = async ({
 		}
 
 		const id = startPerfMeasure('save');
-
-		const frameDir = outputDir ?? downloadMap.compositingDir;
 
 		const {buffer, collectedAssets} = await takeFrameAndCompose({
 			frame,
@@ -576,7 +576,10 @@ const innerRenderFrames = async ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
+				imageSequenceName: path.join(
+					frameDir,
+					`element-%0${filePadLength}d.${imageFormat}`,
+				),
 				firstFrameIndex,
 				downloadMap,
 			},

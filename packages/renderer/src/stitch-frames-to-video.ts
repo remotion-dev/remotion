@@ -488,9 +488,7 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel, {
-		cwd: dir,
-	});
+	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel);
 	cancelSignal?.(() => {
 		task.kill();
 	});
