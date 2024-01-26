@@ -26,15 +26,7 @@ const bundleLambda = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: [
-			'./compositor',
-			'./compositor.exe',
-			'./ffmpeg/remotion/bin/ffprobe',
-			'./ffmpeg/remotion/bin/ffprobe.exe',
-			'./ffmpeg/remotion/bin/ffmpeg',
-			'./ffmpeg/remotion/bin/ffmpeg.exe',
-			'./mappings.wasm',
-		],
+		external: [],
 	});
 
 	const compositorFile = `${outdir}/compositor`;
