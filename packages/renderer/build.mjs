@@ -251,8 +251,9 @@ for (const arch of archs) {
 	// symbols makes it a tiny bit smaller, but error messages will be hard to debug.
 
 	const rPathOrigin = arch.includes('linux')
-		? `-C link-args=-Wl,-rpath,$ORIGIN`
+		? `-C link-args=-Wl,-rpath,'$ORIGIN'`
 		: '';
+
 	const optimizations = all
 		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ' +
 			rPathOrigin
@@ -302,6 +303,12 @@ for (const arch of archs) {
 		copyDestinations[arch].dir,
 		filename,
 	);
+
+	if (arch.includes('linux') && process.platform === 'linux') {
+		execSync(
+			`patchelf --force-rpath --set-rpath '$ORIGIN' ${copyDestinations[arch].dir}/compositor`,
+		);
+	}
 
 	const filesize = lstatSync(tgzPath).size;
 	console.log('Zipped size:', (filesize / 1000000).toFixed(2) + 'MB');
