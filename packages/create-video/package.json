@@ -34,7 +34,6 @@
 		"@types/react": "18.2.48",
 		"@types/tar": "6.1.1",
 		"eslint": "8.42.0",
-		"got": "^11",
 		"prettier": "3.1.1",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"vitest": "0.31.1"

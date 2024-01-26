@@ -539,9 +539,6 @@ importers:
       eslint:
         specifier: 8.42.0
         version: 8.42.0
-      got:
-        specifier: ^11
-        version: 11.8.5
       prettier:
         specifier: 3.1.1
         version: 3.1.1
