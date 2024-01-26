@@ -250,8 +250,12 @@ for (const arch of archs) {
 	// debuginfo will keep symbols, which are used for backtrace.
 	// symbols makes it a tiny bit smaller, but error messages will be hard to debug.
 
+	const rPathOrigin = arch.includes('linux')
+		? `-C link-args=-Wl,-rpath,'$ORIGIN'`
+		: '';
 	const optimizations = all
-		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes'
+		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ' +
+			rPathOrigin
 		: '';
 
 	execSync(command, {
