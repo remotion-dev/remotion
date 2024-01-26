@@ -40,25 +40,28 @@ export const getExecutablePath = (
 	switch (type) {
 		case 'compositor':
 			if (process.platform === 'win32') {
-				return path.join(base, 'compositor.exe');
+				return path.resolve(base, 'compositor.exe');
 			}
 
-			return path.join(base, 'compositor');
+			return path.resolve(base, 'compositor');
 
 		case 'ffmpeg':
 			if (process.platform === 'win32') {
-				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg.exe');
+				return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg.exe');
 			}
 
-			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
+			return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
 		case 'ffprobe':
 			if (process.platform === 'win32') {
-				return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe.exe');
+				return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe.exe');
 			}
 
-			return path.join(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
-		case 'lib':
-			return path.join(base, 'ffmpeg', 'remotion', 'lib');
+			return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
+		case 'lib': {
+			const dir = path.resolve(base, 'ffmpeg', 'remotion', 'lib');
+			return dir;
+		}
+
 		default:
 			throw new Error(`Unknown executable type: ${type}`);
 	}
