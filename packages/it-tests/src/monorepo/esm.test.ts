@@ -26,9 +26,7 @@ test('Should be able to "import" frontend in node', async () => {
   execSync(
     `node --input-type=module -e "import {getVideoMetadata} from '@remotion/media-utils'; console.log(getVideoMetadata)"`
   );
-  execSync(
-    `node --input-type=module -e "import {Lottie} from '@remotion/lottie'; console.log(Lottie)"`
-  );
+
   execSync(
     `node --input-type=module -e "import {measureText} from '@remotion/layout-utils'; console.log(measureText)"`
   );

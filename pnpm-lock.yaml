@@ -82,6 +82,9 @@ importers:
       '@remotion/three':
         specifier: workspace:*
         version: link:../three
+      '@remotion/transitions':
+        specifier: workspace:*
+        version: link:../transitions
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
