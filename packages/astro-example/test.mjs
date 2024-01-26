@@ -6,6 +6,7 @@ import { enableSkia } from "@remotion/skia/enable";
 import { Lottie } from "@remotion/lottie";
 import { Trail } from "@remotion/motion-blur";
 import { ThreeCanvas } from "@remotion/three";
+import { TransitionSeries } from "@remotion/transitions";
 import { Gif } from "@remotion/gif";
 
 const val = interpolate(1, [0, 1], [0, 100]);
@@ -18,5 +19,6 @@ assert(Boolean(Lottie));
 assert(Boolean(Gif));
 assert(Boolean(ThreeCanvas));
 assert(Boolean(Trail));
+assert(Boolean(TransitionSeries));
 
 console.log("ESM works!");
