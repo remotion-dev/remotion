@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
@@ -40,13 +40,22 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 		};
 	}, [readOnlyStudio]);
 
+	const [canvasMounted, setCanvasMounted] = React.useState(false);
+
+	const onMounted = useCallback(() => {
+		setCanvasMounted(true);
+	}, []);
+
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<div style={background}>
-					<Root />
+					{canvasMounted ? <Root /> : null}
 					<Internals.CanUseRemotionHooksProvider>
-						<EditorContent readOnlyStudio={readOnlyStudio} />
+						<EditorContent
+							onMounted={onMounted}
+							readOnlyStudio={readOnlyStudio}
+						/>
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />

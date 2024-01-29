@@ -20,7 +20,8 @@ const container: React.CSSProperties = {
 
 export const EditorContent: React.FC<{
 	readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+	onMounted: () => void;
+}> = ({readOnlyStudio, onMounted}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -33,7 +34,7 @@ export const EditorContent: React.FC<{
 			<InitialCompositionLoader />
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
-				<TopPanel readOnlyStudio={readOnlyStudio} />
+				<TopPanel onMounted={onMounted} readOnlyStudio={readOnlyStudio} />
 			) : (
 				<SplitterContainer
 					orientation="horizontal"
@@ -43,7 +44,7 @@ export const EditorContent: React.FC<{
 					defaultFlex={0.75}
 				>
 					<SplitterElement sticky={null} type="flexer">
-						<TopPanel readOnlyStudio={readOnlyStudio} />
+						<TopPanel onMounted={onMounted} readOnlyStudio={readOnlyStudio} />
 					</SplitterElement>
 					<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 					<SplitterElement sticky={null} type="anti-flexer">
