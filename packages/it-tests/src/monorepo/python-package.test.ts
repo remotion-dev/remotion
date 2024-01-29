@@ -57,7 +57,10 @@ test("Python package should create the same renderMedia payload as normal Lambda
     concurrencyPerLambda: 1,
     crf: undefined,
     deleteAfter: null,
-    downloadBehavior: { type: "play-in-browser" },
+    downloadBehavior: {
+      fileName: "hi",
+      type: "download",
+    },
     envVariables: {},
     everyNthFrame: 1,
     forceBucketName: null,
@@ -83,7 +86,13 @@ test("Python package should create the same renderMedia payload as normal Lambda
     videoBitrate: null,
     encodingMaxRate: null,
     encodingBufferSize: null,
-    webhook: null,
+    webhook: {
+      secret: "abc",
+      url: "https://example.com",
+      customData: {
+        hi: "there",
+      },
+    },
     x264Preset: null,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
