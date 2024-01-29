@@ -8,6 +8,12 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Remotion Lambda is broken",
+    description: "A render would not start on the Lambda. Upgrade to 4.0.99.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.98"],
+  },
+  {
     title: "Too tight dependency on zod",
     description:
       "Remotion would require zod and @remotion/zod-types even though it should be optional.",

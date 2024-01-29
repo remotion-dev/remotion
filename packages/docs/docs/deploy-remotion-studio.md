@@ -89,6 +89,21 @@ To deploy the Remotion Studio to [Render.com](https://render.com):
 - Choose at least the "Standard" plan (2GB Memory).
 - Deploy!
 
+## Railway
+
+Railway scales up/down with resource usage. So if the app isn't used it'll be cheap, or even free.
+
+- Add the above `Dockerfile` to the repo.
+- Click "New project" in the Railway dashboard
+- Select "Deploy from GitHub repo"
+- Select "Deploy now"
+
+If you want a public URL:
+
+- Go to the settings for your service
+- Scroll to "Networking"
+- Click "Generate Domain"
+
 ## DigitalOcean App Platform
 
 Is not working at the moment. The Render Button is disabled, because the DigitalOcean HTTP Proxy [does not support server-sent events](https://www.digitalocean.com/community/questions/does-app-platform-support-sse-server-sent-events-application).
