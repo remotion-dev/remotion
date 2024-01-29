@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
@@ -22,7 +23,9 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const CanvasOrLoading: React.FC = () => {
+export const CanvasOrLoading: React.FC<{
+	size: Size;
+}> = ({size}) => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
 	const {setZoom} = useContext(TimelineZoomCtx);
@@ -68,7 +71,7 @@ export const CanvasOrLoading: React.FC = () => {
 	const content = (
 		<>
 			<ZoomPersistor />
-			<Canvas canvasContent={canvasContent} />
+			<Canvas size={size} canvasContent={canvasContent} />
 		</>
 	);
 	if (canvasContent.type === 'asset' || canvasContent.type === 'output') {

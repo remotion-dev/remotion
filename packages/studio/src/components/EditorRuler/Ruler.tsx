@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
@@ -22,9 +23,9 @@ interface RulerProps {
 	points: Point[];
 	originOffset: number;
 	startMarking: number;
-	containerRef: React.RefObject<HTMLDivElement>;
 	markingGaps: number;
 	orientation: 'horizontal' | 'vertical';
+	size: Size;
 }
 
 const makeGuideId = (): string => {
@@ -36,7 +37,7 @@ const Ruler: React.FC<RulerProps> = ({
 	points,
 	originOffset,
 	startMarking,
-	containerRef,
+	size,
 	markingGaps,
 	orientation,
 }) => {
@@ -69,6 +70,9 @@ const Ruler: React.FC<RulerProps> = ({
 		);
 	}, [guidesList, hoveredGuideId, selectedGuideId]);
 
+	const rulerWidth = isVerticalRuler ? RULER_WIDTH : size.width - RULER_WIDTH;
+	const rulerHeight = isVerticalRuler ? size.height - RULER_WIDTH : RULER_WIDTH;
+
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({
 			scale,
@@ -79,6 +83,8 @@ const Ruler: React.FC<RulerProps> = ({
 			orientation,
 			rulerCanvasRef,
 			selectedGuide: selectedOrHoveredGuide,
+			canvasHeight: rulerHeight * window.devicePixelRatio,
+			canvasWidth: rulerWidth * window.devicePixelRatio,
 		});
 	}, [
 		scale,
@@ -88,19 +94,17 @@ const Ruler: React.FC<RulerProps> = ({
 		markingGaps,
 		orientation,
 		selectedOrHoveredGuide,
+		size,
+		rulerHeight,
+		rulerWidth,
 	]);
-
-	const {width: canvasContainerWidth, height: canvasContainerHeight} =
-		containerRef.current?.getBoundingClientRect() || {width: 0, height: 0};
-	const rulerWidth = isVerticalRuler ? RULER_WIDTH : canvasContainerWidth;
-	const rulerHeight = isVerticalRuler ? canvasContainerHeight : RULER_WIDTH;
 
 	const rulerStyle: React.CSSProperties = useMemo(
 		() => ({
 			position: 'absolute',
 			background: BACKGROUND,
-			width: `${rulerWidth}px`,
-			height: `${rulerHeight}px`,
+			width: rulerWidth,
+			height: rulerHeight,
 			left: isVerticalRuler ? 0 : 'unset',
 			top: isVerticalRuler ? 'unset' : 0,
 			borderBottom: isVerticalRuler ? undefined : '1px solid ' + RULER_COLOR,
@@ -165,8 +169,8 @@ const Ruler: React.FC<RulerProps> = ({
 	return (
 		<canvas
 			ref={rulerCanvasRef}
-			width={rulerWidth * devicePixelRatio}
-			height={rulerHeight * devicePixelRatio}
+			width={rulerWidth * window.devicePixelRatio}
+			height={rulerHeight * window.devicePixelRatio}
 			style={rulerStyle}
 			onPointerDown={onMouseDown}
 			onPointerEnter={changeCursor}

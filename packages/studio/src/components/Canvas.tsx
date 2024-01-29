@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -51,7 +52,8 @@ const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC<{
 	canvasContent: CanvasContent;
-}> = ({canvasContent}) => {
+	size: Size;
+}> = ({canvasContent, size}) => {
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
@@ -78,11 +80,6 @@ export const Canvas: React.FC<{
 
 		return null;
 	}, [assetResolution, config, canvasContent]);
-
-	const size = PlayerInternals.useElementSize(ref, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
 
 	const isFit = previewSize.size === 'auto';
 
