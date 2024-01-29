@@ -50,6 +50,17 @@ export const seekToTimeMultipleUntilRight = (
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
 
+	if (
+		Number.isFinite(element.duration) &&
+		element.currentTime >= element.duration &&
+		desiredTime >= element.duration
+	) {
+		return {
+			prom: Promise.resolve(),
+			cancel: () => {},
+		};
+	}
+
 	const prom = new Promise<void>((resolve, reject) => {
 		const firstSeek = seekToTime(element, desiredTime + threshold);
 		firstSeek.wait.then((seekedTo) => {
