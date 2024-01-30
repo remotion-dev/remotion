@@ -122,5 +122,6 @@ export const handleJavascriptException = ({
 
 	return () => {
 		client.off('Runtime.exceptionThrown', handler);
+		return Promise.resolve();
 	};
 };

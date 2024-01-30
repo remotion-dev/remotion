@@ -773,7 +773,11 @@ const internalRenderMediaRaw = ({
 					deleteDirectory(workingDir);
 				}
 
-				cleanupServerFn?.(false);
+				cleanupServerFn?.(false).catch((err) => {
+					// Must prevent unhandled exception in cleanup function.
+					// Might crash whole runtime.
+					console.log('Could not cleanup: ', err);
+				});
 			});
 	});
 

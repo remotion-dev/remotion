@@ -593,7 +593,7 @@ const innerRenderFrames = async ({
 	return result;
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 const internalRenderFramesRaw = ({
 	browserExecutable,
@@ -703,10 +703,15 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-				cleanup.push(
-					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
-						.stopCycling,
-				);
+				cleanup.push(() => {
+					cycleBrowserTabs(
+						browserReplacer,
+						actualConcurrency,
+						logLevel,
+						indent,
+					).stopCycling();
+					return Promise.resolve();
+				});
 				cleanup.push(() => cleanupServer(false));
 
 				return innerRenderFrames({

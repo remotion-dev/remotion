@@ -301,18 +301,22 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		},
 		finishCommands: (): Promise<void> => {
 			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}: ${runningStatus.error}`,
+				return Promise.reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}: ${runningStatus.error}`,
+					),
 				);
 			}
 
 			if (runningStatus.type === 'quit-without-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`,
+				return Promise.reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}`,
+					),
 				);
 			}
 
@@ -332,23 +336,33 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			command: Type,
 			params: CompositorCommand[Type],
 		) => {
-			if (runningStatus.type === 'quit-without-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`,
-				);
-			}
-
-			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}: ${runningStatus.error}`,
-				);
-			}
-
 			return new Promise<Buffer>((_resolve, _reject) => {
+				if (runningStatus.type === 'quit-without-error') {
+					_reject(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}`,
+						),
+					);
+					return;
+				}
+
+				if (runningStatus.type === 'quit-with-error') {
+					_reject(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}: ${runningStatus.error}`,
+						),
+					);
+					return;
+				}
+
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
 					nonce,
