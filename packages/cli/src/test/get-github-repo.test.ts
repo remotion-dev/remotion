@@ -1,5 +1,4 @@
-import {expect} from 'bun:test';
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {
 	getGifRef,
 	getGitConfig,
