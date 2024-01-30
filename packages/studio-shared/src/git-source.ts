@@ -3,4 +3,5 @@ export type GitSource = {
 	org: string;
 	name: string;
 	ref: string;
+	relativeFromGitRoot: string;
 };

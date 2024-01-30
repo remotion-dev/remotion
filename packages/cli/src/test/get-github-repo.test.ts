@@ -2,13 +2,15 @@ import {expect} from 'bun:test';
 import {test} from 'vitest';
 import {
 	getGifRef,
+	getGitConfig,
 	getGitRemoteOrigin,
 	getGitSource,
 	normalizeGitRemoteUrl,
 } from '../get-github-repository';
 
 test('Get GitHub repo', () => {
-	expect(getGitRemoteOrigin(__dirname)).toEqual({
+	const gitConfig = getGitConfig(__dirname);
+	expect(getGitRemoteOrigin(gitConfig as string)).toEqual({
 		remote: 'origin',
 		url: 'https://github.com/remotion-dev/remotion.git',
 	});
@@ -41,4 +43,5 @@ test('Should get Gif Ref', () => {
 test('Should get Git Source', () => {
 	const git = getGitSource(process.cwd());
 	expect(git).not.toBeNull();
+	expect(git?.relativeFromGitRoot).toBe('packages/cli');
 });

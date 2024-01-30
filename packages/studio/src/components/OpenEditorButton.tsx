@@ -1,5 +1,10 @@
+import type {GitSource} from '@remotion/studio-shared';
 import {useCallback, useMemo, useState} from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {
+	getGitSourceBranchUrl,
+	getGitSourceName,
+} from '../helpers/get-git-menu-item';
 import {openInEditor} from '../helpers/open-in-editor';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
@@ -16,35 +21,52 @@ const buttonStyle: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-export const OpenEditorButton: React.FC<{}> = () => {
+export const OpenEditorButton: React.FC<{
+	type: 'git' | 'editor';
+}> = ({type}) => {
 	const [hovered, setHovered] = useState<boolean>(false);
 
 	const svgFillColor = useMemo(() => {
 		return hovered ? 'white' : LIGHT_TEXT;
 	}, [hovered]);
 
-	const handleClick = async () => {
-		await openInEditor({
-			originalFileName: `${window.remotion_cwd}`,
-			originalLineNumber: 1,
-			originalColumnNumber: 1,
-			originalFunctionName: null,
-			originalScriptCode: null,
-		})
-			.then((res) => res.json())
-			.then(({success}) => {
-				if (!success) {
-					sendErrorNotification(`Could not open ${window.remotion_editorName}`);
-				}
+	const handleClick = useCallback(async () => {
+		if (type === 'editor') {
+			await openInEditor({
+				originalFileName: `${window.remotion_cwd}`,
+				originalLineNumber: 1,
+				originalColumnNumber: 1,
+				originalFunctionName: null,
+				originalScriptCode: null,
 			})
-			.catch((err) => {
-				// eslint-disable-next-line no-console
-				console.error(err);
-				sendErrorNotification(`Could not open ${window.remotion_editorName}`);
-			});
-	};
+				.then((res) => res.json())
+				.then(({success}) => {
+					if (!success) {
+						sendErrorNotification(
+							`Could not open ${window.remotion_editorName}`,
+						);
+					}
+				})
+				.catch((err) => {
+					// eslint-disable-next-line no-console
+					console.error(err);
+					sendErrorNotification(`Could not open ${window.remotion_editorName}`);
+				});
+		}
 
-	const buttonTooltip = `Open in ${window.remotion_editorName}`;
+		if (type === 'git') {
+			if (!window.remotion_gitSource) {
+				throw new Error('No git source');
+			}
+
+			window.open(getGitSourceBranchUrl(window.remotion_gitSource), '_blank');
+		}
+	}, [type]);
+
+	const buttonTooltip =
+		type === 'git'
+			? `Open ${getGitSourceName(window.remotion_gitSource as GitSource)} Repo`
+			: `Open in ${window.remotion_editorName}`;
 	const openInEditorSvg = (
 		<svg viewBox="0 0 512 512" style={svgStyle}>
 			<path
@@ -53,6 +75,7 @@ export const OpenEditorButton: React.FC<{}> = () => {
 			/>
 		</svg>
 	);
+
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);

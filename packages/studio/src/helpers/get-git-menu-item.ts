@@ -1,5 +1,6 @@
 import type {GitSource} from '@remotion/studio-shared';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
+import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
 export const getGitSourceName = (gitSource: GitSource) => {
 	if (gitSource.type === 'github') {
@@ -9,9 +10,24 @@ export const getGitSourceName = (gitSource: GitSource) => {
 	throw new Error('Unknown git source type');
 };
 
-export const getGitSourceRepoName = (gitSource: GitSource) => {
+export const getGitSourceBranchUrl = (gitSource: GitSource) => {
 	if (gitSource.type === 'github') {
 		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${gitSource.ref}`;
+	}
+
+	throw new Error('Unknown git source type');
+};
+
+export const getGitRefUrl = (
+	gitSource: GitSource,
+	originalLocation: OriginalPosition,
+) => {
+	if (gitSource.type === 'github') {
+		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${
+			gitSource.ref
+		}/${
+			gitSource.relativeFromGitRoot ? `${gitSource.relativeFromGitRoot}/` : ''
+		}${originalLocation.source}#L${originalLocation.line}`;
 	}
 
 	throw new Error('Unknown git source type');
@@ -28,7 +44,7 @@ export const getGitMenuItem = (): ComboboxValue | null => {
 		label: `Open ${getGitSourceName(window.remotion_gitSource)} Repo`,
 		onClick: () => {
 			window.open(
-				getGitSourceRepoName(window.remotion_gitSource as GitSource),
+				getGitSourceBranchUrl(window.remotion_gitSource as GitSource),
 				'_blank',
 			);
 		},

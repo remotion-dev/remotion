@@ -37,7 +37,7 @@ const getGitRemotes = (lines: string[]) => {
 	});
 };
 
-export const getGitRemoteOrigin = (remotionRoot: string) => {
+export const getGitConfig = (remotionRoot: string) => {
 	const gitFolder = BundlerInternals.findClosestFolderWithItem(
 		remotionRoot,
 		'.git',
@@ -51,6 +51,10 @@ export const getGitRemoteOrigin = (remotionRoot: string) => {
 		return null;
 	}
 
+	return gitConfig;
+};
+
+export const getGitRemoteOrigin = (gitConfig: string) => {
 	const contents = readFileSync(gitConfig, 'utf-8');
 	const lines = contents.split('\n');
 
@@ -97,7 +101,12 @@ export const getGitSource = (remotionRoot: string): GitSource | null => {
 		return null;
 	}
 
-	const origin = getGitRemoteOrigin(remotionRoot);
+	const gitConfig = getGitConfig(remotionRoot);
+	if (!gitConfig) {
+		return null;
+	}
+
+	const origin = getGitRemoteOrigin(gitConfig);
 	if (!origin || !origin.url) {
 		return null;
 	}
@@ -107,10 +116,14 @@ export const getGitSource = (remotionRoot: string): GitSource | null => {
 		return null;
 	}
 
+	const gitRoot = path.dirname(path.dirname(gitConfig));
+	const relativeFromGitRoot = path.relative(gitRoot, remotionRoot);
+
 	return {
 		name: parsed.name,
 		org: parsed.org,
 		ref,
 		type: 'github',
+		relativeFromGitRoot,
 	};
 };
