@@ -306,7 +306,7 @@ for (const arch of archs) {
 
 	if (arch.includes('linux') && process.platform === 'linux') {
 		execSync(
-			`patchelf --force-rpath --set-rpath '$ORIGIN' ${copyDestinations[arch].dir}/compositor`,
+			`patchelf --force-rpath --set-rpath '$ORIGIN' ${copyDestinations[arch].dir}/remotion`,
 		);
 	}
 
