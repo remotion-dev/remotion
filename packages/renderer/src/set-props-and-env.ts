@@ -77,26 +77,28 @@ const innerSetPropsAndEnv = async ({
 	await page.evaluateOnNewDocument(() => {
 		window.alert = (message) => {
 			if (message) {
-				throw new Error(
+				window.window.remotion_cancelledError = new Error(
 					`alert("${message}") was called. It cannot be called in a headless browser.`,
-				);
+				).stack;
 			} else {
-				throw new Error(
+				window.window.remotion_cancelledError = new Error(
 					'alert() was called. It cannot be called in a headless browser.',
-				);
+				).stack;
 			}
 		};
 
 		window.confirm = (message) => {
 			if (message) {
-				throw new Error(
+				window.remotion_cancelledError = new Error(
 					`confirm("${message}") was called. It cannot be called in a headless browser.`,
-				);
+				).stack;
 			} else {
-				throw new Error(
+				window.remotion_cancelledError = new Error(
 					'confirm() was called. It cannot be called in a headless browser.',
-				);
+				).stack;
 			}
+
+			return false;
 		};
 	});
 
