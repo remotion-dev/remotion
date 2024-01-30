@@ -21,7 +21,7 @@ export const getPageAndCleanupFn = async ({
 	forceDeviceScaleFactor: number | undefined;
 	logLevel: LogLevel;
 }): Promise<{
-	cleanup: () => void;
+	cleanup: () => Promise<void>;
 	page: Page;
 }> => {
 	if (passedInInstance) {
@@ -34,6 +34,7 @@ export const getPageAndCleanupFn = async ({
 				page.close().catch((err) => {
 					console.error('Was not able to close puppeteer page', err);
 				});
+				return Promise.resolve();
 			},
 		};
 	}
@@ -60,6 +61,7 @@ export const getPageAndCleanupFn = async ({
 			browserInstance.close(true, logLevel, indent).catch((err) => {
 				console.error('Was not able to close puppeteer page', err);
 			});
+			return Promise.resolve();
 		},
 	};
 };

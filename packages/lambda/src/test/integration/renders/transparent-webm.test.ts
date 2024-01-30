@@ -108,7 +108,12 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await RenderInternals.callFf('ffprobe', [out], false, 'info');
+	const probe = await RenderInternals.callFf({
+		bin: 'ffprobe',
+		args: [out],
+		indent: false,
+		logLevel: 'info',
+	});
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);

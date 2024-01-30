@@ -86,7 +86,12 @@ export const combineVideos = async (options: Options) => {
 	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
-		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
+		const task = callFf({
+			bin: 'ffmpeg',
+			args: command,
+			indent: options.indent,
+			logLevel: options.logLevel,
+		});
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));

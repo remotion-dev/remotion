@@ -21,19 +21,22 @@ const bundleRenderLogic = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: [
-			'./compositor',
-			'./compositor.exe',
-			'./ffmpeg/remotion/bin/ffmpeg',
-			'./ffmpeg/remotion/bin/ffprobe',
-			'./mappings.wasm',
-		],
+		external: ['./remotion', './remotion.exe', './mappings.wasm'],
 	});
 
-	const compositorFile = `${outdir}/compositor`;
-
-	fs.copyFileSync(path.join(dir, 'compositor'), compositorFile);
-	fs.cpSync(path.join(dir, 'ffmpeg'), `${outdir}/ffmpeg`, {recursive: true});
+	const filesInCwd = fs.readdirSync(dir);
+	const filesToCopy = filesInCwd.filter(
+		(f) =>
+			f.startsWith('remotion') ||
+			f.endsWith('.so') ||
+			f.endsWith('.dll') ||
+			f.endsWith('.dylib') ||
+			f.startsWith('ffmpeg') ||
+			f.startsWith('ffprobe'),
+	);
+	for (const file of filesToCopy) {
+		fs.cpSync(path.join(dir, file), path.join(outdir, file));
+	}
 
 	fs.cpSync(
 		path.join(

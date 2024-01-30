@@ -101,7 +101,7 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = callFf('ffmpeg', args, indent, logLevel);
+	const task = callFf({bin: 'ffmpeg', args, indent, logLevel});
 	await task;
 	cleanup();
 };

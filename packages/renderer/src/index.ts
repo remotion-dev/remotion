@@ -8,7 +8,7 @@ import {
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
+import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
@@ -196,7 +196,6 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { exampleVideos } from "./example-videos";
-import { copyFileSync, cpSync, rmSync } from "node:fs";
+import { copyFileSync, cpSync, readdirSync, rmSync } from "node:fs";
 
 test("Should be able to bundle the renderer", () => {
   const outputdir = path.join(tmpdir(), `test-${Math.random()}`);
@@ -25,7 +25,20 @@ test("Should be able to bundle the renderer", () => {
     false,
     "info"
   );
-  const ffmpegCwd = path.join(path.dirname(binaryPath), "ffmpeg");
+  const ffmpegCwd = path.dirname(binaryPath);
+  const filesInCwd = readdirSync(ffmpegCwd);
+  const filesToCopy = filesInCwd.filter(
+    (f) =>
+      f.startsWith("remotion") ||
+      f.endsWith(".so") ||
+      f.endsWith(".dll") ||
+      f.endsWith(".dylib") ||
+      f.startsWith("ffmpeg") ||
+      f.startsWith("ffprobe")
+  );
+  for (const file of filesToCopy) {
+    cpSync(path.join(ffmpegCwd, file), path.join(outputdir, file));
+  }
 
   copyFileSync(binaryPath, path.join(outputdir, path.basename(binaryPath)));
   cpSync(ffmpegCwd, path.join(outputdir, path.basename(ffmpegCwd)), {

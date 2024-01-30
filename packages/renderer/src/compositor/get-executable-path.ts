@@ -32,7 +32,7 @@ export function isMusl({
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'lib',
+	type: 'compositor' | 'ffmpeg' | 'ffprobe',
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
@@ -40,27 +40,23 @@ export const getExecutablePath = (
 	switch (type) {
 		case 'compositor':
 			if (process.platform === 'win32') {
-				return path.resolve(base, 'compositor.exe');
+				return path.resolve(base, 'remotion.exe');
 			}
 
-			return path.resolve(base, 'compositor');
+			return path.resolve(base, 'remotion');
 
 		case 'ffmpeg':
 			if (process.platform === 'win32') {
-				return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg.exe');
+				return path.join(base, 'ffmpeg.exe');
 			}
 
-			return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffmpeg');
+			return path.join(base, 'ffmpeg');
 		case 'ffprobe':
 			if (process.platform === 'win32') {
-				return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe.exe');
+				return path.join(base, 'ffprobe.exe');
 			}
 
-			return path.resolve(base, 'ffmpeg', 'remotion', 'bin', 'ffprobe');
-		case 'lib': {
-			const dir = path.resolve(base, 'ffmpeg', 'remotion', 'lib');
-			return dir;
-		}
+			return path.join(base, 'ffprobe');
 
 		default:
 			throw new Error(`Unknown executable type: ${type}`);
@@ -71,10 +67,6 @@ export const getExecutableDir = (
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
-	if (process.env.COMPOSITOR_DIR) {
-		return process.env.COMPOSITOR_DIR;
-	}
-
 	switch (process.platform) {
 		case 'win32':
 			switch (process.arch) {

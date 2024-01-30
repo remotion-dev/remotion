@@ -72,7 +72,6 @@ type InternalStitchFramesToVideoOptions = {
 	onDownload: undefined | RenderMediaOnDownload;
 	proResProfile: undefined | ProResProfile;
 	logLevel: LogLevel;
-	dir: string;
 	cancelSignal: CancelSignal | null;
 	preEncodedFileLocation: string | null;
 	preferLossless: boolean;
@@ -104,7 +103,6 @@ export type StitchFramesToVideoOptions = {
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
-	dir: string;
 	cancelSignal?: CancelSignal;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -214,7 +212,6 @@ const innerStitchFramesToVideo = async (
 		cancelSignal,
 		codec,
 		crf,
-		dir,
 		enforceAudioTrack,
 		ffmpegOverride,
 		force,
@@ -372,9 +369,9 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const ffmpegTask = callFf(
-			'ffmpeg',
-			[
+		const ffmpegTask = callFf({
+			bin: 'ffmpeg',
+			args: [
 				'-i',
 				audio,
 				'-c:a',
@@ -386,7 +383,7 @@ const innerStitchFramesToVideo = async (
 			].filter(NoReactInternals.truthy),
 			indent,
 			logLevel,
-		);
+		});
 
 		cancelSignal?.(() => {
 			ffmpegTask.kill();
@@ -488,8 +485,11 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel, {
-		cwd: dir,
+	const task = callFf({
+		bin: 'ffmpeg',
+		args: finalFfmpegString,
+		indent,
+		logLevel,
 	});
 	cancelSignal?.(() => {
 		task.kill();
@@ -577,7 +577,6 @@ export const stitchFramesToVideo = ({
 	cancelSignal,
 	codec,
 	crf,
-	dir,
 	enforceAudioTrack,
 	ffmpegOverride,
 	muted,
@@ -603,7 +602,6 @@ export const stitchFramesToVideo = ({
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
-		dir,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
 		force,

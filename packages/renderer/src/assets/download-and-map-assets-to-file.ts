@@ -397,13 +397,14 @@ export const attachDownloadListenerToEmitter = (
 		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
 			(l) => l !== onDownload,
 		);
+		return Promise.resolve();
 	});
 
-	const a = downloadMap.emitter.addEventListener(
+	const cleanupDownloadListener = downloadMap.emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {
 			const progress = onDownload(initialSrc);
-			const b = downloadMap.emitter.addEventListener(
+			const cleanupProgressListener = downloadMap.emitter.addEventListener(
 				'progress',
 				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
 					if (initialSrc === progressSrc) {
@@ -411,14 +412,20 @@ export const attachDownloadListenerToEmitter = (
 					}
 				},
 			);
-			cleanup.push(b);
+			cleanup.push(() => {
+				cleanupProgressListener();
+				return Promise.resolve();
+			});
 		},
 	);
-	cleanup.push(() => a());
+	cleanup.push(() => {
+		cleanupDownloadListener();
+		return Promise.resolve();
+	});
 
 	return () => {
 		cleanup.forEach((c) => c());
 	};
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;

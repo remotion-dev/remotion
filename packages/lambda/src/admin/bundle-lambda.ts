@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
-import fs from 'node:fs';
+import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
@@ -29,9 +29,20 @@ const bundleLambda = async () => {
 		external: [],
 	});
 
-	const compositorFile = `${outdir}/compositor`;
-	fs.copyFileSync(path.join(dir, 'compositor'), compositorFile);
-	fs.cpSync(path.join(dir, 'ffmpeg'), `${outdir}/ffmpeg`, {recursive: true});
+	const filesInCwd = readdirSync(dir);
+	const filesToCopy = filesInCwd.filter(
+		(f) =>
+			f.startsWith('remotion') ||
+			f.endsWith('.so') ||
+			f.endsWith('.dll') ||
+			f.endsWith('.dylib') ||
+			f.startsWith('ffmpeg') ||
+			f.startsWith('ffprobe'),
+	);
+	for (const file of filesToCopy) {
+		cpSync(path.join(dir, file), path.join(outdir, file));
+	}
+
 	fs.cpSync(
 		path.join(
 			__dirname,

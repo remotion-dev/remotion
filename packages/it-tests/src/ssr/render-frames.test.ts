@@ -48,7 +48,6 @@ test("Legacy SSR way of rendering videos should still work", async () => {
   });
 
   await stitchFramesToVideo({
-    dir: framesDir,
     assetsInfo,
     force: true,
     fps: reactSvg.fps,
@@ -58,12 +57,12 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     codec: "h264",
   });
   expect(fs.existsSync(outPath)).toBe(true);
-  const probe = await RenderInternals.callFf(
-    "ffprobe",
-    [outPath],
-    false,
-    "info"
-  );
+  const probe = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outPath],
+    indent: false,
+    logLevel: "info",
+  });
   expect(probe.stderr).toMatch(/Video: h264/);
 
   RenderInternals.deleteDirectory(framesDir);

@@ -107,7 +107,7 @@ export type RenderStillOptions = {
 	offthreadVideoCacheSizeInBytes?: number | null;
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
 
 const innerRenderStill = async ({
@@ -387,7 +387,9 @@ const internalRenderStillRaw = (
 			.catch((err) => reject(err))
 			.finally(() => {
 				cleanup.forEach((c) => {
-					c();
+					c().catch((err) => {
+						console.log('Cleanup error:', err);
+					});
 				});
 			});
 	});
