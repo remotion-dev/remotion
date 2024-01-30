@@ -105,38 +105,38 @@ const mode = debug ? 'debug' : 'release';
 
 const copyDestinations = {
 	'aarch64-unknown-linux-gnu': {
-		from: `target/aarch64-unknown-linux-gnu/${mode}/compositor`,
-		to: '../compositor-linux-arm64-gnu/compositor',
+		from: `target/aarch64-unknown-linux-gnu/${mode}/remotion`,
+		to: '../compositor-linux-arm64-gnu/remotion',
 		dir: '../compositor-linux-arm64-gnu',
 	},
 	'aarch64-unknown-linux-musl': {
-		from: 'target/aarch64-unknown-linux-musl/' + mode + '/compositor',
-		to: '../compositor-linux-arm64-musl/compositor',
+		from: 'target/aarch64-unknown-linux-musl/' + mode + '/remotion',
+		to: '../compositor-linux-arm64-musl/remotion',
 		dir: '../compositor-linux-arm64-musl',
 	},
 	'x86_64-unknown-linux-gnu': {
-		from: 'target/x86_64-unknown-linux-gnu/' + mode + '/compositor',
-		to: '../compositor-linux-x64-gnu/compositor',
+		from: 'target/x86_64-unknown-linux-gnu/' + mode + '/remotion',
+		to: '../compositor-linux-x64-gnu/remotion',
 		dir: '../compositor-linux-x64-gnu',
 	},
 	'x86_64-unknown-linux-musl': {
-		from: 'target/x86_64-unknown-linux-musl/' + mode + '/compositor',
-		to: '../compositor-linux-x64-musl/compositor',
+		from: 'target/x86_64-unknown-linux-musl/' + mode + '/remotion',
+		to: '../compositor-linux-x64-musl/remotion',
 		dir: '../compositor-linux-x64-musl',
 	},
 	'x86_64-apple-darwin': {
-		from: 'target/x86_64-apple-darwin/' + mode + '/compositor',
-		to: '../compositor-darwin-x64/compositor',
+		from: 'target/x86_64-apple-darwin/' + mode + '/remotion',
+		to: '../compositor-darwin-x64/remotion',
 		dir: '../compositor-darwin-x64',
 	},
 	'aarch64-apple-darwin': {
-		from: 'target/aarch64-apple-darwin/' + mode + '/compositor',
-		to: '../compositor-darwin-arm64/compositor',
+		from: 'target/aarch64-apple-darwin/' + mode + '/remotion',
+		to: '../compositor-darwin-arm64/remotion',
 		dir: '../compositor-darwin-arm64',
 	},
 	'x86_64-pc-windows-gnu': {
-		from: 'target/x86_64-pc-windows-gnu/' + mode + '/compositor.exe',
-		to: '../compositor-win32-x64-msvc/compositor.exe',
+		from: 'target/x86_64-pc-windows-gnu/' + mode + '/remotion.exe',
+		to: '../compositor-win32-x64-msvc/remotion.exe',
 		dir: '../compositor-win32-x64-msvc',
 	},
 };

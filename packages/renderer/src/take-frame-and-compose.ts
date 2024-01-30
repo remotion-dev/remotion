@@ -107,13 +107,13 @@ export const takeFrameAndCompose = async ({
 	if (needsComposing) {
 		if (imageFormat === 'pdf') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'.",
+				"You cannot use Rust APIs (like <Clipper>) if `imageFormat` is 'pdf'.",
 			);
 		}
 
 		if (imageFormat === 'webp') {
 			throw new Error(
-				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'.",
+				"You cannot use Rust APIs (like <Clipper>) if `imageFormat` is 'webp'.",
 			);
 		}
 

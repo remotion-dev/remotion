@@ -22,6 +22,6 @@ mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a
 ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="8aa490ab200967bce272fada58bc6d63f3b0c51e"}
 
 [[bin]]
-name = "compositor"
+name = "remotion"
 path = "renderer/rust/main.rs"
 

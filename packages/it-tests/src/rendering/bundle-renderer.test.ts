@@ -29,6 +29,7 @@ test("Should be able to bundle the renderer", () => {
   const filesInCwd = readdirSync(ffmpegCwd);
   const filesToCopy = filesInCwd.filter(
     (f) =>
+      f.startsWith("remotion") ||
       f.endsWith(".so") ||
       f.endsWith(".dll") ||
       f.endsWith(".dylib") ||

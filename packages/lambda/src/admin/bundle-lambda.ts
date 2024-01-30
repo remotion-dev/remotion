@@ -32,7 +32,7 @@ const bundleLambda = async () => {
 	const filesInCwd = readdirSync(dir);
 	const filesToCopy = filesInCwd.filter(
 		(f) =>
-			f.startsWith('compositor') ||
+			f.startsWith('remotion') ||
 			f.endsWith('.so') ||
 			f.endsWith('.dll') ||
 			f.endsWith('.dylib') ||

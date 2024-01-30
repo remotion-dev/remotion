@@ -17,7 +17,7 @@ Check if your provider has enough disk space for Chromium and Remotion and has s
 ⚠️ You need to be aware of the following:
 
 - You cannot use `@remotion/bundler` inside an API route, because it includes Webpack, and the API route itself is being bundled with Webpack. It is not possible to bundle Webpack with Webpack. Instead, use `@remotion/bundler` to create a bundle outside the API route and then use the resulting folder in your API route.
-- The `@remotion/renderer` package requires an FFmpeg binary from `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure the `compositor` binary is being included in it.
+- The `@remotion/renderer` package requires an FFmpeg binary from `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure the `remotion` binary is being included in it.
 - Error have been reported with the Next.js App Router because the `remotion` package exports client-side components. Those are false positives because no React components are being rendered.
 
 **Recommendation:**

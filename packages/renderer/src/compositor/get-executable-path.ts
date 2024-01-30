@@ -40,10 +40,10 @@ export const getExecutablePath = (
 	switch (type) {
 		case 'compositor':
 			if (process.platform === 'win32') {
-				return path.resolve(base, 'compositor.exe');
+				return path.resolve(base, 'remotion.exe');
 			}
 
-			return path.resolve(base, 'compositor');
+			return path.resolve(base, 'remotion');
 
 		case 'ffmpeg':
 			if (process.platform === 'win32') {
