@@ -50,6 +50,6 @@ export type RenderDefaults = {
 declare global {
 	interface Window {
 		remotion_renderDefaults: RenderDefaults | undefined;
-		remotion_gitSource: GitSource;
+		remotion_gitSource: GitSource | null;
 	}
 }

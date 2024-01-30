@@ -25,6 +25,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {StudioServerConnectionCtx} from './client-id';
+import {getGitMenuItem} from './get-git-menu-item';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -163,6 +164,8 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Open in editor...',
 				}
 			: null,
+
+		getGitMenuItem(),
 	].filter(NoReactInternals.truthy);
 	if (items.length === 0) {
 		return null;
