@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {GitSource} from './git-source';
 
 export type RenderDefaults = {
 	jpegQuality: number;
@@ -49,5 +50,6 @@ export type RenderDefaults = {
 declare global {
 	interface Window {
 		remotion_renderDefaults: RenderDefaults | undefined;
+		remotion_gitSource: GitSource;
 	}
 }

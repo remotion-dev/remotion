@@ -44,17 +44,16 @@ export const indexHtml = ({
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
-${
-	includeFavicon
-		? `		<link id="__remotion_favicon" rel="icon" type="image/png" href="/remotion.png" />\n`
-		: ''
-}
+		${
+			includeFavicon
+				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="/remotion.png" />`
+				: ''
+		}
 		<title>${title}</title>
 	</head>
 	<body>
-    <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
-    <script>window.remotion_staticBase = "${staticHash}";</script>
-		<div id="video-container"></div>
+		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
+		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
@@ -74,24 +73,21 @@ ${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps),
-					)};</script>
-			`
+					)};</script>`
 				: ''
 		}
 		${
 			renderQueue
 				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
 						renderQueue,
-					)};</script>
-			`
+					)};</script>`
 				: ''
 		}
 		${
 			envVariables
-				? `<script> window.process = {
-    						env: ${JSON.stringify(envVariables)}
- 				};</script>
-			`
+				? `<script>window.process = {env: ${JSON.stringify(
+						envVariables,
+					)}};</script>`
 				: ''
 		}
 		${
@@ -106,6 +102,7 @@ ${
 			publicFolderExists ? `"${publicFolderExists}"` : 'null'
 		};</script>
 		
+		<div id="video-container"></div>
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
