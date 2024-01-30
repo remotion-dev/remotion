@@ -21,13 +21,7 @@ const bundleRenderLogic = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: [
-			'./remotion',
-			'./remotion.exe',
-			'./ffmpeg/remotion/bin/ffmpeg',
-			'./ffmpeg/remotion/bin/ffprobe',
-			'./mappings.wasm',
-		],
+		external: ['./remotion', './remotion.exe', './mappings.wasm'],
 	});
 
 	const filesInCwd = fs.readdirSync(dir);
