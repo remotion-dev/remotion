@@ -33,8 +33,7 @@ export type DeploySiteInput = {
 		bypassBucketNameValidation?: boolean;
 	};
 	privacy?: 'public' | 'no-acl';
-	// TODO: Make optional
-	gitSource: GitSource | null;
+	gitSource?: GitSource | null;
 };
 
 export type DeploySiteOutput = Promise<{

@@ -87,8 +87,7 @@ export type BundleOptions = {
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
 	onDirectoryCreated?: (dir: string) => void;
-	// TODO: Make optional
-	gitSource: GitSource | null;
+	gitSource?: GitSource | null;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -110,8 +109,6 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 			entryPoint: firstArg,
 			onProgress: args[1],
 			...(args[2] ?? {}),
-			// TODO: Remove
-			gitSource: null,
 		};
 	}
 
@@ -275,7 +272,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
 		publicFolderExists: baseDir + '/public',
-		gitSource: actualArgs.gitSource,
+		gitSource: actualArgs.gitSource ?? null,
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

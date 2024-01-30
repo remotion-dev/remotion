@@ -25,9 +25,8 @@ export type DeploySiteInput = {
 		publicDir?: string | null;
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
+		gitSource?: GitSource | null;
 	};
-	// TODO: Make optional and move into options
-	gitSource: GitSource | null;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -45,7 +44,6 @@ const deploySiteRaw = async ({
 	bucketName,
 	siteName,
 	options,
-	gitSource,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
@@ -74,7 +72,7 @@ const deploySiteRaw = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
-			gitSource,
+			gitSource: options?.gitSource,
 		}),
 	]);
 
