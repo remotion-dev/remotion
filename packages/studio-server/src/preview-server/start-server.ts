@@ -2,7 +2,11 @@ import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderDefaults, RenderJob} from '@remotion/studio-shared';
+import type {
+	GitSource,
+	RenderDefaults,
+	RenderJob,
+} from '@remotion/studio-shared';
 import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
@@ -35,6 +39,7 @@ export const startServer = async (options: {
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
+	gitSource: GitSource | null;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -90,6 +95,7 @@ export const startServer = async (options: {
 					getRenderDefaults: options.getRenderDefaults,
 					numberOfAudioTags: options.numberOfAudioTags,
 					queueMethods: options.queueMethods,
+					gitSource: options.gitSource,
 				});
 			})
 			.catch((err) => {

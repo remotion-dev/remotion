@@ -1,3 +1,4 @@
+import type {GitSource} from '@remotion/studio-shared';
 import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
@@ -86,6 +87,8 @@ export type BundleOptions = {
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
 	onDirectoryCreated?: (dir: string) => void;
+	// TODO: Make optional
+	gitSource: GitSource | null;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -107,6 +110,8 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 			entryPoint: firstArg,
 			onProgress: args[1],
 			...(args[2] ?? {}),
+			// TODO: Remove
+			gitSource: null,
 		};
 	}
 
@@ -119,7 +124,7 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 
 const recursionLimit = 5;
 
-export const findClosestFolderWithFile = (
+export const findClosestFolderWithItem = (
 	currentDir: string,
 	file: string,
 ): string | null => {
@@ -138,7 +143,7 @@ export const findClosestFolderWithFile = (
 };
 
 const findClosestPackageJsonFolder = (currentDir: string): string | null => {
-	return findClosestFolderWithFile(currentDir, 'package.json');
+	return findClosestFolderWithItem(currentDir, 'package.json');
 };
 
 const validateEntryPoint = async (entryPoint: string) => {
@@ -270,6 +275,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
 		publicFolderExists: baseDir + '/public',
+		gitSource: actualArgs.gitSource,
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

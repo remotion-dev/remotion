@@ -1,4 +1,4 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
@@ -33,6 +33,8 @@ export type DeploySiteInput = {
 		bypassBucketNameValidation?: boolean;
 	};
 	privacy?: 'public' | 'no-acl';
+	// TODO: Make optional
+	gitSource: GitSource | null;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -52,6 +54,7 @@ const deploySiteRaw = async ({
 	options,
 	region,
 	privacy: passedPrivacy,
+	gitSource,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -93,6 +96,7 @@ const deploySiteRaw = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
+			gitSource,
 		}),
 	]);
 

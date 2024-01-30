@@ -1,4 +1,4 @@
-import type {RenderDefaults} from '@remotion/studio';
+import type {GitSource, RenderDefaults} from '@remotion/studio';
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
@@ -18,6 +18,7 @@ export const indexHtml = ({
 	title,
 	renderDefaults,
 	publicFolderExists,
+	gitSource,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -33,6 +34,7 @@ export const indexHtml = ({
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
+	gitSource: GitSource | null;
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -91,6 +93,13 @@ ${
  				};</script>
 			`
 				: ''
+		}
+		${
+			gitSource
+				? `<script>window.remotion_gitSource = ${JSON.stringify(
+						gitSource,
+					)};</script>`
+				: null
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		<script>window.remotion_publicFolderExists = ${

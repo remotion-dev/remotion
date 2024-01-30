@@ -156,6 +156,7 @@ export const sitesCreateSubcommand = async (
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		},
+		gitSource: null,
 	});
 
 	updateProgress();

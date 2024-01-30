@@ -1,7 +1,11 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {RenderDefaults, RenderJob} from '@remotion/studio-shared';
+import type {
+	GitSource,
+	RenderDefaults,
+	RenderJob,
+} from '@remotion/studio-shared';
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
@@ -72,6 +76,7 @@ export const startStudio = async ({
 	queueMethods,
 	parsedCliOpen,
 	previewEntry,
+	gitSource,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -93,6 +98,7 @@ export const startStudio = async ({
 	queueMethods: QueueMethods;
 	parsedCliOpen: boolean;
 	previewEntry: string;
+	gitSource: GitSource | null;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
@@ -150,6 +156,7 @@ export const startStudio = async ({
 		getRenderQueue,
 		numberOfAudioTags,
 		queueMethods,
+		gitSource,
 	});
 
 	setLiveEventsListener(liveEventsServer);

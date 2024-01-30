@@ -2,6 +2,7 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {GitSource} from '@remotion/studio';
 import type {BundlingState, CopyingState} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -25,6 +26,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	quietProgress,
 	quietFlag,
 	outDir,
+	gitSource,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -41,6 +43,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	quietProgress: boolean;
 	quietFlag: boolean;
 	outDir: string | null;
+	gitSource: GitSource | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -75,6 +78,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		quietProgress,
 		quietFlag,
 		outDir,
+		gitSource,
 	});
 
 	return {
@@ -96,6 +100,7 @@ export const bundleOnCli = async ({
 	quietProgress,
 	quietFlag,
 	outDir,
+	gitSource,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -112,6 +117,7 @@ export const bundleOnCli = async ({
 	quietProgress: boolean;
 	quietFlag: boolean;
 	outDir: string | null;
+	gitSource: GitSource | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -231,6 +237,7 @@ export const bundleOnCli = async ({
 		},
 		onDirectoryCreated,
 		outDir: outDir ?? undefined,
+		gitSource,
 		...options,
 	});
 

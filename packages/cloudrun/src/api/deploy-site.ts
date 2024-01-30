@@ -1,4 +1,4 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
 import {bundleSite} from '../shared/bundle-site';
@@ -26,6 +26,8 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
+	// TODO: Make optional and move into options
+	gitSource: GitSource | null;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -43,6 +45,7 @@ const deploySiteRaw = async ({
 	bucketName,
 	siteName,
 	options,
+	gitSource,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
@@ -71,6 +74,7 @@ const deploySiteRaw = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
+			gitSource,
 		}),
 	]);
 

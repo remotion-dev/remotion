@@ -21,6 +21,7 @@ test('Should have a site after deploying', async () => {
 			entryPoint: 'first',
 			region: 'eu-central-1',
 			siteName: 'testing',
+			gitSource: null,
 		}),
 	).toEqual({
 		serveUrl:
