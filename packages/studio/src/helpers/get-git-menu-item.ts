@@ -12,7 +12,11 @@ export const getGitSourceName = (gitSource: GitSource) => {
 
 export const getGitSourceBranchUrl = (gitSource: GitSource) => {
 	if (gitSource.type === 'github') {
-		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${gitSource.ref}`;
+		return `https://github.com/${gitSource.org}/${gitSource.name}/tree/${
+			gitSource.ref
+		}${
+			gitSource.relativeFromGitRoot ? `/${gitSource.relativeFromGitRoot}` : ''
+		}`;
 	}
 
 	throw new Error('Unknown git source type');
