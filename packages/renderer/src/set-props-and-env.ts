@@ -74,6 +74,34 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_videoEnabled = enabled;
 	}, videoEnabled);
 
+	await page.evaluateOnNewDocument(() => {
+		window.alert = (message) => {
+			if (message) {
+				window.window.remotion_cancelledError = new Error(
+					`alert("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.window.remotion_cancelledError = new Error(
+					'alert() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+		};
+
+		window.confirm = (message) => {
+			if (message) {
+				window.remotion_cancelledError = new Error(
+					`confirm("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.remotion_cancelledError = new Error(
+					'confirm() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+
+			return false;
+		};
+	});
+
 	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
 	if (pageRes === null) {
