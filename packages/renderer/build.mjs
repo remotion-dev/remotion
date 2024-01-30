@@ -304,7 +304,7 @@ for (const arch of archs) {
 		filename,
 	);
 
-	if (arch.includes('linux') && process.platform === 'linux') {
+	if (arch.includes('linux')) {
 		execSync(
 			`patchelf --force-rpath --set-rpath '$ORIGIN' ${copyDestinations[arch].dir}/remotion`,
 		);
