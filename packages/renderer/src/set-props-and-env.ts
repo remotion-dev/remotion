@@ -77,24 +77,26 @@ const innerSetPropsAndEnv = async ({
 	await page.evaluateOnNewDocument(() => {
 		window.alert = (message) => {
 			if (message) {
-				console.error(
-					`alert("${message}") was called and suppressed by Remotion.`,
+				throw new Error(
+					`alert("${message}") was called. It cannot be called in a headless browser.`,
 				);
 			} else {
-				console.error('alert() was called and suppressed by Remotion.');
+				throw new Error(
+					'alert() was called. It cannot be called in a headless browser.',
+				);
 			}
 		};
 
 		window.confirm = (message) => {
 			if (message) {
-				console.error(
-					`confirm("${message}") was called and suppressed by Remotion.`,
+				throw new Error(
+					`confirm("${message}") was called. It cannot be called in a headless browser.`,
 				);
 			} else {
-				console.error('confirm() was called and suppressed by Remotion.');
+				throw new Error(
+					'confirm() was called. It cannot be called in a headless browser.',
+				);
 			}
-
-			return false;
 		};
 	});
 
