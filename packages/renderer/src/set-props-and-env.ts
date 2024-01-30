@@ -74,6 +74,30 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_videoEnabled = enabled;
 	}, videoEnabled);
 
+	await page.evaluateOnNewDocument(() => {
+		window.alert = (message) => {
+			if (message) {
+				console.error(
+					`alert("${message}") was called and suppressed by Remotion.`,
+				);
+			} else {
+				console.error('alert() was called and suppressed by Remotion.');
+			}
+		};
+
+		window.confirm = (message) => {
+			if (message) {
+				console.error(
+					`confirm("${message}") was called and suppressed by Remotion.`,
+				);
+			} else {
+				console.error('confirm() was called and suppressed by Remotion.');
+			}
+
+			return false;
+		};
+	});
+
 	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
 	if (pageRes === null) {
