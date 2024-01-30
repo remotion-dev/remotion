@@ -6,7 +6,6 @@ if (
 	process.env.FONTCONFIG_FILE = '/opt/fonts.conf';
 
 	process.env.READ_ONLY_FS = '1';
-	process.env.COMPOSITOR_DIR = './';
 	process.env.NO_COLOR = '1';
 }
 

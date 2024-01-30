@@ -67,10 +67,6 @@ export const getExecutableDir = (
 	indent: boolean,
 	logLevel: LogLevel,
 ): string => {
-	if (process.env.COMPOSITOR_DIR) {
-		return process.env.COMPOSITOR_DIR;
-	}
-
 	switch (process.platform) {
 		case 'win32':
 			switch (process.arch) {
