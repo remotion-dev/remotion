@@ -104,7 +104,36 @@ export const getGifRef = (): string | null => {
 	}
 };
 
-export const getGitSource = (remotionRoot: string): GitSource | null => {
+const getFromEnvVariables = (): GitSource | null => {
+	const {
+		VERCEL_GIT_PROVIDER,
+		VERCEL_GIT_COMMIT_SHA,
+		VERCEL_GIT_REPO_OWNER,
+		VERCEL_GIT_REPO_SLUG,
+	} = process.env;
+	if (
+		VERCEL_GIT_COMMIT_SHA &&
+		VERCEL_GIT_REPO_OWNER &&
+		VERCEL_GIT_REPO_SLUG &&
+		VERCEL_GIT_PROVIDER === 'github'
+	) {
+		return {
+			name: VERCEL_GIT_REPO_SLUG,
+			org: VERCEL_GIT_REPO_OWNER,
+			ref: VERCEL_GIT_COMMIT_SHA,
+			type: 'github',
+			relativeFromGitRoot: '',
+		};
+	}
+
+	return null;
+};
+
+export const getGitSource = (remotionRoot: string | null): GitSource | null => {
+	if (remotionRoot === null) {
+		return getFromEnvVariables();
+	}
+
 	const ref = getGifRef();
 	if (!ref) {
 		return null;

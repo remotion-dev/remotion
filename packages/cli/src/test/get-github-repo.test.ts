@@ -57,3 +57,17 @@ test('Should get Git Source', () => {
 	expect(git).not.toBeNull();
 	expect(git?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
 });
+
+test('Should recognize VERCEL', () => {
+	process.env.VERCEL_GIT_COMMIT_SHA = '123';
+	process.env.VERCEL_GIT_PROVIDER = 'github';
+	process.env.VERCEL_GIT_REPO_SLUG = 'remotion';
+	process.env.VERCEL_GIT_REPO_OWNER = 'remotion-dev';
+
+	const source = getGitSource(null);
+	expect(source).not.toBeNull();
+	expect(source?.name).toBe('remotion');
+	expect(source?.org).toBe('remotion-dev');
+	expect(source?.ref).toBe('123');
+	expect(source?.type).toBe('github');
+});
