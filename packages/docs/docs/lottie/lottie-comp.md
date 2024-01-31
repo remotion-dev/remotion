@@ -63,6 +63,21 @@ The speed of the animation. A higher number is faster. Default: `1`.
 
 CSS properties to be applied to the `<div>` that contains the animation.
 
+### `renderer`<AvailableFrom v="4.0.105" />
+
+_"svg"_ | _"canvas"_ | _"html"_
+
+Set the renderer for the Lotti files.
+[`Supported Features`](https://github.com/airbnb/lottie-web/wiki/Features)
+
+### `preserveAspectRatio`<AvailableFrom v="4.0.105" />
+
+_string_ 
+
+Set the aspect ratio of the Lotti file. 
+[`preserveAspectRatio`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio)
+
+
 ### `onAnimationLoaded`<AvailableFrom v="3.2.29" />
 
 _optional_

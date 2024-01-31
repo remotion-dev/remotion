@@ -19,6 +19,8 @@ export const Lottie = ({
 	playbackRate,
 	style,
 	onAnimationLoaded,
+	renderer,
+	preserveAspectRatio,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
@@ -51,6 +53,10 @@ export const Lottie = ({
 			container: containerRef.current,
 			autoplay: false,
 			animationData,
+			renderer: renderer ?? 'svg',
+			rendererSettings: {
+				preserveAspectRatio: preserveAspectRatio ?? 'xMidYMid meet',
+			},
 		});
 
 		const {current: animation} = animationRef;
