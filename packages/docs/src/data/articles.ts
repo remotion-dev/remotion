@@ -1512,6 +1512,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "measuring",
+    title: "Measuring DOM nodes",
+    relativePath: "docs/measuring.md",
+    compId: "articles-docs-measuring",
+    crumb: "How To",
+  },
+  {
     id: "media-playback-error",
     title: "Could not play video/audio with src",
     relativePath: "docs/media-playback-error.md",

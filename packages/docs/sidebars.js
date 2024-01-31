@@ -509,6 +509,7 @@ module.exports = {
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
+        "measuring",
       ],
     },
     {
