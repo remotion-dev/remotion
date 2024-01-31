@@ -157,5 +157,12 @@ describe("Templates should be valid", () => {
       const json = JSON.parse(contents as string);
       expect(json.compilerOptions.noUnusedLocals).toBe(true);
     });
+    it(template.shortName + " should have a good .vscode setting", async () => {
+      const { contents } = await findFile([
+        getFileForTemplate(template, ".vscode/settings.json"),
+      ]);
+      const json = JSON.parse(contents as string);
+      expect(json["editor.codeActionsOnSave"]).toBe(undefined);
+    });
   }
 });
