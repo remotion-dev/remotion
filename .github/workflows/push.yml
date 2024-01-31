@@ -140,6 +140,8 @@ jobs:
             node_version: 16
           - os: macos-latest
             node_version: 16
+          - os: macos-14
+            node_version: 16
           - os: ubuntu-latest
             node_version: 20.5
     steps:
