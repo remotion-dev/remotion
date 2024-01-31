@@ -54,15 +54,13 @@ export const RenderSvg = ({
 			style={actualStyle}
 		>
 			<path
-				// eslint-disable-next-line react/no-unknown-property
-				transform-origin={
-					reactSupportsTransformOrigin ? undefined : transformOrigin
-				}
 				{...(reactSupportsTransformOrigin
 					? {
 							transformOrigin,
 						}
-					: {})}
+					: {
+							'transform-origin': transformOrigin,
+						})}
 				d={path}
 				style={actualPathStyle}
 				{...props}
