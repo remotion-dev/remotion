@@ -95,7 +95,7 @@ export const indexHtml = ({
 				? `<script>window.remotion_gitSource = ${JSON.stringify(
 						gitSource,
 					)};</script>`
-				: null
+				: ''
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		<script>window.remotion_publicFolderExists = ${
