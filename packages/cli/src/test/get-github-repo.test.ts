@@ -9,11 +9,12 @@ import {
 
 test('Get GitHub repo', () => {
 	const gitConfig = getGitConfig(__dirname);
-	console.log(gitConfig);
-	expect(getGitRemoteOrigin(gitConfig as string)).toEqual({
-		remote: 'origin',
-		url: 'https://github.com/remotion-dev/remotion.git',
-	});
+	const origin = getGitRemoteOrigin(gitConfig as string);
+	expect(origin?.remote).toEqual('origin');
+	expect(
+		origin?.url === 'https://github.com/remotion-dev/remotion.git' ||
+			origin?.url === 'https://github.com/remotion-dev/remotion',
+	).toEqual(true);
 });
 
 test('Should normalize SSH URLs', () => {
@@ -29,6 +30,16 @@ test('Should normalize SSH URLs', () => {
 test('Should normalize HTTPS URLs', () => {
 	expect(
 		normalizeGitRemoteUrl('https://github.com/remotion-dev/remotion.git'),
+	).toEqual({
+		type: 'github',
+		org: 'remotion-dev',
+		name: 'remotion',
+	});
+});
+
+test('Should normalize HTTPS URLs without .git', () => {
+	expect(
+		normalizeGitRemoteUrl('https://github.com/remotion-dev/remotion'),
 	).toEqual({
 		type: 'github',
 		org: 'remotion-dev',

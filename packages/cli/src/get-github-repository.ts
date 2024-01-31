@@ -84,6 +84,15 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 		};
 	}
 
+	const gitHubMatchWithoutGit = url.match(/https:\/\/github.com\/(.*)\/(.*)/);
+	if (gitHubMatchWithoutGit) {
+		return {
+			type: 'github',
+			name: gitHubMatchWithoutGit[2],
+			org: gitHubMatchWithoutGit[1],
+		};
+	}
+
 	return null;
 };
 
