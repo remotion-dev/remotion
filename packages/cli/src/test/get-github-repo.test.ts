@@ -9,6 +9,7 @@ import {
 
 test('Get GitHub repo', () => {
 	const gitConfig = getGitConfig(__dirname);
+	console.log(gitConfig);
 	expect(getGitRemoteOrigin(gitConfig as string)).toEqual({
 		remote: 'origin',
 		url: 'https://github.com/remotion-dev/remotion.git',
