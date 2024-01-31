@@ -8,7 +8,11 @@
     },
     "build-docs": {
       "dependsOn": ["^build", "build"],
-      "outputs": [".docusaurus", "../../node_modules/.cache/twoslash", "build"]
+      "outputs": [
+        ".docusaurus",
+        "../../node_modules/.cache/twoslash/**",
+        "build/**"
+      ]
     },
     "test": {
       "dependsOn": ["^build", "build"],
