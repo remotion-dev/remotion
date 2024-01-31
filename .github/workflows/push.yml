@@ -146,6 +146,10 @@ jobs:
             node_version: 20.5
     steps:
       - uses: actions/checkout@main
+      - uses: actions/setup-go@v5
+        if: matrix.os == 'macos-14'
+        with:
+          node-version: ${{ matrix.node_version }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
