@@ -1,3 +1,4 @@
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {
 	getGifRef,
@@ -54,5 +55,5 @@ test('Should get Gif Ref', () => {
 test('Should get Git Source', () => {
 	const git = getGitSource(process.cwd());
 	expect(git).not.toBeNull();
-	expect(git?.relativeFromGitRoot).toBe('packages/cli');
+	expect(git?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
 });
