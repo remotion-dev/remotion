@@ -1,13 +1,22 @@
+import type {GitSource} from '@remotion/studio-shared';
 import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {TSequence} from 'remotion';
 import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../../helpers/client-id';
 import {
 	LIGHT_COLOR,
 	LIGHT_TEXT,
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
+import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
 import {openInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
@@ -33,6 +42,9 @@ export const TimelineStack: React.FC<{
 	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
 	const selectAsset = useSelectAsset();
+
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 
 	const assetPath = useMemo(() => {
 		if (sequence.type !== 'video' && sequence.type !== 'audio') {
@@ -80,7 +92,22 @@ export const TimelineStack: React.FC<{
 		}
 	}, []);
 
+	const canOpenInEditor =
+		window.remotion_editorName &&
+		connectionStatus === 'connected' &&
+		originalLocation;
+
+	const canOpenInGitHub = window.remotion_gitSource && originalLocation;
+
+	const titleHoverable =
+		(isCompact && (canOpenInEditor || canOpenInGitHub)) || assetPath;
+	const stackHoverable = !isCompact && (canOpenInEditor || canOpenInGitHub);
+
 	const onClickTitle = useCallback(() => {
+		if (!titleHoverable) {
+			return null;
+		}
+
 		if (assetPath) {
 			navigateToAsset(assetPath);
 			return;
@@ -90,16 +117,44 @@ export const TimelineStack: React.FC<{
 			return;
 		}
 
-		openEditor(originalLocation);
-	}, [assetPath, navigateToAsset, openEditor, originalLocation]);
+		if (canOpenInEditor) {
+			openEditor(originalLocation);
+			return;
+		}
+
+		if (canOpenInGitHub) {
+			window.open(
+				getGitRefUrl(window.remotion_gitSource as GitSource, originalLocation),
+				'_blank',
+			);
+		}
+	}, [
+		assetPath,
+		canOpenInEditor,
+		canOpenInGitHub,
+		navigateToAsset,
+		openEditor,
+		originalLocation,
+		titleHoverable,
+	]);
 
 	const onClickStack = useCallback(() => {
 		if (!originalLocation) {
 			return;
 		}
 
-		openEditor(originalLocation);
-	}, [openEditor, originalLocation]);
+		if (canOpenInEditor) {
+			openEditor(originalLocation);
+			return;
+		}
+
+		if (canOpenInGitHub) {
+			window.open(
+				getGitRefUrl(window.remotion_gitSource as GitSource, originalLocation),
+				'_blank',
+			);
+		}
+	}, [canOpenInEditor, canOpenInGitHub, openEditor, originalLocation]);
 
 	useEffect(() => {
 		if (!sequence.stack) {
@@ -132,20 +187,16 @@ export const TimelineStack: React.FC<{
 		setTitleHovered(false);
 	}, []);
 
-	const hoverable =
-		(originalLocation && isCompact) ||
-		(assetPath && window.remotion_editorName);
-
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
 			color: opening
 				? VERY_LIGHT_TEXT
-				: stackHovered && hoverable
+				: stackHovered && stackHoverable
 					? LIGHT_TEXT
 					: VERY_LIGHT_TEXT,
 			marginLeft: 10,
-			cursor: hoverable ? 'pointer' : undefined,
+			cursor: stackHoverable ? 'pointer' : undefined,
 			display: 'flex',
 			flexDirection: 'row',
 			alignItems: 'center',
@@ -154,10 +205,10 @@ export const TimelineStack: React.FC<{
 			overflow: 'hidden',
 			flexShrink: 100000,
 		};
-	}, [opening, stackHovered, hoverable]);
+	}, [opening, stackHovered, stackHoverable]);
 
-	const textStyle: React.CSSProperties = useMemo(() => {
-		const hoverEffect = titleHovered && hoverable;
+	const titleStyle: React.CSSProperties = useMemo(() => {
+		const hoverEffect = titleHovered && titleHoverable;
 		return {
 			fontSize: 12,
 			whiteSpace: 'nowrap',
@@ -169,7 +220,7 @@ export const TimelineStack: React.FC<{
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [hoverable, isCompact, opening, titleHovered]);
+	}, [titleHoverable, isCompact, opening, titleHovered]);
 
 	const text =
 		sequence.displayName.length > 1000
@@ -186,7 +237,7 @@ export const TimelineStack: React.FC<{
 						? getOriginalSourceAttribution(originalLocation)
 						: text || '<Sequence>'
 				}
-				style={textStyle}
+				style={titleStyle}
 				onClick={onClickTitle}
 			>
 				{text || '<Sequence>'}

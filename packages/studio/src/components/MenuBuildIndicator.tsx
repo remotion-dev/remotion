@@ -58,7 +58,11 @@ export const MenuBuildIndicator: React.FC = () => {
 			{showButton ? <Spacing x={0.5} /> : null}
 			{window.remotion_projectName}
 			{showButton ? <Spacing x={0.25} /> : null}
-			{showButton ? <OpenEditorButton /> : null}
+			{showButton ? (
+				<OpenEditorButton type="editor" />
+			) : window.remotion_gitSource ? (
+				<OpenEditorButton type="git" />
+			) : null}
 		</div>
 	);
 };

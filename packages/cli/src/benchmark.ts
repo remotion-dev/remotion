@@ -229,6 +229,8 @@ export const benchmarkCommand = async (
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
 			outDir: null,
+			// Not needed for benchmark
+			gitSource: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

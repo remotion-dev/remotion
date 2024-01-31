@@ -11,6 +11,7 @@ test('Should throw on wrong prefix', async () => {
 			bucketName: 'wrongprefix',
 			entryPoint: 'first',
 			region: 'us-east-1',
+			gitSource: null,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
@@ -34,6 +35,7 @@ test("Should throw if bucket doesn't exist", () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
+			gitSource: null,
 		}),
 	).rejects.toThrow(
 		/No bucket with the name remotionlambda-non-existed exists/,
@@ -50,6 +52,7 @@ test('Should apply name if given', async () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
+			gitSource: null,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -73,6 +76,7 @@ test('Should use a random hash if no siteName is given', async () => {
 			entryPoint: 'first',
 			region: 'ap-northeast-1',
 			siteName: 'testing',
+			gitSource: null,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -96,12 +100,14 @@ test('Should delete the previous site if deploying the new one', async () => {
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
+		gitSource: null,
 	});
 	await deploySite({
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
+		gitSource: null,
 	});
 
 	const files = await lambdaLs({
@@ -132,12 +138,14 @@ test('Should keep the previous site if deploying the new one with different ID',
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
+		gitSource: null,
 	});
 	await deploySite({
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'testing-2',
+		gitSource: null,
 	});
 
 	const files = await lambdaLs({
@@ -178,18 +186,21 @@ test('Should not delete site with same prefix', async () => {
 	});
 
 	await deploySite({
+		gitSource: null,
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'my-site',
 	});
 	await deploySite({
+		gitSource: null,
 		bucketName,
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'my-site-staging',
 	});
 	await deploySite({
+		gitSource: null,
 		bucketName,
 		entryPoint: 'first',
 		region: 'ap-northeast-1',

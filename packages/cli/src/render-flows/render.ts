@@ -238,6 +238,8 @@ export const renderVideoFlow = async ({
 			quietProgress: updatesDontOverwrite,
 			quietFlag: quietFlagProvided(),
 			outDir: null,
+			// Not needed for render
+			gitSource: null,
 		},
 	);
 

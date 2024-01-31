@@ -151,6 +151,7 @@ export const sitesCreateSubcommand = async (
 		},
 		region: getAwsRegion(),
 		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
+		gitSource: null,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {

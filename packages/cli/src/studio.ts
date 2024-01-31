@@ -5,6 +5,7 @@ import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
+import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
@@ -82,6 +83,8 @@ export const studioCommand = async (
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
+	const gitSource = getGitSource(remotionRoot);
+
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
 		browserArgs: parsedCli['browser-args'],
@@ -110,5 +113,6 @@ export const studioCommand = async (
 		// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
 		// @ts-expect-error
 		parsedCliOpen: parsedCli.open,
+		gitSource,
 	});
 };

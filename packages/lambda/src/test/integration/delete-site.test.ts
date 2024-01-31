@@ -23,6 +23,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		bucketName,
 		entryPoint: 'first',
 		region: 'eu-west-1',
+		gitSource: null,
 	});
 	expect(
 		(

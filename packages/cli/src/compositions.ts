@@ -67,6 +67,8 @@ export const listCompositionsCommand = async (
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
 			outDir: null,
+			// Not needed for compositions
+			gitSource: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
