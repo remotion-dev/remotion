@@ -55,7 +55,7 @@ export const Lottie = ({
 			animationData,
 			renderer: renderer ?? 'svg',
 			rendererSettings: {
-				preserveAspectRatio: preserveAspectRatio ?? 'xMidYMid meet',
+				preserveAspectRatio: preserveAspectRatio ?? undefined,
 			},
 		});
 
