@@ -1,7 +1,8 @@
-import fs, {promises} from 'node:fs';
+import {promises} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -45,12 +46,6 @@ import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
 import type {X264Preset} from './x264-preset';
-
-const packageJsonPath = path.join(__dirname, '..', 'package.json');
-
-const packageJson = fs.existsSync(packageJsonPath)
-	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
-	: null;
 
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
@@ -452,13 +447,7 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		[
-			'-metadata',
-			`comment=` +
-				[`Made with Remotion`, packageJson ? packageJson.version : null].join(
-					' ',
-				),
-		],
+		['-metadata', `comment=Made with Remotion ${VERSION}`],
 		force ? '-y' : null,
 		outputLocation ?? tempFile,
 	];
