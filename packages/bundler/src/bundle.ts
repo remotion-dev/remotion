@@ -271,7 +271,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		includeFavicon: false,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
-		publicFolderExists: baseDir + '/public',
+		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
 	});
 
