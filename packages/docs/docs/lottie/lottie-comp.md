@@ -67,16 +67,14 @@ CSS properties to be applied to the `<div>` that contains the animation.
 
 _"svg"_ | _"canvas"_ | _"html"_
 
-Set the renderer for the Lotti files.
-[`Supported Features`](https://github.com/airbnb/lottie-web/wiki/Features)
+Set the renderer for the Lottie files. Default `svg`. See: [`renderer` option](https://github.com/airbnb/lottie-web/wiki/Usage#getting-started), [Supported Features](https://github.com/airbnb/lottie-web/wiki/Features)
 
 ### `preserveAspectRatio`<AvailableFrom v="4.0.105" />
 
-_string_ 
+_optional, string_
 
-Set the aspect ratio of the Lotti file. 
-[`preserveAspectRatio`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio)
-
+Set how aspect ratios should be handled in the Lottie file.
+See [`preserveAspectRatio`](https://github.com/airbnb/lottie-web/wiki/Renderer-Settings#preserveaspectratio)
 
 ### `onAnimationLoaded`<AvailableFrom v="3.2.29" />
 
