@@ -9,7 +9,26 @@ const fourByteToNumber = (data: Buffer, from: number) => {
   );
 };
 
+type Box = {
+  next: Buffer;
+  boxType: string;
+  boxSize: number;
+  extraData: unknown | null;
+};
+
 const isoBaseMediaMp4Pattern = Buffer.from("ftyp");
+
+const parseBoxes = (data: Buffer) => {
+  let boxes = [];
+  let remaining = data;
+  while (remaining.length > 0) {
+    const { next, boxType, boxSize, extraData } =
+      processBoxAndSubtract(remaining);
+    remaining = next;
+    boxes.push({ boxType, boxSize, extraData });
+  }
+  return boxes;
+};
 
 const parseFtyp = (data: Buffer) => {
   const majorBrand = data.subarray(8, 12).toString("utf-8").trim();
@@ -32,13 +51,21 @@ const parseFtyp = (data: Buffer) => {
   };
 };
 
+const parseMoov = (data: Buffer) => {
+  return parseBoxes(data);
+};
+
 const getExtraDataFromBox = (box: Buffer, type: string) => {
   if (type === "ftyp") {
     return parseFtyp(box);
   }
+  if (type === "moov") {
+    return parseMoov(box.subarray(8));
+  }
+  return;
 };
 
-const processBoxAndSubtract = (data: Buffer) => {
+const processBoxAndSubtract = (data: Buffer): Box => {
   const boxSize = fourByteToNumber(data, 0);
   const boxType = data.subarray(4, 8).toString("utf-8");
 
@@ -74,14 +101,6 @@ export const parseVideo = async (src: string, bytes: number) => {
   });
 
   if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-    let boxes = [];
-    let remaining = data;
-    while (remaining.length > 0) {
-      const { next, boxType, boxSize, extraData } =
-        processBoxAndSubtract(remaining);
-      remaining = next;
-      boxes.push({ boxType, boxSize, extraData });
-    }
-    return boxes;
+    return parseBoxes(data);
   }
 };

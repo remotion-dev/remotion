@@ -102,7 +102,23 @@ test("Parse a full video", async () => {
     {
       boxSize: 1929,
       boxType: "moov",
-      extraData: undefined,
+      extraData: [
+        {
+          boxType: "mvhd",
+          boxSize: 108,
+          extraData: undefined,
+        },
+        {
+          boxType: "trak",
+          boxSize: 1715,
+          extraData: undefined,
+        },
+        {
+          boxType: "udta",
+          boxSize: 98,
+          extraData: undefined,
+        },
+      ],
     },
   ]);
 });
