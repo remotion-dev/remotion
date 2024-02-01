@@ -75,7 +75,12 @@ export const screenshotTask = async ({
 								width,
 							},
 				captureBeyondViewport: true,
-				optimizeForSpeed: true,
+				optimizeForSpeed: false,
+				// We find that there is a 0.1% framedrop when rendering under memory pressure
+				// which can be circumvented by disabling this option on Lambda.
+				// To be determined: Is this a problem with Lambda, Linux, or the Chrome version
+				// we are using on Lambda?
+				fromSurface: process.platform !== 'linux',
 			});
 			result = value;
 		}
