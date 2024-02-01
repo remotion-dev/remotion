@@ -12,7 +12,7 @@ const fourByteToNumber = (data: Buffer, from: number) => {
 const isoBaseMediaMp4Pattern = Buffer.from("ftyp");
 
 const parseFtyp = (data: Buffer) => {
-  const majorBrand = data.subarray(8, 12).toString("utf-8");
+  const majorBrand = data.subarray(8, 12).toString("utf-8").trim();
 
   const minorVersion = fourByteToNumber(data, 12);
 
@@ -21,7 +21,7 @@ const parseFtyp = (data: Buffer) => {
   let compatibleBrands: string[] = [];
   for (let i = 0; i < types; i++) {
     const fourBytes = rest.subarray(i * 4, i * 4 + 4);
-    compatibleBrands.push(fourBytes.toString("utf-8"));
+    compatibleBrands.push(fourBytes.toString("utf-8").trim());
   }
 
   return {
@@ -58,8 +58,11 @@ const matchesPattern = (pattern: Buffer) => {
   };
 };
 
-export const parseVideo = async (src: string) => {
-  const stream = createReadStream(src, { end: 4 * 1024 - 1 });
+export const parseVideo = async (src: string, bytes: number) => {
+  const stream = createReadStream(
+    src,
+    Number.isFinite(bytes) ? { end: bytes - 1 } : {}
+  );
   const data = await new Promise<Buffer>((resolve, reject) => {
     stream.on("data", (chunk) => {
       resolve(chunk as Buffer);
