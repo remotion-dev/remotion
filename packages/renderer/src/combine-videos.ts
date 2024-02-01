@@ -80,8 +80,10 @@ export const combineVideos = async (options: Options) => {
 		audioBitrate ? audioBitrate : '320k',
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
-		'-map_metadata -1',
-		`-metadata comment=Made with Remotion ${VERSION}`,
+		'-map_metadata',
+		'-1',
+		`-metadata`,
+		`comment=Made with Remotion ${VERSION}`,
 		'-y',
 		output,
 	].filter(truthy);
