@@ -3,6 +3,7 @@ import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const screenshotTask = async ({
 	format,
@@ -55,6 +56,14 @@ export const screenshotTask = async ({
 			});
 			result = res.value;
 		} else {
+			const html = await puppeteerEvaluateWithCatch({
+				args: [],
+				frame: null,
+				page,
+				pageFunction: () => document.documentElement.outerHTML,
+				timeoutInMilliseconds: 10000,
+			});
+			console.log(html);
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
 				quality: jpegQuality,
@@ -87,10 +96,15 @@ export const screenshotTask = async ({
 		const saveMarker = startPerfMeasure('save');
 
 		const buffer = Buffer.from(result.data, 'base64');
+		if (buffer.length === 12998) {
+			console.log({data: result.data});
+		}
+
 		if (path) await fs.promises.writeFile(path, buffer);
 		stopPerfMeasure(saveMarker);
 		return buffer;
 	} catch (err) {
+		console.log(err);
 		if ((err as Error).message.includes('Unable to capture screenshot')) {
 			const errMessage = [
 				'Could not take a screenshot because Google Chrome ran out of memory or disk space.',

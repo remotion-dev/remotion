@@ -1,6 +1,6 @@
 import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'node:fs';
+import fs, {readdirSync, statSync} from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {callLambda} from '../shared/call-lambda';
@@ -137,6 +137,7 @@ const renderHandler = async (
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
+
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
@@ -336,6 +337,34 @@ export const rendererHandler = async (
 
 		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
+		if ((err as Error).message.includes('too small')) {
+			console.log('Too small, uploading dbug files');
+			try {
+				const dir = readdirSync('/tmp');
+				const actualDir = dir.filter((f) =>
+					f.startsWith('react-motion-render'),
+				);
+				const folder = `/tmp/${actualDir[0]}`;
+				const files = readdirSync(folder);
+				for (const file of files) {
+					const absFile = path.join(folder, file);
+					console.log('Uploading', absFile, statSync(absFile).size);
+					await lambdaWriteFile({
+						body: fs.createReadStream(path.join(folder, file)),
+						bucketName: params.bucketName,
+						key: `debug-${params.renderId}/${file}`,
+						customCredentials: null,
+						downloadBehavior: null,
+						expectedBucketOwner: options.expectedBucketOwner,
+						privacy: 'public',
+						region: getCurrentRegionInFunction(),
+					});
+				}
+			} catch (e) {
+				console.log({e});
+			}
+		}
+
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {

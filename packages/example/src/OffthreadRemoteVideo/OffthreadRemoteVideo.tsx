@@ -1,11 +1,7 @@
-import {Loop, OffthreadVideo, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 export const OffthreadRemoteVideo: React.FC = () => {
-	return (
-		<Loop durationInFrames={15 * 30}>
-			<OffthreadVideo src={staticFile('vid1.mp4')} />
-		</Loop>
-	);
+	return null;
 };
 
 export const OffthreadLocalVideo: React.FC<{

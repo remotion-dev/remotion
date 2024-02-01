@@ -770,7 +770,7 @@ const internalRenderMediaRaw = ({
 
 				// Clean temporary image frames when rendering ends or fails
 				if (workingDir && fs.existsSync(workingDir)) {
-					deleteDirectory(workingDir);
+					//		deleteDirectory(workingDir);
 				}
 
 				cleanupServerFn?.(false).catch((err) => {

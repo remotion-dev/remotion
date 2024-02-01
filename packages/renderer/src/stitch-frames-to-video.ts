@@ -1,4 +1,4 @@
-import fs, {promises} from 'node:fs';
+import fs, {promises, readdirSync} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
@@ -412,6 +412,21 @@ const innerStitchFramesToVideo = async (
 			getLogs: () => '',
 			task: Promise.resolve(file),
 		};
+	}
+
+	console.log(assetsInfo.imageSequenceName);
+	const sync = readdirSync(path.dirname(assetsInfo.imageSequenceName));
+	for (const file of sync) {
+		const {size} = fs.statSync(
+			path.join(path.dirname(assetsInfo.imageSequenceName), file),
+		);
+		if (size < 20000) {
+			throw new Error(
+				`File ${file} is too small (${size}). This is likely because the image sequence was not rendered correctly.`,
+			);
+		}
+
+		console.log('Size', file, size);
 	}
 
 	const ffmpegArgs = [
