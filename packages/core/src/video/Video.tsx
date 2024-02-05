@@ -29,6 +29,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		startFrom,
 		endAt,
 		name,
+		pauseWhenBuffering,
 		stack,
 		_remotionInternalNativeLoopPassed,
 		...otherProps
@@ -118,6 +119,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={

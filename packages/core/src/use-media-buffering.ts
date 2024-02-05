@@ -1,13 +1,24 @@
+import type React from 'react';
 import {useEffect} from 'react';
 import {useBuffer} from './use-buffer';
 
 export const useMediaBuffering = (
-	element: HTMLVideoElement | HTMLAudioElement,
+	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
+	shouldBuffer: boolean,
 ) => {
 	const buffer = useBuffer();
 
 	useEffect(() => {
 		let cleanup: () => void;
+
+		const {current} = element;
+		if (!current) {
+			return;
+		}
+
+		if (!shouldBuffer) {
+			return;
+		}
 
 		const onWaiting = () => {
 			const {unblock} = buffer.delayPlayback();
@@ -15,19 +26,19 @@ export const useMediaBuffering = (
 				unblock();
 			};
 
-			element.addEventListener('canplay', onCanPlay, {
+			current.addEventListener('canplay', onCanPlay, {
 				once: true,
 			});
 
 			cleanup = () => {
-				element.removeEventListener('canplay', onCanPlay);
+				current.removeEventListener('canplay', onCanPlay);
 			};
 		};
 
-		element.addEventListener('waiting', onWaiting);
+		current.addEventListener('waiting', onWaiting);
 
 		return () => {
 			cleanup();
 		};
-	}, [buffer, element]);
+	}, [buffer, element, shouldBuffer]);
 };

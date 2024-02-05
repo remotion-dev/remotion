@@ -11,6 +11,7 @@ import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.jsx';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.jsx';
+import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -29,6 +30,7 @@ import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 type VideoForPreviewProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	pauseWhenBuffering: boolean;
 	_remotionInternalNativeLoopPassed: boolean;
 	_remotionInternalStack: string | null;
 };
@@ -62,6 +64,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
 		style,
+		pauseWhenBuffering,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -104,6 +107,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
+
+	useMediaBuffering(videoRef, pauseWhenBuffering);
 
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
