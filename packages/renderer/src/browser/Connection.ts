@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {Log} from '../logger';
-import {assert} from './assert';
 import type {Commands} from './devtools-commands';
 import type {TargetInfo} from './devtools-types';
 
@@ -277,8 +276,6 @@ export class CDPSession extends EventEmitter {
 				callback.resolve(object.result);
 			}
 		} else {
-			console.log({object, callback});
-			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
 	}
