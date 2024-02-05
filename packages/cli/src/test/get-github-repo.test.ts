@@ -64,7 +64,7 @@ test('Should recognize VERCEL', () => {
 	process.env.VERCEL_GIT_REPO_SLUG = 'remotion';
 	process.env.VERCEL_GIT_REPO_OWNER = 'remotion-dev';
 
-	const source = getGitSource(null);
+	const source = getGitSource('dontmatter');
 	expect(source).not.toBeNull();
 	expect(source?.name).toBe('remotion');
 	expect(source?.org).toBe('remotion-dev');
