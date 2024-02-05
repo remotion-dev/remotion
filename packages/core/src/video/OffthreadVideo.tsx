@@ -5,7 +5,7 @@ import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import type {OffthreadVideoProps} from './props.js';
-import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForPreview} from './VideoForPreview.js';
 
 /**
  * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
@@ -60,7 +60,7 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 	const {transparent, ...withoutTransparent} = otherProps;
 
 	return (
-		<VideoForDevelopment
+		<VideoForPreview
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={false}
 			onDuration={onDuration}

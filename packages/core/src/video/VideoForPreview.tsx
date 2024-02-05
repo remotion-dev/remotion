@@ -1,4 +1,3 @@
-import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -10,8 +9,8 @@ import React, {
 } from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
-import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {SequenceContext} from '../SequenceContext.jsx';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.jsx';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -27,7 +26,7 @@ import {
 import type {RemotionVideoProps} from './props.js';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
-type VideoForDevelopmentProps = RemotionVideoProps & {
+type VideoForPreviewProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 	_remotionInternalNativeLoopPassed: boolean;
@@ -36,7 +35,7 @@ type VideoForDevelopmentProps = RemotionVideoProps & {
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	VideoForDevelopmentProps
+	VideoForPreviewProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -158,7 +157,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [props.onError, src]);
 
 	const currentOnDurationCallback =
-		useRef<VideoForDevelopmentProps['onDuration']>();
+		useRef<VideoForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {
@@ -223,9 +222,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-// Copy types from forwardRef but not necessary to remove ref
-export const VideoForDevelopment = forwardRef(
+export const VideoForPreview = forwardRef(
 	VideoForDevelopmentRefForwardingFunction,
-) as ForwardRefExoticComponent<
-	VideoForDevelopmentProps & RefAttributes<HTMLVideoElement>
->;
+);

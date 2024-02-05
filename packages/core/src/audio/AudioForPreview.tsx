@@ -1,4 +1,3 @@
-import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -10,8 +9,8 @@ import React, {
 } from 'react';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {SequenceContext} from '../SequenceContext.jsx';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.jsx';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -24,10 +23,10 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import type {RemotionAudioProps} from './props.js';
-import {useSharedAudio} from './shared-audio-tags.js';
+import {useSharedAudio} from './shared-audio-tags.jsx';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
-type AudioForDevelopmentProps = RemotionAudioProps & {
+type AudioForPreviewProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 	_remotionInternalNativeLoopPassed: boolean;
@@ -36,7 +35,7 @@ type AudioForDevelopmentProps = RemotionAudioProps & {
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	AudioForDevelopmentProps
+	AudioForPreviewProps
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
 		props.shouldPreMountAudioTags,
@@ -158,7 +157,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	);
 
 	const currentOnDurationCallback =
-		useRef<AudioForDevelopmentProps['onDuration']>();
+		useRef<AudioForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {
@@ -189,8 +188,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	return <audio ref={audioRef} preload="metadata" {...propsToPass} />;
 };
 
-export const AudioForDevelopment = forwardRef(
+export const AudioForPreview = forwardRef(
 	AudioForDevelopmentForwardRefFunction,
-) as ForwardRefExoticComponent<
-	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
->;
+);
