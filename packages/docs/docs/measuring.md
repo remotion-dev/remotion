@@ -67,3 +67,6 @@ Going forward, you can rely on the dimensions being non-zero.
 
 - [Source code](https://github.com/remotion-dev/measure-item)
 - [Preview](https://measure-item.vercel.app)
+
+## See also
+- [react-use-measure](https://github.com/pmndrs/react-use-measure) - Measure elements correctly inside a scroll container
