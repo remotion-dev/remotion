@@ -129,7 +129,6 @@ export const prepareServer = async ({
 
 	const {
 		port: serverPort,
-		host,
 		close,
 		compositor,
 	} = await serveStatic(webpackConfigOrServeUrl, {
@@ -153,9 +152,9 @@ export const prepareServer = async ({
 
 			return close();
 		},
-		serveUrl: `http://${
-			host.startsWith(':') ? `[${host}]` : host
-		}:${serverPort}`,
+		// This should be kept localhost, even if the server is bound to ::1,
+		// to prevent "Failed to load resource: net::ERR_FAILED  Access to image at 'http://localhost:3000/proxy?src=http%3A%2F%2F%5B%3A%3A%5D%3A3000%2Fpublic%2Fframer.webm&time=0&transparent=false' from origin 'http://[::]:3000' has been blocked by CORS policy: The request client is not a secure context and the resource is in more-private address space `local`".
+		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
 		sourceMap: () => localSourceMap,

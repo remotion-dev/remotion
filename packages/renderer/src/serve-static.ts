@@ -21,7 +21,6 @@ export const serveStatic = async (
 	},
 ): Promise<{
 	port: number;
-	host: string;
 	close: () => Promise<void>;
 	compositor: Compositor;
 }> => {
@@ -139,7 +138,7 @@ export const serveStatic = async (
 				]);
 			};
 
-			return {port: selectedPort, close, compositor, host: portConfig.host};
+			return {port: selectedPort, close, compositor};
 		} catch (err) {
 			if (!(err instanceof Error)) {
 				throw err;
