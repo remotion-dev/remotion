@@ -9,8 +9,8 @@ import React, {
 } from 'react';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {SequenceContext} from '../SequenceContext.jsx';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.jsx';
+import {SequenceContext} from '../SequenceContext.js';
+import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
@@ -24,7 +24,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import type {RemotionAudioProps} from './props.js';
-import {useSharedAudio} from './shared-audio-tags.jsx';
+import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {

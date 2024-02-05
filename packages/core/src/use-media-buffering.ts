@@ -9,7 +9,7 @@ export const useMediaBuffering = (
 	const buffer = useBuffer();
 
 	useEffect(() => {
-		let cleanup: () => void;
+		let cleanup = () => undefined;
 
 		const {current} = element;
 		if (!current) {
@@ -32,6 +32,7 @@ export const useMediaBuffering = (
 
 			cleanup = () => {
 				current.removeEventListener('canplay', onCanPlay);
+				return undefined;
 			};
 		};
 
