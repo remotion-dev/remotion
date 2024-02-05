@@ -129,6 +129,7 @@ export const prepareServer = async ({
 
 	const {
 		port: serverPort,
+		host,
 		close,
 		compositor,
 	} = await serveStatic(webpackConfigOrServeUrl, {
@@ -152,7 +153,9 @@ export const prepareServer = async ({
 
 			return close();
 		},
-		serveUrl: `http://localhost:${serverPort}`,
+		serveUrl: `http://${
+			host.startsWith(':') ? `[${host}]` : host
+		}:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
 		sourceMap: () => localSourceMap,

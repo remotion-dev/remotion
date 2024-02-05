@@ -8,6 +8,7 @@ import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
+import {cleanDownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
 import {
@@ -252,6 +253,7 @@ const innerStitchFramesToVideo = async (
 	// encodingBufferSize is not a bitrate but need to be validated using the same format
 	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
+	assetsInfo.downloadMap.preventCleanup();
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
 
@@ -509,21 +511,17 @@ const innerStitchFramesToVideo = async (
 
 	return {
 		task: task.then(() => {
-			deleteDirectory(assetsInfo.downloadMap.audioPreprocessing);
+			assetsInfo.downloadMap.allowCleanup();
+			cleanDownloadMap(assetsInfo.downloadMap);
 
 			if (tempFile === null) {
-				deleteDirectory(assetsInfo.downloadMap.stitchFrames);
 				return null;
 			}
 
 			return promises
 				.readFile(tempFile)
 				.then((file) => {
-					return Promise.all([
-						file,
-						deleteDirectory(path.dirname(tempFile)),
-						deleteDirectory(assetsInfo.downloadMap.stitchFrames),
-					]);
+					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
 				})
 				.then(([file]) => file);
 		}),
