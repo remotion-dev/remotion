@@ -129,8 +129,9 @@ const getFromEnvVariables = (): GitSource | null => {
 	return null;
 };
 
-export const getGitSource = (remotionRoot: string | null): GitSource | null => {
-	if (remotionRoot === null) {
+export const getGitSource = (remotionRoot: string): GitSource | null => {
+	const fromEnv = getFromEnvVariables();
+	if (fromEnv) {
 		return getFromEnvVariables();
 	}
 

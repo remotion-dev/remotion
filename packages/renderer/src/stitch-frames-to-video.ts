@@ -8,13 +8,14 @@ import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
+import {cleanDownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
 import {
 	getDefaultAudioCodec,
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
-import {callFf} from './call-ffmpeg';
+import {callFf, callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -106,10 +107,7 @@ export type StitchFramesToVideoOptions = {
 	colorSpace?: ColorSpace;
 };
 
-type ReturnType = {
-	task: Promise<Buffer | null>;
-	getLogs: () => string;
-};
+type ReturnType = Promise<Buffer | null>;
 
 const getAssetsData = async ({
 	assets,
@@ -252,6 +250,7 @@ const innerStitchFramesToVideo = async (
 	// encodingBufferSize is not a bitrate but need to be validated using the same format
 	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
+	assetsInfo.downloadMap.preventCleanup();
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
 
@@ -403,10 +402,7 @@ const innerStitchFramesToVideo = async (
 		});
 		deleteDirectory(assetsInfo.downloadMap.stitchFrames);
 
-		return {
-			getLogs: () => '',
-			task: Promise.resolve(file),
-		};
+		return Promise.resolve(file);
 	}
 
 	const ffmpegArgs = [
@@ -474,7 +470,7 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf({
+	const task = callFfNative({
 		bin: 'ffmpeg',
 		args: finalFfmpegString,
 		indent,
@@ -483,11 +479,12 @@ const innerStitchFramesToVideo = async (
 	cancelSignal?.(() => {
 		task.kill();
 	});
-	let ffmpegOutput = '';
+	let ffmpegStderr = '';
 	let isFinished = false;
+
 	task.stderr?.on('data', (data: Buffer) => {
 		const str = data.toString();
-		ffmpegOutput += str;
+		ffmpegStderr += str;
 		if (onProgress) {
 			const parsed = parseFfmpegProgress(str);
 			// FFMPEG bug: In some cases, FFMPEG does hang after it is finished with it's job
@@ -507,42 +504,48 @@ const innerStitchFramesToVideo = async (
 		}
 	});
 
-	return {
-		task: task.then(() => {
-			deleteDirectory(assetsInfo.downloadMap.audioPreprocessing);
+	return new Promise<Buffer | null>((resolve, reject) => {
+		task.once('close', (code, signal) => {
+			if (code === 0) {
+				assetsInfo.downloadMap.allowCleanup();
 
-			if (tempFile === null) {
-				deleteDirectory(assetsInfo.downloadMap.stitchFrames);
-				return null;
+				if (tempFile === null) {
+					cleanDownloadMap(assetsInfo.downloadMap);
+					return resolve(null);
+				}
+
+				promises
+					.readFile(tempFile)
+					.then((f) => {
+						resolve(f);
+					})
+					.catch((e) => {
+						reject(e);
+					})
+					.finally(() => {
+						cleanDownloadMap(assetsInfo.downloadMap);
+					});
+			} else {
+				reject(
+					new Error(
+						`FFmpeg quit with code ${code} ${
+							signal ? `(${signal})` : ''
+						} The FFmpeg output was ${ffmpegStderr}`,
+					),
+				);
 			}
-
-			return promises
-				.readFile(tempFile)
-				.then((file) => {
-					return Promise.all([
-						file,
-						deleteDirectory(path.dirname(tempFile)),
-						deleteDirectory(assetsInfo.downloadMap.stitchFrames),
-					]);
-				})
-				.then(([file]) => file);
-		}),
-		getLogs: () => ffmpegOutput,
-	};
+		});
+	});
 };
 
 export const internalStitchFramesToVideo = async (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	const {task, getLogs} = await innerStitchFramesToVideo(options, remotionRoot);
-
-	const happyPath = task.catch(() => {
-		throw new Error(getLogs());
-	});
+	const task = await innerStitchFramesToVideo(options, remotionRoot);
 
 	return Promise.race([
-		happyPath,
+		task,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error(cancelErrorMessages.stitchFramesToVideo));
