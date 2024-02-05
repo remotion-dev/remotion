@@ -512,18 +512,15 @@ const innerStitchFramesToVideo = async (
 	return {
 		task: task.then(() => {
 			assetsInfo.downloadMap.allowCleanup();
-			cleanDownloadMap(assetsInfo.downloadMap);
 
 			if (tempFile === null) {
+				cleanDownloadMap(assetsInfo.downloadMap);
 				return null;
 			}
 
-			return promises
-				.readFile(tempFile)
-				.then((file) => {
-					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
-				})
-				.then(([file]) => file);
+			return promises.readFile(tempFile).finally(() => {
+				cleanDownloadMap(assetsInfo.downloadMap);
+			});
 		}),
 		getLogs: () => ffmpegOutput,
 	};
