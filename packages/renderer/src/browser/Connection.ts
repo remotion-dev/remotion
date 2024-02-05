@@ -277,6 +277,7 @@ export class CDPSession extends EventEmitter {
 				callback.resolve(object.result);
 			}
 		} else {
+			console.log({object, callback});
 			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
