@@ -10,7 +10,7 @@ import {
 import { expect, test } from "bun:test";
 import { RenderInternals } from "@remotion/renderer";
 
-test.only("Legacy SSR way of rendering videos should still work", async () => {
+test("Legacy SSR way of rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
     "https://65c0a612d164b60f65becedd--fluffy-bubblegum-1ed385.netlify.app/",
