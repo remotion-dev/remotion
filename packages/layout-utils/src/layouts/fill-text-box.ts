@@ -46,7 +46,7 @@ export const fillTextBox = ({
 			const widths = lineWithWord.map((w) => measureText(w).width);
 			const lineWidthWithWordAdded = widths.reduce((a, b) => a + b, 0);
 
-			if (lineWidthWithWordAdded <= maxBoxWidth) {
+			if (Math.ceil(lineWidthWithWordAdded) < maxBoxWidth) {
 				lines[currentlyAt].push({
 					text: lines[currentlyAt].length === 0 ? text.trimStart() : text,
 					fontFamily,
