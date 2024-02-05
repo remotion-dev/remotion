@@ -36,7 +36,11 @@ export const useMediaBuffering = (
 			};
 		};
 
-		current.addEventListener('waiting', onWaiting);
+		if (current.readyState < current.HAVE_FUTURE_DATA) {
+			onWaiting();
+		} else {
+			current.addEventListener('waiting', onWaiting);
+		}
 
 		return () => {
 			cleanup();
