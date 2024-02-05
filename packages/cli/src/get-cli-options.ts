@@ -1,9 +1,4 @@
-import type {
-	BrowserExecutable,
-	ChromiumOptions,
-	FrameRange,
-	LogLevel,
-} from '@remotion/renderer';
+import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -31,9 +26,6 @@ const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 
 	return frameRange;
 };
-
-const getBrowser = () =>
-	ConfigInternals.getBrowser() ?? RenderInternals.DEFAULT_BROWSER;
 
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
@@ -84,32 +76,7 @@ const getx264Preset = () => {
 	return x264Preset;
 };
 
-const getAndValidateBrowser = async ({
-	browserExecutable,
-	indent,
-	logLevel,
-}: {
-	browserExecutable: BrowserExecutable;
-	indent: boolean;
-	logLevel: LogLevel;
-}) => {
-	const browser = getBrowser();
-	try {
-		await RenderInternals.ensureLocalBrowser({
-			preferredBrowserExecutable: browserExecutable,
-			indent,
-			logLevel,
-		});
-	} catch (err) {
-		Log.error('Could not download a browser for rendering frames.');
-		Log.error(err);
-		process.exit(1);
-	}
-
-	return browser;
-};
-
-export const getCliOptions = async (options: {
+export const getCliOptions = (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
 	remotionRoot: string;
@@ -169,11 +136,6 @@ export const getCliOptions = async (options: {
 		inputProps: getInputProps(null, options.logLevel),
 		envVariables: getEnvironmentVariables(null, options.logLevel),
 		jpegQuality: ConfigInternals.getJpegQuality(),
-		browser: await getAndValidateBrowser({
-			browserExecutable,
-			indent: false,
-			logLevel: options.logLevel,
-		}),
 		crf,
 		pixelFormat,
 		proResProfile,

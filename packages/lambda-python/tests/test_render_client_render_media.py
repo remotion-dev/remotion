@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from remotion_lambda.models import RenderMediaParams
+from remotion_lambda.models import RenderMediaParams, Download, Webhook
 from remotion_lambda.remotionclient import RemotionClient
 
 
@@ -14,6 +14,9 @@ class TestRemotionClient(TestCase):
             input_props={
                 'hi': 'there'
             },
+            download_behavior=Download(type="download", fileName="hi"),
+            webhook=Webhook(
+                url="https://example.com", secret="abc", customData=dict(hi="there"))
         )
 
         self.assertEqual(client.region, "us-east-1")

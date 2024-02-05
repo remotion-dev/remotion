@@ -113,7 +113,7 @@ The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take 
 
 ## setEntryPoint()<AvailableFrom v="3.2.40" />
 
-Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+Sets the Remotion [entry point](/docs/terminology/entry-point), you don't have to specify it for CLI commands.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -843,8 +843,8 @@ If you specify a port, but it's not available, Remotion will throw an error.
 :::warning
 Setting this option will break rendering in the Remotion Studio, because this option controls two settings at the same time:
 
-- When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it ([`setStudioPort()`](/docs/config#setstudioport)).
-- During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle) ([`setRendererPort()`](/docs/config#setrendererport)).
+- When starting the [Remotion Studio](/docs/terminology/studio), a server will be started to host it ([`setStudioPort()`](/docs/config#setstudioport)).
+- During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology/bundle) ([`setRendererPort()`](/docs/config#setrendererport)).
 
 Use the options individually.
 :::

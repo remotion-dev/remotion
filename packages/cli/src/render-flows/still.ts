@@ -171,6 +171,8 @@ export const renderStillFlow = async ({
 			quietProgress: updatesDontOverwrite,
 			quietFlag: quietFlagProvided(),
 			outDir: null,
+			// Not needed for still
+			gitSource: null,
 		},
 	);
 

@@ -39,7 +39,6 @@ export const still = async (
 	}
 
 	const {
-		browser,
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
@@ -53,7 +52,7 @@ export const still = async (
 		stillFrame,
 		width,
 		offthreadVideoCacheSizeInBytes,
-	} = await getCliOptions({
+	} = getCliOptions({
 		isLambda: false,
 		type: 'still',
 		remotionRoot,
@@ -65,7 +64,7 @@ export const still = async (
 		entryPointReason,
 		fullEntryPoint,
 		remainingArgs,
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions,
 		envVariables,

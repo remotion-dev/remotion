@@ -6,6 +6,7 @@ import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
+import {getGitSource} from './get-github-repository';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {bundleOnCli} from './setup-cache';
@@ -40,11 +41,11 @@ export const bundleCommand = async (
 		Log.error(
 			'Pass another argument to the command specifying the entry point.',
 		);
-		Log.error('See: https://www.remotion.dev/docs/terminology#entry-point');
+		Log.error('See: https://www.remotion.dev/docs/terminology/entry-point');
 		process.exit(1);
 	}
 
-	const {publicDir} = await getCliOptions({
+	const {publicDir} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,
@@ -55,7 +56,7 @@ export const bundleCommand = async (
 		? path.resolve(process.cwd(), parsedCli['out-dir'])
 		: path.join(remotionRoot, 'build');
 
-	const gitignoreFolder = BundlerInternals.findClosestFolderWithFile(
+	const gitignoreFolder = BundlerInternals.findClosestFolderWithItem(
 		outputPath,
 		'.gitignore',
 	);
@@ -76,6 +77,8 @@ export const bundleCommand = async (
 
 		rmSync(outputPath, {recursive: true});
 	}
+
+	const gitSource = getGitSource(remotionRoot);
 
 	const output = await bundleOnCli({
 		fullPath: file,
@@ -105,6 +108,7 @@ export const bundleCommand = async (
 		},
 		quietFlag: quietFlagProvided(),
 		outDir: outputPath,
+		gitSource,
 	});
 
 	Log.infoAdvanced(

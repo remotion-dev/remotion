@@ -56,7 +56,7 @@ export type SelectCompositionOptions = {
 	id: string;
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
@@ -270,7 +270,11 @@ export const internalSelectCompositionRaw = async (
 			})
 			.finally(() => {
 				cleanup.forEach((c) => {
-					c();
+					// Must prevent unhandled exception in cleanup function.
+					// Promise has already been resolved, so we can't reject it.
+					c().catch((err) => {
+						console.log('Cleanup error:', err);
+					});
 				});
 			});
 	});

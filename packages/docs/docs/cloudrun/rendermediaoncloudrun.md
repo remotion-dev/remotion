@@ -12,7 +12,7 @@ crumb: "Cloud Run API"
 Kicks off a media rendering process on Remotion Cloud Run.
 
 Requires a [service](/docs/cloudrun/deployservice) to already be deployed to execute the render.  
-A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 

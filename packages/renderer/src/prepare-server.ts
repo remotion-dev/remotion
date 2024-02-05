@@ -214,10 +214,9 @@ export const makeOrReuseServer = async (
 	return {
 		server: newServer,
 		cleanupServer: (force: boolean) => {
-			newServer.closeServer(force);
 			cleanupOnDownloadNew();
 			cleanupErrorNew();
-			return Promise.resolve();
+			return Promise.all([newServer.closeServer(force)]);
 		},
 	};
 };

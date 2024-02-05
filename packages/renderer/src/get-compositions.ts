@@ -152,7 +152,7 @@ const innerGetCompositions = async ({
 	});
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 const internalGetCompositionsRaw = async ({
 	browserExecutable,
@@ -210,7 +210,9 @@ const internalGetCompositionsRaw = async ({
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapGetter(sourceMap);
 
-				cleanup.push(() => cleanupServer(true));
+				cleanup.push(() => {
+					return cleanupServer(true);
+				});
 
 				return innerGetCompositions({
 					envVariables,

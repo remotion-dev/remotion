@@ -3,7 +3,7 @@ import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
 import {getStaticFiles, Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
-import {getPathname, pushUrl} from '../helpers/url-state';
+import {getRoute, pushUrl} from '../helpers/url-state';
 import {FolderContext} from '../state/folders';
 import {getKeysToExpand} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanel';
@@ -114,7 +114,7 @@ export const InitialCompositionLoader: React.FC = () => {
 		const onchange = () => {
 			const newCanvas = deriveCanvasContentFromUrl();
 			if (newCanvas && newCanvas.type === 'composition') {
-				const newComp = getPathname().substring(1);
+				const newComp = getRoute().substring(1);
 				const exists = compositions.find((c) => c.id === newComp);
 				if (exists) {
 					selectComposition(exists, false);

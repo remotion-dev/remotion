@@ -209,6 +209,7 @@ export const Index: React.FC = () => {
         defaultProps: {},
         props: {},
         abortSignal: new AbortController().signal,
+        compositionId: "MyComp",
       }),
     )
       .then(({ durationInFrames, props, width, height, fps }) => {

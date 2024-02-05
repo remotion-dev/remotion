@@ -8,10 +8,29 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Remotion Lambda is broken",
+    description: "A render would not start on the Lambda. Upgrade to 4.0.99.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.98"],
+  },
+  {
+    title: "Too tight dependency on zod",
+    description:
+      "Remotion would require zod and @remotion/zod-types even though it should be optional.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.92", "4.0.93", "4.0.94", "4.0.95"],
+  },
+  {
+    title: "Broken release",
+    description: "Rendering may fail. Upgrade to 4.0.94.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.90", "4.0.91"],
+  },
+  {
     title: "<Video> seeking breaks during rendering for some videos",
     description: "A timeout would occur on some videos.",
     link: "https://remotion.dev/changelog",
-    versions: ["4.0.86", "4.0.87", "4.088"],
+    versions: ["4.0.86", "4.0.87", "4.0.88"],
   },
   {
     title: "Lambda throws an undefined variable error",

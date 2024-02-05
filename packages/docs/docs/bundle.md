@@ -33,7 +33,7 @@ const bundle: (options?: {
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology#entry-point).
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology/entry-point).
 
 ### `onProgress?`
 
@@ -92,7 +92,7 @@ The current working directory is the directory from which your program gets exec
 
 ### `publicDir?`<AvailableFrom v="3.2.13" />
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
 ### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
 

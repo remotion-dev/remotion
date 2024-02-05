@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any, Union, Literal
 from dataclasses import dataclass, field
 from .version import VERSION
 
@@ -134,17 +134,6 @@ class OutNameInputObject:
 
 
 @dataclass
-class PlayInBrowser:
-    """
-    Represents the behavior to play content directly in the browser.
-
-    Attributes:
-        type (str): The type of in-browser action (e.g., 'play-in-browser').
-    """
-    type: str
-
-
-@dataclass
 class Download:
     """
     Represents the behavior to download content.
@@ -154,7 +143,7 @@ class Download:
         file_name (Optional[str]): The name of the file to be downloaded, if specified.
     """
     type: str
-    file_name: Optional[str]
+    fileName: Optional[str]
 
 
 class DeleteAfter(Enum):
@@ -225,6 +214,34 @@ class CostsInfo:
 
 
 @dataclass
+class PlayInBrowser:
+    """
+    The video should play in the browser when the link is clicked.
+    """
+    type: Literal['play-in-browser']
+    # You can define additional fields as needed
+
+
+@dataclass
+class ShouldDownload:
+    """
+    The video should download when the link is clicked.
+    """
+    type: Literal['download']
+    fileName: str  # Additional fields for this type
+
+
+@dataclass
+class Webhook:
+    """
+    Represents a webhook.
+    """
+    secret: str
+    url: str
+    customData: Optional[Dict] = None
+
+
+@dataclass
 class RenderMediaParams:
     """
     Parameters for video rendering.
@@ -254,13 +271,13 @@ class RenderMediaParams:
     every_nth_frame: Optional[int] = 1
     number_of_gif_loops: Optional[int] = 0
     concurrency_per_lambda: Optional[int] = 1
-    download_behavior: Dict = field(default_factory=lambda: {
-                                    'type': 'play-in-browser'})
+    download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
+        default_factory=lambda: {'type': 'play-in-browser'})
     muted: bool = False
     overwrite: bool = False
     audio_bitrate: Optional[int] = None
     video_bitrate: Optional[int] = None
-    webhook: Optional[str] = None
+    webhook: Optional[Webhook] = None
     force_height: Optional[int] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
     force_width: Optional[int] = None

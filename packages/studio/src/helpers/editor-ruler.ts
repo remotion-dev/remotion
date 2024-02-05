@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import type {Guide} from '../state/editor-guides';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
 import {
@@ -150,6 +151,8 @@ export const drawMarkingOnRulerCanvas = ({
 	orientation,
 	rulerCanvasRef,
 	selectedGuide,
+	canvasHeight,
+	canvasWidth,
 }: {
 	scale: number;
 	points: Array<{position: number; value: number}>;
@@ -159,6 +162,8 @@ export const drawMarkingOnRulerCanvas = ({
 	orientation: 'horizontal' | 'vertical';
 	rulerCanvasRef: React.RefObject<HTMLCanvasElement>;
 	selectedGuide: Guide | null;
+	canvasWidth: number;
+	canvasHeight: number;
 }) => {
 	const canvas = rulerCanvasRef.current;
 	if (!canvas) return;
@@ -166,8 +171,6 @@ export const drawMarkingOnRulerCanvas = ({
 	const context = canvas.getContext('2d');
 	if (!context) return;
 
-	const canvasWidth = canvas.clientWidth * window.devicePixelRatio;
-	const canvasHeight = canvas.clientHeight * window.devicePixelRatio;
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
 
@@ -276,15 +279,15 @@ const rulerValueToPosition = ({
 
 export const getRulerScaleRange = ({
 	canvasLength,
-	containerRef,
 	scale,
+	canvasSize,
 }: {
 	canvasLength: number;
-	containerRef: React.RefObject<HTMLDivElement>;
 	scale: number;
+	canvasSize: Size;
 }) => {
 	const scaleRangeBeyondCanvas =
-		(containerRef.current?.getBoundingClientRect()?.width ||
+		(canvasSize.width ||
 			MINIMUM_VISIBLE_CANVAS_SIZE - MINIMUM_VISIBLE_CANVAS_SIZE) / scale;
 	return {
 		start: -scaleRangeBeyondCanvas,

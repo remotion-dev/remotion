@@ -15,15 +15,26 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
-	Internals,
-	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	Internals,
+	VERSION,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {getBundleMode, setBundleMode} from './src/bundle-mode';
+
+let currentBundleMode: BundleState = {
+	type: 'index',
+};
+
+const setBundleMode = (state: BundleState) => {
+	currentBundleMode = state;
+};
+
+const getBundleMode = () => {
+	return currentBundleMode;
+};
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),

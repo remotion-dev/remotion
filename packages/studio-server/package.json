@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-server",
-	"version": "4.0.89",
+	"version": "4.0.106",
 	"description": "Remotion Editor",
 	"main": "dist",
 	"sideEffects": false,
@@ -19,6 +19,9 @@
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"dependencies": {
 		"semver": "7.5.3",

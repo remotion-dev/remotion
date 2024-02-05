@@ -1,5 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import {createWriteStream} from 'node:fs';
+import {createWriteStream, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
@@ -96,14 +98,18 @@ test('Should make a distributed GIF', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
+
+	const out = path.join(tmpdir(), 'gif.gif');
+
 	await new Promise<void>((resolve) => {
-		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
+		file.pipe(createWriteStream(out)).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.callFf(
-		'ffprobe',
-		['gif.gif'],
-		false,
-		'info',
-	);
+	const probe = await RenderInternals.callFf({
+		bin: 'ffprobe',
+		args: [out],
+		indent: false,
+		logLevel: 'info',
+	});
+	unlinkSync(out);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

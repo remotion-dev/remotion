@@ -6,11 +6,12 @@
       "outputs": ["dist/**", ".rollup.cache"],
       "outputMode": "new-only"
     },
-    "docs": {
+    "build-docs": {
+      "dependsOn": ["^build", "build"],
       "outputs": [
-        "build/**",
         ".docusaurus",
-        "../../node_modules/.cache/twoslash"
+        "../../node_modules/.cache/twoslash/**",
+        "build/**"
       ]
     },
     "test": {
@@ -32,7 +33,7 @@
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["dist/**", "target/**"],
+      "outputs": ["dist/**", "target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },

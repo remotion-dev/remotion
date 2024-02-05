@@ -8,11 +8,11 @@ import {
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
+import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
@@ -196,7 +196,6 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,

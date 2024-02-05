@@ -128,6 +128,14 @@ export const ZodArrayEditor: React.FC<{
 								</React.Fragment>
 							);
 						})}
+						{value.length === 0 ? (
+							<SchemaArrayItemSeparationLine
+								schema={schema}
+								index={0}
+								onChange={onChange}
+								isLast
+							/>
+						) : null}
 					</SchemaVerticalGuide>
 				</RevisionContextProvider>
 			) : null}

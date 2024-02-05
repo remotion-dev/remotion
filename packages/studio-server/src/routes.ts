@@ -2,6 +2,7 @@ import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	GitSource,
 	RenderDefaults,
 	RenderJob,
 	SymbolicatedStackFrame,
@@ -53,6 +54,7 @@ const handleFallback = async ({
 	getRenderQueue,
 	getRenderDefaults,
 	numberOfAudioTags,
+	gitSource,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -63,6 +65,7 @@ const handleFallback = async ({
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
+	gitSource: GitSource | null;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -88,6 +91,7 @@ const handleFallback = async ({
 			title: 'Remotion Studio',
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
+			gitSource,
 		}),
 	);
 };
@@ -247,6 +251,7 @@ export const handleRoutes = ({
 	getRenderDefaults,
 	numberOfAudioTags,
 	queueMethods: methods,
+	gitSource,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -265,6 +270,7 @@ export const handleRoutes = ({
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
+	gitSource: GitSource | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -366,5 +372,6 @@ export const handleRoutes = ({
 		getRenderQueue,
 		getRenderDefaults,
 		numberOfAudioTags,
+		gitSource,
 	});
 };

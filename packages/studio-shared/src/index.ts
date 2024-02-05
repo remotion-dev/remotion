@@ -24,6 +24,7 @@ export {
 	ErrorLocation,
 	getLocationFromBuildError,
 } from './get-location-from-build-error';
+export type {GitSource} from './git-source';
 export {
 	HotMiddlewareMessage,
 	HotMiddlewareOptions,

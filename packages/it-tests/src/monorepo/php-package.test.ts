@@ -48,7 +48,10 @@ test("Set the right verison for composer.json in example", () => {
 });
 
 test("PHP package should create the same renderMedia payload as normal Lambda package", async () => {
-  execSync("php composer.phar install", {
+  execSync("php composer.phar --quiet update", {
+    cwd: path.join(process.cwd(), "..", "lambda-php"),
+  });
+  execSync("php composer.phar --quiet install", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
   const phpOutput = execSync("phpunit ./src/PHPClientTest.php", {
@@ -113,7 +116,10 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
 });
 
 test("PHP package should create the same progress payload as normal Lambda package", async () => {
-  execSync("php composer.phar install", {
+  execSync("php composer.phar --quiet update", {
+    cwd: path.join(process.cwd(), "..", "lambda-php"),
+  });
+  execSync("php composer.phar --quiet install", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
   const phpOutput = execSync("phpunit ./src/PHPRenderProgressTest.php", {

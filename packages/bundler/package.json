@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "4.0.89",
+	"version": "4.0.106",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -33,6 +33,7 @@
 		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
+		"source-map": "0.7.3",
 		"webpack": "5.83.1"
 	},
 	"peerDependencies": {

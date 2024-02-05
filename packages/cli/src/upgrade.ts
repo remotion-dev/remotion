@@ -17,7 +17,7 @@ const getUpgradeCommand = ({
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', '--save-exact', ...pkgList],
+		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
 		pnpm: ['i', '--save-exact', ...pkgList],
 		yarn: ['add', '--exact', ...pkgList],
 		bun: ['i', ...pkgList],
@@ -78,6 +78,7 @@ export const upgrade = async (
 			version: targetVersion,
 		}),
 		{
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 			stdio: 'inherit',
 		},
 	);

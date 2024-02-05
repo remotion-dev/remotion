@@ -140,10 +140,16 @@ jobs:
             node_version: 16
           - os: macos-latest
             node_version: 16
+          - os: macos-14
+            node_version: 16
           - os: ubuntu-latest
             node_version: 20.5
     steps:
       - uses: actions/checkout@main
+      - uses: actions/setup-go@v5
+        if: matrix.os == 'macos-14'
+        with:
+          go-version: "1.20"
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}

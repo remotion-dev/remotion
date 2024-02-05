@@ -2,8 +2,8 @@ import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
+import path from 'node:path';
 import type {DownloadMap} from '../assets/download-map';
-import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import type {LogLevel} from '../log-level';
 import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
@@ -106,11 +106,9 @@ export const callCompositor = (
 			chmodSync(execPath, 0o755);
 		}
 
-		const child = spawn(
-			execPath,
-			[payload],
-			dynamicLibraryPathOptions(indent, logLevel),
-		);
+		const child = spawn(execPath, [payload], {
+			cwd: path.dirname(execPath),
+		});
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));

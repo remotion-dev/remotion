@@ -39,7 +39,7 @@ const { serveUrl } = await deploySite({
       sizeUploaded,
     }) => {
       console.log(
-        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`
+        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`,
       );
     },
   },
@@ -53,7 +53,7 @@ An object with the following properties:
 
 ### `entryPoint`
 
-An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology#entry-point).
+An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology/entry-point).
 
 ### `bucketName`
 
@@ -94,7 +94,7 @@ Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/do
 
 #### `publicDir`
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
 #### `rootDir`
 

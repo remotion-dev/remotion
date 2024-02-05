@@ -24,17 +24,16 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, browser, ffmpegOverride} =
-		await getCliOptions({
-			isLambda: false,
-			type: 'still',
-			remotionRoot,
-			logLevel,
-		});
+	const {publicDir, browserExecutable, ffmpegOverride} = await getCliOptions({
+		isLambda: false,
+		type: 'still',
+		remotionRoot,
+		logLevel,
+	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({
 		remotionRoot,
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as Studio',

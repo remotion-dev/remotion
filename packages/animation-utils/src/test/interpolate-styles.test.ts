@@ -267,3 +267,22 @@ test('Should interpolate between 0 and values with units', () => {
 		padding: '5px',
 	});
 });
+
+test('Should interpolate between negative values with units', () => {
+	expect(
+		interpolateStyles(
+			0.5,
+			[0, 1],
+			[
+				{
+					left: '-10px',
+				},
+				{
+					left: '-20px',
+				},
+			],
+		),
+	).toEqual({
+		left: '-15px',
+	});
+});

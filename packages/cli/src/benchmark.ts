@@ -164,7 +164,6 @@ export const benchmarkCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		puppeteerTimeout,
-		browser,
 		scale,
 		publicDir,
 		proResProfile,
@@ -189,7 +188,7 @@ export const benchmarkCommand = async (
 		concurrency: unparsedConcurrency,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
-	} = await getCliOptions({
+	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
@@ -205,7 +204,7 @@ export const benchmarkCommand = async (
 	);
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
@@ -230,6 +229,8 @@ export const benchmarkCommand = async (
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
 			outDir: null,
+			// Not needed for benchmark
+			gitSource: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

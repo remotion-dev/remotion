@@ -2,6 +2,7 @@
 
 import {rmSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {VERSION} from 'remotion/version';
 import type {AudioCodec} from './audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -79,6 +80,8 @@ export const combineVideos = async (options: Options) => {
 		audioBitrate ? audioBitrate : '320k',
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
+		`-metadata`,
+		`comment=Made with Remotion ${VERSION}`,
 		'-y',
 		output,
 	].filter(truthy);
@@ -86,7 +89,12 @@ export const combineVideos = async (options: Options) => {
 	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
-		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
+		const task = callFf({
+			bin: 'ffmpeg',
+			args: command,
+			indent: options.indent,
+			logLevel: options.logLevel,
+		});
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
