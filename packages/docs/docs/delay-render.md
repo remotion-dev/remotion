@@ -124,7 +124,7 @@ const MyComp: React.FC = () => {
 
 ## Failing with an error<AvailableFrom v="3.3.44" />
 
-If your code fails to do an asynchronous operation and you want to cancel the render, you can call `cancelRender()` with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
+If your code fails to do an asynchronous operation and you want to cancel the render, you can call [`cancelRender()`](/docs/cancel-render) with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
 
 ```tsx twoslash title="MyComposition.tsx"
 import React, { useEffect, useState } from "react";
@@ -142,6 +142,37 @@ export const MyComp: React.FC = () => {
   }, []);
 
   return null;
+};
+```
+
+## Difference to `useBufferState().delayPlayback()`
+
+[`useBufferState()`](/docs/use-buffer-state) is a different API that comes into play during playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).
+
+If you are loading data, you might want to both delay the screenshotting of your component during rendering and start a buffering state during Preview, in which case you need to use both APIs together.
+
+```tsx twoslash title="Using delayRender() and delayPlayback() together"
+import React from "react";
+import { useBufferState, delayRender, continueRender } from "remotion";
+
+const MyComp: React.FC = () => {
+  const buffer = useBufferState();
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
+    const delayHandle = buffer.delayPlayback();
+
+    setTimeout(() => {
+      delayHandle.unblock();
+      continueRender(handle);
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return <></>;
 };
 ```
 

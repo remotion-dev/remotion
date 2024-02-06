@@ -1,6 +1,6 @@
 import type React from 'react';
 import {useEffect} from 'react';
-import {useBufferState} from './use-buffer';
+import {useBufferState} from './use-buffer-state';
 
 export const useMediaBuffering = (
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
