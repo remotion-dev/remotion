@@ -52,6 +52,27 @@ export type LegacyBundleOptions = {
 	onSymlinkDetected?: (path: string) => void;
 };
 
+const getProjectName = ({
+	gitSource,
+	resolvedRemotionRoot,
+}: {
+	gitSource: GitSource | null;
+	resolvedRemotionRoot: string;
+}) => {
+	// Directory name
+	if (!gitSource) {
+		return path.basename(resolvedRemotionRoot);
+	}
+
+	// Subfolder name of a Git repo, e.g `example`
+	if (gitSource.relativeFromGitRoot.trim()) {
+		return path.basename(gitSource.relativeFromGitRoot.trim());
+	}
+
+	// Name of the repo
+	return gitSource.name;
+};
+
 export const getConfig = ({
 	entryPoint,
 	outDir,
@@ -273,6 +294,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 		renderDefaults: undefined,
 		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
+		projectName: getProjectName({
+			gitSource: actualArgs.gitSource ?? null,
+			resolvedRemotionRoot,
+		}),
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
