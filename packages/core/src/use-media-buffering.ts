@@ -1,12 +1,12 @@
 import type React from 'react';
 import {useEffect} from 'react';
-import {useBuffer} from './use-buffer';
+import {useBufferState} from './use-buffer';
 
 export const useMediaBuffering = (
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
 	shouldBuffer: boolean,
 ) => {
-	const buffer = useBuffer();
+	const buffer = useBufferState();
 
 	useEffect(() => {
 		let cleanup = () => undefined;

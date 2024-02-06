@@ -15,14 +15,14 @@ Remotion has a native buffer state, which can be used to pause the video when th
 
 ### Activating the buffer state
 
-A component can tell the player to switch into a buffer state by first using the `useBuffer()` hook and then calling `buffer.delayPlayback()`:
+A component can tell the player to switch into a buffer state by first using the `useBufferState()` hook and then calling `buffer.delayPlayback()`:
 
 ```tsx twoslash title="MyComp.tsx"
 import React from "react";
-import { useBuffer } from "remotion";
+import { useBufferState } from "remotion";
 
 const MyComp: React.FC = () => {
-  const buffer = useBuffer();
+  const buffer = useBufferState();
 
   React.useEffect(() => {
     const delayHandle = buffer.delayPlayback();
@@ -51,10 +51,10 @@ Use the cleanup function of <code>useEffect()</code> to clear the handle when yo
 
 ```tsx twoslash title="❌ Causes problems with React strict mode"
 import React, { useState } from "react";
-import { useBuffer } from "remotion";
+import { useBufferState } from "remotion";
 
 const MyComp: React.FC = () => {
-  const buffer = useBuffer();
+  const buffer = useBufferState();
   const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
   React.useEffect(() => {
@@ -75,10 +75,10 @@ While the following implementation works in production, it fails in React Strict
 
 ```tsx twoslash title="❌ Doesn't clear the buffer handle when seeking to a different portion of a video"
 import React, { useState } from "react";
-import { useBuffer } from "remotion";
+import { useBufferState } from "remotion";
 
 const MyComp: React.FC = () => {
-  const buffer = useBuffer();
+  const buffer = useBufferState();
   const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
   React.useEffect(() => {

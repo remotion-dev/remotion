@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
-import {AbsoluteFill, Series, useBuffer} from 'remotion';
+import {AbsoluteFill, Series, useBufferState} from 'remotion';
 
 const Inside: React.FC = () => {
-	const buffer = useBuffer();
+	const buffer = useBufferState();
 
 	useEffect(() => {
 		const block = buffer.delayPlayback();
