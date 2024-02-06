@@ -39,7 +39,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 			logOptions,
 			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`,
 		);
-		Log.infoAdvanced(logOptions, `to deploy a new lambda function.`);
+		Log.infoAdvanced(logOptions, `to deploy a new Lambda function.`);
 		quit(1);
 	}
 
