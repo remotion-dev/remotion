@@ -40,7 +40,7 @@ export const EditorRulers: React.FC<{
 	assetMetadata: AssetMetadata | null;
 	containerRef: React.RefObject<HTMLDivElement>;
 }> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
-	const {scale} = useStudioCanvasDimensions({
+	const {scale, canvasDimensions} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
 		assetMetadata,
@@ -66,21 +66,21 @@ export const EditorRulers: React.FC<{
 	const horizontalRulerScaleRange = useMemo(
 		() =>
 			getRulerScaleRange({
-				canvasLength: canvasSize.width,
+				canvasLength: canvasDimensions.width,
 				scale,
 				canvasSize,
 			}),
-		[canvasSize, scale],
+		[canvasDimensions.width, canvasSize, scale],
 	);
 
 	const verticalRulerScaleRange = useMemo(
 		() =>
 			getRulerScaleRange({
-				canvasLength: canvasSize.height,
+				canvasLength: canvasDimensions.height,
 				scale,
 				canvasSize,
 			}),
-		[canvasSize, scale],
+		[canvasDimensions.height, canvasSize, scale],
 	);
 
 	const {
@@ -247,7 +247,7 @@ export const EditorRulers: React.FC<{
 				points={horizontalRulerPoints}
 				startMarking={horizontalRulerStartMarking}
 				markingGaps={rulerMarkingGaps}
-				originOffset={canvasSize.left}
+				originOffset={canvasDimensions.left}
 				size={canvasSize}
 			/>
 			<Ruler
@@ -256,7 +256,7 @@ export const EditorRulers: React.FC<{
 				points={verticalRulerPoints}
 				startMarking={verticalRulerStartMarking}
 				markingGaps={rulerMarkingGaps}
-				originOffset={canvasSize.top}
+				originOffset={canvasDimensions.top}
 				size={canvasSize}
 			/>
 		</>
