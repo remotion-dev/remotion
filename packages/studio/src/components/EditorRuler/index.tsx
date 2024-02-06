@@ -40,7 +40,7 @@ export const EditorRulers: React.FC<{
 	assetMetadata: AssetMetadata | null;
 	containerRef: React.RefObject<HTMLDivElement>;
 }> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
-	const {scale, canvasDimensions} = useStudioCanvasDimensions({
+	const {scale, canvasPosition} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
 		assetMetadata,
@@ -66,21 +66,21 @@ export const EditorRulers: React.FC<{
 	const horizontalRulerScaleRange = useMemo(
 		() =>
 			getRulerScaleRange({
-				canvasLength: canvasDimensions.width,
+				canvasLength: canvasPosition.width,
 				scale,
 				canvasSize,
 			}),
-		[canvasDimensions.width, canvasSize, scale],
+		[canvasPosition.width, canvasSize, scale],
 	);
 
 	const verticalRulerScaleRange = useMemo(
 		() =>
 			getRulerScaleRange({
-				canvasLength: canvasDimensions.height,
+				canvasLength: canvasPosition.height,
 				scale,
 				canvasSize,
 			}),
-		[canvasDimensions.height, canvasSize, scale],
+		[canvasPosition.height, canvasSize, scale],
 	);
 
 	const {
@@ -166,9 +166,9 @@ export const EditorRulers: React.FC<{
 							const position =
 								guide.orientation === 'vertical'
 									? (mouseX - containerLeft) / scale -
-										canvasDimensions.left / scale
+										canvasPosition.left / scale
 									: (mouseY - containerTop) / scale -
-										canvasDimensions.top / scale;
+										canvasPosition.top / scale;
 
 							const desiredCursor =
 								guide.orientation === 'vertical' ? 'ew-resize' : 'ns-resize';
@@ -192,8 +192,8 @@ export const EditorRulers: React.FC<{
 			setGuidesList,
 			selectedGuideId,
 			scale,
-			canvasDimensions.left,
-			canvasDimensions.top,
+			canvasPosition.left,
+			canvasPosition.top,
 		],
 	);
 
@@ -249,7 +249,7 @@ export const EditorRulers: React.FC<{
 				points={horizontalRulerPoints}
 				startMarking={horizontalRulerStartMarking}
 				markingGaps={rulerMarkingGaps}
-				originOffset={canvasDimensions.left}
+				originOffset={canvasPosition.left}
 				size={canvasSize}
 			/>
 			<Ruler
@@ -258,7 +258,7 @@ export const EditorRulers: React.FC<{
 				points={verticalRulerPoints}
 				startMarking={verticalRulerStartMarking}
 				markingGaps={rulerMarkingGaps}
-				originOffset={canvasDimensions.top}
+				originOffset={canvasPosition.top}
 				size={canvasSize}
 			/>
 		</>
