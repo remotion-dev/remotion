@@ -101,6 +101,7 @@ module.exports = {
         "spring",
         "staticfile",
         "still",
+        "use-buffer-state",
         "use-current-frame",
         "use-video-config",
         "version",
