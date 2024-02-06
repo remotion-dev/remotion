@@ -26,7 +26,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(
-			`No lambda functions with version ${VERSION} found in your account.`,
+			`No Lambda functions with version ${VERSION} found in your account.`,
 		);
 		if (remotionLambdas.length > 0) {
 			Log.error(
@@ -51,7 +51,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 			);
 			if (lambdasWithMatchingVersion.length === 0) {
 				Log.error(
-					`No lambda function with name "${parsedLambdaCli['function-name']}" and version ${VERSION} found in your account.`,
+					`No Lambda function with name "${parsedLambdaCli['function-name']}" and version ${VERSION} found in your account.`,
 				);
 				Log.infoAdvanced(logOptions);
 
