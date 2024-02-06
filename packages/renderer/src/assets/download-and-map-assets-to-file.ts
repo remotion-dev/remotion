@@ -30,10 +30,6 @@ const waitForAssetToBeDownloaded = ({
 	downloadDir: string;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
-	if (process.env.NODE_ENV === 'test') {
-		console.log('waiting for asset to be downloaded', src);
-	}
-
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		return Promise.resolve(
 			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string,
@@ -197,10 +193,6 @@ export const downloadAsset = async ({
 			[downloadDir: string]: boolean;
 		}
 	)[downloadDir] = true;
-
-	if (process.env.NODE_ENV === 'test') {
-		console.log('Actually downloading asset', src);
-	}
 
 	downloadMap.emitter.dispatchDownload(src);
 

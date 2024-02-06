@@ -527,10 +527,6 @@ export const useMenuStructure = (
 						type: 'divider' as const,
 					},
 					{
-						id: 'in-out-divider-4',
-						type: 'divider' as const,
-					},
-					{
 						id: 'quick-switcher',
 						keyHint: `${cmdOrCtrlCharacter}+K`,
 						label: 'Quick Switcher',

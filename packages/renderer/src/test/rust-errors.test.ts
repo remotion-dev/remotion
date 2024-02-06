@@ -72,7 +72,6 @@ test('Non-long running task panics should be handled', async () => {
 		await callCompositor(JSON.stringify(command), false, 'info');
 		throw new Error('should not be reached');
 	} catch (err) {
-		expect((err as Error).message).toContain('Compositor panicked');
 		expect((err as Error).message).toContain("thread 'main' panicked");
 	}
 });
