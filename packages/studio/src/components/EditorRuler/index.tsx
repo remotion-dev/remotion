@@ -165,8 +165,10 @@ export const EditorRulers: React.FC<{
 
 							const position =
 								guide.orientation === 'vertical'
-									? (mouseX - containerLeft) / scale - canvasSize.left / scale
-									: (mouseY - containerTop) / scale - canvasSize.top / scale;
+									? (mouseX - containerLeft) / scale -
+										canvasDimensions.left / scale
+									: (mouseY - containerTop) / scale -
+										canvasDimensions.top / scale;
 
 							const desiredCursor =
 								guide.orientation === 'vertical' ? 'ew-resize' : 'ns-resize';
@@ -190,8 +192,8 @@ export const EditorRulers: React.FC<{
 			setGuidesList,
 			selectedGuideId,
 			scale,
-			canvasSize.left,
-			canvasSize.top,
+			canvasDimensions.left,
+			canvasDimensions.top,
 		],
 	);
 
