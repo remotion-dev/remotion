@@ -23,33 +23,36 @@ const myMarkup = (
 
 ## Problem
 
-Remotion has no way of knowing when the image is finished loading because it is impossible to determine so when loading an image through `background-image`. This will lead to Remotion not waiting for the image to be loaded during rendering and cause visible flickers.
+Remotion has no way of knowing when the image is finished loading because it is impossible to determine so when loading an image through `background-image`, `mask-image`, or other CSS properties. This will lead to Remotion not waiting for the image to be loaded during rendering and cause visible flickers.
 
 ## Solution
 
-Use the [`<Img>`](/docs/img) tag instead and place it in an [`<AbsoluteFill>`](/docs/absolute-fill):
+Include an [`<Img>`](/docs/img) tag that renders the same src on that frame hide with CSS:
 
 ```tsx twoslash title="✅ Do this"
 const src = "abc";
 // ---cut---
-import { AbsoluteFill, Img } from "remotion";
+import { Img } from "remotion";
 
 const myMarkup = (
-  <AbsoluteFill>
-    <AbsoluteFill>
-      <Img
-        style={{
-          width: "100%",
-        }}
-        src={src}
-      />
-    </AbsoluteFill>
-    <AbsoluteFill>
+  <>
+    <Img src={src} style={{
+      opacity: 0,
+      position: "absolute",
+      left: "-100%",
+    }} />
+    <div
+      style={{
+        backgroundImage: `url(${src})`,
+      }}
+    >
       <p>Hello World</p>
-    </AbsoluteFill>
-  </AbsoluteFill>
+    </div>
+  </>
 );
 ```
+
+The hidden `<Img>` tag ensures the image will download completely which allows the `background-image` will fully render.
 
 ## See also
 
