@@ -45,7 +45,7 @@ export const useStudioCanvasDimensions = ({
 		assetMetadata,
 	]);
 
-	const canvasDimensions = useMemo(() => {
+	const canvasPosition = useMemo(() => {
 		return {
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
@@ -69,7 +69,7 @@ export const useStudioCanvasDimensions = ({
 	]);
 
 	return {
-		canvasDimensions,
+		canvasPosition,
 		scale,
 	};
 };
