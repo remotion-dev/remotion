@@ -81,6 +81,6 @@ test('Different URL, same content disposition ', () => {
 		contentDisposition: 'attachment; filename=hi-123.mp4',
 		contentType: 'video/mp4',
 	});
-	expect(asset1).toBe('dl/6382670500315726.mp4');
-	expect(asset2).toBe('dl/49303837097249925.mp4');
+	expect(asset1).toBe(`dl${path.sep}6382670500315726.mp4`);
+	expect(asset2).toBe(`dl${path.sep}49303837097249925.mp4`);
 });
