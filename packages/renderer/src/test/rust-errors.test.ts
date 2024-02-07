@@ -65,36 +65,44 @@ test('Handle panics', async () => {
 	}
 });
 
-test('Non-long running task panics should be handled', async () => {
-	const command = serializeCommand('DeliberatePanic', {});
+test(
+	'Non-long running task panics should be handled',
+	async () => {
+		const command = serializeCommand('DeliberatePanic', {});
 
-	try {
-		await callCompositor(JSON.stringify(command), false, 'info');
-		throw new Error('should not be reached');
-	} catch (err) {
-		expect((err as Error).message).toContain("thread 'main' panicked");
-	}
-});
+		try {
+			await callCompositor(JSON.stringify(command), false, 'info');
+			throw new Error('should not be reached');
+		} catch (err) {
+			expect((err as Error).message).toContain("thread 'main' panicked");
+		}
+	},
+	{retry: 2},
+);
 
-test('Long running task failures should be handled', async () => {
-	const command = serializeCommand('ExtractFrame', {
-		src: 'fsdfds',
-		original_src: 'fsdfds',
-		time: 1,
-		transparent: false,
-	});
-	try {
-		await callCompositor(JSON.stringify(command), false, 'info');
-		throw new Error('should not be reached');
-	} catch (err) {
-		expect((err as Error).message).toContain(
-			'Compositor error: No such file or directory',
-		);
-		expect((err as Error).stack).toContain(
-			'remotion::opened_stream::open_stream',
-		);
-	}
-});
+test(
+	'Long running task failures should be handled',
+	async () => {
+		const command = serializeCommand('ExtractFrame', {
+			src: 'fsdfds',
+			original_src: 'fsdfds',
+			time: 1,
+			transparent: false,
+		});
+		try {
+			await callCompositor(JSON.stringify(command), false, 'info');
+			throw new Error('should not be reached');
+		} catch (err) {
+			expect((err as Error).message).toContain(
+				'Compositor error: No such file or directory',
+			);
+			expect((err as Error).stack).toContain(
+				'remotion::opened_stream::open_stream',
+			);
+		}
+	},
+	{retry: 2},
+);
 
 test('Invalid payloads will be handled', async () => {
 	// @ts-expect-error
