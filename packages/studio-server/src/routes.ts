@@ -7,7 +7,7 @@ import type {
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
@@ -92,6 +92,11 @@ const handleFallback = async ({
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 			gitSource,
+			projectName: getProjectName({
+				basename: path.basename,
+				gitSource,
+				resolvedRemotionRoot: remotionRoot,
+			}),
 		}),
 	);
 };

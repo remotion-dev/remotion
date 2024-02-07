@@ -1,5 +1,5 @@
 import type {GitSource} from '@remotion/studio-shared';
-import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -50,27 +50,6 @@ export type LegacyBundleOptions = {
 	publicDir?: string | null;
 	onPublicDirCopyProgress?: (bytes: number) => void;
 	onSymlinkDetected?: (path: string) => void;
-};
-
-const getProjectName = ({
-	gitSource,
-	resolvedRemotionRoot,
-}: {
-	gitSource: GitSource | null;
-	resolvedRemotionRoot: string;
-}) => {
-	// Directory name
-	if (!gitSource) {
-		return path.basename(resolvedRemotionRoot);
-	}
-
-	// Subfolder name of a Git repo, e.g `example`
-	if (gitSource.relativeFromGitRoot.trim()) {
-		return path.basename(gitSource.relativeFromGitRoot.trim());
-	}
-
-	// Name of the repo
-	return gitSource.name;
 };
 
 export const getConfig = ({
@@ -297,6 +276,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
 			resolvedRemotionRoot,
+			basename: path.basename,
 		}),
 	});
 
