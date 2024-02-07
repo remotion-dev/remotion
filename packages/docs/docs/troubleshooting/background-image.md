@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-troubleshooting-background-image.png
 sidebar_label: Flickering with background-image
-title: Flickering when using background-image
+title: Flickering when using background-image or mask-image
 crumb: "Common mistakes"
 ---
 
@@ -27,7 +27,35 @@ Remotion has no way of knowing when the image is finished loading because it is 
 
 ## Solution
 
-Include an [`<Img>`](/docs/img) tag that renders the same src on that frame hide with CSS:
+Use the [`<Img>`](/docs/img) tag instead and place it in an [`<AbsoluteFill>`](/docs/absolute-fill):
+
+```tsx twoslash title="✅ Do this"
+const src = "abc";
+// ---cut---
+import { AbsoluteFill, Img } from "remotion";
+
+const myMarkup = (
+  <AbsoluteFill>
+    <AbsoluteFill>
+      <Img
+        style={{
+          width: "100%",
+        }}
+        src={src}
+      />
+    </AbsoluteFill>
+    <AbsoluteFill>
+      <p>Hello World</p>
+    </AbsoluteFill>
+  </AbsoluteFill>
+);
+```
+
+The next will be placed on top of the image and will not flicker.
+
+## Workaround
+
+If you cannot use an [`<Img>`](/docs/img) tag, for example because you need to use `mask-image()`, render an adjacent `<Img>` tag that renders the same src and place it outside the viewport:
 
 ```tsx twoslash title="✅ Do this"
 const src = "abc";
@@ -36,14 +64,17 @@ import { Img } from "remotion";
 
 const myMarkup = (
   <>
-    <Img src={src} style={{
-      opacity: 0,
-      position: "absolute",
-      left: "-100%",
-    }} />
+    <Img
+      src={src}
+      style={{
+        opacity: 0,
+        position: "absolute",
+        left: "-100%",
+      }}
+    />
     <div
       style={{
-        backgroundImage: `url(${src})`,
+        maskImage: `url(${src})`,
       }}
     >
       <p>Hello World</p>
