@@ -11,8 +11,8 @@ test('Should sanitize weird file names when downloading', () => {
 	});
 	expect(newSrc).toBe(
 		process.platform === 'win32'
-			? '\\var\\tmp\\7415404696948826'
-			: '/var/tmp/7415404696948826',
+			? '\\var\\tmp\\13348542619496584'
+			: '/var/tmp/13348542619496584',
 	);
 });
 
@@ -47,7 +47,7 @@ test('Should give different file names based on different url query parameters',
 			'attachment; filename=notjacksondatiras_1656689770_musicaldown.com.mp4; otherstuff',
 		contentType: null,
 	});
-	expect(asset1).toEqual(`dl${path.sep}2276125883217901.mp4`);
+	expect(asset1).toEqual(`dl${path.sep}9482773013878614.mp4`);
 	const asset2 = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
 		downloadDir: 'dl',
@@ -55,7 +55,7 @@ test('Should give different file names based on different url query parameters',
 			'attachment; filename=notjacksondatiras_1656689770_musicaldown.com.mp4',
 		contentType: null,
 	});
-	expect(asset2).toEqual(`dl${path.sep}2276125883217901.mp4`);
+	expect(asset2).toEqual(`dl${path.sep}9482773013878614.mp4`);
 });
 
 test('Should attach correct file extensions ', () => {
@@ -65,5 +65,22 @@ test('Should attach correct file extensions ', () => {
 		contentDisposition: null,
 		contentType: 'video/mp4',
 	});
-	expect(asset).toEqual(`dl${path.sep}2627764018252492.mp4`);
+	expect(asset).toEqual(`dl${path.sep}47313183709047735.mp4`);
+});
+
+test('Different URL, same content disposition ', () => {
+	const asset1 = getSanitizedFilenameForAssetUrl({
+		src: 'https://gtts-api.miniggiodev.fr/123/aha',
+		downloadDir: 'dl',
+		contentDisposition: 'attachment; filename=hi-123.mp4',
+		contentType: 'video/mp4',
+	});
+	const asset2 = getSanitizedFilenameForAssetUrl({
+		src: 'https://gtts-api.miniggiodev.fr/456/aha',
+		downloadDir: 'dl',
+		contentDisposition: 'attachment; filename=hi-123.mp4',
+		contentType: 'video/mp4',
+	});
+	expect(asset1).toBe('dl/6382670500315726.mp4');
+	expect(asset2).toBe('dl/49303837097249925.mp4');
 });
