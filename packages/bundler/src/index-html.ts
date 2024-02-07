@@ -1,5 +1,4 @@
 import type {GitSource, RenderDefaults} from '@remotion/studio';
-import path from 'node:path';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
 
@@ -19,6 +18,7 @@ export const indexHtml = ({
 	renderDefaults,
 	publicFolderExists,
 	gitSource,
+	projectName,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -35,6 +35,7 @@ export const indexHtml = ({
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
+	projectName: string;
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -59,9 +60,7 @@ export const indexHtml = ({
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
 				: '<script>window.remotion_editorName = null;</script>'
 		}
-		<script>window.remotion_projectName = ${JSON.stringify(
-			path.basename(remotionRoot),
-		)};</script>
+		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
 			renderDefaults,
 		)};</script>

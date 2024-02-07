@@ -1,5 +1,5 @@
 import type {GitSource} from '@remotion/studio-shared';
-import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -273,6 +273,11 @@ export async function bundle(...args: Arguments): Promise<string> {
 		renderDefaults: undefined,
 		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
+		projectName: getProjectName({
+			gitSource: actualArgs.gitSource ?? null,
+			resolvedRemotionRoot,
+			basename: path.basename,
+		}),
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
