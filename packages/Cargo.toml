@@ -19,7 +19,7 @@ image = "0.23.7"
 arboard = "3.2.0"
 sysinfo = "0.29.9"
 mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641"}
-ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="8aa490ab200967bce272fada58bc6d63f3b0c51e"}
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="d3e283e24bfeff3836bc2a51fb2328bc45a56092"}
 
 [[bin]]
 name = "remotion"
