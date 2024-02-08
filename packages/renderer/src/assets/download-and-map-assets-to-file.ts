@@ -333,7 +333,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 		split.length > 1 && split[split.length - 1]
 			? `.${split[split.length - 1]}`
 			: '';
-	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+	const hashedFileName = String(random(`${src}${pathname}${search}`)).replace(
 		'0.',
 		'',
 	);
