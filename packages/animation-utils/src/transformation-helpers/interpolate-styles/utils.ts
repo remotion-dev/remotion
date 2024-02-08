@@ -92,7 +92,7 @@ const classifyArgsOfFunction = (value: string) => {
 
 	// Classify each value
 	return values.map((val) => {
-		const numberUnitMatch = val.match(/^(\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
+		const numberUnitMatch = val.match(/^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
 		if (numberUnitMatch) {
 			const number = parseFloat(numberUnitMatch[1]);
 			const unit = numberUnitMatch[2];
