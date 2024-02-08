@@ -1,5 +1,6 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -65,6 +66,7 @@ export const getBrowserInstance = async (
 		actualChromiumOptions,
 		logLevel,
 	);
+	RenderInternals.Log.info(`Rendering with Remotion v${VERSION}.`);
 
 	if (launching) {
 		RenderInternals.Log.info('Already waiting for browser launch...');
