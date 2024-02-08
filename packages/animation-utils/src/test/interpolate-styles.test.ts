@@ -286,3 +286,22 @@ test('Should interpolate between negative values with units', () => {
 		left: '-15px',
 	});
 });
+
+test('Should not ignore 0 values', () => {
+	expect(
+		interpolateStyles(
+			0.999,
+			[0, 1],
+			[
+				{
+					left: 1000,
+				},
+				{
+					left: 0,
+				},
+			],
+		),
+	).toEqual({
+		left: 1,
+	});
+});

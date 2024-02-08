@@ -186,7 +186,8 @@ const interpolateStylesFunction = ({
 }): Style => {
 	const [startingValue, endingValue] = inputRange;
 	return Object.keys(initialStyle).reduce((acc, key) => {
-		if (!finalStyle[key as CSSPropertiesKey]) {
+		const value = finalStyle[key as CSSPropertiesKey];
+		if (value === undefined || value === null) {
 			return {
 				...acc,
 				[key]: initialStyle[key as CSSPropertiesKey],
