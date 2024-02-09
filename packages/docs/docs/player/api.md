@@ -793,6 +793,18 @@ ref.current?.addEventListener("error", (e) => {
 });
 ```
 
+### `waiting`<AvailableFrom v="4.1.0TODO" />
+
+Fires when the Player has entered into the [native buffering state](/docs/player/buffering).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+
+### `resume`<AvailableFrom v="4.1.0TODO" />
+
+Fires when the Player has exited the [native buffering state](/docs/player/buffering).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+
 ## Handling errors
 
 Since videos are written in React, they are prone to crashing.
