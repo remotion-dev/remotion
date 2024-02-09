@@ -212,6 +212,10 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
+### `pauseWhenBuffering`<AvailableFrom v="4.0.100"/>
+
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
 ## Speed up renders for video with silent audio
 
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.

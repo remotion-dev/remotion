@@ -16,7 +16,7 @@ Remotion has a native buffer state, which can be used to pause the video when th
 
 ### Activating the buffer state
 
-A component can tell the player to switch into a buffer state by first using the `useBufferState()` hook and then calling `buffer.delayPlayback()`:
+A component can tell the player to switch into a buffer state by first using the [`useBufferState()`](/docs/use-buffer-state) hook and then calling `buffer.delayPlayback()`:
 
 ```tsx twoslash title="MyComp.tsx"
 import React from "react";
@@ -135,12 +135,10 @@ const MyComp: React.FC = () => {
 
 You can enable buffering on the following components:
 
-- [`<Audio>`](/docs/audio)
-- [`<Video>`](/docs/video)
-- [`<OffthreadVideo>`](/docs/offthreadvideo)
-- [`<Img>`](/docs/img)
-
-// FIXME: How?
+- [`<Audio>`](/docs/audio) - add the `pauseWhenBuffering` props
+- [`<Video>`](/docs/video) - add the `pauseWhenBuffering` props
+- [`<OffthreadVideo>`](/docs/offthreadvideo) - add the `pauseWhenBuffering` props
+- [`<Img>`](/docs/img) // FIXME: How?
 
 ### Listening to buffer events
 
@@ -221,6 +219,6 @@ You may add additional UI to this, for example by overlaying the player with a s
 
 ## Upcoming changes in future versions
 
-In Remotion 4.0, media tags such as `<Video>` and `<Audio>` will need to opt-in to use the buffer state.
+In Remotion 4.0, media tags such as `<Audio>`, `<OffthreadVideo>` tags will need to opt-in to use the buffer state.
 
-In Remotion 5.0, media tags will automatically use the buffer state, but they can opt out of it.
+In Remotion 5.0, it is planned that `<Audio>`, `<Video>` and `<OffthreadVideo>` will automatically use the buffer state, but they can opt out of it.
