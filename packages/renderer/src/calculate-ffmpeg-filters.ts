@@ -9,12 +9,14 @@ export const calculateFfmpegFilter = ({
 	durationInFrames,
 	channels,
 	assetDuration,
+	addTwoPacketPadding,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	durationInFrames: number;
 	channels: number;
 	assetDuration: number | null;
+	addTwoPacketPadding: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
@@ -35,5 +37,6 @@ export const calculateFfmpegFilter = ({
 		assetDuration,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 		toneFrequency: asset.toneFrequency,
+		addTwoPacketPadding,
 	});
 };
