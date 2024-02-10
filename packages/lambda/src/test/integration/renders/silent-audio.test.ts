@@ -67,6 +67,7 @@ test('Should add silent audio if there is no audio', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			deleteAfter: null,
 			colorSpace: 'default',
+			preferLossless: false,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,

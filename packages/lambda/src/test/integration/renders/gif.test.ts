@@ -70,6 +70,7 @@ test('Should make a distributed GIF', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			deleteAfter: null,
 			colorSpace: 'default',
+			preferLossless: false,
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,

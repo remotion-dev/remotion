@@ -218,6 +218,7 @@ export const renderCommand = async (
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
+		preferLossless: parsedLambdaCli['prefer-lossless'] ?? false,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

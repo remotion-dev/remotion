@@ -262,3 +262,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 
 <Options cli id="color-space" />
+
+### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
+
+<Options cli id="prefer-lossless" />

@@ -94,6 +94,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
       },
     },
     x264Preset: null,
+    preferLossless: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

@@ -280,6 +280,7 @@ export type LambdaStartPayload = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace;
+	preferLossless: boolean;
 };
 
 export type LambdaStatusPayload = {
@@ -337,6 +338,7 @@ export type LambdaPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
+		preferLossless: boolean;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -378,6 +380,7 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		preferLossless: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
