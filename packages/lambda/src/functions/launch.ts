@@ -400,6 +400,7 @@ const innerLaunchHandler = async ({
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
 		logLevel: params.logLevel,
+		framesPerLambda,
 	});
 
 	return postRenderData;
@@ -408,6 +409,7 @@ const innerLaunchHandler = async ({
 type AllChunksAvailable = {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
+	framesPerLambda: number;
 };
 
 export const launchHandler = async (
@@ -453,6 +455,7 @@ export const launchHandler = async (
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
 						logLevel: params.logLevel,
+						framesPerLambda: allChunksAvailable.framesPerLambda,
 					},
 					retries: 2,
 				});
@@ -574,8 +577,16 @@ export const launchHandler = async (
 			functionName,
 			params,
 			options,
-			onAllChunksAvailable: ({inputProps, serializedResolvedProps}) => {
-				allChunksAvailable = {inputProps, serializedResolvedProps};
+			onAllChunksAvailable: ({
+				inputProps,
+				serializedResolvedProps,
+				framesPerLambda,
+			}) => {
+				allChunksAvailable = {
+					inputProps,
+					serializedResolvedProps,
+					framesPerLambda,
+				};
 			},
 		});
 		clearTimeout(webhookDueToTimeout);

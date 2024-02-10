@@ -101,10 +101,7 @@ const renderHandler = async (
 
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
-	const chunkCodec: Codec =
-		params.codec === 'gif' || params.codec === 'h264'
-			? 'h264-mkv'
-			: params.codec;
+	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
 
 	const outputLocation = path.join(
 		outdir,
@@ -115,7 +112,7 @@ const renderHandler = async (
 			chunkCodec,
 			RenderInternals.getDefaultAudioCodec({
 				codec: params.codec,
-				preferLossless: true,
+				preferLossless: params.preferLossless,
 			}),
 		)}`,
 	);
@@ -210,11 +207,8 @@ const renderHandler = async (
 			videoBitrate: params.videoBitrate,
 			encodingBufferSize: params.encodingBufferSize,
 			encodingMaxRate: params.encodingMaxRate,
-			// Lossless flag takes priority over audio codec
-			// https://github.com/remotion-dev/remotion/issues/1647
-			// Special flag only in Lambda renderer which improves the audio quality
 			audioCodec: null,
-			preferLossless: true,
+			preferLossless: params.preferLossless,
 			browserExecutable: executablePath(),
 			cancelSignal: undefined,
 			disallowParallelEncoding: false,

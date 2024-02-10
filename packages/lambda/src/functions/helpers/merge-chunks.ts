@@ -38,6 +38,7 @@ import {writePostRenderData} from './write-post-render-data';
 export type OnAllChunksAvailable = (options: {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
+	framesPerLambda: number;
 }) => void;
 
 export const mergeChunksAndFinishRender = async (options: {
@@ -61,6 +62,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	onAllChunks: OnAllChunksAvailable;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	framesPerLambda: number;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -147,6 +149,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	options.onAllChunks({
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
+		framesPerLambda: options.framesPerLambda,
 	});
 	const encodingStart = Date.now();
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
@@ -160,6 +163,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		audioCodec: options.audioCodec,
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
+		framesPerLambda: options.framesPerLambda,
 	});
 	const encodingStop = Date.now();
 

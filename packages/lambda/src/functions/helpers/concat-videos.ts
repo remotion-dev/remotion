@@ -184,6 +184,7 @@ export const concatVideosS3 = async ({
 	audioCodec,
 	audioBitrate,
 	logLevel,
+	framesPerLambda,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -195,6 +196,7 @@ export const concatVideosS3 = async ({
 	audioCodec: AudioCodec | null;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	framesPerLambda: number;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -202,6 +204,8 @@ export const concatVideosS3 = async ({
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
+
+	const chunkDurationInSeconds = framesPerLambda / fps;
 
 	await RenderInternals.combineVideos({
 		files,
@@ -216,6 +220,7 @@ export const concatVideosS3 = async ({
 		audioBitrate,
 		indent: false,
 		logLevel,
+		chunkDurationInSeconds,
 	});
 	combine.end();
 

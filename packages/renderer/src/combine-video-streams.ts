@@ -19,6 +19,7 @@ export const combineVideoStreams = async ({
 	logLevel,
 	onProgress,
 	files,
+	addRemotionMetadata,
 }: {
 	fps: number;
 	codec: Codec;
@@ -29,6 +30,7 @@ export const combineVideoStreams = async ({
 	logLevel: LogLevel;
 	onProgress: (p: number) => void;
 	files: string[];
+	addRemotionMetadata: boolean;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -53,8 +55,8 @@ export const combineVideoStreams = async ({
 		codec === 'gif' ? 'gif' : 'copy',
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
-		`-metadata`,
-		`comment=Made with Remotion ${VERSION}`,
+		addRemotionMetadata ? `-metadata` : null,
+		addRemotionMetadata ? `comment=Made with Remotion ${VERSION}` : null,
 		'-y',
 		output,
 	].filter(truthy);

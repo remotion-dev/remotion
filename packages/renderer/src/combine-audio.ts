@@ -1,5 +1,6 @@
 import {rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
+import {VERSION} from 'remotion/version';
 import type {AudioCodec} from './audio-codec';
 import {mapAudioCodecToFfmpegAudioCodecName} from './audio-codec';
 import {callFf} from './call-ffmpeg';
@@ -25,6 +26,7 @@ const encodeAudio = async ({
 	output,
 	indent,
 	logLevel,
+	addRemotionMetadata,
 }: {
 	files: string[];
 	resolvedAudioCodec: AudioCodec;
@@ -33,17 +35,18 @@ const encodeAudio = async ({
 	output: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	addRemotionMetadata: boolean;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
 	writeFileSync(fileListTxt, fileList);
 
 	const command = [
-		'-i',
 		'-f',
 		'concat',
 		'-safe',
 		'0',
+		'-i',
 		fileListTxt,
 		'-c:a',
 		mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
@@ -52,6 +55,8 @@ const encodeAudio = async ({
 		'-b:a',
 		audioBitrate ? audioBitrate : '320k',
 		'-vn',
+		addRemotionMetadata ? `-metadata` : null,
+		addRemotionMetadata ? `comment=Made with Remotion ${VERSION}` : null,
 		'-y',
 		output,
 	];
@@ -86,6 +91,7 @@ const combineAudioSeamlessly = async ({
 	logLevel,
 	output,
 	chunkDurationInSeconds,
+	addRemotionMetadata,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -93,6 +99,7 @@ const combineAudioSeamlessly = async ({
 	logLevel: LogLevel;
 	output: string;
 	chunkDurationInSeconds: number;
+	addRemotionMetadata: boolean;
 }) => {
 	const fileList = files
 		.map((p, i) => {
@@ -124,7 +131,9 @@ const combineAudioSeamlessly = async ({
 				`file '${p}'`,
 				`inpoint ${inpoint}us`,
 				isLast ? null : `outpoint ${outpoint}us`,
-			].filter(truthy);
+			]
+				.filter(truthy)
+				.join('\n');
 		})
 		.join('\n');
 
@@ -138,9 +147,11 @@ const combineAudioSeamlessly = async ({
 		'0',
 		'-i',
 		fileListTxt,
-		'-c',
+		'-c:a',
 		'copy',
 		'-vn',
+		addRemotionMetadata ? `-metadata` : null,
+		addRemotionMetadata ? `comment=Made with Remotion ${VERSION}` : null,
 		'-y',
 		output,
 	];
@@ -178,6 +189,7 @@ export const createCombinedAudio = ({
 	resolvedAudioCodec,
 	output,
 	chunkDurationInSeconds,
+	addRemotionMetadata,
 }: {
 	seamless: boolean;
 	filelistDir: string;
@@ -188,6 +200,7 @@ export const createCombinedAudio = ({
 	resolvedAudioCodec: AudioCodec;
 	output: string;
 	chunkDurationInSeconds: number;
+	addRemotionMetadata: boolean;
 }): Promise<string> => {
 	if (seamless) {
 		return combineAudioSeamlessly({
@@ -197,6 +210,7 @@ export const createCombinedAudio = ({
 			logLevel,
 			output,
 			chunkDurationInSeconds,
+			addRemotionMetadata,
 		});
 	}
 
@@ -208,5 +222,6 @@ export const createCombinedAudio = ({
 		output,
 		indent,
 		logLevel,
+		addRemotionMetadata,
 	});
 };
