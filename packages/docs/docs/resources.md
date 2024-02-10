@@ -70,6 +70,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 - [Motionly.video](https://github.com/karelnagel/motionly)
+- [DataVids](https://github.com/apsquared/datavids_public)
 
 ## Examples
 
