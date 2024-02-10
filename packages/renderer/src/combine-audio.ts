@@ -105,8 +105,8 @@ const combineAudioSeamlessly = async ({
 		.map((p, i) => {
 			const isLast = i === files.length - 1;
 
-			const targetStart = i * chunkDurationInSeconds;
-			const endStart = (i + 1) * chunkDurationInSeconds;
+			const targetStart = i * chunkDurationInSeconds * 1_000_000;
+			const endStart = (i + 1) * chunkDurationInSeconds * 1_000_000;
 
 			const startTime = getClosestAlignedTime(targetStart);
 			const endTime = getClosestAlignedTime(endStart);
