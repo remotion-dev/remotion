@@ -1,16 +1,14 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
-import {rmSync, writeFileSync} from 'node:fs';
+import {rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {VERSION} from 'remotion/version';
 import type {AudioCodec} from './audio-codec';
-import {
-	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
-} from './audio-codec';
+import {getDefaultAudioCodec} from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
-import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {createCombinedAudio} from './combine-audio';
+import {combineVideoStreams} from './combine-video-streams';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -30,6 +28,7 @@ type Options = {
 	audioBitrate: string | null;
 	indent: boolean;
 	logLevel: LogLevel;
+	chunkDurationInSeconds: number;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -46,40 +45,55 @@ export const combineVideos = async (options: Options) => {
 		audioBitrate,
 		indent,
 		logLevel,
+		chunkDurationInSeconds,
 	} = options;
-	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
-	const fileListTxt = join(filelistDir, 'files.txt');
-	writeFileSync(fileListTxt, fileList);
+	const audioOutput = join(filelistDir, 'audio');
+	const videoOutput = join(filelistDir, 'video');
 
 	const resolvedAudioCodec =
 		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
 
+	const shouldCreateAudio = resolvedAudioCodec !== null;
+	const shouldCreateVideo = !isAudioCodec(codec);
+
+	if (shouldCreateAudio) {
+		await createCombinedAudio({
+			audioBitrate,
+			filelistDir,
+			files,
+			indent,
+			logLevel,
+			output: audioOutput,
+			resolvedAudioCodec,
+			seamless: resolvedAudioCodec === 'aac',
+			chunkDurationInSeconds,
+		});
+	}
+
+	if (shouldCreateVideo) {
+		await combineVideoStreams({
+			codec,
+			filelistDir,
+			fps,
+			indent,
+			logLevel,
+			numberOfGifLoops,
+			onProgress,
+			output: videoOutput,
+			files,
+		});
+	}
+
 	const command = [
-		isAudioCodec(codec) ? null : '-r',
-		isAudioCodec(codec) ? null : String(fps),
-		'-f',
-		'concat',
-		'-safe',
-		'0',
 		'-i',
-		fileListTxt,
-		numberOfGifLoops === null ? null : '-loop',
-		numberOfGifLoops === null
-			? null
-			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
-		isAudioCodec(codec) ? null : '-c:v',
-		isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
-		resolvedAudioCodec ? '-c:a' : null,
-		resolvedAudioCodec
-			? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
-			: null,
-		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
-		resolvedAudioCodec === 'aac' ? '18000' : null,
-		'-b:a',
-		audioBitrate ? audioBitrate : '320k',
-		codec === 'h264' ? '-movflags' : null,
-		codec === 'h264' ? 'faststart' : null,
+		videoOutput,
+		'-i',
+		audioOutput,
+		'-c:v',
+		'copy',
+		'-c:a',
+		'copy',
 		`-metadata`,
 		`comment=Made with Remotion ${VERSION}`,
 		'-y',
@@ -96,14 +110,12 @@ export const combineVideos = async (options: Options) => {
 			logLevel: options.logLevel,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			if (onProgress) {
-				const parsed = parseFfmpegProgress(data.toString('utf8'));
-				if (parsed === undefined) {
-					Log.verbose({indent, logLevel}, data.toString('utf8'));
-				} else {
-					Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
-					onProgress(parsed);
-				}
+			const parsed = parseFfmpegProgress(data.toString('utf8'));
+			if (parsed === undefined) {
+				Log.verbose({indent, logLevel}, data.toString('utf8'));
+			} else {
+				Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
+				onProgress(parsed);
 			}
 		});
 
