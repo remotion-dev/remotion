@@ -66,7 +66,11 @@ export const combineVideos = async (options: Options) => {
 			}`
 		: null;
 	const audioOutput = newLocal ? join(filelistDir, newLocal) : null;
-	const videoOutput = join(filelistDir, 'video');
+	const videoOutput = join(
+		filelistDir,
+		'video.' +
+			RenderInternals.getFileExtensionFromCodec(codec, resolvedAudioCodec),
+	);
 
 	if (shouldCreateAudio) {
 		await createCombinedAudio({
