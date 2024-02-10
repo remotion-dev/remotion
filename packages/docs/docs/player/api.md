@@ -220,11 +220,11 @@ A player needs to be loaded if it contains elements that use React Suspense, or 
 
 _optional_
 
-A callback function that allows you to return a custom UI that gets overlayed over the player.
+A callback function that allows you to return a custom UI that gets overlayed over the Player.
 
-You can control when the poster gets rendered using the props [`showPosterWhenUnplayed`](#showposterwhenunplayed), [`showPosterWhenPaused`](#showposterwhenpaused) and [`showPosterWhenEnded`](#showposterwhenended). By default, they are all disabled.
+You can control when the poster gets rendered using the props [`showPosterWhenUnplayed`](#showposterwhenunplayed), [`showPosterWhenPaused`](#showposterwhenpaused), [`showPosterWhenEnded`](#showposterwhenended) and [`showPosterWhenBuffering`](#showposterwhenbuffering). By default, they are all disabled.
 
-The first parameter contains the `height` and `width` of the player as it gets rendered.
+The first parameter contains the `height` and `width` of the Player as it gets rendered.
 
 ```tsx twoslash
 import { Player, RenderPoster } from "@remotion/player";
