@@ -1,4 +1,4 @@
-import {promises} from 'node:fs';
+import {cpSync, promises} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
@@ -181,6 +181,7 @@ const getAssetsData = async ({
 		remotionRoot,
 		indent,
 		logLevel,
+		forceLossless: false,
 	});
 
 	onProgress(1);
@@ -359,6 +360,7 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
+		cpSync(audio as string, outputLocation ?? (tempFile as string));
 		onProgress?.(expectedFrames);
 		if (audio) {
 			deleteDirectory(path.dirname(audio));

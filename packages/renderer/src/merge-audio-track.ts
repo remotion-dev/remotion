@@ -20,6 +20,7 @@ type Options = {
 	remotionRoot: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	forceLossless: boolean;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -30,6 +31,7 @@ const mergeAudioTrackUnlimited = async ({
 	remotionRoot,
 	indent,
 	logLevel,
+	forceLossless,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
@@ -60,6 +62,7 @@ const mergeAudioTrackUnlimited = async ({
 						remotionRoot,
 						indent,
 						logLevel,
+						forceLossless: true,
 					});
 					return chunkOutname;
 				}),
@@ -79,6 +82,7 @@ const mergeAudioTrackUnlimited = async ({
 				remotionRoot,
 				indent,
 				logLevel,
+				forceLossless: false,
 			});
 			return;
 		} finally {
@@ -93,14 +97,13 @@ const mergeAudioTrackUnlimited = async ({
 		});
 
 	// TODO: Make AAC dynamic
-	// TODO: mergeAudioTrack can be called recursively
 	// TODO: Add bitrate
 	// TODO: Add cutoff
 	const args = [
 		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
-		['-c:a', 'libfdk_aac'],
-		['-f', 'adts'],
+		['-c:a', forceLossless ? 'pcm_s16le' : 'libfdk_aac'],
+		forceLossless ? null : ['-f', 'adts'],
 		['-map', `[${OUTPUT_FILTER_NAME}]`],
 		['-y', outName],
 	]
