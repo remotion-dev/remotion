@@ -117,7 +117,7 @@ export const combineVideos = async (options: Options) => {
 			videoOutput,
 		});
 		onProgress(numberOfFrames);
-		rmSync(filelistDir, {recursive: true});
+		//	rmSync(filelistDir, {recursive: true});
 	} catch (err) {
 		rmSync(filelistDir, {recursive: true});
 		throw err;

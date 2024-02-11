@@ -24,10 +24,11 @@ const framesPerLambda = 24;
 
 console.log(filelistDir);
 for (let i = 0; i < dur / framesPerLambda; i++) {
+	const outputLocation = path.join(filelistDir, 'out/there' + i + '.aac');
 	await renderMedia({
-		codec: 'h264',
+		codec: 'aac',
 		composition,
-		outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
+		outputLocation,
 		serveUrl: bundled,
 		frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
 		concurrency: 1,
@@ -36,14 +37,15 @@ for (let i = 0; i < dur / framesPerLambda; i++) {
 		verbose: false,
 		enforceAudioTrack: true,
 	});
+	await $`ffmpeg -i ${outputLocation} -y ${i}.wav`;
 	console.log({i});
 }
 
 await RenderInternals.combineVideos({
-	codec: 'h264',
+	codec: 'aac',
 	filelistDir,
 	files: new Array(dur / framesPerLambda).fill(true).map((_, i) => {
-		return path.join(filelistDir, 'out/there' + i + '.mkv');
+		return path.join(filelistDir, 'out/there' + i + '.aac');
 	}),
 	fps: 30,
 	numberOfFrames: dur,
@@ -60,5 +62,5 @@ await RenderInternals.combineVideos({
 RenderInternals.deleteDirectory(bundled);
 await $`ffmpeg -i ${path.join(__dirname, 'out/combined.mp4')} -y ${path.join(
 	__dirname,
-	'out/combined.wav',
+	'combined.wav',
 )}`;
