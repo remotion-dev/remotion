@@ -55,6 +55,8 @@ const preprocessAudioTrackUnlimited = async ({
 		return null;
 	}
 
+	console.log({filter});
+
 	const {cleanup, file} = await makeFfmpegFilterFile(filter, downloadMap);
 
 	const args = [

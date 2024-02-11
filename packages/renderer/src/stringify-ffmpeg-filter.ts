@@ -1,7 +1,6 @@
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import type {AssetVolume} from './assets/types';
-import {getClosestAlignedTime} from './combine-audio';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
@@ -13,8 +12,6 @@ export type ProcessedTrack = {
 	pad_start: string | null;
 	pad_end: string | null;
 };
-
-const oneAudioPacketLength = 1024 / DEFAULT_SAMPLE_RATE;
 
 export const stringifyFfmpegFilter = ({
 	trimLeft,
@@ -28,7 +25,6 @@ export const stringifyFfmpegFilter = ({
 	assetDuration,
 	allowAmplificationDuringRender,
 	toneFrequency,
-	addTwoPacketPadding,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -41,9 +37,8 @@ export const stringifyFfmpegFilter = ({
 	assetDuration: number | null;
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
-	addTwoPacketPadding: boolean;
 }): FilterWithoutPaddingApplied | null => {
-	const startInVideoUs = (startInVideo / fps) * 1_000_000;
+	const startInVideoSeconds = startInVideo / fps;
 
 	if (assetDuration && trimLeft >= assetDuration) {
 		return null;
@@ -64,27 +59,15 @@ export const stringifyFfmpegFilter = ({
 
 	// Avoid setting filters if possible, as combining them can create noise
 
-	const chunkLengthUs = (durationInFrames / fps) * 1_000_000;
+	const chunkLength = durationInFrames / fps;
 
 	const actualTrimRight = assetDuration
 		? Math.min(trimRight, assetDuration)
 		: trimRight;
 
-	const trimLeftInUs = Math.round(trimLeft * 1_000_000);
-	const trimRightInUs = Math.round(actualTrimRight * 1_000_000);
+	const audibleDuration = (actualTrimRight - trimLeft) / playbackRate;
 
-	const actualTrimLeftInUs = addTwoPacketPadding
-		? getClosestAlignedTime(trimLeftInUs) - 2 * oneAudioPacketLength
-		: trimLeftInUs;
-	const actualTrimRightInUs = addTwoPacketPadding
-		? getClosestAlignedTime(trimRightInUs) + 2 * oneAudioPacketLength
-		: trimRightInUs;
-
-	const audibleDuration =
-		(actualTrimRightInUs - actualTrimLeftInUs) / playbackRate;
-	const padAtEnd = getClosestAlignedTime(
-		chunkLengthUs - audibleDuration - startInVideoUs,
-	);
+	const padAtEnd = chunkLength - audibleDuration - startInVideoSeconds;
 
 	return {
 		filter:
@@ -92,7 +75,7 @@ export const stringifyFfmpegFilter = ({
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// Order matters! First trim the audio
-				`atrim=${actualTrimLeftInUs}us:${actualTrimRightInUs}us`,
+				`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
 				// then set the tempo
 				calculateATempo(playbackRate),
 				// set the volume if needed
@@ -116,14 +99,13 @@ export const stringifyFfmpegFilter = ({
 			`[a0]`,
 		pad_end:
 			padAtEnd > 0.0000001
-				? 'apad=pad_len=' +
-					Math.round((padAtEnd * DEFAULT_SAMPLE_RATE) / 1_000_000)
+				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
 				: null,
 		pad_start:
-			startInVideoUs === 0
+			startInVideoSeconds === 0
 				? null
 				: `adelay=${new Array(channels + 1)
-						.fill(((startInVideoUs * 1000) / 1_000_000).toFixed(0))
+						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
 	};
 };
