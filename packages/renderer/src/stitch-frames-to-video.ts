@@ -1,7 +1,6 @@
-import {promises} from 'node:fs';
+import {cpSync, promises} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
-import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -11,11 +10,8 @@ import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
-import {
-	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
-} from './audio-codec';
-import {callFf, callFfNative} from './call-ffmpeg';
+import {getDefaultAudioCodec} from './audio-codec';
+import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -175,7 +171,7 @@ const getAssetsData = async ({
 		)
 	).filter(truthy);
 
-	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.aac`);
 
 	await mergeAudioTrack({
 		files: preprocessed,
@@ -186,6 +182,8 @@ const getAssetsData = async ({
 		indent,
 		logLevel,
 	});
+
+	cpSync(outName, path.join(process.cwd(), 'mixed.aac'));
 
 	onProgress(1);
 
@@ -363,27 +361,8 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		// TODO: This can just a `copy` now
-		const ffmpegTask = callFf({
-			bin: 'ffmpeg',
-			args: [
-				'-i',
-				audio,
-				'-c:a',
-				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				'-b:a',
-				audioBitrate ? audioBitrate : '320k',
-				force ? '-y' : null,
-				outputLocation ?? tempFile,
-			].filter(NoReactInternals.truthy),
-			indent,
-			logLevel,
-		});
+		cpSync(audio as string, outputLocation ?? (tempFile as string));
 
-		cancelSignal?.(() => {
-			ffmpegTask.kill();
-		});
-		await ffmpegTask;
 		onProgress?.(expectedFrames);
 		if (audio) {
 			deleteDirectory(path.dirname(audio));

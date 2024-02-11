@@ -103,6 +103,7 @@ const combineAudioSeamlessly = async ({
 }) => {
 	const fileList = files
 		.map((p, i) => {
+			const isLast = i === files.length - 1;
 			const targetStart = i * chunkDurationInSeconds * 1_000_000;
 			const endStart = (i + 1) * chunkDurationInSeconds * 1_000_000;
 
@@ -111,21 +112,22 @@ const combineAudioSeamlessly = async ({
 
 			const realDuration = endTime - startTime;
 
-			console.log({realDuration});
-
 			let inpoint = 0;
 			if (i > 0) {
 				// Although we only asked for two frames of padding, ffmpeg will add an
 				// additional 2 frames of silence at the start of the segment. When we slice out
 				// our real data with inpoint and outpoint, we'll want remove both the silence
 				// and the extra frames we asked for.
-				inpoint = durationOf1Frame * 5;
+				inpoint = durationOf1Frame * 4;
 			}
 
 			// inpoint is inclusive and outpoint is exclusive. To avoid overlap, we subtract
 			// the duration of one frame from the outpoint.
 			// we don't have to subtract a frame if this is the last segment.
-			const outpoint = realDuration + inpoint;
+			const outpoint =
+				(i === 0 ? durationOf1Frame * 2 : inpoint) +
+				realDuration -
+				(isLast ? 0 : durationOf1Frame);
 
 			return [`file '${p}'`, `inpoint ${inpoint}us`, `outpoint ${outpoint}us`]
 				.filter(truthy)

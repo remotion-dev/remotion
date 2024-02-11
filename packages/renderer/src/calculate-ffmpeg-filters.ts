@@ -1,5 +1,6 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
 import type {MediaAsset} from './assets/types';
+import {getClosestAlignedTime} from './combine-audio';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {FilterWithoutPaddingApplied} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
@@ -23,12 +24,18 @@ export const calculateFfmpegFilter = ({
 
 	const assetTrimLeft = Math.max(
 		0,
-		(asset.trimLeft * asset.playbackRate) / fps -
+		getClosestAlignedTime(
+			((asset.trimLeft * asset.playbackRate) / fps) * 1_000_000,
+		) /
+			1_000_000 -
 			2 * (1024 / DEFAULT_SAMPLE_RATE),
 	);
 	const assetTrimRight =
-		assetTrimLeft +
-		(asset.duration * asset.playbackRate) / fps +
+		getClosestAlignedTime(
+			((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
+				1_000_000,
+		) /
+			1_000_000 +
 		2 * (1024 / DEFAULT_SAMPLE_RATE);
 
 	return stringifyFfmpegFilter({

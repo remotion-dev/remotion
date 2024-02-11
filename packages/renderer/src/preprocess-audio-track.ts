@@ -1,3 +1,5 @@
+import {cpSync} from 'fs';
+import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
@@ -67,7 +69,8 @@ const preprocessAudioTrackUnlimited = async ({
 	].flat(2);
 
 	await callFf({bin: 'ffmpeg', args, indent, logLevel});
-
+	cpSync(outName, process.cwd() + '/' + 'raw' + path.basename(outName));
+	console.log({outName});
 	cleanup();
 	return {outName, filter};
 };
