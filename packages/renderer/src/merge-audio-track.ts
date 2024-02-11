@@ -92,10 +92,15 @@ const mergeAudioTrackUnlimited = async ({
 			downloadMap,
 		});
 
+	// TODO: Make AAC dynamic
+	// TODO: mergeAudioTrack can be called recursively
+	// TODO: Add bitrate
+	// TODO: Add cutoff
 	const args = [
 		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
-		['-c:a', 'pcm_s16le'],
+		['-c:a', 'libfdk_aac'],
+		['-f', 'adts'],
 		['-map', `[${OUTPUT_FILTER_NAME}]`],
 		['-y', outName],
 	]

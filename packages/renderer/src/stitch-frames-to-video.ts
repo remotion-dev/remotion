@@ -363,6 +363,7 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
+		// TODO: This can just a `copy` now
 		const ffmpegTask = callFf({
 			bin: 'ffmpeg',
 			args: [
@@ -435,12 +436,7 @@ const innerStitchFramesToVideo = async (
 			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
-		resolvedAudioCodec
-			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
-			: null,
-		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
-		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
-		resolvedAudioCodec === 'aac' ? '18000' : null,
+		resolvedAudioCodec ? ['-c:a', 'copy'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],

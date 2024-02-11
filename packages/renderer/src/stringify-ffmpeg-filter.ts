@@ -67,6 +67,7 @@ export const stringifyFfmpegFilter = ({
 
 	const audibleDuration = (actualTrimRight - trimLeft) / playbackRate;
 
+	// TODO: Factor in extra padding
 	const padAtEnd = chunkLength - audibleDuration - startInVideoSeconds;
 
 	return {
@@ -75,7 +76,7 @@ export const stringifyFfmpegFilter = ({
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// Order matters! First trim the audio
-				`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
+				`atrim=${trimLeft * 1_000_000}us:${actualTrimRight * 1_000_000}us`,
 				// then set the tempo
 				calculateATempo(playbackRate),
 				// set the volume if needed

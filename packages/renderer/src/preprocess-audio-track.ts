@@ -47,8 +47,6 @@ const preprocessAudioTrackUnlimited = async ({
 		fps,
 		channels,
 		assetDuration: duration,
-		// TODO: Hardcoded
-		addTwoPacketPadding: true,
 	});
 
 	if (filter === null) {

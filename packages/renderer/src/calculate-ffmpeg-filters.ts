@@ -1,5 +1,6 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
 import type {MediaAsset} from './assets/types';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {FilterWithoutPaddingApplied} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
@@ -9,22 +10,27 @@ export const calculateFfmpegFilter = ({
 	durationInFrames,
 	channels,
 	assetDuration,
-	addTwoPacketPadding,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	durationInFrames: number;
 	channels: number;
 	assetDuration: number | null;
-	addTwoPacketPadding: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
 	}
 
-	const assetTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
+	const assetTrimLeft = Math.max(
+		0,
+		(asset.trimLeft * asset.playbackRate) / fps -
+			2 * (1024 / DEFAULT_SAMPLE_RATE),
+	);
 	const assetTrimRight =
-		assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+		assetTrimLeft +
+		(asset.duration * asset.playbackRate) / fps +
+		2 * (1024 / DEFAULT_SAMPLE_RATE);
+
 	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,
@@ -37,6 +43,5 @@ export const calculateFfmpegFilter = ({
 		assetDuration,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 		toneFrequency: asset.toneFrequency,
-		addTwoPacketPadding,
 	});
 };
