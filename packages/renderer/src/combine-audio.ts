@@ -135,8 +135,6 @@ const combineAudioSeamlessly = async ({
 		})
 		.join('\n');
 
-	console.log(fileList);
-
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
 	writeFileSync(fileListTxt, fileList);
 
@@ -174,7 +172,7 @@ const combineAudioSeamlessly = async ({
 		await task;
 		return output;
 	} catch (e) {
-		//	rmSync(filelistDir, {recursive: true});
+		rmSync(filelistDir, {recursive: true});
 		console.log(e);
 		throw e;
 	}

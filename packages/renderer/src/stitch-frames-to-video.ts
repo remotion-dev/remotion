@@ -1,4 +1,4 @@
-import {cpSync, promises} from 'node:fs';
+import {promises} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
@@ -183,8 +183,6 @@ const getAssetsData = async ({
 		logLevel,
 	});
 
-	cpSync(outName, path.join(process.cwd(), 'mixed.aac'));
-
 	onProgress(1);
 
 	deleteDirectory(downloadMap.audioMixing);
@@ -360,8 +358,6 @@ const innerStitchFramesToVideo = async (
 				'exporting audio but has no audio codec name. Report this in the Remotion repo.',
 			);
 		}
-
-		cpSync(audio as string, outputLocation ?? (tempFile as string));
 
 		onProgress?.(expectedFrames);
 		if (audio) {
