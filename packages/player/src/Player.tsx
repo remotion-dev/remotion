@@ -64,6 +64,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
 	showPosterWhenUnplayed?: boolean;
+	showPosterWhenBuffering?: boolean;
 	inFrame?: number | null;
 	outFrame?: number | null;
 	initiallyShowControls?: number | boolean;
@@ -112,6 +113,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		initialFrame,
 		renderPoster,
 		inFrame,
@@ -363,6 +365,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+							showPosterWhenBuffering={Boolean(showPosterWhenBuffering)}
 							renderPoster={renderPoster}
 							inFrame={inFrame ?? null}
 							outFrame={outFrame ?? null}

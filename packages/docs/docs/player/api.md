@@ -277,6 +277,14 @@ _optional_
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
+### `showPosterWhenBuffering`<AvailableFrom v="4.0.100" />
+
+// TODO Version
+
+_optional_
+
+Render a poster when the `<Player>` is in the [buffering state](/docs/player/buffer-state). You may for example show a spinner in the center of the video.
+
 ### `inFrame`<AvailableFrom v="3.2.15" />
 
 _optional_

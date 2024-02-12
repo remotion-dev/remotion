@@ -4,6 +4,8 @@ title: Display a buffer state
 crumb: Building video apps
 ---
 
+// TODO
+
 :::warning
 Since Remotion XXX, Remotion has a [native buffer state](/docs/player/buffer-state). The technique described on this page should only be used for older versions of Remotion.
 :::

@@ -35,6 +35,7 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
+	isBuffering: boolean;
 }) => React.ReactNode;
 export type RenderPoster = RenderLoading;
 export type PosterFillMode = 'player-size' | 'composition-size';
@@ -69,6 +70,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
+		showPosterWhenBuffering: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
@@ -99,6 +101,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -495,9 +498,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
+					isBuffering: showBufferIndicator,
 				})
 			: null;
-	}, [outerStyle.height, outerStyle.width, renderLoading]);
+	}, [outerStyle.height, outerStyle.width, renderLoading, showBufferIndicator]);
 
 	if (!config) {
 		return null;
@@ -513,6 +517,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					posterFillMode === 'player-size'
 						? (outerStyle.width as number)
 						: config.width,
+				isBuffering: showBufferIndicator,
 			})
 		: null;
 
@@ -528,6 +533,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
