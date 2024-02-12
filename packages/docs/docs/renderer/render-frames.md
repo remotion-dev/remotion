@@ -106,6 +106,10 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
+### `port?`
+
+Prefer a specific port that will be used to serve the Remotion project. If not specified, a random port will be used.
+
 ### `frameRange?`
 
 _optional_

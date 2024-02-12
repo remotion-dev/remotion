@@ -37,9 +37,6 @@ export type SequencePropsWithoutDuration = {
 	height?: number;
 	from?: number;
 	name?: string;
-	/**
-	 * @deprecated For internal use only.
-	 */
 	showInTimeline?: boolean;
 	/**
 	 * @deprecated For internal use only.

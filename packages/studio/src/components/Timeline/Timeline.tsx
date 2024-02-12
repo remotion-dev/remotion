@@ -60,7 +60,7 @@ export const Timeline: React.FC = () => {
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const filtered = useMemo(() => {
-		const withoutHidden = timeline.filter((t) => !isTrackHidden(t, timeline));
+		const withoutHidden = timeline.filter((t) => !isTrackHidden(t));
 
 		const withoutAfter = withoutHidden.filter((t) => {
 			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;

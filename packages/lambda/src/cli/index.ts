@@ -182,11 +182,25 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 				'The security token included in the request is invalid',
 			)
 		) {
-			Log.error(
-				`
+			const keyButDoesntStartWithAki =
+				process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+				!process.env.REMOTION_AWS_ACCESS_KEY_ID.startsWith('AKI');
+			const pureKeyButDoesntStartWithAki =
+				process.env.AWS_ACCESS_KEY_ID &&
+				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
+			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
+				Log.error(
+					`
+	AWS returned an error message "The security token included in the request is invalid". A possible reason is that your AWS Access key ID is set but doesn't start with "AKI", which it usually should. The original message is: 
+	`,
+				);
+			} else {
+				Log.error(
+					`
 AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
 `,
-			);
+				);
+			}
 		}
 
 		if (error instanceof RenderInternals.SymbolicateableError) {

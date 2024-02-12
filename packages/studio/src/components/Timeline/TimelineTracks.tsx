@@ -43,7 +43,7 @@ export const TimelineTracks: React.FC<{
 			<div style={content}>
 				<TimelineTimePadding />
 				{timeline.map((track) => {
-					if (isTrackHidden(track, timeline)) {
+					if (isTrackHidden(track)) {
 						return null;
 					}
 
