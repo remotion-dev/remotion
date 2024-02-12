@@ -97,7 +97,7 @@ export const combineVideos = async (options: Options) => {
 		});
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
-				const parsed = parseFfmpegProgress(data.toString('utf8'));
+				const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 				if (parsed === undefined) {
 					Log.verbose({indent, logLevel}, data.toString('utf8'));
 				} else {
