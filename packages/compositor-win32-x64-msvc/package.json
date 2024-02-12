@@ -1,5 +1,5 @@
 {
-  "version": "4.0.109",
+  "version": "4.0.110",
   "name": "@remotion/compositor-win32-x64-msvc",
   "os": [
     "win32"
