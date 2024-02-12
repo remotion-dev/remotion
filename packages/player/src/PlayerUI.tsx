@@ -79,6 +79,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls: boolean;
 		showPlaybackRateControl: boolean | number[];
 		posterFillMode: PosterFillMode;
+		bufferStateDelayInMilliseconds: number;
 	}
 > = (
 	{
@@ -110,6 +111,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
+		bufferStateDelayInMilliseconds,
 	},
 	ref,
 ) => {
@@ -293,7 +295,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					if (!stopped) {
 						setShowBufferState(true);
 					}
-				}, 300);
+				}, bufferStateDelayInMilliseconds);
 			});
 		};
 

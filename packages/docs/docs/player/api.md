@@ -227,23 +227,39 @@ You can control when the poster gets rendered using the props [`showPosterWhenUn
 The first parameter contains the `height` and `width` of the Player as it gets rendered.
 
 ```tsx twoslash
-import { Player, RenderPoster } from "@remotion/player";
 import { useCallback } from "react";
 import { AbsoluteFill } from "remotion";
 
 const Component: React.FC = () => null;
+const Spinner: React.FC = () => null;
 
 // ---cut---
 
+import type { RenderPoster } from "@remotion/player";
+import { Player } from "@remotion/player";
+
 const MyApp: React.FC = () => {
   // `RenderPoster` type can be imported from "@remotion/player"
-  const renderPoster: RenderPoster = useCallback(({ height, width }) => {
-    return (
-      <AbsoluteFill style={{ backgroundColor: "gray" }}>
-        Click to play! ({height}x{width})
-      </AbsoluteFill>
-    );
-  }, []);
+  const renderPoster: RenderPoster = useCallback(
+    ({ height, width, isBuffering }) => {
+      if (isBuffering) {
+        return (
+          <AbsoluteFill
+            style={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <Spinner />
+          </AbsoluteFill>
+        );
+      }
+
+      return (
+        <AbsoluteFill style={{ backgroundColor: "gray" }}>
+          Click to play! ({height}x{width})
+        </AbsoluteFill>
+      );
+    },
+    [],
+  );
 
   return (
     <Player
@@ -327,9 +343,9 @@ import { useCallback } from "react";
 
 export const App: React.FC = () => {
   const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({ playing, buffering }) => {
+    ({ playing, isBuffering }) => {
       // Since v4.0.XXX // TODO
-      if (playing && buffering) {
+      if (playing && isBuffering) {
         return <MySpinner />;
       }
 
@@ -355,7 +371,8 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.XXX // TODO, a `buffering` variable is being returned if the Player is in a [buffer state](/docs/player/buffer-state). Read about [state management](/docs/player/buffer-state#state-management) to understand the different states a Player can be in.
+Since v4.0.XXX // TODO, a `isBuffering` variable is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state).  
+Read about [state management](/docs/player/buffer-state#state-management) to understand how to treat the different states a Player can be in.
 
 ### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
 
@@ -418,6 +435,15 @@ Either `player-size` (default) or `composition-size`:
 
 - `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
 - `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
+
+### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.XXX"/>
+
+After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
+This prevents jank when the Player is only in a buffering state for a short time. Default `300`.
+
+Note:
+
+- [`renderPoster()`](#renderposter) and [`renderPlayPauseButton()`](#renderplaypausebutton) will only report `isBuffering` as `true` after this delay has passed.
 
 ## `PlayerRef`
 

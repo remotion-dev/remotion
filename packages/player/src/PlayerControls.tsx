@@ -17,7 +17,7 @@ import type {Size} from './utils/use-element-size.js';
 
 export type RenderPlayPauseButton = (props: {
 	playing: boolean;
-	buffering: boolean;
+	isBuffering: boolean;
 }) => ReactNode;
 
 export type RenderFullscreenButton = (props: {
@@ -284,7 +284,10 @@ export const Controls: React.FC<{
 								playing={player.playing}
 							/>
 						) : (
-							renderPlayPauseButton({playing: player.playing, buffering})
+							renderPlayPauseButton({
+								playing: player.playing,
+								isBuffering: buffering,
+							})
 						)}
 					</button>
 					{showVolumeControls ? (

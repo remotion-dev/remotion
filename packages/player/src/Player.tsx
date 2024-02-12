@@ -75,6 +75,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	initiallyMuted?: boolean;
 	showPlaybackRateControl?: boolean | number[];
 	posterFillMode?: PosterFillMode;
+	bufferStateDelayInMilliseconds?: number;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -125,6 +126,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
 		posterFillMode = 'player-size',
+		bufferStateDelayInMilliseconds,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -374,6 +376,9 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
+							bufferStateDelayInMilliseconds={
+								bufferStateDelayInMilliseconds ?? 300
+							}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
