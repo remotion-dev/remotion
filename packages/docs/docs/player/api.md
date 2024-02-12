@@ -239,7 +239,6 @@ import type { RenderPoster } from "@remotion/player";
 import { Player } from "@remotion/player";
 
 const MyApp: React.FC = () => {
-  // `RenderPoster` type can be imported from "@remotion/player"
   const renderPoster: RenderPoster = useCallback(
     ({ height, width, isBuffering }) => {
       if (isBuffering) {
@@ -371,8 +370,9 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.XXX // TODO, a `isBuffering` variable is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state).  
-Read about [state management](/docs/player/buffer-state#state-management) to understand how to treat the different states a Player can be in.
+Since v4.0.XXX // TODO, a `isBuffering` variable is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). Read about [state management](/docs/player/buffer-state#state-management) to understand how to treat the different states a Player can be in.
+
+Since v4.0.XXX // TODO, You can return `null` in the callback to fall back to the default UI.
 
 ### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
 

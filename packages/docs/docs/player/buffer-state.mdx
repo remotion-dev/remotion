@@ -220,11 +220,11 @@ You can enable buffering on the following components:
 ## Indicating buffering in the UI
 
 When the Player is buffering, by default the Play button will be replaced with a spinner.  
-To prevent a janky UI, this spinner will only be shown after the Player has been in a buffering state in 300ms.
+To prevent a janky UI, this spinner will only be shown after the Player has been in a buffering state for 300ms.
 
-You may customize the timeout of `300` milliseconds by passing the [`bufferStateDelayInMilliseconds`](/docs/player/api#bufferstatedelayinmilliseconds) prop to the `<Player />` component.
+You may customize the timeout of `300` milliseconds by passing the [`bufferStateDelayInMilliseconds`](/docs/player/player#bufferstatedelayinmilliseconds) prop to the `<Player />` component.
 
-```tsx twoslash title="Listening to waiting and resume events"
+```tsx twoslash title="Setting the delay until the spinner is shown"
 // @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
 export const MyVideo = () => <></>;
@@ -243,7 +243,86 @@ export const App: React.FC = () => {
       compositionWidth={1920}
       compositionHeight={1080}
       fps={30}
-      bufferStateDelayInMilliseconds={1000}
+      bufferStateDelayInMilliseconds={1000} // Or set to `0` to immediately show the spinner
+    />
+  );
+};
+```
+
+To customize the spinner that is shown in place of the Play button, you can pass a [`renderPlayPauseButton()`](/docs/player/player#renderplaypausebutton) prop:
+
+```tsx twoslash title="Rendering a custom spinner inside the Play button"
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MySpinner: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderPlayPauseButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({ playing, isBuffering }) => {
+      if (playing && isBuffering) {
+        return <MySpinner />;
+      }
+
+      return null;
+    },
+    [],
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+To display a loading UI layered on top of the Player (e.g. a spinner), you can set [`showPosterWhenBuffering`](/docs/player/player#showposterwhenbuffering) to `true` and pass a [`renderPoster()`](/docs/player/player#renderposter) prop:
+
+```tsx twoslash title="Rendering a custom spinner on top of the Player"
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+const Spinner: React.FC = () => null;
+
+// ---cut---
+
+import type { RenderPoster } from "@remotion/player";
+import { Player } from "@remotion/player";
+
+const MyApp: React.FC = () => {
+  const renderPoster: RenderPoster = useCallback(({ isBuffering }) => {
+    if (isBuffering) {
+      return (
+        <AbsoluteFill
+          style={{ justifyContent: "center", alignItems: "center" }}
+        >
+          <Spinner />
+        </AbsoluteFill>
+      );
+    }
+
+    return null;
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      renderPoster={renderPoster}
+      showPosterWhenBuffering
     />
   );
 };
