@@ -131,16 +131,30 @@ const MyComp: React.FC = () => {
 
 </details>
 
-### Components with built-in buffering
+### Possible states
 
-You can enable buffering on the following components:
+Whether a player is buffering does not internally change the `playing` / `paused` state.  
+Therefore, a player can be in four playback states:
 
-- [`<Audio>`](/docs/audio) - add the `pauseWhenBuffering` props
-- [`<Video>`](/docs/video) - add the `pauseWhenBuffering` props
-- [`<OffthreadVideo>`](/docs/offthreadvideo) - add the `pauseWhenBuffering` props
-- [`<Img>`](/docs/img) // FIXME: How?
+<Step>1</Step> <code>playing && !buffering</code> <br />
+<Step>2</Step> <code>playing && buffering</code> <br />
+<Step>3</Step> <code>paused && !buffering</code> <br />
+<Step>4</Step> <code>paused && buffering</code> <br />
+<br />
 
-### Listening to buffer events
+Only in state <InlineStep>1</InlineStep> the time moves forward.
+
+By default, Remotion will display the following UI based on the state of the player:
+
+<Step>1</Step> Pause button <br />
+<Step>2</Step> Pause button, then after 500ms (TODO), show a spinner instead <br />
+<Step>3</Step>
+<Step>4</Step> Play button <br />
+<br />
+
+You may add additional UI to this, for example by overlaying the player with a spinner when the player is buffering.
+
+## Listening to buffer events
 
 If the `<Player />` is entering a buffer state, it will emit the `waiting` event.  
 Once it resumes, it emits the `resume` event.
@@ -194,28 +208,46 @@ export const App: React.FC = () => {
 };
 ```
 
-### State management
+## Components with built-in buffering
 
-Whether a player is buffering does not internally change the `playing` / `paused` state.  
-Therefore, a player can be in four playback states:
+You can enable buffering on the following components:
 
-<Step>1</Step> <code>playing && !buffering</code> <br />
-<Step>2</Step> <code>playing && buffering</code> <br />
-<Step>3</Step> <code>paused && !buffering</code> <br />
-<Step>4</Step> <code>paused && buffering</code> <br />
-<br />
+- [`<Audio>`](/docs/audio) - add the `pauseWhenBuffering` props
+- [`<Video>`](/docs/video) - add the `pauseWhenBuffering` props
+- [`<OffthreadVideo>`](/docs/offthreadvideo) - add the `pauseWhenBuffering` props
+- [`<Img>`](/docs/img) // FIXME: How?
 
-Only in state <InlineStep>1</InlineStep> the time moves forward.
+## Indicating buffering in the UI
 
-By default, Remotion will display the following UI based on the state of the player:
+When the Player is buffering, by default the Play button will be replaced with a spinner.  
+To prevent a janky UI, this spinner will only be shown after the Player has been in a buffering state in 300ms.
 
-<Step>1</Step> Pause button <br />
-<Step>2</Step> Pause button, then after 500ms (TODO), show a spinner instead <br />
-<Step>3</Step>
-<Step>4</Step> Play button <br />
-<br />
+You may customize the timeout of `300` milliseconds by passing the [`bufferStateDelayInMilliseconds`](/docs/player/api#bufferstatedelayinmilliseconds) prop to the `<Player />` component.
 
-You may add additional UI to this, for example by overlaying the player with a spinner when the player is buffering.
+```tsx twoslash title="Listening to waiting and resume events"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player, PlayerRef } from "@remotion/player";
+import { useEffect, useRef, useState } from "react";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      bufferStateDelayInMilliseconds={1000}
+    />
+  );
+};
+```
 
 ## Upcoming changes in future versions
 

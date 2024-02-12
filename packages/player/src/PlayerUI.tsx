@@ -291,11 +291,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const onBuffer = () => {
 			requestAnimationFrame(() => {
-				timeout = setTimeout(() => {
-					if (!stopped) {
-						setShowBufferState(true);
-					}
-				}, bufferStateDelayInMilliseconds);
+				if (bufferStateDelayInMilliseconds === 0) {
+					setShowBufferState(true);
+				} else {
+					timeout = setTimeout(() => {
+						if (!stopped) {
+							setShowBufferState(true);
+						}
+					}, bufferStateDelayInMilliseconds);
+				}
 			});
 		};
 
@@ -323,7 +327,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 			stopped = true;
 		};
-	}, [player.emitter]);
+	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
 	useImperativeHandle(
 		ref,
