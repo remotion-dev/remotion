@@ -152,7 +152,15 @@ module.exports = {
       },
 
       label: "@remotion/player",
-      items: ["player/api", "player/thumbnail"],
+      items: [
+        {
+          type: "link",
+          href: "/docs/player",
+          label: "Guide + Examples",
+        },
+        "player/api",
+        "player/thumbnail",
+      ],
     },
     {
       type: "category",

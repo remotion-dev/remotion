@@ -313,11 +313,13 @@ If true, the player is muted in its initial state. This is useful if the video m
 
 _optional_
 
-Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
+Allows you to customize the Play/Pause button of the controls.  
+Must be a callback function that returns a valid React element.
 
 ```tsx twoslash
 const MyPlayButton: React.FC = () => null;
 const MyPauseButton: React.FC = () => null;
+const MySpinner: React.FC = () => null;
 const MyVideo: React.FC = () => null;
 // ---cut---
 import { Player, RenderPlayPauseButton } from "@remotion/player";
@@ -325,7 +327,12 @@ import { useCallback } from "react";
 
 export const App: React.FC = () => {
   const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({ playing }) => {
+    ({ playing, buffering }) => {
+      // Since v4.0.XXX // TODO
+      if (playing && buffering) {
+        return <MySpinner />;
+      }
+
       if (playing) {
         return <MyPlayButton />;
       }
@@ -347,6 +354,8 @@ export const App: React.FC = () => {
   );
 };
 ```
+
+Since v4.0.XXX // TODO, a `buffering` variable is being returned if the Player is in a [buffer state](/docs/player/buffer-state). Read about [state management](/docs/player/buffer-state#state-management) to understand the different states a Player can be in.
 
 ### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
 

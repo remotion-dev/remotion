@@ -19,6 +19,7 @@ export type RenderPlayPauseButton = (props: {
 	playing: boolean;
 	buffering: boolean;
 }) => ReactNode;
+
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
