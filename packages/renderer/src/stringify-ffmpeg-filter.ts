@@ -88,12 +88,6 @@ export const stringifyFfmpegFilter = ({
 				toneFrequency && toneFrequency !== 1
 					? `asetrate=${DEFAULT_SAMPLE_RATE}*${toneFrequency},aresample=${DEFAULT_SAMPLE_RATE},atempo=1/${toneFrequency}`
 					: null,
-				// For n channels, we delay n + 1 channels.
-				// This is because `ffprobe` for some audio files reports the wrong amount
-				// of channels.
-				// This should be fine because FFMPEG documentation states:
-				// "Unused delays will be silently ignored."
-				// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			]
 				.filter(truthy)
 				.join(',') +
@@ -103,6 +97,12 @@ export const stringifyFfmpegFilter = ({
 				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
 				: null,
 		pad_start:
+			// For n channels, we delay n + 1 channels.
+			// This is because `ffprobe` for some audio files reports the wrong amount
+			// of channels.
+			// This should be fine because FFMPEG documentation states:
+			// "Unused delays will be silently ignored."
+			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			startInVideoSeconds === 0
 				? null
 				: `adelay=${new Array(channels + 1)
