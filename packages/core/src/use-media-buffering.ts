@@ -32,6 +32,7 @@ export const useMediaBuffering = (
 
 			cleanup = () => {
 				current.removeEventListener('canplay', onCanPlay);
+				unblock();
 				return undefined;
 			};
 		};
