@@ -37,7 +37,7 @@ const MyComp: React.FC = () => {
     };
   }, []);
 
-  return <></>;
+  return null;
 };
 ```
 
@@ -144,15 +144,21 @@ Therefore, a player can be in four playback states:
 
 Only in state <InlineStep>1</InlineStep> the time moves forward.
 
+---
+
 By default, Remotion will display the following UI based on the state of the player:
 
-<Step>1</Step> Pause button <br />
-<Step>2</Step> Pause button, then after 500ms (TODO), show a spinner instead <br />
-<Step>3</Step>
-<Step>4</Step> Play button <br />
-<br />
+<p>
+  When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
+</p>
+<p>
 
-You may add additional UI to this, for example by overlaying the player with a spinner when the player is buffering.
+When in State <InlineStep>2</InlineStep> at first a Pause button, then after <a href="#indicating-buffering-in-the-ui">
+a delay</a>, a <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a> is shown.</p>
+
+<p>Otherwise, the Play button is shown.</p>
+
+You may add additional UI to this, for example by overlaying the Player with a spinner when the Player is buffering.
 
 ## Listening to buffer events
 
