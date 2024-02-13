@@ -12,6 +12,11 @@ In this case, the best practice is to briefly pause the video, let the content l
 
 Remotion has a native buffer state, which can be used to pause the video when the buffer is empty.
 
+## TL;DR
+
+You can add a `pauseWhenBuffering` prop to your [`<Video>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img/#pausewhenbuffering) tags.  
+By doing so, the Player will briefly pause until your media is loaded.
+
 ## Mechanic
 
 ### Activating the buffer state
@@ -347,3 +352,9 @@ const MyApp: React.FC = () => {
 In Remotion 4.0, media tags such as `<Audio>`, `<OffthreadVideo>` tags will need to opt-in to use the buffer state.
 
 In Remotion 5.0, it is planned that `<Audio>`, `<Video>` and `<OffthreadVideo>` will automatically use the buffer state, but they can opt out of it.
+
+## See also
+
+- [`useBufferState()`](/docs/use-buffer-state)
+- [`<Player>`](/docs/player/player)
+- [Avoiding flickering in `<Player>`](/docs/troubleshooting/player-flicker)
