@@ -2,6 +2,7 @@
   font-size: 2.5em;
   font-weight: 700;
   line-height: 1.1;
+  font-family: "GTPlanar", sans-serif;
 }
 
 .mp4 {
@@ -9,7 +10,47 @@
 }
 
 .pricingcontainer {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  border: 5px solid black;
+  border-radius: 5px;
+  padding: 20px 26px;
+}
+
+.text {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 19px;
+}
+
+.pricetag {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.boldtext {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.description {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 15px;
+  color: #666666;
+  min-width: 330px;
+}
+.descriptionsmall {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 14px;
+  color: #666666;
 }
 
 .pricingrow {
@@ -101,6 +142,12 @@
   flex-direction: row;
 }
 
+.rowcontainer {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 12;
+}
+
 .doublepanelsingle {
   flex: 1;
   min-height: 400px;
@@ -131,6 +178,9 @@
 }
 
 @media screen and (max-width: 900px) {
+  .description {
+    min-width: 200px;
+  }
   .pricingcontainer {
     text-align: left;
   }
