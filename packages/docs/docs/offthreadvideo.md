@@ -195,7 +195,7 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-### `pauseWhenBuffering`<AvailableFrom v="4.0.100"/>
+### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 

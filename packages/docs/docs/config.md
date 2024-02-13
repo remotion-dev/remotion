@@ -757,7 +757,7 @@ Config.setBeepOnFinish(true);
 
 The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
 
-## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.XXXTODO" />
+## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.1.111" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
 
