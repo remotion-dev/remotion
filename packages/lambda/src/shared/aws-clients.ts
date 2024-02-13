@@ -203,7 +203,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 
 		if (customCredentials) {
 			_clients[key] = new Client({
-				region: 'us-east-1',
+				region: customCredentials.endpoint.endsWith('amazonaws.com') ? region: 'us-east-1',
 				credentials:
 					customCredentials.accessKeyId && customCredentials.secretAccessKey
 						? {
