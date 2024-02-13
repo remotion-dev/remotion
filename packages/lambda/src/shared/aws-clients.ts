@@ -153,7 +153,7 @@ export type CustomCredentialsWithoutSensitiveData = {
 export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
 	accessKeyId: string | null;
 	secretAccessKey: string | null;
-	region: AwsRegion | undefined;
+	region?: AwsRegion;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>({
