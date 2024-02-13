@@ -240,6 +240,8 @@ export const renderVideoFlow = async ({
 			outDir: null,
 			// Not needed for render
 			gitSource: null,
+			bufferStateDelayInMilliseconds: null,
+			maxTimlineTracks: null,
 		},
 	);
 

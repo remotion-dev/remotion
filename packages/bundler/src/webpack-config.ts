@@ -52,6 +52,7 @@ export const webpackConfig = ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
+	bufferStateDelayInMilliseconds,
 	poll,
 }: {
 	entry: string;
@@ -61,8 +62,9 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number;
+	maxTimelineTracks: number | null;
 	keyboardShortcutsEnabled: boolean;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
@@ -73,6 +75,8 @@ export const webpackConfig = ({
 	const define = new webpack.DefinePlugin({
 		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
+		'process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS':
+			bufferStateDelayInMilliseconds,
 	});
 
 	const conf: WebpackConfiguration = webpackOverride({

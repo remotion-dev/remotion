@@ -70,6 +70,10 @@ import {
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
+	getBufferStateDelayInMilliseconds,
+	setBufferStateDelayInMilliseconds,
+} from './buffer-state-delay-in-milliseconds';
+import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
@@ -483,9 +487,13 @@ type FlatConfig = RemotionConfigObject &
 			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
 		) => void;
 		/**
-		 *
+		 * Set whether S3 buckets should be allowed to expire.
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
+		/**
+		 * Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state.
+		 */
+		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -548,6 +556,7 @@ export const Config: FlatConfig = {
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
+	setBufferStateDelayInMilliseconds,
 	overrideWebpackConfig,
 	setCachingEnabled: setWebpackCaching,
 	setPort,
@@ -671,4 +680,5 @@ export const ConfigInternals = {
 	getColorSpace,
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
+	getBufferStateDelayInMilliseconds,
 };

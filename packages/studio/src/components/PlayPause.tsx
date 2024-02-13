@@ -36,7 +36,8 @@ const iconButton: React.CSSProperties = {
 export const PlayPause: React.FC<{
 	playbackRate: number;
 	loop: boolean;
-}> = ({playbackRate, loop}) => {
+	bufferStateDelayInMilliseconds: number;
+}> = ({playbackRate, loop, bufferStateDelayInMilliseconds}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
@@ -261,7 +262,7 @@ export const PlayPause: React.FC<{
 					if (!stopped) {
 						setShowBufferState(true);
 					}
-				}, 300);
+				}, bufferStateDelayInMilliseconds);
 			});
 		};
 

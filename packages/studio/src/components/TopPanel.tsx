@@ -59,7 +59,8 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
-}> = ({readOnlyStudio, onMounted}) => {
+	bufferStateDelayInMilliseconds: number;
+}> = ({readOnlyStudio, onMounted, bufferStateDelayInMilliseconds}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
@@ -152,7 +153,10 @@ export const TopPanel: React.FC<{
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-			<PreviewToolbar readOnlyStudio={readOnlyStudio} />
+			<PreviewToolbar
+				bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+				readOnlyStudio={readOnlyStudio}
+			/>
 			<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
 			<TitleUpdater />
 		</div>
