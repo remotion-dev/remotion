@@ -153,6 +153,7 @@ export type CustomCredentialsWithoutSensitiveData = {
 export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
 	accessKeyId: string | null;
 	secretAccessKey: string | null;
+	region: AwsRegion | undefined;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>({
@@ -203,7 +204,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 
 		if (customCredentials) {
 			_clients[key] = new Client({
-				region: customCredentials.endpoint.endsWith('amazonaws.com') ? region: 'us-east-1',
+				region: customCredentials.region ?? 'us-east-1',
 				credentials:
 					customCredentials.accessKeyId && customCredentials.secretAccessKey
 						? {
