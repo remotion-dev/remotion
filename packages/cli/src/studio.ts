@@ -69,15 +69,19 @@ export const studioCommand = async (
 			});
 		});
 	}, logLevel);
-	let envVariables = getEnvironmentVariables((newEnvVariables) => {
-		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
-			envVariables = newEnvVariables;
-			listener.sendEventToClient({
-				type: 'new-env-variables',
-				newEnvVariables,
+	let envVariables = getEnvironmentVariables(
+		(newEnvVariables) => {
+			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+				envVariables = newEnvVariables;
+				listener.sendEventToClient({
+					type: 'new-env-variables',
+					newEnvVariables,
+				});
 			});
-		});
-	}, logLevel);
+		},
+		logLevel,
+		false,
+	);
 
 	const maxTimelineTracks = ConfigInternals.getMaxTimelineTracks();
 	const keyboardShortcutsEnabled =

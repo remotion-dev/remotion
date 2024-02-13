@@ -46,7 +46,7 @@ describe("Templates should be valid", () => {
       expect(body.dependencies.react).toMatch(/^\^?18/);
       expect(body.dependencies["react-dom"]).toMatch(/^\^?18/);
 
-      expect(body.devDependencies.prettier).toMatch(/^\^?2.8.8/);
+      expect(body.devDependencies.prettier).toMatch(/^\^?(3.2.5)|(2.8.8)/);
 
       if (!template.shortName.includes("JavaScript")) {
         expect(body.devDependencies.eslint).toMatch(/^\^?8.43/);

@@ -23,7 +23,8 @@ In your project, you can access the variable using `process.env.REMOTION_MY_VAR`
 
 ## Using a dotenv file
 
-[Dotenv](https://www.npmjs.com/package/dotenv) support is built in if you use the CLI.
+[Dotenv](https://www.npmjs.com/package/dotenv) support is built in if you use the CLI.  
+If you use the Node.JS APIs, the `.env` file **is not automatically read** and you need to use the `dotenv` package yourself.
 
 Place a `.env` file in the [root](/docs/terminology/remotion-root) of your project and fill it with key-value pairs.
 
@@ -32,7 +33,18 @@ MY_VAR=hello
 ANOTHER_VAR=world
 ```
 
-In your Remotion project you can read `process.env` to get an object of environment variables: `{"MY_VAR": "hello", "ANOTHER_VAR": "world"}`.
+In your Remotion frontend code you can read `process.env` to get an object of environment variables: `{"MY_VAR": "hello", "ANOTHER_VAR": "world"}`.
+
+Since `v4.0.110`, the following locations will get automatically recognized:
+
+- `.env` in your [Remotion Root](/docs/terminology/remotion-root)
+- `.env.local` in your [Remotion Root](/docs/terminology/remotion-root)
+
+You can see which config file gets read by adding a `--log=verbose` flag to your command and looking out for the following log:
+
+```
+Loaded env file from /Users/my-user/remotion-project/.env.local.
+```
 
 You can override the location of your dotenv file using the [configuration file setting](/docs/config#setdotenvlocation) or the [CLI flag](/docs/cli).
 

@@ -65,12 +65,19 @@ const watchEnvFile = ({
 	return unwatch;
 };
 
-const getEnvForEnvFile = (
-	processEnv: ReturnType<typeof getProcessEnv>,
-	envFile: string,
-	onUpdate: null | ((newProps: Record<string, string>) => void),
-	logLevel: LogLevel,
-) => {
+const getEnvForEnvFile = ({
+	processEnv,
+	envFile,
+	onUpdate,
+	logLevel,
+	indent,
+}: {
+	processEnv: ReturnType<typeof getProcessEnv>;
+	envFile: string;
+	onUpdate: null | ((newProps: Record<string, string>) => void);
+	logLevel: LogLevel;
+	indent: boolean;
+}) => {
 	try {
 		const envFileData = readFileSync(envFile);
 		if (onUpdate) {
@@ -84,6 +91,8 @@ const getEnvForEnvFile = (
 			}
 		}
 
+		Log.verbose({indent, logLevel}, `Loaded env file from ${envFile}.`);
+
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -95,9 +104,25 @@ const getEnvForEnvFile = (
 	}
 };
 
+const findDotEnvFile = (
+	remotionRoot: string,
+): {found: string | null; defaultEnvFile: string} => {
+	const defaultEnvFile = path.resolve(remotionRoot, '.env');
+	const paths = [defaultEnvFile, path.resolve(remotionRoot, '.env.local')];
+
+	for (const p of paths) {
+		if (fs.existsSync(p)) {
+			return {found: p, defaultEnvFile};
+		}
+	}
+
+	return {found: null, defaultEnvFile};
+};
+
 export const getEnvironmentVariables = (
 	onUpdate: null | ((newProps: Record<string, string>) => void),
 	logLevel: LogLevel,
+	indent: boolean,
 ): Record<string, string> => {
 	const processEnv = getProcessEnv();
 
@@ -110,7 +135,7 @@ export const getEnvironmentVariables = (
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile, onUpdate, logLevel);
+		return getEnvForEnvFile({processEnv, envFile, onUpdate, logLevel, indent});
 	}
 
 	const remotionRoot = RenderInternals.findRemotionRoot();
@@ -127,11 +152,12 @@ export const getEnvironmentVariables = (
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile, onUpdate, logLevel);
+		return getEnvForEnvFile({processEnv, envFile, onUpdate, logLevel, indent});
 	}
 
-	const defaultEnvFile = path.resolve(remotionRoot, '.env');
-	if (!fs.existsSync(defaultEnvFile)) {
+	const {defaultEnvFile, found} = findDotEnvFile(remotionRoot);
+
+	if (!found) {
 		if (onUpdate) {
 			if (typeof fs.watchFile === 'undefined') {
 				Log.warn(
@@ -151,5 +177,11 @@ export const getEnvironmentVariables = (
 		return processEnv;
 	}
 
-	return getEnvForEnvFile(processEnv, defaultEnvFile, onUpdate, logLevel);
+	return getEnvForEnvFile({
+		processEnv,
+		envFile: found,
+		onUpdate,
+		logLevel,
+		indent,
+	});
 };

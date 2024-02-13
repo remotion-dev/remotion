@@ -147,7 +147,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		const str = data.toString();
 		ffmpegOutput += str;
 		if (options.onProgress) {
-			const parsed = parseFfmpegProgress(str);
+			const parsed = parseFfmpegProgress(str, options.fps);
 			if (parsed !== undefined) {
 				options.onProgress(parsed);
 			}
