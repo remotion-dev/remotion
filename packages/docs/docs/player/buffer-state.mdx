@@ -249,6 +249,14 @@ export const App: React.FC = () => {
 };
 ```
 
+In the Studio, you can change the delay in the [config file](/docs/config#setbufferstatedelayinmilliseconds):
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+Config.setBufferStateDelayInMilliseconds(0);
+```
+
 To customize the spinner that is shown in place of the Play button, you can pass a [`renderPlayPauseButton()`](/docs/player/player#renderplaypausebutton) prop:
 
 ```tsx twoslash title="Rendering a custom spinner inside the Play button"

@@ -755,6 +755,8 @@ import { Config } from "@remotion/cli/config";
 Config.setBeepOnFinish(true);
 ```
 
+The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.XXXTODO" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
@@ -764,8 +766,6 @@ import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setBufferStateDelayInMilliseconds(0);
 ```
-
-The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
 
 ## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
