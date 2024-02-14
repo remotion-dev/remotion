@@ -839,13 +839,13 @@ ref.current?.addEventListener("error", (e) => {
 
 ### `waiting`<AvailableFrom v="4.1.111" />
 
-Fires when the Player has entered into the [native buffering state](/docs/player/buffering).
+Fires when the Player has entered into the [native buffering state](/docs/player/buffer-state).
 
 Read here [how to best implement state management](/docs/player/buffer-state#state-management).
 
 ### `resume`<AvailableFrom v="4.1.111" />
 
-Fires when the Player has exited the [native buffering state](/docs/player/buffering).
+Fires when the Player has exited the [native buffering state](/docs/player/buffer-state).
 
 Read here [how to best implement state management](/docs/player/buffer-state#state-management).
 
