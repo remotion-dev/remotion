@@ -37,7 +37,7 @@ This effect is only happening in the Remotion Studio and the Remotion Player, an
 
 <strong><Step>2</Step>Option 2: Pause the <code>{"<Player/>"}</code> when media is buffering</strong><br/>
 
-You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.<br/> You can do so by adding a `pauseWhenBuffering` prop to your [`<Video>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img/#pausewhenbuffering) tags. [See here](/docs/player/buffer-state) for how to implement this.
+You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.<br/> You can do so by adding a `pauseWhenBuffering` prop to your [`<Video>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img/#pausewhenbuffering) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
 
 <strong><Step>3</Step>Option 3: Preloading to avoid network request</strong><br/>
 
