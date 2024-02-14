@@ -147,7 +147,7 @@ export const MyComp: React.FC = () => {
 
 ## Difference to `useBufferState().delayPlayback()`
 
-[`useBufferState()`](/docs/use-buffer-state) is a different API that comes into play during playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).
+[`useBufferState()`](/docs/use-buffer-state) is a different API that allows pausing playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).
 
 If you are loading data, you might want to both delay the screenshotting of your component during rendering and start a buffering state during Preview, in which case you need to use both APIs together.
 

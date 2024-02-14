@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-player-scaling.png
 id: scaling
-title: "Scaling"
+title: "Sizing"
 crumb: "@remotion/player"
 ---
 
