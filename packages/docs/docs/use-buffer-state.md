@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-buffer-state.png
 title: useBufferState()
 id: use-buffer-state
 crumb: "API"
