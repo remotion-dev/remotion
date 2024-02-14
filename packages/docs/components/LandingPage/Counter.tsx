@@ -1,5 +1,5 @@
-import type { SetStateAction } from "react";
-import React from "react";
+import type { ChangeEvent, SetStateAction } from "react";
+import React, { useCallback } from "react";
 import styles from "./pricing.module.css";
 
 const triangle = (
@@ -45,9 +45,26 @@ export const Counter: React.FC<{
   count: number;
   setCount: React.Dispatch<SetStateAction<number>>;
 }> = ({ count, setCount }) => {
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.target.value.trim() === "") {
+        setCount(1);
+        return;
+      }
+
+      const max = Math.max(parseInt(e.target.value, 10), 1);
+      setCount(max);
+    },
+    [setCount],
+  );
   return (
     <div style={container}>
-      <div className={styles.pricetag}>{count}</div>
+      <input
+        className={styles.counterinput}
+        type="number"
+        value={count}
+        onChange={handleChange}
+      />
       <div style={{ display: "flex", flexDirection: "column", marginLeft: 10 }}>
         <button
           type="button"

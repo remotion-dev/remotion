@@ -9,6 +9,22 @@
   color: var(--ifm-color-primary);
 }
 
+.counterinput {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  width: 38px;
+  border: none;
+  text-align: end;
+}
+
+/* removes up and down arrows from input field */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .pricingcontainer {
   display: flex;
   flex-direction: column;
