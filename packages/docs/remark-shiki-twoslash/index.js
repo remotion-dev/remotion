@@ -143,14 +143,14 @@ const parseFence = (fence) => {
  */
 function remarkTwoslash(settings = {}) {
   if (!highlighterCache.has(settings)) {
-    highlighterCache.set(settings, highlightersFromSettings(settings));
+    highlighterCache.set(settings, exports.highlightersFromSettings(settings));
   }
 
   const transform = async (markdownAST) => {
     const highlighters = await highlighterCache.get(settings);
     parsingNewFile();
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    visit(markdownAST, "code", remarkVisitor(highlighters, settings));
+    visit(markdownAST, "code", exports.remarkVisitor(highlighters, settings));
   };
 
   return transform;
@@ -192,7 +192,8 @@ exports.remarkVisitor =
     try {
       // By allowing node.twoslash to already exist you can set it up yourself in a browser
       twoslash =
-        node.twoslash || runTwoSlashOnNode(code, fence, twoslashSettings);
+        node.twoslash ||
+        exports.runTwoSlashOnNode(code, fence, twoslashSettings);
     } catch (error) {
       const shouldAlwaysRaise =
         process && process.env && Boolean(process.env.CI);
@@ -237,7 +238,7 @@ exports.setupForFile = async (settings = {}) => {
   parsingNewFile();
 
   if (!highlighterCache.has(settings)) {
-    highlighterCache.set(settings, highlightersFromSettings(settings));
+    highlighterCache.set(settings, exports.highlightersFromSettings(settings));
   }
 
   const highlighters = await highlighterCache.get(settings);
@@ -252,7 +253,7 @@ exports.transformAttributesToHTML = (
 ) => {
   const fence = parseFence(fenceString);
 
-  const twoslash = runTwoSlashOnNode(code, fence, settings);
+  const twoslash = exports.runTwoSlashOnNode(code, fence, settings);
   const newCode = (twoslash && twoslash.code) || code;
   return getHTML(newCode, fence, highlighters, twoslash, settings);
 };
