@@ -442,7 +442,7 @@ This prevents jank when the Player is only in a buffering state for a short time
 Note:
 
 - [`renderPoster()`](#renderposter) and [`renderPlayPauseButton()`](#renderplaypausebutton) will only report `isBuffering` as `true` **after** this delay has passed.
-- The [`waiting`](/docs/player/api#waiting) and [`resume`](/docs/player/api#resume) events will **fire immediately** when the Player enters and exits the buffer state.
+- The [`waiting`](/docs/player/player#waiting) and [`resume`](/docs/player/player#resume) events will **fire immediately** when the Player enters and exits the buffer state.
 
 This allows you to flexibly implement custom UI for the buffer state.
 
