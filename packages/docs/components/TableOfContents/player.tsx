@@ -55,7 +55,7 @@ export const PlayerGuide: React.FC = () => {
           <strong>Buffer state</strong>
           <div>Pause the Player while assets are loading</div>
         </TOCItem>
-        <TOCItem link="/docs/player/player-flicker">
+        <TOCItem link="/docs/troubleshooting/player-flicker">
           <strong>Avoiding flickers</strong>
           <div>Troubleshooting for flickers due to unloaded assets</div>
         </TOCItem>
