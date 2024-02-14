@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentScale} from 'remotion';
 import {z} from 'zod';
 
 export const dynamicDurationSchema = z.object({
@@ -9,5 +9,6 @@ export const dynamicDurationSchema = z.object({
 export const DynamicDuration: React.FC<
 	z.infer<typeof dynamicDurationSchema>
 > = () => {
+	const scale = useCurrentScale();
 	return <AbsoluteFill>hi</AbsoluteFill>;
 };

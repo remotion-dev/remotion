@@ -63,6 +63,7 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {truthy} from './truthy.js';
+import {CurrentScaleContext} from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -148,6 +149,7 @@ export const Internals = {
 	useMediaStartsAt,
 	enableSequenceStackTraces,
 	colorNames,
+	CurrentScaleContext,
 } as const;
 
 export type {
