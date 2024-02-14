@@ -13,7 +13,7 @@ test('Should not have disableRemotePlayback props in the <VideoForPreview> compo
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
-	expect(read).toContain('volume-prop');
+	expect(read).toContain('./props.js');
 });
 
 test('Should not have disableRemotePlayback props in the <VideoForPreview> component type definition', () => {
@@ -26,20 +26,20 @@ test('Should not have disableRemotePlayback props in the <VideoForPreview> compo
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
-	expect(read).toContain('volume-prop');
+	expect(read).toContain('./props.js');
 });
 
-test('Should not have disableRemotePlayback props in the <AudioForDevelopment> component type definition', () => {
+test('Should not have disableRemotePlayback props in the <AudioForPreview> component type definition', () => {
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
 		'esm',
 		'audio',
-		'AudioForDevelopment.d.ts',
+		'AudioForPreview.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('aria-disabled');
-	expect(read).toContain('volume-prop');
+	expect(read).toContain('./props.js');
 });
 
 test('Should not have disableRemotePlayback props in the <AudioForRendering> component type definition', () => {
