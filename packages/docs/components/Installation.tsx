@@ -1,7 +1,9 @@
 import React from "react";
-
+// @ts-expect-error
 import CodeBlock from "@theme/CodeBlock";
+// @ts-expect-error
 import TabItem from "@theme/TabItem";
+// @ts-expect-error
 import Tabs from "@theme/Tabs";
 import { VERSION } from "remotion";
 
