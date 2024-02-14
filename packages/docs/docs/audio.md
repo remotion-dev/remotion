@@ -148,6 +148,10 @@ In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
 
+### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
+
+If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)

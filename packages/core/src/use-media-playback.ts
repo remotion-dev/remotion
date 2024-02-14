@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {BufferingContextReact} from './buffering.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {
 	TimelineContext,
@@ -51,6 +52,7 @@ export const useMediaPlayback = ({
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();
+	const buffering = useContext(BufferingContextReact);
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
@@ -68,11 +70,13 @@ export const useMediaPlayback = ({
 		return acceptableTimeshift;
 	})();
 
+	const pausedOrBuffering = !playing || (buffering && buffering.buffering);
+
 	useEffect(() => {
-		if (!playing) {
+		if (pausedOrBuffering) {
 			mediaRef.current?.pause();
 		}
-	}, [mediaRef, mediaType, playing]);
+	}, [mediaRef, mediaType, pausedOrBuffering]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -128,13 +132,17 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
 
-		if (!playing || absoluteFrame === 0) {
+		if (pausedOrBuffering || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
 			}
 		}
 
-		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
+		if (
+			mediaRef.current.paused &&
+			!mediaRef.current.ended &&
+			!pausedOrBuffering
+		) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
 			}
@@ -148,12 +156,12 @@ export const useMediaPlayback = ({
 		frame,
 		mediaRef,
 		mediaType,
-		playing,
 		src,
 		mediaStartsAt,
 		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift,
 		acceptableTimeShiftButLessThanDuration,
+		pausedOrBuffering,
 	]);
 };

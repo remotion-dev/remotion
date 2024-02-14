@@ -757,6 +757,16 @@ Config.setBeepOnFinish(true);
 
 The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
 
+## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.1.111" />
+
+Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBufferStateDelayInMilliseconds(0);
+```
+
 ## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.

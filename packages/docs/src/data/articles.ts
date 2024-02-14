@@ -1969,6 +1969,13 @@ export const articles = [
     crumb: "@remotion/player",
   },
   {
+    id: "buffer-state",
+    title: "The Player buffer state",
+    relativePath: "docs/player/buffer-state.mdx",
+    compId: "articles-docs-player-buffer-state",
+    crumb: "Best practices",
+  },
+  {
     id: "current-time",
     title: "Displaying the current time",
     relativePath: "docs/player/current-time.md",
@@ -2859,7 +2866,7 @@ export const articles = [
   },
   {
     id: "troubleshooting/background-image",
-    title: "Flickering when using background-image",
+    title: "Flickering when using background-image or mask-image",
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
@@ -2947,6 +2954,13 @@ export const articles = [
     relativePath: "docs/use-audio-data.md",
     compId: "articles-docs-use-audio-data",
     crumb: "@remotion/media-utils",
+  },
+  {
+    id: "use-buffer-state",
+    title: "useBufferState()",
+    relativePath: "docs/use-buffer-state.md",
+    compId: "articles-docs-use-buffer-state",
+    crumb: "API",
   },
   {
     id: "use-current-frame",

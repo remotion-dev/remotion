@@ -101,6 +101,7 @@ module.exports = {
         "spring",
         "staticfile",
         "still",
+        "use-buffer-state",
         "use-current-frame",
         "use-video-config",
         "version",
@@ -151,7 +152,15 @@ module.exports = {
       },
 
       label: "@remotion/player",
-      items: ["player/api", "player/thumbnail"],
+      items: [
+        {
+          type: "link",
+          href: "/docs/player",
+          label: "Guide + Examples",
+        },
+        "player/api",
+        "player/thumbnail",
+      ],
     },
     {
       type: "category",
@@ -592,6 +601,7 @@ module.exports = {
         "player/current-time",
         "player/preloading",
         "player/best-practices",
+        "player/buffer-state",
         "troubleshooting/player-flicker",
       ],
     },
@@ -696,7 +706,6 @@ module.exports = {
         },
         "brownfield",
         "video-uploads",
-        "buffer-state",
         "presigned-urls",
         "font-picker",
       ],

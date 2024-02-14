@@ -1,4 +1,3 @@
-import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -12,6 +11,7 @@ import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -27,16 +27,17 @@ import type {RemotionAudioProps} from './props.js';
 import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
-type AudioForDevelopmentProps = RemotionAudioProps & {
+type AudioForPreviewProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	pauseWhenBuffering: boolean;
 	_remotionInternalNativeLoopPassed: boolean;
 	_remotionInternalStack: string | null;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	AudioForDevelopmentProps
+	AudioForPreviewProps
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
 		props.shouldPreMountAudioTags,
@@ -65,6 +66,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		_remotionInternalStack,
 		allowAmplificationDuringRender,
 		name,
+		pauseWhenBuffering,
 		...nativeProps
 	} = props;
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
@@ -149,6 +151,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
+	useMediaBuffering(audioRef, pauseWhenBuffering);
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -158,7 +162,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	);
 
 	const currentOnDurationCallback =
-		useRef<AudioForDevelopmentProps['onDuration']>();
+		useRef<AudioForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {
@@ -189,8 +193,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	return <audio ref={audioRef} preload="metadata" {...propsToPass} />;
 };
 
-export const AudioForDevelopment = forwardRef(
+export const AudioForPreview = forwardRef(
 	AudioForDevelopmentForwardRefFunction,
-) as ForwardRefExoticComponent<
-	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
->;
+);

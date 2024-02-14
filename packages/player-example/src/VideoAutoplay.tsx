@@ -1,6 +1,12 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
-import {Gif} from '@remotion/gif';
-import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	Sequence,
+	Series,
+	staticFile,
+	Video,
+} from 'remotion';
 
 preloadVideo(
 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
@@ -24,11 +30,9 @@ export const VideoautoplayDemo = () => {
 				</Series.Sequence>
 			</Series>
 			<AbsoluteFill>
-				<Gif
-					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
-					fit="cover"
-					height={200}
-					width={200}
+				<Video
+					pauseWhenBuffering
+					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>
 		</AbsoluteFill>

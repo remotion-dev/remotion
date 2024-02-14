@@ -5,7 +5,7 @@ id: img
 crumb: "API"
 ---
 
-The `<Img />` tag can be used like a regular `<img>` HTML tag.
+The `<Img>` tag can be used like a regular `<img>` HTML tag.
 
 If you use `<Img>`, Remotion will ensure that the image is loaded before rendering the frame. That way you can avoid flickers if the image does not load immediately during rendering.
 
@@ -70,6 +70,12 @@ From `v3.3.82`, the image load will first be retried before `onError` is thrown.
 
 If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.
+
+### `pauseWhenLoading`<AvailableFrom v="4.0.111"/>
+
+_optional_
+
+If set to `true`, pause the Player when the image is loading. See: [Buffer state](/docs/player/buffer-state).
 
 ## Other props
 
