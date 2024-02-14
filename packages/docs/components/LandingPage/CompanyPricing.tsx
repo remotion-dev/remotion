@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Counter } from "./Counter";
 import styles from "./pricing.module.css";
 import { PricingBulletPoint } from "./PricingBulletPoint";
@@ -15,6 +15,15 @@ export const CompanyPricing: React.FC = () => {
   const [devSeatCount, setDevSeatCount] = React.useState(1);
   const [cloudUnitCount, setCloudUnitCount] = React.useState(1);
 
+  const formatPrice = useCallback((price: number) => {
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    });
+    return formatter.format(price);
+  }, []);
+
   const totalPrice = useMemo(() => {
     return Math.max(
       100,
@@ -22,8 +31,15 @@ export const CompanyPricing: React.FC = () => {
     );
   }, [cloudUnitCount, devSeatCount]);
 
+  const totalPriceString = useMemo(() => {
+    return formatPrice(totalPrice);
+  }, [formatPrice, totalPrice]);
+
   const rendersPerMonth = useMemo(() => {
-    return cloudUnitCount * 2000;
+    const formatter = new Intl.NumberFormat("en-US", {
+      maximumFractionDigits: 0,
+    });
+    return formatter.format(cloudUnitCount * 2000);
   }, [cloudUnitCount]);
 
   return (
@@ -64,7 +80,7 @@ export const CompanyPricing: React.FC = () => {
         style={{ justifyContent: "flex-end" }}
       >
         <div style={{ ...textUnitWrapper, alignItems: "flex-end" }}>
-          <div className={styles.pricetag}>${totalPrice}/mo</div>
+          <div className={styles.pricetag}>{totalPriceString}/mo</div>
           {totalPrice <= 100 ? (
             <div className={styles.descriptionsmall} style={{ height: 24 }}>
               The minimum is $100 per month

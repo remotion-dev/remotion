@@ -5,7 +5,14 @@ import { FreePricing2 } from "./FreePricing2";
 
 export const Pricing: React.FC = () => {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        marginBottom: 40,
+      }}
+    >
       <FreePricing2 />
       <CompanyPricing />
       <EnterpriseLicense />
