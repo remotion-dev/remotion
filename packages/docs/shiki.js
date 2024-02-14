@@ -1,5 +1,5 @@
 const path = require("path");
-const { default: twoslash } = require("remark-shiki-twoslash");
+const twoslash = require("./remark-shiki-twoslash/index.js");
 
 /**
  * @param {import("@docusaurus/types").DocusaurusContext} context
