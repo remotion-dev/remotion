@@ -71,7 +71,7 @@ From `v3.3.82`, the image load will first be retried before `onError` is thrown.
 If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.
 
-### `pauseWhenLoading`
+### `pauseWhenLoading`<AvailableFrom v="4.0.111"/>
 
 _optional_
 
