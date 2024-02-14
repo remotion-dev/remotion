@@ -26,7 +26,6 @@ export type {
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
 export {Thumbnail} from './Thumbnail.js';
-export {PreviewSize, Translation} from './utils/preview-size.js';
 export {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 

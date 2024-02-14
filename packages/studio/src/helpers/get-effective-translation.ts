@@ -1,4 +1,5 @@
-import type {Size, Translation} from '@remotion/player';
+import type {Size} from '@remotion/player';
+import type {Translation} from 'remotion';
 
 const getEffectiveXTranslation = ({
 	canvasSize,

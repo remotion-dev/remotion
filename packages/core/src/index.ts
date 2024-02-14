@@ -133,7 +133,13 @@ export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
 export {useCurrentFrame} from './use-current-frame.js';
-export {useCurrentScale} from './use-current-scale';
+export {
+	CurrentScaleContextType,
+	PreviewSize,
+	PreviewSizeCtx,
+	Translation,
+	useCurrentScale,
+} from './use-current-scale';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';

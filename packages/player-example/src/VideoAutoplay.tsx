@@ -1,6 +1,13 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
 import {Gif} from '@remotion/gif';
-import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	Sequence,
+	Series,
+	staticFile,
+	useCurrentScale,
+} from 'remotion';
 
 preloadVideo(
 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
@@ -9,6 +16,7 @@ preloadVideo(
 preloadAudio(staticFile('sample.mp3'));
 
 export const VideoautoplayDemo = () => {
+	console.log(useCurrentScale());
 	return (
 		<AbsoluteFill
 			style={{

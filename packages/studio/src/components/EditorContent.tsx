@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
@@ -21,7 +22,9 @@ const container: React.CSSProperties = {
 export const EditorContent: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
-}> = ({readOnlyStudio, onMounted}) => {
+	drawRef: React.RefObject<HTMLDivElement>;
+	size: Size | null;
+}> = ({readOnlyStudio, onMounted, size, drawRef}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -34,7 +37,12 @@ export const EditorContent: React.FC<{
 			<InitialCompositionLoader />
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
-				<TopPanel onMounted={onMounted} readOnlyStudio={readOnlyStudio} />
+				<TopPanel
+					size={size}
+					drawRef={drawRef}
+					onMounted={onMounted}
+					readOnlyStudio={readOnlyStudio}
+				/>
 			) : (
 				<SplitterContainer
 					orientation="horizontal"
@@ -44,7 +52,12 @@ export const EditorContent: React.FC<{
 					defaultFlex={0.75}
 				>
 					<SplitterElement sticky={null} type="flexer">
-						<TopPanel onMounted={onMounted} readOnlyStudio={readOnlyStudio} />
+						<TopPanel
+							size={size}
+							drawRef={drawRef}
+							onMounted={onMounted}
+							readOnlyStudio={readOnlyStudio}
+						/>
 					</SplitterElement>
 					<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 					<SplitterElement sticky={null} type="anti-flexer">

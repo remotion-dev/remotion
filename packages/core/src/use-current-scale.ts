@@ -1,9 +1,63 @@
-import React from 'react';
+import React, {createContext} from 'react';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
-export const CurrentScaleContext = React.createContext<number | null>(null);
+export type CurrentScaleContextType =
+	| {
+			type: 'scale';
+			scale: number;
+	  }
+	| {
+			type: 'canvas-size';
+			canvasSize: {
+				width: number;
+				height: number;
+			};
+	  };
+
+export const CurrentScaleContext =
+	React.createContext<CurrentScaleContextType | null>(null);
 
 type Options = {
 	dontThrowIfOutsideOfRemotion: boolean;
+};
+
+export type Translation = {
+	x: number;
+	y: number;
+};
+
+export type PreviewSize = {
+	size: number | 'auto';
+	translation: Translation;
+};
+
+export type PreviewSizeCtx = {
+	size: PreviewSize;
+	setSize: (cb: (oldSize: PreviewSize) => PreviewSize) => void;
+};
+
+export const PreviewSizeContext = createContext<PreviewSizeCtx>({
+	setSize: () => undefined,
+	size: {size: 'auto', translation: {x: 0, y: 0}},
+});
+
+export const calculateScale = ({
+	canvasSize,
+	compositionHeight,
+	compositionWidth,
+	previewSize,
+}: {
+	previewSize: PreviewSize['size'];
+	compositionWidth: number;
+	compositionHeight: number;
+	canvasSize: {width: number; height: number};
+}) => {
+	const heightRatio = canvasSize.height / compositionHeight;
+	const widthRatio = canvasSize.width / compositionWidth;
+
+	const ratio = Math.min(heightRatio, widthRatio);
+
+	return previewSize === 'auto' ? ratio : Number(previewSize);
 };
 
 /**
@@ -11,10 +65,11 @@ type Options = {
  * Only works in the Remotion Studio and in the Remotion Player.
  */
 export const useCurrentScale = (options?: Options) => {
-	const scale = React.useContext(CurrentScaleContext);
-	const timelineZoomCtx = React.useContext(TimelineZoomCtx);
+	const hasContext = React.useContext(CurrentScaleContext);
+	const zoomContext = React.useContext(PreviewSizeContext);
+	const config = useUnsafeVideoConfig();
 
-	if (scale === null) {
+	if (hasContext === null || config === null || zoomContext === null) {
 		if (options?.dontThrowIfOutsideOfRemotion) {
 			return 1;
 		}
@@ -29,5 +84,14 @@ export const useCurrentScale = (options?: Options) => {
 		);
 	}
 
-	return scale;
+	if (hasContext.type === 'scale') {
+		return hasContext.scale;
+	}
+
+	return calculateScale({
+		canvasSize: hasContext.canvasSize,
+		compositionHeight: config.height,
+		compositionWidth: config.width,
+		previewSize: zoomContext.size.size,
+	});
 };

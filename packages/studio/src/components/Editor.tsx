@@ -1,4 +1,6 @@
-import React, {useCallback, useEffect} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
@@ -22,6 +24,13 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 	Root,
 	readOnlyStudio,
 }) => {
+	const drawRef = useRef<HTMLDivElement>(null);
+
+	const size = PlayerInternals.useElementSize(drawRef, {
+		triggerOnWindowResize: false,
+		shouldApplyCssTransforms: true,
+	});
+
 	useEffect(() => {
 		if (readOnlyStudio) {
 			return;
@@ -46,20 +55,35 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 		setCanvasMounted(true);
 	}, []);
 
+	const value: CurrentScaleContextType | null = useMemo(() => {
+		if (!size) {
+			return null;
+		}
+
+		return {
+			type: 'canvas-size',
+			canvasSize: size,
+		};
+	}, [size]);
+
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
-				<div style={background}>
-					{canvasMounted ? <Root /> : null}
-					<Internals.CanUseRemotionHooksProvider>
-						<EditorContent
-							onMounted={onMounted}
-							readOnlyStudio={readOnlyStudio}
-						/>
-						<GlobalKeybindings />
-					</Internals.CanUseRemotionHooksProvider>
-					<NotificationCenter />
-				</div>
+				<Internals.CurrentScaleContext.Provider value={value}>
+					<div style={background}>
+						{canvasMounted ? <Root /> : null}
+						<Internals.CanUseRemotionHooksProvider>
+							<EditorContent
+								drawRef={drawRef}
+								size={size}
+								onMounted={onMounted}
+								readOnlyStudio={readOnlyStudio}
+							/>
+							<GlobalKeybindings />
+						</Internals.CanUseRemotionHooksProvider>
+						<NotificationCenter />
+					</div>
+				</Internals.CurrentScaleContext.Provider>
 				<Modals readOnlyStudio={readOnlyStudio} />
 			</TimelineZoomContext>
 		</HigherZIndex>
