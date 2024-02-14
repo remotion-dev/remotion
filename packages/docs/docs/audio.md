@@ -150,7 +150,7 @@ In the Remotion Studio, the volume will be limited to `1`, since the browser can
 
 ### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
 
-If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
 ## See also
 
