@@ -1,7 +1,7 @@
 import React from "react";
 import { CompanyPricing } from "./CompanyPricing";
 import { EnterpriseLicense } from "./EnterpriseLicense";
-import { FreePricing2 } from "./FreePricing2";
+import { FreePricing } from "./FreePricing";
 
 export const Pricing: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ export const Pricing: React.FC = () => {
         marginBottom: 40,
       }}
     >
-      <FreePricing2 />
+      <FreePricing />
       <CompanyPricing />
       <EnterpriseLicense />
     </div>
