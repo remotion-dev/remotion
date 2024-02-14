@@ -3,26 +3,26 @@ import path from 'node:path';
 import {expect, test} from 'vitest';
 
 // Test for https://github.com/remotion-dev/remotion/issues/1243
-test('Should not have disableRemotePlayback props in the <VideoForDevelopment> component type definition', () => {
+test('Should not have disableRemotePlayback props in the <VideoForPreview> component type definition', () => {
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
 		'esm',
 		'video',
-		'VideoForDevelopment.d.ts',
+		'VideoForPreview.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
 	expect(read).toContain('volume-prop');
 });
 
-test('Should not have disableRemotePlayback props in the <VideoForRendering> component type definition', () => {
+test('Should not have disableRemotePlayback props in the <VideoForPreview> component type definition', () => {
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
 		'esm',
 		'video',
-		'VideoForRendering.d.ts',
+		'VideoForPreview.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
