@@ -700,17 +700,7 @@ module.exports = {
     {
       type: "category",
       label: "Building apps",
-      items: [
-        {
-          type: "link",
-          href: "/docs/player",
-          label: "Player",
-        },
-        "brownfield",
-        "video-uploads",
-        "presigned-urls",
-        "font-picker",
-      ],
+      items: ["brownfield", "video-uploads", "presigned-urls", "font-picker"],
     },
     {
       type: "category",

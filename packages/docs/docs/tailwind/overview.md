@@ -15,44 +15,9 @@ This package provides utilities useful for integrating [TailwindCSS](https://tai
 
 Install `@remotion/tailwind` as well as TailwindCSS dependencies.
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
+<Installation pkg="@remotion/renderer"/>
 
-```bash
-npm i -D @remotion/tailwind
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add -D @remotion/tailwind
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i -D @remotion/tailwind
-```
-
-  </TabItem>
-</Tabs>
-
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
-
-:::note
-Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
-:::
+<br/>
 
 [Override the Webpack config](/docs/webpack) by using [`enableTailwind()`](/docs/tailwind/enable-tailwind).
 
