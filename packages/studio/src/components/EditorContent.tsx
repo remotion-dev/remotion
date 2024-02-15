@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
@@ -21,8 +22,16 @@ const container: React.CSSProperties = {
 export const EditorContent: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
+	drawRef: React.RefObject<HTMLDivElement>;
+	size: Size | null;
 	bufferStateDelayInMilliseconds: number;
-}> = ({readOnlyStudio, onMounted, bufferStateDelayInMilliseconds}) => {
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -36,6 +45,8 @@ export const EditorContent: React.FC<{
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
 				<TopPanel
+					size={size}
+					drawRef={drawRef}
 					bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 					onMounted={onMounted}
 					readOnlyStudio={readOnlyStudio}
@@ -50,6 +61,8 @@ export const EditorContent: React.FC<{
 				>
 					<SplitterElement sticky={null} type="flexer">
 						<TopPanel
+							size={size}
+							drawRef={drawRef}
 							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 							onMounted={onMounted}
 							readOnlyStudio={readOnlyStudio}

@@ -1,5 +1,5 @@
 {
-  "baseBranch": "origin/main",
+  "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -47,6 +47,5 @@
         "@remotion/example#build"
       ]
     }
-  },
-  "npmClient": "pnpm"
+  }
 }

@@ -2970,6 +2970,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "use-current-scale",
+    title: "useCurrentScale()",
+    relativePath: "docs/use-current-scale.md",
+    compId: "articles-docs-use-current-scale",
+    crumb: "API",
+  },
+  {
     id: "use-img-and-iframe",
     title: "<Img>, <Video> and <Audio>",
     relativePath: "docs/use-img-and-iframe.md",

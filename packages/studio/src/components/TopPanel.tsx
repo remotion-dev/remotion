@@ -1,11 +1,5 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import type {Size} from '@remotion/player';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
@@ -59,12 +53,19 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
+	size: Size | null;
+	drawRef: React.RefObject<HTMLDivElement>;
 	bufferStateDelayInMilliseconds: number;
-}> = ({readOnlyStudio, onMounted, bufferStateDelayInMilliseconds}) => {
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
-	const ref = useRef<HTMLDivElement>(null);
 
 	const actualStateLeft = useResponsiveSidebarStatus();
 
@@ -76,10 +77,6 @@ export const TopPanel: React.FC<{
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
 
-	const size = PlayerInternals.useElementSize(ref, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
 	const hasSize = size !== null;
 
 	useEffect(() => {
@@ -134,7 +131,7 @@ export const TopPanel: React.FC<{
 							orientation="vertical"
 						>
 							<SplitterElement sticky={null} type="flexer">
-								<div ref={ref} style={canvasContainerStyle}>
+								<div ref={drawRef} style={canvasContainerStyle}>
 									{size ? <CanvasOrLoading size={size} /> : null}
 								</div>
 							</SplitterElement>
