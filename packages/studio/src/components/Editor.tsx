@@ -20,6 +20,13 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
+const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
+
+export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
+	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined'
+		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
+		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
+
 export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 	Root,
 	readOnlyStudio,
@@ -78,6 +85,9 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 								size={size}
 								onMounted={onMounted}
 								readOnlyStudio={readOnlyStudio}
+								bufferStateDelayInMilliseconds={
+									BUFFER_STATE_DELAY_IN_MILLISECONDS
+								}
 							/>
 							<GlobalKeybindings />
 						</Internals.CanUseRemotionHooksProvider>

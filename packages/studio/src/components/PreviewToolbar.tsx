@@ -47,7 +47,8 @@ const padding: React.CSSProperties = {
 
 export const PreviewToolbar: React.FC<{
 	readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+	bufferStateDelayInMilliseconds: number;
+}> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
 	);
@@ -79,7 +80,11 @@ export const PreviewToolbar: React.FC<{
 			{isVideoComposition ? (
 				<>
 					<Spacing x={2} />
-					<PlayPause loop={loop} playbackRate={playbackRate} />
+					<PlayPause
+						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+						loop={loop}
+						playbackRate={playbackRate}
+					/>
 					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />

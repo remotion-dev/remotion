@@ -7,6 +7,7 @@ import {
 	Series,
 	staticFile,
 	useCurrentScale,
+	Video,
 } from 'remotion';
 
 preloadVideo(
@@ -32,11 +33,9 @@ export const VideoautoplayDemo = () => {
 				</Series.Sequence>
 			</Series>
 			<AbsoluteFill>
-				<Gif
-					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
-					fit="cover"
-					height={200}
-					width={200}
+				<Video
+					pauseWhenBuffering
+					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>
 		</AbsoluteFill>

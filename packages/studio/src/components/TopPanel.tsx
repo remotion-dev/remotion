@@ -55,7 +55,14 @@ export const TopPanel: React.FC<{
 	onMounted: () => void;
 	size: Size | null;
 	drawRef: React.RefObject<HTMLDivElement>;
-}> = ({readOnlyStudio, onMounted, size, drawRef}) => {
+	bufferStateDelayInMilliseconds: number;
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
@@ -143,7 +150,10 @@ export const TopPanel: React.FC<{
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-			<PreviewToolbar readOnlyStudio={readOnlyStudio} />
+			<PreviewToolbar
+				bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+				readOnlyStudio={readOnlyStudio}
+			/>
 			<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
 			<TitleUpdater />
 		</div>

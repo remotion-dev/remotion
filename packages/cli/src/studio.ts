@@ -83,7 +83,6 @@ export const studioCommand = async (
 		false,
 	);
 
-	const maxTimelineTracks = ConfigInternals.getMaxTimelineTracks();
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
@@ -100,7 +99,7 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
-		maxTimelineTracks,
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		userPassedPublicDir: ConfigInternals.getPublicDir(),
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
@@ -118,5 +117,7 @@ export const studioCommand = async (
 		// @ts-expect-error
 		parsedCliOpen: parsedCli.open,
 		gitSource,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
 	});
 };

@@ -24,7 +24,14 @@ export const EditorContent: React.FC<{
 	onMounted: () => void;
 	drawRef: React.RefObject<HTMLDivElement>;
 	size: Size | null;
-}> = ({readOnlyStudio, onMounted, size, drawRef}) => {
+	bufferStateDelayInMilliseconds: number;
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -40,6 +47,7 @@ export const EditorContent: React.FC<{
 				<TopPanel
 					size={size}
 					drawRef={drawRef}
+					bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 					onMounted={onMounted}
 					readOnlyStudio={readOnlyStudio}
 				/>
@@ -55,6 +63,7 @@ export const EditorContent: React.FC<{
 						<TopPanel
 							size={size}
 							drawRef={drawRef}
+							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 							onMounted={onMounted}
 							readOnlyStudio={readOnlyStudio}
 						/>

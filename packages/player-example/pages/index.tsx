@@ -1,21 +1,11 @@
 import {Thumbnail} from '@remotion/player';
-import React, {ComponentType} from 'react';
+import React from 'react';
 import App from '../src/App';
 import CarSlideshow from '../src/CarSlideshow';
 import {FontPicker} from '../src/FontPicker';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
 import {VideoautoplayDemo} from '../src/VideoAutoplay';
-
-const Car = () =>
-	new Promise<{default: ComponentType<unknown>}>((resolve) => {
-		setTimeout(
-			() =>
-				resolve({
-					default: CarSlideshow as ComponentType<unknown>,
-				}),
-			3000
-		);
-	});
+import {NativeBufferState} from '../src/BufferState';
 
 function Index() {
 	return (
@@ -31,6 +21,7 @@ function Index() {
 			>
 				<App component={CarSlideshow} durationInFrames={500} />
 				<App component={VideoautoplayDemo} durationInFrames={2700} />
+				<App component={NativeBufferState} durationInFrames={2700} />
 			</div>
 			<h2>Thumbnail</h2>
 			<Thumbnail
