@@ -87,8 +87,8 @@ export const PricingTable: React.FC<{}> = () => {
                         ? "$15"
                         : "$150"
                       : period === Period.Monthly
-                      ? "$25"
-                      : "$250"}
+                        ? "$25"
+                        : "$250"}
                   </div>
                   <div className={styles.perperiod}>
                     per {period === Period.Monthly ? "month" : "year"}
@@ -181,7 +181,7 @@ export const PricingTable: React.FC<{}> = () => {
           </div>
         </div>
       </div>
-      <p style={{ textAlign: "center", marginTop: 24 }}>
+      <p style={{ marginTop: 24, fontFamily: "GTPlanar" }}>
         Want a 20-minute call to evaluate if Remotion is right for you?{" "}
         <a
           style={{
@@ -195,7 +195,7 @@ export const PricingTable: React.FC<{}> = () => {
           Contact us
         </a>
       </p>
-      <p style={{ textAlign: "center", marginTop: 0 }}>
+      <p style={{ marginTop: 0 }}>
         Looking for help realizing your project?{" "}
         <a
           style={{

@@ -13,7 +13,7 @@
   font-family: "GTPlanar", sans-serif;
   font-size: 24px;
   font-weight: 500;
-  width: 44px;
+  min-width: 60px;
   border: none;
   text-align: end;
   font-feature-settings: "ss03" on;
@@ -45,6 +45,11 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "ss03" on;
+  min-width: 60px;
+  width: auto;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 15px;
 }
 
 .boldtext {
@@ -64,6 +69,10 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #666666;
   min-width: 330px;
   font-feature-settings: "ss03" on;
+  line-height: 1.2;
+  margin-top: 5px;
+  margin-right: 10px;
+  text-wrap: balance;
 }
 .descriptionsmall {
   margin: 0;
@@ -219,5 +228,8 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-left: 200px;
     margin-top: -30px;
     margin-bottom: 30px;
+  }
+  .description {
+    font-size: 0.85em;
   }
 }

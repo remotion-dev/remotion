@@ -2,13 +2,17 @@ import type { ChangeEvent, SetStateAction } from "react";
 import React, { useCallback } from "react";
 import styles from "./pricing.module.css";
 
-const triangle = (
+const Triangle: React.FC<{
+  rotated: boolean;
+}> = ({ rotated }) => (
   <svg
     width="12px"
     height="7px"
     viewBox="0 0 12 7"
     fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    style={{
+      transform: rotated ? "rotate(180deg)" : "rotate(0deg)",
+    }}
   >
     <path
       d="M7.17096 0.475588C6.73198 0.0764969 6.01906 0.0764969 5.58007 0.475588L1.08483 4.56228C0.761737 4.85601 0.666915 5.29341 0.84251 5.67654C1.01811 6.05966 1.42549 6.3087 1.88203 6.3087H10.8725C11.3255 6.3087 11.7364 6.05966 11.912 5.67654C12.0876 5.29341 11.9893 4.85601 11.6697 4.56228L7.17448 0.475588H7.17096Z"
@@ -24,7 +28,7 @@ const container: React.CSSProperties = {
   alignItems: "center",
   border: "1px solid #EAEAEA",
   borderRadius: 4,
-  width: 90,
+  width: 110,
   height: 42,
   overflow: "hidden",
 };
@@ -75,19 +79,17 @@ export const Counter: React.FC<{
           }}
           onClick={() => setCount((c) => Math.max(1, c + 1))}
         >
-          {triangle}
+          <Triangle rotated={false} />
         </button>
         <button
           type="button"
           style={{
-            transform: "rotate(180deg)",
             ...buttonContainer,
-            borderRight: "1px solid #EAEAEA",
-            borderLeft: "none",
+            borderLeft: "1px solid #EAEAEA",
           }}
           onClick={() => setCount((c) => Math.max(1, c - 1))}
         >
-          {triangle}
+          <Triangle rotated />
         </button>
       </div>
     </div>
