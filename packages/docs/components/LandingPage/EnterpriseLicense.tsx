@@ -13,7 +13,6 @@ export const EnterpriseLicense: React.FC = () => {
       <div className={styles.text}>For advanced needs</div>
       <h2 className={styles.pricingtitle}>Enterprise license</h2>
       <PricingBulletPoint text="Custom terms and pricing" checked />
-      <PricingBulletPoint text="Remotion fills out compliance forms" checked />
       <PricingBulletPoint text="Prioritized feature requests" checked />
       <PricingBulletPoint text="Private support" checked />
       <div style={{ height: 30 }} />

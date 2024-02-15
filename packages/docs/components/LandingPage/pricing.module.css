@@ -16,6 +16,7 @@
   width: 44px;
   border: none;
   text-align: end;
+  font-feature-settings: "ss03" on;
 }
 
 /* removes up and down arrows from input field */
@@ -29,7 +30,7 @@ input[type="number"]::-webkit-outer-spin-button {
   display: flex;
   flex-direction: column;
   border: 5px solid black;
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 20px 26px;
 }
 
@@ -42,6 +43,8 @@ input[type="number"]::-webkit-outer-spin-button {
   font-family: "GTPlanar", sans-serif;
   font-size: 24px;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "ss03" on;
 }
 
 .boldtext {
@@ -60,6 +63,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 15px;
   color: #666666;
   min-width: 330px;
+  font-feature-settings: "ss03" on;
 }
 .descriptionsmall {
   margin: 0;

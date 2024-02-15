@@ -10,8 +10,11 @@ export const FreePricing: React.FC = () => {
       </div>
       <h2 className={styles.pricingtitle}>Free forever</h2>
       <PricingBulletPoint text="Unlimited videos" checked />
-      <PricingBulletPoint text="Comercial use allowed" checked />
-      <PricingBulletPoint text="Cloud rendering allowed(self-hosted)" checked />
+      <PricingBulletPoint text="Commercial use allowed" checked />
+      <PricingBulletPoint
+        text="Cloud rendering allowed (self-hosted)"
+        checked
+      />
       <PricingBulletPoint text="Upgrade when your team grows" checked={false} />
     </div>
   );

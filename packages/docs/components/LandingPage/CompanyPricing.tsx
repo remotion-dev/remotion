@@ -51,7 +51,7 @@ export const CompanyPricing: React.FC = () => {
       <div style={{ height: 30 }} />
       <div className={styles.rowcontainer}>
         <div style={textUnitWrapper}>
-          <div className={styles.boldtext}>Developer Seat</div>
+          <div className={styles.boldtext}>Developer Seats</div>
           <div className={styles.description}>
             Number of developers working with Remotion
           </div>
@@ -59,7 +59,12 @@ export const CompanyPricing: React.FC = () => {
         <div style={{ flex: 3 }} />
         <Counter count={devSeatCount} setCount={setDevSeatCount} />
         <div style={{ flex: 1 }} />
-        <div className={styles.pricetag}>${SEAT_PRICE}</div>
+        <div className={styles.pricetag}>
+          $
+          {new Intl.NumberFormat("en-US", {
+            maximumFractionDigits: 0,
+          }).format(SEAT_PRICE * devSeatCount)}
+        </div>
       </div>
       <div style={{ height: 14 }} />
       <div className={styles.rowcontainer}>
@@ -72,7 +77,12 @@ export const CompanyPricing: React.FC = () => {
         <div style={{ flex: 3 }} />
         <Counter count={cloudUnitCount} setCount={setCloudUnitCount} />
         <div style={{ flex: 1 }} />
-        <div className={styles.pricetag}>${RENDER_UNIT_PRICE}</div>
+        <div className={styles.pricetag}>
+          $
+          {new Intl.NumberFormat("en-US", {
+            maximumFractionDigits: 0,
+          }).format(RENDER_UNIT_PRICE * cloudUnitCount)}
+        </div>
       </div>
       <div style={{ height: 20 }} />
       <div
