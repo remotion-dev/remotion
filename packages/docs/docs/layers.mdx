@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-layers.png
+id: layers
+title: Layers
+crumb: "Designing videos"
+---
+
+Unlike normal websites, a video has fixed dimensions. That means, it is okay to use `position: "absolute"`!
+
+In Remotion, you often want to "layer" elements on top of each other.  
+This is a common pattern in video editors, and in Photoshop.
+
+An easy way to do it is using the [`<AbsoluteFill>`](/docs/absolute-fill) component:
+
+```tsx twoslash title="MyComp.tsx"
+import React from "react";
+import { AbsoluteFill, Img, staticFile } from "remotion";
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <Img src={staticFile("bg.png")} />
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <h1>This text appears on top of the video!</h1>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+This will render the text on top of the image.
