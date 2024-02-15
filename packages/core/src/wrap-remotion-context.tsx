@@ -3,6 +3,7 @@
 // for them to be useable
 
 import React, {useMemo} from 'react';
+import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {NativeLayersContext} from './NativeLayers.js';
@@ -29,6 +30,7 @@ export function useRemotionContexts() {
 	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
 	const renderAssetManagerContext = React.useContext(RenderAssetManager);
 	const sequenceManagerContext = React.useContext(SequenceManager);
+	const bufferManagerContext = React.useContext(BufferingContextReact);
 
 	return useMemo(
 		() => ({
@@ -43,6 +45,7 @@ export function useRemotionContexts() {
 			resolveCompositionContext,
 			renderAssetManagerContext,
 			sequenceManagerContext,
+			bufferManagerContext,
 		}),
 		[
 			compositionManagerCtx,
@@ -56,6 +59,7 @@ export function useRemotionContexts() {
 			resolveCompositionContext,
 			renderAssetManagerContext,
 			sequenceManagerContext,
+			bufferManagerContext,
 		],
 	);
 }
@@ -89,7 +93,11 @@ export const RemotionContextProvider = (
 												<SequenceContext.Provider
 													value={contexts.sequenceContext}
 												>
-													{children}
+													<BufferingContextReact.Provider
+														value={contexts.bufferManagerContext}
+													>
+														{children}
+													</BufferingContextReact.Provider>
 												</SequenceContext.Provider>
 											</SetTimelineContext.Provider>
 										</TimelineContext.Provider>

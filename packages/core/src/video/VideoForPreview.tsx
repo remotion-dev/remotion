@@ -1,4 +1,3 @@
-import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -12,6 +11,7 @@ import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -27,16 +27,17 @@ import {
 import type {RemotionVideoProps} from './props.js';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
-type VideoForDevelopmentProps = RemotionVideoProps & {
+type VideoForPreviewProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
+	pauseWhenBuffering: boolean;
 	_remotionInternalNativeLoopPassed: boolean;
 	_remotionInternalStack: string | null;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	VideoForDevelopmentProps
+	VideoForPreviewProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -63,6 +64,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
 		style,
+		pauseWhenBuffering,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -105,6 +107,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeshift:
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
+
+	useMediaBuffering(videoRef, pauseWhenBuffering);
 
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
@@ -158,7 +162,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [props.onError, src]);
 
 	const currentOnDurationCallback =
-		useRef<VideoForDevelopmentProps['onDuration']>();
+		useRef<VideoForPreviewProps['onDuration']>();
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {
@@ -223,9 +227,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-// Copy types from forwardRef but not necessary to remove ref
-export const VideoForDevelopment = forwardRef(
+export const VideoForPreview = forwardRef(
 	VideoForDevelopmentRefForwardingFunction,
-) as ForwardRefExoticComponent<
-	VideoForDevelopmentProps & RefAttributes<HTMLVideoElement>
->;
+);

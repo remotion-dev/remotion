@@ -27,6 +27,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	quietFlag,
 	outDir,
 	gitSource,
+	bufferStateDelayInMilliseconds,
+	maxTimlineTracks,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -44,6 +46,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	quietFlag: boolean;
 	outDir: string | null;
 	gitSource: GitSource | null;
+	bufferStateDelayInMilliseconds: number | null;
+	maxTimlineTracks: number | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -79,6 +83,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		quietFlag,
 		outDir,
 		gitSource,
+		bufferStateDelayInMilliseconds,
+		maxTimlineTracks,
 	});
 
 	return {
@@ -101,6 +107,8 @@ export const bundleOnCli = async ({
 	quietFlag,
 	outDir,
 	gitSource,
+	maxTimlineTracks,
+	bufferStateDelayInMilliseconds,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -118,6 +126,8 @@ export const bundleOnCli = async ({
 	quietFlag: boolean;
 	outDir: string | null;
 	gitSource: GitSource | null;
+	maxTimlineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -191,6 +201,8 @@ export const bundleOnCli = async ({
 		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
+		bufferStateDelayInMilliseconds,
+		maxTimelineTracks: maxTimlineTracks,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,

@@ -21,7 +21,6 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
-import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {StudioServerConnectionCtx} from './client-id';
@@ -195,7 +194,7 @@ export const useMenuStructure = (
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
-	const {size, setSize} = useContext(PreviewSizeContext);
+	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const {

@@ -10,6 +10,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -35,6 +36,7 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
+	isBuffering: boolean;
 }) => React.ReactNode;
 export type RenderPoster = RenderLoading;
 export type PosterFillMode = 'player-size' | 'composition-size';
@@ -69,6 +71,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
+		showPosterWhenBuffering: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
@@ -77,6 +80,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls: boolean;
 		showPlaybackRateControl: boolean | number[];
 		posterFillMode: PosterFillMode;
+		bufferStateDelayInMilliseconds: number;
 	}
 > = (
 	{
@@ -99,6 +103,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -107,6 +112,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
+		bufferStateDelayInMilliseconds,
 	},
 	ref,
 ) => {
@@ -278,6 +284,51 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isMuted,
 		});
 	}, [player.emitter, isMuted]);
+	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
+
+	useEffect(() => {
+		let timeout: NodeJS.Timeout | null = null;
+		let stopped = false;
+
+		const onBuffer = () => {
+			requestAnimationFrame(() => {
+				if (bufferStateDelayInMilliseconds === 0) {
+					setShowBufferState(true);
+				} else {
+					timeout = setTimeout(() => {
+						if (!stopped) {
+							setShowBufferState(true);
+						}
+					}, bufferStateDelayInMilliseconds);
+				}
+			});
+		};
+
+		const onResume = () => {
+			requestAnimationFrame(() => {
+				setShowBufferState(false);
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+			});
+		};
+
+		player.emitter.addEventListener('waiting', onBuffer);
+		player.emitter.addEventListener('resume', onResume);
+
+		return () => {
+			player.emitter.removeEventListener('waiting', onBuffer);
+			player.emitter.removeEventListener('resume', onResume);
+
+			setShowBufferState(false);
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			stopped = true;
+		};
+	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
 	useImperativeHandle(
 		ref,
@@ -454,9 +505,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
+					isBuffering: showBufferIndicator,
 				})
 			: null;
-	}, [outerStyle.height, outerStyle.width, renderLoading]);
+	}, [outerStyle.height, outerStyle.width, renderLoading, showBufferIndicator]);
+
+	const currentScale: CurrentScaleContextType = useMemo(() => {
+		return {
+			type: 'scale',
+			scale,
+		};
+	}, [scale]);
 
 	if (!config) {
 		return null;
@@ -472,6 +531,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					posterFillMode === 'player-size'
 						? (outerStyle.width as number)
 						: config.width,
+				isBuffering: showBufferIndicator,
 			})
 		: null;
 
@@ -487,6 +547,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
@@ -502,10 +563,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.ClipComposition>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<Internals.CurrentScaleContext.Provider value={currentScale}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</Internals.CurrentScaleContext.Provider>
 							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
@@ -559,6 +622,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
+					buffering={showBufferIndicator}
 				/>
 			) : null}
 		</>
