@@ -34,6 +34,9 @@ type MuteChangeEventPayload = {
 	isMuted: boolean;
 };
 
+type WaitingEventPayload = {};
+type ResumeEventPayload = {};
+
 type PlayerStateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
@@ -47,6 +50,8 @@ type PlayerStateEventMap = {
 	frameupdate: FrameUpdateEventPayload;
 	fullscreenchange: FullscreenChangeEventPayload;
 	mutechange: MuteChangeEventPayload;
+	waiting: WaitingEventPayload;
+	resume: ResumeEventPayload;
 };
 
 type ThumbnailStateEventMap = {
@@ -82,6 +87,8 @@ export class PlayerEmitter {
 		fullscreenchange: [],
 		volumechange: [],
 		mutechange: [],
+		waiting: [],
+		resume: [],
 	};
 
 	addEventListener<Q extends PlayerEventTypes>(
@@ -167,6 +174,14 @@ export class PlayerEmitter {
 
 	dispatchMuteChange(event: MuteChangeEventPayload) {
 		this.dispatchEvent('mutechange', event);
+	}
+
+	dispatchWaiting(event: WaitingEventPayload) {
+		this.dispatchEvent('waiting', event);
+	}
+
+	dispatchResume(event: ResumeEventPayload) {
+		this.dispatchEvent('resume', event);
 	}
 }
 

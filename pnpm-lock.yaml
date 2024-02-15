@@ -94,9 +94,6 @@ importers:
       astro:
         specifier: ^2.0.14
         version: 2.0.14(@types/node@18.14.6)
-      esm-wallaby:
-        specifier: ^3.2.26
-        version: 3.2.26
       react:
         specifier: ^18.1.0
         version: 18.2.0
@@ -14027,11 +14024,6 @@ packages:
       text-table: 0.2.0
     transitivePeerDependencies:
       - supports-color
-
-  /esm-wallaby@3.2.26:
-    resolution: {integrity: sha512-DtbO0pdJj7kv/abkQ1BjIpk/Rm6vy9ueGcsXuQT7jH6qw6RQby/i/qeVyIcf2pbpAT5UW8PN+dL2YZakTw+URA==}
-    engines: {node: '>=6'}
-    dev: false
 
   /espree@9.5.2:
     resolution: {integrity: sha512-7OASN1Wma5fum5SrNhFMAMJxOUAbhyfQ8dQ//PJaJbNw0URTPWqIghHWt1MmAANKhHZIYOHruW4Kw4ruUWOdGw==}

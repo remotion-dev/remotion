@@ -61,10 +61,10 @@ export const MyComp: React.FC = () => {
           width: 200,
           height: 200,
           borderRadius: 100,
-          backgrondColor: interpolateColors(
+          backgroundColor: interpolateColors(
             colorChange,
             [0, 1],
-            ["#e6a700", "#e13238"]
+            ["#e6a700", "#e13238"],
           ),
           transform: `translateX(${translateX}px)`,
         }}

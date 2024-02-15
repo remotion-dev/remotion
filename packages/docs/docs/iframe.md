@@ -5,8 +5,12 @@ id: iframe
 crumb: "API"
 ---
 
-The `<IFrame />` can be used like a regular `<iframe>` HTML tag.
-The difference is that if you use the component from Remotion, that Remotion will ensure that the iframe is loaded before rendering the frame. That way you can avoid flickers if it happens that the iframe is still loading during rendering.
+The `<IFrame />` can be used like the regular `<iframe>` HTML tag.
+
+Remotion automatically wraps the `<iframe>` in a [`delayRender()`](/docs/delay-render) call
+and ensures that the iframe is loaded before rendering the frame.
+
+Ideally, the website should not have any animations, since only animations using [`useCurrentFrame()`](/docs/use-current-frame) are supported by Remotion. See [Flickering](/docs/flickering) for an explanation.
 
 ## Example
 

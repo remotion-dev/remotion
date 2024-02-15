@@ -12,7 +12,7 @@ import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {DurationsContext} from './duration-state.js';
 import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
-import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
@@ -29,6 +29,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		startFrom,
 		endAt,
 		name,
+		pauseWhenBuffering,
 		stack,
 		_remotionInternalNativeLoopPassed,
 		...otherProps
@@ -114,10 +115,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	return (
-		<VideoForDevelopment
+		<VideoForPreview
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={

@@ -1,5 +1,10 @@
 import type {GitSource} from '@remotion/studio-shared';
-import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {
+	DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
+	DEFAULT_TIMELINE_TRACKS,
+	getProjectName,
+	SOURCE_MAP_ENDPOINT,
+} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -58,10 +63,14 @@ export const getConfig = ({
 	resolvedRemotionRoot,
 	onProgress,
 	options,
+	bufferStateDelayInMilliseconds,
+	maxTimelineTracks,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
+	bufferStateDelayInMilliseconds: number | null;
+	maxTimelineTracks: number | null;
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
@@ -75,9 +84,10 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 90,
+		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: true,
+		bufferStateDelayInMilliseconds,
 		poll: null,
 	});
 };
@@ -88,6 +98,8 @@ export type BundleOptions = {
 	ignoreRegisterRootWarning?: boolean;
 	onDirectoryCreated?: (dir: string) => void;
 	gitSource?: GitSource | null;
+	maxTimelineTracks?: number;
+	bufferStateDelayInMilliseconds?: number;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -191,6 +203,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 		resolvedRemotionRoot,
 		onProgress,
 		options,
+		bufferStateDelayInMilliseconds:
+			actualArgs.bufferStateDelayInMilliseconds ??
+			DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
+		maxTimelineTracks: actualArgs.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 	});
 
 	const output = await promisified([config]);

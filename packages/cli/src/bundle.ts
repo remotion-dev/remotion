@@ -109,6 +109,8 @@ export const bundleCommand = async (
 		quietFlag: quietFlagProvided(),
 		outDir: outputPath,
 		gitSource,
+		bufferStateDelayInMilliseconds: null,
+		maxTimlineTracks: null,
 	});
 
 	Log.infoAdvanced(

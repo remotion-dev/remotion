@@ -77,6 +77,7 @@ export const startStudio = async ({
 	parsedCliOpen,
 	previewEntry,
 	gitSource,
+	bufferStateDelayInMilliseconds,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -86,7 +87,8 @@ export const startStudio = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	desiredPort: number | null;
-	maxTimelineTracks: number;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	userPassedPublicDir: string | null;
@@ -157,6 +159,7 @@ export const startStudio = async ({
 		numberOfAudioTags,
 		queueMethods,
 		gitSource,
+		bufferStateDelayInMilliseconds,
 	});
 
 	setLiveEventsListener(liveEventsServer);

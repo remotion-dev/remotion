@@ -18,6 +18,7 @@ type UsePlayerMethods = {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
+	isBuffering: () => boolean;
 	/**
 	 * @deprecated Remotion internal API
 	 */
@@ -49,6 +50,15 @@ export const usePlayer = (): UsePlayerMethods => {
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
 	}
+
+	const bufferingContext = useContext(Internals.BufferingContextReact);
+	if (!bufferingContext) {
+		throw new Error(
+			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
+		);
+	}
+
+	const {buffering} = bufferingContext;
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -183,8 +193,9 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame: () => frameRef.current as number,
-			isPlaying: () => imperativePlaying.current as boolean,
+			getCurrentFrame: () => frameRef.current,
+			isPlaying: () => imperativePlaying.current,
+			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
 			remotionInternal_currentFrameRef: frameRef,
@@ -200,8 +211,9 @@ export const usePlayer = (): UsePlayerMethods => {
 		seek,
 		isFirstFrame,
 		pauseAndReturnToPlayStart,
-		imperativePlaying,
 		hasPlayed,
+		imperativePlaying,
+		buffering,
 	]);
 
 	return returnValue;

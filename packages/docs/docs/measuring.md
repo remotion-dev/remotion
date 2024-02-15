@@ -33,7 +33,7 @@ export const MyComponent = () => {
 
     const rect = ref.current.getBoundingClientRect();
     const measurerRect = measurer.current.getBoundingClientRect();
-    const scale = MEASURER_SIZE / measurerRect.width;
+    const scale = measurerRect.width / MEASURER_SIZE;
 
     setDimensions({
       correctedHeight: rect.height * scale,

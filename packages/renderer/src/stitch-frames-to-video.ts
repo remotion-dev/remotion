@@ -459,7 +459,7 @@ const innerStitchFramesToVideo = async (
 		const str = data.toString();
 		ffmpegStderr += str;
 		if (onProgress) {
-			const parsed = parseFfmpegProgress(str);
+			const parsed = parseFfmpegProgress(str, fps);
 			// FFMPEG bug: In some cases, FFMPEG does hang after it is finished with it's job
 			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {

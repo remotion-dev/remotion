@@ -4,6 +4,10 @@ title: Display a buffer state
 crumb: Building video apps
 ---
 
+:::warning
+Since Remotion v4.1.111, Remotion has a [native buffer state](/docs/player/buffer-state). The technique described on this page should only be used for older versions of Remotion.
+:::
+
 In your [`<Player>`](/docs/player), you might have videos and other assets that might take some time to load after they enter the scene.
 You can [preload those assets](/docs/player/preloading), but sometimes browser policies prevent preloading and [a brief flash is possible](/docs/troubleshooting/player-flicker) while the browser needs to decode the video before playing.
 
@@ -81,7 +85,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = false;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const needsToBuffer = useCallback(
@@ -89,7 +93,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = true;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const bufferEvents = useMemo(() => {
@@ -153,7 +157,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = false;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const needsToBuffer = useCallback(
@@ -161,7 +165,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = true;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const bufferEvents = useMemo(() => {
@@ -291,7 +295,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = false;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const needsToBuffer = useCallback(
@@ -299,7 +303,7 @@ export const BufferManager: React.FC<{
       bufferState.current[id] = true;
       sendEvents();
     },
-    [sendEvents]
+    [sendEvents],
   );
 
   const bufferEvents = useMemo(() => {

@@ -24,7 +24,8 @@ export const startServer = async (options: {
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks?: number;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
@@ -54,6 +55,7 @@ export const startServer = async (options: {
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
+		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 	});
 
 	const compiler = webpack(config);

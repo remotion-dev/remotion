@@ -1,8 +1,10 @@
+import {BufferingIndicator} from './BufferingIndicator.js';
 import {
 	calculateCanvasTransformation,
 	calculateScale,
 } from './calculate-scale.js';
 import {PlayerEventEmitterContext} from './emitter-context.js';
+import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {useHoverState} from './use-hover-state.js';
@@ -40,4 +42,6 @@ export const PlayerInternals = {
 	useHoverState,
 	updateAllElementsSizes,
 	calculateScale,
+	PlayerEmitterProvider,
+	BufferingIndicator,
 };
