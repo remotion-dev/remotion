@@ -84,10 +84,17 @@
     "@types/hls.js": "^0.13.3",
     "@types/node": "18.14.6",
     "@types/react": "18.2.48",
+    "@types/unist": "^2.0.0",
     "eslint": "8.42.0",
     "lodash.sortby": "^4.7.0",
     "prettier": "3.1.1",
     "prettier-plugin-organize-imports": "3.2.4",
-    "url-loader": "^4.1.1"
+    "url-loader": "^4.1.1",
+    "unist-util-visit": "^2.0.0",
+    "@typescript/twoslash": "3.2.1",
+    "unified": "^8.4.2",
+    "fenceparser": "^2.2.0",
+    "shiki-twoslash": "3.1.2",
+    "shiki": "0.14.3"
   }
 }
