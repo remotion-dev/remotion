@@ -136,6 +136,10 @@ Here is the order of which the `durationInFrames`, `reverse` and `delay` operati
 
 This function was taken from [Reanimated 2](https://github.com/software-mansion/react-native-reanimated), which in itself was a huge inspiration for Remotion.
 
+## Spring Editor
+
+Go to [springs.remotion.dev](https://springs.remotion.dev/) to play around with the spring animation and see how the parameters affect the animation.
+
 ## See also
 
 - [Spring animation example](/docs/animating-properties#using-spring-animations)
