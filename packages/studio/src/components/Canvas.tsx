@@ -1,5 +1,4 @@
 import type {Size} from '@remotion/player';
-import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
@@ -105,7 +104,7 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = PlayerInternals.calculateScale({
+				const scale = Internals.calculateScale({
 					canvasSize: size,
 					compositionHeight: contentDimensions.height,
 					compositionWidth: contentDimensions.width,
@@ -220,7 +219,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -246,7 +245,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,

@@ -1,26 +1,8 @@
 import type {StandardLonghandProperties} from 'csstype';
 import type {PreviewSize, VideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {calculatePlayerSize} from './utils/calculate-player-size.js';
 import type {Size} from './utils/use-element-size.js';
-
-export const calculateScale = ({
-	canvasSize,
-	compositionHeight,
-	compositionWidth,
-	previewSize,
-}: {
-	previewSize: PreviewSize['size'];
-	compositionWidth: number;
-	compositionHeight: number;
-	canvasSize: Size;
-}) => {
-	const heightRatio = canvasSize.height / compositionHeight;
-	const widthRatio = canvasSize.width / compositionWidth;
-
-	const ratio = Math.min(heightRatio, widthRatio);
-
-	return previewSize === 'auto' ? ratio : Number(previewSize);
-};
 
 type Layout = {
 	centerX: number;
@@ -41,7 +23,7 @@ export const calculateCanvasTransformation = ({
 	compositionHeight: number;
 	canvasSize: Size;
 }): Layout => {
-	const scale = calculateScale({
+	const scale = Internals.calculateScale({
 		canvasSize,
 		compositionHeight,
 		compositionWidth,
