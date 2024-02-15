@@ -102,6 +102,7 @@ module.exports = {
         "staticfile",
         "still",
         "use-current-frame",
+        "use-current-scale",
         "use-video-config",
         "version",
         "video",

@@ -2859,7 +2859,7 @@ export const articles = [
   },
   {
     id: "troubleshooting/background-image",
-    title: "Flickering when using background-image",
+    title: "Flickering when using background-image or mask-image",
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
@@ -2953,6 +2953,13 @@ export const articles = [
     title: "useCurrentFrame()",
     relativePath: "docs/use-current-frame.md",
     compId: "articles-docs-use-current-frame",
+    crumb: "API",
+  },
+  {
+    id: "use-current-scale",
+    title: "useCurrentScale()",
+    relativePath: "docs/use-current-scale.md",
+    compId: "articles-docs-use-current-scale",
     crumb: "API",
   },
   {
