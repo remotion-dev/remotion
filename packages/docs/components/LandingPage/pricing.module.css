@@ -2,14 +2,84 @@
   font-size: 2.5em;
   font-weight: 700;
   line-height: 1.1;
+  font-family: "GTPlanar", sans-serif;
 }
 
 .mp4 {
   color: var(--ifm-color-primary);
 }
 
+.counterinput {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  min-width: 60px;
+  border: none;
+  text-align: end;
+  font-feature-settings: "ss03" on;
+}
+
+/* removes up and down arrows from input field */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .pricingcontainer {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  border: 5px solid black;
+  border-radius: 10px;
+  padding: 20px 26px;
+}
+
+.text {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 19px;
+}
+
+.pricetag {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "ss03" on;
+  min-width: 60px;
+  width: auto;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 15px;
+}
+
+.boldtext {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.description {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 15px;
+  color: #666666;
+  min-width: 330px;
+  font-feature-settings: "ss03" on;
+  line-height: 1.2;
+  margin-top: 5px;
+  margin-right: 10px;
+  text-wrap: balance;
+}
+.descriptionsmall {
+  margin: 0;
+  padding: 0;
+  font-family: "GTPlanar", sans-serif;
+  font-size: 14px;
+  color: #666666;
 }
 
 .pricingrow {
@@ -43,31 +113,6 @@
   font-size: 0.95em;
 }
 
-.perperiod {
-  font-weight: 500;
-  margin-top: -7px;
-  font-size: 0.9em;
-}
-
-.tableprice {
-  font-size: 60px;
-  font-weight: 700;
-  margin-top: -5px;
-  font-family: "GTPlanar";
-}
-
-.freeprice {
-  color: #4290f5;
-}
-
-.gradientprice {
-  color: #79367a;
-}
-
-.orangeprice {
-  color: #fd764a;
-}
-
 .portion {
   flex: 1;
 }
@@ -87,67 +132,25 @@
   margin-top: 5px;
 }
 
-.pricinga {
-  color: inherit;
-}
-
-.pricinga:hover {
-  text-decoration: none;
-}
-
-.doublepanel {
-  flex: 1;
+.rowcontainer {
   display: flex;
   flex-direction: row;
-}
-
-.doublepanelsingle {
-  flex: 1;
-  min-height: 400px;
-}
-
-.plus {
-  height: 40px;
-  width: 40px;
-  border-radius: 20px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
-  box-shadow: var(--box-shadow);
-  margin-top: 50px;
-}
-
-.minimum {
-  margin-top: -30px;
-  color: var(--light-text-color);
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.plus svg {
-  height: 20px;
+  margin-bottom: 12;
 }
 
 @media screen and (max-width: 900px) {
+  .description {
+    min-width: 200px;
+  }
   .pricingcontainer {
     text-align: left;
-  }
-  .pricingrow {
-    flex-direction: column;
-    align-items: center;
   }
   .portion {
     max-width: 500px;
     width: 100%;
   }
-  .doublepanel {
-    flex-direction: column;
-  }
-  .plus {
-    margin-left: 200px;
-    margin-top: -30px;
-    margin-bottom: 30px;
+
+  .description {
+    font-size: 0.85em;
   }
 }
