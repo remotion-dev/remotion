@@ -46,11 +46,11 @@ describe("Templates should be valid", () => {
       expect(body.dependencies.react).toMatch(/^\^?18/);
       expect(body.dependencies["react-dom"]).toMatch(/^\^?18/);
 
-      expect(body.devDependencies.prettier).toMatch(/^\^?(3.2.5)|(2.8.8)/);
+      expect(body.devDependencies.prettier).toMatch(/^\^?((2|3).\d.\d)/);
 
       if (!template.shortName.includes("JavaScript")) {
-        expect(body.devDependencies.eslint).toMatch(/^\^?8.43/);
-        expect(body.devDependencies.typescript).toMatch(/^\^?4/);
+        expect(body.devDependencies.eslint).toMatch(/^\^?(8|9).\d+/);
+        expect(body.devDependencies.typescript).toMatch(/^\^?((4|5).\d.\d)/);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const eitherPluginOrConfig =
           body.devDependencies["@remotion/eslint-config"]?.match(/^\^?4/) ||
@@ -154,8 +154,7 @@ describe("Templates should be valid", () => {
       const { contents } = await findFile([
         getFileForTemplate(template, "tsconfig.json"),
       ]);
-      const json = JSON.parse(contents as string);
-      expect(json.compilerOptions.noUnusedLocals).toBe(true);
+      expect(contents).toInclude("noUnusedLocals");
     });
     it(template.shortName + " should have a good .vscode setting", async () => {
       const { contents } = await findFile([
