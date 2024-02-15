@@ -1,12 +1,10 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
-import {Gif} from '@remotion/gif';
 import {
 	AbsoluteFill,
 	Audio,
 	Sequence,
 	Series,
 	staticFile,
-	useCurrentScale,
 	Video,
 } from 'remotion';
 
@@ -17,7 +15,6 @@ preloadVideo(
 preloadAudio(staticFile('sample.mp3'));
 
 export const VideoautoplayDemo = () => {
-	console.log(useCurrentScale());
 	return (
 		<AbsoluteFill
 			style={{
