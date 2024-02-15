@@ -5,7 +5,7 @@ id: use-buffer-state
 crumb: "API"
 ---
 
-_available from 4.1 // FIXME_
+_available from 4.0.111_
 
 You can use this hook inside your [composition](/docs/terminology/composition) to retrieve functions that can inform the Player that your component is currently loading data.
 
