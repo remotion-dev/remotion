@@ -16,6 +16,11 @@ export const Pricing: React.FC = () => {
       <FreePricing />
       <CompanyPricing />
       <EnterpriseLicense />
+      <div>
+        See our <a href="https://remotion.pro/license">FAQ</a> and{" "}
+        <a href="https://www.remotion.pro/terms">Terms and conditions</a> for
+        more details.
+      </div>
     </div>
   );
 };
