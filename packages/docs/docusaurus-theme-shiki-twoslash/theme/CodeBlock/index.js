@@ -8,7 +8,6 @@ import copy from "copy-text-to-clipboard";
 import React, { useRef, useState } from "react";
 
 const CodeBlock = ({ children, ...props }) => {
-  console.log(props, { children });
   const pre = useRef(null);
   const [showCopied, setShowCopied] = useState(false);
 
