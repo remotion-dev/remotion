@@ -26,6 +26,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 			if (onError) {
 				onError(e);
 			} else {
+				// eslint-disable-next-line no-console
 				console.error(
 					'Error loading iframe:',
 					e,

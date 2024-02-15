@@ -2,6 +2,7 @@
 
 import {rmSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {VERSION} from 'remotion/version';
 import type {AudioCodec} from './audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -9,6 +10,7 @@ import {
 } from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
+import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -42,6 +44,8 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops,
 		audioCodec,
 		audioBitrate,
+		indent,
+		logLevel,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -63,9 +67,7 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops === null ? null : '-loop',
 		numberOfGifLoops === null
 			? null
-			: typeof numberOfGifLoops === 'number'
-			? String(numberOfGifLoops)
-			: '-1',
+			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
 		isAudioCodec(codec) ? null : '-c:v',
 		isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 		resolvedAudioCodec ? '-c:a' : null,
@@ -78,21 +80,28 @@ export const combineVideos = async (options: Options) => {
 		audioBitrate ? audioBitrate : '320k',
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
+		`-metadata`,
+		`comment=Made with Remotion ${VERSION}`,
 		'-y',
 		output,
 	].filter(truthy);
 
-	Log.verbose('Combining command: ', command);
+	Log.verbose({indent, logLevel}, 'Combining command: ', command);
 
 	try {
-		const task = callFf('ffmpeg', command, options.indent, options.logLevel);
+		const task = callFf({
+			bin: 'ffmpeg',
+			args: command,
+			indent: options.indent,
+			logLevel: options.logLevel,
+		});
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
-				const parsed = parseFfmpegProgress(data.toString('utf8'));
+				const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 				if (parsed === undefined) {
-					Log.verbose(data.toString('utf8'));
+					Log.verbose({indent, logLevel}, data.toString('utf8'));
 				} else {
-					Log.verbose(`Combined ${parsed} frames`);
+					Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
 					onProgress(parsed);
 				}
 			}

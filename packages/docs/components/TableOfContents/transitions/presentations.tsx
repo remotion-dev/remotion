@@ -1,3 +1,5 @@
+import { cube } from "@remotion-dev/cube-presentation";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
@@ -5,6 +7,7 @@ import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { PresentationPreview } from "../../transitions/previews";
 import { Grid } from "../Grid";
+import { ProLabel } from "../pro-label";
 import { TOCItem } from "../TOCItem";
 
 const row: React.CSSProperties = {
@@ -12,6 +15,9 @@ const row: React.CSSProperties = {
   flexDirection: "row",
   justifyContent: "space-between",
 };
+
+export const presentationCompositionWidth = 540;
+export const presentationCompositionHeight = 280;
 
 export const Presentations: React.FC = () => {
   return (
@@ -65,6 +71,48 @@ export const Presentations: React.FC = () => {
               <code>{"flip()"}</code>
             </strong>
             <div>Rotate the previous scene</div>
+          </div>
+        </div>
+      </TOCItem>
+      <TOCItem link="/docs/transitions/presentations/clock-wipe">
+        <div style={row}>
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={clockWipe({
+              width: presentationCompositionWidth,
+              height: presentationCompositionHeight,
+            })}
+          />
+          <div style={{ flex: 1, marginLeft: 10 }}>
+            <strong>
+              <code>{"clockWipe()"}</code>
+            </strong>
+            <div>Reveal the new scene in a circular movement</div>
+          </div>
+        </div>
+      </TOCItem>
+      <TOCItem link="/docs/transitions/presentations/cube">
+        <div style={row}>
+          <PresentationPreview
+            durationRestThreshold={0.001}
+            effect={cube({
+              direction: "from-left",
+            })}
+          />
+          <div style={{ flex: 1, marginLeft: 10 }}>
+            <strong>
+              <code>{"cube()"}</code>
+            </strong>
+            <ProLabel />
+            <div>Rotate both scenes with 3D perspective</div>
+          </div>
+        </div>
+      </TOCItem>
+      <TOCItem link="/docs/transitions/audio-transitions">
+        <div style={row}>
+          <div style={{ flex: 1 }}>
+            <strong>Audio transitions</strong>
+            <div>Add a sound effect to a transition</div>
           </div>
         </div>
       </TOCItem>

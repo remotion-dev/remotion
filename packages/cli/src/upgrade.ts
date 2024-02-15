@@ -1,14 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {PackageManager} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {ConfigInternals} from './config';
-import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-import type {PackageManager} from './preview-server/get-package-manager';
-import {
-	getPackageManager,
-	lockFilePaths,
-} from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
 	manager,
@@ -21,8 +17,8 @@ const getUpgradeCommand = ({
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', '--save-exact', ...pkgList],
-		pnpm: ['i', '--save-exact', ...pkgList],
+		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
+		pnpm: ['i', ...pkgList],
 		yarn: ['add', '--exact', ...pkgList],
 		bun: ['i', ...pkgList],
 	};
@@ -49,15 +45,18 @@ export const upgrade = async (
 		targetVersion = version;
 		Log.info('Upgrading to specified version: ' + version);
 	} else {
-		targetVersion = await getLatestRemotionVersion();
+		targetVersion = await StudioServerInternals.getLatestRemotionVersion();
 		Log.info('Newest Remotion version is', targetVersion);
 	}
 
-	const manager = getPackageManager(remotionRoot, packageManager);
+	const manager = StudioServerInternals.getPackageManager(
+		remotionRoot,
+		packageManager,
+	);
 
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${lockFilePaths
+			`No lockfile was found in your project (one of ${StudioServerInternals.lockFilePaths
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`,
 		);
@@ -79,6 +78,7 @@ export const upgrade = async (
 			version: targetVersion,
 		}),
 		{
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 			stdio: 'inherit',
 		},
 	);

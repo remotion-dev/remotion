@@ -5,13 +5,11 @@ import type {Page} from './browser/BrowserPage';
 import type {LogLevel} from './log-level';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
-import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,
 	browserExecutable,
 	chromiumOptions,
-	context,
 	forceDeviceScaleFactor,
 	indent,
 	logLevel,
@@ -19,20 +17,15 @@ export const getPageAndCleanupFn = async ({
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	chromiumOptions: ChromiumOptions;
-	context: AnySourceMapConsumer | null;
 	indent: boolean;
 	forceDeviceScaleFactor: number | undefined;
 	logLevel: LogLevel;
 }): Promise<{
-	cleanup: () => void;
+	cleanup: () => Promise<void>;
 	page: Page;
 }> => {
 	if (passedInInstance) {
-		const page = await passedInInstance.newPage(
-			Promise.resolve(context),
-			logLevel,
-			indent,
-		);
+		const page = await passedInInstance.newPage(() => null, logLevel, indent);
 		return {
 			page,
 			cleanup: () => {
@@ -41,6 +34,7 @@ export const getPageAndCleanupFn = async ({
 				page.close().catch((err) => {
 					console.error('Was not able to close puppeteer page', err);
 				});
+				return Promise.resolve();
 			},
 		};
 	}
@@ -55,7 +49,7 @@ export const getPageAndCleanupFn = async ({
 		logLevel,
 	});
 	const browserPage = await browserInstance.newPage(
-		Promise.resolve(context),
+		() => null,
 		logLevel,
 		indent,
 	);
@@ -67,6 +61,7 @@ export const getPageAndCleanupFn = async ({
 			browserInstance.close(true, logLevel, indent).catch((err) => {
 				console.error('Was not able to close puppeteer page', err);
 			});
+			return Promise.resolve();
 		},
 	};
 };

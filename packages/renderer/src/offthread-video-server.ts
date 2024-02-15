@@ -70,13 +70,13 @@ export const startOffthreadVideoServer = ({
 	);
 
 	return {
-		close: () => {
+		close: async () => {
 			// Note: This is being used as a promise:
 			//     .close().then()
 			// but if finishCommands() fails, it acts like a sync function,
 			// therefore we have to catch an error and put a promise rejection
 			try {
-				compositor.finishCommands();
+				await compositor.finishCommands();
 				return compositor.waitForDone();
 			} catch (err) {
 				return Promise.reject(err);
@@ -164,6 +164,7 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
+								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
 						}
@@ -180,11 +181,17 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.catch((err) => {
-					response.writeHead(500);
+					if (!response.headersSent) {
+						response.writeHead(500);
+					}
+
 					response.end();
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
-					if (err.message !== REQUEST_CLOSED_TOKEN) {
+					if (
+						err.message !== REQUEST_CLOSED_TOKEN &&
+						!err.message.includes('EPIPE')
+					) {
 						downloadMap.emitter.dispatchError(err);
 						console.log('Error occurred', err);
 					}

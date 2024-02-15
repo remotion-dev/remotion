@@ -23,9 +23,9 @@ import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
-import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media.js';
 import {getMediaTime} from './get-current-time.js';
 import type {RemotionVideoProps} from './props.js';
+import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
@@ -42,6 +42,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		onDuration,
 		toneFrequency,
+		name,
+		acceptableTimeShiftInSeconds,
 		...props
 	},
 	ref,
@@ -147,16 +149,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const currentTime = (() => {
-			return getMediaTime({
-				fps: videoConfig.fps,
-				frame,
-				src: props.src as string,
-				playbackRate: playbackRate || 1,
-				startFrom: -mediaStartsAt,
-				mediaType: 'video',
-			});
-		})();
+		const currentTime = getMediaTime({
+			frame,
+			playbackRate: playbackRate || 1,
+			startFrom: -mediaStartsAt,
+			fps: videoConfig.fps,
+		});
 		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
@@ -179,34 +177,25 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}
 
-		current.currentTime = currentTime;
-
-		const seekedHandler = () => {
-			warnAboutNonSeekableMedia(current, 'exception');
-
-			if (window.navigator.platform.startsWith('Mac')) {
-				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
-
-				// Only affects macOS since it uses VideoToolbox decoding.
-				setTimeout(() => {
-					continueRender(handle);
-				}, 100);
-			} else {
-				continueRender(handle);
-			}
-		};
-
-		current.addEventListener('seeked', seekedHandler, {once: true});
-
 		const endedHandler = () => {
 			continueRender(handle);
 		};
+
+		const seek = seekToTimeMultipleUntilRight(
+			current,
+			currentTime,
+			videoConfig.fps,
+		);
+
+		seek.prom.then(() => {
+			continueRender(handle);
+		});
 
 		current.addEventListener('ended', endedHandler, {once: true});
 
 		const errorHandler = () => {
 			if (current?.error) {
+				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 
 				// If user is handling the error, we don't cause an unhandled exception
@@ -226,9 +215,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
+			seek.cancel();
 			current.removeEventListener('ended', endedHandler);
 			current.removeEventListener('error', errorHandler);
-			current.removeEventListener('seeked', seekedHandler);
 			continueRender(handle);
 		};
 	}, [

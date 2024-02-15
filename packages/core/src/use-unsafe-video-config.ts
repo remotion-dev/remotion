@@ -5,6 +5,8 @@ import type {VideoConfig} from './video-config.js';
 
 export const useUnsafeVideoConfig = (): VideoConfig | null => {
 	const context = useContext(SequenceContext);
+	const ctxWidth = context?.width ?? null;
+	const ctxHeight = context?.height ?? null;
 	const ctxDuration = context?.durationInFrames ?? null;
 	const video = useVideo();
 
@@ -26,13 +28,13 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 
 		return {
 			id,
-			width,
-			height,
+			width: ctxWidth ?? width,
+			height: ctxHeight ?? height,
 			fps,
 			durationInFrames: ctxDuration ?? durationInFrames,
 			defaultProps,
 			props,
 			defaultCodec,
 		};
-	}, [ctxDuration, video]);
+	}, [ctxDuration, ctxHeight, ctxWidth, video]);
 };

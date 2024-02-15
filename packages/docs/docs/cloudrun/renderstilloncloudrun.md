@@ -12,7 +12,7 @@ crumb: "Cloud Run API"
 Kicks off a still rendering process on Remotion Cloud Run.
 
 Requires a [service](/docs/cloudrun/deployservice) to already be deployed to execute the render.  
-A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
@@ -165,7 +165,7 @@ The file name of the still output.
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`.
+- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`.  Make sure to include the file extension at the end of the string.
 
 ### `delayRenderTimeoutInMilliseconds?`
 

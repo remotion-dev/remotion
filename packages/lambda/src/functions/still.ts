@@ -2,7 +2,7 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {internalGetOrCreateBucket} from '../api/get-or-create-bucket';
@@ -30,7 +30,10 @@ import {
 	getExpectedOutName,
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
@@ -199,11 +202,12 @@ const innerStillHandler = async ({
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 	});
 
@@ -245,8 +249,6 @@ const innerStillHandler = async ({
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
-
-	browserInstance.instance.forgetEventLoop();
 
 	return {
 		type: 'success' as const,
@@ -339,5 +341,11 @@ export const stillHandler = async (
 		});
 
 		return res;
+	} finally {
+		forgetBrowserEventLoop(
+			options.params.type === LambdaRoutines.still
+				? options.params.logLevel
+				: 'error',
+		);
 	}
 };

@@ -1,5 +1,6 @@
 import {existsSync, readFileSync} from 'node:fs';
 import {freemem} from 'node:os';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
 const getFreeMemoryFromProcMeminfo = (): number | null => {
@@ -37,15 +38,16 @@ const getFreeMemoryFromProcMeminfo = (): number | null => {
 	}
 };
 
-export const getAvailableMemory = () => {
+export const getAvailableMemory = (logLevel: LogLevel) => {
 	if (existsSync('/proc/meminfo')) {
 		try {
 			getFreeMemoryFromProcMeminfo();
 		} catch (err) {
 			Log.warn(
+				{indent: false, logLevel},
 				'Tried to get available memory from /proc/meminfo but failed. Falling back to os.freemem(). Error:',
 			);
-			Log.warn(err);
+			Log.warn({indent: false, logLevel}, err);
 		}
 	}
 

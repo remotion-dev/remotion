@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
-import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
 import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
@@ -46,6 +44,7 @@ import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
 import type {Viewport} from './PuppeteerViewport';
+import type {SourceMapGetter} from './source-map-getter';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
@@ -94,7 +93,7 @@ export class Page extends EventEmitter {
 		target,
 		defaultViewport,
 		browser,
-		sourcemapContext,
+		sourceMapGetter,
 		logLevel,
 		indent,
 	}: {
@@ -102,7 +101,7 @@ export class Page extends EventEmitter {
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
-		sourcemapContext: Promise<AnySourceMapConsumer | null>;
+		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 	}): Promise<Page> {
@@ -110,7 +109,7 @@ export class Page extends EventEmitter {
 			client,
 			target,
 			browser,
-			sourcemapContext,
+			sourceMapGetter,
 			logLevel,
 			indent,
 		});
@@ -128,34 +127,32 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
-	sourcemapContext: AnySourceMapConsumer | null = null;
+	sourceMapGetter: SourceMapGetter;
 	logLevel: LogLevel;
 
 	constructor({
 		client,
 		target,
 		browser,
-		sourcemapContext,
+		sourceMapGetter,
 		logLevel,
 		indent,
 	}: {
 		client: CDPSession;
 		target: Target;
 		browser: HeadlessBrowser;
-		sourcemapContext: Promise<AnySourceMapConsumer | null>;
+		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(client, this);
+		this.#frameManager = new FrameManager(client, this, indent, logLevel);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
-		sourcemapContext.then((context) => {
-			this.sourcemapContext = context;
-		});
+		this.sourceMapGetter = sourceMapGetter;
 		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
@@ -200,11 +197,11 @@ export class Page extends EventEmitter {
 			}
 
 			if (
-				url?.endsWith(Internals.bundleName) &&
+				url?.endsWith(NoReactInternals.bundleName) &&
 				lineNumber &&
-				this.sourcemapContext
+				this.sourceMapGetter()
 			) {
-				const origPosition = this.sourcemapContext?.originalPositionFor({
+				const origPosition = this.sourceMapGetter()?.originalPositionFor({
 					column: columnNumber ?? 0,
 					line: lineNumber,
 				});
@@ -228,7 +225,7 @@ export class Page extends EventEmitter {
 						log.previewString,
 					);
 				} else {
-					Log.verboseAdvanced(
+					Log.verbose(
 						{
 							logLevel,
 							tag,
@@ -247,10 +244,7 @@ export class Page extends EventEmitter {
 					);
 				}
 			} else {
-				Log.verboseAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent},
-					log.text,
-				);
+				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
 			}
 		});
 	}
@@ -543,9 +537,7 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	setBrowserSourceMapContext(context: Promise<AnySourceMapConsumer | null>) {
-		context.then((ctx) => {
-			this.sourcemapContext = ctx;
-		});
+	setBrowserSourceMapGetter(context: SourceMapGetter) {
+		this.sourceMapGetter = context;
 	}
 }

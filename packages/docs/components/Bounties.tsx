@@ -43,7 +43,7 @@ const BountyCardSkeleton = () => (
 );
 
 export const Bounties = () => {
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   const [bounties, setBounties] = useState<RemoteData<Bounty[]>>({
     _tag: "loading",
@@ -61,7 +61,7 @@ export const Bounties = () => {
   }, []);
 
   return (
-    <div className={clsx("bounty-grid", isDarkTheme && "dark")}>
+    <div className={clsx("bounty-grid", colorMode === 'dark'  && "dark")}>
       {bounties._tag === "success" &&
         bounties.data.map((bounty) => (
           <div key={bounty.id}>

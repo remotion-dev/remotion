@@ -236,7 +236,7 @@ yarn add sass sass-loader
 ```ts twoslash title="src/enable-sass.ts"
 import { WebpackOverrideFn } from "@remotion/bundler";
 
-const enableSass: WebpackOverrideFn = (currentConfiguration) => {
+export const enableSass: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -351,7 +351,7 @@ import { enableGlsl } from "./src/enable-glsl";
 Config.overrideWebpackConfig(enableGlsl);
 ```
 
-3. Add the following to your [entry point](/docs/terminology#entry-point) (e.g. `src/index.ts`):
+3. Add the following to your [entry point](/docs/terminology/entry-point) (e.g. `src/index.ts`):
 
 ```ts
 declare module "*.glsl" {

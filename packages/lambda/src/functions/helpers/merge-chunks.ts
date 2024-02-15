@@ -56,7 +56,6 @@ export const mergeChunksAndFinishRender = async (options: {
 	key: string;
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
-	verbose: boolean;
 	serializedResolvedProps: SerializedInputProps;
 	renderMetadata: RenderMetadata;
 	onAllChunks: OnAllChunksAvailable;
@@ -210,14 +209,15 @@ export const mergeChunksAndFinishRender = async (options: {
 		renderId: options.renderId,
 	});
 
-	const deletProm = options.verbose
-		? Promise.resolve(0)
-		: cleanupFiles({
-				region: getCurrentRegionInFunction(),
-				bucket: options.bucketName,
-				contents,
-				jobs,
-		  });
+	const deletProm =
+		options.logLevel === 'verbose'
+			? Promise.resolve(0)
+			: cleanupFiles({
+					region: getCurrentRegionInFunction(),
+					bucket: options.bucketName,
+					contents,
+					jobs,
+				});
 
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		bucketName: options.bucketName,

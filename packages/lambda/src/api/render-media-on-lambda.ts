@@ -11,14 +11,18 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {
+	getCloudwatchRendererUrl,
+	getLambdaInsightsUrl,
+	getS3RenderUrl,
+} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
@@ -51,13 +55,14 @@ export type RenderMediaOnLambdaInput = {
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
@@ -76,6 +81,7 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	lambdaInsightsLogs: string;
 	folderInS3Console: string;
 };
 
@@ -108,6 +114,10 @@ export const internalRenderMediaOnLambdaRaw = async (
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
 				renderId: res.renderId,
+				region,
+			}),
+			lambdaInsightsLogs: getLambdaInsightsUrl({
+				functionName,
 				region,
 			}),
 		};
@@ -144,7 +154,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const wrapped = PureJSAPIs.wrapWithErrorHandling(
+	const wrapped = NoReactAPIs.wrapWithErrorHandling(
 		internalRenderMediaOnLambdaRaw,
 	);
 	if (options.quality) {
@@ -177,7 +187,7 @@ export const renderMediaOnLambda = (
 		logLevel: options.logLevel ?? 'info',
 		maxRetries: options.maxRetries ?? 1,
 		muted: options.muted ?? false,
-		numberOfGifLoops: options.numberOfGifLoops ?? 0,
+		numberOfGifLoops: options.numberOfGifLoops ?? null,
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
@@ -191,6 +201,8 @@ export const renderMediaOnLambda = (
 		serveUrl: options.serveUrl,
 		timeoutInMilliseconds: options.timeoutInMilliseconds ?? 30000,
 		videoBitrate: options.videoBitrate ?? null,
+		encodingMaxRate: options.encodingMaxRate ?? null,
+		encodingBufferSize: options.encodingBufferSize ?? null,
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,

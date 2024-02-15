@@ -64,7 +64,11 @@ export const isFlakyError = (err: Error): boolean => {
 	}
 
 	// Internet flakiness
-	if (message.includes('getaddrinfo') || message.includes('ECONNRESET')) {
+	if (
+		message.includes('getaddrinfo') ||
+		message.includes('ECONNRESET') ||
+		message.includes('socket hang up')
+	) {
 		return true;
 	}
 

@@ -44,18 +44,25 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
+## Players
+
+- [Remotion Player](/docs/player)
+- [Vidstack Player](https://www.vidstack.io/docs/player/getting-started/installation/react?provider=remotion&styling=default-layout)
+
 ## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
 - [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
-- [Spring editor](https://springs.remotion.dev)
+- [Spring Editor](https://springs.remotion.dev)
+- [remotion-animate-text](https://github.com/pskd73/remotion-animate-text)
 
 ## Full projects
 
+- [GitHub Unwrapped 2023](https://github.com/remotion-dev/github-unwrapped-2023)
 - [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
 - [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
-- [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
+- [Podcast Maker](https://github.com/FelippeChemello/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://remotion.pro) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
@@ -64,6 +71,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 - [Motionly.video](https://github.com/karelnagel/motionly)
+- [DataVids](https://github.com/apsquared/datavids_public)
 
 ## Examples
 
@@ -91,6 +99,9 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 - [Shader example](https://github.com/onion2k/a-roll)
 - [Jump cuts without re-mounting](https://github.com/remotion-dev/video-with-jump-cuts)
+- [CSS animations](https://stackblitz.com/~/github.com/remotion-dev/css-animation-play-state)
+- [Globe.gl example](https://github.com/alexfernandez803/remotion-globegl)
+- Measuring the size of a DOM node ([Source code](https://github.com/remotion-dev/measure-item), [Preview](https://measure-item.vercel.app))
 
 ## Videos
 
@@ -104,10 +115,9 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Formula 1 Graphics](https://www.youtube.com/watch?v=sA-X0Bw_7Gg&t=146s)
 - [Remotion Skia Tutorial](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
-- [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
-- [Integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
+- [Integrate GreenSock with Remotion](https://archive.ph/dGQ19)
 - [DVD Screensaver Tutorial](https://www.youtube.com/watch?v=n69siyttEwM)
 - [Remotion Tutorial by Alfonso Graziano](https://www.youtube.com/watch?v=r4v1J7ozxIg)
 
@@ -137,6 +147,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Augie](https://www.meetaugie.com/)
 - [Oxolo](https://www.oxolo.com/)
 - [Hackreels](https://www.hackreels.com/)
+- [AnimStats](https://www.animstats.com/)
 
 ## See also
 

@@ -36,14 +36,43 @@ A string pointing to an audio asset.
 
 ## Return value
 
-`Promise<AudioData>` - object with information about the audio data:
+_`Promise<AudioData>`_
 
-- `channelWaveforms`: `Float32Array[]` an array with waveform information for each channel.
-- `sampleRate`: `number` How many samples per second each waveform contains.
-- `durationInSeconds`: `number` The duration of the audio in seconds.
-- `numberOfChannels`: `number` The number of channels contained in the audio file. This corresponds to the length of the `channelWaveforms` array.
-- `resultId`: `string` Unique identifier of this audio data fetching call. Other functions can cache expensive operations if they get called with the same resultId multiple times.
-- `isRemote`: `boolean` Whether the audio was imported locally or from a different origin.
+An object with information about the audio data:
+
+### `channelWaveforms`
+
+_Float32Array[]_
+
+An array with waveform information for each channel.
+
+### `sampleRate`
+
+_number_
+
+How many samples per second each waveform contains.
+
+### `durationInSeconds`
+
+_number_
+
+The duration of the audio in seconds.
+
+### `numberOfChannels`
+
+_number_
+
+The number of channels contained in the audio file. This corresponds to the length of the `channelWaveforms` array.
+
+### `resultId`
+
+_string_ Unique identifier of this audio data fetching call. Other functions can cache expensive operations if they get called with the same resultId multiple times.
+
+### `isRemote`
+
+_boolean_
+
+Whether the audio was imported locally or from a different origin.
 
 ## Example
 
@@ -81,10 +110,18 @@ await getAudioData(staticFile("my-file.wav")); /* {
 } */
 ```
 
+## Errors
+
+If you pass in a file that has no audio track, this function will throw an error you need to handle.
+
+To determine if a file has an audio track, you may use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata#audiocodec) function on the server to reject a file if it has no audio track. To do so, check if the `audioCodec` field is `null`.
+
 ## Caching behavior
 
 This function is memoizing the results it returns.
-If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed. To clear the cache, you have to reload the page.
+
+If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed.  
+To clear the cache, you have to reload the page.
 
 ## Alternatives
 

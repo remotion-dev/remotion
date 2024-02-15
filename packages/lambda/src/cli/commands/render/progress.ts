@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CleanupInfo,
 	EncodingProgress,
@@ -159,7 +160,7 @@ const makeDownloadProgress = (
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
 					downloadInfo.downloaded / downloadInfo.totalSize,
-			  ),
+				),
 		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
 		downloadInfo.doneIn === null
 			? [
@@ -167,8 +168,8 @@ const makeDownloadProgress = (
 					downloadInfo.totalSize === null
 						? null
 						: `${CliInternals.formatBytes(downloadInfo.totalSize)}`,
-			  ]
-					.filter(Internals.truthy)
+				]
+					.filter(NoReactInternals.truthy)
 					.join('/')
 			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
 	].join(' ');
@@ -187,7 +188,7 @@ export const makeMultiProgressFromStatus = (
 				? RenderInternals.getFramesToRender(
 						status.renderMetadata.frameRange,
 						status.renderMetadata.everyNthFrame,
-				  ).length
+					).length
 				: null,
 		},
 		encodingProgress: {
@@ -213,7 +214,7 @@ export const makeProgressString = ({
 	steps,
 	downloadInfo,
 	retriesInfo,
-	verbose,
+	logLevel,
 	timeToEncode,
 	totalFrames,
 }: {
@@ -221,7 +222,7 @@ export const makeProgressString = ({
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
-	verbose: boolean;
+	logLevel: LogLevel;
 	timeToEncode: number | null;
 	totalFrames: number | null;
 }) => {
@@ -238,9 +239,9 @@ export const makeProgressString = ({
 			timeToEncode,
 			totalFrames,
 		}),
-		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
+		makeCleanupProgress(progress.cleanupInfo, steps, logLevel === 'verbose'),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.join('\n');
 };

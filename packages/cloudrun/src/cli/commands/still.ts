@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -11,7 +12,11 @@ import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[], remotionRoot: string) => {
+export const stillCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -20,7 +25,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		privacy,
 		downloadName,
 		region,
-	} = await renderArgsCheck(STILL_COMMAND, args);
+	} = await renderArgsCheck(STILL_COMMAND, args, logLevel);
 
 	const {
 		chromiumOptions,
@@ -33,13 +38,12 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		height,
 		width,
 		browserExecutable,
-		port,
-		logLevel,
 		offthreadVideoCacheSizeInBytes,
-	} = await CliInternals.getCliOptions({
+	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
+		logLevel,
 	});
 
 	let composition = args[1];
@@ -57,7 +61,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
-			port,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
@@ -74,12 +78,13 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-					data: inputProps,
-					indent: undefined,
-					staticBase: null,
-				}).serializedString,
-				port,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithDate({
+						data: inputProps,
+						indent: undefined,
+						staticBase: null,
+					}).serializedString,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
@@ -100,7 +105,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			configImageFormat:
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
-	Log.verbose(`Image format: (${imageFormat}), ${imageFormatReason}`);
+	Log.verbose(
+		{indent: false, logLevel},
+		`Image format: (${imageFormat}), ${imageFormatReason}`,
+	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(

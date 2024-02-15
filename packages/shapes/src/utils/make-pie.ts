@@ -107,7 +107,7 @@ export const makePie = ({
 							counterClockwise,
 							radius,
 							rotation,
-					  }),
+						}),
 			y:
 				actualProgress <= 0.5
 					? endAngleY
@@ -117,7 +117,7 @@ export const makePie = ({
 							counterClockwise,
 							radius,
 							rotation,
-					  }),
+						}),
 		},
 		actualProgress > 0.5
 			? {
@@ -128,19 +128,19 @@ export const makePie = ({
 					largeArcFlag: false,
 					sweepFlag: !counterClockwise,
 					...end,
-			  }
+				}
 			: null,
 		actualProgress > 0 && actualProgress < 1 && closePath
 			? {
 					type: 'L',
 					x: radius,
 					y: radius,
-			  }
+				}
 			: null,
 		closePath
 			? {
 					type: 'Z',
-			  }
+				}
 			: null,
 	].filter(Boolean) as Instruction[];
 

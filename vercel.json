@@ -208,7 +208,17 @@
       "permanent": false
     },
     {
+      "source": "/animation-utils",
+      "destination": "https://www.remotion.dev/docs/animation-utils",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
+      "destination": "https://www.remotion.dev/docs/get-help",
+      "permanent": false
+    },
+    {
+      "source": "/help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
     },
@@ -249,7 +259,7 @@
     },
     {
       "source": "/transitions",
-      "destination": "/docs/transitions",
+      "destination": "/docs/transitioning",
       "permanent": false
     },
     {
@@ -265,6 +275,21 @@
     {
       "source": "/studio",
       "destination": "/docs/studio",
+      "permanent": false
+    },
+    {
+      "source": "/security",
+      "destination": "/docs/security",
+      "permanent": false
+    },
+    {
+      "source": "/standalone",
+      "destination": "/docs/standalone",
+      "permanent": false
+    },
+    {
+      "source": "/docs/deploy-studio",
+      "destination": "/docs/studio/deploy-server",
       "permanent": false
     }
   ]

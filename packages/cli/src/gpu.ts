@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
@@ -5,11 +6,12 @@ import {Log} from './log';
 
 export const GPU_COMMAND = 'gpu';
 
-export const gpuCommand = async (remotionRoot: string) => {
-	const {browserExecutable, logLevel, chromiumOptions} = await getCliOptions({
+export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
+	const {browserExecutable, chromiumOptions, puppeteerTimeout} = getCliOptions({
 		isLambda: false,
 		remotionRoot,
 		type: 'get-compositions',
+		logLevel,
 	});
 
 	const statuses = await RenderInternals.getChromiumGpuInformation({
@@ -17,6 +19,7 @@ export const gpuCommand = async (remotionRoot: string) => {
 		indent: false,
 		logLevel,
 		chromiumOptions,
+		timeoutInMilliseconds: puppeteerTimeout,
 	});
 	for (const {feature, status} of statuses) {
 		Log.info(`${feature}: ${colorStatus(status)}`);

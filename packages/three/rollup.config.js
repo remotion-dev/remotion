@@ -14,9 +14,12 @@ export default [
 		external: [
 			'react',
 			'remotion',
+			'@remotion/media-utils',
+			'remotion/no-react',
 			'react/jsx-runtime',
 			'@react-three/fiber',
 			'three/src/textures/VideoTexture.js',
+			'three/src/loaders/TextureLoader.js',
 		],
 		plugins: [
 			typescript({

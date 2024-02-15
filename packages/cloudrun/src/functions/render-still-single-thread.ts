@@ -2,7 +2,8 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -20,14 +21,34 @@ export const renderStillSingleThread = async (
 		throw new Error('expected type still');
 	}
 
+	if (body.clientVersion !== VERSION) {
+		if (!body.clientVersion) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnCloudRun(), you called a service which has the version ${VERSION} but the @remotion/cloudrun package is an older version. Deploy a new service with matchin version and use it to call renderMediaOnCloudRun().`,
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+		);
+	}
+
 	const renderId = randomHash({randomInTests: true});
 
 	try {
-		Log.verbose('Rendering still frame', body);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Rendering still frame',
+			body,
+		);
 
 		const composition = await getCompositionFromBody(body);
 
-		Log.verbose('Composition loaded', composition);
+		Log.verbose(
+			{indent: false, logLevel: body.logLevel},
+			'Composition loaded',
+			composition,
+		);
 
 		const tempFilePath = '/tmp/still.png';
 
@@ -48,11 +69,12 @@ export const renderStillSingleThread = async (
 			output: tempFilePath,
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: composition.props,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: composition.props,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			imageFormat: body.imageFormat,
 			scale: body.scale,

@@ -9,6 +9,8 @@ const OPTIONAL_DEPENDENCIES = [
 	'react-native-reanimated/package.json',
 ];
 
+const SOURCE_MAP_IGNORE = ['path', 'fs'];
+
 export class AllowOptionalDependenciesPlugin {
 	filter(error: Error) {
 		for (const dependency of OPTIONAL_DEPENDENCIES) {
@@ -17,10 +19,22 @@ export class AllowOptionalDependenciesPlugin {
 			}
 		}
 
+		for (const dependency of SOURCE_MAP_IGNORE) {
+			if (
+				error.message.includes(`Can't resolve '${dependency}'`) &&
+				error.message.includes('source-map')
+			) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
 	apply(compiler: Compiler) {
+		compiler.hooks.afterCompile.tap('Com', (compilation) => {
+			compilation.errors = compilation.errors.filter(this.filter);
+		});
 		compiler.hooks.afterEmit.tap(
 			'AllowOptionalDependenciesPlugin',
 			(compilation) => {

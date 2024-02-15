@@ -31,6 +31,9 @@ export const autoImports = {
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
   Folder: "import {Folder} from 'remotion'",
+  useCurrentScale: "import {useCurrentScale} from 'remotion'",
+  VERSION: "import {VERSION} from 'remotion'",
+  watchStaticFile: "import {watchStaticFile} from 'remotion'",
   z: "import {z} from 'zod'",
   styled: "import styled from 'styled-components'",
 };

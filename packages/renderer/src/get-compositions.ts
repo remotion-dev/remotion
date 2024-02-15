@@ -1,4 +1,5 @@
-import {Internals, type VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -107,9 +108,16 @@ const innerGetCompositions = async ({
 		},
 		frame: null,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
-	await waitForReady({page, timeoutInMilliseconds, frame: null});
+	await waitForReady({
+		page,
+		timeoutInMilliseconds,
+		frame: null,
+		indent,
+		logLevel,
+	});
 	const {value: result} = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();
@@ -117,6 +125,7 @@ const innerGetCompositions = async ({
 		frame: null,
 		page,
 		args: [],
+		timeoutInMilliseconds,
 	});
 
 	const res = result as Awaited<
@@ -132,10 +141,10 @@ const innerGetCompositions = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: Internals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithCustomFields(
 				r.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: Internals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
 				r.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
@@ -143,7 +152,7 @@ const innerGetCompositions = async ({
 	});
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 const internalGetCompositionsRaw = async ({
 	browserExecutable,
@@ -164,7 +173,6 @@ const internalGetCompositionsRaw = async ({
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
-		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
@@ -200,9 +208,11 @@ const internalGetCompositionsRaw = async ({
 			},
 		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
-				page.setBrowserSourceMapContext(sourceMap);
+				page.setBrowserSourceMapGetter(sourceMap);
 
-				cleanup.push(() => cleanupServer(true));
+				cleanup.push(() => {
+					return cleanupServer(true);
+				});
 
 				return innerGetCompositions({
 					envVariables,
@@ -243,6 +253,12 @@ export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsOptions,
 ): Promise<VideoConfig[]> => {
+	if (!serveUrlOrWebpackUrl) {
+		throw new Error(
+			'No serve URL or webpack bundle directory was passed to getCompositions().',
+		);
+	}
+
 	const {
 		browserExecutable,
 		chromiumOptions,
@@ -258,11 +274,12 @@ export const getCompositions = (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps ?? {},
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				data: inputProps ?? {},
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
 		indent: false,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,

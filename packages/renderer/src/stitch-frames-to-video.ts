@@ -1,26 +1,27 @@
-import fs, {promises} from 'node:fs';
+import {promises} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {Internals} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
+import {cleanDownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
 import {
 	getDefaultAudioCodec,
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
-import {callFf} from './call-ffmpeg';
+import {callFf, callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
-import {warnAboutM2Bug} from './does-have-m2-bug';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -47,15 +48,11 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {validateBitrate} from './validate-videobitrate';
 import type {X264Preset} from './x264-preset';
 
-const packageJsonPath = path.join(__dirname, '..', 'package.json');
-
-const packageJson = fs.existsSync(packageJsonPath)
-	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
-	: null;
-
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -71,7 +68,6 @@ type InternalStitchFramesToVideoOptions = {
 	onDownload: undefined | RenderMediaOnDownload;
 	proResProfile: undefined | ProResProfile;
 	logLevel: LogLevel;
-	dir: string;
 	cancelSignal: CancelSignal | null;
 	preEncodedFileLocation: string | null;
 	preferLossless: boolean;
@@ -86,6 +82,8 @@ type InternalStitchFramesToVideoOptions = {
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -101,7 +99,6 @@ export type StitchFramesToVideoOptions = {
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
-	dir: string;
 	cancelSignal?: CancelSignal;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -110,10 +107,7 @@ export type StitchFramesToVideoOptions = {
 	colorSpace?: ColorSpace;
 };
 
-type ReturnType = {
-	task: Promise<Buffer | null>;
-	getLogs: () => string;
-};
+type ReturnType = Promise<Buffer | null>;
 
 const getAssetsData = async ({
 	assets,
@@ -147,7 +141,7 @@ const getAssetsData = async ({
 	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel, tag: 'audio'},
 		'asset positions',
 		JSON.stringify(assetPositions),
@@ -211,7 +205,6 @@ const innerStitchFramesToVideo = async (
 		cancelSignal,
 		codec,
 		crf,
-		dir,
 		enforceAudioTrack,
 		ffmpegOverride,
 		force,
@@ -227,6 +220,8 @@ const innerStitchFramesToVideo = async (
 		proResProfile,
 		logLevel,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 		width,
 		numberOfGifLoops,
 		onProgress,
@@ -251,8 +246,11 @@ const innerStitchFramesToVideo = async (
 
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
-
+	validateBitrate(encodingMaxRate, 'encodingMaxRate');
+	// encodingBufferSize is not a bitrate but need to be validated using the same format
+	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
+	assetsInfo.downloadMap.preventCleanup();
 
 	const proResProfileName = getProResProfileName(codec, proResProfile);
 
@@ -281,9 +279,9 @@ const innerStitchFramesToVideo = async (
 		: path.join(
 				assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
-		  );
+			);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -292,7 +290,7 @@ const innerStitchFramesToVideo = async (
 		'audioCodec',
 		resolvedAudioCodec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -301,7 +299,7 @@ const innerStitchFramesToVideo = async (
 		'pixelFormat',
 		pixelFormat,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -310,7 +308,7 @@ const innerStitchFramesToVideo = async (
 		'codec',
 		codec,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -319,7 +317,7 @@ const innerStitchFramesToVideo = async (
 		'shouldRenderAudio',
 		shouldRenderAudio,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -333,6 +331,8 @@ const innerStitchFramesToVideo = async (
 		crf,
 		codec,
 		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -353,7 +353,7 @@ const innerStitchFramesToVideo = async (
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
-		  })
+			})
 		: null;
 
 	if (mediaSupport.audio && !mediaSupport.video) {
@@ -363,9 +363,9 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const ffmpegTask = callFf(
-			'ffmpeg',
-			[
+		const ffmpegTask = callFf({
+			bin: 'ffmpeg',
+			args: [
 				'-i',
 				audio,
 				'-c:a',
@@ -374,10 +374,10 @@ const innerStitchFramesToVideo = async (
 				audioBitrate ? audioBitrate : '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
-			].filter(Internals.truthy),
+			].filter(NoReactInternals.truthy),
 			indent,
 			logLevel,
-		);
+		});
 
 		cancelSignal?.(() => {
 			ffmpegTask.kill();
@@ -402,10 +402,7 @@ const innerStitchFramesToVideo = async (
 		});
 		deleteDirectory(assetsInfo.downloadMap.stitchFrames);
 
-		return {
-			getLogs: () => '',
-			task: Promise.resolve(file),
-		};
+		return Promise.resolve(file);
 	}
 
 	const ffmpegArgs = [
@@ -417,7 +414,10 @@ const innerStitchFramesToVideo = async (
 					['-s', `${width}x${height}`],
 					['-start_number', String(assetsInfo.firstFrameIndex)],
 					['-i', assetsInfo.imageSequenceName],
-			  ]),
+					codec === 'gif'
+						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
+						: null,
+				]),
 		audio ? ['-i', audio] : null,
 		numberOfGifLoops === null
 			? null
@@ -426,6 +426,8 @@ const innerStitchFramesToVideo = async (
 			codec,
 			crf,
 			videoBitrate,
+			encodingMaxRate,
+			encodingBufferSize,
 			hasPreencoded: Boolean(preEncodedFileLocation),
 			proResProfileName,
 			pixelFormat,
@@ -441,13 +443,7 @@ const innerStitchFramesToVideo = async (
 		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		[
-			'-metadata',
-			`comment=` +
-				[`Made with Remotion`, packageJson ? packageJson.version : null].join(
-					' ',
-				),
-		],
+		['-metadata', `comment=Made with Remotion ${VERSION}`],
 		force ? '-y' : null,
 		outputLocation ?? tempFile,
 	];
@@ -457,7 +453,7 @@ const innerStitchFramesToVideo = async (
 		? ffmpegOverride({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent: indent ?? false,
 			logLevel,
@@ -465,7 +461,7 @@ const innerStitchFramesToVideo = async (
 		},
 		'Generated final FFMPEG command:',
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -474,19 +470,23 @@ const innerStitchFramesToVideo = async (
 		finalFfmpegString.join(' '),
 	);
 
-	const task = callFf('ffmpeg', finalFfmpegString, indent, logLevel, {
-		cwd: dir,
+	const task = callFfNative({
+		bin: 'ffmpeg',
+		args: finalFfmpegString,
+		indent,
+		logLevel,
 	});
 	cancelSignal?.(() => {
 		task.kill();
 	});
-	let ffmpegOutput = '';
+	let ffmpegStderr = '';
 	let isFinished = false;
+
 	task.stderr?.on('data', (data: Buffer) => {
 		const str = data.toString();
-		ffmpegOutput += str;
+		ffmpegStderr += str;
 		if (onProgress) {
-			const parsed = parseFfmpegProgress(str);
+			const parsed = parseFfmpegProgress(str, fps);
 			// FFMPEG bug: In some cases, FFMPEG does hang after it is finished with it's job
 			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {
@@ -504,43 +504,48 @@ const innerStitchFramesToVideo = async (
 		}
 	});
 
-	return {
-		task: task.then(() => {
-			deleteDirectory(assetsInfo.downloadMap.audioPreprocessing);
+	return new Promise<Buffer | null>((resolve, reject) => {
+		task.once('close', (code, signal) => {
+			if (code === 0) {
+				assetsInfo.downloadMap.allowCleanup();
 
-			if (tempFile === null) {
-				deleteDirectory(assetsInfo.downloadMap.stitchFrames);
-				return null;
+				if (tempFile === null) {
+					cleanDownloadMap(assetsInfo.downloadMap);
+					return resolve(null);
+				}
+
+				promises
+					.readFile(tempFile)
+					.then((f) => {
+						resolve(f);
+					})
+					.catch((e) => {
+						reject(e);
+					})
+					.finally(() => {
+						cleanDownloadMap(assetsInfo.downloadMap);
+					});
+			} else {
+				reject(
+					new Error(
+						`FFmpeg quit with code ${code} ${
+							signal ? `(${signal})` : ''
+						} The FFmpeg output was ${ffmpegStderr}`,
+					),
+				);
 			}
-
-			return promises
-				.readFile(tempFile)
-				.then((file) => {
-					return Promise.all([
-						file,
-						deleteDirectory(path.dirname(tempFile)),
-						deleteDirectory(assetsInfo.downloadMap.stitchFrames),
-					]);
-				})
-				.then(([file]) => file);
-		}),
-		getLogs: () => ffmpegOutput,
-	};
+		});
+	});
 };
 
 export const internalStitchFramesToVideo = async (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	warnAboutM2Bug(options.codec, options.pixelFormat);
-	const {task, getLogs} = await innerStitchFramesToVideo(options, remotionRoot);
-
-	const happyPath = task.catch(() => {
-		throw new Error(getLogs());
-	});
+	const task = await innerStitchFramesToVideo(options, remotionRoot);
 
 	return Promise.race([
-		happyPath,
+		task,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error(cancelErrorMessages.stitchFramesToVideo));
@@ -564,7 +569,6 @@ export const stitchFramesToVideo = ({
 	cancelSignal,
 	codec,
 	crf,
-	dir,
 	enforceAudioTrack,
 	ffmpegOverride,
 	muted,
@@ -576,17 +580,20 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	x264Preset,
 	colorSpace,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
 		audioBitrate: audioBitrate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		audioCodec: audioCodec ?? null,
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
-		dir,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
 		force,

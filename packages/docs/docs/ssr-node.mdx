@@ -11,7 +11,7 @@ These functions can be used in Node.js and Bun.
 
 Rendering a video takes three steps:
 
-<Step>1</Step> Creating a <a href="/docs/terminology#bundle">Remotion Bundle</a>
+<Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion Bundle</a>
 <br />
 <Step>2</Step> Select the composition to render and calculate its metadata
 <br />
@@ -32,8 +32,9 @@ import path from "path";
 const compositionId = "HelloWorld";
 
 // You only have to create a bundle once, and you may reuse it
+// for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
-  entryPoint: path.resolve("./src/index"),
+  entryPoint: path.resolve("./src/index.ts"),
   // If you have a Webpack override, make sure to add it here
   webpackOverride: (config) => config,
 });

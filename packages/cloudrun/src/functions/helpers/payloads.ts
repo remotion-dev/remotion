@@ -1,22 +1,21 @@
-import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {z} from 'zod';
 
-const codec = z.enum(RenderInternals.validCodecs);
-const audioCodec = z.enum(RenderInternals.validAudioCodecs);
-const pixelFormat = z.enum(RenderInternals.validPixelFormats);
-const videoImageFormat = z.enum(RenderInternals.validVideoImageFormats);
-const stillImageFormat = z.enum(RenderInternals.validStillImageFormats);
+const codec = z.enum(BrowserSafeApis.validCodecs);
+const audioCodec = z.enum(BrowserSafeApis.validAudioCodecs);
+const pixelFormat = z.enum(BrowserSafeApis.validPixelFormats);
+const videoImageFormat = z.enum(BrowserSafeApis.validVideoImageFormats);
+const stillImageFormat = z.enum(BrowserSafeApis.validStillImageFormats);
 const proResProfile = z.enum(BrowserSafeApis.proResProfileOptions).nullable();
 const x264Preset = z.enum(BrowserSafeApis.x264PresetOptions).nullable();
 const chromiumOptions = z.object({
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
-	gl: z.enum(RenderInternals.validOpenGlRenderers).optional().nullable(),
+	gl: z.enum(BrowserSafeApis.validOpenGlRenderers).optional().nullable(),
 	headless: z.boolean().optional(),
 	userAgent: z.string().optional().nullable(),
 });
-const logLevel = z.enum(RenderInternals.logLevels);
+const logLevel = z.enum(BrowserSafeApis.logLevels);
 
 export const CloudRunPayload = z.discriminatedUnion('type', [
 	z.object({
@@ -27,13 +26,15 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		forceWidth: z.number().optional().nullable(),
 		codec,
 		serializedInputPropsWithCustomSchema: z.string(),
-		jpegQuality: z.number(),
+		jpegQuality: z.number().nullable(),
 		audioCodec: audioCodec.nullable(),
 		audioBitrate: z.string().nullable(),
 		videoBitrate: z.string().nullable(),
+		encodingMaxRate: z.string().nullable(),
+		encodingBufferSize: z.string().nullable(),
 		crf: z.number().nullable(),
-		pixelFormat,
-		imageFormat: videoImageFormat,
+		pixelFormat: pixelFormat.nullable(),
+		imageFormat: videoImageFormat.nullable(),
 		scale: z.number(),
 		proResProfile,
 		x264Preset,
@@ -47,12 +48,13 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		outName: z.string().optional(),
 		privacy: z.enum(['public', 'private']).optional(),
 		logLevel,
-		delayRenderTimeoutInMilliseconds: z.number(),
+		delayRenderTimeoutInMilliseconds: z.number().nullable(),
 		concurrency: z.number().or(z.string()).nullable(),
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 		colorSpace: z.enum(BrowserSafeApis.validColorSpaces),
+		clientVersion: z.string(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -73,6 +75,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
+		clientVersion: z.string(),
 	}),
 ]);
 

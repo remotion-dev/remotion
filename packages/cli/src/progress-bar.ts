@@ -1,20 +1,20 @@
 import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {AnsiDiff} from './ansi/ansi-diff';
+import type {
+	AggregateRenderProgress,
+	BundlingState,
+	CopyingState,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
-import type {
-	AggregateRenderProgress,
-	RenderingProgressInput,
-	StitchingProgressInput,
-} from './progress-types';
 import {truthy} from './truthy';
-
 export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
@@ -54,7 +54,7 @@ export const createOverwriteableCliOutput = (options: {
 		};
 	}
 
-	const diff = new AnsiDiff();
+	const diff = new StudioServerInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
 		process.stdout.write(diff.finish());
@@ -139,16 +139,6 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 	].join('\n');
 };
 
-export type CopyingState = {
-	bytes: number;
-	doneIn: number | null;
-};
-
-export type BundlingState = {
-	progress: number;
-	doneIn: number | null;
-};
-
 export type SymbolicLinksState = {symlinks: string[]};
 
 export const makeBundlingAndCopyProgress = (
@@ -214,8 +204,8 @@ const makeStitchingProgress = ({
 		codec === 'gif'
 			? 'GIF'
 			: RenderInternals.isAudioCodec(codec)
-			? 'audio'
-			: 'video';
+				? 'audio'
+				: 'video';
 
 	return [
 		`(${stitchingStep + 1}/${steps})`,
@@ -255,7 +245,7 @@ export const makeRenderingAndStitchingProgress = ({
 					steps,
 					stitchingStep,
 					isUsingParallelEncoding,
-			  }),
+				}),
 	]
 		.filter(truthy)
 		.join('\n');
@@ -279,7 +269,9 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+		return `Copying public dir ${StudioServerInternals.formatBytes(
+			progress.copyingState.bytes,
+		)}`;
 	}
 
 	if (!progress.rendering) {
@@ -290,8 +282,8 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		progress.rendering.frames === progress.rendering.totalFrames;
 
 	if (!allRendered || !progress.stitching || progress.stitching.frames === 0) {
-		return `Rendering ${progress.rendering.frames}/${progress.rendering.totalFrames}`;
+		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}`;
 	}
 
-	return `Stitching ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
+	return `Stitched ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };

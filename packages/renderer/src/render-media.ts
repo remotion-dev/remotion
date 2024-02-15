@@ -2,8 +2,8 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {VideoConfig} from 'remotion';
-import {Internals} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
@@ -54,6 +54,12 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
+import {
+	disableRepro,
+	enableRepro,
+	getReproWriter,
+	isReproEnabled,
+} from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
@@ -83,6 +89,8 @@ export type RenderMediaOnProgress = (progress: {
 	stitchStage: StitchingState;
 }) => void;
 
+type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
+
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
@@ -96,7 +104,6 @@ export type InternalRenderMediaOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	numberOfGifLoops: number | null;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	overwrite: boolean;
 	onProgress: RenderMediaOnProgress;
@@ -121,14 +128,21 @@ export type InternalRenderMediaOptions = {
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
 	colorSpace: ColorSpace;
-} & ToOptions<typeof optionsMap.renderMedia>;
+	finishRenderProgress: () => void;
+} & MoreRenderMediaOptions;
 
-export type RenderMediaOptions = {
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type RenderMediaOptions = Prettify<{
 	outputLocation?: string | null;
 	codec: Codec;
 	composition: VideoConfig;
@@ -144,7 +158,6 @@ export type RenderMediaOptions = {
 	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	puppeteerInstance?: HeadlessBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -172,15 +185,17 @@ export type RenderMediaOptions = {
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
-	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
 	colorSpace?: ColorSpace;
-};
+	repro?: boolean;
+}> &
+	Partial<MoreRenderMediaOptions>;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
@@ -217,6 +232,8 @@ const internalRenderMediaRaw = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	audioCodec,
 	concurrency,
 	disallowParallelEncoding,
@@ -233,9 +250,28 @@ const internalRenderMediaRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
+	finishRenderProgress,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	if (repro) {
+		enableRepro({
+			serveUrl,
+			compositionName: composition.id,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+		});
+	} else {
+		disableRepro();
+	}
+
 	validateJpegQuality(jpegQuality);
-	validateQualitySettings({crf, codec, videoBitrate});
+	validateQualitySettings({
+		crf,
+		codec,
+		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
+	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 
@@ -287,13 +323,14 @@ const internalRenderMediaRaw = ({
 		shouldUseParallelEncoding({
 			height: composition.height,
 			width: composition.width,
+			logLevel,
 		});
 	const parallelEncoding =
 		!disallowParallelEncoding &&
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -305,7 +342,7 @@ const internalRenderMediaRaw = ({
 		estimatedUsage,
 	);
 	const actualConcurrency = getActualConcurrency(concurrency);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -314,7 +351,7 @@ const internalRenderMediaRaw = ({
 		'Using concurrency:',
 		actualConcurrency,
 	);
-	Log.verboseAdvanced(
+	Log.verbose(
 		{
 			indent,
 			logLevel,
@@ -324,7 +361,7 @@ const internalRenderMediaRaw = ({
 		canUseParallelEncoding(codec),
 	);
 	if (disallowParallelEncoding) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -335,7 +372,7 @@ const internalRenderMediaRaw = ({
 	}
 
 	if (parallelEncoding) {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -344,7 +381,7 @@ const internalRenderMediaRaw = ({
 			'Parallel encoding is enabled.',
 		);
 	} else {
-		Log.verboseAdvanced(
+		Log.verbose(
 			{
 				indent,
 				logLevel,
@@ -371,7 +408,7 @@ const internalRenderMediaRaw = ({
 		? path.join(
 				workingDir,
 				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
-		  )
+			)
 		: null;
 
 	if (onCtrlCExit && workingDir) {
@@ -389,6 +426,11 @@ const internalRenderMediaRaw = ({
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
 		frameRange,
+	);
+
+	Log.verbose(
+		{indent, logLevel, tag: 'renderMedia()'},
+		`Rendering frames ${realFrameRange.join('-')}`,
 	);
 
 	const callUpdate = () => {
@@ -441,6 +483,8 @@ const internalRenderMediaRaw = ({
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate,
+				encodingMaxRate,
+				encodingBufferSize,
 				indent,
 				x264Preset: x264Preset ?? null,
 				colorSpace,
@@ -573,7 +617,7 @@ const internalRenderMediaRaw = ({
 								setFrameToStitch(
 									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
 								);
-						  }
+							}
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
 					onBrowserLog,
@@ -605,7 +649,7 @@ const internalRenderMediaRaw = ({
 				renderedDoneIn = Date.now() - renderStart;
 
 				callUpdate();
-				Log.verboseAdvanced(
+				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
 					renderedDoneIn + 'ms',
@@ -644,13 +688,14 @@ const internalRenderMediaRaw = ({
 						onDownload,
 						numberOfGifLoops,
 						logLevel,
-						dir: workingDir,
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
 						enforceAudioTrack,
 						ffmpegOverride: ffmpegOverride ?? null,
 						audioBitrate,
 						videoBitrate,
+						encodingBufferSize,
+						encodingMaxRate,
 						audioCodec,
 						x264Preset: x264Preset ?? null,
 						colorSpace,
@@ -662,7 +707,7 @@ const internalRenderMediaRaw = ({
 				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
-				Log.verboseAdvanced(
+				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
 					encodedDoneIn + 'ms',
@@ -672,7 +717,24 @@ const internalRenderMediaRaw = ({
 					buffer,
 					slowestFrames,
 				};
-				resolve(result);
+
+				finishRenderProgress();
+				if (isReproEnabled()) {
+					getReproWriter()
+						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
+						.then(() => {
+							resolve(result);
+						})
+						.catch((err) => {
+							Log.errorAdvanced(
+								{indent, logLevel},
+								'Could not create reproduction',
+								err,
+							);
+						});
+				} else {
+					resolve(result);
+				}
 			})
 			.catch((err) => {
 				/**
@@ -711,7 +773,11 @@ const internalRenderMediaRaw = ({
 					deleteDirectory(workingDir);
 				}
 
-				cleanupServerFn?.(false);
+				cleanupServerFn?.(false).catch((err) => {
+					// Must prevent unhandled exception in cleanup function.
+					// Might crash whole runtime.
+					console.log('Could not cleanup: ', err);
+				});
 			});
 	});
 
@@ -762,6 +828,8 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	audioCodec,
 	jpegQuality,
 	concurrency,
@@ -777,6 +845,7 @@ export const renderMedia = ({
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
+	repro,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -804,11 +873,12 @@ export const renderMedia = ({
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		muted: muted ?? false,
 		numberOfGifLoops: numberOfGifLoops ?? null,
@@ -824,18 +894,23 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		logLevel:
 			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,
 		server: undefined,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: composition.props ?? {},
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props ?? {},
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
+		repro: repro ?? false,
+		finishRenderProgress: () => undefined,
 	});
 };

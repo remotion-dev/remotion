@@ -8,7 +8,11 @@ const getOption = (id: string): AnyRemotionOption => {
   const option = options.find((o) => o.cliFlag === id);
 
   if (!option) {
-    throw new Error('Unknown option "' + id + '"');
+    throw new Error(
+      `Unknown option "${id}". Available: ${options
+        .map((o) => o.cliFlag)
+        .join(", ")}`,
+    );
   }
 
   return option;

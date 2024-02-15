@@ -5,6 +5,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {BufferingProvider} from './buffering.js';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {EditorPropsProvider} from './EditorProps.js';
@@ -19,6 +20,7 @@ import type {
 	TimelineContextValue,
 } from './timeline-position-state.js';
 import {
+	getInitialFrameState,
 	SetTimelineContext,
 	TimelineContext,
 } from './timeline-position-state.js';
@@ -35,7 +37,9 @@ export const RemotionRoot: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<Record<string, number>>({});
+	const [frame, setFrame] = useState<Record<string, number>>(() =>
+		getInitialFrameState(),
+	);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
@@ -108,7 +112,7 @@ export const RemotionRoot: React.FC<{
 									numberOfAudioTags={numberOfAudioTags}
 								>
 									<DurationsContextProvider>
-										{children}
+										<BufferingProvider>{children}</BufferingProvider>
 									</DurationsContextProvider>
 								</CompositionManagerProvider>
 							</NativeLayersProvider>

@@ -7,6 +7,8 @@ import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import {
   circleDemo,
+  clockWipePresentationDemo,
+  cubePresentationDemo,
   customPresentationDemo,
   customTimingDemo,
   ellipseDemo,
@@ -15,6 +17,7 @@ import {
   noiseDemo,
   opacityDemo,
   pieDemo,
+  polygonDemo,
   rectDemo,
   rotateDemo,
   scaleDemo,
@@ -42,6 +45,7 @@ const demos: DemoType[] = [
   circleDemo,
   ellipseDemo,
   starDemo,
+  polygonDemo,
   pieDemo,
   translateDemo,
   skewDemo,
@@ -55,13 +59,15 @@ const demos: DemoType[] = [
   flipPresentationDemo,
   customPresentationDemo,
   customTimingDemo,
+  clockWipePresentationDemo,
+  cubePresentationDemo,
 ];
 
 export const Demo: React.FC<{
   type: string;
 }> = ({ type }) => {
   const demo = demos.find((d) => d.id === type);
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   const [key, setKey] = useState(() => 0);
 
@@ -133,7 +139,7 @@ export const Demo: React.FC<{
             </AbsoluteFill>
           );
         }}
-        inputProps={{ ...state, darkMode: isDarkTheme }}
+        inputProps={{ ...state, darkMode: colorMode === "dark" }}
         autoPlay={demo.autoPlay}
         loop
       />

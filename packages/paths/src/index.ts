@@ -1,6 +1,7 @@
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
+export {getInstructionIndexAtLength} from './get-instruction-index-at-length';
 export {getLength} from './get-length';
 export {getPointAtLength} from './get-point-at-length';
 export {getSubpaths} from './get-subpaths';

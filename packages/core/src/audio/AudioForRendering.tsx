@@ -43,7 +43,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			`audio-${random(
 				props.src ?? '',
 			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}`,
-		[props.src, sequenceContext],
+		[
+			props.src,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.durationInFrames,
+		],
 	);
 
 	const {
@@ -53,7 +58,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		onDuration,
 		toneFrequency,
 		_remotionInternalNeedsDurationCalculation,
+		_remotionInternalNativeLoopPassed,
 		acceptableTimeShiftInSeconds,
+		name,
+		onError,
 		...nativeProps
 	} = props;
 

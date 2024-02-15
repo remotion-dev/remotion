@@ -22,6 +22,8 @@ export const makeTimeoutError = ({
 		renderId,
 	});
 
+	const error = new Error(message);
+
 	return {
 		attempt: 1,
 		chunk: null,
@@ -29,7 +31,7 @@ export const makeTimeoutError = ({
 		frame: null,
 		isFatal: true,
 		s3Location: '',
-		stack: new Error().stack as string,
+		stack: error.stack as string,
 		tmpDir: null,
 		totalAttempts: 1,
 		type: 'stitcher',

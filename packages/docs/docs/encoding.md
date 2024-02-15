@@ -21,8 +21,8 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
   </tr>
   <tr>
     <td>H.264 <sub>also known as MPEG-4</sub></td>
-    <td>.mp4 or .mkv</td>
-    <td style={{color: 'red'}}>Large</td>
+    <td>.mp4, .mov or .mkv</td>
+    <td style={{color: 'darkorange'}}>Medium</td>
     <td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
     <td><a href="https://caniuse.com/mpeg4" style={{color: 'green', fontWeight: 'bold'}}>Very good</a></td>
   </tr>

@@ -46,7 +46,7 @@ import {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
@@ -73,4 +73,4 @@ See [Webhooks](/docs/lambda/webhooks) for an Express example.
 ## See also
 
 - [Webhooks](/docs/lambda/webhooks)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/bundle.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/validate-webhook-signature.ts)

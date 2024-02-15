@@ -1,10 +1,10 @@
 {
   "name": "@remotion/it-tests",
-  "version": "4.0.56",
+  "version": "4.0.111",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "vitest src/monorepo --run && vitest src/rendering --run",
-    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr --run",
+    "test": "vitest src/rendering --run && vitest src/monorepo --run",
+    "testssr": "bun test src/ssr src/bundle src/templates --timeout 30000",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,
@@ -12,13 +12,26 @@
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/lambda": "workspace:*",
+    "@remotion/cloudrun": "workspace:*",
+    "@remotion/player": "workspace:*",
+    "@remotion/preload": "workspace:*",
     "@remotion/renderer": "workspace:*",
+    "@remotion/shapes": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@remotion/noise": "workspace:*",
+    "@remotion/motion-blur": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/lottie": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/transitions": "workspace:*",
     "@types/sharp": "^0.28.5",
+    "@types/bun": "^1.0.3",
     "create-video": "workspace:*",
     "execa": "5.1.1",
     "remotion": "workspace:*",
-    "sharp": "0.30.6",
-    "vite": "^4.0.5",
+    "sharp": "0.32.6",
+    "vite": "^4.5.2",
     "vitest": "0.31.1"
   }
 }

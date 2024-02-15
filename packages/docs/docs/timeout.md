@@ -32,10 +32,6 @@ If you rely on network assets such as fonts, images, videos or audio and you don
 
 Chrome has the codecs needed for displaying MP4 videos, but Chromium doesn't. If you try to load an MP4 video or an unsupported audio codec in Chromium, it currently leads to a timeout.
 
-:::warning
-On Linux, if no version of Chrome is installed, one will be downloaded that does not contain codecs for MP3 or MP4. We will address this in a future version of Remotion.
-:::
-
 **Workaround**: Convert videos to WebM or use Chrome instead of Chromium.
 
 ### Memory pressure
@@ -55,11 +51,15 @@ Especially 1.x releases could timeout when importing large assets
 
 ### Video needs to be downloaded
 
-If you render a video using [`<OffthreadVideo>`](/docs/offthreadvideo), then the video needs to be downloaded before it can be read. If the video is large and takes longer than the timeout to be downloaded, then the timeout will be triggered. In that you should increase the [timeout](#increase-timeout).
+If you render a video using [`<OffthreadVideo>`](/docs/offthreadvideo), then the video needs to be downloaded before it can be read. [If the video is large and takes longer than the timeout to be downloaded, then the timeout will be triggered](/docs/troubleshooting/delay-render-proxy). In that you should increase the [timeout](#increase-timeout).
 
 ### Not helpful?
 
 [Open an issue](https://github.com/remotion-dev/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
+
+## "Loading &lt;Img&gt; with src http://localhost:3000/proxy"
+
+See here for this specific [timeout](/docs/troubleshooting/delay-render-proxy) message.
 
 ## Increase timeout<AvailableFrom v="2.6.3"/>
 
@@ -99,3 +99,5 @@ Uncaught Error: A delayRender() "Fetching data from API..." was called but not c
 - [delayRender()](/docs/delay-render)
 - [Data fetching](/docs/data-fetching)
 - [Loading Root Component Timeout](/docs/troubleshooting/loading-root-component)
+- ["Timed out evaluating page function"](/docs/troubleshooting/timed-out-page-function)
+- ["Loading &lt;Img&gt; with src http://localhost:3000/proxy ..."](/docs/troubleshooting/delay-render-proxy)

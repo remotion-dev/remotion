@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
@@ -42,7 +43,11 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = (args: string[], remotionRoot: string) => {
+const matchCommand = (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp();
 		quit(0);
@@ -53,15 +58,15 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot);
+		return renderCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot);
+		return stillCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), remotionRoot);
+		return compositionsCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
@@ -69,7 +74,7 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
-		return quotasCommand(args.slice(1));
+		return quotasCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === POLICIES_COMMAND) {
@@ -81,7 +86,7 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === 'upload') {
@@ -118,10 +123,14 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	quit(1);
 };
 
-export const executeCommand = async (args: string[], remotionRoot: string) => {
+export const executeCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	try {
 		setIsCli(true);
-		await matchCommand(args, remotionRoot);
+		await matchCommand(args, remotionRoot, logLevel);
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -173,11 +182,25 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 				'The security token included in the request is invalid',
 			)
 		) {
-			Log.error(
-				`
+			const keyButDoesntStartWithAki =
+				process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+				!process.env.REMOTION_AWS_ACCESS_KEY_ID.startsWith('AKI');
+			const pureKeyButDoesntStartWithAki =
+				process.env.AWS_ACCESS_KEY_ID &&
+				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
+			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
+				Log.error(
+					`
+	AWS returned an error message "The security token included in the request is invalid". A possible reason is that your AWS Access key ID is set but doesn't start with "AKI", which it usually should. The original message is: 
+	`,
+				);
+			} else {
+				Log.error(
+					`
 AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
 `,
-			);
+				);
+			}
 		}
 
 		if (error instanceof RenderInternals.SymbolicateableError) {
@@ -205,9 +228,9 @@ AWS returned an error message "The security token included in the request is inv
 	}
 };
 
-export const cli = async () => {
+export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(parsedLambdaCli._, remotionRoot);
+	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
 };

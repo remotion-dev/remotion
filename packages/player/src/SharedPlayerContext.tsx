@@ -110,7 +110,9 @@ export const SharedPlayerContexts: React.FC<{
 												numberOfAudioTags={numberOfSharedAudioTags}
 												component={component}
 											>
-												{children}
+												<Internals.BufferingProvider>
+													{children}
+												</Internals.BufferingProvider>
 											</Internals.SharedAudioContextProvider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.NativeLayersProvider>

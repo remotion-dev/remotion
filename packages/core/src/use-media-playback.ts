@@ -1,6 +1,7 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {BufferingContextReact} from './buffering.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {
 	TimelineContext,
@@ -51,16 +52,31 @@ export const useMediaPlayback = ({
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();
+	const buffering = useContext(BufferingContextReact);
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
+	// For short audio, a lower acceptable time shift is used
+	const acceptableTimeShiftButLessThanDuration = (() => {
+		if (mediaRef.current?.duration) {
+			return Math.min(
+				mediaRef.current.duration,
+				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+			);
+		}
+
+		return acceptableTimeshift;
+	})();
+
+	const pausedOrBuffering = !playing || (buffering && buffering.buffering);
+
 	useEffect(() => {
-		if (!playing) {
+		if (pausedOrBuffering) {
 			mediaRef.current?.pause();
 		}
-	}, [mediaRef, mediaType, playing]);
+	}, [mediaRef, mediaType, pausedOrBuffering]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -80,23 +96,20 @@ export const useMediaPlayback = ({
 		}
 
 		const desiredUnclampedTime = getMediaTime({
-			fps,
 			frame,
-			src,
 			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
-			mediaType,
+			fps,
 		});
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
 			!Number.isNaN(duration) && Number.isFinite(duration)
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
-
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
 
-		if (timeShift > acceptableTimeshift) {
+		if (timeShift > acceptableTimeShiftButLessThanDuration) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
@@ -119,13 +132,17 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
 
-		if (!playing || absoluteFrame === 0) {
+		if (pausedOrBuffering || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
 			}
 		}
 
-		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
+		if (
+			mediaRef.current.paused &&
+			!mediaRef.current.ended &&
+			!pausedOrBuffering
+		) {
 			if (makesSenseToSeek) {
 				seek(mediaRef, shouldBeTime);
 			}
@@ -139,11 +156,12 @@ export const useMediaPlayback = ({
 		frame,
 		mediaRef,
 		mediaType,
-		playing,
 		src,
 		mediaStartsAt,
 		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift,
+		acceptableTimeShiftButLessThanDuration,
+		pausedOrBuffering,
 	]);
 };

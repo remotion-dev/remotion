@@ -43,7 +43,7 @@ The following might also be useful information to us:
 ## Do
 
 <Step>1</Step> Use search engines or ChatGPT to solve React-specific problems. <br/>
-<Step>2</Step> Search over 700+ <a href="https://github.com/remotion-dev/remotion/issues">GitHub issues</a> and 300+ <a href="/search">documentation pages</a>. <br/>
+<Step>2</Step> Search over 1100+ <a href="https://github.com/remotion-dev/remotion/issues">GitHub issues</a> and 400+ <a href="/search">documentation pages</a>. <br/>
 <Step>3</Step> Attempt to find the root cause of an issue by narrowing down the code.<br/>
 <Step>4</Step> Provide relevant code snippets or reproductions.
 

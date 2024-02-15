@@ -39,6 +39,7 @@ type PuppeteerCatchOptions = {
 	pageFunction: Function;
 	frame: number | null;
 	args: unknown[];
+	timeoutInMilliseconds: number;
 };
 
 export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
@@ -46,6 +47,7 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 	frame,
 	page,
 	pageFunction,
+	timeoutInMilliseconds,
 }: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
 	let timeout: NodeJS.Timeout | null = null;
 	return Promise.race([
@@ -58,13 +60,14 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 						`Timed out evaluating page function "${pageFunction.toString()}"`,
 					),
 				);
-			}, 5000);
+			}, timeoutInMilliseconds);
 		}),
 		puppeteerEvaluateWithCatch<ReturnType>({
 			args,
 			frame,
 			page,
 			pageFunction,
+			timeoutInMilliseconds,
 		}),
 	]).then((data) => {
 		if (timeout !== null) {

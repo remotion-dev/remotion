@@ -8,4 +8,6 @@ export type SequenceContextType = {
 	parentFrom: number;
 	durationInFrames: number;
 	id: string;
+	width: number | null;
+	height: number | null;
 };

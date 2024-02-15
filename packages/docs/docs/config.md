@@ -73,22 +73,26 @@ Config.setCachingEnabled(false);
 
 The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
-## setPort()
+## setStudioPort()<AvailableFrom v="4.0.61" />
 
-Define on which port Remotion should start it's HTTP servers.  
-HTTP servers
-By default, Remotion will try to find a free port.  
-If you specify a port, but it's not available, Remotion will throw an error.
-
-:::note
-When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it.  
-During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
-:::
+Set the HTTP port for the Studio.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setPort(3003);
+Config.setStudioPort(3003);
+```
+
+The [command line flag](/docs/cli/studio#--port) `--port` will take precedence over this option.
+
+## setRendererPort()<AvailableFrom v="4.0.61" />
+
+Set the port to be used to host the Webpack bundle.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStudioPort(3004);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
@@ -109,7 +113,7 @@ The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take 
 
 ## setEntryPoint()<AvailableFrom v="3.2.40" />
 
-Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+Sets the Remotion [entry point](/docs/terminology/entry-point), you don't have to specify it for CLI commands.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -454,7 +458,7 @@ The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` 
 
 ## setNumberOfGifLoops()
 
-This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
+<Options id="number-of-gif-loops" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -671,7 +675,31 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-## `setAudioBitrate`<AvailableFrom v="3.2.32" />
+## `setEncodingBufferSize()`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingBufferSize("10000k");
+```
+
+The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
+
+## `setEncodingMaxRate()`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingMaxRate("5000k");
+```
+
+The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
+
+## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
@@ -687,7 +715,7 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
-## `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
+## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
@@ -701,7 +729,7 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-## `setDeleteAfter`<AvailableFrom v="4.0.32" />
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 For Lambda:
 
@@ -715,7 +743,31 @@ import { Config } from "@remotion/cli/config";
 Config.setDeleteAfter("3-days");
 ```
 
-## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
+## `setBeepOnFinish()`<AvailableFrom v="4.0.84" />
+
+<Options id="beep-on-finish" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBeepOnFinish(true);
+```
+
+The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+
+## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.1.111" />
+
+Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBufferStateDelayInMilliseconds(0);
+```
+
+## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
@@ -788,6 +840,32 @@ Config.setFfprobeExecutable("/path/to/custom/ffprobe");
 ```
 
 The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
+## ~~setPort()~~
+
+_deprecated in v4.0.61 - use [`setStudioPort()`](/docs/config#setstudioport)_
+and [`setRendererPort()`](/docs/config#setrendererport) instead.
+
+Define on which port Remotion should start it's HTTP servers.  
+By default, Remotion will try to find a free port.  
+If you specify a port, but it's not available, Remotion will throw an error.
+
+:::warning
+Setting this option will break rendering in the Remotion Studio, because this option controls two settings at the same time:
+
+- When starting the [Remotion Studio](/docs/terminology/studio), a server will be started to host it ([`setStudioPort()`](/docs/config#setstudioport)).
+- During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology/bundle) ([`setRendererPort()`](/docs/config#setrendererport)).
+
+Use the options individually.
+:::
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPort(3003);
+```
+
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
 
 ## See also
 

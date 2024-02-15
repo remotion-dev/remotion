@@ -15,6 +15,7 @@ import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
+import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
@@ -29,6 +30,7 @@ export const createFunction = async ({
 	retentionInDays,
 	ephemerealStorageInMb,
 	customRoleArn,
+	enableLambdaInsights,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -41,6 +43,7 @@ export const createFunction = async ({
 	retentionInDays: number;
 	ephemerealStorageInMb: number;
 	customRoleArn: string;
+	enableLambdaInsights: boolean;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -82,9 +85,9 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region].map(
-				({layerArn, version}) => `${layerArn}:${version}`,
-			),
+			Layers: hostedLayers[region]
+				.map(({layerArn, version}) => `${layerArn}:${version}`)
+				.concat(enableLambdaInsights ? lambdaInsightsExtensions[region] : []),
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,

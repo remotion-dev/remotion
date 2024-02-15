@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 /**
  * @vitest-environment jsdom
  */

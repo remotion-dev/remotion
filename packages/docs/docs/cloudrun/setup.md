@@ -160,9 +160,9 @@ The object that is returned contains a name field, which you'll need for renderi
 </TabItem>
 </Tabs>
 
-The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
+The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
 
-A [`Cloud Run URL`](/docs/terminology#cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology#service-name), that is also printed, for accessing the deployed service and performing a render.
+A [`Cloud Run URL`](/docs/terminology/cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology/service-name), that is also printed, for accessing the deployed service and performing a render.
 
 ## 7. Deploy a site
 
@@ -175,13 +175,13 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
+Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology/entry-point) of the project.
 
 ```bash
 npx remotion cloudrun sites create src/index.ts --site-name=my-video
 ```
 
-A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
+A [`serveUrl`](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion video in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
 

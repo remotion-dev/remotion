@@ -1,8 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {deploySite} from '../../../api/deploy-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {Privacy} from '../../../shared/constants';
@@ -28,8 +29,13 @@ export const SITES_CREATE_SUBCOMMAND = 'create';
 export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
+	const {file, reason} = CliInternals.findEntryPoint(
+		args,
+		remotionRoot,
+		logLevel,
+	);
 	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
@@ -41,7 +47,13 @@ export const sitesCreateSubcommand = async (
 		return;
 	}
 
-	Log.verbose('Entry point:', file, 'Reason:', reason);
+	Log.verbose(
+		{indent: false, logLevel},
+		'Entry point:',
+		file,
+		'Reason:',
+		reason,
+	);
 
 	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
 	if (desiredSiteName !== undefined) {
@@ -139,6 +151,7 @@ export const sitesCreateSubcommand = async (
 		},
 		region: getAwsRegion(),
 		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
+		gitSource: null,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
@@ -169,7 +182,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
-				.filter(Internals.truthy)
+				.filter(NoReactInternals.truthy)
 				.join(' '),
 		),
 	);

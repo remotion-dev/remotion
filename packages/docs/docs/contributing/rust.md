@@ -56,5 +56,5 @@ in the `packages/renderer` package. The resulting artifacts should be checked in
 
 ### FFmpeg bindings
 
-- Both the Rust binary as well as the FFmpeg binaries use the shared libraries located in the `ffmpeg/remotion/lib` folder of each compositor package.
+- Both the Rust binary as well as the FFmpeg binaries use the shared libraries located in the folder of each compositor package.
 - Those shared libraries and FFmpeg binaries come from the [`rust-ffmpeg-splitter`](https://github.com/remotion-dev/rust-ffmpeg-splitter) repository. They are built in CircleCI as well as on a M1 Macbook and pasted into the [`rust-ffmpeg-sys`](https://github.com/remotion-dev/rust-ffmpeg-sys) project. The `rust-ffmpeg-sys` project is a dependency of [`rust-ffmpeg`](https://github.com/remotion-dev/rust-ffmpeg) which is a dependency of the main Remotion project. Refer to those repositories to learn how to build them.

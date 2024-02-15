@@ -11,10 +11,10 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
-import {Internals} from 'remotion';
+import {NoReactAPIs} from '@remotion/renderer/pure';
+import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -48,6 +48,8 @@ type InternalRenderMediaOnCloudrun = {
 	jpegQuality: number | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	proResProfile: ProResProfile | undefined;
 	x264Preset: X264Preset | undefined;
 	crf: Crf | null;
@@ -55,7 +57,6 @@ type InternalRenderMediaOnCloudrun = {
 	imageFormat: VideoImageFormat | undefined;
 	scale: number | undefined;
 	everyNthFrame: number | undefined;
-	numberOfGifLoops: number | null;
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
@@ -86,6 +87,8 @@ export type RenderMediaOnCloudrunInput = {
 	jpegQuality?: number;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	encodingMaxRate?: string | null;
+	encodingBufferSize?: string | null;
 	proResProfile?: ProResProfile;
 	x264Preset?: X264Preset;
 	crf?: number | undefined;
@@ -93,7 +96,6 @@ export type RenderMediaOnCloudrunInput = {
 	imageFormat?: VideoImageFormat;
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number | null;
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
@@ -124,6 +126,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	proResProfile,
 	x264Preset,
 	crf,
@@ -165,18 +169,21 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		composition,
 		serveUrl,
 		codec: actualCodec,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
-		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
+		jpegQuality: jpegQuality ?? null,
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
 		crf: crf ?? null,
-		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
-		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
+		pixelFormat: pixelFormat ?? null,
+		imageFormat: imageFormat ?? null,
 		scale: scale ?? 1,
 		proResProfile: proResProfile ?? null,
 		x264Preset: x264Preset ?? null,
@@ -193,13 +200,13 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		forceHeight,
 		type: 'media',
 		logLevel: logLevel ?? 'info',
-		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? null,
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? 'default',
+		clientVersion: VERSION,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -282,7 +289,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 
@@ -304,6 +311,8 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.audioCodec The encoding of the audio of the output video.
  * @param params.audioBitrate The target bitrate for the audio of the generated video.
  * @param params.videoBitrate The target bitrate of the generated video.
+ * @param params.encodingBufferSize The decoder buffer size, which determines the variability of the generated video bitrate.
+ * @param params.encodingMaxRate The maximum bitrate tolerance to be used, this is only used in conjunction with encodingBufferSize.
  * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
  * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
  * @param params.crf Constant Rate Factor, controlling the quality.
@@ -320,7 +329,7 @@ export const internalRenderMediaOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.concurrency By default, each Cloud Run service renders with concurrency 100% (equal to number of available cores). You may use the option to customize this value.
+ * @param params.concurrency A number or a string describing how many browser tabs should be opened. Default "50%".
  * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
@@ -341,6 +350,8 @@ export const renderMediaOnCloudrun = ({
 	audioCodec,
 	audioBitrate,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	proResProfile,
 	x264Preset,
 	crf,
@@ -381,6 +392,8 @@ export const renderMediaOnCloudrun = ({
 		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
+		encodingMaxRate: encodingMaxRate ?? null,
+		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? undefined,
 		crf: crf ?? null,

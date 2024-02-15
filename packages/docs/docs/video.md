@@ -126,6 +126,12 @@ export const MyComposition = () => {
 };
 ```
 
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
 ### `playbackRate`<AvailableFrom v="2.2.0" />
 
 Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
@@ -187,7 +193,7 @@ export const MyComposition = () => {
 
 ### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42" />
 
-In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
 ### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17" />
 
@@ -205,6 +211,10 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 ### `onError`
 
 Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+
+### `pauseWhenBuffering`<AvailableFrom v="4.0.100"/>
+
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
 ## Speed up renders for video with silent audio
 

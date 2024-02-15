@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-layout-utils-measure-text.png
 title: measureText()
-crumb: "Make some"
+crumb: "@remotion/layout-utils"
 ---
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
@@ -44,6 +44,12 @@ _string_
 
 Same as CSS style `font-spacing`.
 
+### `fontVariantNumeric`<AvailableFrom v="4.0.57"/>
+
+_string_
+
+Same as CSS style `font-variant-numeric`.
+
 ## Return value
 
 An object with `height` and `width`
@@ -70,4 +76,5 @@ measureText({
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/layout-utils/src/layouts/measure-text.ts)
 - [`@remotion/layout-utils`](/docs/layout-utils)

@@ -5,8 +5,6 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={11}
   href="https://youtu.be/dQyPUasZY7I"
@@ -58,7 +56,6 @@ The following regions are available for Remotion Lambda:
 
 - You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the separated chunks and the concatenated output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
 - [Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased](/docs/lambda/troubleshooting/rate-limit).
-- Lambda has a [burst limit of as low as 500](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html) (depending per region) functions that can be spawned in a short amount of time. If you render a lot of videos, you must slowly build up invocations rather than trigger them all at once.
 
 ## Cost
 

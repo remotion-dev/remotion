@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Page} from '../browser/BrowserPage';
 import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
@@ -55,7 +55,7 @@ const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
 };
 
 const removeDelayRenderStack = (message: string) => {
-	const index = message.indexOf(Internals.DELAY_RENDER_CALLSTACK_TOKEN);
+	const index = message.indexOf(NoReactInternals.DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return message;
 	}
@@ -122,5 +122,6 @@ export const handleJavascriptException = ({
 
 	return () => {
 		client.off('Runtime.exceptionThrown', handler);
+		return Promise.resolve();
 	};
 };

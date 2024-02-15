@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs, { mkdirSync } from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
@@ -12,7 +12,13 @@ type FontInfo = {
   fonts: Record<string, Record<string, Record<string, string>>>;
 };
 
-import { getCssLink, unquote, quote, removeWhitespace } from "./utils";
+import {
+  getCssLink,
+  unquote,
+  quote,
+  removeWhitespace,
+  replaceDigitsWithWords,
+} from "./utils";
 import { Font } from "./google-fonts";
 import { filteredFonts } from "./filtered-fonts";
 
@@ -32,7 +38,7 @@ const generate = async (font: Font) => {
 
   //  Read css from cache, otherwise from url
   let css: null | string = null;
-  let fontFamily: null | string = unquote(font.family);
+  let fontFamily: null | string = replaceDigitsWithWords(unquote(font.family));
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
@@ -161,6 +167,7 @@ export const loadFont = <T extends keyof Variants>(
 
 `;
 
+  mkdirSync(OUTDIR, { recursive: true });
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
 };

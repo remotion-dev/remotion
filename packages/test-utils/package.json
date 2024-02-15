@@ -1,6 +1,6 @@
 {
   "name": "@remotion/test-utils",
-  "version": "4.0.56",
+  "version": "4.0.111",
   "description": "Utilities for using tailwind css in Remotion",
   "main": "dist",
   "sideEffects": false,
@@ -19,15 +19,15 @@
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "devDependencies": {
-    "react": "18.0.0",
-    "react-dom": "18.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "remotion": "workspace:*",
     "@jonny/eslint-config": "3.0.266",
     "@types/node": "18.14.6",
-    "@types/react": "18.0.26",
+    "@types/react": "18.2.48",
     "eslint": "8.42.0",
-    "prettier": "3.0.2",
-    "prettier-plugin-organize-imports": "^3.2.2"
+    "prettier": "3.1.1",
+    "prettier-plugin-organize-imports": "3.2.4"
   },
   "private": true
 }

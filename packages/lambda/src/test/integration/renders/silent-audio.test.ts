@@ -57,6 +57,8 @@ test('Should add silent audio if there is no audio', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,
@@ -94,8 +96,14 @@ test('Should add silent audio if there is no audio', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.callFf('ffprobe', ['-'], false, 'info', {
-		stdin: file,
+	const probe = await RenderInternals.callFf({
+		bin: 'ffprobe',
+		args: ['-'],
+		indent: false,
+		logLevel: 'info',
+		options: {
+			stdin: file,
+		},
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);

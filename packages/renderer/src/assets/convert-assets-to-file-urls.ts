@@ -1,4 +1,4 @@
-import type {TRenderAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
 import type {LogLevel} from '../log-level';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';

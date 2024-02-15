@@ -69,6 +69,10 @@ _optional_
 
 Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
+### `enableLambdaInsights`<AvailableFrom v="4.0.61" />
+
+<Options id="enable-lambda-insights" />
+
 ## Return value
 
 An object with the following values:

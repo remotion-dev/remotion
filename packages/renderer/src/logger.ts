@@ -2,11 +2,12 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
+import {writeInRepro} from './repro';
 import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
 
-type LogOptions = {
+export type LogOptions = {
 	indent: boolean;
 	logLevel: LogLevel;
 };
@@ -24,13 +25,11 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
-	verbose: (...args: Parameters<typeof console.log>) => {
-		Log.verboseAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-	},
-	verboseAdvanced: (
+	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('verbose', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
 			return console.log(
 				...[
@@ -49,19 +48,14 @@ export const Log = {
 		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('info', ...args);
 		return console.log(
 			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
 	},
-	warn: (...args: Parameters<typeof console.log>) => {
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'warn')) {
-			Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-		}
-	},
-	warnAdvanced: (
-		options: LogOptions,
-		...args: Parameters<typeof console.log>
-	) => {
+
+	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
+		writeInRepro('warn', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
@@ -71,6 +65,7 @@ export const Log = {
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
+		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
@@ -79,6 +74,7 @@ export const Log = {
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
+		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
 			return console.log(
 				...[

@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {cancelRender, continueRender, delayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
 import type {AudioData} from './types';
 
@@ -31,9 +31,14 @@ export const useAudioData = (src: string): AudioData | null => {
 		const handle = delayRender(
 			`Waiting for audio metadata with src="${src}" to be loaded`,
 		);
-		const data = await getAudioData(src);
-		if (mountState.current.isMounted) {
-			setMetadata(data);
+
+		try {
+			const data = await getAudioData(src);
+			if (mountState.current.isMounted) {
+				setMetadata(data);
+			}
+		} catch (err) {
+			cancelRender(err);
 		}
 
 		continueRender(handle);

@@ -10,9 +10,14 @@ import type {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	AggregateRenderProgress,
+	JobProgressCallback,
+	RenderStep,
+} from '@remotion/studio-server';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
@@ -22,17 +27,14 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
-import type {AggregateRenderProgress} from '../progress-types';
 import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
-import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {
 	getOutputLocation,
@@ -133,14 +135,6 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
-	if (browserExecutable) {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			'Browser executable: ',
-			browserExecutable,
-		);
-	}
-
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
@@ -175,6 +169,12 @@ export const renderStillFlow = async ({
 				});
 			},
 			quietProgress: updatesDontOverwrite,
+			quietFlag: quietFlagProvided(),
+			outDir: null,
+			// Not needed for still
+			gitSource: null,
+			bufferStateDelayInMilliseconds: null,
+			maxTimlineTracks: null,
 		},
 	);
 
@@ -246,7 +246,7 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
@@ -304,11 +304,12 @@ export const renderStillFlow = async ({
 		indent,
 		onBrowserLog: null,
 		logLevel,
-		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: config.props,
-		}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: config.props,
+			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 	});
 

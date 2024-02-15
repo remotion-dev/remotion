@@ -31,12 +31,12 @@ import {getDownloadsCacheDir} from './get-download-destination';
 
 const downloadURLs: Record<Platform, string> = {
 	linux:
-		'https://github.com/Alex313031/thorium/releases/download/M114.0.5735.205/thorium-browser_114.0.5735.205_amd64.zip',
-	mac: 'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_X64.dmg',
+		'https://github.com/Alex313031/thorium/releases/download/M117.0.5938.157/thorium-browser_117.0.5938.157_amd64.zip',
+	mac: 'https://github.com/Alex313031/Thorium-MacOS/releases/download/M116.0.5845.169/Thorium_MacOS_X64.dmg',
 	mac_arm:
-		'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_ARM.dmg',
+		'https://github.com/Alex313031/Thorium-MacOS/releases/download/M116.0.5845.169/Thorium_MacOS_ARM.dmg',
 	win64:
-		'https://github.com/Alex313031/Thorium-Win/releases/download/M114.0.5735.205/Thorium_114.0.5735.205.zip',
+		'https://github.com/Alex313031/Thorium-Win/releases/download/M117.0.5938.157/Thorium_117.0.5938.157.zip',
 };
 
 type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
@@ -125,7 +125,8 @@ export const downloadBrowser = async (options: {
 				if (progress.downloaded > lastProgress + 10_000_000) {
 					lastProgress = progress.downloaded;
 
-					Log.info(
+					Log.infoAdvanced(
+						{indent: options.indent, logLevel: options.logLevel},
 						`Downloading Thorium - ${toMegabytes(
 							progress.downloaded,
 						)}/${toMegabytes(progress.totalSize as number)}`,

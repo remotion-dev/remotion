@@ -184,3 +184,16 @@ code {
     display: none;
   }
 }
+
+.pro-item a::after {
+  content: "Paid";
+  font-size: 12px;
+  opacity: 0.7;
+  border: 1px solid;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  margin-left: 6px;
+  border-radius: 4px;
+}

@@ -4,10 +4,10 @@ import type {
 	StillImageFormat,
 	ToOptions,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {PureJSAPIs} from '@remotion/renderer/pure';
-import {Internals} from 'remotion';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactAPIs} from '@remotion/renderer/pure';
+import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -107,11 +107,12 @@ const renderStillOnCloudrunRaw = async ({
 	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			indent: undefined,
-			staticBase: null,
-			data: inputProps ?? {},
-		}).serializedString,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
 		outputBucket,
 		outName,
 		privacy: privacy ?? 'public',
@@ -126,8 +127,9 @@ const renderStillOnCloudrunRaw = async ({
 		type: 'still',
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		clientVersion: VERSION,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -205,6 +207,6 @@ const renderStillOnCloudrunRaw = async ({
 	return renderResponse;
 };
 
-export const renderStillOnCloudrun = PureJSAPIs.wrapWithErrorHandling(
+export const renderStillOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
 	renderStillOnCloudrunRaw,
 ) as typeof renderStillOnCloudrunRaw;

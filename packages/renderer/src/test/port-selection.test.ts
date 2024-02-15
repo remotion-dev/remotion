@@ -4,7 +4,7 @@ import {getDesiredPort} from '../get-port';
 test('Port selection should only be freed once the previous result has been used', async () => {
 	let ports = 0;
 
-	const {port, didUsePort} = await getDesiredPort({
+	const {port, unlockPort} = await getDesiredPort({
 		desiredPort: undefined,
 		from: 3100,
 		to: 3200,
@@ -22,7 +22,7 @@ test('Port selection should only be freed once the previous result has been used
 	});
 
 	expect(ports).toBe(0);
-	didUsePort();
+	unlockPort();
 	await secondPort;
 	expect(ports).toBe(1);
 });

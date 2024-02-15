@@ -18,8 +18,10 @@ The structure of a command is as follows:
 npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- The serve URL is obtained by deploying a Remotion project to an AWS S3 bucket using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
+Arguments:
+
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -187,7 +189,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--out-name`
 

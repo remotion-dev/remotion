@@ -2,14 +2,11 @@ import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {GitSource} from '@remotion/studio';
+import type {BundlingState, CopyingState} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
-import type {
-	BundlingState,
-	CopyingState,
-	SymbolicLinksState,
-} from './progress-bar';
+import type {SymbolicLinksState} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeBundlingAndCopyProgress,
@@ -27,6 +24,11 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
+	outDir,
+	gitSource,
+	bufferStateDelayInMilliseconds,
+	maxTimlineTracks,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -41,6 +43,11 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
+	outDir: string | null;
+	gitSource: GitSource | null;
+	bufferStateDelayInMilliseconds: number | null;
+	maxTimlineTracks: number | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -73,6 +80,11 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		steps,
 		onDirectoryCreated,
 		quietProgress,
+		quietFlag,
+		outDir,
+		gitSource,
+		bufferStateDelayInMilliseconds,
+		maxTimlineTracks,
 	});
 
 	return {
@@ -81,7 +93,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	};
 };
 
-const bundleOnCli = async ({
+export const bundleOnCli = async ({
 	fullPath,
 	remotionRoot,
 	publicDir,
@@ -92,6 +104,11 @@ const bundleOnCli = async ({
 	steps,
 	onDirectoryCreated,
 	quietProgress,
+	quietFlag,
+	outDir,
+	gitSource,
+	maxTimlineTracks,
+	bufferStateDelayInMilliseconds,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -106,6 +123,11 @@ const bundleOnCli = async ({
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
+	quietFlag: boolean;
+	outDir: string | null;
+	gitSource: GitSource | null;
+	maxTimlineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -179,6 +201,8 @@ const bundleOnCli = async ({
 		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
+		bufferStateDelayInMilliseconds,
+		maxTimelineTracks: maxTimlineTracks,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,
@@ -203,7 +227,7 @@ const bundleOnCli = async ({
 
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
-		quiet: quietProgress || quietFlagProvided(),
+		quiet: quietProgress || quietFlag,
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
@@ -224,6 +248,8 @@ const bundleOnCli = async ({
 			updateProgress(false);
 		},
 		onDirectoryCreated,
+		outDir: outDir ?? undefined,
+		gitSource,
 		...options,
 	});
 
@@ -231,7 +257,7 @@ const bundleOnCli = async ({
 		progress: 1,
 		doneIn: Date.now() - bundleStartTime,
 	};
-	Log.verboseAdvanced(
+	Log.verbose(
 		{logLevel, indent},
 		'Bundling done in',
 		bundlingState.doneIn + 'ms',
@@ -240,14 +266,14 @@ const bundleOnCli = async ({
 		...copyingState,
 		doneIn: copyStart ? Date.now() - copyStart : 0,
 	};
-	Log.verboseAdvanced(
+	Log.verbose(
 		{logLevel, indent},
 		'Copying done in ',
 		copyingState.doneIn + 'ms',
 	);
 	updateProgress(true);
 
-	Log.verboseAdvanced({indent, logLevel}, 'Bundled under', bundled);
+	Log.verbose({indent, logLevel}, 'Bundled under', bundled);
 	const cacheExistedAfter =
 		BundlerInternals.cacheExists(remotionRoot, 'production', hash) === 'exists';
 

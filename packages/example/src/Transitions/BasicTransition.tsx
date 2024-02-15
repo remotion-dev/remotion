@@ -7,7 +7,13 @@ import {fade} from '@remotion/transitions/fade';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
-import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolateColors,
+	random,
+	Sequence,
+} from 'remotion';
 
 export const Letter: React.FC<{
 	children: React.ReactNode;
@@ -32,7 +38,9 @@ export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
 			<TransitionSeries.Sequence durationInFrames={40}>
-				<Letter color="orange"> A</Letter>
+				<Sequence>
+					<Letter color="orange"> A</Letter>
+				</Sequence>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={slide({direction: 'from-bottom'})}

@@ -3,9 +3,9 @@ import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
-import {isIpV6Supported} from './is-ipv6-supported';
 import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {getPortConfig} from './port-config';
 import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
@@ -72,31 +72,34 @@ export const serveStatic = async (
 
 	const maxTries = 5;
 
-	const host = isIpV6Supported() ? '::' : '0.0.0.0';
-	const hostsToTry = isIpV6Supported()
-		? ['::', '::1']
-		: ['0.0.0.0', '127.0.0.1'];
+	const portConfig = getPortConfig();
 
 	for (let i = 0; i < maxTries; i++) {
+		let unlock = () => {};
 		try {
 			selectedPort = await new Promise<number>((resolve, reject) => {
 				getDesiredPort({
 					desiredPort: options?.port ?? undefined,
 					from: 3000,
 					to: 3100,
-					hostsToTry,
+					hostsToTry: portConfig.hostsToTry,
 				})
-					.then(({port, didUsePort}) => {
-						server.listen({port, host});
+					.then(({port, unlockPort}) => {
+						unlock = unlockPort;
+						server.listen({port, host: portConfig.host});
 						server.on('listening', () => {
 							resolve(port);
-							return didUsePort();
+							return unlock();
 						});
 						server.on('error', (err) => {
+							unlock();
 							reject(err);
 						});
 					})
-					.catch((err) => reject(err));
+					.catch((err) => {
+						unlock();
+						return reject(err);
+					});
 			});
 			const destroyConnections = function () {
 				for (const key in connections) connections[key].destroy();

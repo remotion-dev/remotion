@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "incremental": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "skipLibCheck": true
   },
   "include": [],
   "references": [
@@ -72,6 +73,9 @@
       "path": "./packages/media-utils"
     },
     {
+      "path": "./packages/animation-utils"
+    },
+    {
       "path": "./packages/motion-blur"
     },
     {
@@ -103,6 +107,15 @@
     },
     {
       "path": "./packages/tailwind"
+    },
+    {
+      "path": "./packages/studio"
+    },
+    {
+      "path": "./packages/studio-server"
+    },
+    {
+      "path": "./packages/studio-shared"
     },
     {
       "path": "./packages/test-utils"

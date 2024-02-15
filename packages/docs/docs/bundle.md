@@ -9,7 +9,12 @@ _Part of the `@remotion/bundler` package._
 
 Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media).
 
-```ts
+You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
+
+Calling `bundle()` for every video that you render is an anti-pattern.  
+`bundle()` cannot be called in a serverless function, see: [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle).
+
+```ts title="Function signature"
 const bundle: (options?: {
   entryPoint: string;
   onProgress?: (progress: number) => void;
@@ -28,7 +33,7 @@ const bundle: (options?: {
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology#entry-point).
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology/entry-point).
 
 ### `onProgress?`
 
@@ -87,7 +92,7 @@ The current working directory is the directory from which your program gets exec
 
 ### `publicDir?`<AvailableFrom v="3.2.13" />
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
 ### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
 
@@ -116,7 +121,7 @@ const bundle: (
     publicPath?: string;
     rootDir?: string;
     publicDir?: string | null;
-  }
+  },
 ) => Promise<string>;
 ```
 
@@ -141,3 +146,4 @@ A promise which will resolve into a `string` specifying the output directory.
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderMedia()](/docs/renderer/render-media)
 - [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)

@@ -29,7 +29,7 @@ Specify how many times video must be rendered. Default value is 3.
 
 _optional_
 
-You can specify which concurrency value should be used while rendering the video. Multiple concurrency values can be passed separated by comma. Learn more about [concurrency](/docs/terminology#concurrency)
+You can specify which concurrency value should be used while rendering the video. Multiple concurrency values can be passed separated by comma. Learn more about [concurrency](/docs/terminology/concurrency)
 
 ### `--codec`
 
@@ -147,7 +147,7 @@ Inherited from [`npx remotion render`](/docs/cli/render#--port)
 
 _optional_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--number-of-gif-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--every-nth-frame`
 

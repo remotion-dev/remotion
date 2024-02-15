@@ -4,6 +4,10 @@ import type {VolumeProp} from '../volume-prop.js';
 export type RemotionMainVideoProps = {
 	startFrom?: number;
 	endAt?: number;
+	/**
+	 * @deprecated Only for internal `transparent` use
+	 */
+	_remotionInternalNativeLoopPassed?: boolean;
 };
 
 export type RemotionVideoProps = Omit<
@@ -13,11 +17,13 @@ export type RemotionVideoProps = Omit<
 	>,
 	'autoPlay' | 'controls' | 'onEnded' | 'nonce'
 > & {
+	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
+	pauseWhenBuffering?: boolean;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -30,6 +36,7 @@ type DeprecatedOffthreadVideoProps = {
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
+	name?: string;
 	id?: string;
 	style?: React.CSSProperties;
 	volume?: VolumeProp;
@@ -40,5 +47,10 @@ export type OffthreadVideoProps = {
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
 	transparent?: boolean;
+	pauseWhenBuffering?: boolean;
+	/**
+	 * @deprecated For internal use only
+	 */
+	stack?: string;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;

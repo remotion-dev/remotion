@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "4.0.56",
+	"version": "4.0.111",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -20,6 +20,7 @@
 	"files": [
 		"dist",
 		"react-shim.js",
+		"renderEntry.tsx",
 		"favicon.ico"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -29,7 +30,10 @@
 		"esbuild": "0.18.6",
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
+		"@remotion/studio": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"style-loader": "2.0.0",
+		"source-map": "0.7.3",
 		"webpack": "5.83.1"
 	},
 	"peerDependencies": {
@@ -40,16 +44,16 @@
 		"@jonny/eslint-config": "3.0.276",
 		"@types/node": "18.14.6",
 		"bun-types": "0.8.0",
-		"@types/react": "18.0.26",
-		"@types/react-dom": "18.0.11",
+		"@types/react": "18.2.48",
+		"@types/react-dom": "18.2.18",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0",
+		"prettier": "3.1.1",
+		"prettier-plugin-organize-imports": "3.2.4",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
 		"vitest": "0.31.1"
 	},
 	"keywords": [

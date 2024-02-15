@@ -50,13 +50,35 @@ If you don't set a region, Remotion will use the default region.
 
 ## Which region should I choose?
 
-Note that different regions have a different limit on how many Lambda functions can be started in a short amount of time [("burst limit")](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html).
+Different regions have different pricing. Use the following table to get a sense of the pricing differences.
 
-- `us-east-1`, `us-west-2`, `eu-west-1`: Burst concurrency = 3000
-- `ap-northeast-1`, `eu-central-1`, `us-east-2`: Burst concurrency = 1000
-- All other regions = 500
+Data may be out of date, please consult the [AWS Lambda Pricing page](https://aws.amazon.com/lambda/pricing/) for the latest information.
 
-**Because of this, we recommend hosting your primary infrastructure in `us-east-1`, `us-west-2` or `eu-west-1` for maximum scalability.**
+| Region         | Price per GB-second |
+| -------------- | ------------------- |
+| ap-east-1      | 0.0000183000        |
+| af-south-1     | 0.0000176800        |
+| me-south-1     | 0.0000165334        |
+| eu-south-1     | 0.0000156138        |
+| ap-south-1     | 0.0000133334        |
+| ap-northeast-3 | 0.0000133334        |
+| ap-northeast-2 | 0.0000133334        |
+| ap-southeast-1 | 0.0000133334        |
+| ap-southeast-2 | 0.0000133334        |
+| ap-northeast-1 | 0.0000133334        |
+| ca-central-1   | 0.0000133334        |
+| eu-central-1   | 0.0000133334        |
+| eu-west-1      | 0.0000133334        |
+| eu-west-2      | 0.0000133334        |
+| eu-west-3      | 0.0000133334        |
+| eu-north-1     | 0.0000133334        |
+| sa-east-1      | 0.0000133334        |
+| us-east-1      | 0.0000133334        |
+| us-east-2      | 0.0000133334        |
+| us-west-1      | 0.0000133334        |
+| us-west-2      | 0.0000133334        |
+
+Previously, this section mentioned differences in the amount of concurrent lambdas that can be run in a region. This is no longer the case.
 
 ## Enabling regions in the AWS console
 

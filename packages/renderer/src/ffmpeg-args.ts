@@ -14,6 +14,8 @@ const firstEncodingStepOnly = ({
 	codec,
 	crf,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -21,9 +23,11 @@ const firstEncodingStepOnly = ({
 	x264Preset: X264Preset | null;
 	crf: unknown;
 	codec: Codec;
-	videoBitrate: string | null | undefined;
+	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 }): string[][] => {
-	if (hasPreencoded) {
+	if (hasPreencoded || codec === 'gif') {
 		return [];
 	}
 
@@ -39,6 +43,8 @@ const firstEncodingStepOnly = ({
 			crf,
 			videoBitrate,
 			codec,
+			encodingMaxRate,
+			encodingBufferSize,
 		}),
 	].filter(truthy);
 };
@@ -51,6 +57,8 @@ export const generateFfmpegArgs = ({
 	codec,
 	crf,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 	colorSpace,
 }: {
 	hasPreencoded: boolean;
@@ -59,7 +67,9 @@ export const generateFfmpegArgs = ({
 	x264Preset: X264Preset | null;
 	crf: unknown;
 	codec: Codec;
-	videoBitrate: string | null | undefined;
+	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 	colorSpace: ColorSpace;
 }): string[][] => {
 	const encoderName = getCodecName(codec);
@@ -74,9 +84,20 @@ export const generateFfmpegArgs = ({
 					['-colorspace:v', 'bt709'],
 					['-color_primaries:v', 'bt709'],
 					['-color_trc:v', 'bt709'],
-					['-color_range:v', 'tv'],
-			  ]
-			: [];
+					['-color_range', 'tv'],
+					hasPreencoded ? [] : ['-vf', 'zscale=m=709:min=709:r=limited'],
+				]
+			: colorSpace === 'bt2020-ncl'
+				? [
+						['-colorspace:v', 'bt2020nc'],
+						['-color_primaries:v', 'bt2020'],
+						['-color_trc:v', 'arib-std-b67'],
+						['-color_range', 'tv'],
+						hasPreencoded
+							? []
+							: ['-vf', 'zscale=m=2020_ncl:min=2020_ncl:r=limited'],
+					]
+				: [];
 
 	return [
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
@@ -90,6 +111,8 @@ export const generateFfmpegArgs = ({
 			pixelFormat,
 			proResProfileName,
 			videoBitrate,
+			encodingMaxRate,
+			encodingBufferSize,
 			x264Preset,
 		}),
 	].filter(truthy);

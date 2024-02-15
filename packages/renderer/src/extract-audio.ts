@@ -15,6 +15,6 @@ export const extractAudio = async (options: {
 		input_path: options.videoSource,
 		output_path: options.audioOutput,
 	});
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 };

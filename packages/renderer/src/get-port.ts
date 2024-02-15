@@ -93,15 +93,16 @@ export const getDesiredPort = async ({
 }) => {
 	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
-	const didUsePort = () => portLocks.unlock(lockPortSelection);
+	const unlockPort = () => portLocks.unlock(lockPortSelection);
+
 	if (
 		typeof desiredPort !== 'undefined' &&
 		(await testPortAvailableOnMultipleHosts({
 			port: desiredPort,
-			hosts: ['::', '::1'],
+			hosts: hostsToTry,
 		})) === 'available'
 	) {
-		return {port: desiredPort, didUsePort};
+		return {port: desiredPort, unlockPort};
 	}
 
 	const actualPort = await getPort({from, to, hostsToTest: hostsToTry});
@@ -113,7 +114,7 @@ export const getDesiredPort = async ({
 		);
 	}
 
-	return {port: actualPort, didUsePort};
+	return {port: actualPort, unlockPort};
 };
 
 const makeRange = (from: number, to: number): number[] => {

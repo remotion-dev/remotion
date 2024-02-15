@@ -2,22 +2,38 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {DurationsContext} from './duration-state.js';
 import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
-import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps & RemotionMainVideoProps
+	RemotionVideoProps &
+		RemotionMainVideoProps & {
+			/**
+			 * @deprecated For internal use only
+			 */
+			stack?: string;
+		}
 > = (props, ref) => {
-	const {startFrom, endAt, ...otherProps} = props;
+	const {
+		startFrom,
+		endAt,
+		name,
+		pauseWhenBuffering,
+		stack,
+		_remotionInternalNativeLoopPassed,
+		...otherProps
+	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -36,6 +52,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const preloadedSrc = usePreload(props.src);
+
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
@@ -43,8 +61,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
-		const mediaDuration = durations[getAbsoluteSrc(props.src)] * fps;
+	const durationFetched =
+		durations[getAbsoluteSrc(preloadedSrc)] ??
+		durations[getAbsoluteSrc(props.src)];
+
+	if (loop && durationFetched !== undefined) {
+		const mediaDuration = durationFetched * fps;
 
 		return (
 			<Loop
@@ -55,8 +77,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					startFrom,
 				})}
 				layout="none"
+				name={name}
 			>
-				<Video {...propsOtherThanLoop} ref={ref} />
+				<Video
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
 			</Loop>
 		);
 	}
@@ -72,6 +99,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
+				name={name}
 			>
 				<Video {...otherProps} ref={ref} />
 			</Sequence>
@@ -87,24 +115,25 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	return (
-		<VideoForDevelopment
+		<VideoForPreview
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
+			_remotionInternalStack={stack ?? null}
+			_remotionInternalNativeLoopPassed={
+				_remotionInternalNativeLoopPassed ?? false
+			}
 		/>
 	);
 };
-
-const forward = forwardRef as <T, P = {}>(
-	render: (
-		props: P,
-		ref: React.MutableRefObject<T>,
-	) => React.ReactElement | null,
-) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**
  * @description allows you to include a video file in your Remotion project. It wraps the native HTMLVideoElement.
  * @see [Documentation](https://www.remotion.dev/docs/video)
  */
-export const Video = forward(VideoForwardingFunction);
+export const Video = forwardRef(VideoForwardingFunction);
+
+addSequenceStackTraces(Video);

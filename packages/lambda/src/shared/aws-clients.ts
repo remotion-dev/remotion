@@ -5,7 +5,7 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import {createHash} from 'node:crypto';
+import {random} from 'remotion/no-react';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -48,7 +48,6 @@ const getCredentials = ():
 		process.env.REMOTION_AWS_SECRET_ACCESS_KEY &&
 		process.env.REMOTION_AWS_SESSION_TOKEN
 	) {
-		console.log('Using credentials from Remotion assumed role.');
 		return {
 			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
 			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
@@ -77,7 +76,6 @@ const getCredentials = ():
 		process.env.AWS_SECRET_ACCESS_KEY &&
 		process.env.AWS_SESSION_TOKEN
 	) {
-		console.log('Using credentials from AWS STS');
 		return {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
@@ -136,9 +134,7 @@ const getCredentialsHash = ({
 	hashComponents.region = region;
 	hashComponents.service = service;
 
-	return createHash('sha256')
-		.update(JSON.stringify(hashComponents))
-		.digest('base64');
+	return random(JSON.stringify(hashComponents)).toString().replace('0.', '');
 };
 
 export type ServiceMapping = {
@@ -213,7 +209,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 						? {
 								accessKeyId: customCredentials.accessKeyId,
 								secretAccessKey: customCredentials.secretAccessKey,
-						  }
+							}
 						: undefined,
 				endpoint: customCredentials.endpoint,
 			});

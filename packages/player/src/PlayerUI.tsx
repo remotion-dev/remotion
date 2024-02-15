@@ -10,6 +10,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -35,8 +36,10 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
+	isBuffering: boolean;
 }) => React.ReactNode;
 export type RenderPoster = RenderLoading;
+export type PosterFillMode = 'player-size' | 'composition-size';
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
@@ -68,6 +71,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
+		showPosterWhenBuffering: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
@@ -75,6 +79,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
 		showPlaybackRateControl: boolean | number[];
+		posterFillMode: PosterFillMode;
+		bufferStateDelayInMilliseconds: number;
 	}
 > = (
 	{
@@ -97,6 +103,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -104,6 +111,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton,
 		alwaysShowControls,
 		showPlaybackRateControl,
+		posterFillMode,
+		bufferStateDelayInMilliseconds,
 	},
 	ref,
 ) => {
@@ -120,14 +129,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
 
+	const player = usePlayer();
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
+		frameRef: player.remotionInternal_currentFrameRef,
 	});
-	const player = usePlayer();
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {
@@ -274,6 +284,51 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isMuted,
 		});
 	}, [player.emitter, isMuted]);
+	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
+
+	useEffect(() => {
+		let timeout: NodeJS.Timeout | null = null;
+		let stopped = false;
+
+		const onBuffer = () => {
+			requestAnimationFrame(() => {
+				if (bufferStateDelayInMilliseconds === 0) {
+					setShowBufferState(true);
+				} else {
+					timeout = setTimeout(() => {
+						if (!stopped) {
+							setShowBufferState(true);
+						}
+					}, bufferStateDelayInMilliseconds);
+				}
+			});
+		};
+
+		const onResume = () => {
+			requestAnimationFrame(() => {
+				setShowBufferState(false);
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+			});
+		};
+
+		player.emitter.addEventListener('waiting', onBuffer);
+		player.emitter.addEventListener('resume', onResume);
+
+		return () => {
+			player.emitter.removeEventListener('waiting', onBuffer);
+			player.emitter.removeEventListener('resume', onResume);
+
+			setShowBufferState(false);
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			stopped = true;
+		};
+	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
 	useImperativeHandle(
 		ref,
@@ -345,6 +400,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					setMediaMuted(false);
 				},
 				getScale: () => scale,
+				pauseAndReturnToPlayStart: () => {
+					player.pauseAndReturnToPlayStart();
+				},
 			};
 			return Object.assign(player.emitter, methods);
 		},
@@ -371,7 +429,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return calculateOuterStyle({canvasSize, config, style});
 	}, [canvasSize, config, style]);
 
-	const outer: React.CSSProperties = useMemo(() => {
+	const outer = useMemo(() => {
 		return calculateOuter({config, layout, scale});
 	}, [config, layout, scale]);
 
@@ -447,9 +505,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			? renderLoading({
 					height: outerStyle.height as number,
 					width: outerStyle.width as number,
-			  })
+					isBuffering: showBufferIndicator,
+				})
 			: null;
-	}, [outerStyle.height, outerStyle.width, renderLoading]);
+	}, [outerStyle.height, outerStyle.width, renderLoading, showBufferIndicator]);
+
+	const currentScale: CurrentScaleContextType = useMemo(() => {
+		return {
+			type: 'scale',
+			scale,
+		};
+	}, [scale]);
 
 	if (!config) {
 		return null;
@@ -457,9 +523,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const poster = renderPoster
 		? renderPoster({
-				height: outerStyle.height as number,
-				width: outerStyle.width as number,
-		  })
+				height:
+					posterFillMode === 'player-size'
+						? (outerStyle.height as number)
+						: config.height,
+				width:
+					posterFillMode === 'player-size'
+						? (outerStyle.width as number)
+						: config.width,
+				isBuffering: showBufferIndicator,
+			})
 		: null;
 
 	if (poster === undefined) {
@@ -474,7 +547,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
 		].some(Boolean);
+
+	const {left, top, width, height, ...outerWithoutScale} = outer;
 
 	const content = (
 		<>
@@ -487,16 +563,33 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.ClipComposition>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<Internals.CurrentScaleContext.Provider value={currentScale}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</Internals.CurrentScaleContext.Provider>
 							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
+					{shouldShowPoster && posterFillMode === 'composition-size' ? (
+						<div
+							style={{
+								...outerWithoutScale,
+								width: config.width,
+								height: config.height,
+							}}
+							onClick={clickToPlay ? handleClick : undefined}
+							onDoubleClick={
+								doubleClickToFullscreen ? handleDoubleClick : undefined
+							}
+						>
+							{poster}
+						</div>
+					) : null}
 				</div>
 			</div>
-			{shouldShowPoster ? (
+			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
 					onClick={clickToPlay ? handleClick : undefined}
@@ -529,6 +622,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
+					buffering={showBufferIndicator}
 				/>
 			) : null}
 		</>

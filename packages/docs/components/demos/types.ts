@@ -1,4 +1,6 @@
 import {
+  ClockWipeDemo,
+  CubeDemo,
   CustomTimingDemo,
   CustomTransitionDemo,
   FadeDemo,
@@ -11,6 +13,7 @@ import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
 import { PieDemo } from "./Pie";
+import { PolygonDemo } from "./Polygon";
 import { RectDemo } from "./Rect";
 import { StarDemo } from "./Star";
 import {
@@ -382,6 +385,53 @@ export const ellipseDemo: DemoType = {
     },
   ],
 };
+export const polygonDemo: DemoType = {
+  comp: PolygonDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "polygon",
+  autoPlay: false,
+  options: [
+    {
+      default: 3,
+      max: 12,
+      step: 1,
+      min: 3,
+      type: "numeric",
+      name: "points",
+      optional: "no",
+    },
+    {
+      default: 100,
+      max: 400,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "radius",
+      optional: "no",
+    },
+    {
+      name: "cornerRadius",
+      default: 0,
+      max: 140,
+      min: 0,
+      step: 1,
+      type: "numeric",
+      optional: "no",
+    },
+    {
+      name: "edgeRoundness",
+      default: 0,
+      max: 2,
+      min: -2,
+      step: 0.01,
+      type: "numeric",
+      optional: "default-disabled",
+    },
+  ],
+};
 
 export const starDemo: DemoType = {
   comp: StarDemo,
@@ -562,6 +612,36 @@ export const wipePresentationDemo: DemoType = {
         "from-bottom",
         "from-bottom-left",
       ],
+    },
+  ],
+};
+
+export const clockWipePresentationDemo: DemoType = {
+  comp: ClockWipeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "clock-wipe",
+  autoPlay: true,
+  options: [],
+};
+
+export const cubePresentationDemo: DemoType = {
+  comp: CubeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "cube",
+  autoPlay: true,
+  options: [
+    {
+      type: "enum",
+      name: "direction",
+      default: "from-left",
+      optional: "no",
+      values: ["from-left", "from-top", "from-right", "from-bottom"],
     },
   ],
 };

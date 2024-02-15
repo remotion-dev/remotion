@@ -19,6 +19,7 @@ const warnOnce = (message: string) => {
 		return;
 	}
 
+	// eslint-disable-next-line no-console
 	console.warn(message);
 	didWarn[message] = true;
 };
@@ -30,6 +31,9 @@ export const useMediaInTimeline = ({
 	src,
 	mediaType,
 	playbackRate,
+	displayName,
+	id,
+	stack,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -37,6 +41,9 @@ export const useMediaInTimeline = ({
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
+	displayName: string | null;
+	id: string;
+	stack: string | null;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -47,7 +54,6 @@ export const useMediaInTimeline = ({
 	const [playing] = usePlayingState();
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const [id] = useState(() => String(Math.random()));
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
 	const nonce = useNonce();
@@ -103,7 +109,7 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetDisplayName(src),
+			displayName: displayName ?? getAssetDisplayName(src),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -112,6 +118,7 @@ export const useMediaInTimeline = ({
 			doesVolumeChange,
 			loopDisplay: undefined,
 			playbackRate,
+			stack,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -133,6 +140,8 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 		playbackRate,
+		displayName,
+		stack,
 	]);
 
 	useEffect(() => {

@@ -5,8 +5,6 @@ title: getSilentParts()
 crumb: "@remotion/renderer"
 ---
 
-import { YouTube } from "../../components/YouTube";
-
 <YouTube
   minutes={2}
   href="https://www.youtube.com/watch?v=OHrvTMgiXWc"

@@ -25,7 +25,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 // ---cut---
 import { Series } from "remotion";
 
-const Example: React.FC = () => {
+export const Example: React.FC = () => {
   return (
     <Series>
       <Series.Sequence durationInFrames={40}>
@@ -101,7 +101,7 @@ const Square: React.FC<{
 import React, { useRef } from "react";
 import { Series } from "remotion";
 
-const Example: React.FC = () => {
+export const Example: React.FC = () => {
   const first = useRef<HTMLDivElement>(null);
   const second = useRef<HTMLDivElement>(null);
 

@@ -71,6 +71,33 @@ Read below for which option is suitable for you.
 
 Set a content type for the blob. By default, the content type from the HTTP response is taken. We recommend setting an appropriate content type for the media, e.g `video/mp4` only if the HTTP resource does not contain the right one by default.
 
+#### `onProgress?`<AvailableFrom v="4.0.85" />
+
+Callback for progress events.
+
+```tsx twoslash
+import { prefetch } from "remotion";
+import type { PrefetchOnProgress } from "remotion";
+
+const onProgress: PrefetchOnProgress = (progress) => {
+  if (progress.totalBytes === null) {
+    // HTTP response has no "Content-Length" header,
+    // therefore no relative progress can be calculated.
+    console.log("Loaded bytes:", progress.loadedBytes);
+    return;
+  }
+
+  console.log(
+    "Loading progress:",
+    Math.round(progress.loadedBytes / progress.totalBytes / 100) + "%",
+  );
+};
+
+prefetch("https://example.com/video.mp4", {
+  onProgress,
+});
+```
+
 ## Return value
 
 An object with:

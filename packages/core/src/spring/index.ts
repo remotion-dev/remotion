@@ -61,32 +61,39 @@ export function spring({
 				from,
 				to,
 				threshold: durationRestThreshold,
-		  })
+			})
 		: undefined;
 
 	const naturalDurationGetter = needsToCalculateNaturalDuration
 		? {
 				get: () => naturalDuration as number,
-		  }
+			}
 		: {
 				get: () => {
 					throw new Error(
 						'did not calculate natural duration, this is an error with Remotion. Please report',
 					);
 				},
-		  };
+			};
 
-	const frame =
-		(reverse
-			? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
-			: passedFrame) - (reverse ? -delay : delay);
+	const reverseProcessed = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
+
+	const delayProcessed = reverseProcessed + (reverse ? delay : -delay);
+
+	const durationProcessed =
+		passedDurationInFrames === undefined
+			? delayProcessed
+			: delayProcessed / (passedDurationInFrames / naturalDurationGetter.get());
+
+	if (passedDurationInFrames && delayProcessed > passedDurationInFrames) {
+		return to;
+	}
 
 	const spr = springCalculation({
 		fps,
-		frame:
-			passedDurationInFrames === undefined
-				? frame
-				: frame / (passedDurationInFrames / naturalDurationGetter.get()),
+		frame: durationProcessed,
 		config,
 		from,
 		to,

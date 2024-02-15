@@ -14,15 +14,21 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {startLeakDetection} from './helpers/leak-detection';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import type {RequestContext} from './helpers/request-context';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -81,6 +87,7 @@ const renderHandler = async (
 	}
 
 	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
 		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
 	);
 
@@ -118,6 +125,7 @@ const renderHandler = async (
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
+			repro: false,
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
@@ -147,6 +155,7 @@ const renderHandler = async (
 					});
 				} else {
 					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
@@ -199,6 +208,8 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			encodingBufferSize: params.encodingBufferSize,
+			encodingMaxRate: params.encodingMaxRate,
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
@@ -214,6 +225,7 @@ const renderHandler = async (
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
+			finishRenderProgress: () => undefined,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -232,7 +244,10 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
-	RenderInternals.Log.verbose('Writing chunk to S3');
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'Writing chunk to S3',
+	);
 	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -247,10 +262,14 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-	RenderInternals.Log.verbose('Wrote chunk to S3', {
-		time: Date.now() - writeStart,
-	});
-	RenderInternals.Log.verbose('Cleaning up and writing timings');
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
+	);
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'Cleaning up and writing timings',
+	);
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
@@ -270,14 +289,19 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
-	browserInstance.instance.forgetEventLoop();
-	RenderInternals.Log.verbose('Done!');
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'Done!',
+	);
 	return {};
 };
+
+export const ENABLE_SLOW_LEAK_DETECTION = false;
 
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
 }> => {
@@ -286,6 +310,8 @@ export const rendererHandler = async (
 	}
 
 	const logs: BrowserLog[] = [];
+
+	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
 		await renderHandler(params, options, logs);
@@ -348,5 +374,9 @@ export const rendererHandler = async (
 		}
 
 		throw err;
+	} finally {
+		forgetBrowserEventLoop(params.logLevel);
+
+		startLeakDetection(leakDetection, requestContext.awsRequestId);
 	}
 };

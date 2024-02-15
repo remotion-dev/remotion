@@ -1,7 +1,7 @@
 import type {LogLevel, RenderMediaOnDownload} from '@remotion/renderer';
-import {formatBytes} from './format-bytes';
+import type {DownloadProgress} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {Log} from './log';
-import type {DownloadProgress} from './progress-types';
 
 export const makeOnDownload = ({
 	indent,
@@ -33,7 +33,7 @@ export const makeOnDownload = ({
 		};
 		const nextDownloadIndex = downloads.length;
 		downloads.push(download);
-		Log.verboseAdvanced(
+		Log.verbose(
 			{indent, logLevel},
 			`Starting download [${nextDownloadIndex}]:`,
 			src,
@@ -55,10 +55,12 @@ export const makeOnDownload = ({
 
 			lastUpdate = Date.now();
 
-			Log.verboseAdvanced(
+			Log.verbose(
 				{indent, logLevel},
 				`Download [${nextDownloadIndex}]:`,
-				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded),
+				percent
+					? `${(percent * 100).toFixed(1)}%`
+					: StudioServerInternals.formatBytes(downloaded),
 			);
 			updateRenderProgress({
 				newline: false,

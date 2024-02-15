@@ -42,7 +42,9 @@ test("All packages require the same remotion version", () => {
     );
 
     for (const dep of onlyRemotionDeps) {
-      expect(allDeps[dep]).toBe("workspace:*");
+      expect(
+        allDeps[dep] === "workspace:*" || allDeps[dep].includes("remotion.pro")
+      ).toBeTruthy();
       deps++;
     }
   }

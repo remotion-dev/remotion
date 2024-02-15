@@ -78,7 +78,7 @@ Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom
 _optional, boolean_
 If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
 
-If set to `false`(_default_), frames will be extracted as bitmap (BMP), which is faster.
+If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
 ### `volume`
 
@@ -121,6 +121,12 @@ export const MyComposition = () => {
 
 Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
 
 ### `toneFrequency`<AvailableFrom v="4.0.47"/>
 
@@ -174,7 +180,7 @@ export const MyComposition = () => {
 
 ### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42" />
 
-In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
 ### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17" />
 
@@ -188,6 +194,10 @@ Adjust the pitch of the audio - will only be applied during rendering.
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
+
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
 ### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
 
@@ -206,7 +216,11 @@ Only set `transparent` to `true` if you need transparency. It is slower than non
 
 ## Looping a video
 
-Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property. You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+
+You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+
+Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
 
 ```tsx twoslash title="LoopedOffthreadVideo.tsx"
 import { getVideoMetadata } from "@remotion/media-utils";

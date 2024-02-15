@@ -1,6 +1,7 @@
 import https from 'https';
 import http from 'node:http';
 import {redirectStatusCodes} from '../redirect-status-codes';
+import {truthy} from '../truthy';
 
 const getClient = (url: string) => {
 	if (url.startsWith('https://')) {
@@ -20,9 +21,18 @@ const readFileWithoutRedirect = (
 	url: string,
 ): Promise<http.IncomingMessage> => {
 	return new Promise<http.IncomingMessage>((resolve, reject) => {
-		getClient(url)(url, (res) => {
-			resolve(res);
-		}).on('error', (err) => {
+		getClient(url)(
+			url,
+			{
+				headers: {
+					'User-Agent':
+						'Mozilla/5.0 (@remotion/renderer - https://remotion.dev)',
+				},
+			},
+			(res) => {
+				resolve(res);
+			},
+		).on('error', (err) => {
 			return reject(err);
 		});
 	});
@@ -48,10 +58,51 @@ export const readFile = async (
 	}
 
 	if ((file.statusCode as number) >= 400) {
+		const body = await tryToObtainBody(file);
+
 		throw new Error(
-			`Received a status code of ${file.statusCode} while downloading file ${url}`,
+			[
+				`Received a status code of ${file.statusCode} while downloading file ${url}.`,
+				body ? `The response body was:` : null,
+				body ? `---` : null,
+				body ? body : null,
+				body ? `---` : null,
+			]
+				.filter(truthy)
+				.join('\n'),
 		);
 	}
 
 	return file;
+};
+
+const tryToObtainBody = async (file: http.IncomingMessage) => {
+	const success = new Promise<string>((resolve) => {
+		let data = '';
+		file.on('data', (chunk) => {
+			data += chunk;
+		});
+		file.on('end', () => {
+			resolve(data);
+		});
+		// OK even when getting an error, this is just a best effort
+		file.on('error', () => resolve(data));
+	});
+
+	let timeout: NodeJS.Timeout | null = null;
+
+	const body = await Promise.race<string | null>([
+		success,
+		new Promise<null>((resolve) => {
+			timeout = setTimeout(() => {
+				resolve(null);
+			}, 5000);
+		}),
+	]);
+
+	if (timeout) {
+		clearTimeout(timeout);
+	}
+
+	return body;
 };

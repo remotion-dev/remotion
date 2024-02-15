@@ -17,8 +17,10 @@ The `npx remotion lambda sites` command allows to create, view and delete Remoti
 ## create
 
 ```
-npx remotion lambda sites create src/index.ts
+npx remotion lambda sites create <entry-point>?
 ```
+
+You may pass an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 Bundle and upload a Remotion video to an S3 bucket.
 

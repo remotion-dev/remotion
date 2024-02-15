@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, lstatSync} from 'node:fs';
 import path from 'node:path';
@@ -21,15 +22,24 @@ const findCommonPath = (remotionRoot: string) => {
 	);
 };
 
+type FoundReason =
+	| 'argument passed - found in cwd'
+	| 'argument passed - found in root'
+	| 'argument passed'
+	| 'config file'
+	| 'common paths'
+	| 'none found';
+
 export const findEntryPoint = (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ): {
 	file: string | null;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
-	const result = findEntryPointInner(args, remotionRoot);
+	const result = findEntryPointInner(args, remotionRoot, logLevel);
 	if (result.file === null) {
 		return result;
 	}
@@ -56,15 +66,21 @@ export const findEntryPoint = (
 const findEntryPointInner = (
 	args: string[],
 	remotionRoot: string,
+	logLevel: LogLevel,
 ): {
 	file: string | null;
 	remainingArgs: string[];
-	reason: string;
+	reason: FoundReason;
 } => {
 	// 1st priority: Explicitly passed entry point
 	let file: string | null = args[0];
 	if (file) {
-		Log.verbose('Checking if', file, 'is the entry file');
+		Log.verbose(
+			{indent: false, logLevel},
+			'Checking if',
+			file,
+			'is the entry file',
+		);
 		const cwdResolution = path.resolve(process.cwd(), file);
 		const remotionRootResolution = path.resolve(remotionRoot, file);
 		// Checking if file was found in CWD
@@ -93,7 +109,11 @@ const findEntryPointInner = (
 	// 2nd priority: Config file
 	file = ConfigInternals.getEntryPoint();
 	if (file) {
-		Log.verbose('Entry point from config file is', file);
+		Log.verbose(
+			{indent: false, logLevel},
+			'Entry point from config file is',
+			file,
+		);
 
 		return {
 			file: path.resolve(remotionRoot, file),
@@ -108,6 +128,7 @@ const findEntryPointInner = (
 	if (found) {
 		const absolutePath = path.resolve(remotionRoot, found);
 		Log.verbose(
+			{indent: false, logLevel},
 			'Selected',
 			absolutePath,
 			'as the entry point because file exists and is a common entry point and no entry point was explicitly selected',

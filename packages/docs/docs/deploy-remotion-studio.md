@@ -3,10 +3,8 @@ image: /generated/articles-docs-deploy-remotion-studio.png
 id: deploy-studio
 title: Deploy the Remotion Studio
 sidebar_label: Deploy Remotion Studio
-crumb: "Building video apps"
+crumb: "Remotion Studio"
 ---
-
-import { YouTube } from "../components/YouTube";
 
 <YouTube
   minutes={3}
@@ -23,7 +21,7 @@ You can deploy the Remotion Studio to a long-running server in the cloud and mak
 - Run `npx remotion studio` on the server
 - Ensure port 3000 is available to the internet
 
-The following examples have been tested with the [Hello World](/templates/hello-world) template initialized using `npm init video`.
+The following examples have been tested with the [Hello World](/templates/hello-world) template initialized using `npx create-video@latest`.
 
 ## Dockerizing the Remotion Studio
 
@@ -90,6 +88,21 @@ To deploy the Remotion Studio to [Render.com](https://render.com):
 - Create a new "Web Service" and link your repository.
 - Choose at least the "Standard" plan (2GB Memory).
 - Deploy!
+
+## Railway
+
+Railway scales up/down with resource usage. So if the app isn't used it'll be cheap, or even free.
+
+- Add the above `Dockerfile` to the repo.
+- Click "New project" in the Railway dashboard
+- Select "Deploy from GitHub repo"
+- Select "Deploy now"
+
+If you want a public URL:
+
+- Go to the settings for your service
+- Scroll to "Networking"
+- Click "Generate Domain"
 
 ## DigitalOcean App Platform
 

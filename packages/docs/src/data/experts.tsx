@@ -217,7 +217,7 @@ export const experts: Expert[] = [
     x: null,
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
-    email: "m.mcgillivray@outlook.com",
+    email: "mm@mattm9y.com",
     videocall: "remotion-expert-matt-mcgillivray",
     since: new Date("2023-01-30").getTime(),
     description: (

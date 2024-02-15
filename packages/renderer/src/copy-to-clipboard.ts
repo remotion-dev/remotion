@@ -12,6 +12,6 @@ export const copyImageToClipboard = async (src: string, logLevel: LogLevel) => {
 		src,
 	});
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 };

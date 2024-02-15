@@ -47,3 +47,4 @@ execSync(
 );
 
 await import('./testlambdaintegrations.mjs');
+await import('./testlambdaperformance.mjs');

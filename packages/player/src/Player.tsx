@@ -16,15 +16,14 @@ import type {
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
-import {PlayerEventEmitterContext} from './emitter-context.js';
-import {PlayerEmitter} from './event-emitter.js';
+import {PlayerEmitterProvider} from './EmitterProvider.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
-import type {RenderLoading, RenderPoster} from './PlayerUI.js';
+import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
@@ -65,6 +64,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
 	showPosterWhenUnplayed?: boolean;
+	showPosterWhenBuffering?: boolean;
 	inFrame?: number | null;
 	outFrame?: number | null;
 	initiallyShowControls?: number | boolean;
@@ -74,6 +74,8 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	schema?: Schema;
 	initiallyMuted?: boolean;
 	showPlaybackRateControl?: boolean | number[];
+	posterFillMode?: PosterFillMode;
+	bufferStateDelayInMilliseconds?: number;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -112,6 +114,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		showPosterWhenBuffering,
 		initialFrame,
 		renderPoster,
 		inFrame,
@@ -122,6 +125,8 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		alwaysShowControls = false,
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
+		posterFillMode = 'player-size',
+		bufferStateDelayInMilliseconds,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -168,7 +173,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	}));
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
-	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
@@ -284,10 +288,6 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	validatePlaybackRate(currentPlaybackRate);
 
 	useEffect(() => {
-		emitter.dispatchRateChange(currentPlaybackRate);
-	}, [emitter, currentPlaybackRate]);
-
-	useEffect(() => {
 		setCurrentPlaybackRate(playbackRate);
 	}, [playbackRate]);
 
@@ -341,9 +341,10 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
 				>
-					<PlayerEventEmitterContext.Provider value={emitter}>
+					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
 						<PlayerUI
 							ref={rootRef}
+							posterFillMode={posterFillMode}
 							renderLoading={renderLoading}
 							autoPlay={Boolean(autoPlay)}
 							loop={Boolean(loop)}
@@ -366,6 +367,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+							showPosterWhenBuffering={Boolean(showPosterWhenBuffering)}
 							renderPoster={renderPoster}
 							inFrame={inFrame ?? null}
 							outFrame={outFrame ?? null}
@@ -374,8 +376,11 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
+							bufferStateDelayInMilliseconds={
+								bufferStateDelayInMilliseconds ?? 300
+							}
 						/>
-					</PlayerEventEmitterContext.Provider>
+					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>

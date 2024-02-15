@@ -138,13 +138,18 @@ export const downloadFile = async (
 		const {message} = err as Error;
 		if (
 			message === 'aborted' ||
-			message.includes(incorrectContentLengthToken)
+			message.includes(incorrectContentLengthToken) ||
+			// Try again if hitting internal errors
+			message.includes('503') ||
+			message.includes('502') ||
+			message.includes('504') ||
+			message.includes('500')
 		) {
 			if (retries === 0) {
 				throw err;
 			}
 
-			Log.warnAdvanced(
+			Log.warn(
 				{indent: options.indent, logLevel: options.logLevel},
 				`Downloading ${options.url} failed (will retry): ${message}`,
 			);

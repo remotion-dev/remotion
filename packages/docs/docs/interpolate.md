@@ -5,8 +5,6 @@ id: interpolate
 crumb: "API"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={6}
   href="https://www.youtube.com/watch?v=sff_CdWw_-c"
@@ -48,7 +46,7 @@ const opacity = interpolate(
   frame,
   [0, 20, durationInFrames - 20, durationInFrames],
   // v--v---v----------------------v
-  [0, 1, 1, 0]
+  [0, 1, 1, 0],
 );
 ```
 

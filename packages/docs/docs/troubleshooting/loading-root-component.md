@@ -11,7 +11,7 @@ If you get an error message:
 A delayRender() "Loading root component" was called but not cleared after 28000ms
 ```
 
-You have specified an [entry point](/docs/terminology#entry-point) that does not call [`registerRoot()`](/docs/register-root).
+You have specified an [entry point](/docs/terminology/entry-point) that does not call [`registerRoot()`](/docs/register-root).
 
 In most of the templates, the entry point is `src/index.ts`.
 
@@ -26,7 +26,7 @@ In the CLI, the entry point is passed as an argument to the render command:
 npx remotion render [entry-point]
 ```
 
-In the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) Node.JS apis, you pass the entry point via the [`entryPoint`](/docs/terminology#entry-point) property.
+In the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) Node.JS apis, you pass the entry point via the [`entryPoint`](/docs/terminology/entry-point) property.
 
 ## See also
 

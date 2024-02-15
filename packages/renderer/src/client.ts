@@ -3,6 +3,7 @@ import {
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './audio-codec';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -14,14 +15,23 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
+import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
+import {logLevels} from './log-level';
 import {allOptions} from './options';
 import {validColorSpaces} from './options/color-space';
+import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
-import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validPixelFormats,
+	validPixelFormatsForCodec,
+} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 import {x264PresetOptions} from './x264-preset';
+
+export {AvailableOptions} from './options';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -33,7 +43,12 @@ export const BrowserSafeApis = {
 	proResProfileOptions,
 	x264PresetOptions,
 	validPixelFormats,
+	validOpenGlRenderers,
+	validPixelFormatsForCodec,
+	validVideoImageFormats,
+	validStillImageFormats,
 	DEFAULT_PIXEL_FORMAT,
+	DEFAULT_TIMEOUT,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,
@@ -44,4 +59,5 @@ export const BrowserSafeApis = {
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
+	logLevels,
 };

@@ -1,3 +1,10 @@
+import type {GitSource} from '@remotion/studio-shared';
+import {
+	DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
+	DEFAULT_TIMELINE_TRACKS,
+	getProjectName,
+	SOURCE_MAP_ENDPOINT,
+} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -56,14 +63,18 @@ export const getConfig = ({
 	resolvedRemotionRoot,
 	onProgress,
 	options,
+	bufferStateDelayInMilliseconds,
+	maxTimelineTracks,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
+	bufferStateDelayInMilliseconds: number | null;
+	maxTimelineTracks: number | null;
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = require.resolve('./renderEntry');
+	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
 
 	return webpackConfig({
 		entry,
@@ -73,10 +84,10 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 90,
-		entryPoints: [],
+		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: false,
+		keyboardShortcutsEnabled: true,
+		bufferStateDelayInMilliseconds,
 		poll: null,
 	});
 };
@@ -86,6 +97,9 @@ export type BundleOptions = {
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
 	onDirectoryCreated?: (dir: string) => void;
+	gitSource?: GitSource | null;
+	maxTimelineTracks?: number;
+	bufferStateDelayInMilliseconds?: number;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -119,19 +133,26 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 
 const recursionLimit = 5;
 
-const findClosestPackageJsonFolder = (currentDir: string): string | null => {
-	let possiblePackageJson = '';
+export const findClosestFolderWithItem = (
+	currentDir: string,
+	file: string,
+): string | null => {
+	let possibleFile = '';
 	for (let i = 0; i < recursionLimit; i++) {
-		possiblePackageJson = path.join(currentDir, 'package.json');
-		const exists = fs.existsSync(possiblePackageJson);
+		possibleFile = path.join(currentDir, file);
+		const exists = fs.existsSync(possibleFile);
 		if (exists) {
-			return path.dirname(possiblePackageJson);
+			return path.dirname(possibleFile);
 		}
 
 		currentDir = path.dirname(currentDir);
 	}
 
 	return null;
+};
+
+const findClosestPackageJsonFolder = (currentDir: string): string | null => {
+	return findClosestFolderWithItem(currentDir, 'package.json');
 };
 
 const validateEntryPoint = async (entryPoint: string) => {
@@ -182,6 +203,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 		resolvedRemotionRoot,
 		onProgress,
 		options,
+		bufferStateDelayInMilliseconds:
+			actualArgs.bufferStateDelayInMilliseconds ??
+			DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
+		maxTimelineTracks: actualArgs.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 	});
 
 	const output = await promisified([config]);
@@ -252,7 +277,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 			folder: '.',
 			startPath: from,
 			staticHash,
-			limit: 1000,
+			limit: 10000,
 		}).map((f) => {
 			return {
 				...f,
@@ -262,13 +287,23 @@ export async function bundle(...args: Arguments): Promise<string> {
 		includeFavicon: false,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
-		publicFolderExists: baseDir + '/public',
+		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
+		gitSource: actualArgs.gitSource ?? null,
+		projectName: getProjectName({
+			gitSource: actualArgs.gitSource ?? null,
+			resolvedRemotionRoot,
+			basename: path.basename,
+		}),
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 	fs.copyFileSync(
 		path.join(__dirname, '../favicon.ico'),
 		path.join(outDir, 'favicon.ico'),
+	);
+	fs.copyFileSync(
+		path.resolve(require.resolve('source-map'), '..', 'lib', 'mappings.wasm'),
+		path.join(outDir, SOURCE_MAP_ENDPOINT.replace('/', '')),
 	);
 	return outDir;
 }

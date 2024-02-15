@@ -108,6 +108,12 @@ export const MyVideo = () => {
 };
 ```
 
+### `name`<AvailableFrom v="4.0.71"/>
+
+_optional_
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
 ### `loop`<AvailableFrom v="3.2.29"/>
 
 You can use the `loop` prop to loop audio.
@@ -135,12 +141,16 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 ### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
-In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
 ### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.
 In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
+
+If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
 ## See also
 

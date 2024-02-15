@@ -63,6 +63,19 @@ The speed of the animation. A higher number is faster. Default: `1`.
 
 CSS properties to be applied to the `<div>` that contains the animation.
 
+### `renderer`<AvailableFrom v="4.0.105" />
+
+_"svg"_ | _"canvas"_ | _"html"_
+
+Set the renderer for the Lottie files. Default `svg`. See: [`renderer` option](https://github.com/airbnb/lottie-web/wiki/Usage#getting-started), [Supported Features](https://github.com/airbnb/lottie-web/wiki/Features)
+
+### `preserveAspectRatio`<AvailableFrom v="4.0.105" />
+
+_optional, string_
+
+Set how aspect ratios should be handled in the Lottie file.
+See [`preserveAspectRatio`](https://github.com/airbnb/lottie-web/wiki/Renderer-Settings#preserveaspectratio)
+
 ### `onAnimationLoaded`<AvailableFrom v="3.2.29" />
 
 _optional_

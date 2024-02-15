@@ -260,7 +260,7 @@ dependencies = [
 [[package]]
 name = "ffmpeg-next"
 version = "6.0.0"
-source = "git+https://github.com/remotion-dev/rust-ffmpeg?rev=ebddf9713f988a21e9f12d62c1878bd06ebaf1a0#ebddf9713f988a21e9f12d62c1878bd06ebaf1a0"
+source = "git+https://github.com/remotion-dev/rust-ffmpeg?rev=d3e283e24bfeff3836bc2a51fb2328bc45a56092#d3e283e24bfeff3836bc2a51fb2328bc45a56092"
 dependencies = [
  "bitflags",
  "ffmpeg-sys-next",
@@ -270,7 +270,7 @@ dependencies = [
 [[package]]
 name = "ffmpeg-sys-next"
 version = "6.0.1"
-source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=77ed909d917cc3b2fdc2ef0cf48ee12d6eaad8bd#77ed909d917cc3b2fdc2ef0cf48ee12d6eaad8bd"
+source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=1e2fb2ac8dd46337ef6219f3a22509edd8812353#1e2fb2ac8dd46337ef6219f3a22509edd8812353"
 dependencies = [
  "bindgen",
  "cc",
@@ -890,9 +890,9 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "1.1.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
+checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "smallvec"

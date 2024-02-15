@@ -15,6 +15,9 @@ import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
 type ResolveCompositionConfigContect = Record<
@@ -274,6 +277,25 @@ export const useResolvedVideoConfig = (
 		}
 
 		if (!needsResolution(composition)) {
+			validateDurationInFrames(composition.durationInFrames, {
+				allowFloats: false,
+				component: `in <Composition id="${composition.id}">`,
+			});
+			validateFps(
+				composition.fps,
+				`in <Composition id="${composition.id}">`,
+				false,
+			);
+			validateDimension(
+				composition.width,
+				'width',
+				`in <Composition id="${composition.id}">`,
+			);
+			validateDimension(
+				composition.height,
+				'height',
+				`in <Composition id="${composition.id}">`,
+			);
 			return {
 				type: 'success',
 				result: {

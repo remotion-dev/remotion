@@ -3,7 +3,7 @@ import lottie from 'lottie-web';
 import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import type {LottieProps} from './types';
-import {getNextFrame} from './utils';
+import {getLottieFrame} from './utils';
 import {validateLoop} from './validate-loop';
 import {validatePlaybackRate} from './validate-playbackrate';
 
@@ -19,6 +19,8 @@ export const Lottie = ({
 	playbackRate,
 	style,
 	onAnimationLoaded,
+	renderer,
+	preserveAspectRatio,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
@@ -51,6 +53,10 @@ export const Lottie = ({
 			container: containerRef.current,
 			autoplay: false,
 			animationData,
+			renderer: renderer ?? 'svg',
+			rendererSettings: {
+				preserveAspectRatio: preserveAspectRatio ?? undefined,
+			},
 		});
 
 		const {current: animation} = animationRef;
@@ -59,11 +65,14 @@ export const Lottie = ({
 			// See LottieInitializationBugfix composition in the example project for a repro.
 			// We can work around it by seeking twice, initially.
 			if (currentFrameRef.current) {
-				animationRef.current?.goToAndStop(
-					Math.max(0, currentFrameRef.current - 1),
-					true,
-				);
-				animationRef.current?.goToAndStop(currentFrameRef.current, true);
+				const frameToSet = getLottieFrame({
+					currentFrame: currentFrameRef.current * (playbackRate ?? 1),
+					direction,
+					loop,
+					totalFrames: animation.totalFrames,
+				});
+				animationRef.current?.goToAndStop(Math.max(0, frameToSet - 1), true);
+				animationRef.current?.goToAndStop(frameToSet, true);
 			}
 
 			continueRender(handle);
@@ -77,7 +86,7 @@ export const Lottie = ({
 			animation.removeEventListener('DOMLoaded', onComplete);
 			animation.destroy();
 		};
-	}, [animationData, handle]);
+	}, [animationData, direction, handle, loop, playbackRate]);
 
 	useEffect(() => {
 		if (animationRef.current && direction) {
@@ -97,14 +106,14 @@ export const Lottie = ({
 		}
 
 		const {totalFrames} = animationRef.current;
-		const nextFrame = getNextFrame({
+		const frameToSet = getLottieFrame({
 			currentFrame: frame * (playbackRate ?? 1),
 			direction,
 			loop,
 			totalFrames,
 		});
 
-		animationRef.current.goToAndStop(nextFrame, true);
+		animationRef.current.goToAndStop(frameToSet, true);
 		const images = containerRef.current?.querySelectorAll(
 			'image',
 		) as NodeListOf<SVGImageElement>;

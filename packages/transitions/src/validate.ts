@@ -1,5 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import { Internals } from "remotion";
+import {NoReactInternals} from 'remotion/no-react';
 
-export const validateDurationInFrames: typeof Internals.validateDurationInFrames =
-  Internals.validateDurationInFrames;
+export const validateDurationInFrames: typeof NoReactInternals.validateDurationInFrames =
+	NoReactInternals.validateDurationInFrames;

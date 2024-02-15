@@ -8,11 +8,11 @@ import {
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
+import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
@@ -45,7 +45,6 @@ import {
 	validVideoImageFormats,
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
-import {isIpV6Supported} from './is-ipv6-supported';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -60,6 +59,7 @@ import {
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {getPortConfig, isIpV6Supported} from './port-config';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderFrames} from './render-frames';
 import {internalRenderMedia} from './render-media';
@@ -98,6 +98,7 @@ export {
 	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
+export {LogOptions} from './logger';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
@@ -130,6 +131,7 @@ export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
 export {X264Preset} from './x264-preset';
 
+import {makeDownloadMap} from './assets/download-map';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -194,7 +196,6 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -219,7 +220,9 @@ export const RenderInternals = {
 	copyImageToClipboard,
 	isIpV6Supported,
 	getChromiumGpuInformation,
+	getPortConfig,
+	makeDownloadMap,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-checkNodeVersionAndWarnAboutRosetta();
+checkNodeVersionAndWarnAboutRosetta('info', false);

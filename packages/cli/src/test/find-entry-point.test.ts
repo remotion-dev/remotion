@@ -6,6 +6,7 @@ test('Should accept URL as entry point', () => {
 	const entryPoint = findEntryPoint(
 		['https://www.example.com'],
 		path.resolve(process.cwd(), '..', 'example'),
+		'info',
 	);
 
 	expect(entryPoint.file).toBe('https://www.example.com');
@@ -17,6 +18,7 @@ test('Should find entry point automatically', () => {
 	const entryPoint = findEntryPoint(
 		[],
 		path.resolve(process.cwd(), '..', 'example'),
+		'info',
 	);
 
 	expect(entryPoint.file).toBe(
@@ -30,6 +32,7 @@ test('Should use explicit entry point', () => {
 	const entryPoint = findEntryPoint(
 		['src/ts-entry.tsx'],
 		path.resolve(process.cwd(), '..', 'example'),
+		'info',
 	);
 
 	expect(entryPoint.file).toBe(

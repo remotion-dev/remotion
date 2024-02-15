@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -36,7 +37,10 @@ import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaDeleteFile, lambdaWriteFile} from './helpers/io';
 import type {OnAllChunksAvailable} from './helpers/merge-chunks';
@@ -97,13 +101,11 @@ const innerLaunchHandler = async ({
 	params,
 	options,
 	onAllChunksAvailable,
-	verbose,
 }: {
 	functionName: string;
 	params: LambdaPayload;
 	options: Options;
 	onAllChunksAvailable: OnAllChunksAvailable;
-	verbose: boolean;
 }): Promise<PostRenderData> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -125,15 +127,27 @@ const innerLaunchHandler = async ({
 		propsType: 'input-props',
 	});
 
+	const logOptions: LogOptions = {
+		indent: false,
+		logLevel: params.logLevel,
+	};
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
-	RenderInternals.Log.info(
+
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
+		'Waiting for browser to be ready:',
+		serializedInputPropsWithCustomSchema,
+	);
+	const {instance} = await browserInstance;
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		'Validating composition, input props:',
 		serializedInputPropsWithCustomSchema,
 	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance: (await browserInstance).instance,
+		browserInstance: instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -145,7 +159,11 @@ const innerLaunchHandler = async ({
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 	});
-	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
+		'Composition validated, resolved props',
+		comp.props,
+	);
 
 	validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
@@ -253,6 +271,8 @@ const innerLaunchHandler = async ({
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			encodingMaxRate: params.encodingMaxRate,
+			encodingBufferSize: params.encodingBufferSize,
 			launchFunctionConfig: {
 				version: VERSION,
 			},
@@ -264,7 +284,8 @@ const innerLaunchHandler = async ({
 		return payload;
 	});
 
-	RenderInternals.Log.info(
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		'Render plan: ',
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
@@ -355,7 +376,6 @@ const innerLaunchHandler = async ({
 	);
 
 	reqSend.end();
-	(await browserInstance).instance.forgetEventLoop();
 
 	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
@@ -375,7 +395,6 @@ const innerLaunchHandler = async ({
 		renderBucketName,
 		inputProps: params.inputProps,
 		serializedResolvedProps,
-		verbose,
 		renderMetadata,
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
@@ -406,17 +425,21 @@ export const launchHandler = async (
 		params.rendererFunctionName ??
 		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		params.logLevel,
-		'verbose',
-	);
+	const logOptions: LogOptions = {
+		indent: false,
+		logLevel: params.logLevel,
+	};
 
 	const onTimeout = async () => {
 		if (allChunksAvailable) {
-			RenderInternals.Log.info(
+			RenderInternals.Log.infoAdvanced(
+				logOptions,
 				'All chunks are available, but the function is about to time out.',
 			);
-			RenderInternals.Log.info('Spawning another function to merge chunks.');
+			RenderInternals.Log.infoAdvanced(
+				logOptions,
+				'Spawning another function to merge chunks.',
+			);
 
 			try {
 				await callFunctionWithRetry({
@@ -425,7 +448,6 @@ export const launchHandler = async (
 						type: LambdaRoutines.merge,
 						renderId: params.renderId,
 						bucketName: params.bucketName,
-						verbose,
 						outName: params.outName,
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
@@ -433,10 +455,12 @@ export const launchHandler = async (
 					},
 					retries: 2,
 				});
-				RenderInternals.Log.info(
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
 					`New function successfully invoked. See the CloudWatch logs for it:`,
 				);
-				RenderInternals.Log.info(
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
 					getCloudwatchMethodUrl({
 						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 						method: LambdaRoutines.merge,
@@ -445,7 +469,10 @@ export const launchHandler = async (
 						renderId: params.renderId,
 					}),
 				);
-				RenderInternals.Log.info('This function will now time out.');
+				RenderInternals.Log.infoAdvanced(
+					logOptions,
+					'This function will now time out.',
+				);
 			} catch (err) {
 				if (process.env.NODE_ENV === 'test') {
 					throw err;
@@ -533,7 +560,8 @@ export const launchHandler = async (
 		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
 	);
 
-	RenderInternals.Log.info(
+	RenderInternals.Log.infoAdvanced(
+		logOptions,
 		`Function has ${Math.max(
 			options.getRemainingTimeInMillis() - 1000,
 			1000,
@@ -548,7 +576,6 @@ export const launchHandler = async (
 			onAllChunksAvailable: ({inputProps, serializedResolvedProps}) => {
 				allChunksAvailable = {inputProps, serializedResolvedProps};
 			},
-			verbose,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -632,6 +659,7 @@ export const launchHandler = async (
 		});
 		RenderInternals.Log.error('Wrote error to S3');
 		clearTimeout(webhookDueToTimeout);
+
 		if (params.webhook && !webhookInvoked) {
 			try {
 				await invokeWebhook({
@@ -680,5 +708,7 @@ export const launchHandler = async (
 		}
 
 		throw err;
+	} finally {
+		forgetBrowserEventLoop(params.logLevel);
 	}
 };

@@ -41,7 +41,7 @@ This example uses [`@aws-sdk/s3-request-presigner`](https://github.com/aws/aws-s
 
 ```tsx twoslash title="api/generate-presigned-url.ts"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { AwsRegion, getAwsClient } from "@remotion/lambda";
+import { AwsRegion, getAwsClient } from "@remotion/lambda/client";
 import { v4 } from "uuid";
 
 export const generatePresignedUrl = async (
@@ -49,11 +49,11 @@ export const generatePresignedUrl = async (
   contentLength: number,
   expiresIn: number,
   bucketName: string,
-  region: AwsRegion
+  region: AwsRegion,
 ): Promise<{ presignedUrl: string; readUrl: string }> => {
   if (contentLength > 1024 * 1024 * 200) {
     throw new Error(
-      `File may not be over 200MB. Yours is ${contentLength} bytes.`
+      `File may not be over 200MB. Yours is ${contentLength} bytes.`,
     );
   }
 

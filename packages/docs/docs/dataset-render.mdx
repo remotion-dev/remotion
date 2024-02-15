@@ -90,11 +90,11 @@ import {
   useVideoConfig,
 } from "remotion";
 
-interface Props {
+type Props = {
   name: string;
   logo: string;
   repo: string;
-}
+};
 
 export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
   const frame = useCurrentFrame();
@@ -201,7 +201,7 @@ const bundleLocation = await bundle({
 
 Import the dataset and loop over each entry.
 
-Fetch the composition metadata for each render using [`selectComposition()`](/docs/renderer/select-composition). You have the opportunity to parametrize the duration, width and height of the composition based on the data entry with the [`calculateMetadata()`](http://localhost:3000/docs/calculate-metadata) function.
+Fetch the composition metadata for each render using [`selectComposition()`](/docs/renderer/select-composition). You have the opportunity to parametrize the duration, width and height of the composition based on the data entry with the [`calculateMetadata()`](/docs/dynamic-metadata) function.
 
 Trigger a render using [`renderMedia()`](/docs/renderer/render-media) and pass the data entry as [`inputProps`](/docs/renderer/render-media#inputprops). This will pass the object as React props to the component above.
 

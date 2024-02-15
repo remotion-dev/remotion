@@ -1,5 +1,6 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -32,15 +33,23 @@ const waitForLaunched = () => {
 		const check = () =>
 			setTimeout(() => {
 				if (launching) {
-					resolve();
-				} else {
 					check();
+				} else {
+					resolve();
 				}
 			}, 16);
 
 		setTimeout(() => reject(new Error('Timeout launching browser')), 5000);
 		check();
 	});
+};
+
+export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
+	RenderInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		'Keeping browser open for next invocation',
+	);
+	_browserInstance?.instance.forgetEventLoop();
 };
 
 export const getBrowserInstance = async (
@@ -53,6 +62,11 @@ export const getBrowserInstance = async (
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
 	};
+	const configurationString = makeConfigurationString(
+		actualChromiumOptions,
+		logLevel,
+	);
+	RenderInternals.Log.info(`Rendering with Remotion v${VERSION}.`);
 
 	if (launching) {
 		RenderInternals.Log.info('Already waiting for browser launch...');
@@ -62,14 +76,9 @@ export const getBrowserInstance = async (
 		}
 	}
 
-	const configurationString = makeConfigurationString(
-		actualChromiumOptions,
-		logLevel,
-	);
-
 	if (!_browserInstance) {
 		RenderInternals.Log.info(
-			'Cold Lambda function, launching new Lambda function',
+			'Cold Lambda function, launching new browser instance',
 		);
 		launching = true;
 
@@ -85,10 +94,11 @@ export const getBrowserInstance = async (
 			logLevel,
 		});
 		instance.on('disconnected', () => {
-			console.log('Browser disconnected / crashed');
-			_browserInstance?.instance
-				?.close(true, logLevel, indent)
-				.catch(() => undefined);
+			RenderInternals.Log.info('Browser disconnected or crashed.');
+			forgetBrowserEventLoop(logLevel);
+			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
+				RenderInternals.Log.info('Could not close browser instance', err);
+			});
 			_browserInstance = null;
 		});
 		_browserInstance = {

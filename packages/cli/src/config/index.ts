@@ -25,7 +25,6 @@ import {
 import {getShouldOutputImageSequence} from './image-sequence';
 import {getJpegQuality} from './jpeg-quality';
 import * as Logging from './log';
-import {getMaxTimelineTracks} from './max-timeline-tracks';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -33,7 +32,11 @@ import {
 } from './override-webpack';
 import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
-import {getServerPort} from './preview-server';
+import {
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
+	getStudioPort,
+} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getScale} from './scale';
@@ -52,14 +55,24 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
+import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
 	getAudioBitrate,
+	getEncodingBufferSize,
+	getEncodingMaxRate,
 	getVideoBitrate,
 	setAudioBitrate,
+	setEncodingBufferSize,
+	setEncodingMaxRate,
 	setVideoBitrate,
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
+import {
+	getBufferStateDelayInMilliseconds,
+	setBufferStateDelayInMilliseconds,
+} from './buffer-state-delay-in-milliseconds';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
@@ -91,7 +104,6 @@ import {
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
 import {setLogLevel} from './log';
-import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
@@ -106,9 +118,10 @@ import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
-import {setPort} from './preview-server';
+import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
+import {getRepro, setRepro} from './repro';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
@@ -136,11 +149,24 @@ declare global {
 		 */
 		readonly setCachingEnabled: (flag: boolean) => void;
 		/**
-		 * Define on which port Remotion should start it's HTTP servers.
+		 * @deprecated
+		 * Use `setStudioPort()` and `setRendererPort()` instead.
+		 */
+		readonly setPort: (port: number | undefined) => void;
+
+		/**
+		 * Set the HTTP port used by the Studio.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
-		readonly setPort: (port: number | undefined) => void;
+		readonly setStudioPort: (port: number | undefined) => void;
+
+		/**
+		 * Set the HTTP port used to host the Webpack bundle.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		readonly setRendererPort: (port: number | undefined) => void;
 		/**
 		 * Define the location of the public/ directory.
 		 * By default it is a folder named "public" inside the current working directory.
@@ -412,6 +438,16 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
+		 * Set a maximum bitrate to be passed to FFmpeg.
+		 */
+		readonly setEncodingMaxRate: (bitrate: string | null) => void;
+
+		/**
+		 * Set a buffer size to be passed to FFmpeg.
+		 */
+		readonly setEncodingBufferSize: (bitrate: string | null) => void;
+
+		/**
 		 * Opt into bt709 rendering.
 		 */
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
@@ -425,6 +461,16 @@ declare global {
 		readonly setChromiumMultiProcessOnLinux: (
 			multiProcessOnLinux: boolean,
 		) => void;
+
+		/**
+		 * Whether the Remotion Studio should play a beep sound when a render has finished.
+		 */
+		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
+
+		/**
+		 * Collect information that you can submit to Remotion if asked for a reproduction.
+		 */
+		readonly setRepro: (enableRepro: boolean) => void;
 	}
 }
 
@@ -441,9 +487,13 @@ type FlatConfig = RemotionConfigObject &
 			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
 		) => void;
 		/**
-		 *
+		 * Set whether S3 buckets should be allowed to expire.
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
+		/**
+		 * Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state.
+		 */
+		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -501,14 +551,17 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
-	setMaxTimelineTracks,
+	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
+	setBufferStateDelayInMilliseconds,
 	overrideWebpackConfig,
 	setCachingEnabled: setWebpackCaching,
 	setPort,
+	setStudioPort,
+	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
 	setLevel: setLogLevel,
@@ -536,6 +589,8 @@ export const Config: FlatConfig = {
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
+	setEncodingMaxRate,
+	setEncodingBufferSize,
 	setFrameRange,
 	setScale,
 	setEveryNthFrame,
@@ -559,7 +614,9 @@ export const Config: FlatConfig = {
 	setOffthreadVideoCacheSizeInBytes,
 	setDeleteAfter,
 	setColorSpace,
+	setBeepOnFinish,
 	setEnableFolderExpiry,
+	setRepro,
 };
 
 export const ConfigInternals = {
@@ -572,7 +629,9 @@ export const ConfigInternals = {
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,
-	getServerPort,
+	getStudioPort,
+	getRendererPortFromConfigFile,
+	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
@@ -590,10 +649,12 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
+	getBeepOnFinish,
+	getRepro,
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
-	getMaxTimelineTracks,
+	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,
@@ -604,6 +665,8 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getEncodingBufferSize,
+	getEncodingMaxRate,
 	getHeight,
 	getWidth,
 	getCrfOrUndefined,
@@ -617,4 +680,5 @@ export const ConfigInternals = {
 	getColorSpace,
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
+	getBufferStateDelayInMilliseconds,
 };

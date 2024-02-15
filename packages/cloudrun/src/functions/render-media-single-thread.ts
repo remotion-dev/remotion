@@ -2,7 +2,8 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -17,6 +18,18 @@ export const renderMediaSingleThread = async (
 ) => {
 	if (body.type !== 'media') {
 		throw new Error('expected type media');
+	}
+
+	if (body.clientVersion !== VERSION) {
+		if (!body.clientVersion) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnCloudRun(), you called a service which has the version ${VERSION} but the @remotion/cloudrun package is an older version. Deploy a new service with matchin version and use it to call renderMediaOnCloudRun().`,
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+		);
 	}
 
 	const renderId = randomHash({randomInTests: true});
@@ -57,18 +70,22 @@ export const renderMediaSingleThread = async (
 			outputLocation: tempFilePath,
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
-			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
-				data: composition.props,
-				indent: undefined,
-				staticBase: null,
-			}).serializedString,
-			jpegQuality: body.jpegQuality,
+			serializedResolvedPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					data: composition.props,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
+			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			audioCodec: body.audioCodec,
 			audioBitrate: body.audioBitrate,
 			videoBitrate: body.videoBitrate,
+			encodingMaxRate: body.encodingMaxRate,
+			encodingBufferSize: body.encodingBufferSize,
 			crf: body.crf,
-			pixelFormat: body.pixelFormat,
-			imageFormat: body.imageFormat,
+			pixelFormat: body.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
+			imageFormat:
+				body.imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 			scale: body.scale,
 			proResProfile: body.proResProfile ?? undefined,
 			x264Preset: body.x264Preset ?? undefined,
@@ -81,9 +98,11 @@ export const renderMediaSingleThread = async (
 			muted: body.muted,
 			logLevel: body.logLevel,
 			browserExecutable: null,
-			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+			timeoutInMilliseconds:
+				body.delayRenderTimeoutInMilliseconds ??
+				RenderInternals.DEFAULT_TIMEOUT,
 			cancelSignal: undefined,
-			concurrency: body.concurrency ?? '100%',
+			concurrency: body.concurrency ?? null,
 			disallowParallelEncoding: false,
 			enforceAudioTrack: body.enforceAudioTrack,
 			ffmpegOverride: undefined,
@@ -99,6 +118,8 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			colorSpace: body.colorSpace,
+			repro: false,
+			finishRenderProgress: () => undefined,
 		});
 
 		const storage = new Storage();

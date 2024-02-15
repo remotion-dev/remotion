@@ -1,5 +1,7 @@
 <?php
 
+namespace Remotion\LambdaPhp;
+
 class GetRenderProgressResponse
 {
     public int $chunks;

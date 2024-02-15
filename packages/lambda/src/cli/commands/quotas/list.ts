@@ -4,6 +4,7 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 } from '@aws-sdk/client-service-quotas';
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {QUOTAS_COMMAND} from '.';
 import {
 	BINARY_NAME,
@@ -15,7 +16,7 @@ import {getAwsRegion} from '../../get-aws-region';
 import {Log} from '../../log';
 import {INCREASE_SUBCOMMAND} from './increase';
 
-export const quotasListCommand = async () => {
+export const quotasListCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	Log.info(CliInternals.chalk.gray(`Region = ${region}`));
 	Log.info();
@@ -72,9 +73,11 @@ export const quotasListCommand = async () => {
 
 	if (openCase) {
 		Log.warn(
+			{indent: false, logLevel},
 			`A request to increase it to ${openCase.DesiredValue} is pending:`,
 		);
 		Log.warn(
+			{indent: false, logLevel},
 			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
 		);
 	}
@@ -101,7 +104,7 @@ export const quotasListCommand = async () => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			'The maximum amount of Lambda functions that can spawn in a short amount of time',
+			'The maximum amount of concurrency increase in 10 seconds',
 		),
 	);
 };

@@ -10,7 +10,12 @@ export const guessExtensionForVideo = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 }) => {
-	const {stderr} = await callFf('ffprobe', [src], indent, logLevel);
+	const {stderr} = await callFf({
+		bin: 'ffprobe',
+		args: [src],
+		indent,
+		logLevel,
+	});
 	if (stderr.includes('Audio: mp3,')) {
 		return 'mp3';
 	}

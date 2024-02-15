@@ -25,7 +25,7 @@ const getSearchPathsForProduct = () => {
 			: null,
 		process.platform === 'win32'
 			? os.homedir() +
-			  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
+				'\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
 			: null,
 		process.platform === 'win32'
 			? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
@@ -35,7 +35,7 @@ const getSearchPathsForProduct = () => {
 			: null,
 		process.platform === 'win32'
 			? os.homedir() +
-			  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
+				'\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 			: null,
 	].filter(Boolean) as string[];
 };
@@ -104,7 +104,8 @@ export const ensureLocalBrowser = async ({
 }) => {
 	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
-		Log.info(
+		Log.infoAdvanced(
+			{indent, logLevel},
 			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/miscellaneous/thorium-browser',
 		);
 		await downloadBrowser({indent, logLevel});

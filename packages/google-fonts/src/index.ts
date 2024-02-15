@@ -39,6 +39,16 @@ export const getAvailableFonts = () => [
     load: () => import('./ABeeZee') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'ADLaM Display',
+    importName: 'ADLaMDisplay',
+    load: () => import('./ADLaMDisplay') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'AR One Sans',
+    importName: 'AROneSans',
+    load: () => import('./AROneSans') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Abel',
     importName: 'Abel',
     load: () => import('./Abel') as Promise<FontInfo>,
@@ -89,9 +99,24 @@ export const getAvailableFonts = () => [
     load: () => import('./AdventPro') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Agbalumo',
+    importName: 'Agbalumo',
+    load: () => import('./Agbalumo') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Agdasima',
+    importName: 'Agdasima',
+    load: () => import('./Agdasima') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Aguafina Script',
     importName: 'AguafinaScript',
     load: () => import('./AguafinaScript') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Akatab',
+    importName: 'Akatab',
+    load: () => import('./Akatab') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Akaya Kanadaka',
@@ -664,9 +689,19 @@ export const getAvailableFonts = () => [
     load: () => import('./Babylonica') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Bacasime Antique',
+    importName: 'BacasimeAntique',
+    load: () => import('./BacasimeAntique') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Bad Script',
     importName: 'BadScript',
     load: () => import('./BadScript') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Bagel Fat One',
+    importName: 'BagelFatOne',
+    load: () => import('./BagelFatOne') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Bahiana',
@@ -822,6 +857,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Bebas Neue',
     importName: 'BebasNeue',
     load: () => import('./BebasNeue') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Belanosima',
+    importName: 'Belanosima',
+    load: () => import('./Belanosima') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Belgrano',
@@ -1034,6 +1074,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Boogaloo') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Borel',
+    importName: 'Borel',
+    load: () => import('./Borel') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Bowlby One',
     importName: 'BowlbyOne',
     load: () => import('./BowlbyOne') as Promise<FontInfo>,
@@ -1057,6 +1102,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Bree Serif',
     importName: 'BreeSerif',
     load: () => import('./BreeSerif') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Bricolage Grotesque',
+    importName: 'BricolageGrotesque',
+    load: () => import('./BricolageGrotesque') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Bruno Ace',
@@ -1212,6 +1262,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Cantora One',
     importName: 'CantoraOne',
     load: () => import('./CantoraOne') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Caprasimo',
+    importName: 'Caprasimo',
+    load: () => import('./Caprasimo') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Capriola',
@@ -1439,11 +1494,6 @@ export const getAvailableFonts = () => [
     load: () => import('./Coda') as Promise<FontInfo>,
   },
   {
-    fontFamily: 'Coda Caption',
-    importName: 'CodaCaption',
-    load: () => import('./CodaCaption') as Promise<FontInfo>,
-  },
-  {
     fontFamily: 'Codystar',
     importName: 'Codystar',
     load: () => import('./Codystar') as Promise<FontInfo>,
@@ -1669,6 +1719,11 @@ export const getAvailableFonts = () => [
     load: () => import('./DMSerifText') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Dai Banna SIL',
+    importName: 'DaiBannaSIL',
+    load: () => import('./DaiBannaSIL') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Damion',
     importName: 'Damion',
     load: () => import('./Damion') as Promise<FontInfo>,
@@ -1762,6 +1817,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Didact Gothic',
     importName: 'DidactGothic',
     load: () => import('./DidactGothic') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Diphylleia',
+    importName: 'Diphylleia',
+    load: () => import('./Diphylleia') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Diplomata',
@@ -2284,6 +2344,11 @@ export const getAvailableFonts = () => [
     load: () => import('./GFSNeohellenic') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Gabarito',
+    importName: 'Gabarito',
+    load: () => import('./Gabarito') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Gabriela',
     importName: 'Gabriela',
     load: () => import('./Gabriela') as Promise<FontInfo>,
@@ -2327,6 +2392,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Gantari',
     importName: 'Gantari',
     load: () => import('./Gantari') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Gasoek One',
+    importName: 'GasoekOne',
+    load: () => import('./GasoekOne') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Gayathri',
@@ -2504,6 +2574,11 @@ export const getAvailableFonts = () => [
     load: () => import('./GrandHotel') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Grandiflora One',
+    importName: 'GrandifloraOne',
+    load: () => import('./GrandifloraOne') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Grandstander',
     importName: 'Grandstander',
     load: () => import('./Grandstander') as Promise<FontInfo>,
@@ -2617,6 +2692,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Hanalei Fill',
     importName: 'HanaleiFill',
     load: () => import('./HanaleiFill') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Handjet',
+    importName: 'Handjet',
+    load: () => import('./Handjet') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Handlee',
@@ -2864,6 +2944,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Imprima') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Inclusive Sans',
+    importName: 'InclusiveSans',
+    load: () => import('./InclusiveSans') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Inconsolata',
     importName: 'Inconsolata',
     load: () => import('./Inconsolata') as Promise<FontInfo>,
@@ -3074,6 +3159,11 @@ export const getAvailableFonts = () => [
     load: () => import('./K2D') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Kablammo',
+    importName: 'Kablammo',
+    load: () => import('./Kablammo') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Kadwa',
     importName: 'Kadwa',
     load: () => import('./Kadwa') as Promise<FontInfo>,
@@ -3152,6 +3242,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Kavoon',
     importName: 'Kavoon',
     load: () => import('./Kavoon') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Kay Pho Du',
+    importName: 'KayPhoDu',
+    load: () => import('./KayPhoDu') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Kdam Thmor Pro',
@@ -3544,6 +3639,16 @@ export const getAvailableFonts = () => [
     load: () => import('./LindenHill') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Linefont',
+    importName: 'Linefont',
+    load: () => import('./Linefont') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Lisu Bosa',
+    importName: 'LisuBosa',
+    load: () => import('./LisuBosa') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Literata',
     importName: 'Literata',
     load: () => import('./Literata') as Promise<FontInfo>,
@@ -3622,6 +3727,21 @@ export const getAvailableFonts = () => [
     fontFamily: 'Luckiest Guy',
     importName: 'LuckiestGuy',
     load: () => import('./LuckiestGuy') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Lugrasimo',
+    importName: 'Lugrasimo',
+    load: () => import('./Lugrasimo') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Lumanosimo',
+    importName: 'Lumanosimo',
+    load: () => import('./Lumanosimo') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Lunasima',
+    importName: 'Lunasima',
+    load: () => import('./Lunasima') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Lusitana',
@@ -3994,6 +4114,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Mohave') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Moirai One',
+    importName: 'MoiraiOne',
+    load: () => import('./MoiraiOne') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Molengo',
     importName: 'Molengo',
     load: () => import('./Molengo') as Promise<FontInfo>,
@@ -4067,6 +4192,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Moo Lah Lah',
     importName: 'MooLahLah',
     load: () => import('./MooLahLah') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Mooli',
+    importName: 'Mooli',
+    load: () => import('./Mooli') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Moon Dance',
@@ -4207,6 +4337,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Nanum Pen Script',
     importName: 'NanumPenScript',
     load: () => import('./NanumPenScript') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Narnoor',
+    importName: 'Narnoor',
+    load: () => import('./Narnoor') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Neonderthaw',
@@ -4464,6 +4599,11 @@ export const getAvailableFonts = () => [
     load: () => import('./NotoSansCypriot') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Noto Sans Cypro Minoan',
+    importName: 'NotoSansCyproMinoan',
+    load: () => import('./NotoSansCyproMinoan') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Noto Sans Deseret',
     importName: 'NotoSansDeseret',
     load: () => import('./NotoSansDeseret') as Promise<FontInfo>,
@@ -4607,6 +4747,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Sans Kannada',
     importName: 'NotoSansKannada',
     load: () => import('./NotoSansKannada') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Sans Kawi',
+    importName: 'NotoSansKawi',
+    load: () => import('./NotoSansKawi') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Sans Kayah Li',
@@ -4777,6 +4922,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Sans NKo',
     importName: 'NotoSansNKo',
     load: () => import('./NotoSansNKo') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Sans NKo Unjoined',
+    importName: 'NotoSansNKoUnjoined',
+    load: () => import('./NotoSansNKoUnjoined') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Sans Nabataean',
@@ -4994,6 +5144,11 @@ export const getAvailableFonts = () => [
     load: () => import('./NotoSansSyriac') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Noto Sans Syriac Eastern',
+    importName: 'NotoSansSyriacEastern',
+    load: () => import('./NotoSansSyriacEastern') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Noto Sans TC',
     importName: 'NotoSansTC',
     load: () => import('./NotoSansTC') as Promise<FontInfo>,
@@ -5082,6 +5237,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Sans Vai',
     importName: 'NotoSansVai',
     load: () => import('./NotoSansVai') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Sans Vithkuqi',
+    importName: 'NotoSansVithkuqi',
+    load: () => import('./NotoSansVithkuqi') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Sans Wancho',
@@ -5194,6 +5354,11 @@ export const getAvailableFonts = () => [
     load: () => import('./NotoSerifKannada') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Noto Serif Khitan Small Script',
+    importName: 'NotoSerifKhitanSmallScript',
+    load: () => import('./NotoSerifKhitanSmallScript') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Noto Serif Khmer',
     importName: 'NotoSerifKhmer',
     load: () => import('./NotoSerifKhmer') as Promise<FontInfo>,
@@ -5207,6 +5372,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Serif Lao',
     importName: 'NotoSerifLao',
     load: () => import('./NotoSerifLao') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Serif Makasar',
+    importName: 'NotoSerifMakasar',
+    load: () => import('./NotoSerifMakasar') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Serif Malayalam',
@@ -5224,9 +5394,19 @@ export const getAvailableFonts = () => [
     load: () => import('./NotoSerifNPHmong') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Noto Serif Old Uyghur',
+    importName: 'NotoSerifOldUyghur',
+    load: () => import('./NotoSerifOldUyghur') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Noto Serif Oriya',
     importName: 'NotoSerifOriya',
     load: () => import('./NotoSerifOriya') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Serif Ottoman Siyaq',
+    importName: 'NotoSerifOttomanSiyaq',
+    load: () => import('./NotoSerifOttomanSiyaq') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Serif SC',
@@ -5272,6 +5452,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Serif Toto',
     importName: 'NotoSerifToto',
     load: () => import('./NotoSerifToto') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Noto Serif Vithkuqi',
+    importName: 'NotoSerifVithkuqi',
+    load: () => import('./NotoSerifVithkuqi') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Noto Serif Yezidi',
@@ -5389,6 +5574,11 @@ export const getAvailableFonts = () => [
     load: () => import('./OleoScriptSwashCaps') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Onest',
+    importName: 'Onest',
+    load: () => import('./Onest') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Oooh Baby',
     importName: 'OoohBaby',
     load: () => import('./OoohBaby') as Promise<FontInfo>,
@@ -5402,6 +5592,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Oranienbaum',
     importName: 'Oranienbaum',
     load: () => import('./Oranienbaum') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Orbit',
+    importName: 'Orbit',
+    load: () => import('./Orbit') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Orbitron',
@@ -5674,6 +5869,11 @@ export const getAvailableFonts = () => [
     load: () => import('./PirataOne') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Pixelify Sans',
+    importName: 'PixelifySans',
+    load: () => import('./PixelifySans') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Plaster',
     importName: 'Plaster',
     load: () => import('./Plaster') as Promise<FontInfo>,
@@ -5702,6 +5902,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Playfair Display SC',
     importName: 'PlayfairDisplaySC',
     load: () => import('./PlayfairDisplaySC') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Playpen Sans',
+    importName: 'PlaypenSans',
+    load: () => import('./PlaypenSans') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Plus Jakarta Sans',
@@ -5892,6 +6097,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Qwitcher Grypen',
     importName: 'QwitcherGrypen',
     load: () => import('./QwitcherGrypen') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'REM',
+    importName: 'REM',
+    load: () => import('./REM') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Racing Sans One',
@@ -6324,6 +6534,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Ruthie') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Ruwudu',
+    importName: 'Ruwudu',
+    load: () => import('./Ruwudu') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Rye',
     importName: 'Rye',
     load: () => import('./Rye') as Promise<FontInfo>,
@@ -6739,6 +6954,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Solway') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Sometype Mono',
+    importName: 'SometypeMono',
+    load: () => import('./SometypeMono') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Song Myung',
     importName: 'SongMyung',
     load: () => import('./SongMyung') as Promise<FontInfo>,
@@ -6774,19 +6994,9 @@ export const getAvailableFonts = () => [
     load: () => import('./SourceSans3') as Promise<FontInfo>,
   },
   {
-    fontFamily: 'Source Sans Pro',
-    importName: 'SourceSansPro',
-    load: () => import('./SourceSansPro') as Promise<FontInfo>,
-  },
-  {
     fontFamily: 'Source Serif 4',
     importName: 'SourceSerif4',
     load: () => import('./SourceSerif4') as Promise<FontInfo>,
-  },
-  {
-    fontFamily: 'Source Serif Pro',
-    importName: 'SourceSerifPro',
-    load: () => import('./SourceSerifPro') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Space Grotesk',
@@ -7047,6 +7257,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Teko',
     importName: 'Teko',
     load: () => import('./Teko') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Tektur',
+    importName: 'Tektur',
+    load: () => import('./Tektur') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Telex',
@@ -7379,6 +7594,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Vibur') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Victor Mono',
+    importName: 'VictorMono',
+    load: () => import('./VictorMono') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Vidaloka',
     importName: 'Vidaloka',
     load: () => import('./Vidaloka') as Promise<FontInfo>,
@@ -7544,6 +7764,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Yomogi') as Promise<FontInfo>,
   },
   {
+    fontFamily: 'Young Serif',
+    importName: 'YoungSerif',
+    load: () => import('./YoungSerif') as Promise<FontInfo>,
+  },
+  {
     fontFamily: 'Yrsa',
     importName: 'Yrsa',
     load: () => import('./Yrsa') as Promise<FontInfo>,
@@ -7552,6 +7777,21 @@ export const getAvailableFonts = () => [
     fontFamily: 'Ysabeau',
     importName: 'Ysabeau',
     load: () => import('./Ysabeau') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Ysabeau Infant',
+    importName: 'YsabeauInfant',
+    load: () => import('./YsabeauInfant') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Ysabeau Office',
+    importName: 'YsabeauOffice',
+    load: () => import('./YsabeauOffice') as Promise<FontInfo>,
+  },
+  {
+    fontFamily: 'Ysabeau SC',
+    importName: 'YsabeauSC',
+    load: () => import('./YsabeauSC') as Promise<FontInfo>,
   },
   {
     fontFamily: 'Yuji Boku',

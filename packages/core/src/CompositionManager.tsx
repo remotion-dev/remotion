@@ -122,6 +122,7 @@ export type TSequence = {
 	showInTimeline: boolean;
 	nonce: number;
 	loopDisplay: LoopDisplay | undefined;
+	stack: string | null;
 } & EnhancedTSequenceData;
 
 export type TRenderAsset = {

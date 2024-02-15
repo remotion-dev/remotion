@@ -1,3 +1,5 @@
+import type {DeleteRenderInput} from './api/delete-render';
+import {deleteRender} from './api/delete-render';
 import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import {getFunctions} from './api/get-functions';
 import type {GetRenderProgressInput} from './api/get-render-progress';
@@ -27,6 +29,12 @@ import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 
 export {
+	getAwsClient,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+} from './api/get-aws-client';
+export {CustomCredentials} from './shared/aws-clients';
+export {
 	renderVideoOnLambda,
 	renderMediaOnLambda,
 	renderStillOnLambda,
@@ -38,6 +46,7 @@ export {
 	getSites,
 	speculateFunctionName,
 	DeleteAfter,
+	deleteRender,
 };
 export type {
 	AwsRegion,
@@ -50,4 +59,5 @@ export type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	GetRenderProgressInput,
+	DeleteRenderInput,
 };

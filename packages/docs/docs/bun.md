@@ -20,14 +20,14 @@ Note that by default, Node.js will continue to be used as the runtime.
 
 ## As a runtime
 
-As of Bun 1.0.3 and Remotion 4.0.43, the following issues are known:
+As of Bun 1.0.24 and Remotion 4.0.88, the following issues are known:
 
 - ⚠️ The `lazyComponent` prop on `<Composition>` and `<Player>` does not work, and this feature is automatically disabled.
 - ⚠️ A server-side rendering script may not quit automatically after it is done running.
 
 Feel free to file more issues with Remotion if you find them.
 
-Previous issues listed here have been resolved as of Bun 1.0.3.
+Previous issues listed here have been resolved as of Bun 1.0.24.
 
 ## For contributors
 

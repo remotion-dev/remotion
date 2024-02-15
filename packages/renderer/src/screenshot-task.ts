@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -66,16 +66,22 @@ export const screenshotTask = async ({
 								height: clipRegion.height,
 								scale: 1,
 								width: clipRegion.width,
-						  }
+							}
 						: {
 								x: 0,
 								y: 0,
 								height,
 								scale: 1,
 								width,
-						  },
+							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
+				// We find that there is a 0.1% framedrop when rendering under memory pressure
+				// which can be circumvented by disabling this option on Lambda.
+				// To be determined: Is this a problem with Lambda, or the Chrome version
+				// we are using on Lambda?
+				// We already found out that the problem is not a general Linux problem.
+				fromSurface: !process.env.DISABLE_FROM_SURFACE,
 			});
 			result = value;
 		}

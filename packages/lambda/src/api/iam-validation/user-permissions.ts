@@ -89,6 +89,9 @@ export const requiredPermissions: {
 	{
 		id: 'FetchBinaries',
 		actions: [lambda.GetLayerVersion],
-		resource: [REMOTION_HOSTED_LAYER_ARN],
+		resource: [
+			REMOTION_HOSTED_LAYER_ARN,
+			'arn:aws:lambda:*:580247275435:layer:LambdaInsightsExtension*',
+		],
 	},
 ];

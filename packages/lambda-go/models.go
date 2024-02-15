@@ -29,6 +29,8 @@ type RemotionOptions struct {
 	Overwrite                      bool                   `json:"overwrite"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
+	EncodingBufferSize             interface{}            `json:"encodingBufferSize"`
+	EncodingMaxRate                interface{}            `json:"encodingMaxRate"`
 	Webhook                        interface{}            `json:"webhook"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
@@ -71,6 +73,8 @@ type renderInternalOptions struct {
 	Overwrite                      bool                   `json:"overwrite"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
+	EncodingBufferSize             interface{}            `json:"encodingBufferSize"`
+	EncodingMaxRate                interface{}            `json:"encodingMaxRate"`
 	Webhook                        interface{}            `json:"webhook"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
 	ForceHeight                    interface{}            `json:"forceHeight"`

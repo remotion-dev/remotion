@@ -1,96 +1,108 @@
-import React, { useMemo } from "react";
-import { AbsoluteFill } from "remotion";
+import React, {useMemo} from 'react';
+import {AbsoluteFill} from 'remotion';
 import type {
-  TransitionPresentation,
-  TransitionPresentationComponentProps,
-} from "../types.js";
+	TransitionPresentation,
+	TransitionPresentationComponentProps,
+} from '../types.js';
 
 export type SlideDirection =
-  | "from-left"
-  | "from-top"
-  | "from-right"
-  | "from-bottom";
+	| 'from-left'
+	| 'from-top'
+	| 'from-right'
+	| 'from-bottom';
 
-type SlideProps = {
-  direction?: SlideDirection;
+export type SlideProps = {
+	direction?: SlideDirection;
+	exitStyle?: React.CSSProperties;
+	enterStyle?: React.CSSProperties;
 };
 
+const epsilon = 0.01;
+
 const SlidePresentation: React.FC<
-  TransitionPresentationComponentProps<SlideProps>
+	TransitionPresentationComponentProps<SlideProps>
 > = ({
-  children,
-  presentationProgress,
-  presentationDirection,
-  passedProps: { direction = "from-left" },
+	children,
+	presentationProgress,
+	presentationDirection,
+	passedProps: {direction = 'from-left', enterStyle, exitStyle},
 }) => {
-  const directionStyle = useMemo((): React.CSSProperties => {
-    if (presentationDirection === "exiting") {
-      switch (direction) {
-        case "from-left":
-          return {
-            transform: `translateX(${presentationProgress * 100}%)`,
-          };
-        case "from-right":
-          return {
-            transform: `translateX(-${presentationProgress * 100}%)`,
-          };
-        case "from-top":
-          return {
-            transform: `translateY(${presentationProgress * 100}%)`,
-          };
-        case "from-bottom":
-          return {
-            transform: `translateY(-${presentationProgress * 100}%)`,
-          };
-        default:
-          throw new Error(`Invalid direction: ${direction}`);
-      }
-    }
+	const directionStyle = useMemo((): React.CSSProperties => {
+		// Overlay the two slides barely to avoid a white line between them
+		// Remove the correction once the presentation progress is 1
+		const presentationProgressWithEpsilonCorrection =
+			presentationProgress === 1
+				? presentationProgress * 100
+				: presentationProgress * 100 - epsilon;
 
-    switch (direction) {
-      case "from-left":
-        return {
-          transform: `translateX(${-100 + presentationProgress * 100}%)`,
-        };
-      case "from-right":
-        return {
-          transform: `translateX(${100 - presentationProgress * 100}%)`,
-        };
-      case "from-top":
-        return {
-          transform: `translateY(${-100 + presentationProgress * 100}%)`,
-        };
-      case "from-bottom":
-        return {
-          transform: `translateY(${100 - presentationProgress * 100}%)`,
-        };
-      default:
-        throw new Error(`Invalid direction: ${direction}`);
-    }
-  }, [presentationDirection, presentationProgress, direction]);
+		if (presentationDirection === 'exiting') {
+			switch (direction) {
+				case 'from-left':
+					return {
+						transform: `translateX(${presentationProgressWithEpsilonCorrection}%)`,
+					};
+				case 'from-right':
+					return {
+						transform: `translateX(-${presentationProgress * 100}%)`,
+					};
+				case 'from-top':
+					return {
+						transform: `translateY(${presentationProgressWithEpsilonCorrection}%)`,
+					};
+				case 'from-bottom':
+					return {
+						transform: `translateY(-${presentationProgress * 100}%)`,
+					};
+				default:
+					throw new Error(`Invalid direction: ${direction}`);
+			}
+		}
 
-  const style: React.CSSProperties = useMemo(() => {
-    return {
-      width: "100%",
-      height: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      ...directionStyle,
-    };
-  }, [directionStyle]);
+		switch (direction) {
+			case 'from-left':
+				return {
+					transform: `translateX(${-100 + presentationProgress * 100}%)`,
+				};
+			case 'from-right':
+				return {
+					transform: `translateX(${
+						100 - presentationProgressWithEpsilonCorrection
+					}%)`,
+				};
+			case 'from-top':
+				return {
+					transform: `translateY(${-100 + presentationProgress * 100}%)`,
+				};
+			case 'from-bottom':
+				return {
+					transform: `translateY(${
+						100 - presentationProgressWithEpsilonCorrection
+					}%)`,
+				};
+			default:
+				throw new Error(`Invalid direction: ${direction}`);
+		}
+	}, [presentationDirection, presentationProgress, direction]);
 
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill style={style}>{children}</AbsoluteFill>
-    </AbsoluteFill>
-  );
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			width: '100%',
+			height: '100%',
+			justifyContent: 'center',
+			alignItems: 'center',
+			...directionStyle,
+			...(presentationDirection === 'entering' ? enterStyle : exitStyle),
+		};
+	}, [directionStyle, enterStyle, exitStyle, presentationDirection]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
 
 export const slide = (
-  props?: SlideProps
+	props?: SlideProps,
 ): TransitionPresentation<SlideProps> => {
-  return {
-    component: SlidePresentation,
-    props: props ?? {},
-  };
+	return {
+		component: SlidePresentation,
+		props: props ?? {},
+	};
 };

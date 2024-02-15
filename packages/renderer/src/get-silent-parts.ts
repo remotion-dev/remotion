@@ -61,7 +61,7 @@ export const getSilentParts = async ({
 		res.toString('utf-8'),
 	) as GetSilentPartsResponseRust;
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 
 	const {silentParts, durationInSeconds} = response;

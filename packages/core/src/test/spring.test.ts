@@ -200,3 +200,26 @@ test('weird case', () => {
 
 	expect(val2).toBeCloseTo(0);
 });
+
+test('spring should not end too early', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 9,
+			config: {
+				damping: 200,
+			},
+			durationInFrames: 10,
+		}),
+	).toBeLessThan(1);
+	expect(
+		spring({
+			fps: 30,
+			frame: 10,
+			config: {
+				damping: 200,
+			},
+			durationInFrames: 10,
+		}),
+	).toBeCloseTo(1);
+});

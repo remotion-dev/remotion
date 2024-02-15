@@ -1,4 +1,5 @@
 import {unlinkSync} from 'node:fs';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {composeWithoutCache} from '../compositor/compose';
 import {startCompositor} from '../compositor/compositor';
@@ -31,7 +32,7 @@ test('Should handle the overlay', async () => {
 			compositor,
 		});
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 
 		throw new Error('should not reach here');
@@ -65,17 +66,19 @@ test('Should handle valid', async () => {
 		false,
 	);
 
+	const output = path.join(__dirname, 'test.png');
+
 	await composeWithoutCache({
 		height: 1080,
 		width: 1080,
 		layers,
-		output: 'test.png',
+		output,
 		imageFormat: 'Png',
 		compositor,
 	});
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 
-	unlinkSync('test.png');
+	unlinkSync(output);
 });

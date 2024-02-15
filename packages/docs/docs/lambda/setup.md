@@ -8,7 +8,6 @@ crumb: "Lambda"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { YouTube } from "../../components/YouTube";
 
 <YouTube
   minutes={18}
@@ -177,7 +176,7 @@ The function name is returned which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
+The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
 
 ## 9. Deploy a site
 
@@ -190,13 +189,13 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
+Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the [entry point](/docs/terminology/entry-point) of the project.
 
 ```bash
 npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
-A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
+A [Serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion video in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
 

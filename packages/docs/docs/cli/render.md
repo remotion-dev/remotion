@@ -10,17 +10,13 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file?> [<composition-id>] [<output-location>]
+npx remotion render <entry-point|serve-url>? <composition-id> <output-location>
 ```
 
-If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
-1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx` `src/index.js`, `remotion/index.ts`, `app/remotion/index.ts`.
-3. Fail as entry point could not be determined.
-
-If `output-location` is not passed, the media will be rendered into the `out` folder.  
-If `composition-id` is also not passed, Remotion will let you select a composition.
+If `composition-id` is not passed, Remotion will ask you to select a composition.  
+If `output-location` is not passed, the media will be rendered into the `out` folder.
 
 ## Flags
 
@@ -106,6 +102,14 @@ FFMPEG may encode the video in a way that will not result in the exact video bit
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
+### `--buffer-size`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `--max-rate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
+
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
@@ -147,7 +151,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--bundle-cache`<AvailableFrom v="2.0.0" />
 
@@ -159,13 +163,15 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--port`
 
-[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setport). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port that will be used to host the Webpack bundle](/docs/config#setrendererport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--ffmpeg-executable`
+### `--timeout`
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
@@ -202,6 +208,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 
 <Options cli id="enable-multiprocess-on-linux" />
+
+### `--repro`<AvailableFrom v="4.0.88" />
+
+<Options id="repro" />
 
 ### ~~`--ffmpeg-executable`~~
 

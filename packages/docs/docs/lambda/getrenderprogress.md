@@ -6,7 +6,7 @@ slug: /lambda/getrenderprogress
 crumb: "Lambda API"
 ---
 
-Gets the current status of a render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+Gets the current status of a non-[still](https://www.remotion.dev/docs/lambda/renderstillonlambda) render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 ## Example
 
@@ -26,6 +26,10 @@ const progress = await getRenderProgress({
 
 :::note
 Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
+
+:::note
+You don't need to call this function while rendering a [still](/docs/still). Once you have obtained the [`renderId`](/docs/lambda/renderstillonlambda#renderid) from [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), the render should already be done!
 :::
 
 ## API
@@ -73,10 +77,6 @@ How many chunks have been fully rendered so far.
 ### `encodingStatus`
 
 Either `null` if not all chunks have been rendered yet or an object with the signature `{framesEncoded: number}` that tells how many frames have been stitched together so far in the concatenation process.
-
-### `costs`
-
-Non-binding information about how much the render is costing. At the moment the calculation is still very inaccurate (on the conservative size, probably shows higher cost than real).
 
 ### `renderId`
 
@@ -150,6 +150,10 @@ An object describing the costs of the render so far. The cost may increase if th
 - `currency`: The currency of the cost.
 - `displayCost`: The cost formatted as a string.
 - `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
+
+## `estimatedBillingDurationInMilliseconds`<AvailableFrom v="4.0.74"/>
+
+The estimated total runtime of all invoked Lambda functions combined, in milliseconds. As the render goes on, this number increases.
 
 ### `mostExpensiveFrameRanges`
 

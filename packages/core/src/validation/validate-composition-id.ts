@@ -1,4 +1,4 @@
-const getRegex = () => /^([a-zA-Z0-9-])+$/g;
+const getRegex = () => /^([a-zA-Z0-9-\u4E00-\u9FFF])+$/g;
 
 export const isCompositionIdValid = (id: string) => id.match(getRegex());
 

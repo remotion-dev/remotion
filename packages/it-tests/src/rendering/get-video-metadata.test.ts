@@ -21,6 +21,7 @@ test("Should return video metadata", async () => {
     colorSpace: "bt601",
     audioCodec: null,
     audioFileExtension: null,
+    pixelFormat: "yuv420p",
   };
 
   expect(metadataResponse).toEqual(videoMetadata);

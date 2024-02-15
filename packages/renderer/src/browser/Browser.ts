@@ -15,7 +15,6 @@
  */
 
 import type {LogLevel} from '../log-level';
-import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
@@ -23,6 +22,7 @@ import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Viewport} from './PuppeteerViewport';
+import type {SourceMapGetter} from './source-map-getter';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
 
@@ -178,7 +178,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	newPage(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {
@@ -186,7 +186,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	async _createPageInContext(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {
@@ -312,7 +312,7 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(Promise.resolve(null), logLevel, indent)),
+				.map((target) => target.page(() => null, logLevel, indent)),
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
@@ -320,7 +320,7 @@ export class BrowserContext extends EventEmitter {
 	}
 
 	newPage(
-		context: Promise<AnySourceMapConsumer | null>,
+		context: SourceMapGetter,
 		logLevel: LogLevel,
 		indent: boolean,
 	): Promise<Page> {

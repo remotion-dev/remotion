@@ -1,5 +1,5 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -33,6 +33,7 @@ export type DeploySiteInput = {
 		bypassBucketNameValidation?: boolean;
 	};
 	privacy?: 'public' | 'no-acl';
+	gitSource?: GitSource | null;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -52,6 +53,7 @@ const deploySiteRaw = async ({
 	options,
 	region,
 	privacy: passedPrivacy,
+	gitSource,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -93,6 +95,7 @@ const deploySiteRaw = async ({
 			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
 			onProgress: options?.onBundleProgress ?? (() => undefined),
 			entryPoint,
+			gitSource,
 		}),
 	]);
 
@@ -150,6 +153,6 @@ const deploySiteRaw = async ({
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = PureJSAPIs.wrapWithErrorHandling(
+export const deploySite = NoReactAPIs.wrapWithErrorHandling(
 	deploySiteRaw,
 ) as typeof deploySiteRaw;

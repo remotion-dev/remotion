@@ -12,7 +12,7 @@ crumb: "Cloud Run API"
 Kicks off a media rendering process on Remotion Cloud Run.
 
 Requires a [service](/docs/cloudrun/deployservice) to already be deployed to execute the render.  
-A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
@@ -123,13 +123,21 @@ See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
 
 _optional_
 
-See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`
 
 _optional_
 
-See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+<Options id="video-bitrate"/>
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `proResProfile?`
 
@@ -177,7 +185,7 @@ Renders only every nth frame. For example only every second frame, every third f
 
 _optional_
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `frameRange?`
 
@@ -246,7 +254,7 @@ The file name of the media output.
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`.
+- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
 
 ### `delayRenderTimeoutInMilliseconds?`
 
@@ -256,7 +264,11 @@ A number describing how long the render may take to resolve all [`delayRender()`
 
 ### `concurrency?`
 
-By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+A number or a string describing how many browser tabs should be opened. Default "50%".
+
+:::note
+Before v4.0.76, this was "100%" by default. It is now aligned to the other server-side rendering APIs.
+:::
 
 ### `enforceAudioTrack?`
 

@@ -1,3 +1,4 @@
+import type {LogLevel, LogOptions} from '@remotion/renderer';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -6,6 +7,7 @@ import {parsedCli} from './parse-command-line';
 
 export const getInputProps = (
 	onUpdate: ((newProps: Record<string, unknown>) => void) | null,
+	logLevel: LogLevel,
 ): Record<string, unknown> => {
 	if (!parsedCli.props) {
 		return {};
@@ -43,15 +45,21 @@ export const getInputProps = (
 			'Check that your input is parseable using `JSON.parse` and try again.',
 		);
 		if (os.platform() === 'win32') {
+			const logOptions: LogOptions = {
+				indent: false,
+				logLevel,
+			};
 			Log.warn(
+				logOptions,
 				'Note: Windows handles escaping of quotes very weirdly in the command line.',
 			);
-			Log.warn('This might have led to you having this problem.');
+			Log.warn(logOptions, 'This might have led to you having this problem.');
 			Log.warn(
+				logOptions,
 				'Consider using the alternative API for --props which is to pass',
 			);
-			Log.warn('a path to a JSON file:');
-			Log.warn('  --props=path/to/props.json');
+			Log.warn(logOptions, 'a path to a JSON file:');
+			Log.warn(logOptions, '  --props=path/to/props.json');
 		}
 
 		process.exit(1);
