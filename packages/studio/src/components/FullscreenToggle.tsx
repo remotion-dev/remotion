@@ -1,11 +1,11 @@
 import {useCallback, useContext, useEffect} from 'react';
+import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
-import {PreviewSizeContext} from '../state/preview-size';
 import {ControlButton} from './ControlButton';
 
 const accessibilityLabel = [
@@ -17,7 +17,7 @@ const accessibilityLabel = [
 
 export const FullScreenToggle: React.FC<{}> = () => {
 	const keybindings = useKeybinding();
-	const {setSize} = useContext(PreviewSizeContext);
+	const {setSize} = useContext(Internals.PreviewSizeContext);
 
 	const onClick = useCallback(() => {
 		canvasRef.current?.requestFullscreen();

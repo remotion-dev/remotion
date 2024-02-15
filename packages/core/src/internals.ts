@@ -64,6 +64,11 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {truthy} from './truthy.js';
+import {
+	calculateScale,
+	CurrentScaleContext,
+	PreviewSizeContext,
+} from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -151,6 +156,9 @@ export const Internals = {
 	BufferingContextReact,
 	enableSequenceStackTraces,
 	colorNames,
+	CurrentScaleContext,
+	PreviewSizeContext,
+	calculateScale,
 } as const;
 
 export type {

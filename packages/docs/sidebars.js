@@ -103,6 +103,7 @@ module.exports = {
         "still",
         "use-buffer-state",
         "use-current-frame",
+        "use-current-scale",
         "use-video-config",
         "version",
         "video",

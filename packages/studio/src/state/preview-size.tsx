@@ -1,17 +1,7 @@
-import type {PreviewSize} from '@remotion/player';
-import React, {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import type {PreviewSize, PreviewSizeCtx} from 'remotion';
+import {Internals} from 'remotion';
 import {EditorZoomGesturesContext} from './editor-zoom-gestures';
-
-type PreviewSizeCtx = {
-	size: PreviewSize;
-	setSize: (cb: (oldSize: PreviewSize) => PreviewSize) => void;
-};
 
 const key = 'remotion.previewSize';
 
@@ -33,11 +23,6 @@ const loadPreviewSizeOption = (): PreviewSize => {
 
 	return JSON.parse(item) as PreviewSize;
 };
-
-export const PreviewSizeContext = createContext<PreviewSizeCtx>({
-	setSize: () => undefined,
-	size: loadPreviewSizeOption(),
-});
 
 export const PreviewSizeProvider: React.FC<{
 	children: React.ReactNode;
@@ -81,8 +66,8 @@ export const PreviewSizeProvider: React.FC<{
 	}, [editorZoomGestures, size, setSize, translation]);
 
 	return (
-		<PreviewSizeContext.Provider value={previewSizeCtx}>
+		<Internals.PreviewSizeContext.Provider value={previewSizeCtx}>
 			{children}
-		</PreviewSizeContext.Provider>
+		</Internals.PreviewSizeContext.Provider>
 	);
 };
