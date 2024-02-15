@@ -26,6 +26,9 @@ export const PricingBulletPoint: React.FC<{
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={{
+        flexShrink: 0,
+      }}
     >
       <circle cx="10" cy="10" r="10" fill="#0B84F3" />
       <path
