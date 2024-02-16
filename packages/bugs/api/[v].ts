@@ -10,9 +10,9 @@ const bugs: Bug[] = [
   {
     title: "Video playback in Studio and Player is broken",
     description:
-      "OffthreadVideo, Video and Audio tags are affected. Upgrade to 4.0.112.",
+      "OffthreadVideo, Video and Audio tags are affected. Upgrade to 4.0.113.",
     link: "https://remotion.dev/changelog",
-    versions: ["4.0.111"],
+    versions: ["4.0.111", "4.0.112"],
   },
   {
     title: "Remotion Lambda is broken",
