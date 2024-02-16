@@ -2,6 +2,7 @@
 image: /generated/articles-docs-importing-assets.png
 id: assets
 title: Importing assets
+sidebar_label: Assets
 crumb: "How To"
 ---
 

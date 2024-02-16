@@ -510,8 +510,8 @@ module.exports = {
       label: "Designing videos",
       items: [
         "transforms",
-        "layers",
         "assets",
+        "layers",
         "transitioning",
         "use-img-and-iframe",
         "using-audio",

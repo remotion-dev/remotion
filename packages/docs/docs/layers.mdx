@@ -30,5 +30,32 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-This will render the text on top of the image.  
+This will render the text on top of the image.
+
 If you want to only show an element for a certain duration, you can use a [`<Sequence>`](/docs/sequence) component, which by default is also absolutely positioned.
+
+```tsx twoslash title="MyComp.tsx"
+import React from "react";
+import { AbsoluteFill, Img, staticFile, Sequence } from "remotion";
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <Img src={staticFile("bg.png")} />
+      </AbsoluteFill>
+      <Sequence from={60} durationInFrames={40}>
+        <h1>This text appears after 60 frames!</h1>
+      </Sequence>
+    </AbsoluteFill>
+  );
+};
+```
+
+The lower the absolutely positioned element is in the tree, the higher it will be in the layer stack.  
+If you are aware of this, you can use this to your advantage and avoid using `z-index` in most cases.
+
+## See also
+
+- [`<AbsoluteFill>`](/docs/absolute-fill)
+- [`<Sequence>`](/docs/sequence)
