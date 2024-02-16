@@ -321,7 +321,7 @@ export const parseCommandLine = () => {
 			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
 		] !== 'undefined'
 	) {
-		Config.setEnableFolderExpiry(
+		Config.setChromiumMultiProcessOnLinux(
 			parsedCli[
 				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
 			],
