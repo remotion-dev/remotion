@@ -8,6 +8,13 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Video playback in Studio and Player is broken",
+    description:
+      "OffthreadVideo, Video and Audio tags are affected. Upgrade to 4.0.112.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.111"],
+  },
+  {
     title: "Remotion Lambda is broken",
     description: "A render would not start on the Lambda. Upgrade to 4.0.99.",
     link: "https://remotion.dev/changelog",
