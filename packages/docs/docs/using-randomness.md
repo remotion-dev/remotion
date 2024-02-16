@@ -57,4 +57,4 @@ It is safe to use true random values inside [`calculateMetadata()`](/docs/calcul
 
 ## See also
 
-- [random()](/docs/random)
+- [`random()`](/docs/random)
