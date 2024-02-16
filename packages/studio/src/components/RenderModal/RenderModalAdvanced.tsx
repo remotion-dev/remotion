@@ -271,7 +271,11 @@ export const RenderModalAdvanced: React.FC<{
 			)}
 			{renderMode === 'video' && codec === 'h264' ? (
 				<div style={optionRow}>
-					<div style={label}>x264 Preset</div>
+					<div style={label}>
+						x264 Preset
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="x264Option" />
+					</div>
 					<div style={rightRow}>
 						<Combobox
 							title={x264Preset as string}

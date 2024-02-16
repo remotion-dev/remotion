@@ -169,7 +169,7 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 _optional_
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `jpegQuality`
 

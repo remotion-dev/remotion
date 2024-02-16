@@ -130,10 +130,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--x264-preset`
 
-[Set the Preset profile](/docs/config#setx264preset).
-Sets a Preset profile. Only applies to videos rendered with `h264` codec.
-Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
-Default: `medium`
+<Options id="x264-preset" />
 
 ### `--crf`
 

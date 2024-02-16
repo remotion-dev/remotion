@@ -1,3 +1,4 @@
+import {x264Option} from '../x264-preset';
 import {audioBitrateOption} from './audio-bitrate';
 import {beepOnFinishOption} from './beep-on-finish';
 import {colorSpaceOption} from './color-space';
@@ -42,6 +43,7 @@ export const allOptions = {
 	beepOnFinishOption,
 	numberOfGifLoopsOption,
 	reproOption,
+	x264Option,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

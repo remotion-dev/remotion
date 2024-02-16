@@ -1,4 +1,5 @@
 import type {Codec} from './codec';
+import type {AnyRemotionOption} from './options/option';
 
 export const x264PresetOptions = [
 	'ultrafast',
@@ -43,3 +44,23 @@ export const validateSelectedCodecAndPresetCombination = ({
 		);
 	}
 };
+
+export const x264Option = {
+	name: 'x264 Preset',
+	cliFlag: 'x264-preset' as const,
+	description: () => (
+		<>
+			Sets a x264 preset profile. Only applies to videos rendered with{' '}
+			<code>h264</code> codec.
+			<br />
+			Possible values: <code>superfast</code>, <code>veryfast</code>,{' '}
+			<code>faster</code>, <code>fast</code>, <code>medium</code>,{' '}
+			<code>slow</code>, <code>slower</code>, <code>veryslow</code>,{' '}
+			<code>placebo</code>.<br />
+			Default: <code>medium</code>
+		</>
+	),
+	ssrName: 'x264Preset' as const,
+	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
+	type: 'fast' as X264Preset,
+} satisfies AnyRemotionOption;
