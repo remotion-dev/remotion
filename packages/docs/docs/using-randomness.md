@@ -17,7 +17,7 @@ const MyComp: React.FC = () => {
         x: Math.random(),
         y: Math.random(),
       };
-    })
+    }),
   );
   // Do something with coordinates
   return <></>;
@@ -50,6 +50,10 @@ Now the random values will be the same on all threads.
 ## False positives
 
 Did you get an ESLint warning when using `Math.random()`, but you are fully aware of the circumstances described above? Use `random(null)` to get a true random value without getting a warning.
+
+## Exception: Inside `calculateMetadata()`
+
+It is safe to use true random values inside [`calculateMetadata()`](/docs/calculate-metadata), as it is only called once and not in parallel.
 
 ## See also
 
