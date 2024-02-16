@@ -70,12 +70,6 @@ const getProResProfile = () => {
 	return proResProfile;
 };
 
-const getx264Preset = () => {
-	const x264Preset = ConfigInternals.getPresetProfile();
-
-	return x264Preset;
-};
-
 export const getCliOptions = (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
@@ -100,7 +94,6 @@ export const getCliOptions = (options: {
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
-	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
 
@@ -139,7 +132,6 @@ export const getCliOptions = (options: {
 		crf,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
 		everyNthFrame,
 		numberOfGifLoops,
 		stillFrame: ConfigInternals.getStillFrame(),

@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -63,7 +64,6 @@ export const render = async (
 		muted,
 		enforceAudioTrack,
 		proResProfile,
-		x264Preset,
 		pixelFormat,
 		videoBitrate,
 		encodingMaxRate,
@@ -77,6 +77,10 @@ export const render = async (
 		type: 'series',
 		remotionRoot,
 		logLevel,
+	});
+
+	const {value: x264Preset} = BrowserSafeApis.options.x264Option.getValue({
+		commandLine: parsedCli,
 	});
 
 	const audioCodec = getResolvedAudioCodec();

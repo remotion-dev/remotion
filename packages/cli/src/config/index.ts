@@ -43,7 +43,6 @@ import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
-import {getX264Preset} from './x264-preset';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
@@ -55,6 +54,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
@@ -131,7 +131,6 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
-import {setX264Preset} from './x264-preset';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
@@ -604,7 +603,9 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
-	setX264Preset,
+	setX264Preset: (preset) => {
+		BrowserSafeApis.options.x264Option.setConfig(preset);
+	},
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
@@ -625,7 +626,6 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
-	getPresetProfile: getX264Preset,
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,

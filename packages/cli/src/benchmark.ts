@@ -1,5 +1,6 @@
 import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
@@ -167,7 +168,6 @@ export const benchmarkCommand = async (
 		scale,
 		publicDir,
 		proResProfile,
-		x264Preset,
 		frameRange: defaultFrameRange,
 		overwrite,
 		jpegQuality,
@@ -291,6 +291,10 @@ export const benchmarkCommand = async (
 	const benchmark: Record<string, Record<string, number[]>> = {};
 
 	let count = 1;
+
+	const {value: x264Preset} = BrowserSafeApis.options.x264Option.getValue({
+		commandLine: parsedCli,
+	});
 
 	for (const composition of compositions) {
 		const {codec, reason: codecReason} = getFinalOutputCodec({

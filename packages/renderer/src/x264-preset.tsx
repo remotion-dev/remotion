@@ -14,6 +14,8 @@ export const x264PresetOptions = [
 	'placebo',
 ] as const;
 
+let preset: X264Preset | undefined;
+
 export type X264Preset = (typeof x264PresetOptions)[number];
 
 export const validateSelectedCodecAndPresetCombination = ({
@@ -45,9 +47,11 @@ export const validateSelectedCodecAndPresetCombination = ({
 	}
 };
 
+const cliFlag = 'x264-preset' as const;
+
 export const x264Option = {
 	name: 'x264 Preset',
-	cliFlag: 'x264-preset' as const,
+	cliFlag,
 	description: () => (
 		<>
 			Sets a x264 preset profile. Only applies to videos rendered with{' '}
@@ -62,5 +66,20 @@ export const x264Option = {
 	),
 	ssrName: 'x264Preset' as const,
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
-	type: 'fast' as X264Preset,
-} satisfies AnyRemotionOption;
+	type: 'fast' as X264Preset | undefined,
+	getValue: ({commandLine}) => {
+		const value = commandLine[cliFlag];
+		if (typeof value !== 'undefined') {
+			return {value: value as X264Preset, source: 'cli'};
+		}
+
+		if (typeof preset !== 'undefined') {
+			return {value: preset, source: 'config'};
+		}
+
+		return {value: undefined, source: 'default'};
+	},
+	setConfig: (profile: X264Preset | undefined) => {
+		preset = profile;
+	},
+} satisfies AnyRemotionOption<X264Preset | undefined>;

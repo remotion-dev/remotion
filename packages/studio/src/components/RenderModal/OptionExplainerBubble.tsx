@@ -7,6 +7,7 @@ export const OptionExplainerBubble: React.FC<{
 	id: AvailableOptions;
 }> = ({id}) => {
 	const option = BrowserSafeApis.options[id];
+
 	return (
 		<InfoBubble title="Learn more about this option">
 			<OptionExplainer option={option} />
