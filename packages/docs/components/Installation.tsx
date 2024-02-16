@@ -47,6 +47,17 @@ export const Installation: React.FC<{
     throw new Error("pkg is undefined");
   }
 
+  const packages = pkg
+    .split(" ")
+    .map((p) => {
+      if (p.startsWith("@remotion")) {
+        return `${p}@${VERSION}`;
+      }
+
+      return p;
+    })
+    .join(" ");
+
   return (
     <div>
       <Tabs
@@ -59,16 +70,16 @@ export const Installation: React.FC<{
         ]}
       >
         <TabItem value="npm">
-          <LightAndDark text={`npm i --save-exact ${pkg}@${VERSION}`} />
+          <LightAndDark text={`npm i --save-exact ${packages}`} />
         </TabItem>
         <TabItem value="pnpm">
-          <LightAndDark text={`pnpm i ${pkg}@${VERSION}`} />
+          <LightAndDark text={`pnpm i ${packages}`} />
         </TabItem>
         <TabItem value="bun">
-          <LightAndDark text={`bun i ${pkg}@${VERSION}`} />
+          <LightAndDark text={`bun i ${packages}`} />
         </TabItem>
         <TabItem value="yarn">
-          <LightAndDark text={`yarn --exact add ${pkg}@${VERSION}`} />
+          <LightAndDark text={`yarn --exact add ${packages}`} />
         </TabItem>
       </Tabs>
       This assumes you are currently using v{VERSION} of Remotion.
