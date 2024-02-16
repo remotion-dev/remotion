@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-using-randomness.png
 id: using-randomness
+sidebar_label: Randomness
 title: Using randomness
 crumb: "Roll the dice"
 ---
@@ -17,7 +18,7 @@ const MyComp: React.FC = () => {
         x: Math.random(),
         y: Math.random(),
       };
-    })
+    }),
   );
   // Do something with coordinates
   return <></>;

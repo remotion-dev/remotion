@@ -7,7 +7,7 @@ crumb: "API"
 
 This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
 
-Use [`<OffthreadVideo>`](/docs/offthreadvideo) by default instead which is in general faster.
+Prefer [`<OffthreadVideo>`](/docs/offthreadvideo) by default which is faster during rendering.
 
 ## API
 

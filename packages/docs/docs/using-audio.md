@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-using-audio.png
 title: Using audio
+sidebar_label: Audio
 id: using-audio
 crumb: "Techniques"
 ---
