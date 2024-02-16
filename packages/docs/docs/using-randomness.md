@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-using-randomness.png
 id: using-randomness
+sidebar_label: Randomness
 title: Using randomness
 crumb: "Roll the dice"
 ---

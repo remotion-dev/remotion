@@ -511,15 +511,15 @@ module.exports = {
       items: [
         "transforms",
         "assets",
+        "layers",
         "transitioning",
-        "use-img-and-iframe",
         "using-audio",
         "fonts",
+        "measuring",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
-        "measuring",
       ],
     },
     {
