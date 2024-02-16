@@ -106,6 +106,24 @@ If you want to use this feature, note the following:
 
 This feature is not supported from the CLI.
 
+### Adding a custom region to the S3 output provider<AvailableFrom v="4.0.112">
+
+If you plan on saving to another bucket on AWS S3 and would like to use different credentials, you can specify the `region` in the `s3OutputProvider` object.
+
+```json
+{
+  "s3OutputProvider": {
+    "endpoint": "https://s3.us-west-1.amazonaws.com",
+    "accessKeyId": "<DIGITAL_OCEAN_ACCESS_KEY_ID>",
+    "secretAccessKey": "<DIGITAL_OCEAN_SECRET_ACCESS_KEY>",
+    "region": "us-west-1"
+  }
+}
+```
+
+Note that it is not necessary to provide a custom `s3OutputProvider` if you want to use the same role as you already gave to the Lambda.  
+You may need to extend your [role policy](/docs/lambda/setup#2-create-role-policy) to allow writing to this bucket.
+
 ## See also
 
 - Customizing the filename when a file is downloaded using `downloadBehavior`: For [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#downloadbehavior) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#downloadbehavior)
