@@ -701,11 +701,7 @@ The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take prec
 
 ## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

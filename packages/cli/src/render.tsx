@@ -13,6 +13,8 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
 
+const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+
 export const render = async (
 	remotionRoot: string,
 	args: string[],
@@ -60,7 +62,6 @@ export const render = async (
 		width,
 		crf,
 		ffmpegOverride,
-		audioBitrate,
 		muted,
 		enforceAudioTrack,
 		proResProfile,
@@ -79,7 +80,8 @@ export const render = async (
 		logLevel,
 	});
 
-	const {value: x264Preset} = BrowserSafeApis.options.x264Option.getValue({
+	const {value: x264Preset} = x264Option.getValue({commandLine: parsedCli});
+	const {value: audioBitrate} = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	});
 

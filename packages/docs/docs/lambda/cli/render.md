@@ -135,11 +135,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ### `--video-bitrate`<AvailableFrom v="3.2.32" />
 

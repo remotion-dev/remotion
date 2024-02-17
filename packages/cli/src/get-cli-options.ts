@@ -144,7 +144,6 @@ export const getCliOptions = (options: {
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
-		audioBitrate: ConfigInternals.getAudioBitrate(),
 		videoBitrate,
 		encodingBufferSize,
 		encodingMaxRate,

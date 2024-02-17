@@ -15,6 +15,8 @@ import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
 
+const {audioBitrateOption, x264Option} = BrowserSafeApis.options;
+
 export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -57,7 +59,6 @@ export const renderCommand = async (
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
-		audioBitrate,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -182,7 +183,10 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		}
 	};
 
-	const x264Preset = BrowserSafeApis.options.x264Option.getValue({
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

@@ -22,6 +22,8 @@ import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
 
+const {audioBitrateOption, x264Option} = BrowserSafeApis.options;
+
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
@@ -179,7 +181,6 @@ export const benchmarkCommand = async (
 		muted,
 		enforceAudioTrack,
 		ffmpegOverride,
-		audioBitrate,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -292,7 +293,8 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {value: x264Preset} = BrowserSafeApis.options.x264Option.getValue({
+	const {value: x264Preset} = x264Option.getValue({commandLine: parsedCli});
+	const {value: audioBitrate} = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	});
 

@@ -4,6 +4,8 @@ import type {RenderDefaults} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
+const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+
 export const getRenderDefaults = (): RenderDefaults => {
 	const defaultJpegQuality = ConfigInternals.getJpegQuality();
 	const defaultScale = ConfigInternals.getScale();
@@ -17,10 +19,12 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
 
-	const x264Preset = BrowserSafeApis.options.x264Option.getValue({
+	const x264Preset = x264Option.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const audioBitrate = ConfigInternals.getAudioBitrate();
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();

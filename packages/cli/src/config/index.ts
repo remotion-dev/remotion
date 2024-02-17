@@ -59,11 +59,9 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
-	getAudioBitrate,
 	getEncodingBufferSize,
 	getEncodingMaxRate,
 	getVideoBitrate,
-	setAudioBitrate,
 	setEncodingBufferSize,
 	setEncodingMaxRate,
 	setVideoBitrate,
@@ -606,7 +604,9 @@ export const Config: FlatConfig = {
 	setX264Preset: (preset) => {
 		BrowserSafeApis.options.x264Option.setConfig(preset);
 	},
-	setAudioBitrate,
+	setAudioBitrate: (bitrate) => {
+		BrowserSafeApis.options.audioBitrateOption.setConfig(bitrate);
+	},
 	setVideoBitrate,
 	overrideHeight,
 	overrideWidth,
@@ -663,7 +663,6 @@ export const ConfigInternals = {
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,
-	getAudioBitrate,
 	getVideoBitrate,
 	getEncodingBufferSize,
 	getEncodingMaxRate,

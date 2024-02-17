@@ -40,6 +40,8 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
+const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+
 export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -75,7 +77,6 @@ export const renderCommand = async (
 		numberOfGifLoops,
 		muted,
 		overwrite,
-		audioBitrate,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -92,7 +93,10 @@ export const renderCommand = async (
 		logLevel,
 	});
 
-	const x264Preset = BrowserSafeApis.options.x264Option.getValue({
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
