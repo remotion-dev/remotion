@@ -26,6 +26,7 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
+	x264Option,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -33,7 +34,7 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
-	['x264-preset']: X264Preset;
+	[x264Option.cliFlag]: X264Preset;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -228,10 +229,6 @@ export const parseCommandLine = () => {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile,
 		);
-	}
-
-	if (parsedCli['x264-preset']) {
-		Config.setX264Preset(String(parsedCli['x264-preset']) as X264Preset);
 	}
 
 	if (parsedCli.overwrite) {
