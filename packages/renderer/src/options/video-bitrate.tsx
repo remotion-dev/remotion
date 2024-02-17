@@ -14,4 +14,4 @@ export const videoBitrate = {
 	ssrName: 'videoBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate-',
 	type: '' as string | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<string | null>;

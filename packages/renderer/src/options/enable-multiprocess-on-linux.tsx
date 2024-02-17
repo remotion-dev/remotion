@@ -14,4 +14,4 @@ export const enableMultiprocessOnLinuxOption = {
 	ssrName: 'chromiumOptions.enableMultiprocessOnLinux',
 	docLink: 'https://www.remotion.dev/docs/chromium-flags',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

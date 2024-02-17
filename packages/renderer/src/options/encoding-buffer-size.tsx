@@ -13,4 +13,4 @@ export const encodingBufferSizeOption = {
 	docLink:
 		'https://www.remotion.dev/docs/renderer/render-media#encodingbuffersize',
 	type: '' as string | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<string | null>;

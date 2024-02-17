@@ -38,7 +38,7 @@ export const colorSpaceOption = {
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',
 	ssrName: 'colorSpace',
 	type: 'default' as ColorSpace,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<ColorSpace>;
 
 export const validateColorSpace = (option: unknown) => {
 	if (validColorSpaces.includes(option as ColorSpace)) {

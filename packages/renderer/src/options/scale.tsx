@@ -13,4 +13,4 @@ export const scaleOption = {
 	ssrName: 'scale',
 	docLink: 'https://www.remotion.dev/docs/scaling',
 	type: 0 as number,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<number>;

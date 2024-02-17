@@ -7,7 +7,7 @@ import {OptionExplainer} from './OptionExplainer';
 export const OptionExplainerBubble: React.FC<{
 	id: AvailableOptions;
 }> = ({id}) => {
-	const option = BrowserSafeApis.options[id] as AnyRemotionOption;
+	const option = BrowserSafeApis.options[id] as AnyRemotionOption<unknown>;
 
 	return (
 		<InfoBubble title="Learn more about this option">

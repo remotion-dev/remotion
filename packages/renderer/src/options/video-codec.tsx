@@ -13,4 +13,4 @@ export const videoCodecOption = {
 	ssrName: 'codec',
 	docLink: 'https://www.remotion.dev/docs/encoding/#choosing-a-codec',
 	type: '' as string,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<string>;

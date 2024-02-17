@@ -7,4 +7,4 @@ export const muteOption = {
 	ssrName: 'muted',
 	docLink: 'https://www.remotion.dev/docs/using-audio/#muted-property',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

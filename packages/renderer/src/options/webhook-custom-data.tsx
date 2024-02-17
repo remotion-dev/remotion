@@ -15,4 +15,4 @@ export const webhookCustomDataOption = {
 	ssrName: 'customData' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/webhooks',
 	type: {} as Record<string, unknown> | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<Record<string, unknown> | null>;

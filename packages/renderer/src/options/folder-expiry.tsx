@@ -16,4 +16,4 @@ export const folderExpiryOption = {
 	ssrName: 'enableFolderExpiry' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
 	type: false as boolean | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean | null>;

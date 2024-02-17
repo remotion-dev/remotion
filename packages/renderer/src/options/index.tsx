@@ -15,6 +15,7 @@ import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import type {AnyRemotionOption} from './option';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {videoBitrate} from './video-bitrate';
@@ -47,3 +48,6 @@ export const allOptions = {
 };
 
 export type AvailableOptions = keyof typeof allOptions;
+export type TypeOfOption<Type> = Type extends AnyRemotionOption<infer X>
+	? X
+	: never;

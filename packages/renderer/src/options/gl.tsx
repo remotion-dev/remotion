@@ -71,7 +71,7 @@ export const glOption = {
 			</>
 		);
 	},
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<OpenGlRenderer>;
 
 export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 

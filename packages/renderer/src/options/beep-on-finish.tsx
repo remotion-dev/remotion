@@ -11,4 +11,4 @@ export const beepOnFinishOption = {
 	ssrName: null,
 	docLink: 'https://www.remotion.dev/docs/config#setbeeponfinish',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

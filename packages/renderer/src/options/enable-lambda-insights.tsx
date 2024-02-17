@@ -15,4 +15,4 @@ export const enableLambdaInsights = {
 	ssrName: 'enableLambdaInsights',
 	docLink: 'https://www.remotion.dev/docs/lambda/insights',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

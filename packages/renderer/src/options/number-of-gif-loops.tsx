@@ -30,4 +30,4 @@ export const numberOfGifLoopsOption = {
 	docLink:
 		'https://www.remotion.dev/docs/render-as-gif#changing-the-number-of-loops',
 	type: 0 as number | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<number | null>;

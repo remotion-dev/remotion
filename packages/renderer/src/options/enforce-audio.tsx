@@ -9,4 +9,4 @@ export const enforceAudioOption = {
 	ssrName: 'enforceAudioTrack',
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

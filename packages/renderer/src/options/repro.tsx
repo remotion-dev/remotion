@@ -11,4 +11,4 @@ export const reproOption = {
 	ssrName: 'repro',
 	docLink: 'https://www.remotion.dev/docs/render-media#repro',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<boolean>;

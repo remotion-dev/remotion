@@ -22,7 +22,7 @@ export const offthreadVideoCacheSizeInBytes = {
 	ssrName: 'offthreadVideoCacheSizeInBytes' as const,
 	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
 	type: 0 as number | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<number | null>;
 
 export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {
 	if (option === undefined || option === null) {

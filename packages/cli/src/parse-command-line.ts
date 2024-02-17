@@ -8,9 +8,9 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
@@ -34,7 +34,7 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
-	[x264Option.cliFlag]: X264Preset;
+	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -42,9 +42,11 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: number;
 	['number-of-shared-audio-tags']: number;
-	[offthreadVideoCacheSizeInBytes.cliFlag]: typeof offthreadVideoCacheSizeInBytes.type;
-	[colorSpaceOption.cliFlag]: typeof colorSpaceOption.type;
-	[beepOnFinishOption.cliFlag]: typeof beepOnFinishOption.type;
+	[offthreadVideoCacheSizeInBytes.cliFlag]: TypeOfOption<
+		typeof offthreadVideoCacheSizeInBytes
+	>;
+	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -53,8 +55,10 @@ type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
-	[encodingBufferSizeOption.cliFlag]: typeof encodingBufferSizeOption.type;
-	[encodingMaxRateOption.cliFlag]: typeof encodingMaxRateOption.type;
+	[encodingBufferSizeOption.cliFlag]: TypeOfOption<
+		typeof encodingBufferSizeOption
+	>;
+	[encodingMaxRateOption.cliFlag]: TypeOfOption<typeof encodingMaxRateOption>;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -91,7 +95,9 @@ type CommandLineOptions = {
 	['out-dir']: string;
 	[deleteAfterOption.cliFlag]: string | undefined;
 	[folderExpiryOption.cliFlag]: boolean | undefined;
-	[enableMultiprocessOnLinuxOption.cliFlag]: boolean;
+	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
+		typeof enableMultiprocessOnLinuxOption
+	>;
 	repro: boolean;
 };
 

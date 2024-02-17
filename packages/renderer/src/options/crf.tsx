@@ -16,4 +16,4 @@ export const crfOption = {
 	docLink:
 		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
 	type: 0 as number,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<number>;

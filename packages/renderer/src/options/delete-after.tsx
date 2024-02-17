@@ -16,4 +16,4 @@ export const deleteAfterOption = {
 	ssrName: 'deleteAfter' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
 	type: '' as string | null,
-} satisfies AnyRemotionOption;
+} satisfies AnyRemotionOption<string | null>;
