@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
@@ -51,7 +52,6 @@ export const renderCommand = async (
 		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
 		jpegQuality,
 		scale,
 		everyNthFrame,
@@ -181,6 +181,10 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			updateProgress();
 		}
 	};
+
+	const x264Preset = BrowserSafeApis.options.x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,

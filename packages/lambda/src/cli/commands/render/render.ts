@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -84,13 +85,16 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		deleteAfter,
-		x264Preset,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 		logLevel,
 	});
+
+	const x264Preset = BrowserSafeApis.options.x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	let composition: string = args[1];
 	if (!composition) {
