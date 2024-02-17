@@ -78,7 +78,7 @@ export const renderMediaSingleThread = async (
 				}).serializedString,
 			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			audioCodec: body.audioCodec,
-			audioBitrate: body.audioBitrate,
+			audioBitrate: body.audioBitrate ?? '320k',
 			videoBitrate: body.videoBitrate,
 			encodingMaxRate: body.encodingMaxRate,
 			encodingBufferSize: body.encodingBufferSize,

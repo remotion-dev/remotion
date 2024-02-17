@@ -1,3 +1,4 @@
+import type {Codec} from '../codec';
 import type {AnyRemotionOption} from './option';
 
 export const videoCodecOption = {
@@ -12,5 +13,5 @@ export const videoCodecOption = {
 	),
 	ssrName: 'codec',
 	docLink: 'https://www.remotion.dev/docs/encoding/#choosing-a-codec',
-	type: '' as string,
+	type: '' as Codec,
 } satisfies AnyRemotionOption<string>;

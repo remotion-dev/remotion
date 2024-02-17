@@ -92,7 +92,6 @@ type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
 
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
-	codec: Codec;
 	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
@@ -100,7 +99,6 @@ export type InternalRenderMediaOptions = {
 	imageFormat: VideoImageFormat;
 	pixelFormat: PixelFormat;
 	envVariables: Record<string, string>;
-	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
@@ -124,15 +122,10 @@ export type InternalRenderMediaOptions = {
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: FfmpegOverrideFn | undefined;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
-	colorSpace: ColorSpace;
 	finishRenderProgress: () => void;
 } & MoreRenderMediaOptions;
 
@@ -856,7 +849,7 @@ export const renderMedia = ({
 		codec,
 		composition,
 		serveUrl,
-		audioBitrate: audioBitrate ?? null,
+		audioBitrate: audioBitrate ?? '320k',
 		audioCodec: audioCodec ?? null,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
