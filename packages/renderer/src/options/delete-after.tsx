@@ -1,5 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
+export type DeleteAfter = '1-day' | '3-days' | '7-days' | '30-days';
+
 export const deleteAfterOption = {
 	name: 'Lambda render expiration',
 	cliFlag: 'delete-after' as const,
@@ -15,5 +17,5 @@ export const deleteAfterOption = {
 	},
 	ssrName: 'deleteAfter' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
-	type: '' as string | null,
-} satisfies AnyRemotionOption<string | null>;
+	type: '1-day' as DeleteAfter | null,
+} satisfies AnyRemotionOption<DeleteAfter | null>;

@@ -68,7 +68,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     inputProps: {
       hi: "there",
     },
-    audioBitrate: null,
+    audioBitrate: "320k",
     audioCodec: null,
     chromiumOptions: {},
     colorSpace: "default",
@@ -102,7 +102,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     encodingMaxRate: null,
     encodingBufferSize: null,
     webhook: null,
-    x264Preset: null,
+    x264Preset: "medium",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

@@ -269,7 +269,7 @@ export type LambdaStartPayload = {
 	muted: boolean;
 	version: string;
 	overwrite: boolean;
-	audioBitrate: string | null;
+	audioBitrate: string;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
@@ -327,7 +327,7 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
-		audioBitrate: string | null;
+		audioBitrate: string;
 		videoBitrate: string | null;
 		encodingMaxRate: string | null;
 		encodingBufferSize: string | null;
@@ -371,7 +371,7 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
-		audioBitrate: string | null;
+		audioBitrate: string;
 		videoBitrate: string | null;
 		encodingBufferSize: string | null;
 		encodingMaxRate: string | null;

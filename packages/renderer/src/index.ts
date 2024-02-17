@@ -103,6 +103,7 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
+export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';

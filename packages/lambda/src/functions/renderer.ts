@@ -206,7 +206,7 @@ const renderHandler = async (
 			numberOfGifLoops: null,
 			muted: params.muted,
 			enforceAudioTrack: true,
-			audioBitrate: params.audioBitrate ?? '320k',
+			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
 			encodingBufferSize: params.encodingBufferSize,
 			encodingMaxRate: params.encodingMaxRate,

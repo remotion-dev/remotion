@@ -34,7 +34,7 @@ test("Go package should create the same payload as normal Lambda package", async
     functionName: "remotion-render",
     serveUrl: "testbed",
     codec: "h264",
-    audioBitrate: null,
+    audioBitrate: "320k",
     audioCodec: null,
     chromiumOptions: {},
     colorSpace: "default",
@@ -68,7 +68,7 @@ test("Go package should create the same payload as normal Lambda package", async
     encodingMaxRate: null,
     encodingBufferSize: null,
     webhook: null,
-    x264Preset: null,
+    x264Preset: "medium",
     inputProps: {},
   });
 

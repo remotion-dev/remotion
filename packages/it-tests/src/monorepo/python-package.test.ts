@@ -50,7 +50,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     inputProps: {
       hi: "there",
     },
-    audioBitrate: null,
+    audioBitrate: "320k",
     audioCodec: null,
     chromiumOptions: {},
     colorSpace: "default",
@@ -93,7 +93,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
         hi: "there",
       },
     },
-    x264Preset: null,
+    x264Preset: "medium",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

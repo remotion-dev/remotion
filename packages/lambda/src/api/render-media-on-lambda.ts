@@ -1,18 +1,15 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	ColorSpace,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {DeleteAfter} from '../functions/helpers/lifecycle';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
@@ -39,7 +36,6 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -59,10 +55,6 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
-	encodingMaxRate?: string | null;
-	encodingBufferSize?: string | null;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
@@ -73,8 +65,6 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-	colorSpace?: ColorSpace;
-	deleteAfter?: DeleteAfter | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -164,7 +154,7 @@ export const renderMediaOnLambda = (
 	}
 
 	return wrapped({
-		audioBitrate: options.audioBitrate ?? null,
+		audioBitrate: options.audioBitrate ?? '320k',
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
@@ -204,7 +194,7 @@ export const renderMediaOnLambda = (
 		encodingMaxRate: options.encodingMaxRate ?? null,
 		encodingBufferSize: options.encodingBufferSize ?? null,
 		webhook: options.webhook ?? null,
-		x264Preset: options.x264Preset ?? null,
+		x264Preset: options.x264Preset ?? 'medium',
 		deleteAfter: options.deleteAfter ?? null,
 	});
 };

@@ -1,5 +1,6 @@
 import {audioBitrateOption} from './audio-bitrate';
 import {colorSpaceOption} from './color-space';
+import {deleteAfterOption} from './delete-after';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {jpegQualityOption} from './jpeg-quality';
@@ -26,6 +27,7 @@ export const optionsMap = {
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes,
+		jpegQuality: jpegQualityOption,
 	},
 	getCompositions: {
 		offthreadVideoCacheSizeInBytes,
@@ -35,11 +37,18 @@ export const optionsMap = {
 	},
 	renderFrames: {
 		offthreadVideoCacheSizeInBytes,
+		jpegQuality: jpegQualityOption,
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes,
 		videoBitrate,
 		numberOfGifLoops: numberOfGifLoopsOption,
+		audioBitrate: audioBitrateOption,
+		deleteAfter: deleteAfterOption,
+		x264Preset: x264Option,
+		encodingMaxRate: encodingMaxRateOption,
+		encodingBufferSize: encodingBufferSizeOption,
+		colorSpace: colorSpaceOption,
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes,
