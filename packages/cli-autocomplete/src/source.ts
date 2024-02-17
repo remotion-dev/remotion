@@ -104,7 +104,7 @@ const localRenderAndStillOptions: Fig.Option[] = [
   },
   {
     name: "--ffmpeg-executable",
-    description: "Custom path for FFMPEG executable",
+    description: "Custom path for FFmpeg executable",
     args: {
       template: "filepaths",
     },
@@ -318,7 +318,7 @@ const renderOptions: Fig.Option[] = [
   },
   {
     name: "--crf",
-    description: "FFMPEG CRF value, controls quality, see docs for info",
+    description: "FFmpeg CRF value, controls quality, see docs for info",
     exclusiveOn: ["--video-bitrate"],
   },
   {

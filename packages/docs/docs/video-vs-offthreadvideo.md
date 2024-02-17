@@ -30,7 +30,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 A more sophisticated way of embedding a video, which:
 
 - renders a `<video>` tag during preview
-- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFMPEG outside the browser
+- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFmpeg outside the browser
 
 **Pros**
 

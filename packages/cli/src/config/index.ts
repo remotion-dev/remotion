@@ -343,7 +343,7 @@ declare global {
 		 */
 		readonly setOverwriteOutput: (newOverwrite: boolean) => void;
 		/**
-		 * Sets the pixel format in FFMPEG.
+		 * Sets the pixel format in FFmpeg.
 		 * See https://trac.ffmpeg.org/wiki/Chroma%20Subsampling for an explanation.
 		 * You can override this using the `--pixel-format` Cli flag.
 		 */
@@ -364,7 +364,7 @@ declare global {
 		 */
 		readonly setCodec: (newCodec: CodecOrUndefined) => void;
 		/**
-		 * Set the Constant Rate Factor to pass to FFMPEG.
+		 * Set the Constant Rate Factor to pass to FFmpeg.
 		 * Lower values mean better quality, but be aware that the ranges of
 		 * possible values greatly differs between codecs.
 		 */
@@ -413,7 +413,7 @@ declare global {
 				| undefined,
 		) => void;
 		/**
-		 * Override the arguments that Remotion passes to FFMPEG.
+		 * Override the arguments that Remotion passes to FFmpeg.
 		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
 		 */
 		readonly overrideFfmpegCommand: (
@@ -424,12 +424,12 @@ declare global {
 		) => void;
 
 		/**
-		 * Set a target audio bitrate to be passed to FFMPEG.
+		 * Set a target audio bitrate to be passed to FFmpeg.
 		 */
 		readonly setAudioBitrate: (bitrate: string | null) => void;
 
 		/**
-		 * Set a target video bitrate to be passed to FFMPEG.
+		 * Set a target video bitrate to be passed to FFmpeg.
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;

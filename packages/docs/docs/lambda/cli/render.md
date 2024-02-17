@@ -139,11 +139,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--video-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ### `--prores-profile`
 
