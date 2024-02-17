@@ -227,7 +227,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						name={passedProps.name || "<TS.Sequence>"}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
@@ -263,7 +263,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						name={passedProps.name || "<TS.Sequence>"}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
@@ -291,7 +291,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						name={passedProps.name || "<TS.Sequence>"}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
@@ -314,7 +314,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
-					name="<TS.Sequence>"
+					name={passedProps.name || "<TS.Sequence>"}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
