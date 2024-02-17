@@ -1,4 +1,3 @@
-import {x264Option} from '../x264-preset';
 import {audioBitrateOption} from './audio-bitrate';
 import {beepOnFinishOption} from './beep-on-finish';
 import {colorSpaceOption} from './color-space';
@@ -21,6 +20,7 @@ import {scaleOption} from './scale';
 import {videoBitrate} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
+import {x264Option} from './x264-preset';
 
 export const allOptions = {
 	scaleOption,

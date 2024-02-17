@@ -22,6 +22,7 @@ import {allOptions} from './options';
 import {validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
+import {x264PresetOptions} from './options/x264-preset';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	validPixelFormats,
@@ -29,7 +30,6 @@ import {
 } from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-import {x264PresetOptions} from './x264-preset';
 
 export {AvailableOptions, TypeOfOption} from './options';
 

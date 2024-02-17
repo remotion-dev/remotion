@@ -1,5 +1,5 @@
-import type {Codec} from './codec';
-import type {AnyRemotionOption} from './options/option';
+import type {Codec} from '../codec';
+import type {AnyRemotionOption} from './option';
 
 export const x264PresetOptions = [
 	'ultrafast',
