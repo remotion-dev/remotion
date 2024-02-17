@@ -18,6 +18,8 @@ export type RemotionOption<SsrName extends string, Type> = {
 
 export type AnyRemotionOption<T> = RemotionOption<string, T>;
 
-export type ToOptions<T extends Record<string, AnyRemotionOption<unknown>>> = {
+// Intentional any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ToOptions<T extends Record<string, AnyRemotionOption<any>>> = {
 	[K in keyof T]: TypeOfOption<T[K]>;
 };

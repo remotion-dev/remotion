@@ -40,7 +40,6 @@ import type {ChromiumOptions} from './open-browser';
 import type {ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
-import type {X264Preset} from './options/x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -109,7 +108,6 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -163,7 +161,6 @@ export type RenderMediaOptions = Prettify<{
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -855,7 +852,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
-		x264Preset,
+		x264Preset: x264Preset ?? 'medium',
 		codec,
 		composition,
 		serveUrl,
