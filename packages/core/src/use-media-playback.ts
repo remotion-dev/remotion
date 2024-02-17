@@ -70,7 +70,8 @@ export const useMediaPlayback = ({
 		return acceptableTimeshift;
 	})();
 
-	const pausedOrBuffering = !playing || (buffering && buffering.buffering);
+	const pausedOrBuffering =
+		!playing || (buffering && buffering.buffering.current);
 
 	useEffect(() => {
 		if (pausedOrBuffering) {
