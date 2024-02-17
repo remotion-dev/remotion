@@ -55,7 +55,7 @@ test('Should add silent audio if there is no audio', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
-			audioBitrate: '320k',
+			audioBitrate: null,
 			videoBitrate: null,
 			encodingMaxRate: null,
 			encodingBufferSize: null,

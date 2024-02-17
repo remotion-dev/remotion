@@ -163,7 +163,6 @@ test("Python package should create the same renderStill payload as normal Lambda
     privacy: "public",
     scale: 1,
     timeoutInMilliseconds: 30000,
-    videoBitrate: null,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

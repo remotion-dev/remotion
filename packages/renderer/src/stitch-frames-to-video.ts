@@ -371,7 +371,7 @@ const innerStitchFramesToVideo = async (
 				'-c:a',
 				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
 				'-b:a',
-				audioBitrate ? audioBitrate : '320k',
+				audioBitrate ?? '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(NoReactInternals.truthy),

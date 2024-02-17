@@ -58,7 +58,7 @@ test('Should make a distributed GIF', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
-			audioBitrate: '320k',
+			audioBitrate: null,
 			videoBitrate: null,
 			encodingBufferSize: null,
 			encodingMaxRate: null,

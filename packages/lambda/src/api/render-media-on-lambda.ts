@@ -53,7 +53,6 @@ export type RenderMediaOnLambdaInput = {
 	everyNthFrame?: number;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
-	muted?: boolean;
 	overwrite?: boolean;
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
@@ -154,7 +153,7 @@ export const renderMediaOnLambda = (
 	}
 
 	return wrapped({
-		audioBitrate: options.audioBitrate ?? '320k',
+		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,

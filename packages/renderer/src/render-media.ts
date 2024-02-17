@@ -119,7 +119,6 @@ export type InternalRenderMediaOptions = {
 	indent: boolean;
 	server: RemotionServer | undefined;
 	preferLossless: boolean;
-	muted: boolean;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	disallowParallelEncoding: boolean;
@@ -171,7 +170,6 @@ export type RenderMediaOptions = Prettify<{
 	 */
 	verbose?: boolean;
 	preferLossless?: boolean;
-	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
@@ -849,7 +847,7 @@ export const renderMedia = ({
 		codec,
 		composition,
 		serveUrl,
-		audioBitrate: audioBitrate ?? '320k',
+		audioBitrate: audioBitrate ?? null,
 		audioCodec: audioCodec ?? null,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,

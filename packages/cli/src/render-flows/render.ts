@@ -469,7 +469,7 @@ export const renderVideoFlow = async ({
 		concurrency,
 		serveUrl: urlOrBundle,
 		codec,
-		audioBitrate: audioBitrate ?? '320k',
+		audioBitrate,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,

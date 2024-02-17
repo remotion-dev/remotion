@@ -59,7 +59,7 @@ test('Should be able to render to another bucket', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
-			audioBitrate: '320k',
+			audioBitrate: null,
 			videoBitrate: null,
 			encodingBufferSize: null,
 			encodingMaxRate: null,

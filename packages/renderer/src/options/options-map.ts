@@ -4,6 +4,7 @@ import {deleteAfterOption} from './delete-after';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {jpegQualityOption} from './jpeg-quality';
+import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
 import {reproOption} from './repro';
@@ -24,6 +25,7 @@ export const optionsMap = {
 		jpegQuality: jpegQualityOption,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
+		muted: muteOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes,
@@ -49,9 +51,11 @@ export const optionsMap = {
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
 		colorSpace: colorSpaceOption,
+		muted: muteOption,
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes,
+		jpegQuality: jpegQualityOption,
 	},
 	getCompositionsOnLambda: {
 		offthreadVideoCacheSizeInBytes,
@@ -59,6 +63,13 @@ export const optionsMap = {
 	renderMediaOnCloudRun: {
 		offthreadVideoCacheSizeInBytes,
 		numberOfGifLoops: numberOfGifLoopsOption,
+		colorSpace: colorSpaceOption,
+		audioBitrate: audioBitrateOption,
+		videoBitrate,
+		x264Preset: x264Option,
+		encodingMaxRate: encodingMaxRateOption,
+		encodingBufferSize: encodingBufferSizeOption,
+		muted: muteOption,
 	},
 	renderStillOnCloudRun: {
 		offthreadVideoCacheSizeInBytes,

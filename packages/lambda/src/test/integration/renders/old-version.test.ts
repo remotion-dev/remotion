@@ -53,7 +53,7 @@ test('Should fail when using an incompatible version', async () => {
 				muted: false,
 				overwrite: true,
 				webhook: null,
-				audioBitrate: '320k',
+				audioBitrate: null,
 				videoBitrate: null,
 				encodingBufferSize: null,
 				encodingMaxRate: null,

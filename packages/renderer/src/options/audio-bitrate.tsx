@@ -35,11 +35,11 @@ export const audioBitrateOption = {
 		}
 
 		return {
-			value: '320k',
+			value: null,
 			source: 'default',
 		};
 	},
 	setConfig: (value: string | null) => {
 		audioBitrate = value;
 	},
-} satisfies AnyRemotionOption<string>;
+} satisfies AnyRemotionOption<string | null>;

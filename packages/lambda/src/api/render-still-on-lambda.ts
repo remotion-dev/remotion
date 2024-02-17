@@ -32,7 +32,6 @@ export type RenderStillOnLambdaInput = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	jpegQuality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
@@ -53,7 +52,7 @@ export type RenderStillOnLambdaInput = {
 		lambdaInsightsUrl: string;
 	}) => void;
 	deleteAfter?: DeleteAfter | null;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>>;
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
