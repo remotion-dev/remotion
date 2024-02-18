@@ -39,7 +39,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
-		return regionsCommand();
+		return regionsCommand(logLevel);
 	}
 
 	if (args[0] === PERMISSIONS_COMMAND) {
@@ -47,8 +47,14 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'deploy') {
-		Log.info(`The "deploy" command does not exist.`);
-		Log.info(`Did you mean "service deploy"?`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`The "deploy" command does not exist.`,
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`Did you mean "service deploy"?`,
+		);
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);

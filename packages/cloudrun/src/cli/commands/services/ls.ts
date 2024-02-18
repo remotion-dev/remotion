@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {displayServiceInfo} from '.';
 import {getServices} from '../../../api/get-services';
 import {getGcpRegion} from '../../get-gcp-region';
@@ -6,7 +7,7 @@ import {Log} from '../../log';
 
 export const SERVICES_LS_SUBCOMMAND = 'ls';
 
-export const servicesLsCommand = async () => {
+export const servicesLsCommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
@@ -23,11 +24,14 @@ export const servicesLsCommand = async () => {
 
 	if (CliInternals.quietFlagProvided()) {
 		if (services.length === 0) {
-			Log.info('()');
+			Log.infoAdvanced({indent: false, logLevel}, '()');
 			return;
 		}
 
-		Log.info(services.map((f) => f.serviceName).join(' '));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			services.map((f) => f.serviceName).join(' '),
+		);
 		return;
 	}
 
@@ -35,10 +39,10 @@ export const servicesLsCommand = async () => {
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
 	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 
 	for (const service of services) {
-		Log.info();
-		Log.info(displayServiceInfo(service));
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced({indent: false, logLevel}, displayServiceInfo(service));
 	}
 };

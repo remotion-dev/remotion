@@ -81,7 +81,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
-		return regionsCommand();
+		return regionsCommand(logLevel);
 	}
 
 	if (args[0] === SITES_COMMAND) {
@@ -89,32 +89,68 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'upload') {
-		Log.info('The command has been renamed.');
-		Log.info('Before: remotion-lambda upload <entry-point>');
-		Log.info('After: remotion lambda sites create <entry-point>');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'The command has been renamed.',
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Before: remotion-lambda upload <entry-point>',
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'After: remotion lambda sites create <entry-point>',
+		);
 		quit(1);
 	}
 
 	if (args[0] === 'deploy') {
-		Log.info('The command has been renamed.');
-		Log.info('Before: remotion-lambda deploy');
-		Log.info('After: remotion lambda functions deploy');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'The command has been renamed.',
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Before: remotion-lambda deploy',
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'After: remotion lambda functions deploy',
+		);
 		quit(1);
 	}
 
 	if (args[0] === 'ls') {
-		Log.info(`The "ls" command does not exist.`);
-		Log.info(`Did you mean "functions ls" or "sites ls"?`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`The "ls" command does not exist.`,
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`Did you mean "functions ls" or "sites ls"?`,
+		);
 	}
 
 	if (args[0] === 'rm') {
-		Log.info(`The "rm" command does not exist.`);
-		Log.info(`Did you mean "functions rm" or "sites rm"?`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`The "rm" command does not exist.`,
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`Did you mean "functions rm" or "sites rm"?`,
+		);
 	}
 
 	if (args[0] === 'deploy') {
-		Log.info(`The "deploy" command does not exist.`);
-		Log.info(`Did you mean "functions deploy"?`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`The "deploy" command does not exist.`,
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`Did you mean "functions deploy"?`,
+		);
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);

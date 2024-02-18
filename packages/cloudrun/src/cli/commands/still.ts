@@ -71,7 +71,10 @@ export const stillCommand = async (
 	};
 
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -138,7 +141,8 @@ export const stillCommand = async (
 		`Image format: (${imageFormat}), ${imageFormatReason}`,
 	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
@@ -152,7 +156,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -209,22 +213,30 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		doneIn = Date.now() - renderStart;
 		updateProgress(true);
 
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
-		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(`Render ID = ${res.renderId}`),
+		);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
 					res.privacy
 				}, Bucket: ${res.bucketName}`,
 			),
 		);
-		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			CliInternals.chalk.blue(`○ ${res.publicUrl}`),
+		);
 
 		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
+			Log.infoAdvanced({indent: false, logLevel}, '');
+			Log.infoAdvanced({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -232,7 +244,8 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 				downloadName,
 			});
 
-			Log.info(
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}

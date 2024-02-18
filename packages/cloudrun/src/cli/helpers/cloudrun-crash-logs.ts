@@ -78,8 +78,8 @@ Full logs are available at https://console.cloud.google.com/run?project=${getPro
 
 		const convertedDate = responseDate.toLocaleString();
 
-		Log.info(convertedDate);
-		Log.info(logResponse.textPayload);
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel}, convertedDate);
+		Log.infoAdvanced({indent: false, logLevel}, logResponse.textPayload);
+		Log.infoAdvanced({indent: false, logLevel});
 	}
 };

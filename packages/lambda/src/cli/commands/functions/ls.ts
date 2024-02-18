@@ -30,11 +30,14 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 
 	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
-			CliInternals.Log.info('()');
+			CliInternals.Log.infoAdvanced({indent: false, logLevel}, '()');
 			return;
 		}
 
-		CliInternals.Log.info(functions.map((f) => f.functionName).join(' '));
+		CliInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
+			functions.map((f) => f.functionName).join(' '),
+		);
 		return;
 	}
 
@@ -45,8 +48,9 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 		`${functions.length} ${pluralized} in the ${region} region`,
 		true,
 	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
@@ -59,7 +63,8 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 	);
 
 	for (const datapoint of functions) {
-		CliInternals.Log.info(
+		CliInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version

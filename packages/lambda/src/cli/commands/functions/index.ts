@@ -71,7 +71,7 @@ export const functionsCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === FUNCTIONS_DEPLOY_SUBCOMMAND) {
-		return functionsDeploySubcommand();
+		return functionsDeploySubcommand(logLevel);
 	}
 
 	if (args[0]) {

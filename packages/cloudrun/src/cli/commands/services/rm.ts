@@ -19,14 +19,15 @@ export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 			{indent: false, logLevel},
 			'Pass another argument which is the name of the service you would like to remove.',
 		);
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			`You can run \`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}\` to see a list of deployed Cloud Run services.`,
 		);
 		quit(1);
 	}
 
 	if (args[0] === '()') {
-		Log.info('No services to remove.');
+		Log.infoAdvanced({indent: false, logLevel}, 'No services to remove.');
 		return;
 	}
 
@@ -46,7 +47,7 @@ export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 		});
 
 		infoOutput.update(displayServiceInfo(info), false);
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
 
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
@@ -54,7 +55,10 @@ export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 		});
 
 		if (!confirmDelete) {
-			Log.info(`Skipping service - ${info.serviceName}.`);
+			Log.infoAdvanced(
+				{indent: false, logLevel},
+				`Skipping service - ${info.serviceName}.`,
+			);
 			continue;
 		}
 

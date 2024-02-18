@@ -23,14 +23,15 @@ export const functionsRmCommand = async (
 			{indent: false, logLevel},
 			'Pass another argument which is the name of the function you would like to remove.',
 		);
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`,
 		);
 		quit(1);
 	}
 
 	if (args[0] === '()') {
-		Log.info('No functions to remove.');
+		Log.infoAdvanced({indent: false, logLevel}, 'No functions to remove.');
 		return;
 	}
 

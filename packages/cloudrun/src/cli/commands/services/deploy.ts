@@ -33,7 +33,8 @@ export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? DEFAULT_TIMEOUT;
 
 	if (!CliInternals.quietFlagProvided()) {
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
 Validating Deployment of Cloud Run Service:
@@ -52,7 +53,7 @@ ${[
     `.trim(),
 			),
 		);
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
 	}
 
 	validateGcpRegion(region);
@@ -69,7 +70,10 @@ ${[
 	// if no existing service, deploy new service
 
 	if (!CliInternals.quietFlagProvided()) {
-		Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			CliInternals.chalk.white('\nDeploying Cloud Run Service...'),
+		);
 	}
 
 	try {
@@ -111,12 +115,16 @@ ${[
 		const consoleUrl = makeConsoleUrl(region, deployResult.shortName);
 
 		if (deployResult.alreadyExists) {
-			Log.info();
+			Log.infoAdvanced({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.info(deployResult.shortName);
+				CliInternals.Log.infoAdvanced(
+					{indent: false, logLevel},
+					deployResult.shortName,
+				);
 			} else {
-				Log.info(
+				Log.infoAdvanced(
+					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`
 Service already exists, skipping deployment;
@@ -136,12 +144,16 @@ ${displayServiceInfo({
 				);
 			}
 		} else {
-			Log.info();
+			Log.infoAdvanced({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.info(deployResult.shortName);
+				CliInternals.Log.infoAdvanced(
+					{indent: false, logLevel},
+					deployResult.shortName,
+				);
 			} else {
-				Log.info(
+				Log.infoAdvanced(
+					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`
 Cloud Run Deployed!

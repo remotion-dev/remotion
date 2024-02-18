@@ -50,11 +50,15 @@ const innerHandler = async (
 	if (params.type === LambdaRoutines.still) {
 		validateDeleteAfter(params.deleteAfter);
 		const renderId = generateRandomHashWithLifeCycleRule(params.deleteAfter);
-		printCloudwatchHelper(LambdaRoutines.still, {
-			renderId,
-			inputProps: JSON.stringify(params.inputProps),
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.still,
+			{
+				renderId,
+				inputProps: JSON.stringify(params.inputProps),
+				isWarm,
+			},
+			params.logLevel,
+		);
 		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const renderIdDetermined: StreamingPayloads = {
@@ -76,10 +80,14 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.start) {
-		printCloudwatchHelper(LambdaRoutines.start, {
-			inputProps: JSON.stringify(params.inputProps),
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.start,
+			{
+				inputProps: JSON.stringify(params.inputProps),
+				isWarm,
+			},
+			params.logLevel,
+		);
 		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await startHandler(params, {
@@ -92,11 +100,15 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.launch) {
-		printCloudwatchHelper(LambdaRoutines.launch, {
-			renderId: params.renderId,
-			inputProps: JSON.stringify(params.inputProps),
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.launch,
+			{
+				renderId: params.renderId,
+				inputProps: JSON.stringify(params.inputProps),
+				isWarm,
+			},
+			params.logLevel,
+		);
 		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await launchHandler(params, {
@@ -110,10 +122,14 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.status) {
-		printCloudwatchHelper(LambdaRoutines.status, {
-			renderId: params.renderId,
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.status,
+			{
+				renderId: params.renderId,
+				isWarm,
+			},
+			params.logLevel,
+		);
 		const response = await progressHandler(params, {
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
@@ -126,15 +142,19 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
-		printCloudwatchHelper(LambdaRoutines.renderer, {
-			renderId: params.renderId,
-			chunk: String(params.chunk),
-			dumpLogs: String(
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			),
-			resolvedProps: JSON.stringify(params.resolvedProps),
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.renderer,
+			{
+				renderId: params.renderId,
+				chunk: String(params.chunk),
+				dumpLogs: String(
+					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+				),
+				resolvedProps: JSON.stringify(params.resolvedProps),
+				isWarm,
+			},
+			params.logLevel,
+		);
 		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await rendererHandler(
@@ -153,9 +173,13 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.info) {
-		printCloudwatchHelper(LambdaRoutines.info, {
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.info,
+			{
+				isWarm,
+			},
+			params.logLevel,
+		);
 
 		const response = await infoHandler(params);
 		responseStream.write(JSON.stringify(response), () => {
@@ -165,10 +189,14 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.merge) {
-		printCloudwatchHelper(LambdaRoutines.merge, {
-			renderId: params.renderId,
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.merge,
+			{
+				renderId: params.renderId,
+				isWarm,
+			},
+			params.logLevel,
+		);
 
 		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
@@ -181,9 +209,13 @@ const innerHandler = async (
 	}
 
 	if (params.type === LambdaRoutines.compositions) {
-		printCloudwatchHelper(LambdaRoutines.compositions, {
-			isWarm,
-		});
+		printCloudwatchHelper(
+			LambdaRoutines.compositions,
+			{
+				isWarm,
+			},
+			params.logLevel,
+		);
 
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,

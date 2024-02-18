@@ -26,37 +26,54 @@ export const displayServiceInfo = (service: ServiceInfo) => {
 	].join('\n');
 };
 
-const printCloudRunHelp = () => {
-	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND} <subcommand>`);
-	Log.info();
-	Log.info('Available subcommands:');
-	CliInternals.Log.info('');
-	CliInternals.Log.info(
+const printCloudRunHelp = (logLevel: LogLevel) => {
+	Log.infoAdvanced(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${SERVICES_COMMAND} <subcommand>`,
+	);
+	Log.infoAdvanced({indent: false, logLevel});
+	Log.infoAdvanced({indent: false, logLevel}, 'Available subcommands:');
+	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Lists the services currently deployed'),
 	);
-	Log.info('');
-	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`);
-	Log.info(CliInternals.chalk.gray('Deploy a new Cloud Run service'));
-	CliInternals.Log.info('');
-	CliInternals.Log.info(
+	Log.infoAdvanced({indent: false, logLevel}, '');
+	Log.infoAdvanced(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`,
+	);
+	Log.infoAdvanced(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Deploy a new Cloud Run service'),
+	);
+	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_RM_SUBCOMMAND} <service-name>`,
 	);
-	CliInternals.Log.info(CliInternals.chalk.gray('Delete a Cloud Run service'));
-	CliInternals.Log.info('');
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Delete a Cloud Run service'),
+	);
+	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_RMALL_SUBCOMMAND}`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Delete all services in selected region'),
 	);
 };
 
 export const servicesCommand = (args: string[], logLevel: LogLevel) => {
 	if (args[0] === SERVICES_LS_SUBCOMMAND) {
-		return servicesLsCommand();
+		return servicesLsCommand(logLevel);
 	}
 
 	if (args[0] === SERVICES_RM_SUBCOMMAND) {
@@ -64,7 +81,7 @@ export const servicesCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === SERVICES_RMALL_SUBCOMMAND) {
-		return servicesRmallCommand();
+		return servicesRmallCommand(logLevel);
 	}
 
 	if (args[0] === CLOUD_RUN_DEPLOY_SUBCOMMAND) {
@@ -73,9 +90,9 @@ export const servicesCommand = (args: string[], logLevel: LogLevel) => {
 
 	if (args[0]) {
 		Log.error({indent: false, logLevel}, `Subcommand ${args[0]} not found.`);
-		printCloudRunHelp();
+		printCloudRunHelp(logLevel);
 		quit(1);
 	}
 
-	printCloudRunHelp();
+	printCloudRunHelp(logLevel);
 };

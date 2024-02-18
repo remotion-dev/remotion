@@ -71,7 +71,7 @@ export const sitesCommand = (
 	}
 
 	if (args[0] === SITES_RMALL_COMMAND) {
-		return sitesRmallSubcommand();
+		return sitesRmallSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {

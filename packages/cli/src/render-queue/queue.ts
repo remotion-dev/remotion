@@ -170,7 +170,10 @@ const processJobIfPossible = async ({
 			};
 		});
 		const startTime = Date.now();
-		Log.info(chalk.gray('╭─ Starting render '));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			chalk.gray('╭─ Starting render '),
+		);
 		let lastProgress: AggregateRenderProgress | null = null;
 		await processJob({
 			job: nextJob,
@@ -216,7 +219,10 @@ const processJobIfPossible = async ({
 			},
 			logLevel,
 		});
-		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
+		);
 
 		const {unwatch} = StudioServerInternals.installFileWatcher({
 			file: path.resolve(remotionRoot, nextJob.outName),

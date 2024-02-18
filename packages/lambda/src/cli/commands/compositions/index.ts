@@ -23,11 +23,15 @@ export const compositionsCommand = async (
 
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`,
+		);
 		quit(1);
 	}
 

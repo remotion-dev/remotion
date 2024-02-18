@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteService} from '../../../api/delete-service';
 import {getServices} from '../../../api/get-services';
 import {getGcpRegion} from '../../get-gcp-region';
@@ -8,7 +9,7 @@ import {displayServiceInfo} from './index';
 
 export const SERVICES_RMALL_SUBCOMMAND = 'rmall';
 
-export const servicesRmallCommand = async () => {
+export const servicesRmallCommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();
 
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
@@ -26,12 +27,12 @@ export const servicesRmallCommand = async () => {
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
 	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
-	Log.info();
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
+	Log.infoAdvanced({indent: false, logLevel});
 
 	for (const serv of services) {
-		Log.info(displayServiceInfo(serv));
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel}, displayServiceInfo(serv));
+		Log.infoAdvanced({indent: false, logLevel});
 
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
@@ -39,8 +40,11 @@ export const servicesRmallCommand = async () => {
 		});
 
 		if (!confirmDelete) {
-			Log.info(`Skipping service - ${serv.serviceName}.`);
-			Log.info();
+			Log.infoAdvanced(
+				{indent: false, logLevel},
+				`Skipping service - ${serv.serviceName}.`,
+			);
+			Log.infoAdvanced({indent: false, logLevel});
 			continue;
 		}
 

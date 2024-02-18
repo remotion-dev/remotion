@@ -26,7 +26,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === '()') {
-		Log.info('No sites to remove.');
+		Log.infoAdvanced({indent: false, logLevel}, 'No sites to remove.');
 		return;
 	}
 
@@ -51,8 +51,8 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 		}
 
 		infoOutput.update(displaySiteInfo(site), false);
-		Log.info();
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced({indent: false, logLevel});
 
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
@@ -60,7 +60,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 		});
 
 		if (!confirmDelete) {
-			Log.info('Aborting.');
+			Log.infoAdvanced({indent: false, logLevel}, 'Aborting.');
 			return;
 		}
 
@@ -69,6 +69,9 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 			siteName,
 		});
 
-		Log.info(`Deleted site ${siteName} from bucket ${site.bucketName}.`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`Deleted site ${siteName} from bucket ${site.bucketName}.`,
+		);
 	}
 };

@@ -37,11 +37,15 @@ export const sitesCreateSubcommand = async (
 	);
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`${BINARY_NAME} deploy <entry-file.ts>`,
+		);
 		quit(1);
 		return;
 	}
@@ -177,12 +181,13 @@ export const sitesCreateSubcommand = async (
 	};
 	updateProgress();
 
-	Log.info();
-	Log.info();
-	Log.info('Deployed to GCP Storage!');
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
+	Log.infoAdvanced({indent: false, logLevel});
+	Log.infoAdvanced({indent: false, logLevel}, 'Deployed to GCP Storage!');
+	Log.infoAdvanced({indent: false, logLevel});
 
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		displaySiteInfo({
 			bucketName,
 			id: siteName,
@@ -191,13 +196,15 @@ export const sitesCreateSubcommand = async (
 		}),
 	);
 
-	Log.info();
-	Log.info(
+	Log.infoAdvanced({indent: false, logLevel});
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
 		),
 	);
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			['npx remotion cloudrun sites create', args[0], `--site-name=${siteName}`]
 				.filter(Internals.truthy)

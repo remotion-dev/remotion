@@ -11,17 +11,18 @@ export const PERMISSIONS_COMMAND = 'permissions';
 
 export const permissionsCommand = async (logLevel: LogLevel) => {
 	try {
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			CliInternals.chalk.blueBright(
 				`Checking permissions for ${
 					process.env.REMOTION_GCP_CLIENT_EMAIL
 				} in project ${getProjectId()}.`,
 			),
 		);
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
 		await testPermissions({
 			onTest: (res) => {
-				Log.info(logPermissionOutput(res));
+				Log.infoAdvanced({indent: false, logLevel}, logPermissionOutput(res));
 			},
 		});
 	} catch (err) {

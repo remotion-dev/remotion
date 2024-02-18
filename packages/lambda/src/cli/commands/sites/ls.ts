@@ -30,29 +30,35 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
 	if (!CliInternals.quietFlagProvided()) {
-		CliInternals.Log.info(
+		CliInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
 			`${sites.length} ${sitesPluralized} in the ${region} region.`,
 		);
 	}
 
 	if (CliInternals.quietFlagProvided()) {
 		if (sites.length === 0) {
-			CliInternals.Log.info('()');
+			CliInternals.Log.infoAdvanced({indent: false, logLevel}, '()');
 			return;
 		}
 
-		return CliInternals.Log.info(sites.map((s) => s.id).join(' '));
+		return CliInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
+			sites.map((s) => s.id).join(' '),
+		);
 	}
 
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			logRow(['Site Name', 'Bucket', 'Size', 'Last updated']),
 		),
 	);
 
 	for (const site of sites) {
-		CliInternals.Log.info(
+		CliInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
 			logRow([
 				site.id,
 				site.bucketName,
@@ -60,7 +66,7 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
 			]),
 		);
-		CliInternals.Log.info(site.serveUrl);
-		CliInternals.Log.info();
+		CliInternals.Log.infoAdvanced({indent: false, logLevel}, site.serveUrl);
+		CliInternals.Log.infoAdvanced({indent: false, logLevel});
 	}
 };

@@ -20,7 +20,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === '()') {
-		Log.info('No sites to remove.');
+		Log.infoAdvanced({indent: false, logLevel}, 'No sites to remove.');
 		return;
 	}
 
@@ -66,11 +66,15 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 			siteName,
 			region,
 			onAfterItemDeleted: ({itemName}) => {
-				Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
+				Log.infoAdvanced(
+					{indent: false, logLevel},
+					CliInternals.chalk.gray(`Deleted ${itemName}`),
+				);
 			},
 		});
 
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			`Deleted site ${siteName} and freed up ${CliInternals.formatBytes(
 				totalSize,
 			)}.`,

@@ -40,11 +40,13 @@ export const stillCommand = async (
 
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
-		Log.info(
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
 		quit(1);
@@ -86,7 +88,10 @@ export const stillCommand = async (
 	};
 
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -160,7 +165,8 @@ export const stillCommand = async (
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
 		),
@@ -194,7 +200,10 @@ export const stillCommand = async (
 		forceHeight: height,
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
-			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
+			Log.infoAdvanced(
+				{indent: false, logLevel},
+				CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`),
+			);
 			Log.verbose(
 				{indent: false, logLevel},
 				`CloudWatch logs (if enabled): ${cloudWatchLogs}`,
@@ -208,7 +217,10 @@ export const stillCommand = async (
 	});
 
 	if (downloadName) {
-		Log.info('Finished rendering. Downloading...');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Finished rendering. Downloading...',
+		);
 		const {outputPath, sizeInBytes} = await downloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
@@ -216,10 +228,15 @@ export const stillCommand = async (
 			renderId: res.renderId,
 			logLevel,
 		});
-		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Done!',
+			outputPath,
+			CliInternals.formatBytes(sizeInBytes),
+		);
 	} else {
-		Log.info(`Finished still!`);
-		Log.info();
-		Log.info(res.url);
+		Log.infoAdvanced({indent: false, logLevel}, `Finished still!`);
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced({indent: false, logLevel}, res.url);
 	}
 };
