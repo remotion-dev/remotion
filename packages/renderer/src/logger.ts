@@ -63,7 +63,7 @@ export const Log = {
 	) => {
 		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'error')) {
-			return console.log(
+			return console.error(
 				...[
 					options.indent ? INDENT_TOKEN : null,
 					options.tag ? verboseTag(options.tag) : null,
