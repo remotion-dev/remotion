@@ -21,13 +21,14 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
+	logLevelOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const logLevel = ConfigInternals.Logging.getLogLevel();
+	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(
 		ConfigInternals.getConcurrency(),

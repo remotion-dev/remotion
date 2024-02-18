@@ -3,7 +3,6 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -145,7 +144,7 @@ export const render = async (
 		remotionRoot,
 		browserExecutable,
 		indent: false,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		browser: 'chrome',
 		chromiumOptions,
 		scale,

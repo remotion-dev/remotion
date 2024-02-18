@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
@@ -67,10 +66,7 @@ export const executeCommand = async (
 	} catch (err) {
 		const error = err as Error;
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.printError(
-				error,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(error, logLevel);
 		} else {
 			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
 
@@ -81,10 +77,7 @@ export const executeCommand = async (
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.printError(
-				errorWithStackFrame,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
 
 		quit(1);

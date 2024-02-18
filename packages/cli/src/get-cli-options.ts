@@ -114,7 +114,6 @@ export const getCliOptions = (options: {
 		everyNthFrame,
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
 		userAgent,
 		headless,
 		disableWebSecurity,

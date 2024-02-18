@@ -120,7 +120,7 @@ _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
-### `logLevel?`<AvailableFrom v="4.0.0"/>
+### `logLevel?`<AvailableFrom v="4.0.115"/>
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
 `verbose` will also log `console.log`'s from the browser.

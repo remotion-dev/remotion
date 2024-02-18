@@ -8,7 +8,6 @@ import type {
 import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {chalk} from '../chalk';
-import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {printError} from '../print-error';
 import {initialAggregateRenderProgress} from '../progress-types';
@@ -263,7 +262,7 @@ const processJobIfPossible = async ({
 			};
 		});
 
-		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
+		await printError(err as Error, logLevel);
 
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({

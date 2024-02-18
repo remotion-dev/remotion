@@ -11,6 +11,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
+import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
@@ -45,6 +46,7 @@ export const allOptions = {
 	numberOfGifLoopsOption,
 	reproOption,
 	x264Option,
+	logLevelOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

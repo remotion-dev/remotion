@@ -6,7 +6,6 @@ import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
-import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -92,11 +91,11 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
-			ffmpegCommand(remotionRoot, process.argv.slice(3));
+			ffmpegCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
 			await gpuCommand(remotionRoot, logLevel);
 		} else if (command === 'ffprobe') {
-			ffprobeCommand(remotionRoot, process.argv.slice(3));
+			ffprobeCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {
 			await upgrade(
 				remotionRoot,
@@ -120,7 +119,7 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
+		await printError(err as Error, logLevel);
 		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);
 	} finally {

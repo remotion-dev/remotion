@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {functionsDeploySubcommand, FUNCTIONS_DEPLOY_SUBCOMMAND} from './deploy';
@@ -40,17 +41,17 @@ const printFunctionsHelp = () => {
 	);
 };
 
-export const functionsCommand = (args: string[]) => {
+export const functionsCommand = (args: string[], logLevel: LogLevel) => {
 	if (args[0] === FUNCTIONS_LS_SUBCOMMAND) {
-		return functionsLsCommand();
+		return functionsLsCommand(logLevel);
 	}
 
 	if (args[0] === FUNCTIONS_RM_SUBCOMMAND) {
-		return functionsRmCommand(args.slice(1));
+		return functionsRmCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === FUNCTIONS_RMALL_SUBCOMMAND) {
-		return functionsRmallCommand();
+		return functionsRmallCommand(logLevel);
 	}
 
 	if (args[0] === FUNCTIONS_DEPLOY_SUBCOMMAND) {

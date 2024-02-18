@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -11,13 +11,13 @@ const VERSION_COLS = 15;
 
 export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
-export const functionsLsCommand = async () => {
+export const functionsLsCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
 		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-			logLevel: RenderInternals.getLogLevel(),
+			logLevel,
 		}),
 		indent: false,
 	});

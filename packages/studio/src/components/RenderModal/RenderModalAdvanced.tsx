@@ -249,7 +249,10 @@ export const RenderModalAdvanced: React.FC<{
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={optionRow}>
-				<div style={label}>Verbose logging</div>
+				<div style={label}>
+					Verbose logging <Spacing x={0.5} />
+					<OptionExplainerBubble id="logLevelOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={logLevel === 'verbose'}

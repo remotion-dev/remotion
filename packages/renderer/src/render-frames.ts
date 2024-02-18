@@ -33,7 +33,7 @@ import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {type LogLevel} from './log-level';
-import {getLogLevel, Log} from './logger';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -882,8 +882,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel:
-			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

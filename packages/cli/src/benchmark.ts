@@ -247,7 +247,7 @@ export const benchmarkCommand = async (
 			remotionRoot,
 			onProgress: () => undefined,
 			indentOutput: false,
-			logLevel: ConfigInternals.Logging.getLogLevel(),
+			logLevel,
 			bundlingStep: 0,
 			steps: 1,
 			onDirectoryCreated: (dir) => {

@@ -9,7 +9,6 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {type LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -287,7 +286,7 @@ export const getCompositions = (
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? getLogLevel(),
+		logLevel: logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			config?.offthreadVideoCacheSizeInBytes ?? null,
 	});

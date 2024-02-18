@@ -182,7 +182,7 @@ export const parseCommandLine = () => {
 			process.exit(1);
 		}
 
-		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {

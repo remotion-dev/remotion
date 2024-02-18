@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
@@ -70,7 +69,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
-		return functionsCommand(args.slice(1));
+		return functionsCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
@@ -204,10 +203,7 @@ AWS returned an error message "The security token included in the request is inv
 		}
 
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.printError(
-				error,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(error, logLevel);
 		} else {
 			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
 
@@ -218,10 +214,7 @@ AWS returned an error message "The security token included in the request is inv
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.printError(
-				errorWithStackFrame,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
 
 		quit(1);

@@ -2,6 +2,7 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
+import {logLevelOption} from './options/log-level';
 import {writeInRepro} from './repro';
 import {truthy} from './truthy';
 
@@ -42,7 +43,13 @@ export const Log = {
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
-		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
+		Log.infoAdvanced(
+			{
+				indent: false,
+				logLevel: logLevelOption.getValue({commandLine: {}}).value,
+			},
+			...args,
+		);
 	},
 	infoAdvanced: (
 		options: LogOptions,
@@ -66,7 +73,12 @@ export const Log = {
 	},
 	error: (...args: Parameters<typeof console.log>) => {
 		writeInRepro('error', ...args);
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
+		if (
+			isEqualOrBelowLogLevel(
+				logLevelOption.getValue({commandLine: {}}).value,
+				'error',
+			)
+		) {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
@@ -75,7 +87,7 @@ export const Log = {
 		...args: Parameters<typeof console.log>
 	) => {
 		writeInRepro('error', ...args);
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
+		if (isEqualOrBelowLogLevel(options.logLevel, 'error')) {
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
@@ -86,14 +98,4 @@ export const Log = {
 			);
 		}
 	},
-};
-
-let logLevel: LogLevel = 'info';
-
-export const getLogLevel = () => {
-	return logLevel;
-};
-
-export const setLogLevel = (newLogLevel: LogLevel) => {
-	logLevel = newLogLevel;
 };

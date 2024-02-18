@@ -1,7 +1,6 @@
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
-import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
@@ -94,12 +93,7 @@ export const validateVersionsBeforeCommand = async (
 		logOptions,
 		'- Remove the `^` character in front of a version to pin a package.',
 	);
-	if (
-		!RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose',
-		)
-	) {
+	if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 		Log.warn(
 			logOptions,
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.',
@@ -158,12 +152,7 @@ export const versionsCommand = async (
 		Log.info(
 			'- Remove the `^` character in front of a version to pin a package.',
 		);
-		if (
-			!RenderInternals.isEqualOrBelowLogLevel(
-				ConfigInternals.Logging.getLogLevel(),
-				'verbose',
-			)
-		) {
+		if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 			Log.info(
 				'- Rerun this command with --log=verbose to see the path of the modules resolved.',
 			);

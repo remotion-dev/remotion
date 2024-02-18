@@ -48,7 +48,7 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
+import {INDENT_TOKEN, Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
@@ -205,8 +205,6 @@ export const RenderInternals = {
 	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
-	getLogLevel,
-	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
 	HeadlessBrowser,

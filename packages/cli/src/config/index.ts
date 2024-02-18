@@ -15,7 +15,6 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
-import * as Logging from './log';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -74,7 +73,6 @@ import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
-import {setLogLevel} from './log';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
@@ -118,6 +116,7 @@ const {
 	encodingBufferSizeOption,
 	reproOption,
 	enableLambdaInsights,
+	logLevelOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -551,7 +550,7 @@ export const Config: FlatConfig = {
 	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
-	setLevel: setLogLevel,
+	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable,
 	setTimeoutInMilliseconds: setPuppeteerTimeout,
 	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
@@ -634,7 +633,6 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
-	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,

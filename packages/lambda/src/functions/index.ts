@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {LambdaPayload} from '../shared/constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
 import type {OrError} from '../shared/return-values';
@@ -54,7 +55,7 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		RenderInternals.setLogLevel(params.logLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const renderIdDetermined: StreamingPayloads = {
 			type: 'render-id-determined',
@@ -79,7 +80,7 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		RenderInternals.setLogLevel(params.logLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -96,7 +97,7 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		RenderInternals.setLogLevel(params.logLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await launchHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -134,7 +135,7 @@ const innerHandler = async (
 			resolvedProps: JSON.stringify(params.resolvedProps),
 			isWarm,
 		});
-		RenderInternals.setLogLevel(params.logLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await rendererHandler(
 			params,
@@ -169,7 +170,7 @@ const innerHandler = async (
 			isWarm,
 		});
 
-		RenderInternals.setLogLevel(params.logLevel);
+		BrowserSafeApis.options.logLevelOption.setConfig(params.logLevel);
 
 		const response = await mergeHandler(params, {
 			expectedBucketOwner: currentUserId,

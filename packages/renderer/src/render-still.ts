@@ -24,7 +24,6 @@ import {
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -98,6 +97,7 @@ export type RenderStillOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
+	logLevel?: LogLevel;
 	serveUrl: string;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -437,6 +437,7 @@ export const renderStill = (
 		verbose,
 		quality,
 		offthreadVideoCacheSizeInBytes,
+		logLevel,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -477,7 +478,7 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		logLevel: logLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info'),
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,

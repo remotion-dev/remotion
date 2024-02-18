@@ -283,7 +283,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		muted,
 		forceWidth: width,
 		forceHeight: height,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		// Special case: Should not use default local concurrency, or from
 		// config file, just when explicitly set

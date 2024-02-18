@@ -200,7 +200,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceWidth: width,
 		forceBucketName,
 		outName,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
 	if (res.type === 'crash') {
