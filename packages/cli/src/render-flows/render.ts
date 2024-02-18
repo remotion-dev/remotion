@@ -17,6 +17,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
 	BundlingState,
@@ -37,7 +38,6 @@ import type {Loop} from '../config/number-of-gif-loops';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
-import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
@@ -292,17 +292,22 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 		});
 
-	const {codec, reason: codecReason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		downloadName: null,
-		outName: getUserPassedOutputLocation(
-			argsAfterComposition,
-			outputLocationFromUI,
-		),
-		uiCodec,
-		compositionCodec: config.defaultCodec,
-	});
+	const {value: codec, source: codecReason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: parsedCli,
+			},
+			{
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				downloadName: null,
+				outName: getUserPassedOutputLocation(
+					argsAfterComposition,
+					outputLocationFromUI,
+				),
+				uiCodec,
+				compositionCodec: config.defaultCodec,
+			},
+		);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,

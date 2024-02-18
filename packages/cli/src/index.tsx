@@ -14,7 +14,6 @@ import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {gpuCommand} from './gpu';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
@@ -151,7 +150,6 @@ export const CliInternals = {
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
-	getFinalOutputCodec,
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,
 	getCompositionWithDimensionOverride,

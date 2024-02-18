@@ -22,7 +22,7 @@ describe('Codec tests setCodec', () => {
 	test('setCodec with invalid coded', () => {
 		expectToThrow(
 			// @ts-expect-error
-			() => setCodec('invalid'),
+			() => BrowserSafeApis.options.videoCodecOption.setConfig('invalid'),
 			/Codec must be one of the following:/,
 		);
 	});

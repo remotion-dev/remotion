@@ -9,7 +9,11 @@ export type RemotionOption<SsrName extends string, Type> = {
 	description: (mode: 'ssr' | 'cli') => React.ReactNode;
 	docLink: string;
 	type: Type;
-	getValue?: (values: {commandLine: Record<string, unknown>}) => {
+	getValue?: (
+		values: {commandLine: Record<string, unknown>},
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		more?: any,
+	) => {
 		value: Type;
 		source: string;
 	};

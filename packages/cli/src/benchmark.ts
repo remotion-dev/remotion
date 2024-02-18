@@ -9,7 +9,6 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -32,6 +31,7 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
+	videoCodecOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -317,14 +317,18 @@ export const benchmarkCommand = async (
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
 
 	for (const composition of compositions) {
-		const {codec, reason: codecReason} = getFinalOutputCodec({
-			cliFlag: parsedCli.codec,
-			downloadName: null,
-			outName: null,
-			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-			uiCodec: null,
-			compositionCodec: composition.defaultCodec ?? null,
-		});
+		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
+			{
+				commandLine: parsedCli,
+			},
+			{
+				downloadName: null,
+				outName: null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: composition.defaultCodec ?? null,
+			},
+		);
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
@@ -339,7 +343,7 @@ export const benchmarkCommand = async (
 			Log.infoAdvanced(
 				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`,
+					`composition=${composition.id} concurrency=${con} codec=${videoCodec} (${codecReason})`,
 				)}`,
 			);
 
@@ -356,7 +360,7 @@ export const benchmarkCommand = async (
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: getVideoImageFormat({
-						codec,
+						codec: videoCodec,
 						uiImageFormat: null,
 					}),
 					serializedInputPropsWithCustomSchema,
@@ -377,7 +381,7 @@ export const benchmarkCommand = async (
 					browserExecutable,
 					ffmpegOverride,
 					serveUrl: bundleLocation,
-					codec,
+					codec: videoCodec,
 					audioBitrate,
 					videoBitrate,
 					encodingMaxRate,

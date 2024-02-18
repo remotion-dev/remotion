@@ -42,14 +42,19 @@ export const renderCommand = async (
 		region,
 	} = await renderArgsCheck(RENDER_COMMAND, args, logLevel);
 
-	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-		compositionCodec: null,
-	});
+	const {value: codec, source: codecReason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
 
 	const imageFormat = parsedCloudrunCli['image-format'];
 

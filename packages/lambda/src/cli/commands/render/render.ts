@@ -174,14 +174,19 @@ export const renderCommand = async (
 	const outName = parsedLambdaCli['out-name'];
 	const downloadName = args[2] ?? null;
 
-	const {codec, reason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-		compositionCodec: null,
-	});
+	const {value: codec, source: reason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
 
 	const imageFormat = CliInternals.getVideoImageFormat({
 		codec,
