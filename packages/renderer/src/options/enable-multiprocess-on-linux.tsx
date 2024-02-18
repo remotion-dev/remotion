@@ -1,8 +1,12 @@
 import type {AnyRemotionOption} from './option';
 
+let multiProcessOnLinux = false;
+
+const cliFlag = 'enable-multiprocess-on-linux' as const;
+
 export const enableMultiprocessOnLinuxOption = {
 	name: 'Enable Multiprocess on Linux',
-	cliFlag: 'enable-multiprocess-on-linux' as const,
+	cliFlag,
 	description: () => (
 		<>
 			Removes the <code>{'--single-process'}</code> flag that gets passed to
@@ -14,4 +18,27 @@ export const enableMultiprocessOnLinuxOption = {
 	ssrName: 'chromiumOptions.enableMultiprocessOnLinux',
 	docLink: 'https://www.remotion.dev/docs/chromium-flags',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as boolean,
+			};
+		}
+
+		if (multiProcessOnLinux !== false) {
+			return {
+				source: 'config',
+				value: multiProcessOnLinux,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: false,
+		};
+	},
+	setConfig: (value: boolean) => {
+		multiProcessOnLinux = value;
+	},
+} satisfies AnyRemotionOption<boolean>;

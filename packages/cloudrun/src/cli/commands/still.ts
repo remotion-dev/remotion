@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
@@ -11,6 +12,14 @@ import {Log} from '../log';
 import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
+
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+} = BrowserSafeApis.options;
 
 export const stillCommand = async (
 	args: string[],
@@ -28,17 +37,17 @@ export const stillCommand = async (
 	} = await renderArgsCheck(STILL_COMMAND, args, logLevel);
 
 	const {
-		chromiumOptions,
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
-		scale,
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
+		headless,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -47,6 +56,20 @@ export const stillCommand = async (
 	});
 
 	let composition = args[1];
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 
@@ -57,6 +80,11 @@ export const stillCommand = async (
 				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
+
+		const offthreadVideoCacheSizeInBytes =
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value;
 
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
@@ -147,6 +175,13 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			newline,
 		);
 	};
+
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,

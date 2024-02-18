@@ -9,6 +9,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ColorSpace} from './options/color-space';
+import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
 import {
@@ -18,7 +19,6 @@ import {
 import type {ProResProfile} from './prores-profile';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import type {X264Preset} from './x264-preset';
 
 type RunningStatus =
 	| {

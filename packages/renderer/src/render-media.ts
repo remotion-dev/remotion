@@ -40,6 +40,7 @@ import type {ChromiumOptions} from './open-browser';
 import type {ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
+import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
@@ -71,8 +72,6 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
-import type {X264Preset} from './x264-preset';
-import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -93,7 +92,6 @@ type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
 
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
-	codec: Codec;
 	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
@@ -101,7 +99,6 @@ export type InternalRenderMediaOptions = {
 	imageFormat: VideoImageFormat;
 	pixelFormat: PixelFormat;
 	envVariables: Record<string, string>;
-	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
@@ -109,7 +106,6 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -123,18 +119,12 @@ export type InternalRenderMediaOptions = {
 	indent: boolean;
 	server: RemotionServer | undefined;
 	preferLossless: boolean;
-	muted: boolean;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: FfmpegOverrideFn | undefined;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
 	disallowParallelEncoding: boolean;
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
-	colorSpace: ColorSpace;
 	finishRenderProgress: () => void;
 } & MoreRenderMediaOptions;
 
@@ -163,7 +153,6 @@ export type RenderMediaOptions = Prettify<{
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -181,7 +170,6 @@ export type RenderMediaOptions = Prettify<{
 	 */
 	verbose?: boolean;
 	preferLossless?: boolean;
-	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
@@ -855,7 +843,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
-		x264Preset,
+		x264Preset: x264Preset ?? null,
 		codec,
 		composition,
 		serveUrl,

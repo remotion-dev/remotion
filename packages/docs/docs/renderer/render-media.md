@@ -319,9 +319,7 @@ Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See 
 
 _string - optional_
 
-Sets a Preset profile. Only applies to videos rendered with `h264` codec.
-Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
-Default: `medium`
+<Options id="x264-preset" />
 
 ### `onBrowserLog?`
 

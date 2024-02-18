@@ -35,7 +35,7 @@ type InternalSelectCompositionsConfig = {
 	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
-} & ToOptions<typeof optionsMap.renderStill>;
+} & ToOptions<typeof optionsMap.selectComposition>;
 
 export type SelectCompositionOptions = {
 	inputProps?: Record<string, unknown> | null;
@@ -51,10 +51,9 @@ export type SelectCompositionOptions = {
 	 */
 	verbose?: boolean;
 	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
 	serveUrl: string;
 	id: string;
-};
+} & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
 

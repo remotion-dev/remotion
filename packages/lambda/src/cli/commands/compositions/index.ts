@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {getCompositionsOnLambda} from '../../..';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
@@ -10,6 +11,8 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
+
+const {enableMultiprocessOnLinuxOption, glOption} = BrowserSafeApis.options;
 
 export const compositionsCommand = async (
 	args: string[],
@@ -28,13 +31,34 @@ export const compositionsCommand = async (
 		quit(1);
 	}
 
-	const {chromiumOptions, envVariables, inputProps, puppeteerTimeout} =
-		CliInternals.getCliOptions({
-			type: 'get-compositions',
-			isLambda: true,
-			remotionRoot,
-			logLevel,
-		});
+	const {
+		envVariables,
+		inputProps,
+		puppeteerTimeout,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
+	} = CliInternals.getCliOptions({
+		type: 'get-compositions',
+		isLambda: true,
+		remotionRoot,
+		logLevel,
+	});
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const region = getAwsRegion();
 	validateServeUrl(serveUrl);

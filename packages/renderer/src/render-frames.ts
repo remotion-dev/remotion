@@ -111,7 +111,6 @@ type InnerRenderFramesOptions = {
 	outputDir: string | null;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
-	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -137,7 +136,7 @@ type InnerRenderFramesOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
-};
+} & ToOptions<typeof optionsMap.renderFrames>;
 
 export type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
@@ -154,7 +153,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Renamed to "jpegQuality"
 	 */
 	quality?: never;
-	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	/**
@@ -180,8 +178,7 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
 const innerRenderFrames = async ({
 	onFrameUpdate,
@@ -215,7 +212,10 @@ const innerRenderFrames = async ({
 	logLevel,
 	indent,
 	parallelEncodingEnabled,
-}: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
+}: Omit<
+	InnerRenderFramesOptions,
+	'offthreadVideoCacheSizeInBytes'
+>): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {

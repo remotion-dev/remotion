@@ -22,7 +22,7 @@ type LambdaCommandLineOptions = {
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
-	['enable-lambda-insights']: boolean;
+	[BrowserSafeApis.options.enableLambdaInsights.cliFlag]: boolean;
 	['max-retries']?: number;
 	['frames-per-lambda']?: number;
 	['concurrency-per-lambda']?: number;
