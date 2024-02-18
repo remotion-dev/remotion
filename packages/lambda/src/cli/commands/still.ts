@@ -27,7 +27,17 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
+
+const {
+	parsedCli,
+	determineFinalStillImageFormat,
+	chalk,
+	getCliOptions,
+	formatBytes,
+	getCompositionWithDimensionOverride,
+} = CliInternals;
 
 export const STILL_COMMAND = 'still';
 
@@ -55,7 +65,6 @@ export const stillCommand = async (
 	const {
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		stillFrame,
 		height,
 		width,
@@ -64,7 +73,7 @@ export const stillCommand = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-	} = CliInternals.getCliOptions({
+	} = getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
@@ -75,9 +84,9 @@ export const stillCommand = async (
 	let composition = args[1];
 
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
-		commandLine: CliInternals.parsedCli,
+		commandLine: parsedCli,
 	}).value;
-	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -86,6 +95,16 @@ export const stillCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 	};
+
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+	).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 
 	if (!composition) {
 		Log.info(
@@ -101,11 +120,6 @@ export const stillCommand = async (
 			);
 		}
 
-		const offthreadVideoCacheSizeInBytes =
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: CliInternals.parsedCli,
-			}).value;
-
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
@@ -116,30 +130,29 @@ export const stillCommand = async (
 			offthreadVideoCacheSizeInBytes,
 		});
 
-		const {compositionId} =
-			await CliInternals.getCompositionWithDimensionOverride({
-				args: args.slice(1),
-				compositionIdFromUi: null,
-				indent: false,
-				serveUrlOrWebpackUrl: serveUrl,
-				logLevel,
-				browserExecutable,
-				chromiumOptions,
-				envVariables,
-				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
-						indent: undefined,
-						staticBase: null,
-						data: inputProps,
-					}).serializedString,
-				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
-				puppeteerInstance: undefined,
-				timeoutInMilliseconds: puppeteerTimeout,
-				height,
-				width,
-				server,
-				offthreadVideoCacheSizeInBytes,
-			});
+		const {compositionId} = await getCompositionWithDimensionOverride({
+			args: args.slice(1),
+			compositionIdFromUi: null,
+			indent: false,
+			serveUrlOrWebpackUrl: serveUrl,
+			logLevel,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			serializedInputPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+			puppeteerInstance: undefined,
+			timeoutInMilliseconds,
+			height,
+			width,
+			server,
+			offthreadVideoCacheSizeInBytes,
+		});
 		composition = compositionId;
 	}
 
@@ -155,10 +168,10 @@ export const stillCommand = async (
 	validatePrivacy(privacy, true);
 
 	const {format: imageFormat, source: imageFormatReason} =
-		CliInternals.determineFinalStillImageFormat({
+		determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			cliFlag: parsedCli['image-format'] ?? null,
 			isLambda: true,
 			fromUi: null,
 			configImageFormat:
@@ -174,10 +187,10 @@ export const stillCommand = async (
 
 	const deleteAfter = parsedLambdaCli[deleteAfterOption.cliFlag];
 	const scale = scaleOption.getValue({
-		commandLine: CliInternals.parsedCli,
+		commandLine: parsedCli,
 	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
-		commandLine: CliInternals.parsedCli,
+		commandLine: parsedCli,
 	}).value;
 
 	const res = await renderStillOnLambda({
@@ -195,14 +208,14 @@ export const stillCommand = async (
 		logLevel,
 		outName,
 		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds,
 		scale,
 		forceHeight: height,
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
 			Log.info(
 				{indent: false, logLevel},
-				CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`),
+				chalk.gray(`Render invoked with ID = ${renderId}`),
 			);
 			Log.verbose(
 				{indent: false, logLevel},
@@ -229,7 +242,7 @@ export const stillCommand = async (
 			{indent: false, logLevel},
 			'Done!',
 			outputPath,
-			CliInternals.formatBytes(sizeInBytes),
+			formatBytes(sizeInBytes),
 		);
 	} else {
 		Log.info({indent: false, logLevel}, `Finished still!`);

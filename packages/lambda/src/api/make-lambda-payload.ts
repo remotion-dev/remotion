@@ -201,7 +201,7 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
-		logLevel,
+		logLevel: logLevel ?? 'info',
 	};
 };
 

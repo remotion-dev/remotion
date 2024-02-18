@@ -11,7 +11,7 @@ export type GetRenderProgressInput = {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
-	logLevel: LogLevel;
+	logLevel?: LogLevel;
 	s3OutputProvider?: CustomCredentials;
 };
 

@@ -12,7 +12,11 @@ import {Log} from '../../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
 
-const {enableMultiprocessOnLinuxOption, glOption} = BrowserSafeApis.options;
+const {
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+} = BrowserSafeApis.options;
 
 export const compositionsCommand = async (
 	args: string[],
@@ -38,7 +42,6 @@ export const compositionsCommand = async (
 	const {
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
@@ -54,6 +57,9 @@ export const compositionsCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

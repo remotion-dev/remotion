@@ -18,6 +18,7 @@ import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size'
 import type {AnyRemotionOption} from './option';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
+import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
@@ -47,6 +48,7 @@ export const allOptions = {
 	reproOption,
 	x264Option,
 	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

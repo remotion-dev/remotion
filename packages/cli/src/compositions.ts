@@ -15,6 +15,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	offthreadVideoCacheSizeInBytesOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -52,7 +53,6 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		publicDir,
 		headless,
 		ignoreCertificateErrors,
@@ -111,7 +111,9 @@ export const listCompositionsCommand = async (
 				staticBase: null,
 				indent: undefined,
 			}).serializedString,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,

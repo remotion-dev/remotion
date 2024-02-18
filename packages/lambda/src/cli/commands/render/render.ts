@@ -56,6 +56,7 @@ const {
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -86,7 +87,6 @@ export const renderCommand = async (
 		inputProps,
 		pixelFormat,
 		proResProfile,
-		puppeteerTimeout,
 		everyNthFrame,
 		overwrite,
 		height,
@@ -149,6 +149,11 @@ export const renderCommand = async (
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: CliInternals.parsedCli,
+		},
+	).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -202,7 +207,7 @@ export const renderCommand = async (
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
-				timeoutInMilliseconds: puppeteerTimeout,
+				timeoutInMilliseconds,
 				logLevel,
 				width,
 				server,
@@ -264,7 +269,7 @@ export const renderCommand = async (
 		logLevel,
 		frameRange: frameRange ?? null,
 		outName: parsedLambdaCli['out-name'] ?? null,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
 		numberOfGifLoops,

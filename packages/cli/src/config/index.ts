@@ -29,7 +29,6 @@ import {
 } from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getStillFrame, setStillFrame} from './still-frame';
-import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
@@ -83,7 +82,6 @@ import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
-import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
@@ -117,6 +115,7 @@ const {
 	reproOption,
 	enableLambdaInsights,
 	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -552,8 +551,9 @@ export const Config: FlatConfig = {
 	setEntryPoint,
 	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable,
-	setTimeoutInMilliseconds: setPuppeteerTimeout,
-	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
+	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
+	setDelayRenderTimeoutInMilliseconds:
+		delayRenderTimeoutInMillisecondsOption.setConfig,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
@@ -623,7 +623,6 @@ export const ConfigInternals = {
 	getChromiumHeadlessMode,
 	getEveryNthFrame,
 	getConcurrency,
-	getCurrentPuppeteerTimeout,
 	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,

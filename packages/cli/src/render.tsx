@@ -29,6 +29,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -81,7 +82,6 @@ export const render = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		puppeteerTimeout,
 		publicDir,
 		height,
 		width,
@@ -135,6 +135,9 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const repro = reproOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

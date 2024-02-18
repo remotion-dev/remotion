@@ -16,6 +16,7 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -62,7 +63,6 @@ export const still = async (
 		inputProps,
 		overwrite,
 		publicDir,
-		puppeteerTimeout,
 		stillFrame,
 		width,
 		disableWebSecurity,
@@ -84,6 +84,13 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -128,9 +135,6 @@ export const still = async (
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
-		offthreadVideoCacheSizeInBytes:
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: parsedCli,
-			}).value,
+		offthreadVideoCacheSizeInBytes,
 	});
 };

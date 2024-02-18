@@ -22,6 +22,7 @@ const {
 	encodingBufferSizeOption,
 	reproOption,
 	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -82,9 +83,11 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const repro = reproOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();

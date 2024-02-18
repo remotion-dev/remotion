@@ -105,7 +105,6 @@ export const getCliOptions = (options: {
 	});
 
 	return {
-		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,

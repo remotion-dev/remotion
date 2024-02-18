@@ -173,10 +173,6 @@ export const parseCommandLine = () => {
 		Config.setConcurrency(parsedCli.concurrency);
 	}
 
-	if (parsedCli.timeout) {
-		Config.setTimeoutInMilliseconds(parsedCli.timeout);
-	}
-
 	if (parsedCli.height) {
 		Config.overrideHeight(parsedCli.height);
 	}

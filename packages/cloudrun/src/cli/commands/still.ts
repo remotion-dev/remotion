@@ -19,6 +19,7 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -39,7 +40,6 @@ export const stillCommand = async (
 	const {
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		stillFrame,
 		height,
 		width,
@@ -70,6 +70,14 @@ export const stillCommand = async (
 		userAgent,
 	};
 
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	if (!composition) {
 		Log.info(
 			{indent: false, logLevel},
@@ -83,11 +91,6 @@ export const stillCommand = async (
 				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
-
-		const offthreadVideoCacheSizeInBytes =
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: CliInternals.parsedCli,
-			}).value;
 
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,

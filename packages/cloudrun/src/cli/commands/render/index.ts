@@ -31,6 +31,7 @@ const {
 	glOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -70,7 +71,6 @@ export const renderCommand = async (
 		envVariables,
 		frameRange,
 		inputProps,
-		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
@@ -96,6 +96,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {

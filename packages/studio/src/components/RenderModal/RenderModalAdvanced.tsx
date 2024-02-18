@@ -297,6 +297,7 @@ export const RenderModalAdvanced: React.FC<{
 				onValueChanged={setDelayRenderTimeout}
 				formatter={(w) => `${w}ms`}
 				step={1000}
+				hint="delayRenderTimeoutInMillisecondsOption"
 				value={delayRenderTimeout}
 			/>
 			<div style={optionRow}>

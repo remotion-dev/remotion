@@ -42,6 +42,7 @@ const {
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -182,7 +183,6 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		puppeteerTimeout,
 		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
@@ -275,7 +275,9 @@ export const benchmarkCommand = async (
 		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		puppeteerInstance,
 		browserExecutable,
@@ -344,6 +346,10 @@ export const benchmarkCommand = async (
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const delayRenderInMilliseconds =
+		delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 
 	for (const composition of compositions) {
 		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
@@ -399,7 +405,7 @@ export const benchmarkCommand = async (
 					x264Preset,
 					jpegQuality,
 					chromiumOptions,
-					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+					timeoutInMilliseconds: delayRenderInMilliseconds,
 					scale,
 					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
