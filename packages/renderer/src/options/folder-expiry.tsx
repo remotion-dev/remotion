@@ -1,8 +1,12 @@
 import type {AnyRemotionOption} from './option';
 
+let enableFolderExpiry: boolean | null = null;
+
+const cliFlag = 'enable-folder-expiry' as const;
+
 export const folderExpiryOption = {
 	name: 'Lambda render expiration',
-	cliFlag: 'enable-folder-expiry' as const,
+	cliFlag,
 	description: () => {
 		return (
 			<>
@@ -16,4 +20,27 @@ export const folderExpiryOption = {
 	ssrName: 'enableFolderExpiry' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
 	type: false as boolean | null,
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as boolean | null,
+			};
+		}
+
+		if (enableFolderExpiry !== null) {
+			return {
+				source: 'config',
+				value: enableFolderExpiry,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: null,
+		};
+	},
+	setConfig: (value: boolean | null) => {
+		enableFolderExpiry = value;
+	},
 } satisfies AnyRemotionOption<boolean | null>;

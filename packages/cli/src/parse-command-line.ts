@@ -27,6 +27,10 @@ const {
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
 	x264Option,
+	enforceAudioOption,
+	jpegQualityOption,
+	audioBitrateOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -40,7 +44,7 @@ type CommandLineOptions = {
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
-	[numberOfGifLoopsOption.cliFlag]: number;
+	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	['number-of-shared-audio-tags']: number;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
@@ -53,8 +57,8 @@ type CommandLineOptions = {
 	timeout: number;
 	config: string;
 	['public-dir']: string;
-	['audio-bitrate']: string;
-	['video-bitrate']: string;
+	[audioBitrateOption.cliFlag]: TypeOfOption<typeof audioBitrateOption>;
+	[videoBitrateOption.cliFlag]: TypeOfOption<typeof videoBitrateOption>;
 	[encodingBufferSizeOption.cliFlag]: TypeOfOption<
 		typeof encodingBufferSizeOption
 	>;
@@ -67,7 +71,7 @@ type CommandLineOptions = {
 	png: boolean;
 	props: string;
 	quality: number;
-	['jpeg-quality']: number;
+	[jpegQualityOption.cliFlag]: TypeOfOption<typeof jpegQualityOption>;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -84,7 +88,7 @@ type CommandLineOptions = {
 	width: number;
 	runs: number;
 	concurrencies: string;
-	['enforce-audio-track']: boolean;
+	[enforceAudioOption.cliFlag]: TypeOfOption<typeof enforceAudioOption>;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
 	['webpack-poll']: number;
@@ -297,10 +301,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['beep-on-finish'] !== 'undefined') {
 		Config.setBeepOnFinish(parsedCli['beep-on-finish']);
-	}
-
-	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
-		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
 	}
 
 	if (

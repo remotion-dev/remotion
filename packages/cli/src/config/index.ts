@@ -9,10 +9,6 @@ import {
 	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getConcurrency} from './concurrency';
-import {
-	getEnableFolderExpiry,
-	setEnableFolderExpiry,
-} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -126,6 +122,7 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	folderExpiryOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -608,7 +605,7 @@ export const Config: FlatConfig = {
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
 	setBeepOnFinish,
-	setEnableFolderExpiry,
+	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro,
 };
 
@@ -657,7 +654,6 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
