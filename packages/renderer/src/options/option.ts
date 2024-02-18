@@ -9,7 +9,7 @@ export type RemotionOption<SsrName extends string, Type> = {
 	description: (mode: 'ssr' | 'cli') => React.ReactNode;
 	docLink: string;
 	type: Type;
-	getValue?: (
+	getValue: (
 		values: {commandLine: Record<string, unknown>},
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		more?: any,
@@ -17,7 +17,7 @@ export type RemotionOption<SsrName extends string, Type> = {
 		value: Type;
 		source: string;
 	};
-	setConfig?: (value: Type) => void;
+	setConfig: (value: Type) => void;
 };
 
 export type AnyRemotionOption<T> = RemotionOption<string, T>;

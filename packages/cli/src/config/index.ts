@@ -117,6 +117,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
+	enableLambdaInsights,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -473,6 +474,10 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
 		/**
+		 * Set whether Lambda Insights should be enabled when deploying a function.
+		 */
+		setLambdaInsights: (value: boolean) => void;
+		/**
 		 * Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state.
 		 */
 		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
@@ -601,6 +606,7 @@ export const Config: FlatConfig = {
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro: reproOption.setConfig,
+	setLambdaInsights: enableLambdaInsights.setConfig,
 };
 
 export const ConfigInternals = {

@@ -709,8 +709,6 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
-For Lambda:
-
 <Options id="enable-folder-expiry" />
 <br/>
 <br/>
@@ -721,9 +719,19 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
+## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
-For Lambda:
+<Options id="enable-lambda-insights" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setLambdaInsights(true);
+```
+
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
 <br/>
