@@ -30,18 +30,26 @@ export const still = async (
 	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.error('No entry point specified. Pass more arguments:');
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
 		process.exit(1);
 	}
 
 	const fullEntryPoint = convertEntryPointToServeUrl(file);
 
 	if (parsedCli.frames) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);

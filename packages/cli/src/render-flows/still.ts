@@ -239,6 +239,7 @@ export const renderStillFlow = async ({
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
 		overwrite,
+		logLevel,
 	);
 	const exists = existsSync(absoluteOutputLocation);
 

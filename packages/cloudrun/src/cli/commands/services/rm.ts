@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteService} from '../../../api/delete-service';
 import {getServiceInfo} from '../../../api/get-service-info';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -11,10 +12,11 @@ import {SERVICES_LS_SUBCOMMAND} from './ls';
 
 export const SERVICES_RM_SUBCOMMAND = 'rm';
 
-export const servicesRmCommand = async (args: string[]) => {
+export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
-		Log.error('No service name passed.');
-		Log.error(
+		Log.errorAdvanced({indent: false, logLevel}, 'No service name passed.');
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'Pass another argument which is the name of the service you would like to remove.',
 		);
 		Log.info(

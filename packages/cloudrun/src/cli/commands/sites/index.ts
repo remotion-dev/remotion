@@ -63,7 +63,7 @@ export const sitesCommand = (
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {
-		return sitesRmSubcommand(args.slice(1));
+		return sitesRmSubcommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === SITES_RMALL_COMMAND) {
@@ -75,7 +75,10 @@ export const sitesCommand = (
 	}
 
 	if (args[0]) {
-		Log.error(`Subcommand ${args[0]} not found.`);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			`Subcommand ${args[0]} not found.`,
+		);
 		printSitesHelp();
 		quit(1);
 	}

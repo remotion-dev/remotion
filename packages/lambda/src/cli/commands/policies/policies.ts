@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -35,7 +36,7 @@ const printPoliciesHelp = () => {
 	);
 };
 
-export const policiesCommand = (args: string[]) => {
+export const policiesCommand = (args: string[], logLevel: LogLevel) => {
 	if (args[0] === USER_SUBCOMMAND) {
 		return userSubcommand();
 	}
@@ -45,11 +46,14 @@ export const policiesCommand = (args: string[]) => {
 	}
 
 	if (args[0] === VALIDATE_SUBCOMMAND) {
-		return validateSubcommand();
+		return validateSubcommand(logLevel);
 	}
 
 	if (args[0]) {
-		Log.error(`Subcommand ${args[0]} not found.`);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			`Subcommand ${args[0]} not found.`,
+		);
 		printPoliciesHelp();
 		quit(1);
 	}

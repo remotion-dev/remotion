@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import type {ServiceInfo} from '../../../api/get-service-info';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
@@ -53,13 +54,13 @@ const printCloudRunHelp = () => {
 	);
 };
 
-export const servicesCommand = (args: string[]) => {
+export const servicesCommand = (args: string[], logLevel: LogLevel) => {
 	if (args[0] === SERVICES_LS_SUBCOMMAND) {
 		return servicesLsCommand();
 	}
 
 	if (args[0] === SERVICES_RM_SUBCOMMAND) {
-		return servicesRmCommand(args.slice(1));
+		return servicesRmCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === SERVICES_RMALL_SUBCOMMAND) {
@@ -67,11 +68,14 @@ export const servicesCommand = (args: string[]) => {
 	}
 
 	if (args[0] === CLOUD_RUN_DEPLOY_SUBCOMMAND) {
-		return cloudRunDeploySubcommand();
+		return cloudRunDeploySubcommand(logLevel);
 	}
 
 	if (args[0]) {
-		Log.error(`Subcommand ${args[0]} not found.`);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			`Subcommand ${args[0]} not found.`,
+		);
 		printCloudRunHelp();
 		quit(1);
 	}

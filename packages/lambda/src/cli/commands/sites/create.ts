@@ -37,7 +37,7 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 	);
 	if (!file) {
-		Log.error('No entry file passed.');
+		Log.errorAdvanced({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);

@@ -204,7 +204,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
 	if (res.type === 'crash') {
-		displayCrashLogs(res);
+		displayCrashLogs(res, logLevel);
 	} else if (res.type === 'success') {
 		doneIn = Date.now() - renderStart;
 		updateProgress(true);

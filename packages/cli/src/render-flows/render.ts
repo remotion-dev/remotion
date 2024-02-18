@@ -344,6 +344,7 @@ export const renderVideoFlow = async ({
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
 		overwrite,
+		logLevel,
 	);
 	const exists = existsSync(absoluteOutputFile);
 

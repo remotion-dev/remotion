@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {
 	logPermissionOutput,
 	testPermissions,
@@ -8,7 +9,7 @@ import {Log} from '../log';
 
 export const PERMISSIONS_COMMAND = 'permissions';
 
-export const permissionsCommand = async () => {
+export const permissionsCommand = async (logLevel: LogLevel) => {
 	try {
 		Log.info(
 			CliInternals.chalk.blueBright(
@@ -24,7 +25,10 @@ export const permissionsCommand = async () => {
 			},
 		});
 	} catch (err) {
-		Log.error('Did not have the required permissions on GCP:');
-		Log.error(err);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'Did not have the required permissions on GCP:',
+		);
+		Log.errorAdvanced({indent: false, logLevel}, err);
 	}
 };

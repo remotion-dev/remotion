@@ -77,7 +77,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === POLICIES_COMMAND) {
-		return policiesCommand(args.slice(1));
+		return policiesCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
@@ -117,7 +117,7 @@ const matchCommand = (
 		Log.info(`Did you mean "functions deploy"?`);
 	}
 
-	Log.error(`Command ${args[0]} not found.`);
+	Log.errorAdvanced({indent: false, logLevel}, `Command ${args[0]} not found.`);
 	printHelp();
 	quit(1);
 };
@@ -138,7 +138,8 @@ export const executeCommand = async (
 			)
 		) {
 			if (parsedLambdaCli['custom-role-arn']) {
-				Log.error(
+				Log.errorAdvanced(
+					{indent: false, logLevel},
 					`
 	The role "${parsedLambdaCli['custom-role-arn']}" does not exist or has the wrong policy assigned to it. Do either:
 	- Remove the "--custom-role-arn" parameter and set up Remotion Lambda according to the setup guide
@@ -149,7 +150,8 @@ export const executeCommand = async (
 				);
 			}
 
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				`
 The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong policy assigned to it. Common reasons:
 - The name of the role is not "${ROLE_NAME}"
@@ -161,7 +163,8 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 		}
 
 		if (error.stack?.includes('AccessDenied')) {
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				`
 AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim(),
@@ -169,7 +172,8 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 		}
 
 		if (error.stack?.includes('TooManyRequestsException')) {
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				`
 AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
 `.trim(),
@@ -188,13 +192,15 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 				process.env.AWS_ACCESS_KEY_ID &&
 				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
 			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
-				Log.error(
+				Log.errorAdvanced(
+					{indent: false, logLevel},
 					`
 	AWS returned an error message "The security token included in the request is invalid". A possible reason is that your AWS Access key ID is set but doesn't start with "AKI", which it usually should. The original message is: 
 	`,
 				);
 			} else {
-				Log.error(
+				Log.errorAdvanced(
+					{indent: false, logLevel},
 					`
 AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
 `,

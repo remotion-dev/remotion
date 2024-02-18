@@ -478,10 +478,14 @@ export const launchHandler = async (
 					throw err;
 				}
 
-				RenderInternals.Log.error(
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: params.logLevel},
 					'Failed to invoke additional function to merge videos:',
 				);
-				RenderInternals.Log.error(err);
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: params.logLevel},
+					err,
+				);
 
 				await writeLambdaError({
 					bucketName: params.bucketName,
@@ -513,25 +517,34 @@ export const launchHandler = async (
 		}
 
 		try {
-			await invokeWebhook({
-				url: params.webhook.url,
-				secret: params.webhook.secret,
-				payload: {
-					type: 'timeout',
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-					bucketName: params.bucketName,
-					customData: params.webhook.customData ?? null,
+			await invokeWebhook(
+				{
+					url: params.webhook.url,
+					secret: params.webhook.secret,
+					payload: {
+						type: 'timeout',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
+					},
 				},
-			});
+				params.logLevel,
+			);
 			webhookInvoked = true;
 		} catch (err) {
 			if (process.env.NODE_ENV === 'test') {
 				throw err;
 			}
 
-			RenderInternals.Log.error('Failed to invoke webhook:');
-			RenderInternals.Log.error(err);
+			RenderInternals.Log.errorAdvanced(
+				{indent: false, logLevel: params.logLevel},
+				'Failed to invoke webhook:',
+			);
+			RenderInternals.Log.errorAdvanced(
+				{indent: false, logLevel: params.logLevel},
+				err,
+			);
 
 			await writeLambdaError({
 				bucketName: params.bucketName,
@@ -586,22 +599,25 @@ export const launchHandler = async (
 		}
 
 		try {
-			await invokeWebhook({
-				url: params.webhook.url,
-				secret: params.webhook.secret,
-				payload: {
-					type: 'success',
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-					bucketName: params.bucketName,
-					customData: params.webhook.customData ?? null,
-					outputUrl: postRenderData.outputFile,
-					lambdaErrors: postRenderData.errors,
-					outputFile: postRenderData.outputFile,
-					timeToFinish: postRenderData.timeToFinish,
-					costs: postRenderData.cost,
+			await invokeWebhook(
+				{
+					url: params.webhook.url,
+					secret: params.webhook.secret,
+					payload: {
+						type: 'success',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
+						outputUrl: postRenderData.outputFile,
+						lambdaErrors: postRenderData.errors,
+						outputFile: postRenderData.outputFile,
+						timeToFinish: postRenderData.timeToFinish,
+						costs: postRenderData.cost,
+					},
 				},
-			});
+				params.logLevel,
+			);
 			webhookInvoked = true;
 		} catch (err) {
 			if (process.env.NODE_ENV === 'test') {
@@ -626,8 +642,14 @@ export const launchHandler = async (
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
-			RenderInternals.Log.error('Failed to invoke webhook:');
-			RenderInternals.Log.error(err);
+			RenderInternals.Log.errorAdvanced(
+				{indent: false, logLevel: params.logLevel},
+				'Failed to invoke webhook:',
+			);
+			RenderInternals.Log.errorAdvanced(
+				{indent: false, logLevel: params.logLevel},
+				err,
+			);
 		}
 
 		return {
@@ -638,7 +660,11 @@ export const launchHandler = async (
 			throw err;
 		}
 
-		RenderInternals.Log.error('Error occurred', err);
+		RenderInternals.Log.errorAdvanced(
+			{indent: false, logLevel: params.logLevel},
+			'Error occurred',
+			err,
+		);
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
@@ -657,27 +683,33 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-		RenderInternals.Log.error('Wrote error to S3');
+		RenderInternals.Log.errorAdvanced(
+			{indent: false, logLevel: params.logLevel},
+			'Wrote error to S3',
+		);
 		clearTimeout(webhookDueToTimeout);
 
 		if (params.webhook && !webhookInvoked) {
 			try {
-				await invokeWebhook({
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'error',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-						errors: [err as Error].map((e) => ({
-							message: e.message,
-							name: e.name as string,
-							stack: e.stack as string,
-						})),
+				await invokeWebhook(
+					{
+						url: params.webhook.url,
+						secret: params.webhook.secret,
+						payload: {
+							type: 'error',
+							renderId: params.renderId,
+							expectedBucketOwner: options.expectedBucketOwner,
+							bucketName: params.bucketName,
+							customData: params.webhook.customData ?? null,
+							errors: [err as Error].map((e) => ({
+								message: e.message,
+								name: e.name as string,
+								stack: e.stack as string,
+							})),
+						},
 					},
-				});
+					params.logLevel,
+				);
 				webhookInvoked = true;
 			} catch (error) {
 				if (process.env.NODE_ENV === 'test') {
@@ -702,8 +734,14 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				RenderInternals.Log.error('Failed to invoke webhook:');
-				RenderInternals.Log.error(error);
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: params.logLevel},
+					'Failed to invoke webhook:',
+				);
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: params.logLevel},
+					error,
+				);
 			}
 		}
 

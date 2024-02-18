@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {
 	logPermissionOutput,
 	simulatePermissions,
@@ -7,7 +8,7 @@ import {Log} from '../../log';
 
 export const VALIDATE_SUBCOMMAND = 'validate';
 
-export const validateSubcommand = async () => {
+export const validateSubcommand = async (logLevel: LogLevel) => {
 	try {
 		await simulatePermissions({
 			region: getAwsRegion(),
@@ -16,7 +17,10 @@ export const validateSubcommand = async () => {
 			},
 		});
 	} catch (err) {
-		Log.error('Did not have the required permissions on AWS:');
-		Log.error(err);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'Did not have the required permissions on AWS:',
+		);
+		Log.errorAdvanced({indent: false, logLevel}, err);
 	}
 };

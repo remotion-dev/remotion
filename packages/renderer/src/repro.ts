@@ -179,8 +179,11 @@ const reproWriter = (name: string): ReproWriter => {
 					});
 				});
 			} catch (error) {
-				Log.error(`repro render success error:`);
-				Log.error(error);
+				Log.errorAdvanced(
+					{indent: false, logLevel},
+					`repro render success error:`,
+				);
+				Log.errorAdvanced({indent: false, logLevel}, error);
 				reject(error);
 			}
 		});

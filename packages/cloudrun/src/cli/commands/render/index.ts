@@ -295,7 +295,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	});
 
 	if (res.type === 'crash') {
-		displayCrashLogs(res);
+		displayCrashLogs(res, logLevel);
 	} else if (res.type === 'success') {
 		renderProgress.doneIn = Date.now() - renderStart;
 		updateProgress();

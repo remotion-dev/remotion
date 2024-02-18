@@ -30,13 +30,15 @@ const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
 	overwrite: boolean,
+	logLevel: LogLevel,
 ) => {
 	const absoluteOutputFile = path.resolve(
 		process.cwd(),
 		relativeOutputLocation,
 	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`,
 		);
 		process.exit(1);

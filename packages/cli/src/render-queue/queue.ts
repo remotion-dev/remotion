@@ -249,7 +249,11 @@ const processJobIfPossible = async ({
 			};
 		});
 	} catch (err) {
-		Log.error(chalk.gray('╰─ '), chalk.red('Failed to render'));
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			chalk.gray('╰─ '),
+			chalk.red('Failed to render'),
+		);
 
 		updateJob(nextJob.id, (job) => {
 			return {

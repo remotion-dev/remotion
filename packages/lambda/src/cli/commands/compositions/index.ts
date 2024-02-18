@@ -22,7 +22,7 @@ export const compositionsCommand = async (
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.errorAdvanced({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);

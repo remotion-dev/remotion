@@ -143,7 +143,8 @@ export const versionsCommand = async (
 	if (installedVersions.length === 1) {
 		Log.info(`✅ Great! All packages have the same version.`);
 	} else {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'Version mismatch: Not all Remotion packages have the same version.',
 		);
 		Log.info(

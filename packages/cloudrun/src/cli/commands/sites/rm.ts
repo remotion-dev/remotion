@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {displaySiteInfo, SITES_COMMAND} from '.';
 import {deleteSite} from '../../../api/delete-site';
 import {getSites} from '../../../api/get-sites';
@@ -11,12 +12,14 @@ import {SITES_LS_SUBCOMMAND} from './ls';
 
 export const SITES_RM_COMMAND = 'rm';
 
-export const sitesRmSubcommand = async (args: string[]) => {
+export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			`To get a list of sites, run \`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}\``,
 		);
 		quit(1);

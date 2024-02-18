@@ -31,7 +31,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === SERVICES_COMMAND) {
-		return servicesCommand(args.slice(1));
+		return servicesCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === SITES_COMMAND) {
@@ -43,7 +43,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === PERMISSIONS_COMMAND) {
-		return permissionsCommand();
+		return permissionsCommand(logLevel);
 	}
 
 	if (args[0] === 'deploy') {
@@ -51,7 +51,7 @@ const matchCommand = (
 		Log.info(`Did you mean "service deploy"?`);
 	}
 
-	Log.error(`Command ${args[0]} not found.`);
+	Log.errorAdvanced({indent: false, logLevel}, `Command ${args[0]} not found.`);
 	printHelp();
 	quit(1);
 };

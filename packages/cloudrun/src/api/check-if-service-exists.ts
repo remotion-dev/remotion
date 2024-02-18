@@ -1,5 +1,6 @@
 import type {protos} from '@google-cloud/run';
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {generateServiceName} from '../shared/generate-service-name';
 import {validateGcpRegion} from '../shared/validate-gcp-region';
@@ -12,6 +13,7 @@ export type CheckIfServiceExistsInput = {
 	cpuLimit: string;
 	timeoutSeconds: number;
 	region: string;
+	logLevel: LogLevel;
 };
 
 /**
@@ -29,6 +31,7 @@ export const checkIfServiceExists = async ({
 	timeoutSeconds,
 	projectID,
 	region,
+	logLevel,
 }: CheckIfServiceExistsInput): Promise<
 	protos.google.cloud.run.v2.IService | undefined
 > => {
@@ -55,7 +58,8 @@ export const checkIfServiceExists = async ({
 		}
 	} catch (e: any) {
 		if (e.code === 7) {
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				CliInternals.chalk.red(
 					`Issue with ${parent}. The project either doesn't exist, or you don't have access to it.
 					`,

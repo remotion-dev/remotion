@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {displayServiceInfo, LEFT_COL} from '.';
 import {internalDeployService} from '../../../api/deploy-service';
@@ -18,7 +19,7 @@ import {Log} from '../../log';
 
 export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const cloudRunDeploySubcommand = async () => {
+export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
 	const memoryLimit = String(parsedCloudrunCli.memoryLimit ?? '2Gi');
@@ -58,7 +59,10 @@ ${[
 	await validateImageRemotionVersion();
 
 	if (projectID === undefined) {
-		Log.error(`REMOTION_GCP_PROJECT_ID not found in the .env file.`);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			`REMOTION_GCP_PROJECT_ID not found in the .env file.`,
+		);
 		quit(0);
 	}
 
@@ -78,20 +82,30 @@ ${[
 			maxInstances: Number(maxInstances) ?? DEFAULT_MAX_INSTANCES,
 			projectID,
 			region,
+			logLevel,
 		});
 
 		if (!deployResult.fullName) {
-			Log.error('full service name not returned from Cloud Run API.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'full service name not returned from Cloud Run API.',
+			);
 			throw new Error(JSON.stringify(deployResult));
 		}
 
 		if (!deployResult.shortName) {
-			Log.error('short service name not returned from Cloud Run API.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'short service name not returned from Cloud Run API.',
+			);
 			throw new Error(JSON.stringify(deployResult));
 		}
 
 		if (!deployResult.alreadyExists && !deployResult.uri) {
-			Log.error('service uri not returned from Cloud Run API.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'service uri not returned from Cloud Run API.',
+			);
 		}
 
 		const consoleUrl = makeConsoleUrl(region, deployResult.shortName);
@@ -148,7 +162,8 @@ ${displayServiceInfo({
 			}
 		}
 	} catch (e) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			CliInternals.chalk.red(
 				`Failed to deploy service - ${generateServiceName({
 					memoryLimit,

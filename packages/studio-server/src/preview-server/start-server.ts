@@ -101,7 +101,11 @@ export const startServer = async (options: {
 				});
 			})
 			.catch((err) => {
-				RenderInternals.Log.error(`Error while calling ${request.url}`, err);
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: options.logLevel},
+					`Error while calling ${request.url}`,
+					err,
+				);
 				if (!response.headersSent) {
 					response.setHeader('content-type', 'application/json');
 					response.writeHead(500);
@@ -159,7 +163,8 @@ export const startServer = async (options: {
 			const codedError = err as Error & {code: string; port: number};
 
 			if (codedError.code === 'EADDRINUSE') {
-				RenderInternals.Log.error(
+				RenderInternals.Log.errorAdvanced(
+					{indent: false, logLevel: options.logLevel},
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {

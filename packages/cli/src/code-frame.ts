@@ -1,5 +1,6 @@
 import type {
 	ErrorWithStackFrame,
+	LogLevel,
 	SymbolicatedStackFrame,
 } from '@remotion/renderer';
 import {chalk} from './chalk';
@@ -64,17 +65,24 @@ const logLine = (frame: SymbolicatedStackFrame) => {
 	);
 };
 
-export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
+export const printCodeFrameAndStack = (
+	err: ErrorWithStackFrame,
+	logLevel: LogLevel,
+) => {
 	if (
 		!err.symbolicatedStackFrames ||
 		err.symbolicatedStackFrames.length === 0
 	) {
-		Log.error(err.stack);
+		Log.errorAdvanced({indent: false, logLevel}, err.stack);
 		return;
 	}
 
 	const firstFrame = err.symbolicatedStackFrames[0];
-	Log.error(chalk.bgRed(chalk.white(` ${err.name} `)), err.message);
+	Log.errorAdvanced(
+		{indent: false, logLevel},
+		chalk.bgRed(chalk.white(` ${err.name} `)),
+		err.message,
+	);
 	printCodeFrame(firstFrame);
 	Log.info();
 	for (const frame of err.symbolicatedStackFrames) {
@@ -93,8 +101,11 @@ export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 	}
 
 	if (err.delayRenderCall) {
-		Log.error();
-		Log.error('🕧 The delayRender() call is located at:');
+		Log.errorAdvanced({indent: false, logLevel});
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'🕧 The delayRender() call is located at:',
+		);
 		for (const frame of err.delayRenderCall) {
 			const showCodeFrame =
 				(!frame.originalFileName?.includes('node_modules') &&

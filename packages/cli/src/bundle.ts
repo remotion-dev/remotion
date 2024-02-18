@@ -26,7 +26,8 @@ export const bundleCommand = async (
 		reason !== 'argument passed - found in cwd' &&
 		reason !== 'argument passed - found in root'
 	) {
-		Log.error(
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			`Entry point was specified as ${chalk.bold(
 				explicitlyPassed,
 			)}, but it was not found.`,
@@ -37,11 +38,15 @@ export const bundleCommand = async (
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
 	if (!file) {
-		Log.error('No entry point found.');
-		Log.error(
+		Log.errorAdvanced({indent: false, logLevel}, 'No entry point found.');
+		Log.errorAdvanced(
+			{indent: false, logLevel},
 			'Pass another argument to the command specifying the entry point.',
 		);
-		Log.error('See: https://www.remotion.dev/docs/terminology/entry-point');
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			'See: https://www.remotion.dev/docs/terminology/entry-point',
+		);
 		process.exit(1);
 	}
 
@@ -65,13 +70,18 @@ export const bundleCommand = async (
 		const existsIndexHtml = existsSync(path.join(outputPath, 'index.html'));
 		const isEmpty = readdirSync(outputPath).length === 0;
 		if (!existsIndexHtml && !isEmpty) {
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				`The folder at ${outputPath} already exists, and needs to be deleted before a new bundle can be created.`,
 			);
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				'However, it does not look like the folder was created by `npx remotion bundle` (no index.html).',
 			);
-			Log.error('Aborting to prevent accidental data loss.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'Aborting to prevent accidental data loss.',
+			);
 			process.exit(1);
 		}
 

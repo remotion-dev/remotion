@@ -34,15 +34,15 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 				);
 			}
 
-			printCodeFrameAndStack(symbolicated);
+			printCodeFrameAndStack(symbolicated, logLevel);
 		} catch (e) {
 			output.update(chalk.red(''), true);
-			Log.error();
-			Log.error(err.stack || err);
+			Log.errorAdvanced({indent: false, logLevel});
+			Log.errorAdvanced({indent: false, logLevel}, err.stack || err);
 		}
 
 		return;
 	}
 
-	Log.error(err.stack || err);
+	Log.errorAdvanced({indent: false, logLevel}, err.stack || err);
 };

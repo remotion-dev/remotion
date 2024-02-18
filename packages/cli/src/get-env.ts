@@ -56,7 +56,8 @@ const watchEnvFile = ({
 					Log.info(chalk.blueBright(`Created env file ${envFile}`));
 				}
 			} catch (err) {
-				Log.error(
+				Log.errorAdvanced(
+					{indent: false, logLevel},
 					`${envFile} update failed with error ${(err as Error).stack}`,
 				);
 			}
@@ -98,8 +99,11 @@ const getEnvForEnvFile = ({
 			...dotenv.parse(envFileData),
 		};
 	} catch (err) {
-		Log.error(`Your .env file at ${envFile} could not not be parsed.`);
-		Log.error(err);
+		Log.errorAdvanced(
+			{indent: false, logLevel},
+			`Your .env file at ${envFile} could not not be parsed.`,
+		);
+		Log.errorAdvanced({indent: false, logLevel}, err);
 		process.exit(1);
 	}
 };
@@ -129,9 +133,19 @@ export const getEnvironmentVariables = (
 	if (parsedCli['env-file']) {
 		const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
 		if (!fs.existsSync(envFile)) {
-			Log.error('You passed a --env-file but it could not be found.');
-			Log.error('We looked for the file at:', envFile);
-			Log.error('Check that your path is correct and try again.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'You passed a --env-file but it could not be found.',
+			);
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'We looked for the file at:',
+				envFile,
+			);
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'Check that your path is correct and try again.',
+			);
 			process.exit(1);
 		}
 
@@ -144,11 +158,19 @@ export const getEnvironmentVariables = (
 	if (configFileSetting) {
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
-			Log.error(
+			Log.errorAdvanced(
+				{indent: false, logLevel},
 				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found',
 			);
-			Log.error('We looked for the file at:', envFile);
-			Log.error('Check that your path is correct and try again.');
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'We looked for the file at:',
+				envFile,
+			);
+			Log.errorAdvanced(
+				{indent: false, logLevel},
+				'Check that your path is correct and try again.',
+			);
 			process.exit(1);
 		}
 
