@@ -3,10 +3,10 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -155,7 +155,8 @@ export const render = async (
 		userAgent,
 	};
 
-	const audioCodec = getResolvedAudioCodec();
+	const audioCodec =
+		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
 
 	await renderVideoFlow({
 		fullEntryPoint,
