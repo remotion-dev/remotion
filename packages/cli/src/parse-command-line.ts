@@ -286,10 +286,6 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['max-rate'] !== 'undefined') {
 		Config.setEncodingMaxRate(parsedCli['max-rate']);
 	}
-
-	if (typeof parsedCli['beep-on-finish'] !== 'undefined') {
-		Config.setBeepOnFinish(parsedCli['beep-on-finish']);
-	}
 };
 
 export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

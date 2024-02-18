@@ -48,7 +48,6 @@ import type {
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
-import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
 	getEncodingBufferSize,
 	getEncodingMaxRate,
@@ -121,6 +120,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
+	beepOnFinishOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -602,7 +602,7 @@ export const Config: FlatConfig = {
 	},
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
-	setBeepOnFinish,
+	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro,
 };
@@ -632,7 +632,6 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
-	getBeepOnFinish,
 	getRepro,
 	Logging,
 	setFrameRangeFromCli,

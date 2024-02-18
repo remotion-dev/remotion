@@ -17,6 +17,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
+	beepOnFinishOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -65,6 +66,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const beepOnFinish = beepOnFinishOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
@@ -74,7 +78,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
-	const beepOnFinish = ConfigInternals.getBeepOnFinish();
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
@@ -115,8 +118,8 @@ export const getRenderDefaults = (): RenderDefaults => {
 		colorSpace,
 		multiProcessOnLinux,
 		userAgent,
-		beepOnFinish,
 		repro,
 		numberOfGifLoops,
+		beepOnFinish,
 	};
 };
