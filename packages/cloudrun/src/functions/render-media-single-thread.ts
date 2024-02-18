@@ -88,7 +88,7 @@ export const renderMediaSingleThread = async (
 				body.imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 			scale: body.scale,
 			proResProfile: body.proResProfile ?? undefined,
-			x264Preset: body.x264Preset ?? 'medium',
+			x264Preset: body.x264Preset,
 			everyNthFrame: body.everyNthFrame,
 			numberOfGifLoops: body.numberOfGifLoops,
 			onProgress,

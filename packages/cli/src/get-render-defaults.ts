@@ -64,7 +64,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		muted,
 		enforceAudioTrack,
 		proResProfile,
-		x264Preset,
+		x264Preset: x264Preset ?? 'medium',
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,

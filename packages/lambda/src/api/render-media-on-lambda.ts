@@ -193,7 +193,7 @@ export const renderMediaOnLambda = (
 		encodingMaxRate: options.encodingMaxRate ?? null,
 		encodingBufferSize: options.encodingBufferSize ?? null,
 		webhook: options.webhook ?? null,
-		x264Preset: options.x264Preset ?? 'medium',
+		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
 	});
 };

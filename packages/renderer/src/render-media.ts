@@ -843,7 +843,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
-		x264Preset: x264Preset ?? 'medium',
+		x264Preset: x264Preset ?? null,
 		codec,
 		composition,
 		serveUrl,
