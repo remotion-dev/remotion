@@ -1,4 +1,4 @@
-import type {FrameRange, LogLevel} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,17 +47,6 @@ export const getAndValidateAbsoluteOutputFile = (
 	return absoluteOutputFile;
 };
 
-const getAndValidateShouldOutputImageSequence = ({
-	frameRange,
-}: {
-	frameRange: FrameRange | null;
-}) => {
-	const shouldOutputImageSequence =
-		ConfigInternals.getShouldOutputImageSequence(frameRange);
-
-	return shouldOutputImageSequence;
-};
-
 const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
 
@@ -73,9 +62,7 @@ export const getCliOptions = (options: {
 
 	const shouldOutputImageSequence = options.isStill
 		? true
-		: getAndValidateShouldOutputImageSequence({
-				frameRange,
-			});
+		: ConfigInternals.getShouldOutputImageSequence(frameRange);
 
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
