@@ -200,7 +200,6 @@ export const benchmarkCommand = async (
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
-		remotionRoot,
 		logLevel,
 	});
 

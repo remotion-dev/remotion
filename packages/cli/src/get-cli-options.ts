@@ -67,7 +67,6 @@ const getProResProfile = () => {
 export const getCliOptions = (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
-	remotionRoot: string;
 	logLevel: LogLevel;
 }) => {
 	const frameRange = getAndValidateFrameRange(options.logLevel, false);

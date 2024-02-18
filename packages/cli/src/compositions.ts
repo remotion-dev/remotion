@@ -61,7 +61,6 @@ export const listCompositionsCommand = async (
 	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
-		remotionRoot,
 		logLevel,
 	});
 

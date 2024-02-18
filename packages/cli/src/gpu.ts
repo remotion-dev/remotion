@@ -15,7 +15,7 @@ const {
 	headlessOption,
 } = BrowserSafeApis.options;
 
-export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
+export const gpuCommand = async (logLevel: LogLevel) => {
 	const {
 		browserExecutable,
 		disableWebSecurity,
@@ -23,7 +23,6 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 		userAgent,
 	} = getCliOptions({
 		isLambda: false,
-		remotionRoot,
 		type: 'get-compositions',
 		logLevel,
 	});

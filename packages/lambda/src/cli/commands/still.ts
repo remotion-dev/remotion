@@ -76,7 +76,6 @@ export const stillCommand = async (
 	} = getCliOptions({
 		type: 'still',
 		isLambda: true,
-		remotionRoot,
 		logLevel,
 	});
 

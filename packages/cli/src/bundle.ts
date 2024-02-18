@@ -53,7 +53,6 @@ export const bundleCommand = async (
 	const {publicDir} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
-		remotionRoot,
 		logLevel,
 	});
 

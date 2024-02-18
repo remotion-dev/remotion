@@ -99,7 +99,6 @@ export const renderCommand = async (
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
-		remotionRoot,
 		logLevel,
 	});
 

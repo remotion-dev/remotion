@@ -49,7 +49,6 @@ export const compositionsCommand = async (
 	} = CliInternals.getCliOptions({
 		type: 'get-compositions',
 		isLambda: true,
-		remotionRoot,
 		logLevel,
 	});
 

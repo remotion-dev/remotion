@@ -95,7 +95,7 @@ export const cli = async () => {
 		} else if (command === 'ffmpeg') {
 			ffmpegCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
-			await gpuCommand(remotionRoot, logLevel);
+			await gpuCommand(logLevel);
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {

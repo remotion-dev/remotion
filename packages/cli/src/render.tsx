@@ -91,7 +91,6 @@ export const render = async (
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
-		remotionRoot,
 		logLevel,
 	});
 

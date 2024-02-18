@@ -51,7 +51,6 @@ export const stillCommand = async (
 	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
-		remotionRoot,
 		logLevel,
 	});
 
