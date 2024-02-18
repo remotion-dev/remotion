@@ -8,7 +8,6 @@ import {
 	getIgnoreCertificateErrors,
 	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
-import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
 import {
 	getEnableFolderExpiry,
@@ -73,7 +72,6 @@ import {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {setCodec} from './codec';
 import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
@@ -126,6 +124,7 @@ const {
 	jpegQualityOption,
 	enforceAudioOption,
 	mutedOption,
+	videoCodecOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -593,7 +592,7 @@ export const Config: FlatConfig = {
 	setOutputLocation,
 	setOverwriteOutput,
 	setPixelFormat,
-	setCodec,
+	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
 	setImageSequence,
 	setProResProfile,
@@ -616,7 +615,6 @@ export const Config: FlatConfig = {
 
 export const ConfigInternals = {
 	getRange,
-	getOutputCodecOrUndefined,
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
@@ -665,4 +663,5 @@ export const ConfigInternals = {
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,
+	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };

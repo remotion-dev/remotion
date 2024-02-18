@@ -22,6 +22,7 @@ import {allOptions} from './options';
 import {validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
+import {getOutputCodecOrUndefined} from './options/video-codec';
 import {x264PresetOptions} from './options/x264-preset';
 import {
 	DEFAULT_PIXEL_FORMAT,
@@ -60,4 +61,5 @@ export const BrowserSafeApis = {
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
 	logLevels,
+	getOutputCodecOrUndefined,
 };

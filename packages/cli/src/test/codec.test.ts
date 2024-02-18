@@ -1,6 +1,6 @@
 import type {CodecOrUndefined} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {describe, expect, test} from 'vitest';
-import {getOutputCodecOrUndefined, setCodec} from '../config/codec';
 import {expectToThrow} from './expect-to-throw';
 
 // setCodec
@@ -15,8 +15,8 @@ describe('Codec tests setCodec', () => {
 	];
 	validCodecInputs.forEach((entry) =>
 		test(`testing with ${entry}`, () => {
-			setCodec(entry);
-			expect(getOutputCodecOrUndefined()).toEqual(entry);
+			BrowserSafeApis.options.videoCodecOption.setConfig(entry);
+			expect(BrowserSafeApis.getOutputCodecOrUndefined()).toEqual(entry);
 		}),
 	);
 	test('setCodec with invalid coded', () => {
