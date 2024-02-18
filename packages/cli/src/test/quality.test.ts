@@ -10,18 +10,18 @@ describe('Test valid setQuality inputs', () => {
 		const validInputes = [1, 50, 100];
 		validInputes.forEach((entry) => {
 			setJpegQuality(entry);
-			expect(getJpegQuality({commandLine: {}})).toEqual(entry);
+			expect(getJpegQuality({commandLine: {}}).value).toEqual(entry);
 		});
 	});
 
 	test('Undefined input', () => {
 		setJpegQuality(undefined);
-		expect(getJpegQuality({commandLine: {}})).toEqual(80);
+		expect(getJpegQuality({commandLine: {}}).value).toEqual(80);
 	});
 
 	test('0 input', () => {
 		setJpegQuality(0);
-		expect(getJpegQuality({commandLine: {}})).toEqual(80);
+		expect(getJpegQuality({commandLine: {}}).value).toEqual(80);
 	});
 });
 
