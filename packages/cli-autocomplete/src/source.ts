@@ -1,5 +1,6 @@
 import { uniqueOptions } from "./unique-options";
 import { RenderInternals } from "@remotion/renderer";
+import { BrowserSafeApis } from "@remotion/renderer/client";
 
 const alwaysOptions: Fig.Option[] = [
   {
@@ -715,7 +716,7 @@ const completionSpec: Fig.Spec = {
                   exclusiveOn: ["--retention-period"],
                 },
                 {
-                  name: "--enable-lambda-insights",
+                  name: `--${BrowserSafeApis.options.enableLambdaInsights.cliFlag}`,
                   description: "Enable Lambda Insights",
                 },
                 {
