@@ -2,7 +2,6 @@ import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
-	getChromiumHeadlessMode,
 	getIgnoreCertificateErrors,
 } from './chromium-flags';
 import {getConcurrency} from './concurrency';
@@ -53,7 +52,6 @@ import {
 } from './buffer-state-delay-in-milliseconds';
 import {
 	setChromiumDisableWebSecurity,
-	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
 } from './chromium-flags';
 import type {Concurrency} from './concurrency';
@@ -108,6 +106,7 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
 	encodingMaxRateOption,
@@ -556,7 +555,7 @@ export const Config: FlatConfig = {
 		delayRenderTimeoutInMillisecondsOption.setConfig,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumHeadlessMode,
+	setChromiumHeadlessMode: headlessOption.setConfig,
 	setChromiumOpenGlRenderer: glOption.setConfig,
 	setChromiumUserAgent,
 	setDotEnvLocation,
@@ -620,7 +619,6 @@ export const ConfigInternals = {
 	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
-	getChromiumHeadlessMode,
 	getEveryNthFrame,
 	getConcurrency,
 	getAudioCodec,

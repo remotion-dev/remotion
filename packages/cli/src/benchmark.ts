@@ -43,6 +43,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -193,7 +194,6 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		headless,
 		disableWebSecurity,
 		userAgent,
 		ignoreCertificateErrors,
@@ -217,6 +217,7 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

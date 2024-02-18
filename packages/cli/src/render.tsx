@@ -30,6 +30,7 @@ const {
 	encodingBufferSizeOption,
 	reproOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -78,7 +79,6 @@ export const render = async (
 		envVariables,
 		browserExecutable,
 		everyNthFrame,
-		headless,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
@@ -136,6 +136,9 @@ export const render = async (
 	}).value;
 	const repro = reproOption.getValue({commandLine: parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

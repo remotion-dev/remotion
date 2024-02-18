@@ -23,6 +23,7 @@ const {
 	reproOption,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -86,13 +87,15 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
-	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 

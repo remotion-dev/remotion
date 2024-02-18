@@ -71,7 +71,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCer
 
 ## `--disable-headless`
 
-Setting this flag will open an actual Chrome during render where you can see the render happen.
+<Options id="headless"  />
 
 ### Via Node.JS APIs
 

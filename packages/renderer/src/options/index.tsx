@@ -10,6 +10,7 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
+import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
@@ -49,6 +50,7 @@ export const allOptions = {
 	x264Option,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

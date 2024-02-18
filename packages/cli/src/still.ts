@@ -17,6 +17,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -66,7 +67,6 @@ export const still = async (
 		stillFrame,
 		width,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
@@ -89,6 +89,9 @@ export const still = async (
 			commandLine: parsedCli,
 		}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

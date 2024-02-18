@@ -358,7 +358,11 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Headless mode</div>
+				<div style={label}>
+					Headless mode
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="headlessOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox checked={headless} onChange={onHeadless} name="headless" />
 				</div>

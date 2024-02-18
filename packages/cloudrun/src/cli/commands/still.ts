@@ -20,6 +20,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -44,7 +45,6 @@ export const stillCommand = async (
 		height,
 		width,
 		browserExecutable,
-		headless,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
@@ -61,6 +61,9 @@ export const stillCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,

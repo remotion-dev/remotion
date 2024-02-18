@@ -12,13 +12,13 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 	const {
 		browserExecutable,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
@@ -33,6 +33,9 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

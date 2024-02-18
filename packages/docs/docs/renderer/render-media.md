@@ -359,7 +359,7 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 Chromium flags need to be set at browser launch. If you pass an instance using [`puppeteerInstance`](#puppeteerinstance), options passed to `renderMedia()` will not apply, but rather the flags that have been passed to [`openBrowser()`](/docs/renderer/open-browser).
 :::
 
-#### `disableWebSecurity`
+#### `disableWebSecurity?`
 
 _boolean - default `false`_
 
@@ -371,23 +371,21 @@ _boolean - default `true`_
 
 <Options id="enable-multiprocess-on-linux" />
 
-#### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `headless`
+#### `headless?`
 
-_boolean - default `true`_
+<Options id="headless"  />
 
-If disabled, the render will open an actual Chrome window where you can see the render happen.
-
-#### `gl`
+#### `gl?`
 
 <Options id="gl"  />
 
-#### `userAgent`<AvailableFrom v="3.3.83"/>
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 

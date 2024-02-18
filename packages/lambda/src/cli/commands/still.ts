@@ -27,6 +27,7 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
@@ -69,7 +70,6 @@ export const stillCommand = async (
 		height,
 		width,
 		browserExecutable,
-		headless,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
@@ -87,6 +87,9 @@ export const stillCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,

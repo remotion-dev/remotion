@@ -15,6 +15,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	offthreadVideoCacheSizeInBytesOption,
 	glOption,
+	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
@@ -54,7 +55,6 @@ export const listCompositionsCommand = async (
 		envVariables,
 		inputProps,
 		publicDir,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
@@ -71,7 +71,7 @@ export const listCompositionsCommand = async (
 			commandLine: parsedCli,
 		}).value,
 		gl: glOption.getValue({commandLine: parsedCli}).value,
-		headless,
+		headless: headlessOption.getValue({commandLine: parsedCli}).value,
 		ignoreCertificateErrors,
 		userAgent,
 	};

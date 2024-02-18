@@ -29,6 +29,7 @@ const {
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
@@ -78,7 +79,6 @@ export const renderCommand = async (
 		width,
 		browserExecutable,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = CliInternals.getCliOptions({
@@ -97,6 +97,9 @@ export const renderCommand = async (
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	let composition: string = args[1];

@@ -16,6 +16,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const compositionsCommand = async (
@@ -42,7 +43,6 @@ export const compositionsCommand = async (
 	const {
 		envVariables,
 		inputProps,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
@@ -58,6 +58,9 @@ export const compositionsCommand = async (
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
