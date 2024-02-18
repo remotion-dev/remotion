@@ -13,7 +13,8 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
 
-const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+const {x264Option, audioBitrateOption, offthreadVideoCacheSizeInBytesOption} =
+	BrowserSafeApis.options;
 
 export const render = async (
 	remotionRoot: string,
@@ -70,7 +71,6 @@ export const render = async (
 		encodingMaxRate,
 		encodingBufferSize,
 		numberOfGifLoops,
-		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,
 	} = getCliOptions({
@@ -84,6 +84,10 @@ export const render = async (
 	const {value: audioBitrate} = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	});
+	const {value: offthreadVideoCacheSizeInBytes} =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		});
 
 	const audioCodec = getResolvedAudioCodec();
 

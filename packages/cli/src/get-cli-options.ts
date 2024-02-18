@@ -150,8 +150,6 @@ export const getCliOptions = (options: {
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
-		offthreadVideoCacheSizeInBytes:
-			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 		deleteAfter: ConfigInternals.getDeleteAfter(),
 		colorSpace: ConfigInternals.getColorSpace(),
 		repro: ConfigInternals.getRepro(),

@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
@@ -38,7 +39,6 @@ export const stillCommand = async (
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
 	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -57,6 +57,11 @@ export const stillCommand = async (
 				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
+
+		const offthreadVideoCacheSizeInBytes =
+			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value;
 
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,

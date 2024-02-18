@@ -13,7 +13,7 @@ import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
-import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import type {AnyRemotionOption} from './option';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
@@ -31,7 +31,7 @@ export const allOptions = {
 	enforceAudioOption,
 	muteOption,
 	videoCodecOption,
-	offthreadVideoCacheSizeInBytes,
+	offthreadVideoCacheSizeInBytesOption,
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,

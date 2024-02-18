@@ -15,7 +15,8 @@ import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
 
-const {audioBitrateOption, x264Option} = BrowserSafeApis.options;
+const {audioBitrateOption, x264Option, offthreadVideoCacheSizeInBytesOption} =
+	BrowserSafeApis.options;
 
 export const renderCommand = async (
 	args: string[],
@@ -66,7 +67,6 @@ export const renderCommand = async (
 		width,
 		browserExecutable,
 		enforceAudioTrack,
-		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	} = CliInternals.getCliOptions({
 		type: 'series',
@@ -75,6 +75,10 @@ export const renderCommand = async (
 		logLevel,
 	});
 
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	let composition: string = args[1];
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
@@ -94,7 +98,7 @@ export const renderCommand = async (
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
-			offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -189,7 +193,6 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,
 		serviceName: undefined,

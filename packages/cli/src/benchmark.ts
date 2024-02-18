@@ -187,7 +187,6 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 	} = getCliOptions({
 		isLambda: false,
@@ -261,7 +260,10 @@ export const benchmarkCommand = async (
 		//  Intentionally disabling server to not cache results
 		server: undefined,
 		logLevel,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 	});
 
 	const ids = (
@@ -382,7 +384,12 @@ export const benchmarkCommand = async (
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
-					offthreadVideoCacheSizeInBytes,
+					offthreadVideoCacheSizeInBytes:
+						BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue(
+							{
+								commandLine: parsedCli,
+							},
+						).value,
 					colorSpace,
 					repro: false,
 					finishRenderProgress: () => undefined,

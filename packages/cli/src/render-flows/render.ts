@@ -141,7 +141,7 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
+	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;

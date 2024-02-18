@@ -106,10 +106,6 @@ import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
-import {
-	getOffthreadVideoCacheSizeInBytes,
-	setOffthreadVideoCacheSizeInBytes,
-} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -131,6 +127,9 @@ import {
 import {getWidth, overrideWidth} from './width';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+
+const {offthreadVideoCacheSizeInBytesOption, x264Option, audioBitrateOption} =
+	BrowserSafeApis.options;
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -602,17 +601,19 @@ export const Config: FlatConfig = {
 	setImageSequence,
 	setProResProfile,
 	setX264Preset: (preset) => {
-		BrowserSafeApis.options.x264Option.setConfig(preset);
+		x264Option.setConfig(preset ?? null);
 	},
 	setAudioBitrate: (bitrate) => {
-		BrowserSafeApis.options.audioBitrateOption.setConfig(bitrate);
+		audioBitrateOption.setConfig(bitrate);
 	},
 	setVideoBitrate,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
-	setOffthreadVideoCacheSizeInBytes,
+	setOffthreadVideoCacheSizeInBytes: (size) => {
+		offthreadVideoCacheSizeInBytesOption.setConfig(size);
+	},
 	setDeleteAfter,
 	setColorSpace,
 	setBeepOnFinish,
@@ -674,7 +675,6 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getOffthreadVideoCacheSizeInBytes,
 	getDeleteAfter,
 	getColorSpace,
 	getEnableFolderExpiry,

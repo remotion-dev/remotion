@@ -40,7 +40,8 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
-const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+const {x264Option, audioBitrateOption, offthreadVideoCacheSizeInBytesOption} =
+	BrowserSafeApis.options;
 
 export const renderCommand = async (
 	args: string[],
@@ -83,7 +84,6 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		deleteAfter,
 	} = CliInternals.getCliOptions({
@@ -99,6 +99,10 @@ export const renderCommand = async (
 	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 
 	let composition: string = args[1];
 	if (!composition) {

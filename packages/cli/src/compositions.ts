@@ -1,12 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
@@ -43,7 +44,6 @@ export const listCompositionsCommand = async (
 		inputProps,
 		puppeteerTimeout,
 		publicDir,
-		offthreadVideoCacheSizeInBytes,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
@@ -93,7 +93,10 @@ export const listCompositionsCommand = async (
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 	});
 
 	printCompositions(compositions);

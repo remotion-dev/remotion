@@ -6,7 +6,7 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {jpegQualityOption} from './jpeg-quality';
 import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
-import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {reproOption} from './repro';
 import {videoBitrate} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
@@ -14,7 +14,7 @@ import {x264Option} from './x264-preset';
 
 export const optionsMap = {
 	renderMedia: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		videoBitrate,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		repro: reproOption,
@@ -28,21 +28,21 @@ export const optionsMap = {
 		muted: muteOption,
 	},
 	renderStill: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
 	},
 	getCompositions: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 	},
 	selectComposition: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 	},
 	renderFrames: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
 	},
 	renderMediaOnLambda: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		videoBitrate,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		audioBitrate: audioBitrateOption,
@@ -54,14 +54,14 @@ export const optionsMap = {
 		muted: muteOption,
 	},
 	renderStillOnLambda: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
 	},
 	getCompositionsOnLambda: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 	},
 	renderMediaOnCloudRun: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		colorSpace: colorSpaceOption,
 		audioBitrate: audioBitrateOption,
@@ -72,6 +72,6 @@ export const optionsMap = {
 		muted: muteOption,
 	},
 	renderStillOnCloudRun: {
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 	},
 } as const;

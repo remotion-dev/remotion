@@ -19,7 +19,7 @@ import {Log} from './log';
 const {
 	beepOnFinishOption,
 	colorSpaceOption,
-	offthreadVideoCacheSizeInBytes,
+	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
 	deleteAfterOption,
@@ -42,8 +42,8 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: number;
 	['number-of-shared-audio-tags']: number;
-	[offthreadVideoCacheSizeInBytes.cliFlag]: TypeOfOption<
-		typeof offthreadVideoCacheSizeInBytes
+	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
+		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
 	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;

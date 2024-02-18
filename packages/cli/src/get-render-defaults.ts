@@ -4,7 +4,8 @@ import type {RenderDefaults} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
-const {x264Option, audioBitrateOption} = BrowserSafeApis.options;
+const {x264Option, audioBitrateOption, offthreadVideoCacheSizeInBytesOption} =
+	BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
 	const defaultJpegQuality = ConfigInternals.getJpegQuality();
@@ -25,6 +26,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
@@ -39,8 +44,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
-	const offthreadVideoCacheSizeInBytes =
-		ConfigInternals.getOffthreadVideoCacheSizeInBytes();
 	const colorSpace = ConfigInternals.getColorSpace();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 

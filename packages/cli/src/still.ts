@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
@@ -8,6 +9,8 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
+
+const {offthreadVideoCacheSizeInBytesOption} = BrowserSafeApis.options;
 
 export const still = async (
 	remotionRoot: string,
@@ -51,7 +54,6 @@ export const still = async (
 		scale,
 		stillFrame,
 		width,
-		offthreadVideoCacheSizeInBytes,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -93,6 +95,9 @@ export const still = async (
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 	});
 };
