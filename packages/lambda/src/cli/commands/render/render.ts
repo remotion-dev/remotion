@@ -47,6 +47,7 @@ const {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -81,7 +82,6 @@ export const renderCommand = async (
 		numberOfGifLoops,
 		muted,
 		overwrite,
-		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
 		height,
@@ -113,6 +113,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

@@ -1,13 +1,3 @@
-let videoBitrate: string | null = null;
-
-export const setVideoBitrate = (bitrate: string | null) => {
-	videoBitrate = bitrate;
-};
-
-export const getVideoBitrate = () => {
-	return videoBitrate;
-};
-
 let encodingMaxRate: string | null = null;
 
 export const setEncodingMaxRate = (bitrate: string | null) => {

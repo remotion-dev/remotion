@@ -206,7 +206,7 @@ export const RenderModalPicture: React.FC<{
 					<div style={label}>
 						Target video bitrate
 						<Spacing x={0.5} />
-						<OptionExplainerBubble id="videoBitrate" />
+						<OptionExplainerBubble id="videoBitrateOption" />
 					</div>
 
 					<div style={rightRow}>

@@ -80,7 +80,6 @@ export const getCliOptions = (options: {
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
-	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
@@ -131,7 +130,6 @@ export const getCliOptions = (options: {
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
-		videoBitrate,
 		encodingBufferSize,
 		encodingMaxRate,
 		height,

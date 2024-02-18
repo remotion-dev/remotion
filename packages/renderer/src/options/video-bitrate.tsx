@@ -1,8 +1,12 @@
 import type {AnyRemotionOption} from './option';
 
-export const videoBitrate = {
+let videoBitrate: string | null = null;
+
+const cliFlag = 'video-bitrate' as const;
+
+export const videoBitrateOption = {
 	name: 'Video Bitrate',
-	cliFlag: 'video-bitrate',
+	cliFlag,
 	description: () => (
 		<>
 			Specify the target bitrate for the generated video. The syntax for FFmpeg
@@ -15,4 +19,27 @@ export const videoBitrate = {
 	ssrName: 'videoBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate-',
 	type: '' as string | null,
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as string | null,
+			};
+		}
+
+		if (videoBitrate !== null) {
+			return {
+				source: 'config',
+				value: videoBitrate,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: null,
+		};
+	},
+	setConfig: (bitrate: string | null) => {
+		videoBitrate = bitrate;
+	},
 } satisfies AnyRemotionOption<string | null>;

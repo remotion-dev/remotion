@@ -59,10 +59,8 @@ import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
 import {
 	getEncodingBufferSize,
 	getEncodingMaxRate,
-	getVideoBitrate,
 	setEncodingBufferSize,
 	setEncodingMaxRate,
-	setVideoBitrate,
 } from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
@@ -127,6 +125,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	x264Option,
 	audioBitrateOption,
+	videoBitrateOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -602,10 +601,8 @@ export const Config: FlatConfig = {
 	setImageSequence,
 	setProResProfile,
 	setX264Preset: x264Option.setConfig,
-	setAudioBitrate: (bitrate) => {
-		audioBitrateOption.setConfig(bitrate);
-	},
-	setVideoBitrate,
+	setAudioBitrate: audioBitrateOption.setConfig,
+	setVideoBitrate: videoBitrateOption.setConfig,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
@@ -661,7 +658,6 @@ export const ConfigInternals = {
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,
-	getVideoBitrate,
 	getEncodingBufferSize,
 	getEncodingMaxRate,
 	getHeight,

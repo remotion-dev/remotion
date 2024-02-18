@@ -29,6 +29,7 @@ const {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -184,7 +185,6 @@ export const benchmarkCommand = async (
 		muted,
 		enforceAudioTrack,
 		ffmpegOverride,
-		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
 		height,
@@ -300,12 +300,15 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {value: x264Preset} = x264Option.getValue({commandLine: parsedCli});
-	const {value: audioBitrate} = audioBitrateOption.getValue({
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: parsedCli,
-	});
+	}).value;
 	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
 	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

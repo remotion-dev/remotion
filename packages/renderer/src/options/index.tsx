@@ -17,7 +17,7 @@ import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size'
 import type {AnyRemotionOption} from './option';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
-import {videoBitrate} from './video-bitrate';
+import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {x264Option} from './x264-preset';
@@ -26,7 +26,7 @@ export const allOptions = {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
-	videoBitrate,
+	videoBitrateOption,
 	audioBitrateOption,
 	enforceAudioOption,
 	muteOption,

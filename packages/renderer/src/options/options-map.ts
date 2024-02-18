@@ -8,14 +8,14 @@ import {muteOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {reproOption} from './repro';
-import {videoBitrate} from './video-bitrate';
+import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {x264Option} from './x264-preset';
 
 export const optionsMap = {
 	renderMedia: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
-		videoBitrate,
+		videoBitrate: videoBitrateOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		repro: reproOption,
 		x264Preset: x264Option,
@@ -43,7 +43,7 @@ export const optionsMap = {
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
-		videoBitrate,
+		videoBitrate: videoBitrateOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		audioBitrate: audioBitrateOption,
 		deleteAfter: deleteAfterOption,
@@ -65,7 +65,7 @@ export const optionsMap = {
 		numberOfGifLoops: numberOfGifLoopsOption,
 		colorSpace: colorSpaceOption,
 		audioBitrate: audioBitrateOption,
-		videoBitrate,
+		videoBitrate: videoBitrateOption,
 		x264Preset: x264Option,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,

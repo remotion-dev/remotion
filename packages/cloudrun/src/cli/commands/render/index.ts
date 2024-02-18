@@ -22,6 +22,7 @@ const {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -63,7 +64,6 @@ export const renderCommand = async (
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
-		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
 		height,
@@ -203,6 +203,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

@@ -10,6 +10,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	jpegQualityOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -39,8 +40,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const defaultScale = scaleOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
-	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
