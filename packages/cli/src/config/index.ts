@@ -41,6 +41,7 @@ import type {
 	Crf,
 	DeleteAfter,
 	FrameRange,
+	NumberOfGifLoops,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
@@ -81,8 +82,6 @@ import {
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
 import {setLogLevel} from './log';
-import type {Loop} from './number-of-gif-loops';
-import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
@@ -121,6 +120,7 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -312,7 +312,7 @@ declare global {
 		 * Specify the number of Loop a GIF should have.
 		 * Default: null (means GIF will loop infinite)
 		 */
-		readonly setNumberOfGifLoops: (newLoop: Loop) => void;
+		readonly setNumberOfGifLoops: (newLoop: NumberOfGifLoops) => void;
 		/**
 		 * Disable audio output.
 		 * Default: false
@@ -580,7 +580,7 @@ export const Config: FlatConfig = {
 	setFrameRange,
 	setScale: scaleOption.setConfig,
 	setEveryNthFrame,
-	setNumberOfGifLoops,
+	setNumberOfGifLoops: numberOfGifLoopsOption.setConfig,
 	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
@@ -647,7 +647,6 @@ export const ConfigInternals = {
 	getHeight,
 	getWidth,
 	getEntryPoint,
-	getNumberOfGifLoops,
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,

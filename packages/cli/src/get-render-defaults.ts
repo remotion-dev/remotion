@@ -16,6 +16,7 @@ const {
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -61,11 +62,13 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const gl = glOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -102,7 +105,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		encodingBufferSize,
 		encodingMaxRate,
 		everyNthFrame,
-		numberOfGifLoops,
 		delayRenderTimeout,
 		audioCodec,
 		disableWebSecurity,
@@ -115,5 +117,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		userAgent,
 		beepOnFinish,
 		repro,
+		numberOfGifLoops,
 	};
 };

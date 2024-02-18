@@ -39,6 +39,7 @@ const {
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -188,7 +189,6 @@ export const benchmarkCommand = async (
 		frameRange: defaultFrameRange,
 		overwrite,
 		pixelFormat,
-		numberOfGifLoops,
 		everyNthFrame,
 		ffmpegOverride,
 		encodingMaxRate,
@@ -337,6 +337,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	for (const composition of compositions) {
 		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(

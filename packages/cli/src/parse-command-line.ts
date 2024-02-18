@@ -151,10 +151,6 @@ export const parseCommandLine = () => {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli[numberOfGifLoopsOption.cliFlag]) {
-		Config.setNumberOfGifLoops(parsedCli[numberOfGifLoopsOption.cliFlag]);
-	}
-
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
 		Config.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
 	}
@@ -231,10 +227,6 @@ export const parseCommandLine = () => {
 		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 
-	if (parsedCli.gl) {
-		Config.setChromiumOpenGlRenderer(parsedCli.gl);
-	}
-
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile,
@@ -269,10 +261,6 @@ export const parseCommandLine = () => {
 		Config.setKeyboardShortcutsEnabled(
 			!parsedCli['disable-keyboard-shortcuts'],
 		);
-	}
-
-	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
-		Config.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
 	}
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {

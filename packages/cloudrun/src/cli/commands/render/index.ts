@@ -26,6 +26,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 } = BrowserSafeApis.options;
@@ -71,7 +72,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
-		numberOfGifLoops,
 		encodingMaxRate,
 		encodingBufferSize,
 		height,
@@ -239,6 +239,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

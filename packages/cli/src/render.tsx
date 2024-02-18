@@ -26,6 +26,7 @@ const {
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -79,7 +80,6 @@ export const render = async (
 		pixelFormat,
 		encodingMaxRate,
 		encodingBufferSize,
-		numberOfGifLoops,
 		repro,
 	} = getCliOptions({
 		isLambda: false,
@@ -118,6 +118,9 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

@@ -53,6 +53,7 @@ const {
 	deleteAfterOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	numberOfGifLoopsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -83,7 +84,6 @@ export const renderCommand = async (
 		proResProfile,
 		puppeteerTimeout,
 		everyNthFrame,
-		numberOfGifLoops,
 		overwrite,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -136,6 +136,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

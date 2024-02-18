@@ -10,6 +10,7 @@ import type {
 	FfmpegOverrideFn,
 	FrameRange,
 	LogLevel,
+	NumberOfGifLoops,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -34,7 +35,6 @@ import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
-import type {Loop} from '../config/number-of-gif-loops';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
@@ -143,7 +143,7 @@ export const renderVideoFlow = async ({
 	proResProfile: ProResProfile | undefined;
 	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
-	numberOfGifLoops: Loop;
+	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;

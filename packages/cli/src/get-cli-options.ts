@@ -92,7 +92,6 @@ export const getCliOptions = (options: {
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 
 	const concurrency = ConfigInternals.getConcurrency();
 
@@ -115,7 +114,6 @@ export const getCliOptions = (options: {
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
-		numberOfGifLoops,
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		logLevel: ConfigInternals.Logging.getLogLevel(),

@@ -105,6 +105,7 @@ export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
 export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
+export {NumberOfGifLoops} from './options/number-of-gif-loops';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
