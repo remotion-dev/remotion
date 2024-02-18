@@ -24,27 +24,29 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"semver": "7.5.3",
-		"remotion": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"formidable": "^3.5.1",
 		"memfs": "3.4.3",
-		"source-map": "0.7.3",
-		"open": "^8.4.2"
+		"open": "^8.4.2",
+		"remotion": "workspace:*",
+		"semver": "7.5.3",
+		"source-map": "0.7.3"
 	},
 	"devDependencies": {
-		"react": "18.2.0",
 		"@jonny/eslint-config": "3.0.276",
+		"@types/formidable": "^3.4.5",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
+		"@types/semver": "^7.3.4",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "3.1.1",
-		"@types/semver": "^7.3.4",
 		"prettier-plugin-organize-imports": "3.2.4",
+		"react": "18.2.0",
 		"vitest": "0.31.1"
 	},
 	"exports": {

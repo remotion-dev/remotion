@@ -8,6 +8,8 @@ import type {
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import formidable from 'formidable';
+import fs from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
@@ -193,6 +195,66 @@ const handleOpenInEditor = async (
 	}
 };
 
+const handleAddAsset = (
+	req: IncomingMessage,
+	res: ServerResponse,
+	publicDir: string,
+): void => {
+	const form = formidable();
+
+	form.parse(
+		req,
+		(err: any, fields: formidable.Fields, files: formidable.Files) => {
+			if (err) {
+				res.writeHead(500, {'Content-Type': 'application/json'});
+				res.end(
+					JSON.stringify({success: false, error: 'Error parsing form data'}),
+				);
+				return;
+			}
+
+			const assetPath = fields.assetPath?.[0];
+			if (!assetPath) {
+				res.writeHead(400, {'Content-Type': 'application/json'});
+				res.end(
+					JSON.stringify({success: false, error: 'assetPath field is missing'}),
+				);
+				return;
+			}
+
+			const uploadedFile = files.file?.[0];
+			if (!uploadedFile) {
+				res.writeHead(400, {'Content-Type': 'application/json'});
+				res.end(JSON.stringify({success: false, error: 'File is missing'}));
+				return;
+			}
+
+			const absolutePath = path.join(publicDir, assetPath);
+
+			fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
+
+			fs.rename(
+				uploadedFile.filepath,
+				`${absolutePath}/${uploadedFile.originalFilename}`,
+				(err1) => {
+					if (err1) {
+						res.writeHead(500, {'Content-Type': 'application/json'});
+						res.end(
+							JSON.stringify({success: false, error: 'Error saving file'}),
+						);
+						return;
+					}
+
+					res.writeHead(200, {'Content-Type': 'application/json'});
+					res.end(
+						JSON.stringify({success: true, message: 'File uploaded and saved'}),
+					);
+				},
+			);
+		},
+	);
+};
+
 const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
@@ -294,6 +356,12 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response);
+	}
+
+	if (url.pathname === '/api/add-asset') {
+		// eslint-disable-next-line no-console
+		console.log('add-asset');
+		return handleAddAsset(request, response, publicDir);
 	}
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {
