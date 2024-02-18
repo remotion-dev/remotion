@@ -25,11 +25,7 @@ export const validateSelectedCodecAndPresetCombination = ({
 	codec: Codec;
 	x264Preset: X264Preset | null;
 }) => {
-	if (
-		typeof x264Preset !== 'undefined' &&
-		codec !== 'h264' &&
-		codec !== 'h264-mkv'
-	) {
+	if (x264Preset !== null && codec !== 'h264' && codec !== 'h264-mkv') {
 		throw new TypeError(
 			`You have set a x264 preset but the codec is "${codec}". Set the codec to "h264" or remove the Preset profile.`,
 		);
@@ -74,13 +70,13 @@ export const x264Option = {
 			return {value: value as X264Preset, source: 'cli'};
 		}
 
-		if (typeof preset !== 'undefined') {
+		if (preset !== null) {
 			return {value: preset, source: 'config'};
 		}
 
 		return {value: null, source: 'default'};
 	},
 	setConfig: (profile: X264Preset | null) => {
-		preset = profile ?? null;
+		preset = profile;
 	},
 } satisfies AnyRemotionOption<X264Preset | null>;
