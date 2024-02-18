@@ -89,15 +89,12 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'upload') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			'The command has been renamed.',
-		);
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, 'The command has been renamed.');
+		Log.info(
 			{indent: false, logLevel},
 			'Before: remotion-lambda upload <entry-point>',
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'After: remotion lambda sites create <entry-point>',
 		);
@@ -105,15 +102,9 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'deploy') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			'The command has been renamed.',
-		);
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			'Before: remotion-lambda deploy',
-		);
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, 'The command has been renamed.');
+		Log.info({indent: false, logLevel}, 'Before: remotion-lambda deploy');
+		Log.info(
 			{indent: false, logLevel},
 			'After: remotion lambda functions deploy',
 		);
@@ -121,36 +112,24 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'ls') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`The "ls" command does not exist.`,
-		);
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, `The "ls" command does not exist.`);
+		Log.info(
 			{indent: false, logLevel},
 			`Did you mean "functions ls" or "sites ls"?`,
 		);
 	}
 
 	if (args[0] === 'rm') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`The "rm" command does not exist.`,
-		);
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, `The "rm" command does not exist.`);
+		Log.info(
 			{indent: false, logLevel},
 			`Did you mean "functions rm" or "sites rm"?`,
 		);
 	}
 
 	if (args[0] === 'deploy') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`The "deploy" command does not exist.`,
-		);
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`Did you mean "functions deploy"?`,
-		);
+		Log.info({indent: false, logLevel}, `The "deploy" command does not exist.`);
+		Log.info({indent: false, logLevel}, `Did you mean "functions deploy"?`);
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);

@@ -24,16 +24,16 @@ export const printCompositions = (
 	logLevel: LogLevel,
 ) => {
 	if (!quietFlagProvided()) {
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel});
+		Log.info(
 			{indent: false, logLevel},
 			'The following compositions are available:',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 	}
 
 	if (quietFlagProvided()) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			compositions.map((c) => c.id).join(' '),
 		);
@@ -44,7 +44,7 @@ export const printCompositions = (
 	const secondColumnLength = 8;
 	const thirdColumnLength = 15;
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		compositions
 			.map((comp) => {

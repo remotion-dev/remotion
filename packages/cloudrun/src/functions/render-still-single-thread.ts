@@ -94,10 +94,7 @@ export const renderStillSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 		});
-		Log.infoAdvanced(
-			{indent: false, logLevel: body.logLevel},
-			'Still rendered',
-		);
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 
 		const storage = new Storage();
 
@@ -110,10 +107,7 @@ export const renderStillSingleThread = async (
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 			});
 
-		Log.infoAdvanced(
-			{indent: false, logLevel: body.logLevel},
-			'Still uploaded',
-		);
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still uploaded');
 
 		const uploadedFile = uploadedResponse[0];
 		const renderMetadata = await uploadedFile.getMetadata();
@@ -127,7 +121,7 @@ export const renderStillSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.infoAdvanced(
+		RenderInternals.Log.info(
 			{indent: false, logLevel: body.logLevel},
 			'Render Completed:',
 			responseData,

@@ -47,14 +47,8 @@ const matchCommand = (
 	}
 
 	if (args[0] === 'deploy') {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`The "deploy" command does not exist.`,
-		);
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`Did you mean "service deploy"?`,
-		);
+		Log.info({indent: false, logLevel}, `The "deploy" command does not exist.`);
+		Log.info({indent: false, logLevel}, `Did you mean "service deploy"?`);
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);

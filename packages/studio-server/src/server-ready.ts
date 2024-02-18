@@ -8,8 +8,5 @@ export const setServerReadyComment = (newMessage: string) => {
 };
 
 export const printServerReadyComment = (prefix: string, logLevel: LogLevel) => {
-	RenderInternals.Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${prefix} - ${message}`,
-	);
+	RenderInternals.Log.info({indent: false, logLevel}, `${prefix} - ${message}`);
 };

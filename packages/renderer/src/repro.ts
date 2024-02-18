@@ -45,7 +45,7 @@ const zipFolder = ({
 }) => {
 	const platform = os.platform();
 	try {
-		Log.infoAdvanced({indent, logLevel}, '+ Creating reproduction ZIP');
+		Log.info({indent, logLevel}, '+ Creating reproduction ZIP');
 		if (platform === 'win32') {
 			execSync(
 				`powershell.exe Compress-Archive -Path "${sourceFolder}" -DestinationPath "${targetZip}"`,
@@ -56,10 +56,7 @@ const zipFolder = ({
 
 		rmSync(sourceFolder, {recursive: true});
 
-		Log.infoAdvanced(
-			{indent, logLevel},
-			`${chalk.blue(`+ Repro: ${targetZip}`)}`,
-		);
+		Log.info({indent, logLevel}, `${chalk.blue(`+ Repro: ${targetZip}`)}`);
 	} catch (error) {
 		Log.error(
 			{indent, logLevel},

@@ -108,7 +108,7 @@ export const renderCommand = async (
 	};
 
 	if (!composition) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'No compositions passed. Fetching compositions...',
 		);
@@ -159,7 +159,7 @@ export const renderCommand = async (
 	}
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.ifinfo(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
@@ -175,7 +175,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.ifinfo({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -209,7 +209,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const updateRenderProgress = (progress: number, error?: boolean) => {
 		if (error) {
 			// exiting progress and adding space
-			Log.infoAdvanced(
+			Log.indfinfo(
 				{indent: false, logLevel},
 				`
 		
@@ -306,13 +306,13 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	} else if (res.type === 'success') {
 		renderProgress.doneIn = Date.now() - renderStart;
 		updateProgress();
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			`
 		
 		`,
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.blueBright(
 				`
@@ -328,8 +328,8 @@ Codec = ${codec} (${codecReason})
 		);
 
 		if (downloadName) {
-			Log.infoAdvanced({indent: false, logLevel}, '');
-			Log.infoAdvanced({indent: false, logLevel}, 'downloading file...');
+			Log.indfinfo({indent: false, logLevel}, '');
+			Log.indfinfo({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -337,7 +337,7 @@ Codec = ${codec} (${codecReason})
 				downloadName,
 			});
 
-			Log.infoAdvanced(
+			Log.indfinfo(
 				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);

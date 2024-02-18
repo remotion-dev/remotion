@@ -11,5 +11,5 @@ export const printCloudwatchHelper = (
 		return [...a, `${b}=${data[b]}`];
 	}, [] as string[]);
 	const msg = [`method=${type}`, ...d].join(',');
-	RenderInternals.Log.infoAdvanced({indent: false, logLevel}, msg);
+	RenderInternals.Log.info({indent: false, logLevel}, msg);
 };

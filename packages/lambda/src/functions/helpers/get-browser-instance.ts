@@ -45,7 +45,7 @@ const waitForLaunched = () => {
 };
 
 export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
 	);
@@ -66,13 +66,13 @@ export const getBrowserInstance = async (
 		actualChromiumOptions,
 		logLevel,
 	);
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		`Rendering with Remotion v${VERSION}.`,
 	);
 
 	if (launching) {
-		RenderInternals.Log.infoAdvanced(
+		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			'Already waiting for browser launch...',
 		);
@@ -83,7 +83,7 @@ export const getBrowserInstance = async (
 	}
 
 	if (!_browserInstance) {
-		RenderInternals.Log.infoAdvanced(
+		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			'Cold Lambda function, launching new browser instance',
 		);
@@ -101,13 +101,13 @@ export const getBrowserInstance = async (
 			logLevel,
 		});
 		instance.on('disconnected', () => {
-			RenderInternals.Log.infoAdvanced(
+			RenderInternals.Log.info(
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
 			forgetBrowserEventLoop(logLevel);
 			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
-				RenderInternals.Log.infoAdvanced(
+				RenderInternals.Log.info(
 					{indent: false, logLevel},
 					'Could not close browser instance',
 					err,
@@ -125,7 +125,7 @@ export const getBrowserInstance = async (
 	}
 
 	if (_browserInstance.configurationString !== configurationString) {
-		RenderInternals.Log.infoAdvanced(
+		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			'Warm Lambda function, but Browser configuration changed. Killing old browser instance.',
 		);
@@ -135,7 +135,7 @@ export const getBrowserInstance = async (
 		return getBrowserInstance(logLevel, indent, chromiumOptions);
 	}
 
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Warm Lambda function, reusing browser instance',
 	);

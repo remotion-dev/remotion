@@ -170,10 +170,7 @@ const processJobIfPossible = async ({
 			};
 		});
 		const startTime = Date.now();
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			chalk.gray('╭─ Starting render '),
-		);
+		Log.info({indent: false, logLevel}, chalk.gray('╭─ Starting render '));
 		let lastProgress: AggregateRenderProgress | null = null;
 		await processJob({
 			job: nextJob,
@@ -219,7 +216,7 @@ const processJobIfPossible = async ({
 			},
 			logLevel,
 		});
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
 		);

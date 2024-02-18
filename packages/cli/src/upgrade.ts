@@ -46,13 +46,13 @@ export const upgrade = async (
 	let targetVersion: string;
 	if (version) {
 		targetVersion = version;
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Upgrading to specified version: ' + version,
 		);
 	} else {
 		targetVersion = await StudioServerInternals.getLatestRemotionVersion();
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Newest Remotion version is',
 			targetVersion,
@@ -103,6 +103,6 @@ export const upgrade = async (
 	}
 
 	await prom;
-	Log.infoAdvanced({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
-	Log.infoAdvanced({indent: false, logLevel}, 'https://remotion.dev/changelog');
+	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
+	Log.info({indent: false, logLevel}, 'https://remotion.dev/changelog');
 };

@@ -153,7 +153,7 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					RenderInternals.Log.infoAdvanced(
+					RenderInternals.Log.info(
 						{indent: false, logLevel},
 						'Successfully downloaded',
 						key,

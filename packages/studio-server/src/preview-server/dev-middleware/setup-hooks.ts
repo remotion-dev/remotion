@@ -47,7 +47,7 @@ export function setupHooks(context: DevMiddlewareContext, logLevel: LogLevel) {
 				.join('\n');
 
 			if (lines) {
-				RenderInternals.Log.infoAdvanced({indent: false, logLevel}, lines);
+				RenderInternals.Log.info({indent: false, logLevel}, lines);
 			}
 
 			context.callbacks = [];

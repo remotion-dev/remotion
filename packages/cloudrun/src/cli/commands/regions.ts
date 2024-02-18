@@ -5,8 +5,5 @@ import {GCP_REGIONS} from '../../regions';
 export const REGIONS_COMMAND = 'regions';
 
 export const regionsCommand = (logLevel: LogLevel) => {
-	CliInternals.Log.infoAdvanced(
-		{indent: false, logLevel},
-		GCP_REGIONS.join(' '),
-	);
+	CliInternals.Log.info({indent: false, logLevel}, GCP_REGIONS.join(' '));
 };

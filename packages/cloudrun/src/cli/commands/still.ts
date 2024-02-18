@@ -71,7 +71,7 @@ export const stillCommand = async (
 	};
 
 	if (!composition) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'No compositions passed. Fetching compositions...',
 		);
@@ -141,7 +141,7 @@ export const stillCommand = async (
 		`Image format: (${imageFormat}), ${imageFormatReason}`,
 	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
@@ -156,7 +156,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -213,15 +213,15 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		doneIn = Date.now() - renderStart;
 		updateProgress(true);
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.gray(`Render ID = ${res.renderId}`),
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
@@ -229,14 +229,14 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 				}, Bucket: ${res.bucketName}`,
 			),
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.blue(`○ ${res.publicUrl}`),
 		);
 
 		if (downloadName) {
-			Log.infoAdvanced({indent: false, logLevel}, '');
-			Log.infoAdvanced({indent: false, logLevel}, 'downloading file...');
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -244,7 +244,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 				downloadName,
 			});
 
-			Log.infoAdvanced(
+			Log.info(
 				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);

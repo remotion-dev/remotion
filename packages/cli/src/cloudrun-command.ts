@@ -27,9 +27,9 @@ export const cloudrunCommand = async (
 			{indent: false, logLevel},
 			'Remotion Cloud Run is not installed.',
 		);
-		Log.infoAdvanced({indent: false, logLevel}, '');
-		Log.infoAdvanced({indent: false, logLevel}, 'You can install it using:');
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, '');
+		Log.info({indent: false, logLevel}, 'You can install it using:');
+		Log.info(
 			{indent: false, logLevel},
 			`${installCommand} @remotion/cloudrun@${StudioServerInternals.getRemotionVersion()}`,
 		);

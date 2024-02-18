@@ -7,142 +7,133 @@ import {VERSIONS_COMMAND} from './versions';
 const packagejson = require('../package.json');
 
 export const printHelp = (logLevel: LogLevel) => {
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`@remotion/cli ${packagejson.version}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel}, `@remotion/cli ${packagejson.version}`);
+	Log.info(
 		{indent: false, logLevel},
 		`© ${new Date().getFullYear()} Remotion AG`,
 	);
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, 'Available commands:');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available commands:');
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion studio') + chalk.gray(' <entry-point.ts>'),
 	);
-	Log.infoAdvanced({indent: false, logLevel}, 'Start the Remotion studio.');
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel}, 'Start the Remotion studio.');
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/studio'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion render') +
 			chalk.gray(' <entry-point.ts> <comp-id> <output-file.mp4>'),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'Render video, audio or an image sequence.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/render'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion still') +
 			chalk.gray(' <entry-point.ts> <comp-id> <still.png>'),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'Render a still frame and save it as an image.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/still'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion bundle') + chalk.gray(' <entry-point.ts>'),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'Create a Remotion bundle to be deployed to the web.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/bundle'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion compositions') + chalk.gray(' <index-file.ts>'),
 	);
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		'Prints the available compositions.',
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel}, 'Prints the available compositions.');
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/compositions'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion benchmark') +
 			chalk.gray(' <index-file.ts> <list-of-compositions>'),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'Benchmarks rendering a composition. Same options as for render.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/benchmark'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue('remotion ' + VERSIONS_COMMAND),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'Prints and validates versions of all Remotion packages.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/versions'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		chalk.blue('remotion ' + GPU_COMMAND),
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion ' + GPU_COMMAND));
+	Log.info(
 		{indent: false, logLevel},
 		'Prints information about how Chrome uses the CPU.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/gpu'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, chalk.blue('remotion upgrade'));
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion upgrade'));
+	Log.info(
 		{indent: false, logLevel},
 		'Ensure Remotion is on the newest version.',
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/upgrade'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.',
 	);

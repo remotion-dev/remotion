@@ -11,7 +11,7 @@ export const PERMISSIONS_COMMAND = 'permissions';
 
 export const permissionsCommand = async (logLevel: LogLevel) => {
 	try {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.blueBright(
 				`Checking permissions for ${
@@ -19,10 +19,10 @@ export const permissionsCommand = async (logLevel: LogLevel) => {
 				} in project ${getProjectId()}.`,
 			),
 		);
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 		await testPermissions({
 			onTest: (res) => {
-				Log.infoAdvanced({indent: false, logLevel}, logPermissionOutput(res));
+				Log.info({indent: false, logLevel}, logPermissionOutput(res));
 			},
 		});
 	} catch (err) {

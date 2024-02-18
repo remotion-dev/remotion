@@ -24,11 +24,11 @@ export const servicesLsCommand = async (logLevel: LogLevel) => {
 
 	if (CliInternals.quietFlagProvided()) {
 		if (services.length === 0) {
-			Log.infoAdvanced({indent: false, logLevel}, '()');
+			Log.info({indent: false, logLevel}, '()');
 			return;
 		}
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			services.map((f) => f.serviceName).join(' '),
 		);
@@ -39,10 +39,10 @@ export const servicesLsCommand = async (logLevel: LogLevel) => {
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
 	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 
 	for (const service of services) {
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced({indent: false, logLevel}, displayServiceInfo(service));
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, displayServiceInfo(service));
 	}
 };

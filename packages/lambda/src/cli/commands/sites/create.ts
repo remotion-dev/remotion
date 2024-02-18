@@ -38,12 +38,12 @@ export const sitesCreateSubcommand = async (
 	);
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel});
+		Log.info(
 			{indent: false, logLevel},
 			`${BINARY_NAME} deploy <entry-file.ts>`,
 		);
@@ -172,21 +172,21 @@ export const sitesCreateSubcommand = async (
 	};
 	updateProgress();
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, 'Deployed to S3!');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Deployed to S3!');
 
-	Log.infoAdvanced({indent: false, logLevel}, `Serve URL: ${serveUrl}`);
-	Log.infoAdvanced({indent: false, logLevel}, `Site Name: ${siteName}`);
+	Log.info({indent: false, logLevel}, `Serve URL: ${serveUrl}`);
+	Log.info({indent: false, logLevel}, `Site Name: ${siteName}`);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
 		),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]

@@ -27,12 +27,12 @@ export const servicesRmallCommand = async (logLevel: LogLevel) => {
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
 	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 
 	for (const serv of services) {
-		Log.infoAdvanced({indent: false, logLevel}, displayServiceInfo(serv));
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, displayServiceInfo(serv));
+		Log.info({indent: false, logLevel});
 
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
@@ -40,11 +40,13 @@ export const servicesRmallCommand = async (logLevel: LogLevel) => {
 		});
 
 		if (!confirmDelete) {
-			Log.infoAdvanced(
+			Log.ind;
+			foinfo(
 				{indent: false, logLevel},
 				`Skipping service - ${serv.serviceName}.`,
 			);
-			Log.infoAdvanced({indent: false, logLevel});
+			Log.ind;
+			foinfo({indent: false, logLevel});
 			continue;
 		}
 

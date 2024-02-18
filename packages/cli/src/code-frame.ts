@@ -24,11 +24,11 @@ const printCodeFrame = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 		return;
 	}
 
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 	const longestLineNumber = Math.max(
 		...frame.originalScriptCode.map((script) => script.lineNumber),
 	).toString().length;
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		'at',
 		chalk.underline(makeFileName(frame)),
@@ -39,7 +39,7 @@ const printCodeFrame = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 		),
 	);
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${frame.originalScriptCode
 			.map((c) => {
@@ -61,7 +61,7 @@ const logLine = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 		return;
 	}
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.gray(
 			['at', frame.originalFunctionName, `${chalk.blueBright(`(${fileName})`)}`]
@@ -90,7 +90,7 @@ export const printCodeFrameAndStack = (
 		err.message,
 	);
 	printCodeFrame(firstFrame, logLevel);
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 	for (const frame of err.symbolicatedStackFrames) {
 		if (frame === firstFrame) {
 			continue;

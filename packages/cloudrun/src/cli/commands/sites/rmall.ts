@@ -13,25 +13,22 @@ export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 	const allRegions = parsedCloudrunCli['all-regions'];
 
 	const region = allRegions ? 'all regions' : getGcpRegion();
-	Log.infoAdvanced({indent: false, logLevel}, `Retrieving sites in ${region}.`);
+	Log.info({indent: false, logLevel}, `Retrieving sites in ${region}.`);
 
 	const deployedSites = await getSites(region);
 
 	for (const site of deployedSites.sites) {
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced({indent: false, logLevel}, displaySiteInfo(site));
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, displaySiteInfo(site));
+		Log.info({indent: false, logLevel});
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
 			allowForceFlag: true,
 		});
 
 		if (!confirmDelete) {
-			Log.infoAdvanced(
-				{indent: false, logLevel},
-				`Skipping site - ${site.id}.`,
-			);
-			Log.infoAdvanced({indent: false, logLevel});
+			Log.info({indent: false, logLevel}, `Skipping site - ${site.id}.`);
+			Log.info({indent: false, logLevel});
 			continue;
 		}
 
@@ -40,10 +37,10 @@ export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 			siteName: site.id,
 		});
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			`Deleted site ${site.id} from bucket ${site.bucketName}.`,
 		);
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 	}
 };

@@ -26,12 +26,12 @@ export const renderArgsCheck = async (
 	let serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel});
+		Log.info(
 			{indent: false, logLevel},
 			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location]`,
 		);
@@ -81,8 +81,8 @@ export const renderArgsCheck = async (
 				{indent: false, logLevel},
 				'No compatible services found. Please create a service first:',
 			);
-			Log.infoAdvanced({indent: false, logLevel});
-			Log.infoAdvanced(
+			Log.indfinfo({indent: false, logLevel});
+			Log.indfinfo(
 				{indent: false, logLevel},
 				`  ${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`,
 			);

@@ -34,7 +34,7 @@ export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	validateDiskSizeInMb(diskSizeInMb);
 	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
-		CliInternals.Log.infoAdvanced(
+		CliInternals.Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
@@ -70,7 +70,7 @@ Lambda Insights Enabled = ${enableLambdaInsights}
 		enableLambdaInsights,
 	});
 	if (CliInternals.quietFlagProvided()) {
-		CliInternals.Log.infoAdvanced({indent: false, logLevel}, functionName);
+		CliInternals.Log.info({indent: false, logLevel}, functionName);
 	}
 
 	if (alreadyExisted) {

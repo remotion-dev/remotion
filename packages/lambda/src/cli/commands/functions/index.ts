@@ -10,48 +10,45 @@ import {functionsRmallCommand, FUNCTIONS_RMALL_SUBCOMMAND} from './rmall';
 export const FUNCTIONS_COMMAND = 'functions';
 
 const printFunctionsHelp = (logLevel: LogLevel) => {
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} <subcommand>`,
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel});
-	CliInternals.Log.infoAdvanced(
-		{indent: false, logLevel},
-		'Available subcommands:',
-	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel});
+	CliInternals.Log.info({indent: false, logLevel}, 'Available subcommands:');
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Lists the functions currently deployed'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Deploy a new Lambda function'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} <function-name>`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Delete a Lambda function'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RMALL_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Delete all functions in selected region'),
 	);

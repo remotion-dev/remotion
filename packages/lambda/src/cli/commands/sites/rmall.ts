@@ -43,14 +43,14 @@ export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 			siteName: site.id,
 			region,
 			onAfterItemDeleted: ({itemName}) => {
-				Log.infoAdvanced(
+				Log.info(
 					{indent: false, logLevel},
 					CliInternals.chalk.gray(`Deleted ${itemName}`),
 				);
 			},
 		});
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
 				totalSize,

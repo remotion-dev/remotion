@@ -80,15 +80,15 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 			{indent: false, logLevel},
 			`Current limit of ${concurrencyCurrent} is already increased over the default (${defaultConcurrency}).`,
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'You can force the increase with the --force flag.',
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'You are more likely to get an increase if you attach a reason. Go so by going to the AWS console:',
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			makeQuotaUrl({quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA, region}),
 		);
@@ -96,7 +96,7 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	}
 
 	const newLimit = Math.floor(concurrencyCurrent / 5000) * 5000 + 5000;
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`Sending request to AWS to increase concurrency limit from ${concurrencyCurrent} to ${newLimit}.`,
 	);
@@ -136,7 +136,7 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 		throw err;
 	}
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`Requested increase successfully. Run "${BINARY_NAME} ${QUOTAS_COMMAND}" to check whether your request was approved.`,
 	);

@@ -22,45 +22,45 @@ export const displaySiteInfo = (site: Site) => {
 };
 
 const printSitesHelp = (logLevel: LogLevel) => {
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} <subcommand>`,
 	);
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, 'Available subcommands:');
-	Log.infoAdvanced({indent: false, logLevel}, '');
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available subcommands:');
+	Log.info({indent: false, logLevel}, '');
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND}`,
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Creates a new site based on a Remotion project'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel});
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel});
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Lists the sites currently deployed'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel});
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel});
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RM_COMMAND} <site-id>`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Remove a site from the Cloud Storage bucket.'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel});
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel});
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Remove all sites from the Cloud Storage bucket.'),
 	);

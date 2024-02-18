@@ -14,90 +14,72 @@ import {Log} from './log';
 const packagejson = require('../../package.json');
 
 export const printHelp = (logLevel: LogLevel) => {
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${
 			packagejson.version
 		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, 'Available commands:');
-	Log.infoAdvanced({indent: false, logLevel}, '');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available commands:');
+	Log.info({indent: false, logLevel}, '');
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${RENDER_COMMAND} <s3-url> <composition-id>`,
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Render a video in the cloud.'),
 	);
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composition-id>`,
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Render a still image in the cloud.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${FUNCTIONS_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${FUNCTIONS_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Deploy and manage AWS Lambda functions.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${SITES_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${SITES_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Deploy and manage Remotion projects.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${COMPOSITIONS_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${COMPOSITIONS_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Print list of composition IDs from a serve URL.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${POLICIES_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${POLICIES_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('View and validate AWS policy files.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${REGIONS_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${REGIONS_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Show the list of AWS regions supported.'),
 	);
 
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		`${BINARY_NAME} ${QUOTAS_COMMAND}`,
-	);
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${QUOTAS_COMMAND}`);
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Shows AWS quotas and allows to increase them.'),
 	);

@@ -142,7 +142,7 @@ export const webpackHotMiddleware = (
 
 	function onInvalid() {
 		latestStats = null;
-		RenderInternals.Log.infoAdvanced({indent: false, logLevel}, 'Building...');
+		RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 		eventStream?.publish({
 			action: 'building',
 		});

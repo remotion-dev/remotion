@@ -27,45 +27,45 @@ export const displayServiceInfo = (service: ServiceInfo) => {
 };
 
 const printCloudRunHelp = (logLevel: LogLevel) => {
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} <subcommand>`,
 	);
-	Log.infoAdvanced({indent: false, logLevel});
-	Log.infoAdvanced({indent: false, logLevel}, 'Available subcommands:');
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available subcommands:');
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Lists the services currently deployed'),
 	);
-	Log.infoAdvanced({indent: false, logLevel}, '');
-	Log.infoAdvanced(
+	Log.info({indent: false, logLevel}, '');
+	Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`,
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Deploy a new Cloud Run service'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_RM_SUBCOMMAND} <service-name>`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Delete a Cloud Run service'),
 	);
-	CliInternals.Log.infoAdvanced({indent: false, logLevel}, '');
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info({indent: false, logLevel}, '');
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_RMALL_SUBCOMMAND}`,
 	);
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray('Delete all services in selected region'),
 	);

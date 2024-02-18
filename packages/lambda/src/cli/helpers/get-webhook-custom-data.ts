@@ -30,7 +30,7 @@ export const getWebhookCustomData = (
 			{indent: false, logLevel},
 			`You passed --${flagName} but it was neither valid JSON nor a file path to a valid JSON file. Provided value: ${webhookFlag}`,
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Got the following value:',
 			webhookFlag,

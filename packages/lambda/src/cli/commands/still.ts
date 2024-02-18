@@ -40,12 +40,12 @@ export const stillCommand = async (
 
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel});
+		Log.info(
 			{indent: false, logLevel},
 			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
@@ -88,7 +88,7 @@ export const stillCommand = async (
 	};
 
 	if (!composition) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'No compositions passed. Fetching compositions...',
 		);
@@ -165,7 +165,7 @@ export const stillCommand = async (
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`,
@@ -200,7 +200,7 @@ export const stillCommand = async (
 		forceHeight: height,
 		forceWidth: width,
 		onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
-			Log.infoAdvanced(
+			Log.info(
 				{indent: false, logLevel},
 				CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`),
 			);
@@ -217,10 +217,7 @@ export const stillCommand = async (
 	});
 
 	if (downloadName) {
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			'Finished rendering. Downloading...',
-		);
+		Log.info({indent: false, logLevel}, 'Finished rendering. Downloading...');
 		const {outputPath, sizeInBytes} = await downloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
@@ -228,15 +225,15 @@ export const stillCommand = async (
 			renderId: res.renderId,
 			logLevel,
 		});
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'Done!',
 			outputPath,
 			CliInternals.formatBytes(sizeInBytes),
 		);
 	} else {
-		Log.infoAdvanced({indent: false, logLevel}, `Finished still!`);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced({indent: false, logLevel}, res.url);
+		Log.info({indent: false, logLevel}, `Finished still!`);
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, res.url);
 	}
 };

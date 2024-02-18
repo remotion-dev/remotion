@@ -76,7 +76,7 @@ export const validateVersionsBeforeCommand = async (
 			Log.warn(logOptions, `  - ${pkg}`);
 		}
 
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 	}
 
 	Log.warn(logOptions, 'You may experience breakages such as:');
@@ -101,7 +101,7 @@ export const validateVersionsBeforeCommand = async (
 	}
 
 	Log.warn(logOptions, '-------------');
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 };
 
 export const versionsCommand = async (
@@ -115,32 +115,32 @@ export const versionsCommand = async (
 
 	const installedVersions = Object.keys(grouped);
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		`Node.JS = ${process.version}, OS = ${process.platform}`,
 	);
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 	for (const version of installedVersions) {
-		Log.infoAdvanced({indent: false, logLevel}, `On version: ${version}`);
+		Log.info({indent: false, logLevel}, `On version: ${version}`);
 		for (const pkg of grouped[version]) {
-			Log.infoAdvanced({indent: false, logLevel}, `- ${pkg}`);
+			Log.info({indent: false, logLevel}, `- ${pkg}`);
 			Log.verbose(
 				{indent: false, logLevel},
 				`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`,
 			);
 		}
 
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 	}
 
 	if (installedVersions.length === 0) {
-		Log.infoAdvanced({indent: false, logLevel}, 'No Remotion packages found.');
-		Log.infoAdvanced(
+		Log.info({indent: false, logLevel}, 'No Remotion packages found.');
+		Log.info(
 			{indent: false, logLevel},
 			'Maybe @remotion/cli is installed globally.',
 		);
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'If you try to render a video that was bundled with a different version, you will get a warning.',
 		);
@@ -148,7 +148,7 @@ export const versionsCommand = async (
 	}
 
 	if (installedVersions.length === 1) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			`✅ Great! All packages have the same version.`,
 		);
@@ -157,16 +157,16 @@ export const versionsCommand = async (
 			{indent: false, logLevel},
 			'Version mismatch: Not all Remotion packages have the same version.',
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'- Make sure your package.json has all Remotion packages pointing to the same version.',
 		);
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'- Remove the `^` character in front of a version to pin a package.',
 		);
 		if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
-			Log.infoAdvanced(
+			Log.info(
 				{indent: false, logLevel},
 				'- Rerun this command with --log=verbose to see the path of the modules resolved.',
 			);

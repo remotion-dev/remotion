@@ -63,7 +63,7 @@ export const cli = async () => {
 			}
 		}
 
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
 		);
@@ -121,7 +121,7 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 		await printError(err as Error, logLevel);
 		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);

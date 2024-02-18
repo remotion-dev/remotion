@@ -50,13 +50,13 @@ const watchEnvFile = ({
 					Log.warn({indent: false, logLevel}, `${envFile} was deleted.`);
 				} else if (type === 'changed') {
 					await updateFile();
-					Log.infoAdvanced(
+					Log.info(
 						{indent: false, logLevel},
 						chalk.blueBright(`Updated env file ${envFile}`),
 					);
 				} else if (type === 'created') {
 					await updateFile();
-					Log.infoAdvanced(
+					Log.info(
 						{indent: false, logLevel},
 						chalk.blueBright(`Created env file ${envFile}`),
 					);

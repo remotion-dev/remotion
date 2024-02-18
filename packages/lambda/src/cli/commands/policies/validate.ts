@@ -13,7 +13,7 @@ export const validateSubcommand = async (logLevel: LogLevel) => {
 		await simulatePermissions({
 			region: getAwsRegion(),
 			onSimulation: (res) => {
-				Log.infoAdvanced({indent: false, logLevel}, logPermissionOutput(res));
+				Log.info({indent: false, logLevel}, logPermissionOutput(res));
 			},
 		});
 	} catch (err) {

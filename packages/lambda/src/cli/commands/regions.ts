@@ -6,7 +6,7 @@ import {parsedLambdaCli} from '../args';
 export const REGIONS_COMMAND = 'regions';
 
 export const regionsCommand = (logLevel: LogLevel) => {
-	CliInternals.Log.infoAdvanced(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		getRegions({
 			enabledByDefaultOnly: parsedLambdaCli['default-only'] ?? false,

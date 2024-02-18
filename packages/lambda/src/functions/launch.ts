@@ -133,13 +133,13 @@ const innerLaunchHandler = async ({
 	};
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		logOptions,
 		'Waiting for browser to be ready:',
 		serializedInputPropsWithCustomSchema,
 	);
 	const {instance} = await browserInstance;
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		logOptions,
 		'Validating composition, input props:',
 		serializedInputPropsWithCustomSchema,
@@ -159,7 +159,7 @@ const innerLaunchHandler = async ({
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 	});
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		logOptions,
 		'Composition validated, resolved props',
 		comp.props,
@@ -284,7 +284,7 @@ const innerLaunchHandler = async ({
 		return payload;
 	});
 
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		logOptions,
 		'Render plan: ',
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
@@ -432,11 +432,11 @@ export const launchHandler = async (
 
 	const onTimeout = async () => {
 		if (allChunksAvailable) {
-			RenderInternals.Log.infoAdvanced(
+			RenderInternals.Log.info(
 				logOptions,
 				'All chunks are available, but the function is about to time out.',
 			);
-			RenderInternals.Log.infoAdvanced(
+			RenderInternals.Log.info(
 				logOptions,
 				'Spawning another function to merge chunks.',
 			);
@@ -455,11 +455,11 @@ export const launchHandler = async (
 					},
 					retries: 2,
 				});
-				RenderInternals.Log.infoAdvanced(
+				RenderInternals.Log.info(
 					logOptions,
 					`New function successfully invoked. See the CloudWatch logs for it:`,
 				);
-				RenderInternals.Log.infoAdvanced(
+				RenderInternals.Log.info(
 					logOptions,
 					getCloudwatchMethodUrl({
 						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
@@ -469,7 +469,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 					}),
 				);
-				RenderInternals.Log.infoAdvanced(
+				RenderInternals.Log.info(
 					logOptions,
 					'This function will now time out.',
 				);
@@ -573,7 +573,7 @@ export const launchHandler = async (
 		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
 	);
 
-	RenderInternals.Log.infoAdvanced(
+	RenderInternals.Log.info(
 		logOptions,
 		`Function has ${Math.max(
 			options.getRemainingTimeInMillis() - 1000,

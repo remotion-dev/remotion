@@ -104,7 +104,7 @@ export const bundleCommand = async (
 			// Handle floating point inaccuracies
 			if (bundling.progress < 0.99999) {
 				if (updatesDontOverwrite) {
-					Log.infoAdvanced(
+					Log.info(
 						{indent: false, logLevel},
 						`Bundling ${Math.round(bundling.progress * 100)}%`,
 					);
@@ -126,7 +126,7 @@ export const bundleCommand = async (
 		maxTimlineTracks: null,
 	});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue(`${existed ? '○' : '+'} ${output}`),
 	);
@@ -165,8 +165,5 @@ export const bundleCommand = async (
 	const newGitIgnoreContents =
 		gitIgnoreContents + '\n' + relativePathToGitIgnore;
 	writeFileSync(gitignorePath, newGitIgnoreContents);
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		chalk.blue(`Added to .gitignore!`),
-	);
+	Log.info({indent: false, logLevel}, chalk.blue(`Added to .gitignore!`));
 };

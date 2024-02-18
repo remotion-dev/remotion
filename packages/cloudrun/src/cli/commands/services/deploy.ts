@@ -33,7 +33,7 @@ export const cloudRunDeploySubcommand = async (logLevel: LogLevel) => {
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? DEFAULT_TIMEOUT;
 
 	if (!CliInternals.quietFlagProvided()) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
@@ -53,7 +53,7 @@ ${[
     `.trim(),
 			),
 		);
-		Log.infoAdvanced({indent: false, logLevel});
+		Log.info({indent: false, logLevel});
 	}
 
 	validateGcpRegion(region);
@@ -70,7 +70,7 @@ ${[
 	// if no existing service, deploy new service
 
 	if (!CliInternals.quietFlagProvided()) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent: false, logLevel},
 			CliInternals.chalk.white('\nDeploying Cloud Run Service...'),
 		);
@@ -115,15 +115,15 @@ ${[
 		const consoleUrl = makeConsoleUrl(region, deployResult.shortName);
 
 		if (deployResult.alreadyExists) {
-			Log.infoAdvanced({indent: false, logLevel});
+			Log.info({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.infoAdvanced(
+				CliInternals.Log.info(
 					{indent: false, logLevel},
 					deployResult.shortName,
 				);
 			} else {
-				Log.infoAdvanced(
+				Log.info(
 					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`
@@ -144,15 +144,15 @@ ${displayServiceInfo({
 				);
 			}
 		} else {
-			Log.infoAdvanced({indent: false, logLevel});
+			Log.info({indent: false, logLevel});
 
 			if (CliInternals.quietFlagProvided()) {
-				CliInternals.Log.infoAdvanced(
+				CliInternals.Log.info(
 					{indent: false, logLevel},
 					deployResult.shortName,
 				);
 			} else {
-				Log.infoAdvanced(
+				Log.info(
 					{indent: false, logLevel},
 					CliInternals.chalk.blueBright(
 						`

@@ -145,7 +145,7 @@ export const renderMediaSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.infoAdvanced(
+		RenderInternals.Log.info(
 			{indent: false, logLevel: body.logLevel},
 			'Render Completed:',
 			responseData,
