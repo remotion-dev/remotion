@@ -22,7 +22,6 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
-		isLambda: false,
 		isStill: false,
 		logLevel,
 	});

@@ -75,7 +75,6 @@ export const stillCommand = async (
 		ignoreCertificateErrors,
 	} = getCliOptions({
 		isStill: true,
-		isLambda: true,
 		logLevel,
 	});
 

@@ -83,7 +83,6 @@ export const renderCommand = async (
 		userAgent,
 	} = CliInternals.getCliOptions({
 		isStill: false,
-		isLambda: true,
 		logLevel,
 	});
 

@@ -54,7 +54,6 @@ const getProResProfile = () => {
 };
 
 export const getCliOptions = (options: {
-	isLambda: boolean;
 	isStill: boolean;
 	logLevel: LogLevel;
 }) => {
@@ -64,9 +63,6 @@ export const getCliOptions = (options: {
 		? true
 		: ConfigInternals.getShouldOutputImageSequence(frameRange);
 
-	const overwrite = ConfigInternals.getShouldOverwrite({
-		defaultValue: !options.isLambda,
-	});
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
@@ -102,7 +98,6 @@ export const getCliOptions = (options: {
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		overwrite,
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		height,

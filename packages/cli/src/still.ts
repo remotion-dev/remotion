@@ -18,6 +18,7 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -62,7 +63,6 @@ export const still = async (
 		envVariables,
 		height,
 		inputProps,
-		overwrite,
 		publicDir,
 		stillFrame,
 		width,
@@ -70,7 +70,6 @@ export const still = async (
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
-		isLambda: false,
 		isStill: true,
 		logLevel,
 	});
@@ -93,6 +92,12 @@ export const still = async (
 	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

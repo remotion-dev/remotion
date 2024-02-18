@@ -25,7 +25,6 @@ export const processVideoJob = async ({
 	}
 
 	const {publicDir, browserExecutable, ffmpegOverride} = getCliOptions({
-		isLambda: false,
 		isStill: true,
 		logLevel,
 	});

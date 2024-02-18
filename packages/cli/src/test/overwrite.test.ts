@@ -1,15 +1,20 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {afterEach, beforeAll, expect, test} from 'vitest';
-import {getShouldOverwrite, setOverwriteOutput} from '../config/overwrite';
 import {expectToThrow} from './expect-to-throw';
 
 const invalidOverwrite = 555;
 let defaultOverwriteValue: boolean;
 
 beforeAll(() => {
-	defaultOverwriteValue = getShouldOverwrite({defaultValue: true});
+	defaultOverwriteValue = BrowserSafeApis.options.overwriteOption.getValue(
+		{
+			commandLine: {},
+		},
+		true,
+	).value;
 });
 afterEach(() => {
-	setOverwriteOutput(defaultOverwriteValue);
+	BrowserSafeApis.options.overwriteOption.setConfig(defaultOverwriteValue);
 });
 
 test('setOverwriteOutput should throw if overwrite is not a boolean value', () => {
@@ -20,12 +25,18 @@ test('setOverwriteOutput should throw if overwrite is not a boolean value', () =
 	);
 });
 test('setOverwriteOutput should NOT throw if image format is a boolean value', () => {
-	expect(() => setOverwriteOutput(true)).not.toThrow();
+	expect(() =>
+		BrowserSafeApis.options.overwriteOption.setConfig(true),
+	).not.toThrow();
 });
 test('getShouldOverwrite should return true by default', () => {
-	expect(getShouldOverwrite({defaultValue: true})).toEqual(true);
+	expect(
+		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true),
+	).toEqual(true);
 });
 test('setOverwriteOutput should return a boolean value', () => {
-	setOverwriteOutput(false);
-	expect(getShouldOverwrite({defaultValue: true})).toEqual(false);
+	BrowserSafeApis.options.overwriteOption.setConfig(false);
+	expect(
+		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true),
+	).toEqual(false);
 });

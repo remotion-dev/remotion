@@ -59,7 +59,6 @@ export const listCompositionsCommand = async (
 		userAgent,
 		disableWebSecurity,
 	} = getCliOptions({
-		isLambda: false,
 		isStill: false,
 		logLevel,
 	});

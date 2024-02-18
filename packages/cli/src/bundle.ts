@@ -51,7 +51,6 @@ export const bundleCommand = async (
 	}
 
 	const {publicDir} = getCliOptions({
-		isLambda: false,
 		isStill: false,
 		logLevel,
 	});

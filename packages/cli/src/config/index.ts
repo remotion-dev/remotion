@@ -19,7 +19,6 @@ import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
 } from './override-webpack';
-import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {
 	getRendererPortFromConfigFile,
@@ -75,7 +74,6 @@ import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
-import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
@@ -99,6 +97,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	enforceAudioOption,
+	overwriteOption,
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
@@ -583,7 +582,7 @@ export const Config: FlatConfig = {
 	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
-	setOverwriteOutput,
+	setOverwriteOutput: overwriteOption.setConfig,
 	setPixelFormat,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
@@ -612,7 +611,6 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
-	getShouldOverwrite,
 	getBrowserExecutable,
 	getStudioPort,
 	getRendererPortFromConfigFile,

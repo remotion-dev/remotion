@@ -47,7 +47,6 @@ export const compositionsCommand = async (
 		disableWebSecurity,
 	} = CliInternals.getCliOptions({
 		isStill: false,
-		isLambda: true,
 		logLevel,
 	});
 

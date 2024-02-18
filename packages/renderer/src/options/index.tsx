@@ -17,6 +17,7 @@ import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import type {AnyRemotionOption} from './option';
+import {overwriteOption} from './overwrite';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
@@ -51,6 +52,7 @@ export const allOptions = {
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	overwriteOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

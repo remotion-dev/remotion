@@ -58,6 +58,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -89,7 +90,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
-		overwrite,
 		height,
 		width,
 		browserExecutable,
@@ -98,7 +98,6 @@ export const renderCommand = async (
 		disableWebSecurity,
 	} = CliInternals.getCliOptions({
 		isStill: false,
-		isLambda: true,
 		logLevel,
 	});
 
@@ -156,7 +155,12 @@ export const renderCommand = async (
 			commandLine: CliInternals.parsedCli,
 		},
 	).value;
-
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: CliInternals.parsedCli,
+		},
+		false,
+	).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,

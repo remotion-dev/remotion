@@ -31,6 +31,7 @@ const {
 	reproOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -74,7 +75,6 @@ export const render = async (
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		overwrite,
 		inputProps,
 		envVariables,
 		browserExecutable,
@@ -89,7 +89,6 @@ export const render = async (
 		proResProfile,
 		pixelFormat,
 	} = getCliOptions({
-		isLambda: false,
 		isStill: false,
 		logLevel,
 	});
@@ -140,6 +139,12 @@ export const render = async (
 	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

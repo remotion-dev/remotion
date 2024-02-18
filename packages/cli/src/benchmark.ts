@@ -44,6 +44,7 @@ const {
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -187,7 +188,6 @@ export const benchmarkCommand = async (
 		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
-		overwrite,
 		pixelFormat,
 		everyNthFrame,
 		ffmpegOverride,
@@ -198,7 +198,6 @@ export const benchmarkCommand = async (
 		userAgent,
 		ignoreCertificateErrors,
 	} = getCliOptions({
-		isLambda: false,
 		isStill: false,
 		logLevel,
 	});
@@ -350,6 +349,12 @@ export const benchmarkCommand = async (
 		delayRenderTimeoutInMillisecondsOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	for (const composition of compositions) {
 		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
