@@ -118,7 +118,6 @@ export const getCliOptions = (options: {
 		shouldOutputImageSequence,
 		inputProps: getInputProps(null, options.logLevel),
 		envVariables: getEnvironmentVariables(null, options.logLevel, false),
-		jpegQuality: ConfigInternals.getJpegQuality(),
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,

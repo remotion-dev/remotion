@@ -1,24 +1,27 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {describe, expect, test} from 'vitest';
-import {getJpegQuality, setJpegQuality} from '../config/jpeg-quality';
 import {expectToThrow} from './expect-to-throw';
+
+const setJpegQuality = BrowserSafeApis.options.jpegQualityOption.setConfig;
+const getJpegQuality = BrowserSafeApis.options.jpegQualityOption.getValue;
 
 describe('Test valid setQuality inputs', () => {
 	test('Integers within accepted range', () => {
 		const validInputes = [1, 50, 100];
 		validInputes.forEach((entry) => {
 			setJpegQuality(entry);
-			expect(getJpegQuality()).toEqual(entry);
+			expect(getJpegQuality({commandLine: {}})).toEqual(entry);
 		});
 	});
 
 	test('Undefined input', () => {
 		setJpegQuality(undefined);
-		expect(getJpegQuality()).toEqual(80);
+		expect(getJpegQuality({commandLine: {}})).toEqual(80);
 	});
 
 	test('0 input', () => {
 		setJpegQuality(0);
-		expect(getJpegQuality()).toEqual(80);
+		expect(getJpegQuality({commandLine: {}})).toEqual(80);
 	});
 });
 

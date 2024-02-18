@@ -23,7 +23,6 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getJpegQuality} from './jpeg-quality';
 import * as Logging from './log';
 import {getOutputLocation} from './output-location';
 import {
@@ -94,7 +93,6 @@ import {
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
-import {setJpegQuality} from './jpeg-quality';
 import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
@@ -131,6 +129,7 @@ const {
 	audioBitrateOption,
 	scaleOption,
 	crfOption,
+	jpegQualityOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -411,7 +410,7 @@ declare global {
 				| 'slower'
 				| 'veryslow'
 				| 'placebo'
-				| undefined,
+				| null,
 		) => void;
 		/**
 		 * Override the arguments that Remotion passes to FFmpeg.
@@ -584,15 +583,13 @@ export const Config: FlatConfig = {
 			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")',
 		);
 	},
-	setJpegQuality,
+	setJpegQuality: jpegQualityOption.setConfig,
 	setStillImageFormat,
 	setVideoImageFormat,
 	setEncodingMaxRate,
 	setEncodingBufferSize,
 	setFrameRange,
-	setScale: (option) => {
-		scaleOption.setConfig(option);
-	},
+	setScale: scaleOption.setConfig,
 	setEveryNthFrame,
 	setNumberOfGifLoops,
 	setMuted,
@@ -601,14 +598,10 @@ export const Config: FlatConfig = {
 	setOverwriteOutput,
 	setPixelFormat,
 	setCodec,
-	setCrf: (crf) => {
-		crfOption.setConfig(crf);
-	},
+	setCrf: crfOption.setConfig,
 	setImageSequence,
 	setProResProfile,
-	setX264Preset: (preset) => {
-		x264Option.setConfig(preset ?? null);
-	},
+	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: (bitrate) => {
 		audioBitrateOption.setConfig(bitrate);
 	},
@@ -645,7 +638,6 @@ export const ConfigInternals = {
 	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
-	getJpegQuality,
 	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,

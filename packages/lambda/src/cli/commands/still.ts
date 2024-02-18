@@ -20,8 +20,12 @@ import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 
-const {offthreadVideoCacheSizeInBytesOption, scaleOption, deleteAfterOption} =
-	BrowserSafeApis.options;
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	deleteAfterOption,
+	jpegQualityOption,
+} = BrowserSafeApis.options;
 
 export const STILL_COMMAND = 'still';
 
@@ -49,7 +53,6 @@ export const stillCommand = async (
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
 		height,
 		width,
@@ -146,6 +149,9 @@ export const stillCommand = async (
 
 	const deleteAfter = parsedLambdaCli[deleteAfterOption.cliFlag];
 	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

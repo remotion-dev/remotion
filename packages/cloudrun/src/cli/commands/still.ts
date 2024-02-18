@@ -13,7 +13,7 @@ import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
 
-const {offthreadVideoCacheSizeInBytesOption, scaleOption} =
+const {offthreadVideoCacheSizeInBytesOption, scaleOption, jpegQualityOption} =
 	BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -36,7 +36,6 @@ export const stillCommand = async (
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
 		height,
 		width,
@@ -156,6 +155,9 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	};
 
 	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

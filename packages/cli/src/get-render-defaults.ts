@@ -9,10 +9,13 @@ const {
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
+	jpegQualityOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
-	const defaultJpegQuality = ConfigInternals.getJpegQuality();
+	const defaultJpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(

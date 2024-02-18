@@ -10,7 +10,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
 
-const {offthreadVideoCacheSizeInBytesOption, scaleOption} =
+const {offthreadVideoCacheSizeInBytesOption, scaleOption, jpegQualityOption} =
 	BrowserSafeApis.options;
 
 export const still = async (
@@ -51,7 +51,6 @@ export const still = async (
 		overwrite,
 		publicDir,
 		puppeteerTimeout,
-		jpegQuality,
 		stillFrame,
 		width,
 	} = getCliOptions({
@@ -60,6 +59,11 @@ export const still = async (
 		remotionRoot,
 		logLevel,
 	});
+
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
 
 	await renderStillFlow({
 		remotionRoot,
@@ -82,9 +86,7 @@ export const still = async (
 		publicDir,
 		puppeteerTimeout,
 		jpegQuality,
-		scale: scaleOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		scale,
 		stillFrame,
 		width,
 		compositionIdFromUi: null,

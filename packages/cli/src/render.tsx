@@ -19,6 +19,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	crfOption,
+	jpegQualityOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -57,7 +58,6 @@ export const render = async (
 		overwrite,
 		inputProps,
 		envVariables,
-		jpegQuality,
 		browserExecutable,
 		chromiumOptions,
 		everyNthFrame,
@@ -92,6 +92,9 @@ export const render = async (
 			commandLine: parsedCli,
 		}).value;
 	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;

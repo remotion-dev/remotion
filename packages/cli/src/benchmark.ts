@@ -28,6 +28,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	crfOption,
+	jpegQualityOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -177,7 +178,6 @@ export const benchmarkCommand = async (
 		proResProfile,
 		frameRange: defaultFrameRange,
 		overwrite,
-		jpegQuality,
 		pixelFormat,
 		numberOfGifLoops,
 		everyNthFrame,
@@ -305,6 +305,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	});
 	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	for (const composition of compositions) {
 		const {codec, reason: codecReason} = getFinalOutputCodec({

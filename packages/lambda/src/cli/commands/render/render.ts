@@ -46,6 +46,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	crfOption,
+	jpegQualityOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -76,7 +77,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
-		jpegQuality,
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
@@ -110,6 +110,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
