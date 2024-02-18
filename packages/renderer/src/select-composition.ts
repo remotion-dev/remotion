@@ -26,7 +26,6 @@ type InternalSelectCompositionsConfig = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	browserExecutable: BrowserExecutable | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	indent: boolean;
@@ -41,7 +40,6 @@ export type SelectCompositionOptions = {
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	/**

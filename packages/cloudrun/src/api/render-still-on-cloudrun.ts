@@ -36,7 +36,6 @@ export type RenderStillOnCloudrunInput = {
 	chromiumOptions?: ChromiumOptions;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-	delayRenderTimeoutInMilliseconds?: number;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>>;
 
 /**

@@ -18,13 +18,14 @@ export type GetCompositionsOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	envVariables?: Record<string, string>;
-	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
 	/**
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & Partial<
+	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
+>;
 
 export type GetCompositionsOnLambdaOutput = VideoConfig[];
 

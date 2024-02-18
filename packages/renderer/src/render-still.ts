@@ -58,7 +58,6 @@ type InternalRenderStillOptions = {
 	overwrite: boolean;
 	browserExecutable: BrowserExecutable;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	onDownload: RenderMediaOnDownload | null;
@@ -86,7 +85,6 @@ export type RenderStillOptions = {
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;

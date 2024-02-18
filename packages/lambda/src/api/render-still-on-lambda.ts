@@ -32,7 +32,6 @@ export type RenderStillOnLambdaInput = {
 	quality?: never;
 	frame?: number;
 	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	downloadBehavior?: DownloadBehavior;
 	forceWidth?: number | null;

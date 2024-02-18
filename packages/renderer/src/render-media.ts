@@ -107,7 +107,6 @@ export type InternalRenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
@@ -157,7 +156,6 @@ export type RenderMediaOptions = Prettify<{
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	port?: number | null;

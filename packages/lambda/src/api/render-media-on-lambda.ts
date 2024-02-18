@@ -45,7 +45,6 @@ export type RenderMediaOnLambdaInput = {
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

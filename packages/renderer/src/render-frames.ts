@@ -81,7 +81,6 @@ export type InternalRenderFramesOptions = {
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
 	onDownload: RenderMediaOnDownload | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
