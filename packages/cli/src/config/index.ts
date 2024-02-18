@@ -36,7 +36,6 @@ import {
 	getStudioPort,
 } from './preview-server';
 import {getProResProfile} from './prores-profile';
-import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
@@ -47,6 +46,7 @@ import type {
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
+	DeleteAfter,
 	FrameRange,
 	StillImageFormat,
 	VideoImageFormat,
@@ -125,6 +125,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	deleteAfterOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -475,9 +476,7 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-		setDeleteAfter: (
-			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
-		) => void;
+		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
 		 */
@@ -606,7 +605,7 @@ export const Config: FlatConfig = {
 	setOffthreadVideoCacheSizeInBytes: (size) => {
 		offthreadVideoCacheSizeInBytesOption.setConfig(size);
 	},
-	setDeleteAfter,
+	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
 	setBeepOnFinish,
 	setEnableFolderExpiry,
@@ -658,7 +657,6 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getDeleteAfter,
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,

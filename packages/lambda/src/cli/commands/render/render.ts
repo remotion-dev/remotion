@@ -50,6 +50,7 @@ const {
 	videoBitrateOption,
 	mutedOption,
 	colorSpaceOption,
+	deleteAfterOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -88,7 +89,6 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
-		deleteAfter,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -122,6 +122,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const deleteAfter = deleteAfterOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
