@@ -68,7 +68,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     inputProps: {
       hi: "there",
     },
-    audioBitrate: "320k",
+    audioBitrate: null,
     audioCodec: null,
     chromiumOptions: {},
     colorSpace: "default",
