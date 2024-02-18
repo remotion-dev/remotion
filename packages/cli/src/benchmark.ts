@@ -41,6 +41,7 @@ const {
 	glOption,
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
+	encodingBufferSizeOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -192,7 +193,6 @@ export const benchmarkCommand = async (
 		pixelFormat,
 		everyNthFrame,
 		ffmpegOverride,
-		encodingBufferSize,
 		height,
 		width,
 		concurrency: unparsedConcurrency,
@@ -341,6 +341,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

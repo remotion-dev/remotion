@@ -28,6 +28,7 @@ const {
 	glOption,
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
+	encodingBufferSizeOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -79,7 +80,6 @@ export const render = async (
 		ffmpegOverride,
 		proResProfile,
 		pixelFormat,
-		encodingBufferSize,
 		repro,
 	} = getCliOptions({
 		isLambda: false,
@@ -122,6 +122,9 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

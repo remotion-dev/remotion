@@ -55,6 +55,7 @@ const {
 	glOption,
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
+	encodingBufferSizeOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -86,7 +87,6 @@ export const renderCommand = async (
 		puppeteerTimeout,
 		everyNthFrame,
 		overwrite,
-		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -142,6 +142,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

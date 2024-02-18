@@ -19,6 +19,7 @@ const {
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
 	encodingMaxRateOption,
+	encodingBufferSizeOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -73,8 +74,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const encodingMaxRate = encodingMaxRateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
-	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 	const audioCodec = ConfigInternals.getAudioCodec();

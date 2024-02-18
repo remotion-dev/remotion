@@ -30,6 +30,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	encodingMaxRateOption,
+	encodingBufferSizeOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -73,7 +74,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
-		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
@@ -245,6 +245,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
