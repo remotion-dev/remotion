@@ -157,6 +157,7 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 	internalParams := renderProgressInternalConfig{
 		RenderId:   options.RenderId,
 		BucketName: options.BucketName,
+		LogLevel:   options.LogLevel,
 		Type:       "status",
 		Version:    VERSION,
 	}

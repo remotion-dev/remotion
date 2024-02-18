@@ -181,6 +181,7 @@ class RenderProgressParams:
     bucket_name: str
     function_name: str
     region: str
+    log_level: str
 
     def serialize_params(self) -> Dict:
         """
@@ -191,6 +192,7 @@ class RenderProgressParams:
             'bucketName': self.bucket_name,
             'type': 'status',
             "version": VERSION,
+            "logLevel": self.log_level,
             "s3OutputProvider": None,
         }
         return parameters
