@@ -77,10 +77,6 @@ import {setCodec} from './codec';
 import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
-import {
-	getEnforceAudioTrack,
-	setEnforceAudioTrack,
-} from './enforce-audio-track';
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
@@ -129,6 +125,7 @@ const {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
+	enforceAudioOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -592,7 +589,7 @@ export const Config: FlatConfig = {
 	setEveryNthFrame,
 	setNumberOfGifLoops,
 	setMuted,
-	setEnforceAudioTrack,
+	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput,
 	setPixelFormat,
@@ -653,8 +650,6 @@ export const ConfigInternals = {
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,
-	getEnforceAudioTrack,
-	setEnforceAudioTrack,
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,

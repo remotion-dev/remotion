@@ -30,6 +30,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	enforceAudioOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -183,7 +184,6 @@ export const benchmarkCommand = async (
 		numberOfGifLoops,
 		everyNthFrame,
 		muted,
-		enforceAudioTrack,
 		ffmpegOverride,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -309,6 +309,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

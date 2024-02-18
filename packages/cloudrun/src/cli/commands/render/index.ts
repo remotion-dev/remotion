@@ -23,6 +23,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	enforceAudioOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -69,7 +70,6 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
-		enforceAudioTrack,
 		colorSpace,
 	} = CliInternals.getCliOptions({
 		type: 'series',
@@ -206,6 +206,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

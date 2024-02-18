@@ -11,6 +11,7 @@ const {
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	enforceAudioOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -23,7 +24,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		ConfigInternals.getConcurrency(),
 	);
 	const muted = ConfigInternals.getMuted();
-	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
 
@@ -41,6 +41,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 		commandLine: parsedCli,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

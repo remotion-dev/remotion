@@ -127,7 +127,6 @@ export const getCliOptions = (options: {
 		chromiumOptions,
 		overwrite,
 		muted: ConfigInternals.getMuted(),
-		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		encodingBufferSize,

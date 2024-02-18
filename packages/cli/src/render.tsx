@@ -21,6 +21,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	enforceAudioOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -68,7 +69,6 @@ export const render = async (
 		width,
 		ffmpegOverride,
 		muted,
-		enforceAudioTrack,
 		proResProfile,
 		pixelFormat,
 		encodingMaxRate,
@@ -96,6 +96,9 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const crf = shouldOutputImageSequence
