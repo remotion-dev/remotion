@@ -31,7 +31,6 @@ type InternalGetCompositionsOptions = {
 	port: number | null;
 	server: RemotionServer | undefined;
 	indent: boolean;
-	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
@@ -44,9 +43,7 @@ export type GetCompositionsOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.getCompositions>>;
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;

@@ -32,7 +32,6 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
@@ -114,7 +113,6 @@ export type InternalRenderMediaOptions = {
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
 	browserExecutable: BrowserExecutable | null;
-	logLevel: LogLevel;
 	onCtrlCExit: (fn: () => void) => void;
 	indent: boolean;
 	server: RemotionServer | undefined;
@@ -179,7 +177,6 @@ export type RenderMediaOptions = Prettify<{
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
-	logLevel?: LogLevel;
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 }> &

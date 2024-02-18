@@ -23,7 +23,6 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -66,7 +65,6 @@ type InternalRenderStillOptions = {
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -97,7 +95,6 @@ export type RenderStillOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	serveUrl: string;
 	/**
 	 * @deprecated Renamed to `jpegQuality`

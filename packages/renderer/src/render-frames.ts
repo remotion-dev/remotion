@@ -32,7 +32,6 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
@@ -93,7 +92,6 @@ export type InternalRenderFramesOptions = {
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
@@ -131,7 +129,6 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
-	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
@@ -163,7 +160,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;

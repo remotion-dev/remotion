@@ -8,7 +8,6 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -32,7 +31,6 @@ type InternalSelectCompositionsConfig = {
 	port: number | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
 } & ToOptions<typeof optionsMap.selectComposition>;
@@ -50,7 +48,6 @@ export type SelectCompositionOptions = {
 	 * @deprecated Use `logLevel` instead.
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	serveUrl: string;
 	id: string;
 } & Partial<ToOptions<typeof optionsMap.renderStill>>;

@@ -4,10 +4,12 @@ import {deleteAfterOption} from './delete-after';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {jpegQualityOption} from './jpeg-quality';
+import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {reproOption} from './repro';
+import {scaleOption} from './scale';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {x264Option} from './x264-preset';
@@ -26,20 +28,25 @@ export const optionsMap = {
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
 		muted: mutedOption,
+		logLevel: logLevelOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
+		logLevel: logLevelOption,
 	},
 	getCompositions: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		logLevel: logLevelOption,
 	},
 	selectComposition: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		logLevel: logLevelOption,
 	},
 	renderFrames: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
+		logLevel: logLevelOption,
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -52,13 +59,18 @@ export const optionsMap = {
 		encodingBufferSize: encodingBufferSizeOption,
 		colorSpace: colorSpaceOption,
 		muted: mutedOption,
+		logLevel: logLevelOption,
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
+		logLevel: logLevelOption,
+		deleteAfter: deleteAfterOption,
+		scale: scaleOption,
 	},
 	getCompositionsOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		logLevel: logLevelOption,
 	},
 	renderMediaOnCloudRun: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -70,8 +82,12 @@ export const optionsMap = {
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
 		muted: mutedOption,
+		logLevel: logLevelOption,
 	},
 	renderStillOnCloudRun: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		logLevel: logLevelOption,
+		scale: scaleOption,
+		jpegQuality: jpegQualityOption,
 	},
 } as const;
