@@ -3,7 +3,6 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
-	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
 } from './chromium-flags';
 import {getConcurrency} from './concurrency';
@@ -64,7 +63,6 @@ import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
@@ -122,6 +120,7 @@ const {
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
+	glOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -558,7 +557,7 @@ export const Config: FlatConfig = {
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
-	setChromiumOpenGlRenderer,
+	setChromiumOpenGlRenderer: glOption.setConfig,
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
@@ -621,7 +620,6 @@ export const ConfigInternals = {
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
-	getChromiumOpenGlRenderer,
 	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,

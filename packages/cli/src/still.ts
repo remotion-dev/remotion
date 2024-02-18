@@ -15,6 +15,7 @@ const {
 	scaleOption,
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
+	glOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -57,7 +58,6 @@ export const still = async (
 		stillFrame,
 		width,
 		disableWebSecurity,
-		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
@@ -75,6 +75,7 @@ export const still = async (
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

@@ -8,12 +8,13 @@ import {parsedCli} from './parse-command-line';
 
 export const GPU_COMMAND = 'gpu';
 
+const {enableMultiprocessOnLinuxOption, glOption} = BrowserSafeApis.options;
+
 export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 	const {
 		browserExecutable,
 		puppeteerTimeout,
 		disableWebSecurity,
-		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
@@ -24,10 +25,10 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 		logLevel,
 	});
 
-	const enableMultiProcessOnLinux =
-		BrowserSafeApis.options.enableMultiprocessOnLinuxOption.getValue({
-			commandLine: parsedCli,
-		}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

@@ -9,6 +9,18 @@ export const validOpenGlRenderers = [
 	'angle-egl',
 ] as const;
 
+export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
+
+export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
+
+let openGlRenderer: OpenGlRenderer | null = DEFAULT_OPENGL_RENDERER;
+
+export const getChromiumOpenGlRenderer = () => openGlRenderer;
+export const setChromiumOpenGlRenderer = (renderer: OpenGlRenderer) => {
+	validateOpenGlRenderer(renderer);
+	openGlRenderer = renderer;
+};
+
 const AngleChangelog: React.FC = () => {
 	return (
 		<details style={{fontSize: '0.9em', marginBottom: '1em'}}>
@@ -30,11 +42,13 @@ const AngleChangelog: React.FC = () => {
 	);
 };
 
+const cliFlag = 'gl' as const;
+
 export const glOption = {
-	cliFlag: 'gl' as const,
+	cliFlag,
 	docLink: 'https://www.remotion.dev/docs/chromium-flags#--gl',
 	name: 'OpenGL renderer',
-	type: 'angle' as OpenGlRenderer,
+	type: 'angle' as OpenGlRenderer | null,
 	ssrName: 'gl',
 	description: () => {
 		return (
@@ -71,20 +85,41 @@ export const glOption = {
 			</>
 		);
 	},
-} satisfies AnyRemotionOption<OpenGlRenderer>;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag]) {
+			validateOpenGlRenderer(commandLine[cliFlag]);
+			return {
+				value: commandLine[cliFlag] as OpenGlRenderer,
+				source: 'cli',
+			};
+		}
 
-export type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
+		if (openGlRenderer !== DEFAULT_OPENGL_RENDERER) {
+			return {
+				value: openGlRenderer,
+				source: 'config',
+			};
+		}
 
-export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
+		return {
+			value: DEFAULT_OPENGL_RENDERER,
+			source: 'default',
+		};
+	},
+	setConfig: (value: OpenGlRenderer | null) => {
+		validateOpenGlRenderer(value);
+		openGlRenderer = value;
+	},
+} satisfies AnyRemotionOption<OpenGlRenderer | null>;
 
 export const validateOpenGlRenderer = (
-	option: OpenGlRenderer | null,
+	option: unknown,
 ): OpenGlRenderer | null => {
 	if (option === null) {
 		return null;
 	}
 
-	if (!validOpenGlRenderers.includes(option)) {
+	if (!validOpenGlRenderers.includes(option as OpenGlRenderer)) {
 		throw new TypeError(
 			`${option} is not a valid GL backend. Accepted values: ${validOpenGlRenderers.join(
 				', ',
@@ -92,5 +127,5 @@ export const validateOpenGlRenderer = (
 		);
 	}
 
-	return option;
+	return option as OpenGlRenderer;
 };

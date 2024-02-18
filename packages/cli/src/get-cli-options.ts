@@ -89,9 +89,6 @@ export const getCliOptions = (options: {
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const headless = ConfigInternals.getChromiumHeadlessMode();
-	const gl =
-		ConfigInternals.getChromiumOpenGlRenderer() ??
-		RenderInternals.DEFAULT_OPENGL_RENDERER;
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
@@ -123,7 +120,6 @@ export const getCliOptions = (options: {
 		browserExecutable,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		userAgent,
-		gl,
 		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,

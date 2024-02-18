@@ -11,8 +11,11 @@ import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
-const {enableMultiprocessOnLinuxOption, offthreadVideoCacheSizeInBytesOption} =
-	BrowserSafeApis.options;
+const {
+	enableMultiprocessOnLinuxOption,
+	offthreadVideoCacheSizeInBytesOption,
+	glOption,
+} = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
@@ -50,7 +53,6 @@ export const listCompositionsCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
-		gl,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
@@ -63,7 +65,7 @@ export const listCompositionsCommand = async (
 		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
 			commandLine: parsedCli,
 		}).value,
-		gl,
+		gl: glOption.getValue({commandLine: parsedCli}).value,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,

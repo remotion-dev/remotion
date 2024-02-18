@@ -38,6 +38,7 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
+	glOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -195,7 +196,6 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		gl,
 		headless,
 		disableWebSecurity,
 		userAgent,
@@ -219,6 +219,7 @@ export const benchmarkCommand = async (
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

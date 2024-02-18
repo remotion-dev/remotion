@@ -27,6 +27,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
+	glOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -77,7 +78,6 @@ export const renderCommand = async (
 		width,
 		browserExecutable,
 		disableWebSecurity,
-		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
@@ -95,6 +95,7 @@ export const renderCommand = async (
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {

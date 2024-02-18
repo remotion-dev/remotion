@@ -15,6 +15,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	enableMultiprocessOnLinuxOption,
+	glOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -57,6 +58,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const multiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const gl = glOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
@@ -70,7 +74,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const beepOnFinish = ConfigInternals.getBeepOnFinish();
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
-	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
@@ -105,7 +108,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		disableWebSecurity,
 		headless,
 		ignoreCertificateErrors,
-		openGlRenderer,
+		openGlRenderer: gl,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		multiProcessOnLinux,
