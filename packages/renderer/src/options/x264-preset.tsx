@@ -36,7 +36,7 @@ export const validateSelectedCodecAndPresetCombination = ({
 	}
 
 	if (
-		x264Preset !== undefined &&
+		x264Preset !== null &&
 		!x264PresetOptions.includes(x264Preset as X264Preset)
 	) {
 		throw new TypeError(
