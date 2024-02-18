@@ -82,7 +82,7 @@ export const renderCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 	} = CliInternals.getCliOptions({
-		type: 'series',
+		isStill: false,
 		isLambda: true,
 		logLevel,
 	});

@@ -21,7 +21,6 @@ const {
 
 export const compositionsCommand = async (
 	args: string[],
-	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
 	const serveUrl = args[0];
@@ -47,7 +46,7 @@ export const compositionsCommand = async (
 		userAgent,
 		disableWebSecurity,
 	} = CliInternals.getCliOptions({
-		type: 'get-compositions',
+		isStill: false,
 		isLambda: true,
 		logLevel,
 	});

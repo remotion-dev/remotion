@@ -65,7 +65,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), remotionRoot, logLevel);
+		return compositionsCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {

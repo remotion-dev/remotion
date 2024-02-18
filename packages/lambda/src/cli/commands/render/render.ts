@@ -97,7 +97,7 @@ export const renderCommand = async (
 		userAgent,
 		disableWebSecurity,
 	} = CliInternals.getCliOptions({
-		type: 'series',
+		isStill: false,
 		isLambda: true,
 		logLevel,
 	});

@@ -60,7 +60,7 @@ export const listCompositionsCommand = async (
 		disableWebSecurity,
 	} = getCliOptions({
 		isLambda: false,
-		type: 'get-compositions',
+		isStill: false,
 		logLevel,
 	});
 

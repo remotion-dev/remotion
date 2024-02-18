@@ -52,7 +52,7 @@ export const bundleCommand = async (
 
 	const {publicDir} = getCliOptions({
 		isLambda: false,
-		type: 'get-compositions',
+		isStill: false,
 		logLevel,
 	});
 

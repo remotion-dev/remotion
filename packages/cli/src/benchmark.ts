@@ -199,7 +199,7 @@ export const benchmarkCommand = async (
 		ignoreCertificateErrors,
 	} = getCliOptions({
 		isLambda: false,
-		type: 'series',
+		isStill: false,
 		logLevel,
 	});
 

@@ -26,7 +26,7 @@ export const processVideoJob = async ({
 
 	const {publicDir, browserExecutable, ffmpegOverride} = getCliOptions({
 		isLambda: false,
-		type: 'still',
+		isStill: true,
 		logLevel,
 	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);

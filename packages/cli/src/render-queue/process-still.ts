@@ -23,7 +23,7 @@ export const processStill = async ({
 
 	const {publicDir, browserExecutable} = getCliOptions({
 		isLambda: false,
-		type: 'still',
+		isStill: true,
 		logLevel: job.logLevel,
 	});
 

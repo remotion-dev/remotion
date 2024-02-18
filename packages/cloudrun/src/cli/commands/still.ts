@@ -49,7 +49,7 @@ export const stillCommand = async (
 		disableWebSecurity,
 		ignoreCertificateErrors,
 	} = CliInternals.getCliOptions({
-		type: 'still',
+		isStill: false,
 		isLambda: true,
 		logLevel,
 	});

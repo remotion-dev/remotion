@@ -71,7 +71,7 @@ export const still = async (
 		userAgent,
 	} = getCliOptions({
 		isLambda: false,
-		type: 'still',
+		isStill: true,
 		logLevel,
 	});
 

@@ -66,17 +66,16 @@ const getProResProfile = () => {
 
 export const getCliOptions = (options: {
 	isLambda: boolean;
-	type: 'still' | 'series' | 'get-compositions';
+	isStill: boolean;
 	logLevel: LogLevel;
 }) => {
 	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
-	const shouldOutputImageSequence =
-		options.type === 'still'
-			? true
-			: getAndValidateShouldOutputImageSequence({
-					frameRange,
-				});
+	const shouldOutputImageSequence = options.isStill
+		? true
+		: getAndValidateShouldOutputImageSequence({
+				frameRange,
+			});
 
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,

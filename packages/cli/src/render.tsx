@@ -90,7 +90,7 @@ export const render = async (
 		pixelFormat,
 	} = getCliOptions({
 		isLambda: false,
-		type: 'series',
+		isStill: false,
 		logLevel,
 	});
 

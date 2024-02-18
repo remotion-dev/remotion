@@ -23,7 +23,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		userAgent,
 	} = getCliOptions({
 		isLambda: false,
-		type: 'get-compositions',
+		isStill: false,
 		logLevel,
 	});
 
