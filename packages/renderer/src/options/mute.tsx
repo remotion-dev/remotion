@@ -1,6 +1,6 @@
 import type {AnyRemotionOption} from './option';
 
-export const muteOption = {
+export const mutedOption = {
 	name: 'Muted',
 	cliFlag: 'muted',
 	description: () => <>The Audio of the video will be omitted.</>,

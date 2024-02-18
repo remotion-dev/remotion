@@ -11,7 +11,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
-import {muteOption} from './mute';
+import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import type {AnyRemotionOption} from './option';
@@ -29,7 +29,7 @@ export const allOptions = {
 	videoBitrateOption,
 	audioBitrateOption,
 	enforceAudioOption,
-	muteOption,
+	mutedOption,
 	videoCodecOption,
 	offthreadVideoCacheSizeInBytesOption,
 	webhookCustomDataOption,
