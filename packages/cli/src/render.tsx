@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
@@ -24,6 +24,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -63,8 +64,12 @@ export const render = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		chromiumOptions,
 		everyNthFrame,
+		gl,
+		headless,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 		puppeteerTimeout,
 		publicDir,
 		height,
@@ -109,6 +114,18 @@ export const render = async (
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const audioCodec = getResolvedAudioCodec();
 

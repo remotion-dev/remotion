@@ -1,4 +1,4 @@
-import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
+import type {FrameRange, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -86,16 +86,14 @@ export const getCliOptions = (options: {
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 
-	const chromiumOptions: ChromiumOptions = {
-		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
-		ignoreCertificateErrors: ConfigInternals.getIgnoreCertificateErrors(),
-		headless: ConfigInternals.getChromiumHeadlessMode(),
-		gl:
-			ConfigInternals.getChromiumOpenGlRenderer() ??
-			RenderInternals.DEFAULT_OPENGL_RENDERER,
-		userAgent: ConfigInternals.getChromiumUserAgent(),
-		enableMultiProcessOnLinux: ConfigInternals.getChromiumMultiProcessOnLinux(),
-	};
+	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
+	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const headless = ConfigInternals.getChromiumHeadlessMode();
+	const gl =
+		ConfigInternals.getChromiumOpenGlRenderer() ??
+		RenderInternals.DEFAULT_OPENGL_RENDERER;
+	const userAgent = ConfigInternals.getChromiumUserAgent();
+
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 
@@ -124,7 +122,11 @@ export const getCliOptions = (options: {
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
-		chromiumOptions,
+		userAgent,
+		gl,
+		headless,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 		overwrite,
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),

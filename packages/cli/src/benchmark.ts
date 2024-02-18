@@ -1,4 +1,8 @@
-import type {InternalRenderMediaOptions, LogLevel} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	InternalRenderMediaOptions,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -33,6 +37,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -176,7 +181,6 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		chromiumOptions,
 		puppeteerTimeout,
 		publicDir,
 		proResProfile,
@@ -191,6 +195,11 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
+		gl,
+		headless,
+		disableWebSecurity,
+		userAgent,
+		ignoreCertificateErrors,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -207,6 +216,18 @@ export const benchmarkCommand = async (
 	);
 
 	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',

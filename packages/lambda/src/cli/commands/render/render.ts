@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -51,6 +51,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -74,7 +75,6 @@ export const renderCommand = async (
 	const region = getAwsRegion();
 
 	const {
-		chromiumOptions,
 		envVariables,
 		frameRange,
 		inputProps,
@@ -89,6 +89,11 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -127,6 +132,18 @@ export const renderCommand = async (
 	const deleteAfter = deleteAfterOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	let composition: string = args[1];
 	if (!composition) {

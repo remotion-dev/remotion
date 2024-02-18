@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
@@ -10,8 +10,12 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
 
-const {offthreadVideoCacheSizeInBytesOption, scaleOption, jpegQualityOption} =
-	BrowserSafeApis.options;
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+} = BrowserSafeApis.options;
 
 export const still = async (
 	remotionRoot: string,
@@ -44,7 +48,6 @@ export const still = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		height,
 		inputProps,
@@ -53,6 +56,11 @@ export const still = async (
 		puppeteerTimeout,
 		stillFrame,
 		width,
+		disableWebSecurity,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -64,6 +72,18 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	await renderStillFlow({
 		remotionRoot,

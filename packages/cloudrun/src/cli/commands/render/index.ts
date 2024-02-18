@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -26,6 +26,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -62,7 +63,6 @@ export const renderCommand = async (
 	const audioCodec = parsedCloudrunCli['audio-codec'];
 
 	const {
-		chromiumOptions,
 		envVariables,
 		frameRange,
 		inputProps,
@@ -76,6 +76,11 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
+		disableWebSecurity,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -87,7 +92,20 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 

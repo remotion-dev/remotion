@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -10,6 +10,9 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+
+const {enableMultiprocessOnLinuxOption, offthreadVideoCacheSizeInBytesOption} =
+	BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
@@ -39,17 +42,32 @@ export const listCompositionsCommand = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
 		publicDir,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
+		gl,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,
 		logLevel,
 	});
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -94,7 +112,7 @@ export const listCompositionsCommand = async (
 		logLevel,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes:
-			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
 	});

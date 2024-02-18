@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -25,6 +25,7 @@ const {
 	scaleOption,
 	deleteAfterOption,
 	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 export const STILL_COMMAND = 'still';
@@ -49,7 +50,6 @@ export const stillCommand = async (
 	}
 
 	const {
-		chromiumOptions,
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
@@ -57,6 +57,11 @@ export const stillCommand = async (
 		height,
 		width,
 		browserExecutable,
+		headless,
+		gl,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 	} = CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -66,6 +71,19 @@ export const stillCommand = async (
 
 	const region = getAwsRegion();
 	let composition = args[1];
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 

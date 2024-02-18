@@ -3,10 +3,8 @@ import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
 	getChromiumHeadlessMode,
-	getChromiumMultiProcessOnLinux,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
-	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
@@ -123,6 +121,7 @@ const {
 	colorSpaceOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableMultiprocessOnLinuxOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -563,7 +562,7 @@ export const Config: FlatConfig = {
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
-	setChromiumMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux: enableMultiprocessOnLinuxOption.setConfig,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -654,7 +653,6 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };

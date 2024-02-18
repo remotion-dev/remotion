@@ -97,8 +97,8 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
-	[deleteAfterOption.cliFlag]: string | undefined;
-	[folderExpiryOption.cliFlag]: boolean | undefined;
+	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
+	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
 		typeof enableMultiprocessOnLinuxOption
 	>;
@@ -301,18 +301,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['beep-on-finish'] !== 'undefined') {
 		Config.setBeepOnFinish(parsedCli['beep-on-finish']);
-	}
-
-	if (
-		typeof parsedCli[
-			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
-		] !== 'undefined'
-	) {
-		Config.setChromiumMultiProcessOnLinux(
-			parsedCli[
-				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
-			],
-		);
 	}
 };
 
