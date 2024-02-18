@@ -27,6 +27,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
+	encodingMaxRateOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -78,7 +79,6 @@ export const render = async (
 		ffmpegOverride,
 		proResProfile,
 		pixelFormat,
-		encodingMaxRate,
 		encodingBufferSize,
 		repro,
 	} = getCliOptions({
@@ -119,6 +119,9 @@ export const render = async (
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

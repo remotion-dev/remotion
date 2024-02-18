@@ -40,6 +40,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
+	encodingMaxRateOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -191,7 +192,6 @@ export const benchmarkCommand = async (
 		pixelFormat,
 		everyNthFrame,
 		ffmpegOverride,
-		encodingMaxRate,
 		encodingBufferSize,
 		height,
 		width,
@@ -338,6 +338,9 @@ export const benchmarkCommand = async (
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

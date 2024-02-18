@@ -282,10 +282,6 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['buffer-size'] !== 'undefined') {
 		Config.setEncodingBufferSize(parsedCli['buffer-size']);
 	}
-
-	if (typeof parsedCli['max-rate'] !== 'undefined') {
-		Config.setEncodingMaxRate(parsedCli['max-rate']);
-	}
 };
 
 export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

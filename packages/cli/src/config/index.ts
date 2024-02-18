@@ -48,12 +48,7 @@ import type {
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
-import {
-	getEncodingBufferSize,
-	getEncodingMaxRate,
-	setEncodingBufferSize,
-	setEncodingMaxRate,
-} from './bitrate';
+import {getEncodingBufferSize, setEncodingBufferSize} from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -121,6 +116,7 @@ const {
 	glOption,
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
+	encodingMaxRateOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -575,7 +571,7 @@ export const Config: FlatConfig = {
 	setJpegQuality: jpegQualityOption.setConfig,
 	setStillImageFormat,
 	setVideoImageFormat,
-	setEncodingMaxRate,
+	setEncodingMaxRate: encodingMaxRateOption.setConfig,
 	setEncodingBufferSize,
 	setFrameRange,
 	setScale: scaleOption.setConfig,
@@ -642,7 +638,6 @@ export const ConfigInternals = {
 	getPublicDir,
 	getFfmpegOverrideFunction,
 	getEncodingBufferSize,
-	getEncodingMaxRate,
 	getHeight,
 	getWidth,
 	getEntryPoint,

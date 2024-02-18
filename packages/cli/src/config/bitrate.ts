@@ -1,13 +1,3 @@
-let encodingMaxRate: string | null = null;
-
-export const setEncodingMaxRate = (bitrate: string | null) => {
-	encodingMaxRate = bitrate;
-};
-
-export const getEncodingMaxRate = () => {
-	return encodingMaxRate;
-};
-
 /**
  * encodingBufferSize is not a bitrate, but it is a bitrate-related option and get validated like a bitrate.
  */

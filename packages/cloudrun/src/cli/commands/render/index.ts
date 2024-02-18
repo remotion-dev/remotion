@@ -29,6 +29,7 @@ const {
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	encodingMaxRateOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -72,7 +73,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
-		encodingMaxRate,
 		encodingBufferSize,
 		height,
 		width,
@@ -244,6 +244,10 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,
 		serviceName: undefined,

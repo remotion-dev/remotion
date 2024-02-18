@@ -81,7 +81,6 @@ export const getCliOptions = (options: {
 		defaultValue: !options.isLambda,
 	});
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
-	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
@@ -125,7 +124,6 @@ export const getCliOptions = (options: {
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		encodingBufferSize,
-		encodingMaxRate,
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
