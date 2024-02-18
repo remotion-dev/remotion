@@ -125,6 +125,5 @@ export const getCliOptions = (options: {
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
-		repro: ConfigInternals.getRepro(),
 	};
 };

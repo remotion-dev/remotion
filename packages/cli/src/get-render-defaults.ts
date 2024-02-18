@@ -20,6 +20,7 @@ const {
 	beepOnFinishOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	reproOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -77,6 +78,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const repro = reproOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
@@ -90,7 +94,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
-	const repro = ConfigInternals.getRepro();
 
 	return {
 		jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,

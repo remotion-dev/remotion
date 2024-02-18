@@ -85,7 +85,6 @@ import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
-import {getRepro, setRepro} from './repro';
 import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
@@ -117,6 +116,7 @@ const {
 	beepOnFinishOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	reproOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -600,7 +600,7 @@ export const Config: FlatConfig = {
 	setColorSpace: colorSpaceOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
-	setRepro,
+	setRepro: reproOption.setConfig,
 };
 
 export const ConfigInternals = {
@@ -628,7 +628,6 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
-	getRepro,
 	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,

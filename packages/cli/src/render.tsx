@@ -29,6 +29,7 @@ const {
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	reproOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -80,7 +81,6 @@ export const render = async (
 		ffmpegOverride,
 		proResProfile,
 		pixelFormat,
-		repro,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -127,6 +127,7 @@ export const render = async (
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const repro = reproOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
