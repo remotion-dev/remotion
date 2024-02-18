@@ -71,17 +71,6 @@ export const Log = {
 			);
 		}
 	},
-	error: (...args: Parameters<typeof console.log>) => {
-		writeInRepro('error', ...args);
-		if (
-			isEqualOrBelowLogLevel(
-				logLevelOption.getValue({commandLine: {}}).value,
-				'error',
-			)
-		) {
-			return console.error(...args.map((a) => chalk.red(a)));
-		}
-	},
 	error: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
