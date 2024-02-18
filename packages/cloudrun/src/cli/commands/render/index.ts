@@ -25,6 +25,7 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -75,7 +76,6 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
-		colorSpace,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -217,6 +217,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

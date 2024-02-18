@@ -134,7 +134,6 @@ export const getCliOptions = (options: {
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 		deleteAfter: ConfigInternals.getDeleteAfter(),
-		colorSpace: ConfigInternals.getColorSpace(),
 		repro: ConfigInternals.getRepro(),
 	};
 };

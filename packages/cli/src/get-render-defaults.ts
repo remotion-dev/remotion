@@ -13,6 +13,7 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -49,6 +50,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const muted = mutedOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
@@ -63,7 +67,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
-	const colorSpace = ConfigInternals.getColorSpace();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();

@@ -49,6 +49,7 @@ const {
 	jpegQualityOption,
 	videoBitrateOption,
 	mutedOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -87,7 +88,6 @@ export const renderCommand = async (
 		height,
 		width,
 		browserExecutable,
-		colorSpace,
 		deleteAfter,
 	} = CliInternals.getCliOptions({
 		type: 'series',
@@ -119,6 +119,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

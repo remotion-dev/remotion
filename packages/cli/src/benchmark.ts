@@ -32,6 +32,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	videoCodecOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -190,7 +191,6 @@ export const benchmarkCommand = async (
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		colorSpace,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -408,7 +408,9 @@ export const benchmarkCommand = async (
 						offthreadVideoCacheSizeInBytesOption.getValue({
 							commandLine: parsedCli,
 						}).value,
-					colorSpace,
+					colorSpace: colorSpaceOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 					repro: false,
 					finishRenderProgress: () => undefined,
 				},

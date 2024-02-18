@@ -23,6 +23,7 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -74,7 +75,6 @@ export const render = async (
 		encodingMaxRate,
 		encodingBufferSize,
 		numberOfGifLoops,
-		colorSpace,
 		repro,
 	} = getCliOptions({
 		isLambda: false,
@@ -102,6 +102,10 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;

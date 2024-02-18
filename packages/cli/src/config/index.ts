@@ -72,7 +72,6 @@ import {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getEntryPoint, setEntryPoint} from './entry-point';
@@ -125,6 +124,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	videoCodecOption,
+	colorSpaceOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -607,7 +607,7 @@ export const Config: FlatConfig = {
 		offthreadVideoCacheSizeInBytesOption.setConfig(size);
 	},
 	setDeleteAfter,
-	setColorSpace,
+	setColorSpace: colorSpaceOption.setConfig,
 	setBeepOnFinish,
 	setEnableFolderExpiry,
 	setRepro,
@@ -659,7 +659,6 @@ export const ConfigInternals = {
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
 	getDeleteAfter,
-	getColorSpace,
 	getEnableFolderExpiry,
 	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,
