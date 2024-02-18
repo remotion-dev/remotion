@@ -20,6 +20,7 @@ const {
 	x264Option,
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
+	crfOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -52,7 +53,6 @@ export const renderCommand = async (
 
 	const {
 		chromiumOptions,
-		crf,
 		envVariables,
 		frameRange,
 		inputProps,
@@ -197,6 +197,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

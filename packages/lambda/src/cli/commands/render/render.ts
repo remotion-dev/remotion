@@ -45,6 +45,7 @@ const {
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
+	crfOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -69,7 +70,6 @@ export const renderCommand = async (
 
 	const {
 		chromiumOptions,
-		crf,
 		envVariables,
 		frameRange,
 		inputProps,
@@ -107,6 +107,9 @@ export const renderCommand = async (
 			commandLine: CliInternals.parsedCli,
 		}).value;
 	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

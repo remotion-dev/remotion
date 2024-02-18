@@ -56,14 +56,6 @@ const getAndValidateShouldOutputImageSequence = ({
 	return shouldOutputImageSequence;
 };
 
-const getCrf = (shouldOutputImageSequence: boolean) => {
-	const crf = shouldOutputImageSequence
-		? null
-		: ConfigInternals.getCrfOrUndefined();
-
-	return crf;
-};
-
 const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
 
@@ -88,7 +80,6 @@ export const getCliOptions = (options: {
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
-	const crf = getCrf(shouldOutputImageSequence);
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
@@ -128,7 +119,6 @@ export const getCliOptions = (options: {
 		inputProps: getInputProps(null, options.logLevel),
 		envVariables: getEnvironmentVariables(null, options.logLevel, false),
 		jpegQuality: ConfigInternals.getJpegQuality(),
-		crf,
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,

@@ -18,6 +18,7 @@ const {
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
+	crfOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -64,7 +65,6 @@ export const render = async (
 		publicDir,
 		height,
 		width,
-		crf,
 		ffmpegOverride,
 		muted,
 		enforceAudioTrack,
@@ -83,15 +83,18 @@ export const render = async (
 		logLevel,
 	});
 
-	const {value: x264Preset} = x264Option.getValue({commandLine: parsedCli});
-	const {value: audioBitrate} = audioBitrateOption.getValue({
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: parsedCli,
-	});
-	const {value: offthreadVideoCacheSizeInBytes} =
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
-		});
-	const {value: scale} = scaleOption.getValue({commandLine: parsedCli});
+		}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const crf = shouldOutputImageSequence
+		? null
+		: crfOption.getValue({commandLine: parsedCli}).value;
 
 	const audioCodec = getResolvedAudioCodec();
 

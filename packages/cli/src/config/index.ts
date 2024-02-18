@@ -80,7 +80,6 @@ import {setCodec} from './codec';
 import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
-import {getCrfOrUndefined, setCrf} from './crf';
 import {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
@@ -131,6 +130,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	scaleOption,
+	crfOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -601,7 +601,9 @@ export const Config: FlatConfig = {
 	setOverwriteOutput,
 	setPixelFormat,
 	setCodec,
-	setCrf,
+	setCrf: (crf) => {
+		crfOption.setConfig(crf);
+	},
 	setImageSequence,
 	setProResProfile,
 	setX264Preset: (preset) => {
@@ -672,7 +674,6 @@ export const ConfigInternals = {
 	getEncodingMaxRate,
 	getHeight,
 	getWidth,
-	getCrfOrUndefined,
 	getEntryPoint,
 	getNumberOfGifLoops,
 	getWebpackPolling,

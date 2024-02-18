@@ -27,6 +27,7 @@ const {
 	x264Option,
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
+	crfOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -177,7 +178,6 @@ export const benchmarkCommand = async (
 		frameRange: defaultFrameRange,
 		overwrite,
 		jpegQuality,
-		crf: configFileCrf,
 		pixelFormat,
 		numberOfGifLoops,
 		everyNthFrame,
@@ -304,6 +304,7 @@ export const benchmarkCommand = async (
 	const {value: audioBitrate} = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	});
+	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
 
 	for (const composition of compositions) {
 		const {codec, reason: codecReason} = getFinalOutputCodec({
@@ -390,11 +391,9 @@ export const benchmarkCommand = async (
 							staticBase: null,
 						}).serializedString,
 					offthreadVideoCacheSizeInBytes:
-						BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue(
-							{
-								commandLine: parsedCli,
-							},
-						).value,
+						offthreadVideoCacheSizeInBytesOption.getValue({
+							commandLine: parsedCli,
+						}).value,
 					colorSpace,
 					repro: false,
 					finishRenderProgress: () => undefined,
