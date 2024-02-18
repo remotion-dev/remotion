@@ -25,10 +25,10 @@ export const permissionsCommand = async (logLevel: LogLevel) => {
 			},
 		});
 	} catch (err) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'Did not have the required permissions on GCP:',
 		);
-		Log.errorAdvanced({indent: false, logLevel}, err);
+		Log.error({indent: false, logLevel}, err);
 	}
 };

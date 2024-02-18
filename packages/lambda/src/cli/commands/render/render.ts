@@ -65,7 +65,7 @@ export const renderCommand = async (
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
-		Log.errorAdvanced({indent: false, logLevel}, 'No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
@@ -460,7 +460,7 @@ export const renderCommand = async (
 		}
 
 		if (newStatus.fatalErrorEncountered) {
-			Log.errorAdvanced({indent: false, logLevel}, '\n');
+			Log.error({indent: false, logLevel}, '\n');
 			const uniqueErrors: EnhancedErrorInfo[] = [];
 			for (const err of newStatus.errors) {
 				if (uniqueErrors.find((e) => e.stack === err.stack)) {
@@ -469,7 +469,7 @@ export const renderCommand = async (
 
 				uniqueErrors.push(err);
 				if (err.explanation) {
-					Log.errorAdvanced({indent: false, logLevel}, err.explanation);
+					Log.error({indent: false, logLevel}, err.explanation);
 				}
 
 				const frames = RenderInternals.parseStack(err.stack.split('\n'));

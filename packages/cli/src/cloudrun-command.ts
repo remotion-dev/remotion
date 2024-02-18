@@ -22,8 +22,8 @@ export const cloudrunCommand = async (
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
-		Log.errorAdvanced({indent: false, logLevel}, err);
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel}, err);
+		Log.error(
 			{indent: false, logLevel},
 			'Remotion Cloud Run is not installed.',
 		);

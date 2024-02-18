@@ -25,15 +25,15 @@ export const listCompositionsCommand = async (
 	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'The `compositions` command requires you to specify a entry point. For example',
 		);
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'  npx remotion compositions src/index.ts',
 		);
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);

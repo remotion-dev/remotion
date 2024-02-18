@@ -28,7 +28,7 @@ export const quotasCommand = (args: string[], logLevel: LogLevel) => {
 		return quotasIncreaseCommand(logLevel);
 	}
 
-	CliInternals.Log.errorAdvanced(
+	CliInternals.Log.error(
 		{indent: false, logLevel},
 		'Subcommand ' + args[0] + ' not found.',
 	);

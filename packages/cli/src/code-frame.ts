@@ -73,12 +73,12 @@ export const printCodeFrameAndStack = (
 		!err.symbolicatedStackFrames ||
 		err.symbolicatedStackFrames.length === 0
 	) {
-		Log.errorAdvanced({indent: false, logLevel}, err.stack);
+		Log.error({indent: false, logLevel}, err.stack);
 		return;
 	}
 
 	const firstFrame = err.symbolicatedStackFrames[0];
-	Log.errorAdvanced(
+	Log.error(
 		{indent: false, logLevel},
 		chalk.bgRed(chalk.white(` ${err.name} `)),
 		err.message,
@@ -101,8 +101,8 @@ export const printCodeFrameAndStack = (
 	}
 
 	if (err.delayRenderCall) {
-		Log.errorAdvanced({indent: false, logLevel});
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel});
+		Log.error(
 			{indent: false, logLevel},
 			'🕧 The delayRender() call is located at:',
 		);

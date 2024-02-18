@@ -503,20 +503,20 @@ export async function launchEditor({
 		process.platform === 'win32' &&
 		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
 	) {
-		Log.errorAdvanced({indent: false, logLevel});
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel});
+		Log.error(
 			{indent: false, logLevel},
 			'Could not open ' + path.basename(fileName) + ' in the editor.',
 		);
-		Log.errorAdvanced({indent: false, logLevel});
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel});
+		Log.error(
 			{indent: false, logLevel},
 			'When running on Windows, file names are checked against a whitelist ' +
 				'to protect against remote code execution attacks. File names may ' +
 				'consist only of alphanumeric characters (all languages), periods, ' +
 				'dashes, slashes, and underscores.',
 		);
-		Log.errorAdvanced({indent: false, logLevel});
+		Log.error({indent: false, logLevel});
 		return false;
 	}
 
@@ -578,7 +578,7 @@ export async function launchEditor({
 			_childProcess = null;
 
 			if (errorCode) {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`Process exited with code ${errorCode}`,
 				);
@@ -586,7 +586,7 @@ export async function launchEditor({
 		});
 
 		_childProcess.on('error', (error) => {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'Error opening file in editor',
 				fileName,

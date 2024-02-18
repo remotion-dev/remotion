@@ -51,7 +51,7 @@ const matchCommand = (
 		Log.info(`Did you mean "service deploy"?`);
 	}
 
-	Log.errorAdvanced({indent: false, logLevel}, `Command ${args[0]} not found.`);
+	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
 	printHelp();
 	quit(1);
 };

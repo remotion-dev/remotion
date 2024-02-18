@@ -26,7 +26,7 @@ export const displayCrashLogs = async (
 		)} seconds, below the timeout of ${timeout} seconds.\n`;
 	}
 
-	Log.errorAdvanced(
+	Log.error(
 		{indent: false, logLevel},
 		`Error rendering on Cloud Run. The Cloud Run service did not return a response.\n
 ${timeoutPreMsg}The crash may be due to the service exceeding its memory limit of ${memoryLimit}.

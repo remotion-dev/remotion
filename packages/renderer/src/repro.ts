@@ -61,11 +61,11 @@ const zipFolder = ({
 			`${chalk.blue(`+ Repro: ${targetZip}`)}`,
 		);
 	} catch (error) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent, logLevel},
 			`Failed to zip repro folder, The repro folder is ${sourceFolder}. You can try manually zip it.`,
 		);
-		Log.errorAdvanced({indent, logLevel}, error);
+		Log.error({indent, logLevel}, error);
 	}
 };
 
@@ -179,11 +179,8 @@ const reproWriter = (name: string): ReproWriter => {
 					});
 				});
 			} catch (error) {
-				Log.errorAdvanced(
-					{indent: false, logLevel},
-					`repro render success error:`,
-				);
-				Log.errorAdvanced({indent: false, logLevel}, error);
+				Log.error({indent: false, logLevel}, `repro render success error:`);
+				Log.error({indent: false, logLevel}, error);
 				reject(error);
 			}
 		});

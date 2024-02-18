@@ -25,12 +25,12 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 	};
 
 	if (lambdasWithMatchingVersion.length === 0) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`No Lambda functions with version ${VERSION} found in your account.`,
 		);
 		if (remotionLambdas.length > 0) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'Other functions were found, but are not compatible with this version of the CLI.',
 			);
@@ -52,7 +52,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 				(l) => l.functionName === parsedLambdaCli['function-name'],
 			);
 			if (lambdasWithMatchingVersion.length === 0) {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`No Lambda function with name "${parsedLambdaCli['function-name']}" and version ${VERSION} found in your account.`,
 				);
@@ -83,7 +83,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 				quit(1);
 			}
 		} else {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'More than 1 lambda function found in your account. Unsure which one to use.',
 			);

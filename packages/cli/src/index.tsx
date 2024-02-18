@@ -111,10 +111,7 @@ export const cli = async () => {
 			process.exit(0);
 		} else {
 			if (command) {
-				Log.errorAdvanced(
-					{indent: false, logLevel},
-					`Command ${command} not found.`,
-				);
+				Log.error({indent: false, logLevel}, `Command ${command} not found.`);
 			}
 
 			printHelp();

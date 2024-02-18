@@ -11,7 +11,7 @@ type NamelessQuestion = Omit<Question<'value'>, 'name'>;
 function prompt(questions: Question, logLevel: LogLevel) {
 	return prompts([questions], {
 		onCancel() {
-			Log.errorAdvanced({indent: false, logLevel}, 'No composition selected.');
+			Log.error({indent: false, logLevel}, 'No composition selected.');
 			process.exit(1);
 		},
 	});

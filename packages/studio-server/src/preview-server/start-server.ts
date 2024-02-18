@@ -101,7 +101,7 @@ export const startServer = async (options: {
 				});
 			})
 			.catch((err) => {
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: options.logLevel},
 					`Error while calling ${request.url}`,
 					err,
@@ -163,7 +163,7 @@ export const startServer = async (options: {
 			const codedError = err as Error & {code: string; port: number};
 
 			if (codedError.code === 'EADDRINUSE') {
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: options.logLevel},
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);

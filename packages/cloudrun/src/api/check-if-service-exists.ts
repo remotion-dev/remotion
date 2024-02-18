@@ -58,7 +58,7 @@ export const checkIfServiceExists = async ({
 		}
 	} catch (e: any) {
 		if (e.code === 7) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				CliInternals.chalk.red(
 					`Issue with ${parent}. The project either doesn't exist, or you don't have access to it.

@@ -36,7 +36,7 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 	);
 	if (!file) {
-		Log.errorAdvanced({indent: false, logLevel}, 'No entry file passed.');
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
@@ -55,7 +55,7 @@ export const sitesCreateSubcommand = async (
 	);
 
 	if (!existsSync(file)) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`No file exists at ${file}. Make sure the path exists and try again.`,
 		);
@@ -63,7 +63,7 @@ export const sitesCreateSubcommand = async (
 	}
 
 	if (lstatSync(file).isDirectory()) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`You passed a path ${file} but it is a directory. Pass a file instead.`,
 		);

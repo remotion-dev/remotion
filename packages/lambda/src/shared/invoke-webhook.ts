@@ -140,15 +140,12 @@ export const invokeWebhook = async (
 			throw err;
 		}
 
-		RenderInternals.Log.errorAdvanced(
+		RenderInternals.Log.error(
 			{indent: false, logLevel},
 			'Could not send webhook due to error:',
 		);
-		RenderInternals.Log.errorAdvanced(
-			{indent: false, logLevel},
-			(err as Error).stack,
-		);
-		RenderInternals.Log.errorAdvanced(
+		RenderInternals.Log.error({indent: false, logLevel}, (err as Error).stack);
+		RenderInternals.Log.error(
 			{indent: false, logLevel},
 			`Retrying in ${exponentialBackoff(errors)}ms.`,
 		);

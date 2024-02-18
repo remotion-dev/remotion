@@ -107,7 +107,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	};
 
 	const onErrors = (errors: EnhancedErrorInfo[]) => {
-		RenderInternals.Log.errorAdvanced(
+		RenderInternals.Log.error(
 			{indent: false, logLevel: options.logLevel},
 			'Found Errors',
 			errors,

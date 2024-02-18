@@ -22,11 +22,8 @@ export const lambdaCommand = async (
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
-		Log.errorAdvanced({indent: false, logLevel}, err);
-		Log.errorAdvanced(
-			{indent: false, logLevel},
-			'Remotion Lambda is not installed.',
-		);
+		Log.error({indent: false, logLevel}, err);
+		Log.error({indent: false, logLevel}, 'Remotion Lambda is not installed.');
 		Log.infoAdvanced({indent: false, logLevel}, '');
 		Log.infoAdvanced({indent: false, logLevel}, 'You can install it using:');
 		Log.infoAdvanced(

@@ -166,7 +166,7 @@ export const benchmarkCommand = async (
 	);
 
 	if (!file) {
-		Log.errorAdvanced({indent: false, logLevel}, 'No entry file passed.');
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.infoAdvanced(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file',
@@ -313,7 +313,7 @@ export const benchmarkCommand = async (
 	});
 
 	if (compositions.length === 0) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.',
 		);

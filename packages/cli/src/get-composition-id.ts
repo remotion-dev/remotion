@@ -152,8 +152,8 @@ export const getCompositionId = async ({
 		}
 	}
 
-	Log.errorAdvanced({indent: false, logLevel}, 'Composition ID not passed.');
-	Log.errorAdvanced(
+	Log.error({indent: false, logLevel}, 'Composition ID not passed.');
+	Log.error(
 		{indent: false, logLevel},
 		'Pass an extra argument <composition-id>.',
 	);

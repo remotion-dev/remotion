@@ -17,10 +17,10 @@ export const validateSubcommand = async (logLevel: LogLevel) => {
 			},
 		});
 	} catch (err) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'Did not have the required permissions on AWS:',
 		);
-		Log.errorAdvanced({indent: false, logLevel}, err);
+		Log.error({indent: false, logLevel}, err);
 	}
 };

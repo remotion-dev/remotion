@@ -59,7 +59,7 @@ ${[
 	await validateImageRemotionVersion();
 
 	if (projectID === undefined) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`REMOTION_GCP_PROJECT_ID not found in the .env file.`,
 		);
@@ -86,7 +86,7 @@ ${[
 		});
 
 		if (!deployResult.fullName) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'full service name not returned from Cloud Run API.',
 			);
@@ -94,7 +94,7 @@ ${[
 		}
 
 		if (!deployResult.shortName) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'short service name not returned from Cloud Run API.',
 			);
@@ -102,7 +102,7 @@ ${[
 		}
 
 		if (!deployResult.alreadyExists && !deployResult.uri) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'service uri not returned from Cloud Run API.',
 			);
@@ -162,7 +162,7 @@ ${displayServiceInfo({
 			}
 		}
 	} catch (e) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			CliInternals.chalk.red(
 				`Failed to deploy service - ${generateServiceName({

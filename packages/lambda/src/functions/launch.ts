@@ -478,11 +478,11 @@ export const launchHandler = async (
 					throw err;
 				}
 
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					'Failed to invoke additional function to merge videos:',
 				);
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					err,
 				);
@@ -537,11 +537,11 @@ export const launchHandler = async (
 				throw err;
 			}
 
-			RenderInternals.Log.errorAdvanced(
+			RenderInternals.Log.error(
 				{indent: false, logLevel: params.logLevel},
 				'Failed to invoke webhook:',
 			);
-			RenderInternals.Log.errorAdvanced(
+			RenderInternals.Log.error(
 				{indent: false, logLevel: params.logLevel},
 				err,
 			);
@@ -642,11 +642,11 @@ export const launchHandler = async (
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
-			RenderInternals.Log.errorAdvanced(
+			RenderInternals.Log.error(
 				{indent: false, logLevel: params.logLevel},
 				'Failed to invoke webhook:',
 			);
-			RenderInternals.Log.errorAdvanced(
+			RenderInternals.Log.error(
 				{indent: false, logLevel: params.logLevel},
 				err,
 			);
@@ -660,7 +660,7 @@ export const launchHandler = async (
 			throw err;
 		}
 
-		RenderInternals.Log.errorAdvanced(
+		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Error occurred',
 			err,
@@ -683,7 +683,7 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-		RenderInternals.Log.errorAdvanced(
+		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Wrote error to S3',
 		);
@@ -734,11 +734,11 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					'Failed to invoke webhook:',
 				);
-				RenderInternals.Log.errorAdvanced(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
 					error,
 				);

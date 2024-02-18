@@ -82,7 +82,7 @@ export const Log = {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
-	errorAdvanced: (
+	error: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {

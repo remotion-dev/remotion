@@ -50,10 +50,7 @@ export const policiesCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0]) {
-		Log.errorAdvanced(
-			{indent: false, logLevel},
-			`Subcommand ${args[0]} not found.`,
-		);
+		Log.error({indent: false, logLevel}, `Subcommand ${args[0]} not found.`);
 		printPoliciesHelp();
 		quit(1);
 	}

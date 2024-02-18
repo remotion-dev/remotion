@@ -117,7 +117,7 @@ const matchCommand = (
 		Log.info(`Did you mean "functions deploy"?`);
 	}
 
-	Log.errorAdvanced({indent: false, logLevel}, `Command ${args[0]} not found.`);
+	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
 	printHelp();
 	quit(1);
 };
@@ -138,7 +138,7 @@ export const executeCommand = async (
 			)
 		) {
 			if (parsedLambdaCli['custom-role-arn']) {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`
 	The role "${parsedLambdaCli['custom-role-arn']}" does not exist or has the wrong policy assigned to it. Do either:
@@ -150,7 +150,7 @@ export const executeCommand = async (
 				);
 			}
 
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				`
 The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong policy assigned to it. Common reasons:
@@ -163,7 +163,7 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 		}
 
 		if (error.stack?.includes('AccessDenied')) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				`
 AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
@@ -172,7 +172,7 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 		}
 
 		if (error.stack?.includes('TooManyRequestsException')) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				`
 AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
@@ -192,14 +192,14 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 				process.env.AWS_ACCESS_KEY_ID &&
 				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
 			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`
 	AWS returned an error message "The security token included in the request is invalid". A possible reason is that your AWS Access key ID is set but doesn't start with "AKI", which it usually should. The original message is: 
 	`,
 				);
 			} else {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`
 AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 

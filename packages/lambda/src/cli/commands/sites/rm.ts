@@ -12,7 +12,7 @@ export const SITES_RM_COMMAND = 'rm';
 
 export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
@@ -43,7 +43,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	for (const siteName of args) {
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`,
 			);

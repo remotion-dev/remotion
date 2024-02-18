@@ -37,7 +37,7 @@ export const getAndValidateAbsoluteOutputFile = (
 		relativeOutputLocation,
 	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`,
 		);

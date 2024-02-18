@@ -72,10 +72,7 @@ export const servicesCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0]) {
-		Log.errorAdvanced(
-			{indent: false, logLevel},
-			`Subcommand ${args[0]} not found.`,
-		);
+		Log.error({indent: false, logLevel}, `Subcommand ${args[0]} not found.`);
 		printCloudRunHelp();
 		quit(1);
 	}

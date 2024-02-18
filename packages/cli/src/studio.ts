@@ -46,15 +46,12 @@ export const studioCommand = async (
 	);
 
 	if (!file) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
-		Log.errorAdvanced(
-			{indent: false, logLevel},
-			'  npx remotion studio src/index.ts',
-		);
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel}, '  npx remotion studio src/index.ts');
+		Log.error(
 			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);

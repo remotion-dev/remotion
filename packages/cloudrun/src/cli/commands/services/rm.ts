@@ -14,8 +14,8 @@ export const SERVICES_RM_SUBCOMMAND = 'rm';
 
 export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
-		Log.errorAdvanced({indent: false, logLevel}, 'No service name passed.');
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel}, 'No service name passed.');
+		Log.error(
 			{indent: false, logLevel},
 			'Pass another argument which is the name of the service you would like to remove.',
 		);

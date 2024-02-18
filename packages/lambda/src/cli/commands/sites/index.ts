@@ -65,7 +65,7 @@ export const sitesCommand = (
 	}
 
 	if (args[0]) {
-		CliInternals.Log.errorAdvanced(
+		CliInternals.Log.error(
 			{indent: false, logLevel},
 			`Subcommand ${args[0]} not found.`,
 		);

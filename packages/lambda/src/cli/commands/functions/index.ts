@@ -59,7 +59,7 @@ export const functionsCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0]) {
-		CliInternals.Log.errorAdvanced(
+		CliInternals.Log.error(
 			{indent: false, logLevel},
 			`Subcommand ${args[0]} not found.`,
 		);

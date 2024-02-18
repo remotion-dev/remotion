@@ -56,7 +56,7 @@ const watchEnvFile = ({
 					Log.info(chalk.blueBright(`Created env file ${envFile}`));
 				}
 			} catch (err) {
-				Log.errorAdvanced(
+				Log.error(
 					{indent: false, logLevel},
 					`${envFile} update failed with error ${(err as Error).stack}`,
 				);
@@ -99,11 +99,11 @@ const getEnvForEnvFile = ({
 			...dotenv.parse(envFileData),
 		};
 	} catch (err) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			`Your .env file at ${envFile} could not not be parsed.`,
 		);
-		Log.errorAdvanced({indent: false, logLevel}, err);
+		Log.error({indent: false, logLevel}, err);
 		process.exit(1);
 	}
 };
@@ -133,16 +133,16 @@ export const getEnvironmentVariables = (
 	if (parsedCli['env-file']) {
 		const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
 		if (!fs.existsSync(envFile)) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'You passed a --env-file but it could not be found.',
 			);
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'We looked for the file at:',
 				envFile,
 			);
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'Check that your path is correct and try again.',
 			);
@@ -158,16 +158,16 @@ export const getEnvironmentVariables = (
 	if (configFileSetting) {
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found',
 			);
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'We looked for the file at:',
 				envFile,
 			);
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel},
 				'Check that your path is correct and try again.',
 			);

@@ -173,11 +173,11 @@ export const parseCommandLine = () => {
 
 	if (parsedCli.log) {
 		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel: 'error'},
 				'Invalid `--log` value passed.',
 			);
-			Log.errorAdvanced(
+			Log.error(
 				{indent: false, logLevel: 'error'},
 				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)

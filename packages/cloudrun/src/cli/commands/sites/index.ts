@@ -75,10 +75,7 @@ export const sitesCommand = (
 	}
 
 	if (args[0]) {
-		Log.errorAdvanced(
-			{indent: false, logLevel},
-			`Subcommand ${args[0]} not found.`,
-		);
+		Log.error({indent: false, logLevel}, `Subcommand ${args[0]} not found.`);
 		printSitesHelp();
 		quit(1);
 	}

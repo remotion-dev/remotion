@@ -249,7 +249,7 @@ const processJobIfPossible = async ({
 			};
 		});
 	} catch (err) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent: false, logLevel},
 			chalk.gray('╰─ '),
 			chalk.red('Failed to render'),

@@ -18,8 +18,8 @@ export const functionsRmCommand = async (
 	logLevel: LogLevel,
 ) => {
 	if (args.length === 0) {
-		Log.errorAdvanced({indent: false, logLevel}, 'No function name passed.');
-		Log.errorAdvanced(
+		Log.error({indent: false, logLevel}, 'No function name passed.');
+		Log.error(
 			{indent: false, logLevel},
 			'Pass another argument which is the name of the function you would like to remove.',
 		);

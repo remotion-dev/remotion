@@ -714,7 +714,7 @@ const internalRenderMediaRaw = ({
 							resolve(result);
 						})
 						.catch((err) => {
-							Log.errorAdvanced(
+							Log.error(
 								{indent, logLevel},
 								'Could not create reproduction',
 								err,
