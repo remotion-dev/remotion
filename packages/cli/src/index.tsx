@@ -39,7 +39,7 @@ import {
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
 	if (parsedCli.help) {
-		printHelp();
+		printHelp('info');
 		process.exit(0);
 	}
 
@@ -47,6 +47,8 @@ export const cli = async () => {
 	if (command !== VERSIONS_COMMAND) {
 		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
+
+	const logLevel = await initializeCli(remotionRoot);
 
 	const isBun = typeof Bun !== 'undefined';
 	if (isBun) {
@@ -61,7 +63,8 @@ export const cli = async () => {
 			}
 		}
 
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
 		);
 	}
@@ -72,7 +75,6 @@ export const cli = async () => {
 		? 0
 		: RenderInternals.registerErrorSymbolicationLock();
 
-	const logLevel = await initializeCli(remotionRoot);
 	handleCtrlC({indent: false, logLevel});
 
 	try {
@@ -101,24 +103,25 @@ export const cli = async () => {
 				remotionRoot,
 				parsedCli['package-manager'],
 				parsedCli.version,
+				logLevel,
 			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else if (command === 'help') {
-			printHelp();
+			printHelp(logLevel);
 			process.exit(0);
 		} else {
 			if (command) {
 				Log.error({indent: false, logLevel}, `Command ${command} not found.`);
 			}
 
-			printHelp();
+			printHelp(logLevel);
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.info();
+		Log.infoAdvanced({indent: false, logLevel});
 		await printError(err as Error, logLevel);
 		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);

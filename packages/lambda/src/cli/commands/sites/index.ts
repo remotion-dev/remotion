@@ -9,36 +9,50 @@ import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 
-const printSitesHelp = () => {
-	CliInternals.Log.info(`${BINARY_NAME} ${SITES_COMMAND} <subcommand>`);
-	CliInternals.Log.info();
-	CliInternals.Log.info('Available subcommands:');
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+const printSitesHelp = (logLevel: LogLevel) => {
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${SITES_COMMAND} <subcommand>`,
+	);
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		'Available subcommands:',
+	);
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <entry-point>`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Creates a new site based on a Remotion project'),
 	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Lists the sites currently deployed'),
 	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RM_COMMAND} <site-id>`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Remove a site from the S3 bucket.'),
 	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`,
 	);
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Remove all sites from the S3 bucket.'),
 	);
 };
@@ -69,9 +83,9 @@ export const sitesCommand = (
 			{indent: false, logLevel},
 			`Subcommand ${args[0]} not found.`,
 		);
-		printSitesHelp();
+		printSitesHelp(logLevel);
 		quit(1);
 	}
 
-	printSitesHelp();
+	printSitesHelp(logLevel);
 };

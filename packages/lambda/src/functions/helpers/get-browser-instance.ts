@@ -66,10 +66,16 @@ export const getBrowserInstance = async (
 		actualChromiumOptions,
 		logLevel,
 	);
-	RenderInternals.Log.info(`Rendering with Remotion v${VERSION}.`);
+	RenderInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		`Rendering with Remotion v${VERSION}.`,
+	);
 
 	if (launching) {
-		RenderInternals.Log.info('Already waiting for browser launch...');
+		RenderInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Already waiting for browser launch...',
+		);
 		await waitForLaunched();
 		if (!_browserInstance) {
 			throw new Error('expected to launch');
@@ -77,7 +83,8 @@ export const getBrowserInstance = async (
 	}
 
 	if (!_browserInstance) {
-		RenderInternals.Log.info(
+		RenderInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Cold Lambda function, launching new browser instance',
 		);
 		launching = true;
@@ -94,10 +101,17 @@ export const getBrowserInstance = async (
 			logLevel,
 		});
 		instance.on('disconnected', () => {
-			RenderInternals.Log.info('Browser disconnected or crashed.');
+			RenderInternals.Log.infoAdvanced(
+				{indent: false, logLevel},
+				'Browser disconnected or crashed.',
+			);
 			forgetBrowserEventLoop(logLevel);
 			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
-				RenderInternals.Log.info('Could not close browser instance', err);
+				RenderInternals.Log.infoAdvanced(
+					{indent: false, logLevel},
+					'Could not close browser instance',
+					err,
+				);
 			});
 			_browserInstance = null;
 		});
@@ -111,7 +125,8 @@ export const getBrowserInstance = async (
 	}
 
 	if (_browserInstance.configurationString !== configurationString) {
-		RenderInternals.Log.info(
+		RenderInternals.Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Warm Lambda function, but Browser configuration changed. Killing old browser instance.',
 		);
 		_browserInstance.instance.rememberEventLoop();
@@ -120,7 +135,10 @@ export const getBrowserInstance = async (
 		return getBrowserInstance(logLevel, indent, chromiumOptions);
 	}
 
-	RenderInternals.Log.info('Warm Lambda function, reusing browser instance');
+	RenderInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		'Warm Lambda function, reusing browser instance',
+	);
 	_browserInstance.instance.rememberEventLoop();
 	return _browserInstance;
 };

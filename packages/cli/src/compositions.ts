@@ -124,5 +124,5 @@ export const listCompositionsCommand = async (
 			}).value,
 	});
 
-	printCompositions(compositions);
+	printCompositions(compositions, logLevel);
 };

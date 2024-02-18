@@ -19,23 +19,28 @@ const makeFileName = (firstFrame: SymbolicatedStackFrame) => {
 		.join(':');
 };
 
-const printCodeFrame = (frame: SymbolicatedStackFrame) => {
+const printCodeFrame = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 	if (!frame.originalScriptCode) {
 		return;
 	}
 
-	Log.info();
+	Log.infoAdvanced({indent: false, logLevel});
 	const longestLineNumber = Math.max(
 		...frame.originalScriptCode.map((script) => script.lineNumber),
 	).toString().length;
-	Log.info('at', chalk.underline(makeFileName(frame)));
+	Log.infoAdvanced(
+		{indent: false, logLevel},
+		'at',
+		chalk.underline(makeFileName(frame)),
+	);
 	const alignLeftAmount = Math.min(
 		...frame.originalScriptCode.map(
 			(c) => c.content.length - c.content.trimStart().length,
 		),
 	);
 
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		`${frame.originalScriptCode
 			.map((c) => {
 				const left = String(c.lineNumber).padStart(longestLineNumber, ' ');
@@ -50,13 +55,14 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 	);
 };
 
-const logLine = (frame: SymbolicatedStackFrame) => {
+const logLine = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 	const fileName = makeFileName(frame);
 	if (!fileName) {
 		return;
 	}
 
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		chalk.gray(
 			['at', frame.originalFunctionName, `${chalk.blueBright(`(${fileName})`)}`]
 				.filter(truthy)
@@ -83,8 +89,8 @@ export const printCodeFrameAndStack = (
 		chalk.bgRed(chalk.white(` ${err.name} `)),
 		err.message,
 	);
-	printCodeFrame(firstFrame);
-	Log.info();
+	printCodeFrame(firstFrame, logLevel);
+	Log.infoAdvanced({indent: false, logLevel});
 	for (const frame of err.symbolicatedStackFrames) {
 		if (frame === firstFrame) {
 			continue;
@@ -94,9 +100,9 @@ export const printCodeFrameAndStack = (
 			!frame.originalFileName?.includes('node_modules') &&
 			!frame.originalFileName?.startsWith('webpack/');
 		if (isUserCode) {
-			printCodeFrame(frame);
+			printCodeFrame(frame, logLevel);
 		} else {
-			logLine(frame);
+			logLine(frame, logLevel);
 		}
 	}
 
@@ -117,9 +123,9 @@ export const printCodeFrameAndStack = (
 					.includes('delayRender');
 
 			if (showCodeFrame) {
-				printCodeFrame(frame);
+				printCodeFrame(frame, logLevel);
 			} else {
-				logLine(frame);
+				logLine(frame, logLevel);
 			}
 		}
 	}

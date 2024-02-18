@@ -47,7 +47,10 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 		timeoutInMilliseconds: puppeteerTimeout,
 	});
 	for (const {feature, status} of statuses) {
-		Log.info(`${feature}: ${colorStatus(status)}`);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			`${feature}: ${colorStatus(status)}`,
+		);
 	}
 };
 

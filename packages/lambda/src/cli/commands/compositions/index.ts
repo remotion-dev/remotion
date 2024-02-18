@@ -76,5 +76,5 @@ export const compositionsCommand = async (
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 	});
 
-	CliInternals.printCompositions(comps);
+	CliInternals.printCompositions(comps, logLevel);
 };

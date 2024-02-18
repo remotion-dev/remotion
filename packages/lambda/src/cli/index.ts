@@ -48,7 +48,7 @@ const matchCommand = (
 	logLevel: LogLevel,
 ) => {
 	if (parsedLambdaCli.help || args.length === 0) {
-		printHelp();
+		printHelp(logLevel);
 		quit(0);
 	}
 
@@ -118,7 +118,7 @@ const matchCommand = (
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
-	printHelp();
+	printHelp(logLevel);
 	quit(1);
 };
 

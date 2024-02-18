@@ -104,7 +104,10 @@ export const bundleCommand = async (
 			// Handle floating point inaccuracies
 			if (bundling.progress < 0.99999) {
 				if (updatesDontOverwrite) {
-					Log.info(`Bundling ${Math.round(bundling.progress * 100)}%`);
+					Log.infoAdvanced(
+						{indent: false, logLevel},
+						`Bundling ${Math.round(bundling.progress * 100)}%`,
+					);
 				}
 			}
 

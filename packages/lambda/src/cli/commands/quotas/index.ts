@@ -5,18 +5,29 @@ import {INCREASE_SUBCOMMAND, quotasIncreaseCommand} from './increase';
 import {quotasListCommand} from './list';
 export const QUOTAS_COMMAND = 'quotas';
 
-const printHelp = () => {
-	CliInternals.Log.info('Available commands:');
-	CliInternals.Log.info();
-	CliInternals.Log.info(`npx ${BINARY_NAME} ${QUOTAS_COMMAND}`);
-	CliInternals.Log.info(
+const printHelp = (logLevel: LogLevel) => {
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		'Available commands:',
+	);
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		`npx ${BINARY_NAME} ${QUOTAS_COMMAND}`,
+	);
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('List relevant AWS Lambda quotas.'),
 	);
-	CliInternals.Log.info();
-	CliInternals.Log.info(
+	CliInternals.Log.infoAdvanced({indent: false, logLevel});
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
 		`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}`,
 	);
-	CliInternals.Log.info(CliInternals.chalk.gray('Increase Lambda quotas.'));
+	CliInternals.Log.infoAdvanced(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Increase Lambda quotas.'),
+	);
 };
 
 export const quotasCommand = (args: string[], logLevel: LogLevel) => {
@@ -32,5 +43,5 @@ export const quotasCommand = (args: string[], logLevel: LogLevel) => {
 		{indent: false, logLevel},
 		'Subcommand ' + args[0] + ' not found.',
 	);
-	printHelp();
+	printHelp(logLevel);
 };

@@ -22,7 +22,10 @@ export const getInputProps = (
 				fs.watchFile(jsonFile, {interval: 100}, () => {
 					try {
 						onUpdate(JSON.parse(fs.readFileSync(jsonFile, 'utf-8')));
-						Log.info(`Updated input props from ${jsonFile}.`);
+						Log.infoAdvanced(
+							{indent: false, logLevel},
+							`Updated input props from ${jsonFile}.`,
+						);
 					} catch (err) {
 						Log.error(
 							{indent: false, logLevel},
@@ -42,7 +45,11 @@ export const getInputProps = (
 			'You passed --props but it was neither valid JSON nor a file path to a valid JSON file. Provided value: ' +
 				parsedCli.props,
 		);
-		Log.info('Got the following value:', parsedCli.props);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Got the following value:',
+			parsedCli.props,
+		);
 		Log.error(
 			{indent: false, logLevel},
 			'Check that your input is parseable using `JSON.parse` and try again.',

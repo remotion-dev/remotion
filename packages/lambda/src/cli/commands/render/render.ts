@@ -66,11 +66,13 @@ export const renderCommand = async (
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
-		Log.info(
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
-		Log.info(
+		Log.infoAdvanced({indent: false, logLevel});
+		Log.infoAdvanced(
+			{indent: false, logLevel},
 			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`,
 		);
 		quit(1);
@@ -159,7 +161,10 @@ export const renderCommand = async (
 
 	let composition: string = args[1];
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -300,12 +305,14 @@ export const renderCommand = async (
 		indent: false,
 	});
 
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`bucket = ${res.bucketName}, function = ${functionName}`,
 		),
 	);
-	Log.info(
+	Log.infoAdvanced(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
 		),
@@ -422,16 +429,25 @@ export const renderCommand = async (
 					}),
 					false,
 				);
-				Log.info();
-				Log.info();
-				Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
+				Log.infoAdvanced({indent: false, logLevel});
+				Log.infoAdvanced({indent: false, logLevel});
+				Log.infoAdvanced(
+					{indent: false, logLevel},
+					'Done!',
+					outputPath,
+					CliInternals.formatBytes(sizeInBytes),
+				);
 			} else {
-				Log.info();
-				Log.info();
-				Log.info('Done! ' + newStatus.outputFile);
+				Log.infoAdvanced({indent: false, logLevel});
+				Log.infoAdvanced({indent: false, logLevel});
+				Log.infoAdvanced(
+					{indent: false, logLevel},
+					'Done! ' + newStatus.outputFile,
+				);
 			}
 
-			Log.info(
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				[
 					newStatus.renderMetadata
 						? `${newStatus.renderMetadata.estimatedTotalLambdaInvokations} λ's used`
@@ -484,11 +500,13 @@ export const renderCommand = async (
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}
 
-			Log.info();
-			Log.info(
+			Log.infoAdvanced({indent: false, logLevel});
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
 			);
-			Log.info(
+			Log.infoAdvanced(
+				{indent: false, logLevel},
 				'This is an estimate and continuing Lambda functions may incur additional costs.',
 			);
 			quit(1);

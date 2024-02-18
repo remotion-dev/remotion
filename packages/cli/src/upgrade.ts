@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {PackageManager} from '@remotion/studio-server';
@@ -31,6 +32,7 @@ export const upgrade = async (
 	remotionRoot: string,
 	packageManager: string | undefined,
 	version: string | undefined,
+	logLevel: LogLevel,
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 	const packageJson = require(packageJsonFilePath);
@@ -44,10 +46,17 @@ export const upgrade = async (
 	let targetVersion: string;
 	if (version) {
 		targetVersion = version;
-		Log.info('Upgrading to specified version: ' + version);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Upgrading to specified version: ' + version,
+		);
 	} else {
 		targetVersion = await StudioServerInternals.getLatestRemotionVersion();
-		Log.info('Newest Remotion version is', targetVersion);
+		Log.infoAdvanced(
+			{indent: false, logLevel},
+			'Newest Remotion version is',
+			targetVersion,
+		);
 	}
 
 	const manager = StudioServerInternals.getPackageManager(
@@ -94,6 +103,6 @@ export const upgrade = async (
 	}
 
 	await prom;
-	Log.info('⏫ Remotion has been upgraded!');
-	Log.info('https://remotion.dev/changelog');
+	Log.infoAdvanced({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
+	Log.infoAdvanced({indent: false, logLevel}, 'https://remotion.dev/changelog');
 };

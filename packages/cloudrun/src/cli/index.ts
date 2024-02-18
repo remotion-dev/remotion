@@ -18,7 +18,7 @@ const matchCommand = (
 	logLevel: LogLevel,
 ) => {
 	if (parsedCloudrunCli.help || args.length === 0 || args[0] === 'help') {
-		printHelp();
+		printHelp(logLevel);
 		quit(0);
 	}
 
@@ -52,7 +52,7 @@ const matchCommand = (
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
-	printHelp();
+	printHelp(logLevel);
 	quit(1);
 };
 
