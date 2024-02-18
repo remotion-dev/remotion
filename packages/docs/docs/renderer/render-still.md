@@ -122,8 +122,7 @@ An object containing key-value pairs of environment variables which will be inje
 
 ### `logLevel?`<AvailableFrom v="4.0.115"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `overwrite?`
 

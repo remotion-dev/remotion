@@ -1,9 +1,10 @@
 import type {LogLevel} from '../log-level';
+import {isValidLogLevel, logLevels} from '../log-level';
 import type {AnyRemotionOption} from './option';
 
 let logLevel: LogLevel = 'info';
 
-const cliFlag = 'log-level' as const;
+const cliFlag = 'log' as const;
 
 export const logLevelOption = {
 	cliFlag,
@@ -11,15 +12,23 @@ export const logLevelOption = {
 	ssrName: 'logLevel',
 	description: () => (
 		<>
-			One of <code>verbose</code>, <code>info</code>, <code>warn</code>,
+			One of <code>verbose</code>, <code>info</code>, <code>warn</code>,{' '}
 			<code>error</code>. Determines how much is being logged to the console.{' '}
 			<code>verbose</code> will also log <code>console.log</code>
-			{"'"}s from the browser. Default <code>info</code>
+			{"'"}s from the browser. Default <code>info</code>.
 		</>
 	),
 	docLink: 'https://www.remotion.dev/docs/troubleshooting/debug-failed-render',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
+			if (!isValidLogLevel(commandLine[cliFlag] as string)) {
+				throw new Error(
+					`Invalid \`--log\` value passed. Accepted values: ${logLevels
+						.map((l) => `'${l}'`)
+						.join(', ')}.`,
+				);
+			}
+
 			return {value: commandLine[cliFlag] as LogLevel, source: 'cli'};
 		}
 

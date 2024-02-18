@@ -124,8 +124,7 @@ Disables audio output. This option may only be set in combination with a video c
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `puppeteerInstance?`
 

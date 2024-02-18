@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
@@ -10,6 +11,7 @@ export type GetRenderProgressInput = {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	logLevel: LogLevel;
 	s3OutputProvider?: CustomCredentials;
 };
 

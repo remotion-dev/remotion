@@ -2,14 +2,12 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
@@ -169,24 +167,6 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['user-agent']) {
 		Config.setChromiumUserAgent(parsedCli['user-agent']);
-	}
-
-	if (parsedCli.log) {
-		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
-			Log.error(
-				{indent: false, logLevel: 'error'},
-				'Invalid `--log` value passed.',
-			);
-			Log.error(
-				{indent: false, logLevel: 'error'},
-				`Accepted values: ${RenderInternals.logLevels
-					.map((l) => `'${l}'`)
-					.join(', ')}.`,
-			);
-			process.exit(1);
-		}
-
-		BrowserSafeApis.options.logLevelOption.setConfig(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {

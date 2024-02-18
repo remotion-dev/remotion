@@ -99,7 +99,9 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
+
+Logs can be read through the CloudWatch URL that this function returns.
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 

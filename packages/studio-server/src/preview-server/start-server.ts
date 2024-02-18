@@ -60,10 +60,10 @@ export const startServer = async (options: {
 
 	const compiler = webpack(config);
 
-	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
+	const wdmMiddleware = wdm(compiler, options.logLevel);
+	const whm = webpackHotMiddleware(compiler, options.logLevel);
 
-	const liveEventsServer = makeLiveEventsRouter();
+	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {

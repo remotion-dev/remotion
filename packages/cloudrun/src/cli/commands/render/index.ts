@@ -159,7 +159,7 @@ export const renderCommand = async (
 	}
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
-	CliInternals.Log.ifinfo(
+	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
@@ -175,7 +175,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.ifinfo({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -209,7 +209,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const updateRenderProgress = (progress: number, error?: boolean) => {
 		if (error) {
 			// exiting progress and adding space
-			Log.indfinfo(
+			Log.info(
 				{indent: false, logLevel},
 				`
 		
@@ -328,8 +328,8 @@ Codec = ${codec} (${codecReason})
 		);
 
 		if (downloadName) {
-			Log.indfinfo({indent: false, logLevel}, '');
-			Log.indfinfo({indent: false, logLevel}, 'downloading file...');
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -337,7 +337,7 @@ Codec = ${codec} (${codecReason})
 				downloadName,
 			});
 
-			Log.indfinfo(
+			Log.info(
 				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);

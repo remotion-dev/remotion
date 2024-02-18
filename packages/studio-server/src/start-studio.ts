@@ -176,7 +176,7 @@ export const startStudio = async ({
 		setServerReadyComment(`http://localhost:${port}`);
 	}
 
-	printServerReadyComment('Server ready');
+	printServerReadyComment('Server ready', logLevel);
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
 		configValueShouldOpenBrowser,

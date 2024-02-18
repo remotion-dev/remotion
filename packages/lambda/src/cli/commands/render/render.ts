@@ -335,6 +335,7 @@ export const renderCommand = async (
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
+		logLevel,
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
@@ -358,6 +359,7 @@ export const renderCommand = async (
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
+			logLevel,
 		});
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(

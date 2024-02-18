@@ -1,12 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 
 const getUpgradeCommand = ({
 	manager,
@@ -92,13 +90,7 @@ export const upgrade = async (
 			stdio: 'inherit',
 		},
 	);
-	if (
-		RenderInternals.isEqualOrBelowLogLevel(
-			BrowserSafeApis.options.logLevelOption.getValue({commandLine: parsedCli})
-				.value,
-			'info',
-		)
-	) {
+	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
 		prom.stdout?.pipe(process.stdout);
 	}
 

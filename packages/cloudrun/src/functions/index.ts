@@ -1,5 +1,4 @@
 import type * as ff from '@google-cloud/functions-framework';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ErrorResponsePayload} from './helpers/payloads';
 import {CloudRunPayload} from './helpers/payloads';
 import {renderMediaSingleThread} from './render-media-single-thread';
@@ -10,7 +9,6 @@ const renderOnCloudRun = async (req: ff.Request, res: ff.Response) => {
 		const body = CloudRunPayload.parse(req.body);
 		const renderType = body.type;
 
-		BrowserSafeApis.options.logLevelOption.setConfig(body.logLevel);
 		switch (renderType) {
 			case 'media':
 				await renderMediaSingleThread(body, res);

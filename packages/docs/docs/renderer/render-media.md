@@ -100,8 +100,7 @@ A `number` specifying how many render processes should be started in parallel, a
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `audioCodec?`
 

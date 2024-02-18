@@ -85,6 +85,7 @@ test('Should be able to render to another bucket', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
+			logLevel: 'info',
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,

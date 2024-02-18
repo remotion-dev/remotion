@@ -81,8 +81,8 @@ export const renderArgsCheck = async (
 				{indent: false, logLevel},
 				'No compatible services found. Please create a service first:',
 			);
-			Log.indfinfo({indent: false, logLevel});
-			Log.indfinfo(
+			Log.info({indent: false, logLevel});
+			Log.info(
 				{indent: false, logLevel},
 				`  ${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`,
 			);

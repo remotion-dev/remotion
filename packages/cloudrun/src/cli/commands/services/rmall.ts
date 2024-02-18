@@ -40,13 +40,11 @@ export const servicesRmallCommand = async (logLevel: LogLevel) => {
 		});
 
 		if (!confirmDelete) {
-			Log.ind;
-			foinfo(
+			Log.info(
 				{indent: false, logLevel},
 				`Skipping service - ${serv.serviceName}.`,
 			);
-			Log.ind;
-			foinfo({indent: false, logLevel});
+			Log.info({indent: false, logLevel});
 			continue;
 		}
 

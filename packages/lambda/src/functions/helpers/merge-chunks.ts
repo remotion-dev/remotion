@@ -147,6 +147,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
+		logLevel: options.logLevel,
 	});
 	options.onAllChunks({
 		inputProps: options.inputProps,
