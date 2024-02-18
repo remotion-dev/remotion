@@ -126,7 +126,6 @@ export const getCliOptions = (options: {
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		chromiumOptions,
 		overwrite,
-		muted: ConfigInternals.getMuted(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		encodingBufferSize,

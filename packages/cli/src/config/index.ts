@@ -92,7 +92,6 @@ import {
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
 import {setLogLevel} from './log';
-import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
@@ -126,6 +125,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	enforceAudioOption,
+	mutedOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -588,7 +588,7 @@ export const Config: FlatConfig = {
 	setScale: scaleOption.setConfig,
 	setEveryNthFrame,
 	setNumberOfGifLoops,
-	setMuted,
+	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput,
@@ -648,8 +648,6 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
-	setMuted,
-	getMuted,
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,

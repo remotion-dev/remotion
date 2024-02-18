@@ -24,6 +24,7 @@ const {
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
+	mutedOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -64,7 +65,6 @@ export const renderCommand = async (
 		proResProfile,
 		everyNthFrame,
 		numberOfGifLoops,
-		muted,
 		encodingMaxRate,
 		encodingBufferSize,
 		height,
@@ -209,6 +209,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

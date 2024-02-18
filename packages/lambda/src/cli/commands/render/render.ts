@@ -48,6 +48,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	mutedOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -80,7 +81,6 @@ export const renderCommand = async (
 		puppeteerTimeout,
 		everyNthFrame,
 		numberOfGifLoops,
-		muted,
 		overwrite,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -116,6 +116,9 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 

@@ -22,6 +22,7 @@ const {
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
+	mutedOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -68,7 +69,6 @@ export const render = async (
 		height,
 		width,
 		ffmpegOverride,
-		muted,
 		proResProfile,
 		pixelFormat,
 		encodingMaxRate,
@@ -101,6 +101,7 @@ export const render = async (
 	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
