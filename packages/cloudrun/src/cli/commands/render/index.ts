@@ -15,8 +15,12 @@ import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
 
-const {audioBitrateOption, x264Option, offthreadVideoCacheSizeInBytesOption} =
-	BrowserSafeApis.options;
+const {
+	audioBitrateOption,
+	x264Option,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+} = BrowserSafeApis.options;
 
 export const renderCommand = async (
 	args: string[],
@@ -56,7 +60,6 @@ export const renderCommand = async (
 		pixelFormat,
 		proResProfile,
 		jpegQuality,
-		scale,
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
@@ -191,6 +194,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const res = await internalRenderMediaOnCloudrun({

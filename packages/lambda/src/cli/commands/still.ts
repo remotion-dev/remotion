@@ -20,6 +20,9 @@ import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 
+const {offthreadVideoCacheSizeInBytesOption, scaleOption, deleteAfterOption} =
+	BrowserSafeApis.options;
+
 export const STILL_COMMAND = 'still';
 
 export const stillCommand = async (
@@ -48,7 +51,6 @@ export const stillCommand = async (
 		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
-		scale,
 		height,
 		width,
 		browserExecutable,
@@ -73,7 +75,7 @@ export const stillCommand = async (
 		}
 
 		const offthreadVideoCacheSizeInBytes =
-			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value;
 
@@ -142,8 +144,10 @@ export const stillCommand = async (
 		),
 	);
 
-	const deleteAfter =
-		parsedLambdaCli[BrowserSafeApis.options.deleteAfterOption.cliFlag];
+	const deleteAfter = parsedLambdaCli[deleteAfterOption.cliFlag];
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await renderStillOnLambda({
 		functionName,

@@ -39,7 +39,6 @@ import {
 } from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
-import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
@@ -116,7 +115,6 @@ import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {getRepro, setRepro} from './repro';
-import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
@@ -128,8 +126,12 @@ import {getWidth, overrideWidth} from './width';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
-const {offthreadVideoCacheSizeInBytesOption, x264Option, audioBitrateOption} =
-	BrowserSafeApis.options;
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	x264Option,
+	audioBitrateOption,
+	scaleOption,
+} = BrowserSafeApis.options;
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -588,7 +590,9 @@ export const Config: FlatConfig = {
 	setEncodingMaxRate,
 	setEncodingBufferSize,
 	setFrameRange,
-	setScale,
+	setScale: (option) => {
+		scaleOption.setConfig(option);
+	},
 	setEveryNthFrame,
 	setNumberOfGifLoops,
 	setMuted,
@@ -629,7 +633,6 @@ export const ConfigInternals = {
 	getProResProfile,
 	getShouldOverwrite,
 	getBrowserExecutable,
-	getScale,
 	getStudioPort,
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,

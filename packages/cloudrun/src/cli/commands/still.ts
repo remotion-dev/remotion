@@ -13,6 +13,9 @@ import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
 export const STILL_COMMAND = 'still';
 
+const {offthreadVideoCacheSizeInBytesOption, scaleOption} =
+	BrowserSafeApis.options;
+
 export const stillCommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -35,7 +38,6 @@ export const stillCommand = async (
 		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
-		scale,
 		height,
 		width,
 		browserExecutable,
@@ -59,7 +61,7 @@ export const stillCommand = async (
 		}
 
 		const offthreadVideoCacheSizeInBytes =
-			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value;
 
@@ -152,6 +154,10 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			newline,
 		);
 	};
+
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,

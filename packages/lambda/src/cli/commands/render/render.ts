@@ -40,8 +40,12 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
-const {x264Option, audioBitrateOption, offthreadVideoCacheSizeInBytesOption} =
-	BrowserSafeApis.options;
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+} = BrowserSafeApis.options;
 
 export const renderCommand = async (
 	args: string[],
@@ -73,7 +77,6 @@ export const renderCommand = async (
 		proResProfile,
 		puppeteerTimeout,
 		jpegQuality,
-		scale,
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
@@ -103,6 +106,9 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	let composition: string = args[1];
 	if (!composition) {

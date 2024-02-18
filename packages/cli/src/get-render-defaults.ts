@@ -4,12 +4,15 @@ import type {RenderDefaults} from '@remotion/studio';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
-const {x264Option, audioBitrateOption, offthreadVideoCacheSizeInBytesOption} =
-	BrowserSafeApis.options;
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+} = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
 	const defaultJpegQuality = ConfigInternals.getJpegQuality();
-	const defaultScale = ConfigInternals.getScale();
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(
@@ -30,6 +33,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const defaultScale = scaleOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
 	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();

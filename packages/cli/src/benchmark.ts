@@ -22,7 +22,12 @@ import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
 
-const {audioBitrateOption, x264Option} = BrowserSafeApis.options;
+const {
+	audioBitrateOption,
+	x264Option,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+} = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
@@ -167,7 +172,6 @@ export const benchmarkCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		puppeteerTimeout,
-		scale,
 		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
@@ -175,7 +179,6 @@ export const benchmarkCommand = async (
 		jpegQuality,
 		crf: configFileCrf,
 		pixelFormat,
-		scale: configFileScale,
 		numberOfGifLoops,
 		everyNthFrame,
 		muted,
@@ -202,6 +205,8 @@ export const benchmarkCommand = async (
 		'reason:',
 		reason,
 	);
+
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
@@ -261,7 +266,7 @@ export const benchmarkCommand = async (
 		server: undefined,
 		logLevel,
 		offthreadVideoCacheSizeInBytes:
-			BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.getValue({
+			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
 	});
@@ -351,7 +356,7 @@ export const benchmarkCommand = async (
 					jpegQuality,
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-					scale: configFileScale,
+					scale,
 					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
 					everyNthFrame,

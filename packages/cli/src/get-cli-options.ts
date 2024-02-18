@@ -95,7 +95,6 @@ export const getCliOptions = (options: {
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
-	const scale = ConfigInternals.getScale();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
@@ -137,7 +136,6 @@ export const getCliOptions = (options: {
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
-		scale,
 		chromiumOptions,
 		overwrite,
 		muted: ConfigInternals.getMuted(),
