@@ -1,4 +1,11 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -70,7 +77,17 @@ const AssetFolderItem: React.FC<{
 	level: number;
 	parentFolder: string;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
-}> = ({tabIndex, item, level, parentFolder, toggleFolder}) => {
+	dropLocation: string | null;
+	setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({
+	tabIndex,
+	item,
+	level,
+	parentFolder,
+	toggleFolder,
+	dropLocation,
+	setDropLocation,
+}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const onPointerEnter = useCallback(() => {
@@ -103,7 +120,7 @@ const AssetFolderItem: React.FC<{
 	const Icon = item.expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
 
 	return (
-		<>
+		<div>
 			<div
 				style={folderStyle}
 				onPointerEnter={onPointerEnter}
@@ -128,9 +145,11 @@ const AssetFolderItem: React.FC<{
 					parentFolder={parentFolder}
 					tabIndex={tabIndex}
 					toggleFolder={toggleFolder}
+					dropLocation={dropLocation}
+					setDropLocation={setDropLocation}
 				/>
 			) : null}
-		</>
+		</div>
 	);
 };
 
@@ -141,13 +160,53 @@ export const AssetFolderTree: React.FC<{
 	level: number;
 	tabIndex: number;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
-}> = ({item, level, name, parentFolder, toggleFolder, tabIndex}) => {
+	dropLocation: string | null;
+	setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({
+	item,
+	level,
+	name,
+	parentFolder,
+	toggleFolder,
+	tabIndex,
+	dropLocation,
+	setDropLocation,
+}) => {
 	const combinedParents = useMemo(() => {
 		return [parentFolder, name].filter(NoReactInternals.truthy).join('/');
 	}, [name, parentFolder]);
-
+	const dragDepthRef = useRef(0);
+	const isDropDiv = useMemo(() => {
+		return dropLocation === combinedParents;
+	}, [combinedParents, dropLocation]);
+	useEffect(() => {
+		if (dropLocation === null) {
+			dragDepthRef.current = 0;
+		}
+	}, [dropLocation]);
 	return (
-		<div>
+		<div
+			onDragEnter={() => {
+				if (dragDepthRef.current === 0) {
+					setDropLocation((currentDropLocation) =>
+						currentDropLocation?.includes(combinedParents)
+							? currentDropLocation
+							: combinedParents,
+					);
+				}
+
+				dragDepthRef.current++;
+			}}
+			onDragLeave={() => {
+				dragDepthRef.current--;
+				if (dragDepthRef.current === 0) {
+					setDropLocation(() => parentFolder);
+				}
+			}}
+			style={{
+				backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+			}}
+		>
 			{item.folders.map((folder) => {
 				return (
 					<AssetFolderItem
@@ -157,6 +216,8 @@ export const AssetFolderTree: React.FC<{
 						level={level + 1}
 						parentFolder={combinedParents}
 						toggleFolder={toggleFolder}
+						dropLocation={dropLocation}
+						setDropLocation={setDropLocation}
 					/>
 				);
 			})}

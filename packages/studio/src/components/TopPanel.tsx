@@ -10,7 +10,6 @@ import {
 } from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
-import FileUpload from './FileInput';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -115,7 +114,6 @@ export const TopPanel: React.FC<{
 					{actualStateLeft === 'expanded' ? (
 						<SplitterElement sticky={null} type="flexer">
 							<ExplorerPanel />
-							<FileUpload />
 						</SplitterElement>
 					) : null}
 					{actualStateLeft === 'expanded' ? (

@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -10,6 +16,7 @@ import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
+import {handleUploadFile} from './utils';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -49,7 +56,7 @@ export const AssetSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
-
+	const [dropLocation, setDropLocation] = useState<string | null>(null);
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
 
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
@@ -97,7 +104,31 @@ export const AssetSelector: React.FC = () => {
 	);
 
 	return (
-		<div style={container}>
+		<div
+			style={container}
+			onDragOver={(e) => e.preventDefault()}
+			onDrop={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
+				setDropLocation(null);
+			}}
+		>
+			{true && (
+				<div
+					style={{
+						backgroundColor: 'white',
+						padding: 20,
+						borderRadius: 10,
+						boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+						position: 'fixed',
+						bottom: 20,
+						right: 20,
+					}}
+				>
+					Uploading file...
+				</div>
+			)}
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>
@@ -125,6 +156,8 @@ export const AssetSelector: React.FC = () => {
 						name={null}
 						tabIndex={tabIndex}
 						toggleFolder={toggleFolder}
+						dropLocation={dropLocation}
+						setDropLocation={setDropLocation}
 					/>
 				</div>
 			)}

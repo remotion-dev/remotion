@@ -200,7 +200,12 @@ const handleAddAsset = (
 	res: ServerResponse,
 	publicDir: string,
 ): void => {
-	const form = formidable();
+	const TWO_GIGABYTES = 2 * 1024 * 1024 * 1024;
+	const form = formidable({
+		maxTotalFileSize: TWO_GIGABYTES,
+		maxFieldsSize: TWO_GIGABYTES,
+		maxFileSize: TWO_GIGABYTES,
+	});
 
 	form.parse(
 		req,
@@ -208,7 +213,10 @@ const handleAddAsset = (
 			if (err) {
 				res.writeHead(500, {'Content-Type': 'application/json'});
 				res.end(
-					JSON.stringify({success: false, error: 'Error parsing form data'}),
+					JSON.stringify({
+						success: false,
+						error: err.message || 'Unknown error',
+					}),
 				);
 				return;
 			}
@@ -359,8 +367,6 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/add-asset') {
-		// eslint-disable-next-line no-console
-		console.log('add-asset');
 		return handleAddAsset(request, response, publicDir);
 	}
 
