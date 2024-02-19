@@ -20,7 +20,7 @@ afterEach(() => {
 test('setOverwriteOutput should throw if overwrite is not a boolean value', () => {
 	expectToThrow(
 		// @ts-expect-error
-		() => setOverwriteOutput(invalidOverwrite),
+		() => BrowserSafeApis.options.overwriteOption.setConfig(invalidOverwrite),
 		/overwriteExisting must be a boolean but got number [(]555[)]/,
 	);
 });
@@ -31,12 +31,14 @@ test('setOverwriteOutput should NOT throw if image format is a boolean value', (
 });
 test('getShouldOverwrite should return true by default', () => {
 	expect(
-		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true),
+		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true)
+			.value,
 	).toEqual(true);
 });
 test('setOverwriteOutput should return a boolean value', () => {
 	BrowserSafeApis.options.overwriteOption.setConfig(false);
 	expect(
-		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true),
+		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true)
+			.value,
 	).toEqual(false);
 });
