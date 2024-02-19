@@ -28,6 +28,7 @@ export const listOfRemotionPackages = [
 	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'@remotion/transitions',
+	'@remotion/install-whisper',
 	'@remotion/animation-utils',
 	'remotion',
 ];
