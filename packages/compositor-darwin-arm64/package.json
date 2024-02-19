@@ -1,5 +1,5 @@
 {
-  "version": "4.0.115",
+  "version": "4.0.116",
   "name": "@remotion/compositor-darwin-arm64",
   "os": [
     "darwin"
