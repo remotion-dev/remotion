@@ -228,7 +228,7 @@ class RemotionClient:
     def get_render_progress(self,
                             render_id: str,
                             bucket_name: str,
-                            log_level: str) -> RenderMediaProgress:
+                            log_level="info") -> RenderMediaProgress:
         """
         Get the progress of a render.
 
