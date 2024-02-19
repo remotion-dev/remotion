@@ -113,7 +113,7 @@ Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
 _optional_
 
-<Options id="headless"  />
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 

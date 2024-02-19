@@ -254,7 +254,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-<Options id="headless"  />
+<Options id="disable-headless"  />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

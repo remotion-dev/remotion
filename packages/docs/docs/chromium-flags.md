@@ -71,7 +71,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCer
 
 ## `--disable-headless`
 
-<Options id="headless"  />
+<Options id="disable-headless"  />
 
 ### Via Node.JS APIs
 

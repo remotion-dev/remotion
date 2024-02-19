@@ -182,7 +182,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `headless?`
 
-<Options id="headless"  />
+<Options id="disable-headless"  />
 
 #### `gl`
 

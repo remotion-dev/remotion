@@ -73,7 +73,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 ### `--disable-headless?`
 
-<Options id="headless"  />
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 
