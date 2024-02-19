@@ -210,14 +210,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i sass sass-loader
+npm i sass style-loader css-loader sass-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i sass sass-loader
+pnpm i sass style-loader css-loader sass-loader
 ```
 
   </TabItem>
@@ -225,7 +225,7 @@ pnpm i sass sass-loader
   <TabItem value="yarn">
 
 ```bash
-yarn add sass sass-loader
+yarn add sass style-loader css-loader sass-loader
 ```
 
   </TabItem>
