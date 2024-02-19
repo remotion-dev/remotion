@@ -52,7 +52,7 @@ An object containing the following properties:
 
 The [AWS region](/docs/lambda/region-selection) that you would like to query.
 
-### `logLevel?`<AvailableFrom v="v4.0.115"/>
+### `logLevel?`<AvailableFrom v="4.0.115"/>
 
 <Options id="log"/>
 
