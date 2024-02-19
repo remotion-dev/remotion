@@ -6,7 +6,7 @@ export const listOfRemotionPackages = [
 	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
-	'@remotion/install-whisper',
+	'@remotion/install-whisper-cpp',
 	'@remotion/renderer',
 	'@remotion/skia',
 	'@remotion/lottie',

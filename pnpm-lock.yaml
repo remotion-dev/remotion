@@ -608,6 +608,9 @@ importers:
       '@remotion/google-fonts':
         specifier: workspace:*
         version: link:../google-fonts
+      '@remotion/install-whisper-cpp':
+        specifier: workspace:*
+        version: link:../install-whisper-cpp
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -1102,7 +1105,7 @@ importers:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
 
-  packages/install-whisper:
+  packages/install-whisper-cpp:
     dependencies:
       react:
         specifier: '>=16.8.0'
@@ -1153,6 +1156,9 @@ importers:
       '@remotion/google-fonts':
         specifier: workspace:*
         version: link:../google-fonts
+      '@remotion/install-whisper-cpp':
+        specifier: workspace:*
+        version: link:../install-whisper-cpp
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -3784,7 +3790,7 @@ packages:
       '@babel/core': 7.15.5
       '@babel/helper-validator-option': 7.18.6
       browserslist: 4.21.5
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /@babel/helper-compilation-targets@7.19.1(@babel/core@7.18.6):
@@ -3797,7 +3803,7 @@ packages:
       '@babel/core': 7.18.6
       '@babel/helper-validator-option': 7.18.6
       browserslist: 4.21.5
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /@babel/helper-compilation-targets@7.23.6:
@@ -3881,7 +3887,7 @@ packages:
       debug: 4.3.4(supports-color@5.5.0)
       lodash.debounce: 4.0.8
       resolve: 1.22.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3940,7 +3946,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.18.10
-      '@babel/types': 7.21.0
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-function-name@7.23.0:
@@ -3969,7 +3975,7 @@ packages:
     resolution: {integrity: sha512-UlJQPkFqFULIcyW5sbzgbkxn2FKRgwWiRexcuaR8RNJRy8+LLveqPjwZV/bwrLZCN0eUHD/x8D0heK1ozuoo6Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.21.0
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-hoist-variables@7.22.5:
@@ -5899,7 +5905,7 @@ packages:
       babel-plugin-polyfill-corejs2: 0.3.3(@babel/core@7.18.6)
       babel-plugin-polyfill-corejs3: 0.6.0(@babel/core@7.18.6)
       babel-plugin-polyfill-regenerator: 0.4.1(@babel/core@7.18.6)
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -6241,7 +6247,7 @@ packages:
       babel-plugin-polyfill-corejs3: 0.6.0(@babel/core@7.18.6)
       babel-plugin-polyfill-regenerator: 0.4.1(@babel/core@7.18.6)
       core-js-compat: 3.25.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false

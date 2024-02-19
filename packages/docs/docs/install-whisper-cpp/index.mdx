@@ -1,0 +1,47 @@
+---
+title: "@remotion/install-whisper-cpp"
+crumb: "Transcribe audio locally"
+---
+
+_Available from v4.0.115_
+
+With [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), you can transcribe audio locally on your machine.  
+This package provides easy to use cross-platform functions to install Whisper.cpp and a model.
+
+import { TableOfContents } from "../../components/TableOfContents/install-whisper-cpp";
+
+<Installation pkg="@remotion/install-whisper-cpp" />
+
+## Example usage
+
+Install Whisper v1.5.4 and the `base.en` model to the `whisper.cpp` folder.
+
+```tsx twoslash title="install-whisper.cpp"
+// @module: esnext
+// @target: es2022
+import path from "path";
+import {
+  downloadWhisperModel,
+  installWhisperCpp,
+} from "@remotion/install-whisper-cpp";
+
+const to = path.join(process.cwd(), "whisper.cpp");
+
+await installWhisperCpp({
+  to,
+  version: "1.5.4",
+});
+
+await downloadWhisperModel({
+  model: "base.en",
+  folder: to,
+});
+```
+
+## Functions
+
+<TableOfContents />
+
+## License
+
+MIT
