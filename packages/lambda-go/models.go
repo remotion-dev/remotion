@@ -115,7 +115,7 @@ type renderProgressInternalConfig struct {
 	BucketName string `json:"bucketName" validate:"required"`
 	Type       string `json:"type" validate:"required"`
 	Version    string `json:"version" validate:"required"`
-	LogLevel   string `json:"logLevel"`
+	LogLevel   string `json:"logLevel" validate:"required"`
 }
 
 type RenderProgress struct {
