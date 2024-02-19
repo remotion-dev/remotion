@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {deployFunction} from '../../../api/deploy-function';
 import {
@@ -16,7 +17,7 @@ import {getAwsRegion} from '../../get-aws-region';
 
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const functionsDeploySubcommand = async () => {
+export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
@@ -34,6 +35,7 @@ export const functionsDeploySubcommand = async () => {
 	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
 Region = ${region}
@@ -68,7 +70,7 @@ Lambda Insights Enabled = ${enableLambdaInsights}
 		enableLambdaInsights,
 	});
 	if (CliInternals.quietFlagProvided()) {
-		CliInternals.Log.info(functionName);
+		CliInternals.Log.info({indent: false, logLevel}, functionName);
 	}
 
 	if (alreadyExisted) {

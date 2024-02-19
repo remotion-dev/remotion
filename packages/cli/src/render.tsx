@@ -7,7 +7,6 @@ import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -30,6 +29,9 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -44,11 +46,18 @@ export const render = async (
 	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.error(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
 		process.exit(1);
 	}
 
@@ -56,6 +65,7 @@ export const render = async (
 
 	if (parsedCli.frame) {
 		Log.error(
+			{indent: false, logLevel},
 			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
@@ -65,16 +75,13 @@ export const render = async (
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		overwrite,
 		inputProps,
 		envVariables,
 		browserExecutable,
 		everyNthFrame,
-		headless,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		puppeteerTimeout,
 		publicDir,
 		height,
 		width,
@@ -82,9 +89,7 @@ export const render = async (
 		proResProfile,
 		pixelFormat,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -128,6 +133,18 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const repro = reproOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -138,14 +155,15 @@ export const render = async (
 		userAgent,
 	};
 
-	const audioCodec = getResolvedAudioCodec();
+	const audioCodec =
+		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
 
 	await renderVideoFlow({
 		fullEntryPoint,
 		remotionRoot,
 		browserExecutable,
 		indent: false,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		browser: 'chrome',
 		chromiumOptions,
 		scale,

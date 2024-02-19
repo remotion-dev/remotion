@@ -2,7 +2,6 @@ import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
-	getChromiumHeadlessMode,
 	getIgnoreCertificateErrors,
 } from './chromium-flags';
 import {getConcurrency} from './concurrency';
@@ -15,13 +14,11 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
-import * as Logging from './log';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
 } from './override-webpack';
-import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {
 	getRendererPortFromConfigFile,
@@ -30,7 +27,6 @@ import {
 } from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getStillFrame, setStillFrame} from './still-frame';
-import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
@@ -55,7 +51,6 @@ import {
 } from './buffer-state-delay-in-milliseconds';
 import {
 	setChromiumDisableWebSecurity,
-	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
 } from './chromium-flags';
 import type {Concurrency} from './concurrency';
@@ -74,18 +69,15 @@ import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
-import {setLogLevel} from './log';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
-import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
-import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
@@ -105,6 +97,7 @@ const {
 	crfOption,
 	jpegQualityOption,
 	enforceAudioOption,
+	overwriteOption,
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
@@ -112,12 +105,15 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
 	enableLambdaInsights,
+	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -551,13 +547,14 @@ export const Config: FlatConfig = {
 	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
-	setLevel: setLogLevel,
+	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable,
-	setTimeoutInMilliseconds: setPuppeteerTimeout,
-	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
+	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
+	setDelayRenderTimeoutInMilliseconds:
+		delayRenderTimeoutInMillisecondsOption.setConfig,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumHeadlessMode,
+	setChromiumHeadlessMode: headlessOption.setConfig,
 	setChromiumOpenGlRenderer: glOption.setConfig,
 	setChromiumUserAgent,
 	setDotEnvLocation,
@@ -585,7 +582,7 @@ export const Config: FlatConfig = {
 	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
-	setOverwriteOutput,
+	setOverwriteOutput: overwriteOption.setConfig,
 	setPixelFormat,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
@@ -614,17 +611,14 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
-	getShouldOverwrite,
 	getBrowserExecutable,
 	getStudioPort,
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
-	getChromiumHeadlessMode,
 	getEveryNthFrame,
 	getConcurrency,
-	getCurrentPuppeteerTimeout,
 	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
@@ -634,7 +628,6 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
-	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,

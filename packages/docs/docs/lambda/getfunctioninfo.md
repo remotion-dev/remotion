@@ -43,6 +43,10 @@ The [AWS region](/docs/lambda/region-selection) the function resides in.
 
 The name of the function.
 
+### `logLevel?`<AvailableFrom v="4.0.115"/>
+
+<Options id="log"/>
+
 ## Return value
 
 If the function does not exist, an error is thrown by the AWS SDK.

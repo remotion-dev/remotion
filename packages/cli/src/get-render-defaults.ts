@@ -21,13 +21,16 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
+	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const logLevel = ConfigInternals.Logging.getLogLevel();
+	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.getActualConcurrency(
 		ConfigInternals.getConcurrency(),
@@ -81,14 +84,18 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const repro = reproOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
-	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 

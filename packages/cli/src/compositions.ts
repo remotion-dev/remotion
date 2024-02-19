@@ -15,6 +15,8 @@ const {
 	enableMultiprocessOnLinuxOption,
 	offthreadVideoCacheSizeInBytesOption,
 	glOption,
+	headlessOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -26,10 +28,15 @@ export const listCompositionsCommand = async (
 
 	if (!file) {
 		Log.error(
+			{indent: false, logLevel},
 			'The `compositions` command requires you to specify a entry point. For example',
 		);
-		Log.error('  npx remotion compositions src/index.ts');
 		Log.error(
+			{indent: false, logLevel},
+			'  npx remotion compositions src/index.ts',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
@@ -47,16 +54,12 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		publicDir,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'get-compositions',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -66,7 +69,7 @@ export const listCompositionsCommand = async (
 			commandLine: parsedCli,
 		}).value,
 		gl: glOption.getValue({commandLine: parsedCli}).value,
-		headless,
+		headless: headlessOption.getValue({commandLine: parsedCli}).value,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -106,7 +109,9 @@ export const listCompositionsCommand = async (
 				staticBase: null,
 				indent: undefined,
 			}).serializedString,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
@@ -119,5 +124,5 @@ export const listCompositionsCommand = async (
 			}).value,
 	});
 
-	printCompositions(compositions);
+	printCompositions(compositions, logLevel);
 };

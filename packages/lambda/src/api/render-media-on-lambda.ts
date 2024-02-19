@@ -2,7 +2,6 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
-	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
@@ -44,10 +43,8 @@ export type RenderMediaOnLambdaInput = {
 	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
-	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

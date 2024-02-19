@@ -8,8 +8,6 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {type LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -27,12 +25,10 @@ type InternalGetCompositionsOptions = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	browserExecutable: BrowserExecutable | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	server: RemotionServer | undefined;
 	indent: boolean;
-	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
@@ -42,24 +38,19 @@ export type GetCompositionsOptions = {
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.getCompositions>>;
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
 	indent: boolean;
-	logLevel: LogLevel;
-};
+} & ToOptions<typeof optionsMap.getCompositions>;
 
 const innerGetCompositions = async ({
 	envVariables,
@@ -224,6 +215,7 @@ const internalGetCompositionsRaw = async ({
 					timeoutInMilliseconds,
 					indent,
 					logLevel,
+					offthreadVideoCacheSizeInBytes,
 				});
 			})
 
@@ -287,7 +279,7 @@ export const getCompositions = (
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? getLogLevel(),
+		logLevel: logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			config?.offthreadVideoCacheSizeInBytes ?? null,
 	});

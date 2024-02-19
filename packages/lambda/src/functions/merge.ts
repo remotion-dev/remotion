@@ -19,9 +19,13 @@ export const mergeHandler = async (
 	}
 
 	RenderInternals.Log.info(
+		{indent: false, logLevel: params.logLevel},
 		'This function has been started because the previous main function has timed out while merging together the chunks.',
 	);
-	RenderInternals.Log.info('The merging of chunks will now restart.');
+	RenderInternals.Log.info(
+		{indent: false, logLevel: params.logLevel},
+		'The merging of chunks will now restart.',
+	);
 
 	const renderMetadata = await getRenderMetadata({
 		bucketName: params.bucketName,
@@ -68,7 +72,10 @@ export const mergeHandler = async (
 		renderMetadata,
 		serializedResolvedProps: params.serializedResolvedProps,
 		onAllChunks: () => {
-			RenderInternals.Log.info('All chunks have been downloaded now.');
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'All chunks have been downloaded now.',
+			);
 		},
 		audioBitrate: renderMetadata.audioBitrate,
 		logLevel: params.logLevel,

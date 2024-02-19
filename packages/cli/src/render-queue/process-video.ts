@@ -24,10 +24,8 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, ffmpegOverride} = await getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+	const {publicDir, browserExecutable, ffmpegOverride} = getCliOptions({
+		isStill: true,
 		logLevel,
 	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);

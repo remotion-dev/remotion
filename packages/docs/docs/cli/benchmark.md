@@ -109,11 +109,11 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
-### `--disable-headless`
+### `--disable-headless?`
 
 _optional_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--disable-headless)
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 

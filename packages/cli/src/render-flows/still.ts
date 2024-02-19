@@ -239,6 +239,7 @@ export const renderStillFlow = async ({
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
 		overwrite,
+		logLevel,
 	);
 	const exists = existsSync(absoluteOutputLocation);
 
@@ -250,7 +251,7 @@ export const renderStillFlow = async ({
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.gray(
 			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`,
@@ -325,7 +326,7 @@ export const renderStillFlow = async ({
 		printToConsole: true,
 		isUsingParallelEncoding: false,
 	});
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`),
 	);

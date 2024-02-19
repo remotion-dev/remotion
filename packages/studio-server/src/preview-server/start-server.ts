@@ -60,10 +60,10 @@ export const startServer = async (options: {
 
 	const compiler = webpack(config);
 
-	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
+	const wdmMiddleware = wdm(compiler, options.logLevel);
+	const whm = webpackHotMiddleware(compiler, options.logLevel);
 
-	const liveEventsServer = makeLiveEventsRouter();
+	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
@@ -101,7 +101,11 @@ export const startServer = async (options: {
 				});
 			})
 			.catch((err) => {
-				RenderInternals.Log.error(`Error while calling ${request.url}`, err);
+				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
+					`Error while calling ${request.url}`,
+					err,
+				);
 				if (!response.headersSent) {
 					response.setHeader('content-type', 'application/json');
 					response.writeHead(500);
@@ -160,6 +164,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {

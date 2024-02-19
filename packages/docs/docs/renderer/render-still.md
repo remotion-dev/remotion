@@ -120,10 +120,9 @@ _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
-### `logLevel?`<AvailableFrom v="4.0.0"/>
+### `logLevel?`<AvailableFrom v="4.0.115"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `overwrite?`
 
@@ -173,21 +172,17 @@ This will most notably disable CORS among other security features.
 
 #### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
 
-_boolean - default `true`_
-
 <Options id="enable-multiprocess-on-linux" />
 
-#### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `headless`
+#### `headless?`
 
-_boolean - default `true`_
-
-If disabled, the render will open an actual Chrome window where you can see the render happen.
+<Options id="disable-headless"  />
 
 #### `gl`
 

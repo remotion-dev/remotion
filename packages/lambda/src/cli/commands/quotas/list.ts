@@ -18,8 +18,11 @@ import {INCREASE_SUBCOMMAND} from './increase';
 
 export const quotasListCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
-	Log.info(CliInternals.chalk.gray(`Region = ${region}`));
-	Log.info();
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(`Region = ${region}`),
+	);
+	Log.info({indent: false, logLevel});
 	const [concurrencyLimit, defaultConcurrencyLimit, burstLimit, changes] =
 		await Promise.all([
 			getServiceQuotasClient(region).send(
@@ -61,6 +64,7 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 
 	if (increaseRecommended) {
 		Log.info(
+			{indent: false, logLevel},
 			`Concurrency limit: ${concurrencyCurrent} - ${
 				increaseRecommended
 					? CliInternals.chalk.greenBright('Increase recommended!')
@@ -68,7 +72,10 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 			}`,
 		);
 	} else {
-		Log.info(`Concurrency limit: ${concurrencyCurrent}`);
+		Log.info(
+			{indent: false, logLevel},
+			`Concurrency limit: ${concurrencyCurrent}`,
+		);
 	}
 
 	if (openCase) {
@@ -83,26 +90,30 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 	}
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'The maximum amount of Lambda functions which can concurrently execute.',
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`Run \`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}\` to ask AWS to increase your limit.`,
 		),
 	);
-	Log.info();
+	Log.info({indent: false, logLevel});
 
 	if (effectiveBurstConcurrency === burstDefault) {
-		Log.info(`Burst concurrency: ${burstDefault}`);
+		Log.info({indent: false, logLevel}, `Burst concurrency: ${burstDefault}`);
 	} else {
 		Log.info(
+			{indent: false, logLevel},
 			`Burst concurrency: ${burstDefault}, but only ${effectiveBurstConcurrency} effective because of concurrency limit`,
 		);
 	}
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'The maximum amount of concurrency increase in 10 seconds',
 		),

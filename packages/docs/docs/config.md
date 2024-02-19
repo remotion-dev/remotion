@@ -254,7 +254,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+<Options id="disable-headless"  />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

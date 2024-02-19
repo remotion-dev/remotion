@@ -138,7 +138,10 @@ export const getCompositionId = async ({
 			serializedInputPropsWithCustomSchema,
 			offthreadVideoCacheSizeInBytes,
 		});
-		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
+		const {compositionId, reason} = await showSingleCompositionsPicker(
+			comps,
+			logLevel,
+		);
 		if (compositionId && typeof compositionId === 'string') {
 			return {
 				compositionId,
@@ -149,7 +152,10 @@ export const getCompositionId = async ({
 		}
 	}
 
-	Log.error('Composition ID not passed.');
-	Log.error('Pass an extra argument <composition-id>.');
+	Log.error({indent: false, logLevel}, 'Composition ID not passed.');
+	Log.error(
+		{indent: false, logLevel},
+		'Pass an extra argument <composition-id>.',
+	);
 	process.exit(1);
 };

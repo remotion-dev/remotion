@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import https from 'https';
 import * as Crypto from 'node:crypto';
@@ -128,6 +129,7 @@ function exponentialBackoff(errorCount: number): number {
 
 export const invokeWebhook = async (
 	options: InvokeWebhookOptions,
+	logLevel: LogLevel,
 	retries = 2,
 	errors = 0,
 ): Promise<void> => {
@@ -138,9 +140,15 @@ export const invokeWebhook = async (
 			throw err;
 		}
 
-		RenderInternals.Log.error('Could not send webhook due to error:');
-		RenderInternals.Log.error((err as Error).stack);
-		RenderInternals.Log.error(`Retrying in ${exponentialBackoff(errors)}ms.`);
+		RenderInternals.Log.error(
+			{indent: false, logLevel},
+			'Could not send webhook due to error:',
+		);
+		RenderInternals.Log.error({indent: false, logLevel}, (err as Error).stack);
+		RenderInternals.Log.error(
+			{indent: false, logLevel},
+			`Retrying in ${exponentialBackoff(errors)}ms.`,
+		);
 
 		await new Promise<void>((resolve) => {
 			setTimeout(() => {
@@ -148,6 +156,6 @@ export const invokeWebhook = async (
 			}, exponentialBackoff(errors));
 		});
 
-		return invokeWebhook(options, retries - 1, errors + 1);
+		return invokeWebhook(options, logLevel, retries - 1, errors + 1);
 	}
 };

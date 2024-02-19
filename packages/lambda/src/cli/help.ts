@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../shared/constants';
 import {COMPOSITIONS_COMMAND} from './commands/compositions';
 import {FUNCTIONS_COMMAND} from './commands/functions';
@@ -12,47 +13,74 @@ import {Log} from './log';
 
 const packagejson = require('../../package.json');
 
-export const printHelp = () => {
+export const printHelp = (logLevel: LogLevel) => {
 	Log.info(
+		{indent: false, logLevel},
 		`${BINARY_NAME} ${
 			packagejson.version
 		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
-	Log.info();
-	Log.info('Available commands:');
-	Log.info('');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available commands:');
+	Log.info({indent: false, logLevel}, '');
 
-	Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <s3-url> <composition-id>`);
-	Log.info(CliInternals.chalk.gray('Render a video in the cloud.'));
-
-	Log.info(`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composition-id>`);
-	Log.info(CliInternals.chalk.gray('Render a still image in the cloud.'));
-
-	Log.info();
-	Log.info(`${BINARY_NAME} ${FUNCTIONS_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Deploy and manage AWS Lambda functions.'));
-
-	Log.info();
-	Log.info(`${BINARY_NAME} ${SITES_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
-
-	Log.info();
-	Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND}`);
 	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${RENDER_COMMAND} <s3-url> <composition-id>`,
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Render a video in the cloud.'),
+	);
+
+	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composition-id>`,
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Render a still image in the cloud.'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${FUNCTIONS_COMMAND}`);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Deploy and manage AWS Lambda functions.'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${SITES_COMMAND}`);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Deploy and manage Remotion projects.'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${COMPOSITIONS_COMMAND}`);
+	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Print list of composition IDs from a serve URL.'),
 	);
 
-	Log.info();
-	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('View and validate AWS policy files.'));
-
-	Log.info();
-	Log.info(`${BINARY_NAME} ${REGIONS_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Show the list of AWS regions supported.'));
-
-	Log.info();
-	Log.info(`${BINARY_NAME} ${QUOTAS_COMMAND}`);
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${POLICIES_COMMAND}`);
 	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('View and validate AWS policy files.'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${REGIONS_COMMAND}`);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray('Show the list of AWS regions supported.'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, `${BINARY_NAME} ${QUOTAS_COMMAND}`);
+	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray('Shows AWS quotas and allows to increase them.'),
 	);
 };

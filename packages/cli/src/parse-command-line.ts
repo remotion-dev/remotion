@@ -2,14 +2,12 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
@@ -106,8 +104,8 @@ type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
-	'force',
 	'overwrite',
+	'force',
 	'sequence',
 	'help',
 	'quiet',
@@ -134,6 +132,9 @@ export const BooleanFlags = [
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
+	default: {
+		overwrite: true,
+	},
 }) as CommandLineOptions & {
 	_: string[];
 };
@@ -163,34 +164,12 @@ export const parseCommandLine = () => {
 		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
-	if (parsedCli['disable-headless']) {
-		Config.setChromiumHeadlessMode(false);
-	}
-
 	if (parsedCli['user-agent']) {
 		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
 
-	if (parsedCli.log) {
-		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
-			Log.error('Invalid `--log` value passed.');
-			Log.error(
-				`Accepted values: ${RenderInternals.logLevels
-					.map((l) => `'${l}'`)
-					.join(', ')}.`,
-			);
-			process.exit(1);
-		}
-
-		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
-	}
-
 	if (parsedCli.concurrency) {
 		Config.setConcurrency(parsedCli.concurrency);
-	}
-
-	if (parsedCli.timeout) {
-		Config.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
 	if (parsedCli.height) {
@@ -231,10 +210,6 @@ export const parseCommandLine = () => {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile,
 		);
-	}
-
-	if (parsedCli.overwrite) {
-		Config.setOverwriteOutput(parsedCli.overwrite);
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {

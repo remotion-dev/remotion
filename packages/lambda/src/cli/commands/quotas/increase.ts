@@ -77,18 +77,27 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	const increaseRecommended = concurrencyCurrent <= defaultConcurrency;
 	if (!increaseRecommended && !forceFlagProvided) {
 		Log.error(
+			{indent: false, logLevel},
 			`Current limit of ${concurrencyCurrent} is already increased over the default (${defaultConcurrency}).`,
 		);
-		Log.info('You can force the increase with the --force flag.');
 		Log.info(
+			{indent: false, logLevel},
+			'You can force the increase with the --force flag.',
+		);
+		Log.info(
+			{indent: false, logLevel},
 			'You are more likely to get an increase if you attach a reason. Go so by going to the AWS console:',
 		);
-		Log.info(makeQuotaUrl({quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA, region}));
+		Log.info(
+			{indent: false, logLevel},
+			makeQuotaUrl({quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA, region}),
+		);
 		quit(1);
 	}
 
 	const newLimit = Math.floor(concurrencyCurrent / 5000) * 5000 + 5000;
 	Log.info(
+		{indent: false, logLevel},
 		`Sending request to AWS to increase concurrency limit from ${concurrencyCurrent} to ${newLimit}.`,
 	);
 	if (
@@ -111,9 +120,11 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	} catch (err) {
 		if ((err as Error).name === 'DependencyAccessDeniedException') {
 			Log.error(
+				{indent: false, logLevel},
 				'Could not request increase because this is a sub-account of another AWS account.',
 			);
 			Log.error(
+				{indent: false, logLevel},
 				`Please go to ${makeQuotaUrl({
 					quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					region,
@@ -126,6 +137,7 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	}
 
 	Log.info(
+		{indent: false, logLevel},
 		`Requested increase successfully. Run "${BINARY_NAME} ${QUOTAS_COMMAND}" to check whether your request was approved.`,
 	);
 };

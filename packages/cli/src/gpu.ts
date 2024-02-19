@@ -8,20 +8,21 @@ import {parsedCli} from './parse-command-line';
 
 export const GPU_COMMAND = 'gpu';
 
-const {enableMultiprocessOnLinuxOption, glOption} = BrowserSafeApis.options;
+const {
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+} = BrowserSafeApis.options;
 
-export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
+export const gpuCommand = async (logLevel: LogLevel) => {
 	const {
 		browserExecutable,
-		puppeteerTimeout,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
-		isLambda: false,
-		remotionRoot,
-		type: 'get-compositions',
+		isStill: false,
 		logLevel,
 	});
 
@@ -29,6 +30,12 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -47,7 +54,7 @@ export const gpuCommand = async (remotionRoot: string, logLevel: LogLevel) => {
 		timeoutInMilliseconds: puppeteerTimeout,
 	});
 	for (const {feature, status} of statuses) {
-		Log.info(`${feature}: ${colorStatus(status)}`);
+		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);
 	}
 };
 

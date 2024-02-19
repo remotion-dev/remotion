@@ -10,13 +10,17 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
+import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
+import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import type {AnyRemotionOption} from './option';
+import {overwriteOption} from './overwrite';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
+import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
@@ -45,6 +49,10 @@ export const allOptions = {
 	numberOfGifLoopsOption,
 	reproOption,
 	x264Option,
+	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

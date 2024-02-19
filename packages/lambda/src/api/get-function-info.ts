@@ -1,4 +1,5 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
+import type {LogLevel} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../shared/constants';
@@ -16,6 +17,7 @@ export type FunctionInfo = {
 export type GetFunctionInfoInput = {
 	region: AwsRegion;
 	functionName: string;
+	logLevel?: LogLevel;
 };
 
 /**
@@ -28,6 +30,7 @@ export type GetFunctionInfoInput = {
 export const getFunctionInfo = async ({
 	region,
 	functionName,
+	logLevel,
 }: GetFunctionInfoInput): Promise<FunctionInfo> => {
 	validateAwsRegion(region);
 
@@ -40,6 +43,7 @@ export const getFunctionInfo = async ({
 		getFunctionVersion({
 			functionName,
 			region,
+			logLevel: logLevel ?? 'info',
 		}),
 	]);
 

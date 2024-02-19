@@ -65,6 +65,7 @@ export const getAllFilesS3 = ({
 	region,
 	expectedBucketOwner,
 	onErrors,
+	logLevel,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -73,6 +74,7 @@ export const getAllFilesS3 = ({
 	region: AwsRegion;
 	expectedBucketOwner: string;
 	onErrors: (errors: EnhancedErrorInfo[]) => void;
+	logLevel: LogLevel;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -151,7 +153,11 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					RenderInternals.Log.info('Successfully downloaded', key);
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Successfully downloaded',
+						key,
+					);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();

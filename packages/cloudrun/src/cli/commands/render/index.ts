@@ -29,8 +29,10 @@ const {
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -70,7 +72,6 @@ export const renderCommand = async (
 		envVariables,
 		frameRange,
 		inputProps,
-		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
 		everyNthFrame,
@@ -78,13 +79,10 @@ export const renderCommand = async (
 		width,
 		browserExecutable,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = CliInternals.getCliOptions({
-		type: 'series',
-		isLambda: true,
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -96,6 +94,12 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {
@@ -108,7 +112,10 @@ export const renderCommand = async (
 	};
 
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -157,6 +164,7 @@ export const renderCommand = async (
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
@@ -171,7 +179,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.info();
+	Log.info({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -205,9 +213,12 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const updateRenderProgress = (progress: number, error?: boolean) => {
 		if (error) {
 			// exiting progress and adding space
-			Log.info(`
+			Log.info(
+				{indent: false, logLevel},
+				`
 		
-		`);
+		`,
+			);
 		} else {
 			renderProgress.progress = progress;
 			updateProgress();
@@ -283,7 +294,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		muted,
 		forceWidth: width,
 		forceHeight: height,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		// Special case: Should not use default local concurrency, or from
 		// config file, just when explicitly set
@@ -295,14 +306,18 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	});
 
 	if (res.type === 'crash') {
-		displayCrashLogs(res);
+		displayCrashLogs(res, logLevel);
 	} else if (res.type === 'success') {
 		renderProgress.doneIn = Date.now() - renderStart;
 		updateProgress();
-		Log.info(`
-		
-		`);
 		Log.info(
+			{indent: false, logLevel},
+			`
+		
+		`,
+		);
+		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.blueBright(
 				`
 ${res.publicUrl ? `Public URL = ${decodeURIComponent(res.publicUrl)}` : ``}
@@ -317,8 +332,8 @@ Codec = ${codec} (${codecReason})
 		);
 
 		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -327,6 +342,7 @@ Codec = ${codec} (${codecReason})
 			});
 
 			Log.info(
+				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}

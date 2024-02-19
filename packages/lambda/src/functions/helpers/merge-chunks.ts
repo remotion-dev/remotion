@@ -107,7 +107,11 @@ export const mergeChunksAndFinishRender = async (options: {
 	};
 
 	const onErrors = (errors: EnhancedErrorInfo[]) => {
-		RenderInternals.Log.error('Found Errors', errors);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: options.logLevel},
+			'Found Errors',
+			errors,
+		);
 
 		const firstError = errors[0];
 		if (firstError.chunk !== null) {
@@ -143,6 +147,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
+		logLevel: options.logLevel,
 	});
 	options.onAllChunks({
 		inputProps: options.inputProps,

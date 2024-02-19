@@ -42,6 +42,9 @@ const {
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -166,16 +169,13 @@ export const benchmarkCommand = async (
 	);
 
 	if (!file) {
-		Log.error('No entry file passed.');
-		Log.infoAdvanced(
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
+		Log.info(
 			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file',
 		);
-		Log.infoAdvanced({indent: false, logLevel});
-		Log.infoAdvanced(
-			{indent: false, logLevel},
-			`$ remotion benchmark <entry file>`,
-		);
+		Log.info({indent: false, logLevel});
+		Log.info({indent: false, logLevel}, `$ remotion benchmark <entry file>`);
 		process.exit(1);
 	}
 
@@ -185,25 +185,20 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		puppeteerTimeout,
 		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
-		overwrite,
 		pixelFormat,
 		everyNthFrame,
 		ffmpegOverride,
 		height,
 		width,
 		concurrency: unparsedConcurrency,
-		headless,
 		disableWebSecurity,
 		userAgent,
 		ignoreCertificateErrors,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -220,6 +215,7 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -247,7 +243,7 @@ export const benchmarkCommand = async (
 			remotionRoot,
 			onProgress: () => undefined,
 			indentOutput: false,
-			logLevel: ConfigInternals.Logging.getLogLevel(),
+			logLevel,
 			bundlingStep: 0,
 			steps: 1,
 			onDirectoryCreated: (dir) => {
@@ -278,7 +274,9 @@ export const benchmarkCommand = async (
 		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		puppeteerInstance,
 		browserExecutable,
@@ -299,7 +297,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await showMultiCompositionsPicker(comps)
+			: await showMultiCompositionsPicker(comps, logLevel)
 	) as string[];
 
 	const compositions = ids.map((compId) => {
@@ -314,6 +312,7 @@ export const benchmarkCommand = async (
 
 	if (compositions.length === 0) {
 		Log.error(
+			{indent: false, logLevel},
 			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.',
 		);
 	}
@@ -346,6 +345,16 @@ export const benchmarkCommand = async (
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const delayRenderInMilliseconds =
+		delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	for (const composition of compositions) {
 		const {value: videoCodec, source: codecReason} = videoCodecOption.getValue(
@@ -370,8 +379,8 @@ export const benchmarkCommand = async (
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
 			});
-			Log.infoAdvanced({indent: false, logLevel});
-			Log.infoAdvanced(
+			Log.info({indent: false, logLevel});
+			Log.info(
 				{indent: false, logLevel},
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 					`composition=${composition.id} concurrency=${con} codec=${videoCodec} (${codecReason})`,
@@ -401,7 +410,7 @@ export const benchmarkCommand = async (
 					x264Preset,
 					jpegQuality,
 					chromiumOptions,
-					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+					timeoutInMilliseconds: delayRenderInMilliseconds,
 					scale,
 					port: getRendererPortFromConfigFileAndCliFlag(),
 					numberOfGifLoops,
@@ -465,5 +474,5 @@ export const benchmarkCommand = async (
 		}
 	}
 
-	Log.infoAdvanced({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
 };
