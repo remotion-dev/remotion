@@ -213,10 +213,6 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (parsedCli.overwrite) {
-		Config.setOverwriteOutput(parsedCli.overwrite);
-	}
-
 	if (typeof parsedCli.quality !== 'undefined') {
 		Log.warn(
 			{indent: false, logLevel: 'info'},
