@@ -35,6 +35,7 @@
     "@remotion/cloudrun": "workspace:*",
     "@remotion/gif": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
+    "@remotion/install-whisper-cpp": "workspace:*",
     "@remotion/lambda": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@remotion/lottie": "workspace:*",

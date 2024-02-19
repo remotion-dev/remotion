@@ -861,6 +861,27 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "install-whisper-cpp/download-whisper-model",
+    title: "downloadWhisperModel()",
+    relativePath: "docs/install-whisper-cpp/download-whisper-model.mdx",
+    compId: "articles-docs-install-whisper-cpp-download-whisper-model",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
+    id: "install-whisper-cpp/index",
+    title: "@remotion/install-whisper-cpp",
+    relativePath: "docs/install-whisper-cpp/index.mdx",
+    compId: "articles-docs-install-whisper-cpp-index",
+    crumb: "Transcribe audio locally",
+  },
+  {
+    id: "install-whisper-cpp/install-whisper-cpp",
+    title: "installWhisperCpp()",
+    relativePath: "docs/install-whisper-cpp/install-whisper-cpp.mdx",
+    compId: "articles-docs-install-whisper-cpp-install-whisper-cpp",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
     id: "interpolate-colors",
     title: "interpolateColors()",
     relativePath: "docs/interpolate-colors.md",
@@ -1003,7 +1024,7 @@ export const articles = [
   {
     id: "custom-destination",
     title: "Customizing Lambda output destination",
-    relativePath: "docs/lambda/custom-destination.md",
+    relativePath: "docs/lambda/custom-destination.mdx",
     compId: "articles-docs-lambda-custom-destination",
     crumb: "Lambda",
   },
