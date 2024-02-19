@@ -6,7 +6,6 @@ export const listOfRemotionPackages = [
 	'@remotion/cloudrun',
 	'@remotion/eslint-config',
 	'@remotion/eslint-plugin',
-	'@remotion/install-whisper-cpp',
 	'@remotion/renderer',
 	'@remotion/skia',
 	'@remotion/lottie',
@@ -29,6 +28,7 @@ export const listOfRemotionPackages = [
 	'@remotion/zod-types',
 	'@remotion/tailwind',
 	'@remotion/transitions',
+	'@remotion/install-whisper-cpp',
 	'@remotion/animation-utils',
 	'remotion',
 ];
