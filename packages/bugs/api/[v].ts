@@ -8,6 +8,13 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Every render now by default emits a repro.zip",
+    description:
+      "This was unintentional and has been removed. Upgrade to 4.0.116.",
+    link: "https://remotion.dev/changelog",
+    versions: ["4.0.115"],
+  },
+  {
     title: "Video playback in Studio and Player is broken",
     description:
       "OffthreadVideo, Video and Audio tags are affected. Upgrade to 4.0.113.",
