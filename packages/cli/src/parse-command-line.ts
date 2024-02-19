@@ -104,8 +104,8 @@ type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
-	'force',
 	'overwrite',
+	'force',
 	'sequence',
 	'help',
 	'quiet',
@@ -132,6 +132,9 @@ export const BooleanFlags = [
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
+	default: {
+		overwrite: true,
+	},
 }) as CommandLineOptions & {
 	_: string[];
 };
