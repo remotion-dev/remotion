@@ -153,7 +153,7 @@ class RemotionClient:
     def construct_render_progress_request(self,
                                           render_id: str,
                                           bucket_name: str,
-                                          log_level: str) -> str:
+                                          log_level="info") -> str:
         """
         Construct a render progress request in JSON format.
 
