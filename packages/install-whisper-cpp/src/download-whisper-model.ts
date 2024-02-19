@@ -1,6 +1,5 @@
 import fs, {existsSync} from 'fs';
 import {Readable} from 'node:stream';
-import {finished} from 'node:stream/promises';
 import type {ReadableStream} from 'node:stream/web';
 import path from 'path';
 
@@ -67,30 +66,44 @@ export const downloadWhisperModel = async ({
 		throw new Error('Content-Length header not found');
 	}
 
+	const totalFileSize = parseInt(contentLength, 10);
+
 	let downloaded = 0;
 	let lastPrinted = 0;
 
 	const readable = Readable.fromWeb(body as ReadableStream);
-	readable.on('data', (chunk) => {
-		downloaded += chunk.length;
-		if (printOutput) {
-			if (downloaded - lastPrinted > 1024 * 1024 * 10) {
-				console.log(
-					`Downloaded ${downloaded} of ${contentLength} bytes (${(
-						(downloaded / Number(contentLength)) *
-						100
-					).toFixed(2)}%)`,
-				);
-				lastPrinted = downloaded;
+
+	await new Promise<void>((resolve, reject) => {
+		readable.on('error', (err) => {
+			reject(err);
+		});
+
+		readable.on('data', (chunk) => {
+			downloaded += chunk.length;
+			if (printOutput) {
+				if (
+					downloaded - lastPrinted > 1024 * 1024 * 10 ||
+					downloaded === totalFileSize
+				) {
+					console.log(
+						`Downloaded ${downloaded} of ${contentLength} bytes (${(
+							(downloaded / Number(contentLength)) *
+							100
+						).toFixed(2)}%)`,
+					);
+					lastPrinted = downloaded;
+				}
 			}
-		}
 
-		fileStream.write(chunk);
-
-		onProgress?.(downloaded, parseInt(contentLength, 10));
+			fileStream.write(chunk, () => {
+				onProgress?.(downloaded, totalFileSize);
+				if (downloaded === totalFileSize) {
+					fileStream.end();
+					resolve();
+				}
+			});
+		});
 	});
-
-	await finished(readable);
 
 	return {alreadyExisted: false};
 };
