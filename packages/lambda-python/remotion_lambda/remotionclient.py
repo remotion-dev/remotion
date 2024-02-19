@@ -235,6 +235,7 @@ class RemotionClient:
         Args:
             render_id (str): ID of the render.
             bucket_name (str): Name of the bucket.
+            log_level (str): Log level ("error", "warning", "info", "verbose").
 
         Returns:
             RenderProgress: Progress of the render.
