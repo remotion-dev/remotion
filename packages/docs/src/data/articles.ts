@@ -1414,6 +1414,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "layers",
+    title: "Layers",
+    relativePath: "docs/layers.mdx",
+    compId: "articles-docs-layers",
+    crumb: "Designing videos",
+  },
+  {
     id: "layout-utils/fill-text-box",
     title: "fillTextBox()",
     relativePath: "docs/layout-utils/fill-text-box.md",
@@ -2019,7 +2026,7 @@ export const articles = [
   },
   {
     id: "scaling",
-    title: "Scaling",
+    title: "Sizing",
     relativePath: "docs/player/scaling.md",
     compId: "articles-docs-player-scaling",
     crumb: "@remotion/player",
@@ -2967,6 +2974,13 @@ export const articles = [
     title: "useCurrentFrame()",
     relativePath: "docs/use-current-frame.md",
     compId: "articles-docs-use-current-frame",
+    crumb: "API",
+  },
+  {
+    id: "use-current-scale",
+    title: "useCurrentScale()",
+    relativePath: "docs/use-current-scale.mdx",
+    compId: "articles-docs-use-current-scale",
     crumb: "API",
   },
   {

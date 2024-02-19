@@ -103,6 +103,7 @@ module.exports = {
         "still",
         "use-buffer-state",
         "use-current-frame",
+        "use-current-scale",
         "use-video-config",
         "version",
         "video",
@@ -510,15 +511,15 @@ module.exports = {
       items: [
         "transforms",
         "assets",
+        "layers",
         "transitioning",
-        "use-img-and-iframe",
         "using-audio",
         "fonts",
+        "measuring",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
-        "measuring",
       ],
     },
     {
@@ -698,17 +699,7 @@ module.exports = {
     {
       type: "category",
       label: "Building apps",
-      items: [
-        {
-          type: "link",
-          href: "/docs/player",
-          label: "Player",
-        },
-        "brownfield",
-        "video-uploads",
-        "presigned-urls",
-        "font-picker",
-      ],
+      items: ["brownfield", "video-uploads", "presigned-urls", "font-picker"],
     },
     {
       type: "category",

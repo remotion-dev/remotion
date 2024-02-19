@@ -46,12 +46,7 @@ type InternalRenderMediaOnCloudrun = {
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
 	crf: Crf | null;
 	pixelFormat: PixelFormat | undefined;
 	imageFormat: VideoImageFormat | undefined;
@@ -60,7 +55,6 @@ type InternalRenderMediaOnCloudrun = {
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
-	muted: boolean | undefined;
 	forceWidth: number | null;
 	forceHeight?: number | null;
 	logLevel: LogLevel | undefined;
@@ -68,7 +62,6 @@ type InternalRenderMediaOnCloudrun = {
 	concurrency: number | string | null;
 	enforceAudioTrack: boolean | undefined;
 	preferLossless: boolean | undefined;
-	colorSpace: ColorSpace | undefined;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -99,7 +92,6 @@ export type RenderMediaOnCloudrunInput = {
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
-	muted?: boolean;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	logLevel?: LogLevel;

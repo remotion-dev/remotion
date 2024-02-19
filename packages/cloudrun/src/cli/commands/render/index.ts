@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
@@ -13,6 +14,24 @@ import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
 export const RENDER_COMMAND = 'render';
+
+const {
+	audioBitrateOption,
+	x264Option,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	colorSpaceOption,
+	numberOfGifLoopsOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+} = BrowserSafeApis.options;
 
 export const renderCommand = async (
 	args: string[],
@@ -29,44 +48,39 @@ export const renderCommand = async (
 		region,
 	} = await renderArgsCheck(RENDER_COMMAND, args, logLevel);
 
-	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-		compositionCodec: null,
-	});
+	const {value: codec, source: codecReason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
 
 	const imageFormat = parsedCloudrunCli['image-format'];
 
 	const audioCodec = parsedCloudrunCli['audio-codec'];
 
 	const {
-		chromiumOptions,
-		crf,
 		envVariables,
 		frameRange,
 		inputProps,
 		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
-		jpegQuality,
-		scale,
 		everyNthFrame,
-		numberOfGifLoops,
-		muted,
-		audioBitrate,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
-		enforceAudioTrack,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
+		disableWebSecurity,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -74,7 +88,25 @@ export const renderCommand = async (
 		logLevel,
 	});
 
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
 	let composition: string = args[1];
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 
@@ -93,7 +125,7 @@ export const renderCommand = async (
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
-			offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -181,6 +213,43 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			updateProgress();
 		}
 	};
+
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,

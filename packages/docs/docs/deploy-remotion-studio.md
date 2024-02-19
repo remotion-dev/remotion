@@ -21,7 +21,7 @@ You can deploy the Remotion Studio to a long-running server in the cloud and mak
 - Run `npx remotion studio` on the server
 - Ensure port 3000 is available to the internet
 
-The following examples have been tested with the [Hello World](/templates/hello-world) template initialized using `npm init video`.
+The following examples have been tested with the [Hello World](/templates/hello-world) template initialized using `npx create-video@latest`.
 
 ## Dockerizing the Remotion Studio
 

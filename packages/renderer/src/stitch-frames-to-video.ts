@@ -33,6 +33,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import type {ColorSpace} from './options/color-space';
+import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
 import {
@@ -46,7 +47,6 @@ import {truthy} from './truthy';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
-import type {X264Preset} from './x264-preset';
 
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
@@ -371,7 +371,7 @@ const innerStitchFramesToVideo = async (
 				'-c:a',
 				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
 				'-b:a',
-				audioBitrate ? audioBitrate : '320k',
+				audioBitrate ?? '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
 			].filter(NoReactInternals.truthy),

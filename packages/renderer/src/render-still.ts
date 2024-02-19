@@ -80,7 +80,6 @@ export type RenderStillOptions = {
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
@@ -104,8 +103,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};

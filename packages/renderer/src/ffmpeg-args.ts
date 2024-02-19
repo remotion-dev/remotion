@@ -2,9 +2,9 @@ import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
 import type {ColorSpace} from './options/color-space';
+import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
-import type {X264Preset} from './x264-preset';
 
 const firstEncodingStepOnly = ({
 	hasPreencoded,

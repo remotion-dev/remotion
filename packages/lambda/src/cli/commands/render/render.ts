@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -39,6 +40,24 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	mutedOption,
+	colorSpaceOption,
+	deleteAfterOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+} = BrowserSafeApis.options;
+
 export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -60,37 +79,83 @@ export const renderCommand = async (
 	const region = getAwsRegion();
 
 	const {
-		chromiumOptions,
-		crf,
 		envVariables,
 		frameRange,
 		inputProps,
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
-		jpegQuality,
-		scale,
 		everyNthFrame,
-		numberOfGifLoops,
-		muted,
 		overwrite,
-		audioBitrate,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
-		deleteAfter,
-		x264Preset,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
 	} = CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 		logLevel,
 	});
+
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const deleteAfter = deleteAfterOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	let composition: string = args[1];
 	if (!composition) {
@@ -144,14 +209,19 @@ export const renderCommand = async (
 	const outName = parsedLambdaCli['out-name'];
 	const downloadName = args[2] ?? null;
 
-	const {codec, reason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-		compositionCodec: null,
-	});
+	const {value: codec, source: reason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
 
 	const imageFormat = CliInternals.getVideoImageFormat({
 		codec,

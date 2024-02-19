@@ -149,7 +149,7 @@ _optional_
 
 ### `x264Preset?`
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `crf?`
 

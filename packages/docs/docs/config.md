@@ -661,11 +661,7 @@ The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence ove
 
 ## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -701,11 +697,7 @@ The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take prec
 
 ## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -717,8 +709,6 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
-For Lambda:
-
 <Options id="enable-folder-expiry" />
 <br/>
 <br/>
@@ -729,9 +719,19 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
+## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
-For Lambda:
+<Options id="enable-lambda-insights" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setLambdaInsights(true);
+```
+
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
 <br/>

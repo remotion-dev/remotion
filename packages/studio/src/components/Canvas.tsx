@@ -1,5 +1,4 @@
 import type {Size} from '@remotion/player';
-import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
@@ -26,7 +25,6 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
-import {PreviewSizeContext} from '../state/preview-size';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
@@ -54,7 +52,7 @@ export const Canvas: React.FC<{
 	canvasContent: CanvasContent;
 	size: Size;
 }> = ({canvasContent, size}) => {
-	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
+	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
@@ -106,7 +104,7 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = PlayerInternals.calculateScale({
+				const scale = Internals.calculateScale({
 					canvasSize: size,
 					compositionHeight: contentDimensions.height,
 					compositionWidth: contentDimensions.width,
@@ -221,7 +219,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -247,7 +245,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,

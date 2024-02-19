@@ -11,25 +11,27 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
 import {jpegQualityOption} from './jpeg-quality';
-import {muteOption} from './mute';
+import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
-import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import type {AnyRemotionOption} from './option';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
-import {videoBitrate} from './video-bitrate';
+import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
+import {x264Option} from './x264-preset';
 
 export const allOptions = {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
-	videoBitrate,
+	videoBitrateOption,
 	audioBitrateOption,
 	enforceAudioOption,
-	muteOption,
+	mutedOption,
 	videoCodecOption,
-	offthreadVideoCacheSizeInBytes,
+	offthreadVideoCacheSizeInBytesOption,
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
@@ -42,6 +44,10 @@ export const allOptions = {
 	beepOnFinishOption,
 	numberOfGifLoopsOption,
 	reproOption,
+	x264Option,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
+export type TypeOfOption<Type> = Type extends AnyRemotionOption<infer X>
+	? X
+	: never;

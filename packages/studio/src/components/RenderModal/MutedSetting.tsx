@@ -22,7 +22,7 @@ export const MutedSetting: React.FC<{
 			<div style={label}>
 				Muted
 				<Spacing x={0.5} />
-				<OptionExplainerBubble id="muteOption" />
+				<OptionExplainerBubble id="mutedOption" />
 			</div>
 			<Spacing x={0.25} />
 

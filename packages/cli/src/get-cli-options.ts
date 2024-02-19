@@ -1,4 +1,4 @@
-import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
+import type {FrameRange, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -56,24 +56,10 @@ const getAndValidateShouldOutputImageSequence = ({
 	return shouldOutputImageSequence;
 };
 
-const getCrf = (shouldOutputImageSequence: boolean) => {
-	const crf = shouldOutputImageSequence
-		? null
-		: ConfigInternals.getCrfOrUndefined();
-
-	return crf;
-};
-
 const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
 
 	return proResProfile;
-};
-
-const getx264Preset = () => {
-	const x264Preset = ConfigInternals.getPresetProfile();
-
-	return x264Preset;
 };
 
 export const getCliOptions = (options: {
@@ -94,28 +80,16 @@ export const getCliOptions = (options: {
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
-	const crf = getCrf(shouldOutputImageSequence);
-	const videoBitrate = ConfigInternals.getVideoBitrate();
-	const encodingBufferSize = ConfigInternals.getEncodingBufferSize();
-	const encodingMaxRate = ConfigInternals.getEncodingMaxRate();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
-	const x264Preset = getx264Preset();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
-	const scale = ConfigInternals.getScale();
 
-	const chromiumOptions: ChromiumOptions = {
-		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
-		ignoreCertificateErrors: ConfigInternals.getIgnoreCertificateErrors(),
-		headless: ConfigInternals.getChromiumHeadlessMode(),
-		gl:
-			ConfigInternals.getChromiumOpenGlRenderer() ??
-			RenderInternals.DEFAULT_OPENGL_RENDERER,
-		userAgent: ConfigInternals.getChromiumUserAgent(),
-		enableMultiProcessOnLinux: ConfigInternals.getChromiumMultiProcessOnLinux(),
-	};
+	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
+	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const headless = ConfigInternals.getChromiumHeadlessMode();
+	const userAgent = ConfigInternals.getChromiumUserAgent();
+
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 
 	const concurrency = ConfigInternals.getConcurrency();
 
@@ -135,34 +109,21 @@ export const getCliOptions = (options: {
 		shouldOutputImageSequence,
 		inputProps: getInputProps(null, options.logLevel),
 		envVariables: getEnvironmentVariables(null, options.logLevel, false),
-		jpegQuality: ConfigInternals.getJpegQuality(),
-		crf,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
 		everyNthFrame,
-		numberOfGifLoops,
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
-		scale,
-		chromiumOptions,
+		userAgent,
+		headless,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 		overwrite,
-		muted: ConfigInternals.getMuted(),
-		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
-		audioBitrate: ConfigInternals.getAudioBitrate(),
-		videoBitrate,
-		encodingBufferSize,
-		encodingMaxRate,
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
-		offthreadVideoCacheSizeInBytes:
-			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
-		deleteAfter: ConfigInternals.getDeleteAfter(),
-		colorSpace: ConfigInternals.getColorSpace(),
-		repro: ConfigInternals.getRepro(),
 	};
 };

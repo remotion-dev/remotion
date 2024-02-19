@@ -1,4 +1,5 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
@@ -8,6 +9,14 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
+
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+} = BrowserSafeApis.options;
 
 export const still = async (
 	remotionRoot: string,
@@ -40,24 +49,42 @@ export const still = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		height,
 		inputProps,
 		overwrite,
 		publicDir,
 		puppeteerTimeout,
-		jpegQuality,
-		scale,
 		stillFrame,
 		width,
-		offthreadVideoCacheSizeInBytes,
+		disableWebSecurity,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'still',
 		remotionRoot,
 		logLevel,
 	});
+
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	await renderStillFlow({
 		remotionRoot,
@@ -93,6 +120,9 @@ export const still = async (
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 	});
 };

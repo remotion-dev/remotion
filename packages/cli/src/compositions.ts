@@ -1,14 +1,21 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+
+const {
+	enableMultiprocessOnLinuxOption,
+	offthreadVideoCacheSizeInBytesOption,
+	glOption,
+} = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
@@ -38,18 +45,31 @@ export const listCompositionsCommand = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
 		publicDir,
-		offthreadVideoCacheSizeInBytes,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
 		remotionRoot,
 		logLevel,
 	});
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		gl: glOption.getValue({commandLine: parsedCli}).value,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -93,7 +113,10 @@ export const listCompositionsCommand = async (
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 	});
 
 	printCompositions(compositions);

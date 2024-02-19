@@ -102,14 +102,16 @@ export const sitesCreateSubcommand = async (
 	const bucketStart = Date.now();
 
 	const enableFolderExpiry =
-		parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag];
+		BrowserSafeApis.options.folderExpiryOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
 		(
 			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
-				enableFolderExpiry: enableFolderExpiry ?? null,
+				enableFolderExpiry,
 				customCredentials: null,
 			})
 		).bucketName;

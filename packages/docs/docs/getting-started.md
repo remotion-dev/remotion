@@ -30,7 +30,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm init video
+npx create-video@latest
 ```
 
   </TabItem>

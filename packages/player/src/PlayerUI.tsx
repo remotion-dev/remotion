@@ -10,6 +10,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -509,6 +510,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			: null;
 	}, [outerStyle.height, outerStyle.width, renderLoading, showBufferIndicator]);
 
+	const currentScale: CurrentScaleContextType = useMemo(() => {
+		return {
+			type: 'scale',
+			scale,
+		};
+	}, [scale]);
+
 	if (!config) {
 		return null;
 	}
@@ -555,10 +563,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.ClipComposition>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<Internals.CurrentScaleContext.Provider value={currentScale}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</Internals.CurrentScaleContext.Provider>
 							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}

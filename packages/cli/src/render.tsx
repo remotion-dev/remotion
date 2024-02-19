@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -11,6 +12,25 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
+
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	reproOption,
+} = BrowserSafeApis.options;
 
 export const render = async (
 	remotionRoot: string,
@@ -48,36 +68,75 @@ export const render = async (
 		overwrite,
 		inputProps,
 		envVariables,
-		jpegQuality,
 		browserExecutable,
-		scale,
-		chromiumOptions,
 		everyNthFrame,
+		headless,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 		puppeteerTimeout,
 		publicDir,
 		height,
 		width,
-		crf,
 		ffmpegOverride,
-		audioBitrate,
-		muted,
-		enforceAudioTrack,
 		proResProfile,
-		x264Preset,
 		pixelFormat,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
-		numberOfGifLoops,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
-		repro,
 	} = getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
 		logLevel,
 	});
+
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const crf = shouldOutputImageSequence
+		? null
+		: crfOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const repro = reproOption.getValue({commandLine: parsedCli}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const audioCodec = getResolvedAudioCodec();
 
