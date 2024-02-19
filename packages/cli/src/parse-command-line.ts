@@ -164,10 +164,6 @@ export const parseCommandLine = () => {
 		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
-	if (parsedCli['disable-headless']) {
-		Config.setChromiumHeadlessMode(false);
-	}
-
 	if (parsedCli['user-agent']) {
 		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
