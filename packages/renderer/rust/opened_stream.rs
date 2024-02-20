@@ -1,7 +1,17 @@
-use std::{io::ErrorKind, time::SystemTime};
+use std::{
+    io::{ErrorKind, Write},
+    time::SystemTime,
+};
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
+use image::imageops::rotate90;
+use remotionffmpeg::{
+    codec::Id,
+    filter,
+    frame::{self, Video},
+    media::Type,
+    Dictionary, StreamMut,
+};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -12,7 +22,7 @@ use crate::{
     frame_cache_manager::FrameCacheManager,
     global_printer::_print_verbose,
     rotation,
-    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
+    scalable_frame::{create_bmp_image_from_frame, rotate_90, NotRgbFrame, Rotate, ScalableFrame},
 };
 
 pub struct OpenedStream {
@@ -109,6 +119,8 @@ impl OpenedStream {
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
+                        range: video.color_range(),
+                        space: video.color_space(),
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -261,7 +273,29 @@ impl OpenedStream {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(video)) => unsafe {
+                Ok(Some(unfiltered)) => unsafe {
+                    let mut filter = filter::Graph::new();
+                    let args = format!(
+                        "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}",
+                        self.original_width, self.original_height, "yuv420p10le", 1, 1000, 1,
+                    );
+                    filter.add(&filter::find("buffer").unwrap(), "in", &args)?;
+
+                    filter.add(&filter::find("buffersink").unwrap(), "out", "")?;
+
+                    filter
+                        .output("in", 0)?
+                        .input("out", 0)?
+                        .parse("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=pc,format=bgr24")?;
+                    filter.validate()?;
+
+                    _print_verbose(&format!("filter dump {}", filter.dump()))?;
+
+                    filter.get("in").unwrap().source().add(&unfiltered)?;
+
+                    let mut video = frame::Video::empty();
+                    filter.get("out").unwrap().sink().frame(&mut video)?;
+
                     let linesize = (*video.as_ptr()).linesize;
                     let frame_cache_id = get_frame_cache_id();
 
@@ -281,6 +315,8 @@ impl OpenedStream {
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
+                        range: video.color_range(),
+                        space: video.color_space(),
                     };
 
                     let item = FrameCacheItem {

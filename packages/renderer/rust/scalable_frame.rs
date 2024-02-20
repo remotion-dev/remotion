@@ -1,6 +1,7 @@
 use std::usize;
 
 use ffmpeg_next::{
+    color::{Range, Space},
     format::Pixel,
     frame::Video,
     software::scaling::{Context, Flags},
@@ -20,6 +21,8 @@ pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
     pub linesizes: [i32; 8],
     pub format: Pixel,
+    pub space: Space,
+    pub range: Range,
     pub original_width: u32,
     pub original_height: u32,
     pub scaled_width: u32,
@@ -97,7 +100,7 @@ impl ScalableFrame {
     }
 }
 
-fn create_bmp_image_from_frame(
+pub fn create_bmp_image_from_frame(
     rgb_frame: &[u8],
     width: u32,
     height: u32,
@@ -149,6 +152,14 @@ pub fn scale_and_make_bitmap(
         false => Pixel::BGR24,
     };
 
+    _print_verbose(&format!(
+        "Scaling frame from {}x{} to {:?}x{:?} {:?}",
+        native_frame.original_width,
+        native_frame.original_height,
+        native_frame.scaled_width,
+        native_frame.range,
+        native_frame.format
+    ))?;
     let mut scaler = Context::get(
         native_frame.format,
         native_frame.original_width,
@@ -156,7 +167,16 @@ pub fn scale_and_make_bitmap(
         format,
         native_frame.scaled_width,
         native_frame.scaled_height,
-        Flags::BILINEAR,
+        Flags::FAST_BILINEAR | Flags::FULL_CHR_H_INT | Flags::ACCURATE_RND,
+    )?;
+
+    scaler.set_colorspace_details(
+        native_frame.space,
+        native_frame.range,
+        Range::MPEG,
+        0,
+        1 << 16,
+        1 << 16,
     )?;
 
     let mut data: Vec<*const u8> = Vec::with_capacity(native_frame.planes.len());
