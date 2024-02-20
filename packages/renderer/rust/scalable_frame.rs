@@ -7,7 +7,11 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose, image::get_png_data};
+use crate::{
+    errors::ErrorWithBacktrace,
+    global_printer::_print_verbose,
+    image::{get_png_data, PixelFormat},
+};
 
 #[derive(Clone, Copy)]
 pub enum Rotate {
@@ -231,7 +235,7 @@ pub fn scale_and_make_bitmap(
             || native_frame.format == Pixel::YUVA444P12LE;
 
         if is_transparent_pixel_format {
-            return get_png_data(&rotated, rotated_width, rotated_height);
+            return get_png_data(&rotated, rotated_width, rotated_height, PixelFormat::Bt709);
         } else {
             _print_verbose(&format!(
                 "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",

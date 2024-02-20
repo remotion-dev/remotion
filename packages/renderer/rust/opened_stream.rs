@@ -1,10 +1,6 @@
-use std::{
-    io::{ErrorKind, Write},
-    time::SystemTime,
-};
+use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
-use image::imageops::rotate90;
 use remotionffmpeg::{
     codec::Id,
     filter,
@@ -22,7 +18,7 @@ use crate::{
     frame_cache_manager::FrameCacheManager,
     global_printer::_print_verbose,
     rotation,
-    scalable_frame::{create_bmp_image_from_frame, rotate_90, NotRgbFrame, Rotate, ScalableFrame},
+    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
 };
 
 pub struct OpenedStream {
@@ -284,9 +280,10 @@ impl OpenedStream {
                     filter.add(&filter::find("buffersink").unwrap(), "out", "")?;
 
                     filter
-                        .output("in", 0)?
-                        .input("out", 0)?
-                        .parse("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=pc,format=bgr24")?;
+                            .output("in", 0)?
+                            .input("out", 0)?
+                            .parse("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=pc,format=bgr24")?;
+
                     filter.validate()?;
 
                     _print_verbose(&format!("filter dump {}", filter.dump()))?;
