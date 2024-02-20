@@ -7,7 +7,6 @@ import type {
 	RenderDefaults,
 	RenderJob,
 } from '@remotion/studio-shared';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {handleRoutes} from '../routes';
@@ -51,7 +50,7 @@ export const startServer = async (options: {
 		outDir: null,
 		environment: 'development',
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
+		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
