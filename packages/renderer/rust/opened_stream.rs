@@ -84,6 +84,7 @@ impl OpenedStream {
         position: i64,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
+        color_mapped: bool,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -131,7 +132,12 @@ impl OpenedStream {
 
                     looped_pts = video.pts();
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            color_mapped,
+                        )
                         .lock()?
                         .add_item(item);
                     latest_frame = Some(LastFrameInfo {
@@ -208,16 +214,27 @@ impl OpenedStream {
                             true => None,
                             false => Some(self.last_position.unwrap()),
                         },
+                        color_mapped,
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                color_mapped,
+                            )
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                color_mapped,
+                            )
                             .lock()?
                             .set_biggest_frame_as_last_frame();
                     }
@@ -315,7 +332,12 @@ impl OpenedStream {
                     self.last_position = Some(video.pts().expect("expected pts"));
                     freshly_seeked = false;
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            color_mapped,
+                        )
                         .lock()?
                         .add_item(item);
 
@@ -367,7 +389,12 @@ impl OpenedStream {
         }
 
         let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+            .get_frame_cache(
+                &self.src,
+                &self.original_src,
+                self.transparent,
+                color_mapped,
+            )
             .lock()?
             .get_item_id(position, threshold)?;
 

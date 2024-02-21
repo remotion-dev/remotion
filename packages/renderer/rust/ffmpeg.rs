@@ -87,6 +87,7 @@ pub fn extract_frame(
         &src,
         &original_src,
         transparent,
+        color_mapped,
         position,
         threshold - 1,
     );
@@ -97,6 +98,7 @@ pub fn extract_frame(
                 &src,
                 &original_src,
                 transparent,
+                color_mapped,
                 item,
             )?);
         }
@@ -159,7 +161,7 @@ pub fn extract_frame(
     )?;
 
     let from_cache = FrameCacheManager::get_instance()
-        .get_frame_cache(&src, &original_src, transparent)
+        .get_frame_cache(&src, &original_src, transparent, color_mapped)
         .lock()?
         .get_item_from_id(frame_id);
 
