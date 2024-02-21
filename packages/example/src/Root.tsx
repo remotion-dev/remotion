@@ -521,10 +521,10 @@ export const Index: React.FC = () => {
 				<Composition
 					id="OffthreadLocalVideo"
 					component={OffthreadLocalVideo}
-					width={1920}
-					height={1080}
+					width={1080}
+					height={1920}
 					fps={30}
-					durationInFrames={200}
+					durationInFrames={30 * 60}
 					defaultProps={{
 						src: 'variablefps.webm',
 					}}
@@ -535,7 +535,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={30}
+					durationInFrames={30 * 60}
 				/>
 				<Composition
 					id="video-testing-webm"
