@@ -65,7 +65,7 @@ pub mod payloads {
         pub original_src: String,
         pub time: f64,
         pub transparent: bool,
-        pub color_mapped: bool,
+        pub tone_mapped: bool,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

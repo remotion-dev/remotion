@@ -59,7 +59,7 @@ pub fn extract_frame(
     original_src: String,
     time: f64,
     transparent: bool,
-    color_mapped: bool,
+    tone_mapped: bool,
     maximum_frame_cache_size_in_bytes: Option<u128>,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
@@ -87,7 +87,7 @@ pub fn extract_frame(
         &src,
         &original_src,
         transparent,
-        color_mapped,
+        tone_mapped,
         position,
         threshold - 1,
     );
@@ -98,7 +98,7 @@ pub fn extract_frame(
                 &src,
                 &original_src,
                 transparent,
-                color_mapped,
+                tone_mapped,
                 item,
             )?);
         }
@@ -157,11 +157,11 @@ pub fn extract_frame(
         one_frame_in_time_base,
         threshold,
         maximum_frame_cache_size_in_bytes,
-        color_mapped,
+        tone_mapped,
     )?;
 
     let from_cache = FrameCacheManager::get_instance()
-        .get_frame_cache(&src, &original_src, transparent, color_mapped)
+        .get_frame_cache(&src, &original_src, transparent, tone_mapped)
         .lock()?
         .get_item_from_id(frame_id);
 

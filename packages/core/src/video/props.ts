@@ -47,7 +47,7 @@ export type OffthreadVideoProps = {
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
 	transparent?: boolean;
-	colorMapped?: boolean;
+	toneMapped?: boolean;
 	pauseWhenBuffering?: boolean;
 	/**
 	 * @deprecated For internal use only

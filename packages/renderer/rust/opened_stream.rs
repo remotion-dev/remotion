@@ -84,7 +84,7 @@ impl OpenedStream {
         position: i64,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
-        color_mapped: bool,
+        tone_mapped: bool,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -136,7 +136,7 @@ impl OpenedStream {
                             &self.src,
                             &self.original_src,
                             self.transparent,
-                            color_mapped,
+                            tone_mapped,
                         )
                         .lock()?
                         .add_item(item);
@@ -166,7 +166,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         threshold: i64,
         maximum_frame_cache_size_in_bytes: Option<u128>,
-        color_mapped: bool,
+        tone_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -214,7 +214,7 @@ impl OpenedStream {
                             true => None,
                             false => Some(self.last_position.unwrap()),
                         },
-                        color_mapped,
+                        tone_mapped,
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
@@ -223,7 +223,7 @@ impl OpenedStream {
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
-                                color_mapped,
+                                tone_mapped,
                             )
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
@@ -233,7 +233,7 @@ impl OpenedStream {
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
-                                color_mapped,
+                                tone_mapped,
                             )
                             .lock()?
                             .set_biggest_frame_as_last_frame();
@@ -288,7 +288,7 @@ impl OpenedStream {
             match result {
                 Ok(Some(unfiltered)) => unsafe {
                     let mut video: Video;
-                    if color_mapped {
+                    if tone_mapped {
                         video = frame::Video::empty();
                         self.filter.get("in").unwrap().source().add(&unfiltered)?;
                         self.filter.get("out").unwrap().sink().frame(&mut video)?;
@@ -336,7 +336,7 @@ impl OpenedStream {
                             &self.src,
                             &self.original_src,
                             self.transparent,
-                            color_mapped,
+                            tone_mapped,
                         )
                         .lock()?
                         .add_item(item);
@@ -389,12 +389,7 @@ impl OpenedStream {
         }
 
         let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(
-                &self.src,
-                &self.original_src,
-                self.transparent,
-                color_mapped,
-            )
+            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
             .lock()?
             .get_item_id(position, threshold)?;
 

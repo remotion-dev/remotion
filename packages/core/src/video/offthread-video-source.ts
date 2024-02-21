@@ -4,12 +4,12 @@ export const getOffthreadVideoSource = ({
 	src,
 	transparent,
 	currentTime,
-	colorMapped,
+	toneMapped,
 }: {
 	src: string;
 	transparent: boolean;
 	currentTime: number;
-	colorMapped: boolean;
+	toneMapped: boolean;
 }) => {
 	return `http://localhost:${
 		window.remotion_proxyPort
@@ -17,5 +17,5 @@ export const getOffthreadVideoSource = ({
 		getAbsoluteSrc(src),
 	)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
 		transparent,
-	)}&colorMapped=${String(colorMapped)}`;
+	)}&toneMapped=${String(toneMapped)}`;
 };

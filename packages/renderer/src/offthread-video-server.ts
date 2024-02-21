@@ -31,17 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 	const transparent = params.get('transparent');
 
-	const colorMapped = params.get('colorMapped');
+	const toneMapped = params.get('toneMapped');
 
-	if (!colorMapped) {
-		throw new Error('Did not get `colorMapped` parameter');
+	if (!toneMapped) {
+		throw new Error('Did not get `toneMapped` parameter');
 	}
 
 	return {
 		src,
 		time: parseFloat(time),
 		transparent: transparent === 'true',
-		colorMapped: colorMapped === 'true',
+		toneMapped: toneMapped === 'true',
 	};
 };
 
@@ -100,7 +100,7 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent, colorMapped} = extractUrlAndSourceFromUrl(
+			const {src, time, transparent, toneMapped} = extractUrlAndSourceFromUrl(
 				req.url,
 			);
 			response.setHeader('access-control-allow-origin', '*');
@@ -152,7 +152,7 @@ export const startOffthreadVideoServer = ({
 								original_src: src,
 								time,
 								transparent,
-								color_mapped: colorMapped,
+								tone_mapped: toneMapped,
 							})
 							.then(resolve)
 							.catch(reject);

@@ -23,7 +23,7 @@ test('Memory usage should be determined ', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
-		color_mapped: false,
+		tone_mapped: false,
 	});
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
@@ -37,7 +37,7 @@ test('Memory usage should be determined ', async () => {
 		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
-		color_mapped: false,
+		tone_mapped: false,
 	});
 
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
@@ -93,7 +93,7 @@ test('Memory usage should be determined ', async () => {
 		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
-		color_mapped: false,
+		tone_mapped: false,
 	});
 });
 
@@ -109,7 +109,7 @@ test('Should respect the maximum frame cache limit', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
-		color_mapped: false,
+		tone_mapped: false,
 	});
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
@@ -141,7 +141,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
-		color_mapped: false,
+		tone_mapped: false,
 	});
 
 	expect(

@@ -56,7 +56,7 @@ impl OpenedVideo {
     }
 
     pub fn close_video_if_frame_cache_empty(&mut self) -> Result<bool, ErrorWithBacktrace> {
-        let transparent_color_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
+        let transparent_tone_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
             &self.src,
             &self.original_src,
             true,
@@ -68,7 +68,7 @@ impl OpenedVideo {
             true,
             false,
         );
-        let opaque_color_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
+        let opaque_tone_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
             &self.src,
             &self.original_src,
             false,
@@ -80,10 +80,10 @@ impl OpenedVideo {
             false,
             false,
         );
-        if opaque_color_mapped_cache.lock()?.is_empty()
+        if opaque_tone_mapped_cache.lock()?.is_empty()
             && opaque_original_cache.lock()?.is_empty()
             && transparent_original_cache.lock()?.is_empty()
-            && transparent_color_mapped_cache.lock()?.is_empty()
+            && transparent_tone_mapped_cache.lock()?.is_empty()
         {
             self.close()?;
             Ok(true)

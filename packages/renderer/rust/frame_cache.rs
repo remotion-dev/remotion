@@ -35,7 +35,7 @@ pub struct FrameCacheReference {
     pub src: String,
     pub original_src: String,
     pub transparent: bool,
-    pub color_mapped: bool,
+    pub tone_mapped: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -57,7 +57,7 @@ impl FrameCache {
         src: String,
         original_src: String,
         transparent: bool,
-        color_mapped: bool,
+        tone_mapped: bool,
     ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut references: Vec<FrameCacheReference> = Vec::new();
         for item in &self.items {
@@ -67,7 +67,7 @@ impl FrameCache {
                 src: src.clone(),
                 original_src: original_src.clone(),
                 transparent,
-                color_mapped,
+                tone_mapped,
             });
         }
         Ok(references)

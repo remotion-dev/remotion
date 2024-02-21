@@ -27,7 +27,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	muted,
 	allowAmplificationDuringRender,
 	transparent = false,
-	colorMapped = true,
+	toneMapped = true,
 	toneFrequency,
 	name,
 	...props
@@ -132,9 +132,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			src,
 			currentTime,
 			transparent,
-			colorMapped,
+			toneMapped,
 		});
-	}, [colorMapped, currentTime, src, transparent]);
+	}, [toneMapped, currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(

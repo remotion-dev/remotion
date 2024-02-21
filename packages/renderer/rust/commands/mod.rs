@@ -18,7 +18,7 @@ pub fn execute_command(
                 command.original_src,
                 command.time,
                 command.transparent,
-                command.color_mapped,
+                command.tone_mapped,
                 maximum_frame_cache_size_in_bytes,
             )?;
             Ok(res)

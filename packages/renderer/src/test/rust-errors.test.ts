@@ -15,7 +15,7 @@ test('Should get Rust errors in a good way', async () => {
 			original_src: 'invlaid',
 			time: 1,
 			transparent: false,
-			color_mapped: false,
+			tone_mapped: false,
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
@@ -89,7 +89,7 @@ test(
 			original_src: 'fsdfds',
 			time: 1,
 			transparent: false,
-			color_mapped: false,
+			tone_mapped: false,
 		});
 		try {
 			await callCompositor(JSON.stringify(command), false, 'info');
@@ -111,7 +111,7 @@ test('Invalid payloads will be handled', async () => {
 	const command = serializeCommand('ExtractFrame', {
 		src: 'fsdfds',
 		original_src: 'fsdfds',
-		color_mapped: false,
+		tone_mapped: false,
 	});
 	try {
 		await callCompositor(JSON.stringify(command), false, 'info');
