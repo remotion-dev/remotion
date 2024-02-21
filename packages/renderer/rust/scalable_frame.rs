@@ -156,7 +156,7 @@ pub fn scale_and_make_bitmap(
         format,
         native_frame.scaled_width,
         native_frame.scaled_height,
-        Flags::FAST_BILINEAR,
+        Flags::BILINEAR,
     )?;
 
     let mut data: Vec<*const u8> = Vec::with_capacity(native_frame.planes.len());
