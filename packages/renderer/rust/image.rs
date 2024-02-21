@@ -39,7 +39,7 @@ pub fn save_as_jpeg(
         }
     };
 
-    match encoder.encode(&data, width_u16, height_u16, ColorType::Rgb) {
+    match encoder.encode(&data, width_u16, height_u16, ColorType::Rgba) {
         Ok(_) => (),
         Err(_) => {
             return Err(std::io::Error::new(
