@@ -34,7 +34,7 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 	const colorMapped = params.get('colorMapped');
 
 	if (!colorMapped) {
-		throw new Error('Did not get `transparent` parameter');
+		throw new Error('Did not get `colorMapped` parameter');
 	}
 
 	return {
