@@ -192,7 +192,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const {onProgress, ...options} = actualArgs;
-	const [, config] = getConfig({
+	const [, config] = await getConfig({
 		outDir,
 		entryPoint,
 		resolvedRemotionRoot,

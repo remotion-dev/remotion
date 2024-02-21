@@ -44,7 +44,7 @@ export const startServer = async (options: {
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const [, config] = BundlerInternals.webpackConfig({
+	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,

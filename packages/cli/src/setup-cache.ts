@@ -195,7 +195,7 @@ export const bundleOnCli = async ({
 		onSymlinkDetected,
 	};
 
-	const [hash] = BundlerInternals.getConfig({
+	const [hash] = await BundlerInternals.getConfig({
 		outDir: '',
 		entryPoint: fullPath,
 		onProgress,
