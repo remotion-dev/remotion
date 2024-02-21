@@ -116,8 +116,6 @@ impl OpenedStream {
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
-                        range: video.color_range(),
-                        space: video.color_space(),
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -294,8 +292,6 @@ impl OpenedStream {
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
-                        range: video.color_range(),
-                        space: video.color_space(),
                     };
 
                     let item = FrameCacheItem {
