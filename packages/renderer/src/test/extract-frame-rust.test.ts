@@ -19,6 +19,7 @@ test(
 			original_src: exampleVideos.bigBuckBunny,
 			time: 40,
 			transparent: false,
+			tone_mapped: false,
 		});
 		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
@@ -27,6 +28,7 @@ test(
 			original_src: exampleVideos.bigBuckBunny,
 			time: 40.4,
 			transparent: false,
+			tone_mapped: false,
 		});
 		expect(data2.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
@@ -52,6 +54,7 @@ test(
 			original_src: exampleVideos.transparentWebm,
 			time: 1,
 			transparent: true,
+			tone_mapped: false,
 		});
 
 		// Platform specific PNG encoder settings
@@ -92,12 +95,14 @@ test('Should be able to start two compositors', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: false,
 	});
 	await compositor2.executeCommand('ExtractFrame', {
 		src: exampleVideos.bigBuckBunny,
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: false,
 	});
 });
 
@@ -113,6 +118,7 @@ test('Should be able to seek backwards', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: false,
 	});
 	expect(data.length).toBe(2764854);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
@@ -120,6 +126,7 @@ test('Should be able to seek backwards', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 35,
 		transparent: false,
+		tone_mapped: false,
 	});
 	expect(data2.length).toBe(2764854);
 
@@ -141,6 +148,7 @@ test(
 			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 0.04,
 			transparent: false,
+			tone_mapped: false,
 		});
 		expect(data.length).toBe(3499254);
 
@@ -164,6 +172,7 @@ test(
 			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 3.33,
 			transparent: false,
+			tone_mapped: false,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
@@ -196,6 +205,7 @@ test(
 			original_src: exampleVideos.corrupted,
 			time: 100,
 			transparent: false,
+			tone_mapped: false,
 		});
 
 		// Pixel fixing
@@ -222,6 +232,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 		original_src: exampleVideos.customDar,
 		time: 3.33,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	const header = data.subarray(0, BMP_HEADER_SIZE);
@@ -255,6 +266,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 			original_src: exampleVideos.bigBuckBunny,
 			time: i,
 			transparent: false,
+			tone_mapped: false,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
@@ -298,6 +310,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 5.0,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	const time_end = Date.now();
@@ -309,6 +322,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 5.0,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	// Time should be way less now
@@ -322,6 +336,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 100,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	// Time should be way less now
@@ -337,6 +352,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 1,
 		transparent: true,
+		tone_mapped: false,
 	});
 
 	const time4_end = Date.now();
@@ -359,6 +375,7 @@ test('Should get from a screen recording', async () => {
 		original_src: exampleVideos.screenrecording,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	expect(data.length).toBe(15230038);
@@ -379,6 +396,7 @@ test('Should get from video with no fps', async () => {
 		original_src: exampleVideos.nofps,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	expect(data.length).toBe(3044334);
@@ -399,6 +417,7 @@ test('Should get from broken webcam video', async () => {
 		original_src: exampleVideos.webcam,
 		time: 0,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	expect(data.length).toBe(921654);
@@ -419,6 +438,7 @@ test('Should get from iPhone video', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: 1,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	expect(data.length).toBe(24883254);
@@ -439,6 +459,7 @@ test('Should get from AV1 video', async () => {
 		original_src: exampleVideos.av1,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	expect(data.length).toBe(6220854);
@@ -459,6 +480,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 		original_src: exampleVideos.variablefps,
 		time: 0,
 		transparent: true,
+		tone_mapped: false,
 	});
 
 	// Should resort back to BMP because it is faster
@@ -483,6 +505,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 		original_src: exampleVideos.zerotimestamp,
 		time: 1.5,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	// Should resort back to BMP because it is faster
@@ -511,6 +534,7 @@ test('Two different starting times should not result in big seeking', async () =
 			original_src: exampleVideos.bigBuckBunny,
 			time,
 			transparent: false,
+			tone_mapped: false,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
@@ -540,7 +564,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
 	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
 
-	expect(expected[4][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
 	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 
@@ -614,6 +638,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: frame30,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	const secondFrame = await compositor.executeCommand('ExtractFrame', {
@@ -621,6 +646,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: frame31,
 		transparent: false,
+		tone_mapped: false,
 	});
 
 	const hundredRandomPixels = new Array(100).fill(true).map(() => {

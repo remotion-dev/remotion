@@ -11,8 +11,10 @@ use crate::{
 use lazy_static::lazy_static;
 
 pub struct FrameCacheAndOriginalSource {
-    transparent: Arc<Mutex<FrameCache>>,
-    opaque: Arc<Mutex<FrameCache>>,
+    transparent_tone_mapped: Arc<Mutex<FrameCache>>,
+    opaque_tone_mapped: Arc<Mutex<FrameCache>>,
+    transparent_original: Arc<Mutex<FrameCache>>,
+    opaque_original: Arc<Mutex<FrameCache>>,
     original_src: String,
 }
 
@@ -38,8 +40,10 @@ impl FrameCacheManager {
 
     fn add_frame_cache(&self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
-            transparent: Arc::new(Mutex::new(FrameCache::new())),
-            opaque: Arc::new(Mutex::new(FrameCache::new())),
+            transparent_original: Arc::new(Mutex::new(FrameCache::new())),
+            transparent_tone_mapped: Arc::new(Mutex::new(FrameCache::new())),
+            opaque_original: Arc::new(Mutex::new(FrameCache::new())),
+            opaque_tone_mapped: Arc::new(Mutex::new(FrameCache::new())),
             original_src: original_src.to_string(),
         };
 
@@ -54,21 +58,49 @@ impl FrameCacheManager {
         src: &str,
         original_src: &str,
         transparent: bool,
+        tone_mapped: bool,
     ) -> Arc<Mutex<FrameCache>> {
         if !self.frame_cache_exists(src) {
             self.add_frame_cache(src, original_src);
         }
 
         match transparent {
-            true => self
-                .cache
-                .read()
-                .unwrap()
-                .get(src)
-                .unwrap()
-                .transparent
-                .clone(),
-            false => self.cache.read().unwrap().get(src).unwrap().opaque.clone(),
+            true => match tone_mapped {
+                true => self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(src)
+                    .unwrap()
+                    .transparent_tone_mapped
+                    .clone(),
+                false => self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(src)
+                    .unwrap()
+                    .transparent_original
+                    .clone(),
+            },
+            false => match tone_mapped {
+                true => self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(src)
+                    .unwrap()
+                    .opaque_tone_mapped
+                    .clone(),
+                false => self
+                    .cache
+                    .read()
+                    .unwrap()
+                    .get(src)
+                    .unwrap()
+                    .opaque_original
+                    .clone(),
+            },
         }
     }
 
@@ -77,11 +109,12 @@ impl FrameCacheManager {
         src: &str,
         original_src: &str,
         transparent: bool,
+        tone_mapped: bool,
         time: i64,
         threshold: i64,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         Ok(self
-            .get_frame_cache(src, original_src, transparent)
+            .get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()?
             .get_item_id(time, threshold)?)
     }
@@ -91,10 +124,11 @@ impl FrameCacheManager {
         src: &str,
         original_src: &str,
         transparent: bool,
+        tone_mapped: bool,
         frame_id: usize,
     ) -> Result<Vec<u8>, ErrorWithBacktrace> {
         match self
-            .get_frame_cache(src, original_src, transparent)
+            .get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()?
             .get_item_from_id(frame_id)?
         {
@@ -114,8 +148,9 @@ impl FrameCacheManager {
             .cloned()
             .collect::<Vec<String>>();
 
-        for i in 0..2 {
-            let transparent = i == 0;
+        for i in 0..4 {
+            let transparent = i == 0 || i == 2;
+            let tone_mapped = i == 0 || i == 1;
 
             for key in keys.clone() {
                 let src = key.clone();
@@ -127,13 +162,14 @@ impl FrameCacheManager {
                     .unwrap()
                     .original_src
                     .clone();
-                let lock = self.get_frame_cache(&src, &original_src, transparent);
+                let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
                 let frame_cache = lock.lock()?;
 
                 let references = frame_cache.get_references(
                     src.to_string(),
                     original_src.to_string(),
                     transparent,
+                    tone_mapped,
                 )?;
                 for reference in references {
                     vec.push(reference);
@@ -155,8 +191,10 @@ impl FrameCacheManager {
             .cloned()
             .collect::<Vec<String>>();
 
-        for i in 0..2 {
-            let transparent = i == 0;
+        for i in 0..4 {
+            let transparent = i == 0 || i == 2;
+            let tone_mapped = i == 0 || i == 1;
+
             for key in keys.clone() {
                 let src = key.clone();
 
@@ -168,7 +206,7 @@ impl FrameCacheManager {
                     .unwrap()
                     .original_src
                     .clone();
-                let lock = self.get_frame_cache(&src, &original_src, transparent);
+                let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
                 let frame_cache = lock.lock()?;
                 total_size += frame_cache.get_size_in_bytes();
             }
@@ -189,9 +227,14 @@ impl FrameCacheManager {
                 break;
             }
             {
-                self.get_frame_cache(&removal.src, &removal.original_src, removal.transparent)
-                    .lock()?
-                    .remove_item_by_id(removal.id)?;
+                self.get_frame_cache(
+                    &removal.src,
+                    &removal.original_src,
+                    removal.transparent,
+                    removal.tone_mapped,
+                )
+                .lock()?
+                .remove_item_by_id(removal.id)?;
 
                 pruned += 1;
             }

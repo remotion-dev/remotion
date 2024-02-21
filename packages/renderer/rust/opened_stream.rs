@@ -1,7 +1,12 @@
 use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{
+    codec::Id,
+    frame::{self, Video},
+    media::Type,
+    Dictionary, StreamMut,
+};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -13,6 +18,7 @@ use crate::{
     global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
+    tone_map::make_tone_map_filtergraph,
 };
 
 pub struct OpenedStream {
@@ -22,6 +28,7 @@ pub struct OpenedStream {
     pub scaled_width: u32,
     pub scaled_height: u32,
     pub video: remotionffmpeg::codec::decoder::Video,
+    pub filter: remotionffmpeg::filter::Graph,
     pub src: String,
     pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
@@ -77,6 +84,7 @@ impl OpenedStream {
         position: i64,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
+        tone_mapped: bool,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -124,7 +132,12 @@ impl OpenedStream {
 
                     looped_pts = video.pts();
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                        )
                         .lock()?
                         .add_item(item);
                     latest_frame = Some(LastFrameInfo {
@@ -153,6 +166,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         threshold: i64,
         maximum_frame_cache_size_in_bytes: Option<u128>,
+        tone_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -200,16 +214,27 @@ impl OpenedStream {
                             true => None,
                             false => Some(self.last_position.unwrap()),
                         },
+                        tone_mapped,
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                            )
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                            )
                             .lock()?
                             .set_biggest_frame_as_last_frame();
                     }
@@ -261,7 +286,16 @@ impl OpenedStream {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(video)) => unsafe {
+                Ok(Some(unfiltered)) => unsafe {
+                    let mut video: Video;
+                    if tone_mapped {
+                        video = frame::Video::empty();
+                        self.filter.get("in").unwrap().source().add(&unfiltered)?;
+                        self.filter.get("out").unwrap().sink().frame(&mut video)?;
+                    } else {
+                        video = unfiltered;
+                    }
+
                     let linesize = (*video.as_ptr()).linesize;
                     let frame_cache_id = get_frame_cache_id();
 
@@ -298,7 +332,12 @@ impl OpenedStream {
                     self.last_position = Some(video.pts().expect("expected pts"));
                     freshly_seeked = false;
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                        )
                         .lock()?
                         .add_item(item);
 
@@ -350,7 +389,7 @@ impl OpenedStream {
         }
 
         let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
             .lock()?
             .get_item_id(position, threshold)?;
 
@@ -478,6 +517,18 @@ pub fn open_stream(
         original_height,
     );
 
+    let filter = make_tone_map_filtergraph(
+        original_width,
+        original_height,
+        &format!("{:?}", decoder.format()).to_lowercase(),
+        time_base,
+        decoder.color_primaries(),
+        decoder.color_transfer_characteristic(),
+        decoder.color_space(),
+        decoder.color_range(),
+        decoder.aspect_ratio(),
+    )?;
+
     let opened_stream = OpenedStream {
         stream_index,
         original_height,
@@ -493,6 +544,7 @@ pub fn open_stream(
         transparent,
         rotation: rotate,
         original_src: original_src.to_string(),
+        filter,
     };
 
     Ok((opened_stream, fps, time_base))
