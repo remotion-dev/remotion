@@ -97,7 +97,7 @@ impl ScalableFrame {
     }
 }
 
-pub fn create_bmp_image_from_frame(
+fn create_bmp_image_from_frame(
     rgb_frame: &[u8],
     width: u32,
     height: u32,
