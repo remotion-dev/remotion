@@ -74,7 +74,7 @@ pub fn make_tone_map_filtergraph(
         true => "copy".to_string()
     };
 
-    _print_verbose(&format!("Creating FFmpeg filter {}", filter_string)).unwrap();
+    _print_verbose(&format!("Creating tone-mapping filter {}", filter_string)).unwrap();
 
     filter
         .output("in", 0)?
