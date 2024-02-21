@@ -15,11 +15,18 @@ pub fn make_tone_map_filtergraph(
     transfer_characteristic: transfer_characteristic::TransferCharacteristic,
     space: color::Space,
     color_range: color::Range,
+    aspect_ratio: Rational,
 ) -> Result<Graph, ffmpeg_next::Error> {
     let mut filter = filter::Graph::new();
     let args = format!(
-        "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}",
-        original_width, original_height, format, time_base.0, time_base.1, 1,
+        "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}/{}",
+        original_width,
+        original_height,
+        format,
+        time_base.0,
+        time_base.1,
+        aspect_ratio.0,
+        aspect_ratio.1
     );
     filter.add(&filter::find("buffer").unwrap(), "in", &args)?;
     filter.add(&filter::find("buffersink").unwrap(), "out", "")?;
