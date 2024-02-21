@@ -134,7 +134,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			transparent,
 			colorMapped,
 		});
-	}, [currentTime, src, transparent]);
+	}, [colorMapped, currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
