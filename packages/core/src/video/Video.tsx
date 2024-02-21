@@ -101,7 +101,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={endAtFrameNo}
 				name={name}
 			>
-				<Video {...otherProps} ref={ref} />
+				<Video
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					{...otherProps}
+					ref={ref}
+				/>
 			</Sequence>
 		);
 	}
