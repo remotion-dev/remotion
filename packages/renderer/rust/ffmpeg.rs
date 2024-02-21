@@ -59,6 +59,7 @@ pub fn extract_frame(
     original_src: String,
     time: f64,
     transparent: bool,
+    color_mapped: bool,
     maximum_frame_cache_size_in_bytes: Option<u128>,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
@@ -154,6 +155,7 @@ pub fn extract_frame(
         one_frame_in_time_base,
         threshold,
         maximum_frame_cache_size_in_bytes,
+        color_mapped,
     )?;
 
     let from_cache = FrameCacheManager::get_instance()
@@ -359,7 +361,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
 
     if let Ok(video) = codec.decoder().video() {
         #[allow(non_snake_case)]
-        let pixelFormat: Option<String> = match video.format()  {
+        let pixelFormat: Option<String> = match video.format() {
             remotionffmpeg::format::Pixel::YUV420P => Some("yuv420p".to_string()),
             remotionffmpeg::format::Pixel::YUYV422 => Some("yuyv422".to_string()),
             remotionffmpeg::format::Pixel::RGB24 => Some("rgb24".to_string()),

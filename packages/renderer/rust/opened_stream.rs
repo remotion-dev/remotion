@@ -160,6 +160,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         threshold: i64,
         maximum_frame_cache_size_in_bytes: Option<u128>,
+        color_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -269,9 +270,14 @@ impl OpenedStream {
 
             match result {
                 Ok(Some(unfiltered)) => unsafe {
-                    let mut video = frame::Video::empty();
-                    self.filter.get("in").unwrap().source().add(&unfiltered)?;
-                    self.filter.get("out").unwrap().sink().frame(&mut video)?;
+                    let mut video: Video;
+                    if color_mapped {
+                        video = frame::Video::empty();
+                        self.filter.get("in").unwrap().source().add(&unfiltered)?;
+                        self.filter.get("out").unwrap().sink().frame(&mut video)?;
+                    } else {
+                        video = unfiltered;
+                    }
 
                     let linesize = (*video.as_ptr()).linesize;
                     let frame_cache_id = get_frame_cache_id();

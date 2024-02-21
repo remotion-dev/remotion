@@ -31,10 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 	const transparent = params.get('transparent');
 
+	const colorMapped = params.get('colorMapped');
+
+	if (!colorMapped) {
+		throw new Error('Did not get `transparent` parameter');
+	}
+
 	return {
 		src,
 		time: parseFloat(time),
 		transparent: transparent === 'true',
+		colorMapped: colorMapped === 'true',
 	};
 };
 
@@ -93,7 +100,9 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			const {src, time, transparent, colorMapped} = extractUrlAndSourceFromUrl(
+				req.url,
+			);
 			response.setHeader('access-control-allow-origin', '*');
 			if (transparent) {
 				response.setHeader('content-type', `image/png`);
@@ -137,14 +146,16 @@ export const startOffthreadVideoServer = ({
 						}
 
 						extractStart = Date.now();
-						resolve(
-							compositor.executeCommand('ExtractFrame', {
+						compositor
+							.executeCommand('ExtractFrame', {
 								src: to,
 								original_src: src,
 								time,
 								transparent,
-							}),
-						);
+								color_mapped: colorMapped,
+							})
+							.then(resolve)
+							.catch(reject);
 					});
 				})
 				.then((readable) => {
