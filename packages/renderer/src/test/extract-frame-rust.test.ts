@@ -223,7 +223,7 @@ test(
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'info',
+		logLevel: 'verbose',
 		indent: false,
 	});
 
@@ -564,7 +564,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
 	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
 
-	expect(expected[4][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
 	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 

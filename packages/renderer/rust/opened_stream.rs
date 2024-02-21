@@ -518,8 +518,8 @@ pub fn open_stream(
     );
 
     let filter = make_tone_map_filtergraph(
-        scaled_width,
-        scaled_height,
+        original_width,
+        original_height,
         &format!("{:?}", decoder.format()).to_lowercase(),
         time_base,
         decoder.color_primaries(),
