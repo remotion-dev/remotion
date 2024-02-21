@@ -10,6 +10,6 @@ export const OffthreadRemoteVideo: React.FC = () => {
 
 export const OffthreadLocalVideo: React.FC<{
 	src: string;
-}> = ({}) => {
-	return <OffthreadVideo src={staticFile('hdrtest.mkv')} />;
+}> = ({src}) => {
+	return <OffthreadVideo src={staticFile(src)} />;
 };
