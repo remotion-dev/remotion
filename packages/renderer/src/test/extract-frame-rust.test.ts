@@ -223,7 +223,7 @@ test(
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'verbose',
+		logLevel: 'info',
 		indent: false,
 	});
 
