@@ -7,11 +7,7 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{
-    errors::ErrorWithBacktrace,
-    global_printer::_print_verbose,
-    image::{get_png_data, PixelFormat},
-};
+use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose, image::get_png_data};
 
 #[derive(Clone, Copy)]
 pub enum Rotate {
@@ -156,14 +152,6 @@ pub fn scale_and_make_bitmap(
         false => Pixel::BGR24,
     };
 
-    _print_verbose(&format!(
-        "Scaling frame from {}x{} to {:?}x{:?} {:?}",
-        native_frame.original_width,
-        native_frame.original_height,
-        native_frame.scaled_width,
-        native_frame.range,
-        native_frame.format
-    ))?;
     let mut scaler = Context::get(
         native_frame.format,
         native_frame.original_width,
@@ -235,7 +223,7 @@ pub fn scale_and_make_bitmap(
             || native_frame.format == Pixel::YUVA444P12LE;
 
         if is_transparent_pixel_format {
-            return get_png_data(&rotated, rotated_width, rotated_height, PixelFormat::Bt709);
+            return get_png_data(&rotated, rotated_width, rotated_height);
         } else {
             _print_verbose(&format!(
                 "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",

@@ -16,6 +16,7 @@ mod opened_video_manager;
 mod payloads;
 mod rotation;
 mod scalable_frame;
+mod tone_map;
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};

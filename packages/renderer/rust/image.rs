@@ -52,16 +52,10 @@ pub fn save_as_jpeg(
     Ok(())
 }
 
-pub enum PixelFormat {
-    Bt709,
-    Bt2020,
-}
-
 pub fn get_png_data(
     rgba_data: &[u8],
     width: u32,
     height: u32,
-    format: PixelFormat,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let mut png_data = Vec::new();
 
@@ -71,22 +65,12 @@ pub fn get_png_data(
         encoder.set_depth(png::BitDepth::Eight);
         encoder.set_source_gamma(png::ScaledFloat::from_scaled(45455)); // 1.0 / 2.2, scaled by 100000
         encoder.set_source_gamma(png::ScaledFloat::new(1.0 / 2.2)); // 1.0 / 2.2, unscaled, but rounded
-        let source_chromaticities = match format {
-            // Using unscaled instantiation here
-            // Why those values, explained here https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
-            PixelFormat::Bt709 => png::SourceChromaticities::new(
-                (0.31270, 0.32900),
-                (0.64000, 0.33000),
-                (0.30000, 0.60000),
-                (0.15000, 0.06000),
-            ),
-            PixelFormat::Bt2020 => png::SourceChromaticities::new(
-                (0.31270, 0.32900),
-                (0.708, 0.292),
-                (0.17, 0.797),
-                (0.131, 0.046),
-            ),
-        };
+        let source_chromaticities = png::SourceChromaticities::new(
+            (0.31270, 0.32900),
+            (0.64000, 0.33000),
+            (0.30000, 0.60000),
+            (0.15000, 0.06000),
+        );
         encoder.set_source_chromaticities(source_chromaticities);
 
         let mut writer = encoder.write_header()?;

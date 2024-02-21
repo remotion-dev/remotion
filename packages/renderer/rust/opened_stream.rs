@@ -3,7 +3,6 @@ use std::{io::ErrorKind, time::SystemTime};
 use ffmpeg_next::Rational;
 use remotionffmpeg::{
     codec::Id,
-    filter,
     frame::{self, Video},
     media::Type,
     Dictionary, StreamMut,
@@ -19,6 +18,7 @@ use crate::{
     global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
+    tone_map::make_tone_map_filtergraph,
 };
 
 pub struct OpenedStream {
@@ -28,6 +28,7 @@ pub struct OpenedStream {
     pub scaled_width: u32,
     pub scaled_height: u32,
     pub video: remotionffmpeg::codec::decoder::Video,
+    pub filter: remotionffmpeg::filter::Graph,
     pub src: String,
     pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
@@ -270,28 +271,9 @@ impl OpenedStream {
 
             match result {
                 Ok(Some(unfiltered)) => unsafe {
-                    let mut filter = filter::Graph::new();
-                    let args = format!(
-                        "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}",
-                        self.original_width, self.original_height, "yuv420p10le", 1, 1000, 1,
-                    );
-                    filter.add(&filter::find("buffer").unwrap(), "in", &args)?;
-
-                    filter.add(&filter::find("buffersink").unwrap(), "out", "")?;
-
-                    filter
-                            .output("in", 0)?
-                            .input("out", 0)?
-                            .parse("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=pc,format=bgr24")?;
-
-                    filter.validate()?;
-
-                    _print_verbose(&format!("filter dump {}", filter.dump()))?;
-
-                    filter.get("in").unwrap().source().add(&unfiltered)?;
-
                     let mut video = frame::Video::empty();
-                    filter.get("out").unwrap().sink().frame(&mut video)?;
+                    self.filter.get("in").unwrap().source().add(&unfiltered)?;
+                    self.filter.get("out").unwrap().sink().frame(&mut video)?;
 
                     let linesize = (*video.as_ptr()).linesize;
                     let frame_cache_id = get_frame_cache_id();
@@ -511,6 +493,17 @@ pub fn open_stream(
         original_height,
     );
 
+    let filter = make_tone_map_filtergraph(
+        original_width,
+        original_height,
+        &format!("{:?}", decoder.format()).to_lowercase(),
+        time_base,
+        decoder.color_primaries(),
+        decoder.color_transfer_characteristic(),
+        decoder.color_space(),
+        decoder.color_range(),
+    )?;
+
     let opened_stream = OpenedStream {
         stream_index,
         original_height,
@@ -526,6 +519,7 @@ pub fn open_stream(
         transparent,
         rotation: rotate,
         original_src: original_src.to_string(),
+        filter,
     };
 
     Ok((opened_stream, fps, time_base))
