@@ -65,7 +65,11 @@ pub fn make_tone_map_filtergraph(
         _ => "input",
     };
 
-    let is_bt_601 = matrix_in == "input" && transfer_in == "input" && primaries == "input";
+    let matrix_is_target = matrix_in == "input" || matrix_in == "709";
+    let transfer_is_target = transfer_in == "input" || transfer_in == "709";
+    let primaries_is_target = primaries == "input" || primaries == "709";
+
+    let is_bt_601 = matrix_is_target && transfer_is_target && primaries_is_target;
 
     let filter_string  = match  is_bt_601 {
         false => format!(
