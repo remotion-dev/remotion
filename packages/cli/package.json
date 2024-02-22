@@ -5,7 +5,8 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"remotion": "remotion-cli.js"
+		"remotion": "remotion-cli.js",
+		"remotionb": "remotionb-cli.js"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
