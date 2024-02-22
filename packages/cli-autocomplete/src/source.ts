@@ -499,7 +499,7 @@ const benchmarkOptions: Fig.Option[] = uniqueOptions(
 );
 
 const completionSpec: Fig.Spec = {
-  name: "remotion",
+  name: ["remotion", "remotionb"],
   description: "Create videos programmatically in React",
   subcommands: [
     {
