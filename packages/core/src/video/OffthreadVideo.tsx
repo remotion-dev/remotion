@@ -61,7 +61,7 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	const {transparent, ...withoutTransparent} = otherProps;
+	const {transparent, toneMapped, ...withoutTransparent} = otherProps;
 
 	return (
 		<VideoForPreview
