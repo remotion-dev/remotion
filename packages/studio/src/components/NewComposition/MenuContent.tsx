@@ -1,6 +1,7 @@
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
@@ -32,6 +33,8 @@ export const MenuContent: React.FC<{
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
 	fixedHeight: number | null;
+	showBackButton?: boolean;
+	setHideParent: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	onHide,
 	values,
@@ -41,6 +44,8 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace,
 	topItemCanBeUnselected,
 	fixedHeight,
+	showBackButton,
+	setHideParent,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -253,6 +258,10 @@ export const MenuContent: React.FC<{
 		onArrowRight,
 	]);
 
+	useEffect(() => {
+		setHideParent(Boolean(subMenuActivated));
+	}, [setHideParent, subMenuActivated]);
+
 	// Disable submenu if not selected
 	useEffect(() => {
 		if (!subMenuActivated) {
@@ -294,6 +303,7 @@ export const MenuContent: React.FC<{
 		current.addEventListener('pointerleave', onPointerLeave);
 		return () => current.removeEventListener('pointerleave', onPointerLeave);
 	}, [onHide, subMenuActivated]);
+	const mobileLayout = useMobileLayout();
 
 	return (
 		<div
@@ -301,13 +311,34 @@ export const MenuContent: React.FC<{
 			style={containerWithHeight}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
+			{mobileLayout && showBackButton && (
+				<MenuSubItem
+					selected={false}
+					onActionChosen={onPreviousMenu}
+					onItemSelected={onPreviousMenu}
+					label={'Back'}
+					id={'back'}
+					keyHint={null}
+					leaveLeftSpace={leaveLeftSpace}
+					leftItem={null}
+					subMenu={null}
+					onQuitMenu={onHide}
+					onNextMenu={onNextMenu}
+					subMenuActivated={subMenuActivated}
+					setSubMenuActivated={setSubMenuActivated}
+					setHideParent={setHideParent}
+				/>
+			)}
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					onHide();
+					if (mobileLayout && !item.subMenu) {
+						onHide();
+					}
+
 					item.onClick(id, e);
 				};
 
@@ -327,6 +358,7 @@ export const MenuContent: React.FC<{
 						onNextMenu={onNextMenu}
 						subMenuActivated={subMenuActivated}
 						setSubMenuActivated={setSubMenuActivated}
+						setHideParent={setHideParent}
 					/>
 				);
 			})}

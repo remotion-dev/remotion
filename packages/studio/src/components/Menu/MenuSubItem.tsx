@@ -3,6 +3,7 @@ import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
@@ -63,6 +64,7 @@ export const MenuSubItem: React.FC<{
 	onNextMenu: () => void;
 	subMenuActivated: SubMenuActivated;
 	setSubMenuActivated: React.Dispatch<React.SetStateAction<SubMenuActivated>>;
+	setHideParent: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -78,12 +80,14 @@ export const MenuSubItem: React.FC<{
 	setSubMenuActivated,
 }) => {
 	const [hovered, setHovered] = useState(false);
+
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
 	const {currentZIndex} = useZIndex();
+	const [isChildPortalVisible, setIsChildPortalVisible] = useState(false);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -112,9 +116,26 @@ export const MenuSubItem: React.FC<{
 		setSubMenuActivated(false);
 	}, [setSubMenuActivated]);
 
+	const mobileLayout = useMobileLayout();
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!selected || !size || !subMenu || !subMenuActivated) {
 			return null;
+		}
+
+		if (isChildPortalVisible && mobileLayout) {
+			return {
+				...menuContainerTowardsBottom,
+				visibility: 'hidden',
+			};
+		}
+
+		if (mobileLayout) {
+			return {
+				...menuContainerTowardsBottom,
+				top: '32px',
+				left: '4px',
+			};
 		}
 
 		return {
@@ -122,7 +143,14 @@ export const MenuSubItem: React.FC<{
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
-	}, [selected, size, subMenu, subMenuActivated]);
+	}, [
+		mobileLayout,
+		selected,
+		size,
+		subMenu,
+		subMenuActivated,
+		isChildPortalVisible,
+	]);
 
 	useEffect(() => {
 		if (!hovered || !subMenu) {
@@ -147,10 +175,27 @@ export const MenuSubItem: React.FC<{
 	return (
 		<div
 			ref={ref}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
+			onPointerEnter={() => {
+				if (!mobileLayout) {
+					onPointerEnter();
+				}
+			}}
+			onPointerLeave={() => {
+				if (!mobileLayout) {
+					onPointerLeave();
+				}
+			}}
+			onClick={() => {
+				if (mobileLayout) {
+					onPointerEnter();
+				}
+			}}
 			style={style}
-			onPointerUp={onItemTriggered}
+			onPointerUp={(e) => {
+				if (!mobileLayout) {
+					onItemTriggered(e);
+				}
+			}}
 			role="button"
 			className={MENU_ITEM_CLASSNAME}
 		>
@@ -180,6 +225,7 @@ export const MenuSubItem: React.FC<{
 								onQuitSubMenu={onQuitSubmenu}
 								portalStyle={portalStyle}
 								subMenuActivated={subMenuActivated}
+								setHideParent={setIsChildPortalVisible}
 							/>,
 							getPortal(currentZIndex),
 						)

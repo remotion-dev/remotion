@@ -11,12 +11,14 @@ export const SubMenuComponent: React.FC<{
 	onQuitFullMenu: () => void;
 	onQuitSubMenu: () => void;
 	subMenuActivated: SubMenuActivated;
+	setHideParent: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	portalStyle,
 	subMenuActivated,
 	subMenu,
 	onQuitFullMenu,
 	onQuitSubMenu,
+	setHideParent,
 }) => {
 	return (
 		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
@@ -35,6 +37,8 @@ export const SubMenuComponent: React.FC<{
 					}
 					topItemCanBeUnselected={false}
 					fixedHeight={null}
+					showBackButton
+					setHideParent={setHideParent}
 				/>
 			</div>
 		</HigherZIndex>
