@@ -313,9 +313,12 @@ export const MenuContent: React.FC<{
 		>
 			{mobileLayout && showBackButton && (
 				<MenuSubItem
-					selected={false}
-					onActionChosen={onPreviousMenu}
-					onItemSelected={onPreviousMenu}
+					selected={selectedItem === 'back'}
+					onActionChosen={(_, e) => {
+						e.stopPropagation();
+						onPreviousMenu();
+					}}
+					onItemSelected={onItemSelected}
 					label={'Back'}
 					id={'back'}
 					keyHint={null}
@@ -335,7 +338,7 @@ export const MenuContent: React.FC<{
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					if (mobileLayout && !item.subMenu) {
+					if (!item.subMenu) {
 						onHide();
 					}
 

@@ -102,6 +102,7 @@ export const MenuSubItem: React.FC<{
 		},
 		[id, onActionChosen],
 	);
+	const mobileLayout = useMobileLayout();
 
 	const onPointerEnter = useCallback(() => {
 		onItemSelected(id);
@@ -115,8 +116,6 @@ export const MenuSubItem: React.FC<{
 	const onQuitSubmenu = useCallback(() => {
 		setSubMenuActivated(false);
 	}, [setSubMenuActivated]);
-
-	const mobileLayout = useMobileLayout();
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!selected || !size || !subMenu || !subMenuActivated) {
@@ -153,7 +152,7 @@ export const MenuSubItem: React.FC<{
 	]);
 
 	useEffect(() => {
-		if (!hovered || !subMenu) {
+		if (!hovered || !subMenu || mobileLayout) {
 			return;
 		}
 
@@ -161,7 +160,7 @@ export const MenuSubItem: React.FC<{
 			setSubMenuActivated('with-mouse');
 		}, 100);
 		return () => clearTimeout(hi);
-	}, [hovered, selected, setSubMenuActivated, subMenu]);
+	}, [hovered, mobileLayout, selected, setSubMenuActivated, subMenu]);
 
 	useEffect(() => {
 		if (selected) {
@@ -175,24 +174,21 @@ export const MenuSubItem: React.FC<{
 	return (
 		<div
 			ref={ref}
-			onPointerEnter={() => {
-				if (!mobileLayout) {
-					onPointerEnter();
-				}
-			}}
-			onPointerLeave={() => {
-				if (!mobileLayout) {
-					onPointerLeave();
-				}
-			}}
-			onClick={() => {
-				if (mobileLayout) {
-					onPointerEnter();
-				}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
+			onClick={(e) => {
+				e.stopPropagation();
 			}}
 			style={style}
 			onPointerUp={(e) => {
-				if (!mobileLayout) {
+				if (mobileLayout) {
+					if (subMenu) {
+						onItemSelected(id);
+						setSubMenuActivated('with-mouse');
+					} else {
+						onItemTriggered(e);
+					}
+				} else {
 					onItemTriggered(e);
 				}
 			}}
