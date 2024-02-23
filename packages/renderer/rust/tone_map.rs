@@ -16,7 +16,7 @@ pub fn make_tone_map_filtergraph(
     space: color::Space,
     color_range: color::Range,
     aspect_ratio: Rational,
-) -> Result<Graph, ffmpeg_next::Error> {
+) -> Result<(Graph, bool), ffmpeg_next::Error> {
     let mut filter = filter::Graph::new();
     let args = format!(
         "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}/{}",
@@ -65,7 +65,7 @@ pub fn make_tone_map_filtergraph(
         _ => "input",
     };
 
-    let matrix_is_target = matrix_in == "input" || matrix_in == "709";
+    let matrix_is_target = matrix_in == "input" || matrix_in == "470bg" || matrix_in == "709";
     let transfer_is_target = transfer_in == "input" || transfer_in == "709";
     let primaries_is_target = primaries == "input" || primaries == "709";
 
@@ -91,5 +91,5 @@ pub fn make_tone_map_filtergraph(
 
     filter.validate()?;
 
-    Ok(filter)
+    Ok((filter, !is_bt_601))
 }
