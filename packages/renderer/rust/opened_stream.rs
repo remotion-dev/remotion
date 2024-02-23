@@ -29,6 +29,7 @@ pub struct OpenedStream {
     pub scaled_height: u32,
     pub video: remotionffmpeg::codec::decoder::Video,
     pub filter: remotionffmpeg::filter::Graph,
+    pub should_filter: bool,
     pub src: String,
     pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
@@ -288,7 +289,8 @@ impl OpenedStream {
             match result {
                 Ok(Some(unfiltered)) => unsafe {
                     let mut video: Video;
-                    if tone_mapped {
+                    _print_verbose(&format!("received frame {}", tone_mapped))?;
+                    if tone_mapped && self.should_filter {
                         video = frame::Video::empty();
                         self.filter.get("in").unwrap().source().add(&unfiltered)?;
                         self.filter.get("out").unwrap().sink().frame(&mut video)?;
@@ -342,11 +344,6 @@ impl OpenedStream {
                         .add_item(item);
 
                     items_in_loop += 1;
-                    _print_verbose(&format!(
-                        "received frame {} ({})",
-                        video.pts().expect("pts"),
-                        items_in_loop
-                    ))?;
 
                     if items_in_loop % 10 == 0 {
                         match maximum_frame_cache_size_in_bytes {
@@ -517,7 +514,7 @@ pub fn open_stream(
         original_height,
     );
 
-    let filter = make_tone_map_filtergraph(
+    let (filter, should_filter) = make_tone_map_filtergraph(
         original_width,
         original_height,
         &format!("{:?}", decoder.format()).to_lowercase(),
@@ -545,6 +542,7 @@ pub fn open_stream(
         rotation: rotate,
         original_src: original_src.to_string(),
         filter,
+        should_filter,
     };
 
     Ok((opened_stream, fps, time_base))
