@@ -103,17 +103,25 @@ export const AssetSelector: React.FC = () => {
 		[setAssetFoldersExpanded],
 	);
 
+	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+		},
+		[],
+	);
+
+	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
+			setDropLocation(null);
+		},
+		[dropLocation],
+	);
+
 	return (
-		<div
-			style={container}
-			onDragOver={(e) => e.preventDefault()}
-			onDrop={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
-				setDropLocation(null);
-			}}
-		>
+		<div style={container} onDragOver={onDragOver} onDrop={onDrop}>
 			{true && (
 				<div
 					style={{
@@ -135,7 +143,7 @@ export const AssetSelector: React.FC = () => {
 						<div style={label}>
 							To add assets, place a file in the{' '}
 							<code style={inlineCodeSnippet}>public</code> folder of your
-							project.
+							project or drag and drop a file here.
 						</div>
 					</div>
 				) : (
