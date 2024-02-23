@@ -56,7 +56,7 @@ class PHPClient
         return $this->handleLambdaResponseRender($result);
     }
 
-    public function makeRenderProgressPayload(string $renderId, string $bucketName)
+    public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info")
     {
         $params = array(
             'renderId' => $renderId,
@@ -64,14 +64,15 @@ class PHPClient
             'type' => 'status',
             "version" => VERSION,
             "s3OutputProvider" => null,
+            "logLevel" => $logLevel ,
         );
         $result = json_encode($params);
         return $result;
     }
 
-    public function getRenderProgress(string $renderId, string $bucketName): GetRenderProgressResponse
+    public function getRenderProgress(string $renderId, string $bucketName, string $logLevel = "info"): GetRenderProgressResponse
     {
-        $payload = $this->makeRenderProgressPayload($renderId, $bucketName);
+        $payload = $this->makeRenderProgressPayload($renderId, $bucketName, $logLevel);
         $result = $this->invokeLambdaFunction($payload);
         return $this->handleLambdaResponseProgress($result);
     }

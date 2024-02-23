@@ -27,6 +27,7 @@ export const bundleCommand = async (
 		reason !== 'argument passed - found in root'
 	) {
 		Log.error(
+			{indent: false, logLevel},
 			`Entry point was specified as ${chalk.bold(
 				explicitlyPassed,
 			)}, but it was not found.`,
@@ -37,18 +38,20 @@ export const bundleCommand = async (
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
 	if (!file) {
-		Log.error('No entry point found.');
+		Log.error({indent: false, logLevel}, 'No entry point found.');
 		Log.error(
+			{indent: false, logLevel},
 			'Pass another argument to the command specifying the entry point.',
 		);
-		Log.error('See: https://www.remotion.dev/docs/terminology/entry-point');
+		Log.error(
+			{indent: false, logLevel},
+			'See: https://www.remotion.dev/docs/terminology/entry-point',
+		);
 		process.exit(1);
 	}
 
 	const {publicDir} = getCliOptions({
-		isLambda: false,
-		type: 'get-compositions',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -66,12 +69,17 @@ export const bundleCommand = async (
 		const isEmpty = readdirSync(outputPath).length === 0;
 		if (!existsIndexHtml && !isEmpty) {
 			Log.error(
+				{indent: false, logLevel},
 				`The folder at ${outputPath} already exists, and needs to be deleted before a new bundle can be created.`,
 			);
 			Log.error(
+				{indent: false, logLevel},
 				'However, it does not look like the folder was created by `npx remotion bundle` (no index.html).',
 			);
-			Log.error('Aborting to prevent accidental data loss.');
+			Log.error(
+				{indent: false, logLevel},
+				'Aborting to prevent accidental data loss.',
+			);
 			process.exit(1);
 		}
 
@@ -94,7 +102,10 @@ export const bundleCommand = async (
 			// Handle floating point inaccuracies
 			if (bundling.progress < 0.99999) {
 				if (updatesDontOverwrite) {
-					Log.info(`Bundling ${Math.round(bundling.progress * 100)}%`);
+					Log.info(
+						{indent: false, logLevel},
+						`Bundling ${Math.round(bundling.progress * 100)}%`,
+					);
 				}
 			}
 
@@ -113,7 +124,7 @@ export const bundleCommand = async (
 		maxTimlineTracks: null,
 	});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue(`${existed ? '○' : '+'} ${output}`),
 	);
@@ -152,8 +163,5 @@ export const bundleCommand = async (
 	const newGitIgnoreContents =
 		gitIgnoreContents + '\n' + relativePathToGitIgnore;
 	writeFileSync(gitignorePath, newGitIgnoreContents);
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		chalk.blue(`Added to .gitignore!`),
-	);
+	Log.info({indent: false, logLevel}, chalk.blue(`Added to .gitignore!`));
 };

@@ -27,8 +27,15 @@ export const watchStaticFile = (
 		return {cancel: () => undefined};
 	}
 
+	const withoutStaticBase = fileName.startsWith(window.remotion_staticBase)
+		? fileName.replace(window.remotion_staticBase, '')
+		: fileName;
+	const withoutLeadingSlash = withoutStaticBase.startsWith('/')
+		? withoutStaticBase.slice(1)
+		: withoutStaticBase;
+
 	let prevFileData = window.remotion_staticFiles.find(
-		(file: StaticFile) => file.name === fileName,
+		(file: StaticFile) => file.name === withoutLeadingSlash,
 	);
 
 	// Check if the specified static file has updated or deleted
@@ -39,7 +46,7 @@ export const watchStaticFile = (
 
 		// Check for user specified file
 		const newFileData = staticFiles.find(
-			(file: StaticFile) => file.name === fileName,
+			(file: StaticFile) => file.name === withoutLeadingSlash,
 		);
 
 		if (!newFileData) {

@@ -32,8 +32,7 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
-import {getLogLevel, Log} from './logger';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -82,7 +81,6 @@ export type InternalRenderFramesOptions = {
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
 	onDownload: RenderMediaOnDownload | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
@@ -93,7 +91,6 @@ export type InternalRenderFramesOptions = {
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
@@ -131,7 +128,6 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
-	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
@@ -163,7 +159,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -882,8 +877,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel:
-			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

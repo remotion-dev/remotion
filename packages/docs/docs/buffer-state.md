@@ -5,7 +5,7 @@ crumb: Building video apps
 ---
 
 :::warning
-Since Remotion v4.1.111, Remotion has a [native buffer state](/docs/player/buffer-state). The technique described on this page should only be used for older versions of Remotion.
+Since Remotion v4.0.111, Remotion has a [native buffer state](/docs/player/buffer-state). The technique described on this page should only be used for older versions of Remotion.
 :::
 
 In your [`<Player>`](/docs/player), you might have videos and other assets that might take some time to load after they enter the scene.

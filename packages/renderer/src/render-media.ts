@@ -32,8 +32,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
-import {getLogLevel, Log} from './logger';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -108,13 +107,11 @@ export type InternalRenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
 	browserExecutable: BrowserExecutable | null;
-	logLevel: LogLevel;
 	onCtrlCExit: (fn: () => void) => void;
 	indent: boolean;
 	server: RemotionServer | undefined;
@@ -159,7 +156,6 @@ export type RenderMediaOptions = Prettify<{
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	port?: number | null;
@@ -179,7 +175,6 @@ export type RenderMediaOptions = Prettify<{
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
-	logLevel?: LogLevel;
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 }> &
@@ -714,7 +709,7 @@ const internalRenderMediaRaw = ({
 							resolve(result);
 						})
 						.catch((err) => {
-							Log.errorAdvanced(
+							Log.error(
 								{indent, logLevel},
 								'Could not create reproduction',
 								err,
@@ -884,8 +879,7 @@ export const renderMedia = ({
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
-		logLevel:
-			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,

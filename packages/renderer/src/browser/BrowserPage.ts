@@ -216,7 +216,7 @@ export class Page extends EventEmitter {
 				const tag = [origPosition?.name, file].filter(truthy).join('@');
 
 				if (log.type === 'error') {
-					Log.errorAdvanced(
+					Log.error(
 						{
 							logLevel,
 							tag,
@@ -236,12 +236,9 @@ export class Page extends EventEmitter {
 				}
 			} else if (log.type === 'error') {
 				if (log.text.includes('Failed to load resource:')) {
-					Log.errorAdvanced({logLevel, tag: url, indent}, log.text);
+					Log.error({logLevel, tag: url, indent}, log.text);
 				} else {
-					Log.errorAdvanced(
-						{logLevel, tag: `console.${log.type}`, indent},
-						log.text,
-					);
+					Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
 				}
 			} else {
 				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);

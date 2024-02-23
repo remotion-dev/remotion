@@ -16,6 +16,9 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -30,11 +33,18 @@ export const still = async (
 	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.error(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
 		process.exit(1);
 	}
 
@@ -42,6 +52,7 @@ export const still = async (
 
 	if (parsedCli.frames) {
 		Log.error(
+			{indent: false, logLevel},
 			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
@@ -52,19 +63,14 @@ export const still = async (
 		envVariables,
 		height,
 		inputProps,
-		overwrite,
 		publicDir,
-		puppeteerTimeout,
 		stillFrame,
 		width,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+		isStill: true,
 		logLevel,
 	});
 
@@ -76,6 +82,22 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -120,9 +142,6 @@ export const still = async (
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
-		offthreadVideoCacheSizeInBytes:
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: parsedCli,
-			}).value,
+		offthreadVideoCacheSizeInBytes,
 	});
 };

@@ -36,12 +36,16 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 	);
 	if (!file) {
-		Log.error('No entry file passed.');
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} deploy <entry-file.ts>`,
+		);
 		quit(1);
 		return;
 	}
@@ -56,6 +60,7 @@ export const sitesCreateSubcommand = async (
 
 	if (!existsSync(file)) {
 		Log.error(
+			{indent: false, logLevel},
 			`No file exists at ${file}. Make sure the path exists and try again.`,
 		);
 		quit(1);
@@ -63,6 +68,7 @@ export const sitesCreateSubcommand = async (
 
 	if (lstatSync(file).isDirectory()) {
 		Log.error(
+			{indent: false, logLevel},
 			`You passed a path ${file} but it is a directory. Pass a file instead.`,
 		);
 		quit(1);
@@ -175,12 +181,13 @@ export const sitesCreateSubcommand = async (
 	};
 	updateProgress();
 
-	Log.info();
-	Log.info();
-	Log.info('Deployed to GCP Storage!');
-	Log.info();
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Deployed to GCP Storage!');
+	Log.info({indent: false, logLevel});
 
 	Log.info(
+		{indent: false, logLevel},
 		displaySiteInfo({
 			bucketName,
 			id: siteName,
@@ -189,13 +196,15 @@ export const sitesCreateSubcommand = async (
 		}),
 	);
 
-	Log.info();
+	Log.info({indent: false, logLevel});
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			['npx remotion cloudrun sites create', args[0], `--site-name=${siteName}`]
 				.filter(Internals.truthy)

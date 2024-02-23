@@ -45,8 +45,7 @@ The [ID](/docs/terminology/composition#composition-id) of the composition you wa
 
 ### `logLevel?`
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `port?`
 

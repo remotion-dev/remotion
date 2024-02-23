@@ -21,10 +21,8 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {publicDir, browserExecutable, puppeteerTimeout} = getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+	const {publicDir, browserExecutable} = getCliOptions({
+		isStill: true,
 		logLevel: job.logLevel,
 	});
 
@@ -44,7 +42,7 @@ export const processStill = async ({
 		overwrite: true,
 		port: getRendererPortFromConfigFile(),
 		publicDir,
-		puppeteerTimeout,
+		puppeteerTimeout: job.delayRenderTimeout,
 		jpegQuality: job.jpegQuality,
 		remainingArgs: [],
 		scale: job.scale,

@@ -58,11 +58,9 @@ _number, optional_
 
 The minimum duration of a silent part in seconds. The default is `1`.
 
-### `logLevel`
+### `logLevel?`
 
-_`"info" | "warn" | "error" | "verbose"`, optional_
-
-The log level. The default is `"info"`.
+<Options id="log"/>
 
 ## Return Value
 

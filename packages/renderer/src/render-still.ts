@@ -23,8 +23,6 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -60,14 +58,12 @@ type InternalRenderStillOptions = {
 	overwrite: boolean;
 	browserExecutable: BrowserExecutable;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	onDownload: RenderMediaOnDownload | null;
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -89,7 +85,6 @@ export type RenderStillOptions = {
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
@@ -437,6 +432,7 @@ export const renderStill = (
 		verbose,
 		quality,
 		offthreadVideoCacheSizeInBytes,
+		logLevel,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -477,7 +473,7 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		logLevel: logLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info'),
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,

@@ -71,9 +71,9 @@ _available since v2.6.5_
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--disable-headless`
+### `--disable-headless?`
 
-Opens an actual browser to observe the composition fetching.
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 

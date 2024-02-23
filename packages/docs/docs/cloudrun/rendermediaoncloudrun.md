@@ -241,9 +241,7 @@ Overrides default composition height.
 
 ### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
+<Options id="log"/>
 
 ### `outName?`
 

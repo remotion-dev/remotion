@@ -14,16 +14,19 @@ export type UseOffthreadVideoTextureOptions = {
 	src: string;
 	playbackRate?: number;
 	transparent?: boolean;
+	toneMapped?: boolean;
 };
 
 export const useInnerVideoTexture = ({
 	playbackRate,
 	src,
 	transparent,
+	toneMapped,
 }: {
 	playbackRate: number;
 	src: string;
 	transparent: boolean;
+	toneMapped: boolean;
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -44,8 +47,9 @@ export const useInnerVideoTexture = ({
 			currentTime,
 			src,
 			transparent,
+			toneMapped,
 		});
-	}, [currentTime, src, transparent]);
+	}, [toneMapped, currentTime, src, transparent]);
 
 	const [textLoaderPromise] = useState(
 		() => import('three/src/loaders/TextureLoader.js'),
@@ -98,6 +102,7 @@ export function useOffthreadVideoTexture({
 	src,
 	playbackRate = 1,
 	transparent = false,
+	toneMapped = true,
 }: UseOffthreadVideoTextureOptions) {
 	if (!src) {
 		throw new Error('src must be provided to useOffthreadVideoTexture');
@@ -110,5 +115,5 @@ export function useOffthreadVideoTexture({
 		);
 	}
 
-	return useInnerVideoTexture({playbackRate, src, transparent});
+	return useInnerVideoTexture({playbackRate, src, transparent, toneMapped});
 }

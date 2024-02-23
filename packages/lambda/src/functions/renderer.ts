@@ -140,6 +140,7 @@ const renderHandler = async (
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
+						{indent: false, logLevel: params.logLevel},
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 					writeLambdaInitializedFile({

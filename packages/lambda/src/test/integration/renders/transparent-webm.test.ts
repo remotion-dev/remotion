@@ -82,6 +82,7 @@ test('Should make a transparent video', async () => {
 	const progress = await callLambda({
 		type: LambdaRoutines.status,
 		payload: {
+			logLevel: 'info',
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,

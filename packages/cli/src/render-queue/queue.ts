@@ -8,7 +8,6 @@ import type {
 import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
 import {chalk} from '../chalk';
-import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {printError} from '../print-error';
 import {initialAggregateRenderProgress} from '../progress-types';
@@ -171,7 +170,7 @@ const processJobIfPossible = async ({
 			};
 		});
 		const startTime = Date.now();
-		Log.info(chalk.gray('╭─ Starting render '));
+		Log.info({indent: false, logLevel}, chalk.gray('╭─ Starting render '));
 		let lastProgress: AggregateRenderProgress | null = null;
 		await processJob({
 			job: nextJob,
@@ -217,7 +216,10 @@ const processJobIfPossible = async ({
 			},
 			logLevel,
 		});
-		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
+		Log.info(
+			{indent: false, logLevel},
+			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
+		);
 
 		const {unwatch} = StudioServerInternals.installFileWatcher({
 			file: path.resolve(remotionRoot, nextJob.outName),
@@ -250,7 +252,11 @@ const processJobIfPossible = async ({
 			};
 		});
 	} catch (err) {
-		Log.error(chalk.gray('╰─ '), chalk.red('Failed to render'));
+		Log.error(
+			{indent: false, logLevel},
+			chalk.gray('╰─ '),
+			chalk.red('Failed to render'),
+		);
 
 		updateJob(nextJob.id, (job) => {
 			return {
@@ -263,7 +269,7 @@ const processJobIfPossible = async ({
 			};
 		});
 
-		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
+		await printError(err as Error, logLevel);
 
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({

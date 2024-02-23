@@ -334,7 +334,7 @@ export const renderVideoFlow = async ({
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.gray(
 			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`,
@@ -344,6 +344,7 @@ export const renderVideoFlow = async ({
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
 		overwrite,
+		logLevel,
 	);
 	const exists = existsSync(absoluteOutputFile);
 
@@ -429,10 +430,7 @@ export const renderVideoFlow = async ({
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
-		Log.infoAdvanced(
-			{indent, logLevel},
-			chalk.blue(`▶ ${absoluteOutputFile}`),
-		);
+		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -516,7 +514,7 @@ export const renderVideoFlow = async ({
 		},
 	});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);

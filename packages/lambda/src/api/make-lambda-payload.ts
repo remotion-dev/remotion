@@ -193,6 +193,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
+	logLevel,
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
@@ -200,6 +201,7 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
+		logLevel: logLevel ?? 'info',
 	};
 };
 

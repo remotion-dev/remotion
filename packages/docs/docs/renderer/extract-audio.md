@@ -51,11 +51,9 @@ _string_
 
 The path where the extracted audio will be saved. The file extension must match the audio codec. To find the appropriate file extension, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) to read the field `audioFileExtension`.
 
-### `logLevel`
+### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`.
+<Options id="log"/>
 
 ## Return Value
 
