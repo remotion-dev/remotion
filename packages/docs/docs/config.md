@@ -25,26 +25,6 @@ Config.setPixelFormat("yuv444p");
 Config.setCodec("h265");
 ```
 
-## Old config file format
-
-In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
-
-Previously, each config option was two levels deep:
-
-```ts title="remotion.config.ts"
-Config.Bundling.setCachingEnabled(false);
-```
-
-From v3.3.39 on, all options can be accessed directly from the `Config` object.
-
-```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.setCachingEnabled(false);
-```
-
-The old way is deprecated, but will work for the foreseeable future.
-
 ## overrideWebpackConfig()<AvailableFrom v="1.1.0" />
 
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
@@ -254,7 +234,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+<Options id="disable-headless"  />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -866,6 +846,45 @@ Config.setPort(3003);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
+
+## Importing ES Modules
+
+The [config file](/docs/config) gets executed in a CommonJS environment. If you want to import ES modules to override the Webpack config, you can pass an async function to `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: src/enable-sass.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableSass: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig(async (currentConfiguration) => {
+  const { enableSass } = await import("./src/enable-sass");
+  return enableSass(currentConfiguration);
+});
+```
+
+## Old config file format
+
+In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
+
+Previously, each config option was two levels deep:
+
+```ts title="remotion.config.ts"
+Config.Bundling.setCachingEnabled(false);
+```
+
+From v3.3.39 on, all options can be accessed directly from the `Config` object.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setCachingEnabled(false);
+```
+
+The old way is deprecated, but will work for the foreseeable future.
 
 ## See also
 

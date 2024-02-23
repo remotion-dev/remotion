@@ -52,6 +52,10 @@ An object containing the following properties:
 
 The [AWS region](/docs/lambda/region-selection) that you would like to query.
 
+### `logLevel?`<AvailableFrom v="4.0.115"/>
+
+<Options id="log"/>
+
 ### `compatibleOnly`
 
 If `true`, only functions that match the version of the current Remotion Lambda package are returned. If `false`, all functions are returned.

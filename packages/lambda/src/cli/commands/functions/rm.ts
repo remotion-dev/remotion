@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -13,20 +13,25 @@ import {FUNCTIONS_LS_SUBCOMMAND} from './ls';
 export const FUNCTIONS_RM_SUBCOMMAND = 'rm';
 const LEFT_COL = 16;
 
-export const functionsRmCommand = async (args: string[]) => {
+export const functionsRmCommand = async (
+	args: string[],
+	logLevel: LogLevel,
+) => {
 	if (args.length === 0) {
-		Log.error('No function name passed.');
+		Log.error({indent: false, logLevel}, 'No function name passed.');
 		Log.error(
+			{indent: false, logLevel},
 			'Pass another argument which is the name of the function you would like to remove.',
 		);
 		Log.info(
+			{indent: false, logLevel},
 			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`,
 		);
 		quit(1);
 	}
 
 	if (args[0] === '()') {
-		Log.info('No functions to remove.');
+		Log.info({indent: false, logLevel}, 'No functions to remove.');
 		return;
 	}
 
@@ -66,7 +71,7 @@ export const functionsRmCommand = async (args: string[]) => {
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
 			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-				logLevel: RenderInternals.getLogLevel(),
+				logLevel,
 			}),
 			indent: false,
 		});

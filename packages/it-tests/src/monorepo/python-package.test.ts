@@ -122,6 +122,7 @@ test("Python package should create the same progress payload as normal Lambda pa
     functionName: "remotion-render",
     bucketName: "remotion-render",
     renderId: "abcdef",
+    logLevel: "info",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

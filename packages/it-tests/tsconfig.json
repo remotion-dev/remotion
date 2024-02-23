@@ -22,6 +22,9 @@
       "path": "../renderer"
     },
     {
+      "path": "../install-whisper-cpp"
+    },
+    {
       "path": "../cli"
     }
   ]

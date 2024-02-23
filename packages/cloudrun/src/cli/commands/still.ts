@@ -19,6 +19,8 @@ const {
 	jpegQualityOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -39,19 +41,15 @@ export const stillCommand = async (
 	const {
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		stillFrame,
 		height,
 		width,
 		browserExecutable,
-		headless,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 	} = CliInternals.getCliOptions({
-		type: 'still',
-		isLambda: true,
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -61,6 +59,9 @@ export const stillCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -70,8 +71,19 @@ export const stillCommand = async (
 		userAgent,
 	};
 
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -80,11 +92,6 @@ export const stillCommand = async (
 				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
-
-		const offthreadVideoCacheSizeInBytes =
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: CliInternals.parsedCli,
-			}).value;
 
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
@@ -139,6 +146,7 @@ export const stillCommand = async (
 	);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
@@ -152,7 +160,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim(),
 		),
 	);
-	Log.info();
+	Log.info({indent: false, logLevel});
 
 	const renderStart = Date.now();
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -200,31 +208,39 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceWidth: width,
 		forceBucketName,
 		outName,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
 	if (res.type === 'crash') {
-		displayCrashLogs(res);
+		displayCrashLogs(res, logLevel);
 	} else if (res.type === 'success') {
 		doneIn = Date.now() - renderStart;
 		updateProgress(true);
 
 		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
-		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
 		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(`Render ID = ${res.renderId}`),
+		);
+		Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
 					res.privacy
 				}, Bucket: ${res.bucketName}`,
 			),
 		);
-		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.blue(`○ ${res.publicUrl}`),
+		);
 
 		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
 
 			const {outputPath: destination} = await downloadFile({
 				bucketName: res.bucketName,
@@ -233,6 +249,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			});
 
 			Log.info(
+				{indent: false, logLevel},
 				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}

@@ -40,7 +40,8 @@ export type Template = {
 		| 'skia'
 		| 'tailwind'
 		| 'overlay'
-		| 'stargazer';
+		| 'stargazer'
+		| 'tiktok';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 } & DynamicTemplate;
@@ -324,6 +325,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 960,
 		},
 		cliId: 'stargazer' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+	},
+	{
+		homePageLabel: 'TikTok',
+		shortName: 'TikTok',
+		org: 'remotion-dev',
+		repoName: 'template-tiktok',
+		description: 'Generate animated word-by-word captions',
+		longerDescription:
+			'Caption a video of your choice locally with animated word-by-word captions. Automatically installs Whisper.cpp for you and allows you to customize the animation style.',
+		promoVideo: {
+			muxId: 'BzwCAYgGPqNtLk301tsgWCDvuWVWfEvaO2bIo2lGEd300',
+			height: 1920,
+			width: 1080,
+		},
+		cliId: 'tiktok' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,

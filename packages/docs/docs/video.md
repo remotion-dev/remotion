@@ -69,7 +69,7 @@ export const MyComposition = () => {
 
 ### `endAt`
 
-Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom) for an explanation.
+Removes a portion of the video at the end. See [`startFrom`](/docs/video#startfrom) for an explanation.
 
 ### `style`
 

@@ -112,6 +112,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			>
 				<Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 					ref={ref}
 				/>

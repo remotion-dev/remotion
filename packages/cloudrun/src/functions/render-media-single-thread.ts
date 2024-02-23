@@ -145,7 +145,11 @@ export const renderMediaSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.info('Render Completed:', responseData);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: body.logLevel},
+			'Render Completed:',
+			responseData,
+		);
 		res.end(JSON.stringify({response: responseData}));
 	} catch (err) {
 		await writeCloudrunError({

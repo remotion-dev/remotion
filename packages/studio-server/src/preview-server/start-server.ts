@@ -7,7 +7,6 @@ import type {
 	RenderDefaults,
 	RenderJob,
 } from '@remotion/studio-shared';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {handleRoutes} from '../routes';
@@ -45,13 +44,13 @@ export const startServer = async (options: {
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const [, config] = BundlerInternals.webpackConfig({
+	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development',
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
+		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
@@ -60,10 +59,10 @@ export const startServer = async (options: {
 
 	const compiler = webpack(config);
 
-	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
+	const wdmMiddleware = wdm(compiler, options.logLevel);
+	const whm = webpackHotMiddleware(compiler, options.logLevel);
 
-	const liveEventsServer = makeLiveEventsRouter();
+	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
@@ -101,7 +100,11 @@ export const startServer = async (options: {
 				});
 			})
 			.catch((err) => {
-				RenderInternals.Log.error(`Error while calling ${request.url}`, err);
+				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
+					`Error while calling ${request.url}`,
+					err,
+				);
 				if (!response.headersSent) {
 					response.setHeader('content-type', 'application/json');
 					response.writeHead(500);
@@ -160,6 +163,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {

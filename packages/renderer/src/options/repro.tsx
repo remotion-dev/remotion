@@ -22,7 +22,7 @@ export const reproOption = {
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {
-				value: true,
+				value: commandLine[cliFlag] as boolean,
 				source: 'cli',
 			};
 		}

@@ -12,37 +12,41 @@ import {Log} from '../../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
 
-const {enableMultiprocessOnLinuxOption, glOption} = BrowserSafeApis.options;
+const {
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+} = BrowserSafeApis.options;
 
 export const compositionsCommand = async (
 	args: string[],
-	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`,
+		);
 		quit(1);
 	}
 
 	const {
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
 	} = CliInternals.getCliOptions({
-		type: 'get-compositions',
-		isLambda: true,
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
@@ -50,6 +54,12 @@ export const compositionsCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -76,5 +86,5 @@ export const compositionsCommand = async (
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 	});
 
-	CliInternals.printCompositions(comps);
+	CliInternals.printCompositions(comps, logLevel);
 };

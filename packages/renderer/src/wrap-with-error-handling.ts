@@ -9,7 +9,7 @@ export const wrapWithErrorHandling = <A extends unknown[], R>(
 		try {
 			return await fn(...args);
 		} catch (err) {
-			printUsefulErrorMessage(err as Error);
+			printUsefulErrorMessage(err as Error, 'info');
 			throw err;
 		}
 	};

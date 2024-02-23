@@ -13,8 +13,12 @@ const CodeBlock = ({ children, ...props }) => {
 
   const handleCopyCode = () => {
     if (pre.current) {
+      const elementToSelect = pre.current.querySelector("code div.line")?.length
+        ? "code div.line"
+        : "div div.line";
+
       copy(
-        Array.from(pre.current.querySelectorAll("code div.line"))
+        Array.from(pre.current.querySelectorAll(elementToSelect))
           .map((el) => el.textContent)
           .join("\n"),
       );

@@ -100,6 +100,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/layout-utils</strong>
           <div>Layout helpers</div>
         </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp">
+          <strong>@remotion/install-whisper-cpp</strong>
+          <div>Cross-platform Whisper.cpp installation</div>
+        </TOCItem>
       </Grid>
     </div>
   );

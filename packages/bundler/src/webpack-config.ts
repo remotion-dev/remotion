@@ -14,7 +14,7 @@ export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration,
-) => WebpackConfiguration;
+) => WebpackConfiguration | Promise<WebpackConfiguration>;
 
 if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -41,7 +41,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-export const webpackConfig = ({
+export const webpackConfig = async ({
 	entry,
 	userDefinedComponent,
 	outDir,
@@ -67,7 +67,7 @@ export const webpackConfig = ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-}): [string, WebpackConfiguration] => {
+}): Promise<[string, WebpackConfiguration]> => {
 	let lastProgress = 0;
 
 	const isBun = typeof Bun !== 'undefined';
@@ -79,7 +79,7 @@ export const webpackConfig = ({
 			bufferStateDelayInMilliseconds,
 	});
 
-	const conf: WebpackConfiguration = webpackOverride({
+	const conf: WebpackConfiguration = await webpackOverride({
 		optimization: {
 			minimize: false,
 		},

@@ -41,19 +41,12 @@ export const Log = {
 			);
 		}
 	},
-	info: (...args: Parameters<typeof console.log>) => {
-		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
-	},
-	infoAdvanced: (
-		options: LogOptions,
-		...args: Parameters<typeof console.log>
-	) => {
+	info: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('info', ...args);
 		return console.log(
 			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
 		);
 	},
-
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('warn', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
@@ -64,19 +57,13 @@ export const Log = {
 			);
 		}
 	},
-	error: (...args: Parameters<typeof console.log>) => {
-		writeInRepro('error', ...args);
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
-			return console.error(...args.map((a) => chalk.red(a)));
-		}
-	},
-	errorAdvanced: (
+	error: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
 		writeInRepro('error', ...args);
-		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
-			return console.log(
+		if (isEqualOrBelowLogLevel(options.logLevel, 'error')) {
+			return console.error(
 				...[
 					options.indent ? INDENT_TOKEN : null,
 					options.tag ? verboseTag(options.tag) : null,
@@ -86,14 +73,4 @@ export const Log = {
 			);
 		}
 	},
-};
-
-let logLevel: LogLevel = 'info';
-
-export const getLogLevel = () => {
-	return logLevel;
-};
-
-export const setLogLevel = (newLogLevel: LogLevel) => {
-	logLevel = newLogLevel;
 };

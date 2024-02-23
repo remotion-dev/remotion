@@ -1,4 +1,4 @@
-import type {FrameRange, LogLevel} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -30,6 +30,7 @@ const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
 	overwrite: boolean,
+	logLevel: LogLevel,
 ) => {
 	const absoluteOutputFile = path.resolve(
 		process.cwd(),
@@ -37,23 +38,13 @@ export const getAndValidateAbsoluteOutputFile = (
 	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		Log.error(
+			{indent: false, logLevel},
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`,
 		);
 		process.exit(1);
 	}
 
 	return absoluteOutputFile;
-};
-
-const getAndValidateShouldOutputImageSequence = ({
-	frameRange,
-}: {
-	frameRange: FrameRange | null;
-}) => {
-	const shouldOutputImageSequence =
-		ConfigInternals.getShouldOutputImageSequence(frameRange);
-
-	return shouldOutputImageSequence;
 };
 
 const getProResProfile = () => {
@@ -63,30 +54,21 @@ const getProResProfile = () => {
 };
 
 export const getCliOptions = (options: {
-	isLambda: boolean;
-	type: 'still' | 'series' | 'get-compositions';
-	remotionRoot: string;
+	isStill: boolean;
 	logLevel: LogLevel;
 }) => {
 	const frameRange = getAndValidateFrameRange(options.logLevel, false);
 
-	const shouldOutputImageSequence =
-		options.type === 'still'
-			? true
-			: getAndValidateShouldOutputImageSequence({
-					frameRange,
-				});
+	const shouldOutputImageSequence = options.isStill
+		? true
+		: ConfigInternals.getShouldOutputImageSequence(frameRange);
 
-	const overwrite = ConfigInternals.getShouldOverwrite({
-		defaultValue: !options.isLambda,
-	});
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
-	const headless = ConfigInternals.getChromiumHeadlessMode();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
@@ -103,7 +85,6 @@ export const getCliOptions = (options: {
 	});
 
 	return {
-		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
@@ -114,12 +95,9 @@ export const getCliOptions = (options: {
 		everyNthFrame,
 		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
 		userAgent,
-		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		overwrite,
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		height,

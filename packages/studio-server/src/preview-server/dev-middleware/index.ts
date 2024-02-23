@@ -1,11 +1,15 @@
 import type {webpack} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import type {MiddleWare} from './middleware';
 import {middleware} from './middleware';
 import {setupHooks} from './setup-hooks';
 import {setupOutputFileSystem} from './setup-output-filesystem';
 import type {DevMiddlewareContext} from './types';
 
-export const wdm = (compiler: webpack.Compiler): MiddleWare => {
+export const wdm = (
+	compiler: webpack.Compiler,
+	logLevel: LogLevel,
+): MiddleWare => {
 	const context: DevMiddlewareContext = {
 		state: false,
 		stats: undefined,
@@ -15,7 +19,7 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 		outputFileSystem: undefined,
 	};
 
-	setupHooks(context);
+	setupHooks(context, logLevel);
 
 	setupOutputFileSystem(context);
 

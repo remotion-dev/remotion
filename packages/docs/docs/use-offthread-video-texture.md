@@ -113,6 +113,15 @@ If set to `true`, frames will be extracted as PNG, enabling transparency but als
 
 If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
+### `toneMapped`<AvailableFrom v="4.0.117" />
+
+Since Remotion 4.0.117, Remotion will adjust the colors of videos in different color spaces (such as HDR) when converting to RGB, to counteract color shifts.  
+Since the browser is painting in sRGB, this is necessary to ensure that the colors are displayed correctly.  
+This behavior is by default `true` and can be disabled by setting `toneMapped` to `false`.  
+Disabling tone mapping will speed up rendering, but may result in less vibrant colors.
+
+Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
+
 ## Looping a texture
 
 Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-video) but can be achieved with the `<Loop>` component.

@@ -1,8 +1,8 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
 import path from 'node:path';
-import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 
@@ -30,6 +30,7 @@ export const upgrade = async (
 	remotionRoot: string,
 	packageManager: string | undefined,
 	version: string | undefined,
+	logLevel: LogLevel,
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 	const packageJson = require(packageJsonFilePath);
@@ -43,10 +44,17 @@ export const upgrade = async (
 	let targetVersion: string;
 	if (version) {
 		targetVersion = version;
-		Log.info('Upgrading to specified version: ' + version);
+		Log.info(
+			{indent: false, logLevel},
+			'Upgrading to specified version: ' + version,
+		);
 	} else {
 		targetVersion = await StudioServerInternals.getLatestRemotionVersion();
-		Log.info('Newest Remotion version is', targetVersion);
+		Log.info(
+			{indent: false, logLevel},
+			'Newest Remotion version is',
+			targetVersion,
+		);
 	}
 
 	const manager = StudioServerInternals.getPackageManager(
@@ -82,16 +90,11 @@ export const upgrade = async (
 			stdio: 'inherit',
 		},
 	);
-	if (
-		RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'info',
-		)
-	) {
+	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
 		prom.stdout?.pipe(process.stdout);
 	}
 
 	await prom;
-	Log.info('⏫ Remotion has been upgraded!');
-	Log.info('https://remotion.dev/changelog');
+	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
+	Log.info({indent: false, logLevel}, 'https://remotion.dev/changelog');
 };

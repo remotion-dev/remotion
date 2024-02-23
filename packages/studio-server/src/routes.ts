@@ -151,6 +151,7 @@ const handleOpenInEditor = async (
 	remotionRoot: string,
 	req: IncomingMessage,
 	res: ServerResponse,
+	logLevel: LogLevel,
 ) => {
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
@@ -175,6 +176,7 @@ const handleOpenInEditor = async (
 			fileName: path.resolve(remotionRoot, stack.originalFileName as string),
 			lineNumber: stack.originalLineNumber as number,
 			vsCodeNewWindow: false,
+			logLevel,
 		});
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
@@ -363,7 +365,7 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/open-in-editor') {
-		return handleOpenInEditor(remotionRoot, request, response);
+		return handleOpenInEditor(remotionRoot, request, response, logLevel);
 	}
 
 	if (url.pathname === '/api/add-asset') {

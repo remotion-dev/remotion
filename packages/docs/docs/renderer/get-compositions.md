@@ -131,8 +131,7 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 #### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 #### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
