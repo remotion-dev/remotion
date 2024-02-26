@@ -15,6 +15,9 @@ export const binariesDirectoryOption = {
 			various shared libraries. If the value is set to <code>null</code>, which
 			is the default, then the path of a platform-specific package located at{' '}
 			<code>node_modules/@remotion/compositor-*</code> is selected.
+			<br />
+			This option is useful in environments where Remotion is not officially
+			supported to run like bundled serverless functions or Electron.
 		</>
 	),
 	ssrName: 'binariesDirectory' as const,
