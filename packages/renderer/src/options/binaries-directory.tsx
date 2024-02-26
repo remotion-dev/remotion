@@ -9,11 +9,11 @@ export const binariesDirectoryOption = {
 	cliFlag,
 	description: () => (
 		<>
-			The directory where the platform-specific binaries and libraries needed
-			for Remotion are located. Those include an <code>FFmpeg</code> and{' '}
-			<code>ffprobe</code> binary, a Rust binary for various Remotion tasks, and
-			various shared libraries. If the value is set to <code>null</code>, which
-			is the default, then the path of a platform-specific package located at{' '}
+			The directory where the platform-specific binaries and libraries that
+			Remotion needs are located. Those include an <code>ffmpeg</code> and{' '}
+			<code>ffprobe</code> binary, a Rust binary for various tasks, and various
+			shared libraries. If the value is set to <code>null</code>, which is the
+			default, then the path of a platform-specific package located at{' '}
 			<code>node_modules/@remotion/compositor-*</code> is selected.
 			<br />
 			This option is useful in environments where Remotion is not officially
