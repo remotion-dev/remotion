@@ -75,10 +75,10 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Examples
 
-- [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)
-- [Animate a .glb model](https://github.com/remotion-dev/glb-example)
-- [Typewriter effect](https://github.com/remotion-dev/typewriter)
-- [D3.js](https://github.com/remotion-dev/d3-example)
+- Music with Tone.JS ([Source code](https://github.com/remotion-dev/tone-js-example), [Preview](https://tone-js-example.vercel.app/))
+- Animate a .glb model ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
+- Typewriter effect ([Source code](https://github.com/remotion-dev/typewriter), [Preview](https://typewriter-remotion.vercel.app/))
+- D3.js example ([Source code](https://github.com/remotion-dev/d3-example), [Preview](https://d3-example-remotion.vercel.app/))
 - [Greenscreen Effect](/docs/video-manipulation)
 - [Noise visualization](/docs/noise-visualization)
 - [Audio visualization](/docs/audio-visualization)
