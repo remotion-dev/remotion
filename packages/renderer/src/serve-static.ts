@@ -18,6 +18,7 @@ export const serveStatic = async (
 		logLevel: LogLevel;
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
+		binariesDirectory: string | null;
 	},
 ): Promise<{
 	port: number;
@@ -34,6 +35,7 @@ export const serveStatic = async (
 		logLevel: options.logLevel,
 		indent: options.indent,
 		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: options.binariesDirectory,
 	});
 
 	const connections: Record<string, Socket> = {};

@@ -399,6 +399,7 @@ const innerLaunchHandler = async ({
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
 		logLevel: params.logLevel,
+		binariesDirectory: null,
 	});
 
 	return postRenderData;

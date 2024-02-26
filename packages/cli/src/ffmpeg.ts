@@ -1,12 +1,23 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {spawnSync} from 'node:child_process';
 import {chmodSync} from 'node:fs';
 import path from 'node:path';
+import {parsedCli} from './parse-command-line';
 
-export const dynamicLibEnv = (indent: boolean, logLevel: LogLevel) => {
+export const dynamicLibEnv = (
+	indent: boolean,
+	logLevel: LogLevel,
+	binariesDirectory: string | null,
+) => {
 	const lib = path.dirname(
-		RenderInternals.getExecutablePath('compositor', indent, logLevel),
+		RenderInternals.getExecutablePath({
+			type: 'compositor',
+			indent,
+			logLevel,
+			binariesDirectory,
+		}),
 	);
 
 	return {
@@ -30,14 +41,24 @@ export const ffmpegCommand = (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const binary = RenderInternals.getExecutablePath('ffmpeg', false, logLevel);
+	const {value: binariesDirectory} =
+		BrowserSafeApis.options.binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		});
+
+	const binary = RenderInternals.getExecutablePath({
+		type: 'ffmpeg',
+		indent: false,
+		logLevel,
+		binariesDirectory,
+	});
 	if (!process.env.READ_ONLY_FS) {
 		chmodSync(binary, 0o755);
 	}
 
 	const done = spawnSync(binary, args, {
 		stdio: 'inherit',
-		env: dynamicLibEnv(false, logLevel),
+		env: dynamicLibEnv(false, logLevel, binariesDirectory),
 	});
 	process.exit(done.status as number);
 };
@@ -47,7 +68,16 @@ export const ffprobeCommand = (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const binary = RenderInternals.getExecutablePath('ffprobe', false, logLevel);
+	const {value: binariesDirectory} =
+		BrowserSafeApis.options.binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		});
+	const binary = RenderInternals.getExecutablePath({
+		type: 'ffprobe',
+		indent: false,
+		logLevel,
+		binariesDirectory,
+	});
 	if (!process.env.READ_ONLY_FS) {
 		chmodSync(binary, 0o755);
 	}
@@ -55,7 +85,7 @@ export const ffprobeCommand = (
 	const done = spawnSync(binary, args, {
 		cwd: path.dirname(binary),
 		stdio: 'inherit',
-		env: dynamicLibEnv(false, logLevel),
+		env: dynamicLibEnv(false, logLevel, binariesDirectory),
 	});
 	process.exit(done.status as number);
 };

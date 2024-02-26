@@ -620,6 +620,7 @@ const internalRenderFramesRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
+	binariesDirectory,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -685,6 +686,7 @@ const internalRenderFramesRaw = ({
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
+						binariesDirectory,
 					},
 					{
 						onDownload,
@@ -741,6 +743,7 @@ const internalRenderFramesRaw = ({
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
+					binariesDirectory,
 				});
 			}),
 		])
@@ -823,6 +826,7 @@ export const renderFrames = (
 		quality,
 		logLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	} = options;
 
 	if (!composition) {
@@ -883,5 +887,6 @@ export const renderFrames = (
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

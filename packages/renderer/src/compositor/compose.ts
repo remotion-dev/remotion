@@ -99,9 +99,15 @@ export const callCompositor = (
 	payload: string,
 	indent: boolean,
 	logLevel: LogLevel,
+	binariesDirectory: string | null,
 ) => {
 	return new Promise<void>((resolve, reject) => {
-		const execPath = getExecutablePath('compositor', indent, logLevel);
+		const execPath = getExecutablePath({
+			type: 'compositor',
+			indent,
+			logLevel,
+			binariesDirectory,
+		});
 		if (!process.env.READ_ONLY_FS) {
 			chmodSync(execPath, 0o755);
 		}

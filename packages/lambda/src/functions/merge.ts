@@ -79,6 +79,7 @@ export const mergeHandler = async (
 		},
 		audioBitrate: renderMetadata.audioBitrate,
 		logLevel: params.logLevel,
+		binariesDirectory: null,
 	});
 
 	return {type: 'success' as const, postRenderData};

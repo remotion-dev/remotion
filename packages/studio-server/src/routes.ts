@@ -259,6 +259,7 @@ export const handleRoutes = ({
 	numberOfAudioTags,
 	queueMethods: methods,
 	gitSource,
+	binariesDirectory,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -278,6 +279,7 @@ export const handleRoutes = ({
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -311,6 +313,7 @@ export const handleRoutes = ({
 				response,
 				logLevel,
 				methods,
+				binariesDirectory,
 			});
 		}
 	}

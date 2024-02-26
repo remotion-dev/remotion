@@ -85,6 +85,10 @@ See: [Environment variables](/docs/env-variables/)
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/select-composition.ts)

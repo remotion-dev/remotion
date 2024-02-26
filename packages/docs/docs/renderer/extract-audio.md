@@ -59,6 +59,10 @@ The path where the extracted audio will be saved. The file extension must match 
 
 <Options id="log"/>
 
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
 ## Return Value
 
 The function returns a `Promise<void>`, which resolves once the audio extraction is complete.

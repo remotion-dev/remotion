@@ -123,6 +123,7 @@ export type InternalRenderMediaOptions = {
 	serveUrl: string;
 	concurrency: number | string | null;
 	finishRenderProgress: () => void;
+	binariesDirectory: string | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -177,6 +178,7 @@ export type RenderMediaOptions = Prettify<{
 	concurrency?: number | string | null;
 	colorSpace?: ColorSpace;
 	repro?: boolean;
+	binariesDirectory?: string | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -235,6 +237,7 @@ const internalRenderMediaRaw = ({
 	colorSpace,
 	repro,
 	finishRenderProgress,
+	binariesDirectory,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -471,6 +474,7 @@ const internalRenderMediaRaw = ({
 				indent,
 				x264Preset: x264Preset ?? null,
 				colorSpace,
+				binariesDirectory,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -538,6 +542,7 @@ const internalRenderMediaRaw = ({
 						webpackConfigOrServeUrl: serveUrl,
 						offthreadVideoCacheSizeInBytes:
 							offthreadVideoCacheSizeInBytes ?? null,
+						binariesDirectory,
 					},
 					{
 						onDownload,
@@ -618,6 +623,7 @@ const internalRenderMediaRaw = ({
 					serializedResolvedPropsWithCustomSchema,
 					offthreadVideoCacheSizeInBytes,
 					parallelEncodingEnabled: parallelEncoding,
+					binariesDirectory,
 				});
 
 				return renderFramesProc;
@@ -682,6 +688,7 @@ const internalRenderMediaRaw = ({
 						audioCodec,
 						x264Preset: x264Preset ?? null,
 						colorSpace,
+						binariesDirectory,
 					}),
 					stitchStart,
 				]);
@@ -829,6 +836,7 @@ export const renderMedia = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
+	binariesDirectory,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -894,5 +902,6 @@ export const renderMedia = ({
 		colorSpace: colorSpace ?? 'default',
 		repro: repro ?? false,
 		finishRenderProgress: () => undefined,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

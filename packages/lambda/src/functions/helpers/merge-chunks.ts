@@ -61,6 +61,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	onAllChunks: OnAllChunksAvailable;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -165,6 +166,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		audioCodec: options.audioCodec,
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
+		binariesDirectory: options.binariesDirectory,
 	});
 	const encodingStop = Date.now();
 

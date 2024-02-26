@@ -77,6 +77,7 @@ type InternalStitchFramesToVideoOptions = {
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace;
+	binariesDirectory: string | null;
 };
 
 export type StitchFramesToVideoOptions = {
@@ -105,6 +106,7 @@ export type StitchFramesToVideoOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
+	binariesDirectory?: string | null;
 };
 
 type ReturnType = Promise<Buffer | null>;
@@ -119,6 +121,7 @@ const getAssetsData = async ({
 	downloadMap,
 	remotionRoot,
 	indent,
+	binariesDirectory,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -129,6 +132,7 @@ const getAssetsData = async ({
 	downloadMap: DownloadMap;
 	remotionRoot: string;
 	indent: boolean;
+	binariesDirectory: string | null;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -167,6 +171,7 @@ const getAssetsData = async ({
 					downloadMap,
 					indent,
 					logLevel,
+					binariesDirectory,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -185,6 +190,7 @@ const getAssetsData = async ({
 		remotionRoot,
 		indent,
 		logLevel,
+		binariesDirectory,
 	});
 
 	onProgress(1);
@@ -227,6 +233,7 @@ const innerStitchFramesToVideo = async (
 		onProgress,
 		x264Preset,
 		colorSpace,
+		binariesDirectory,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -353,6 +360,7 @@ const innerStitchFramesToVideo = async (
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
+				binariesDirectory,
 			})
 		: null;
 
@@ -377,6 +385,7 @@ const innerStitchFramesToVideo = async (
 			].filter(NoReactInternals.truthy),
 			indent,
 			logLevel,
+			binariesDirectory,
 		});
 
 		cancelSignal?.(() => {
@@ -475,6 +484,7 @@ const innerStitchFramesToVideo = async (
 		args: finalFfmpegString,
 		indent,
 		logLevel,
+		binariesDirectory,
 	});
 	cancelSignal?.(() => {
 		task.kill();
@@ -584,6 +594,7 @@ export const stitchFramesToVideo = ({
 	encodingBufferSize,
 	x264Preset,
 	colorSpace,
+	binariesDirectory,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -614,5 +625,6 @@ export const stitchFramesToVideo = ({
 		preferLossless: false,
 		x264Preset: x264Preset ?? null,
 		colorSpace: colorSpace ?? 'default',
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

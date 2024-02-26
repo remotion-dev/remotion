@@ -5,11 +5,13 @@ export const extractAudio = async (options: {
 	videoSource: string;
 	audioOutput: string;
 	logLevel?: LogLevel;
+	binariesDirectory?: string | null;
 }) => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,
+		binariesDirectory: options.binariesDirectory ?? null,
 	});
 	await compositor.executeCommand('ExtractAudio', {
 		input_path: options.videoSource,

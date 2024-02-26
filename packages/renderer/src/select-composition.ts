@@ -48,7 +48,7 @@ export type SelectCompositionOptions = {
 	verbose?: boolean;
 	serveUrl: string;
 	id: string;
-} & Partial<ToOptions<typeof optionsMap.renderStill>>;
+} & Partial<ToOptions<typeof optionsMap.selectComposition>>;
 
 type CleanupFn = () => Promise<unknown>;
 
@@ -194,6 +194,7 @@ export const internalSelectCompositionRaw = async (
 		server,
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -227,6 +228,7 @@ export const internalSelectCompositionRaw = async (
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			},
 			{
 				onDownload: () => undefined,
@@ -253,6 +255,7 @@ export const internalSelectCompositionRaw = async (
 					puppeteerInstance,
 					server,
 					offthreadVideoCacheSizeInBytes,
+					binariesDirectory,
 				});
 			})
 
@@ -299,6 +302,7 @@ export const selectComposition = async (
 		verbose,
 		logLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	} = options;
 
 	const data = await internalSelectComposition({
@@ -321,6 +325,7 @@ export const selectComposition = async (
 		indent: false,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 	return data.metadata;
 };
