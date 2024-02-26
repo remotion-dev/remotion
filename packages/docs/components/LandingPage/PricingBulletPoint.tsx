@@ -41,7 +41,7 @@ export const PricingBulletPoint: React.FC<{
   return (
     <div style={container}>
       {checked ? checkmarkSVG : <div style={greyCircle} />}
-      <div className={styles.text}>{text} </div>
+      <div className={styles.text}>{text}</div>
     </div>
   );
 };

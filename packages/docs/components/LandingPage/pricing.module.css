@@ -9,6 +9,10 @@
   color: var(--ifm-color-primary);
 }
 
+.countercontainer {
+  width: 110px;
+}
+
 .counterinput {
   font-family: "GTPlanar", sans-serif;
   font-size: 24px;
@@ -35,6 +39,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .text {
+  font-family: "GTPlanar", sans-serif;
+  font-size: 19px;
+}
+
+.audience {
   font-family: "GTPlanar", sans-serif;
   font-size: 19px;
   line-height: 1.2;
@@ -136,12 +145,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .rowcontainer {
   display: flex;
   flex-direction: row;
-  margin-bottom: 12;
 }
 
 @media screen and (max-width: 900px) {
   .description {
-    min-width: 200px;
+    flex-shrink: 1;
+    min-width: auto;
   }
   .pricingcontainer {
     text-align: left;
@@ -150,8 +159,10 @@ input[type="number"]::-webkit-outer-spin-button {
     max-width: 500px;
     width: 100%;
   }
-
   .description {
     font-size: 0.85em;
+  }
+  .countercontainer {
+    width: 70px;
   }
 }
