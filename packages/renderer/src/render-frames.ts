@@ -700,13 +700,14 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
+				const cycle = cycleBrowserTabs(
+					browserReplacer,
+					actualConcurrency,
+					logLevel,
+					indent,
+				);
 				cleanup.push(() => {
-					cycleBrowserTabs(
-						browserReplacer,
-						actualConcurrency,
-						logLevel,
-						indent,
-					).stopCycling();
+					cycle.stopCycling();
 					return Promise.resolve();
 				});
 				cleanup.push(() => cleanupServer(false));
