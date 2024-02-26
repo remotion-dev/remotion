@@ -114,6 +114,7 @@ const {
 	enableLambdaInsights,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -452,6 +453,11 @@ declare global {
 		 * Collect information that you can submit to Remotion if asked for a reproduction.
 		 */
 		readonly setRepro: (enableRepro: boolean) => void;
+		/**
+		 * The directory where the platform-specific binaries and libraries needed
+			for Remotion are located.
+		 */
+		readonly setBinariesDirectory: (directory: string | null) => void;
 	}
 }
 
@@ -604,6 +610,7 @@ export const Config: FlatConfig = {
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
+	setBinariesDirectory: binariesDirectoryOption.setConfig,
 };
 
 export const ConfigInternals = {

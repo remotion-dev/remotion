@@ -159,6 +159,7 @@ const internalGetCompositionsRaw = async ({
 	timeoutInMilliseconds,
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -192,6 +193,7 @@ const internalGetCompositionsRaw = async ({
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			},
 			{
 				onDownload: () => undefined,
@@ -216,6 +218,7 @@ const internalGetCompositionsRaw = async ({
 					indent,
 					logLevel,
 					offthreadVideoCacheSizeInBytes,
+					binariesDirectory,
 				});
 			})
 
@@ -282,5 +285,6 @@ export const getCompositions = (
 		logLevel: logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			config?.offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: config?.binariesDirectory ?? null,
 	});
 };

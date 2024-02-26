@@ -11,16 +11,19 @@ export const getSilentParts = async ({
 	noiseThresholdInDecibels: passedNoiseThresholdInDecibels,
 	minDurationInSeconds: passedMinDuration,
 	logLevel,
+	binariesDirectory,
 }: {
 	src: string;
 	minDurationInSeconds?: number;
 	logLevel?: LogLevel;
 	noiseThresholdInDecibels?: number;
+	binariesDirectory?: string | null;
 }): Promise<GetSilentPartsResponse> => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: logLevel ?? 'info',
 		indent: false,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 
 	const minDurationInSeconds = passedMinDuration ?? 1;
