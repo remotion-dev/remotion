@@ -89,6 +89,12 @@ box.add({ text: "How", fontFamily, fontSize }); // {exceedsBox: false, newLine: 
 box.add({ text: "the end", fontFamily, fontSize }); // {exceedsBox: true, newLine: false}
 ```
 
+## Important considerations
+
+- The font needs to be loaded before calling `fillTextBox()`.
+- Rendered words should have a `white-space: pre` style to ensure that whitespace is rendered.
+- Consider that `border` and `padding` of the will affect the size of the word. Consider using `outline` instead.
+
 ## See also
 
 - [measureText()](/docs/layout-utils/measure-text)
