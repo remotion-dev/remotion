@@ -26,4 +26,5 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	response: ServerResponse;
 	logLevel: LogLevel;
 	methods: QueueMethods;
+	binariesDirectory: string | null;
 }) => Promise<ResData>;

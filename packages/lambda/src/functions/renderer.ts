@@ -227,6 +227,7 @@ const renderHandler = async (
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
 			finishRenderProgress: () => undefined,
+			binariesDirectory: null,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

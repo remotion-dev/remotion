@@ -47,6 +47,7 @@ const getMissedFramesforCodec = async () => {
     ],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
 
   let missedFrames = 0;

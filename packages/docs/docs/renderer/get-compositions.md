@@ -143,13 +143,17 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
-#### ~~`ffmpegExecutable`~~
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0_
 

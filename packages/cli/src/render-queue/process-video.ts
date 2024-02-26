@@ -81,5 +81,6 @@ export const processVideoJob = async ({
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		colorSpace: job.type === 'video' ? job.colorSpace : 'default',
 		repro: job.repro,
+		binariesDirectory: job.binariesDirectory,
 	});
 };

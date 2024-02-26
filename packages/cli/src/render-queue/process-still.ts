@@ -57,5 +57,6 @@ export const processStill = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: job.binariesDirectory,
 	});
 };

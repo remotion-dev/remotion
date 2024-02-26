@@ -50,6 +50,16 @@ _string_
 
 A local video file path.
 
+### options?
+
+### `logLevel?`
+
+<Options id="log" />
+
+#### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
 ## Return Value
 
 The return value is an object with the following properties:
