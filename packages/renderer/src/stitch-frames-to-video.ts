@@ -122,6 +122,7 @@ const getAssetsData = async ({
 	remotionRoot,
 	indent,
 	binariesDirectory,
+	forceLossless,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -133,6 +134,7 @@ const getAssetsData = async ({
 	remotionRoot: string;
 	indent: boolean;
 	binariesDirectory: string | null;
+	forceLossless: boolean;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -191,6 +193,7 @@ const getAssetsData = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		forceLossless,
 	});
 
 	onProgress(1);
@@ -361,6 +364,7 @@ const innerStitchFramesToVideo = async (
 				remotionRoot,
 				indent,
 				binariesDirectory,
+				forceLossless: preferLossless,
 			})
 		: null;
 
