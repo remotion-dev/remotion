@@ -8,16 +8,16 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Templates
 
-- [Hello World (TypeScript)](https://github.com/remotion-dev/template-helloworld)
-- [Hello World (JavaScript)](https://github.com/remotion-dev/template-helloworld-javascript)
-- [Blank](https://github.com/remotion-dev/template-empty)
-- [React Three Fiber](https://github.com/remotion-dev/template-three)
-- [Stills](https://github.com/remotion-dev/template-still)
-- [Text-to-Speech Template (Azure)](https://github.com/FelippeChemello/Remotion-TTS-Example)
-- [Text-to-Speech Template (Google)](https://github.com/thecmdrunner/remotion-gtts-template)
-- [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
-- [Skia](https://github.com/remotion-dev/template-skia)
-- [Tailwind](https://github.com/remotion-dev/template-tailwind)
+- Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://template-helloworld-71lz.vercel.app/))
+- Hello World (JavaScript) ([Source code](https://github.com/remotion-dev/template-helloworld-javascript), [Preview](https://template-helloworld-javascript.vercel.app/))
+- Blank ([Source code](https://github.com/remotion-dev/template-empty), [Preview](https://template-empty.vercel.app/))
+- React Three Fiber ([Source code](https://github.com/remotion-dev/template-three), [Preview](https://template-three-remotion.vercel.app/))
+- Stills ([Source code](https://github.com/remotion-dev/template-still), [Preview](https://template-still.vercel.app/))
+- Text-to-Speech Template (Azure) ([Source code](https://github.com/FelippeChemello/Remotion-TTS-Example))
+- Text-to-Speech Template (Google) ([Source code](https://github.com/thecmdrunner/remotion-gtts-template))
+- Audiogram ([Source code](https://github.com/marcusstenbeck/remotion-template-audiogram))
+- Skia ([Source code](https://github.com/remotion-dev/template-skia))
+- Tailwind ([Source code](https://github.com/remotion-dev/template-tailwind), [Preview](https://template-tailwind-remotion.vercel.app/))
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 - [Library starter template with best practices](https://github.com/remotion-dev/library-starter)
 
