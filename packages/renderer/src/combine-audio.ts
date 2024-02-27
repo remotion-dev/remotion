@@ -31,6 +31,7 @@ const encodeAudio = async ({
 	fps,
 	binariesDirectory,
 	cancelSignal,
+	onProgress,
 }: {
 	files: string[];
 	resolvedAudioCodec: AudioCodec;
@@ -43,6 +44,7 @@ const encodeAudio = async ({
 	fps: number;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	onProgress: (frames: number) => void;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
@@ -89,6 +91,7 @@ const encodeAudio = async ({
 			if (parsed === undefined) {
 				Log.verbose({indent, logLevel}, utf8);
 			} else {
+				onProgress(parsed);
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}
 		});
@@ -115,6 +118,7 @@ const combineAudioSeamlessly = async ({
 	fps,
 	binariesDirectory,
 	cancelSignal,
+	onProgress,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -126,6 +130,7 @@ const combineAudioSeamlessly = async ({
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
 	indent: boolean;
+	onProgress: (frames: number) => void;
 }) => {
 	const startConcatenating = Date.now();
 	const fileList = files
@@ -201,6 +206,7 @@ const combineAudioSeamlessly = async ({
 			if (parsed === undefined) {
 				Log.verbose({indent, logLevel}, utf8);
 			} else {
+				onProgress(parsed);
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}
 		});
@@ -231,6 +237,7 @@ export const createCombinedAudio = ({
 	binariesDirectory,
 	fps,
 	cancelSignal,
+	onProgress,
 }: {
 	seamless: boolean;
 	filelistDir: string;
@@ -245,6 +252,7 @@ export const createCombinedAudio = ({
 	binariesDirectory: string | null;
 	fps: number;
 	cancelSignal: CancelSignal | undefined;
+	onProgress: (frames: number) => void;
 }): Promise<string> => {
 	if (seamless) {
 		return combineAudioSeamlessly({
@@ -258,6 +266,7 @@ export const createCombinedAudio = ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
+			onProgress,
 		});
 	}
 
@@ -273,5 +282,6 @@ export const createCombinedAudio = ({
 		binariesDirectory,
 		fps,
 		cancelSignal,
+		onProgress,
 	});
 };

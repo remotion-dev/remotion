@@ -73,6 +73,20 @@ export const combineVideos = async ({
 	const audioFiles = files.filter((f) => f.endsWith('audio'));
 	const videoFiles = files.filter((f) => f.endsWith('video'));
 
+	let concatenatedAudio = 0;
+	let concatenatedVideo = 0;
+	let muxing = 0;
+
+	const updateProgress = () => {
+		const totalFrames =
+			(shouldCreateAudio ? numberOfFrames : 0) +
+			(shouldCreateVideo ? numberOfFrames : 0) +
+			numberOfFrames;
+		const actualProgress = concatenatedAudio + concatenatedVideo + muxing;
+
+		onProgress((actualProgress / totalFrames) * numberOfFrames);
+	};
+
 	await Promise.all(
 		[
 			shouldCreateAudio
@@ -90,6 +104,10 @@ export const combineVideos = async ({
 						binariesDirectory,
 						fps,
 						cancelSignal,
+						onProgress: (frames) => {
+							concatenatedAudio = frames;
+							updateProgress();
+						},
 					})
 				: null,
 
@@ -101,12 +119,15 @@ export const combineVideos = async ({
 						indent,
 						logLevel,
 						numberOfGifLoops,
-						onProgress,
 						output: shouldCreateAudio ? videoOutput : output,
 						files: videoFiles,
 						addRemotionMetadata: !shouldCreateAudio,
 						binariesDirectory,
 						cancelSignal,
+						onProgress: (frames) => {
+							concatenatedVideo = frames;
+							updateProgress();
+						},
 					})
 				: null,
 		].filter(truthy),
@@ -122,7 +143,10 @@ export const combineVideos = async ({
 			audioOutput,
 			indent,
 			logLevel,
-			onProgress,
+			onProgress: (frames) => {
+				muxing = frames;
+				updateProgress();
+			},
 			output,
 			videoOutput,
 			binariesDirectory,
