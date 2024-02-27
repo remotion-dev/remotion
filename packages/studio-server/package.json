@@ -27,7 +27,6 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"formidable": "^3.5.1",
 		"memfs": "3.4.3",
 		"open": "^8.4.2",
 		"remotion": "workspace:*",
