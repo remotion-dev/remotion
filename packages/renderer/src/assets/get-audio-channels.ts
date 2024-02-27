@@ -12,6 +12,7 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 	src: string,
 	indent: boolean,
 	logLevel: LogLevel,
+	binariesDirectory: string | null,
 ) => {
 	const args = [
 		['-v', 'error'],
@@ -22,7 +23,13 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await callFf({bin: 'ffprobe', args, indent, logLevel});
+	const task = await callFf({
+		bin: 'ffprobe',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
@@ -34,12 +41,19 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 	return result;
 };
 
-async function getAudioChannelsAndDurationUnlimited(
-	downloadMap: DownloadMap,
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-): Promise<AudioChannelsAndDurationResultCache> {
+async function getAudioChannelsAndDurationUnlimited({
+	downloadMap,
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+}: {
+	downloadMap: DownloadMap;
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): Promise<AudioChannelsAndDurationResultCache> {
 	if (downloadMap.durationOfAssetCache[src]) {
 		return downloadMap.durationOfAssetCache[src];
 	}
@@ -48,6 +62,7 @@ async function getAudioChannelsAndDurationUnlimited(
 		src,
 		indent,
 		logLevel,
+		binariesDirectory,
 	);
 
 	downloadMap.durationOfAssetCache[src] = result;
@@ -55,13 +70,26 @@ async function getAudioChannelsAndDurationUnlimited(
 	return result;
 }
 
-export const getAudioChannelsAndDuration = (
-	downloadMap: DownloadMap,
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-): Promise<AudioChannelsAndDurationResultCache> => {
+export const getAudioChannelsAndDuration = ({
+	downloadMap,
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+}: {
+	downloadMap: DownloadMap;
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() =>
-		getAudioChannelsAndDurationUnlimited(downloadMap, src, indent, logLevel),
+		getAudioChannelsAndDurationUnlimited({
+			downloadMap,
+			src,
+			indent,
+			logLevel,
+			binariesDirectory,
+		}),
 	);
 };

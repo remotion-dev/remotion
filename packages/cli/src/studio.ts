@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
@@ -90,6 +91,11 @@ export const studioCommand = async (
 
 	const gitSource = getGitSource(remotionRoot);
 
+	const binariesDirectory =
+		BrowserSafeApis.options.binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
 		browserArgs: parsedCli['browser-args'],
@@ -121,5 +127,6 @@ export const studioCommand = async (
 		gitSource,
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		binariesDirectory,
 	});
 };

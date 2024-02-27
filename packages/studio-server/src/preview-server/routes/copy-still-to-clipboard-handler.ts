@@ -6,7 +6,7 @@ import type {ApiHandler} from '../api-types';
 export const handleCopyStillToClipboard: ApiHandler<
 	CopyStillToClipboardRequest,
 	void
-> = ({input: {outName}, remotionRoot}) => {
+> = ({input: {outName, binariesDirectory}, remotionRoot}) => {
 	const resolved = path.resolve(remotionRoot, outName);
 
 	const relativeToProcessCwd = path.relative(remotionRoot, resolved);
@@ -14,5 +14,9 @@ export const handleCopyStillToClipboard: ApiHandler<
 		throw new Error(`Not allowed to open ${relativeToProcessCwd}`);
 	}
 
-	return RenderInternals.copyImageToClipboard(resolved, 'info');
+	return RenderInternals.copyImageToClipboard(
+		resolved,
+		'info',
+		binariesDirectory,
+	);
 };

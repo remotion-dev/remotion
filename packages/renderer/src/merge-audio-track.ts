@@ -20,6 +20,7 @@ type Options = {
 	remotionRoot: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -30,6 +31,7 @@ const mergeAudioTrackUnlimited = async ({
 	remotionRoot,
 	indent,
 	logLevel,
+	binariesDirectory,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
@@ -37,6 +39,7 @@ const mergeAudioTrackUnlimited = async ({
 			numberOfSeconds,
 			indent,
 			logLevel,
+			binariesDirectory,
 		});
 		return;
 	}
@@ -60,6 +63,7 @@ const mergeAudioTrackUnlimited = async ({
 						remotionRoot,
 						indent,
 						logLevel,
+						binariesDirectory,
 					});
 					return chunkOutname;
 				}),
@@ -79,6 +83,7 @@ const mergeAudioTrackUnlimited = async ({
 				remotionRoot,
 				indent,
 				logLevel,
+				binariesDirectory,
 			});
 			return;
 		} finally {
@@ -101,7 +106,13 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = callFf({bin: 'ffmpeg', args, indent, logLevel});
+	const task = callFf({
+		bin: 'ffmpeg',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
 	await task;
 	cleanup();
 };

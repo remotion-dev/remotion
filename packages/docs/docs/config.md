@@ -747,6 +747,16 @@ import { Config } from "@remotion/cli/config";
 Config.setBufferStateDelayInMilliseconds(0);
 ```
 
+## `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBinariesDirectory("/path/to/custom/directory");
+```
+
 ## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.

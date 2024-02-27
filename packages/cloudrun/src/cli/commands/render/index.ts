@@ -33,6 +33,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -100,6 +101,9 @@ export const renderCommand = async (
 	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {
@@ -133,6 +137,7 @@ export const renderCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		const {compositionId} =
@@ -158,6 +163,7 @@ export const renderCommand = async (
 						staticBase: null,
 					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			});
 		composition = compositionId;
 	}

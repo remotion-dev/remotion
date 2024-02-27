@@ -11,11 +11,13 @@ export const handleRequest = async <Req, Res>({
 	handler,
 	logLevel,
 	methods,
+	binariesDirectory,
 }: {
 	remotionRoot: string;
 	request: IncomingMessage;
 	response: ServerResponse;
 	entryPoint: string;
+	binariesDirectory: string | null;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -40,6 +42,7 @@ export const handleRequest = async <Req, Res>({
 			input: body,
 			logLevel,
 			methods,
+			binariesDirectory,
 		});
 
 		response.end(

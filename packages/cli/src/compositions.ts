@@ -17,6 +17,7 @@ const {
 	glOption,
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -122,6 +123,9 @@ export const listCompositionsCommand = async (
 			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+		binariesDirectory: binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 	});
 
 	printCompositions(compositions, logLevel);

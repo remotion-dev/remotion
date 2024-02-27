@@ -47,7 +47,7 @@ test("Set the right verison for composer.json in example", () => {
   );
 });
 
-test("PHP package should create the same renderMedia payload as normal Lambda package", async () => {
+test.skip("PHP package should create the same renderMedia payload as normal Lambda package", async () => {
   execSync("php composer.phar --quiet update", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
@@ -115,7 +115,9 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
   ).toEqual(removeUndefined(nativeVersion));
 });
 
-test("PHP package should create the same progress payload as normal Lambda package", async () => {
+// Skip PHP tests temporarily
+// https://github.com/shivammathur/setup-php/issues/823
+test.skip("PHP package should create the same progress payload as normal Lambda package", async () => {
   execSync("php composer.phar --quiet update", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });

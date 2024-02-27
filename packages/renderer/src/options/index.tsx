@@ -1,5 +1,6 @@
 import {audioBitrateOption} from './audio-bitrate';
 import {beepOnFinishOption} from './beep-on-finish';
+import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -53,6 +54,7 @@ export const allOptions = {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	overwriteOption,
+	binariesDirectoryOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

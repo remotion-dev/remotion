@@ -190,6 +190,7 @@ export const concatVideosS3 = async ({
 	audioCodec,
 	audioBitrate,
 	logLevel,
+	binariesDirectory,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -201,6 +202,7 @@ export const concatVideosS3 = async ({
 	audioCodec: AudioCodec | null;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -222,6 +224,7 @@ export const concatVideosS3 = async ({
 		audioBitrate,
 		indent: false,
 		logLevel,
+		binariesDirectory,
 	});
 	combine.end();
 

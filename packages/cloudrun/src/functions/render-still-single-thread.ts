@@ -93,6 +93,7 @@ export const renderStillSingleThread = async (
 			puppeteerInstance: null,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

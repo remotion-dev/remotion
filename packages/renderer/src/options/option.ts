@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
-import type React from 'react';
 import type {TypeOfOption} from '../client';
 
 export type RemotionOption<SsrName extends string, Type> = {

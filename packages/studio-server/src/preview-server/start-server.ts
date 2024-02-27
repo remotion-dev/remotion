@@ -40,6 +40,7 @@ export const startServer = async (options: {
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -97,6 +98,7 @@ export const startServer = async (options: {
 					numberOfAudioTags: options.numberOfAudioTags,
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
+					binariesDirectory: options.binariesDirectory,
 				});
 			})
 			.catch((err) => {

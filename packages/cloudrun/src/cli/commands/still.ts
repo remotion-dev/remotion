@@ -21,6 +21,7 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -78,6 +79,9 @@ export const stillCommand = async (
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -101,6 +105,7 @@ export const stillCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		const {compositionId} =
@@ -126,6 +131,7 @@ export const stillCommand = async (
 				width,
 				server: await server,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			});
 		composition = compositionId;
 	}

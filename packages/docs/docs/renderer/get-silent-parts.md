@@ -28,13 +28,17 @@ Gets the silent parts of a video or audio in Node.js. Useful for cutting out sil
 import { getSilentParts } from "@remotion/renderer";
 
 const { silentParts, durationInSeconds } = await getSilentParts({
-  src: "./bunny.mp4",
+  src: "/Users/john/Documents/bunny.mp4",
   noiseThresholdInDecibels: -20,
   minDurationInSeconds: 1,
 });
 
 console.log(silentParts); // [{startInSeconds: 0, endInSeconds: 1.5}]
 ```
+
+:::info
+Pass an absolute path to `getSilentParts()`. URLs are not supported.
+:::
 
 ## Arguments
 
@@ -61,6 +65,10 @@ The minimum duration of a silent part in seconds. The default is `1`.
 ### `logLevel?`
 
 <Options id="log"/>
+
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
 
 ## Return Value
 

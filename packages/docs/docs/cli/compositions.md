@@ -87,6 +87,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.

@@ -286,6 +286,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
 ### ~~`quality?`~~
 
 Renamed to `jpegQuality` in `v4.0.0`.

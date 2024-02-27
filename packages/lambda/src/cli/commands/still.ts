@@ -29,6 +29,7 @@ const {
 	glOption,
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -106,6 +107,9 @@ export const stillCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -129,6 +133,7 @@ export const stillCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		const {compositionId} = await getCompositionWithDimensionOverride({
@@ -153,6 +158,7 @@ export const stillCommand = async (
 			width,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 		composition = compositionId;
 	}

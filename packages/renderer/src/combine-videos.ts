@@ -30,6 +30,7 @@ type Options = {
 	audioBitrate: string | null;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -46,6 +47,7 @@ export const combineVideos = async (options: Options) => {
 		audioBitrate,
 		indent,
 		logLevel,
+		binariesDirectory,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -94,6 +96,7 @@ export const combineVideos = async (options: Options) => {
 			args: command,
 			indent: options.indent,
 			logLevel: options.logLevel,
+			binariesDirectory,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {

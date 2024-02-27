@@ -13,14 +13,21 @@ export const callFf = ({
 	indent,
 	logLevel,
 	options,
+	binariesDirectory,
 }: {
 	bin: 'ffmpeg' | 'ffprobe';
 	args: (string | null)[];
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 	options?: execa.Options<string>;
 }) => {
-	const executablePath = getExecutablePath(bin, indent, logLevel);
+	const executablePath = getExecutablePath({
+		type: bin,
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
 	if (!process.env.READ_ONLY_FS) {
 		chmodSync(executablePath, 0o755);
 	}
@@ -37,14 +44,21 @@ export const callFfNative = ({
 	indent,
 	logLevel,
 	options,
+	binariesDirectory,
 }: {
 	bin: 'ffmpeg' | 'ffprobe';
 	args: (string | null)[];
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 	options?: SpawnOptionsWithoutStdio;
 }) => {
-	const executablePath = getExecutablePath(bin, indent, logLevel);
+	const executablePath = getExecutablePath({
+		type: bin,
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
 	if (!process.env.READ_ONLY_FS) {
 		chmodSync(executablePath, 0o755);
 	}

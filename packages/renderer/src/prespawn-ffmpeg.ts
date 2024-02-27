@@ -54,6 +54,7 @@ type PreStitcherOptions = {
 	encodingBufferSize: string | null;
 	indent: boolean;
 	colorSpace: ColorSpace;
+	binariesDirectory: string | null;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -136,6 +137,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		args: finalFfmpegString,
 		indent: options.indent,
 		logLevel: options.logLevel,
+		binariesDirectory: options.binariesDirectory,
 	});
 
 	options.signal(() => {

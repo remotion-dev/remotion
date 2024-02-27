@@ -32,6 +32,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	overwriteOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -145,6 +146,9 @@ export const render = async (
 		},
 		true,
 	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -214,5 +218,6 @@ export const render = async (
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,
+		binariesDirectory,
 	});
 };

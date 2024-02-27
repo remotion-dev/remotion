@@ -8,6 +8,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const matching = await Promise.all(

@@ -45,6 +45,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	overwriteOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -289,6 +290,9 @@ export const benchmarkCommand = async (
 			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+		binariesDirectory: binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 	});
 
 	const ids = (
@@ -452,6 +456,9 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					repro: false,
+					binariesDirectory: binariesDirectoryOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 					finishRenderProgress: () => undefined,
 				},
 				(run, progress) => {

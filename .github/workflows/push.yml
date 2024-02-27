@@ -156,7 +156,7 @@ jobs:
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: "8.3"
           tools: phpunit:10.1.3
       - name: Setup Python
         uses: actions/setup-python@v4

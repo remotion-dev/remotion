@@ -12,6 +12,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -47,6 +48,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -82,12 +84,14 @@ test('Should be able to start two compositors', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const compositor2 = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -111,6 +115,7 @@ test('Should be able to seek backwards', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -141,6 +146,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -165,6 +171,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -198,6 +205,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -225,6 +233,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -256,6 +265,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	let prevPixel = '';
@@ -301,6 +311,7 @@ test('Last frame should be fast', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const time = Date.now();
@@ -368,6 +379,7 @@ test('Should get from a screen recording', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -389,6 +401,7 @@ test('Should get from video with no fps', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -410,6 +423,7 @@ test('Should get from broken webcam video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -431,6 +445,7 @@ test('Should get from iPhone video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -452,6 +467,7 @@ test('Should get from AV1 video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -473,6 +489,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -498,6 +515,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -523,6 +541,7 @@ test('Two different starting times should not result in big seeking', async () =
 		maximumFrameCacheItemsInBytes: 300 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const expected = [];
@@ -631,6 +650,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		maximumFrameCacheItemsInBytes: 500,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const firstFrame = await compositor.executeCommand('ExtractFrame', {

@@ -12,6 +12,7 @@ test('Memory usage should be determined ', async () => {
 		maximumFrameCacheItemsInBytes: 40 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	expect(
@@ -102,6 +103,7 @@ test('Should respect the maximum frame cache limit', async () => {
 		maximumFrameCacheItemsInBytes: 50 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -130,6 +132,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		maximumFrameCacheItemsInBytes: 100 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	expect(

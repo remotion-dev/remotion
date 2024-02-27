@@ -21,7 +21,7 @@ Extracts the audio from a video source and saves it to the specified output path
 import { resolve } from "node:path";
 import { extractAudio, getVideoMetadata } from "@remotion/renderer";
 
-const videoSource = resolve(process.cwd(), "./path-to-video.mp4");
+const videoSource = resolve(process.cwd(), "/Users/john/path-to-video.mp4");
 
 const videoMetadata = await getVideoMetadata(videoSource);
 const audioOutput = resolve(
@@ -34,6 +34,10 @@ await extractAudio({
   audioOutput,
 });
 ```
+
+:::info
+Pass an absolute path to `extractAudio()`. URLs are not supported.
+:::
 
 ## Arguments
 
@@ -54,6 +58,10 @@ The path where the extracted audio will be saved. The file extension must match 
 ### `logLevel?`
 
 <Options id="log"/>
+
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
 
 ## Return Value
 

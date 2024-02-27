@@ -55,6 +55,7 @@ export const validateComposition = async ({
 		onBrowserLog: null,
 		server,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
 	});
 
 	return {

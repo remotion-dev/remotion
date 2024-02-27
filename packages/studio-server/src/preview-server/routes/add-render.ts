@@ -7,6 +7,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	entryPoint,
 	remotionRoot,
 	logLevel,
+	binariesDirectory,
 	methods: {addJob},
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
@@ -56,6 +57,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
 				repro: input.repro,
+				binariesDirectory,
 			},
 			logLevel,
 		});
@@ -91,6 +93,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
 				repro: input.repro,
+				binariesDirectory,
 			},
 			logLevel,
 		});
@@ -122,6 +125,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				multiProcessOnLinux: input.multiProcessOnLinux,
 				beepOnFinish: input.beepOnFinish,
 				repro: false,
+				binariesDirectory,
 			},
 			entryPoint,
 			remotionRoot,
