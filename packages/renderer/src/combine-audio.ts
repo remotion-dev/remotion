@@ -88,7 +88,7 @@ const encodeAudio = async ({
 		await task;
 		return output;
 	} catch (e) {
-		rmSync(filelistDir, {recursive: true});
+		rmSync(fileListTxt, {recursive: true});
 		throw e;
 	}
 };
@@ -189,7 +189,7 @@ const combineAudioSeamlessly = async ({
 		await task;
 		return output;
 	} catch (e) {
-		rmSync(filelistDir, {recursive: true});
+		rmSync(fileListTxt, {recursive: true});
 		console.log(e);
 		throw e;
 	}

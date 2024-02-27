@@ -13,6 +13,7 @@ export const compressAudio = async ({
 	logLevel,
 	audioBitrate,
 	cancelSignal,
+	inName,
 }: {
 	audioCodec: AudioCodec;
 	outName: string;
@@ -21,8 +22,10 @@ export const compressAudio = async ({
 	binariesDirectory: string | null;
 	audioBitrate: string | null;
 	cancelSignal: CancelSignal | undefined;
+	inName: string;
 }) => {
 	const args = [
+		['-i', inName],
 		['-c:a', mapAudioCodecToFfmpegAudioCodecName(audioCodec)],
 		audioCodec === 'aac' ? ['-f', 'adts'] : null,
 		audioCodec ? ['-b:a', audioBitrate || '320k'] : null,

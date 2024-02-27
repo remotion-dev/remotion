@@ -14,7 +14,7 @@ export const lambdaRenderHasAudioVideo = (
 	const hasVideo = renderMetadata
 		? !RenderInternals.isAudioCodec(renderMetadata.codec)
 		: false;
-	const hasAudio = renderMetadata ? renderMetadata.muted : false;
+	const hasAudio = renderMetadata ? !renderMetadata.muted : false;
 
 	return {
 		hasAudio,

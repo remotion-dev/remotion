@@ -22,6 +22,7 @@ import {
 	rendersPrefix,
 } from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
+import {truthy} from '../../shared/truthy';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideosS3, getAllFilesS3} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
@@ -143,9 +144,15 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	mkdirSync(outdir);
 
+	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(
+		options.renderMetadata,
+	);
+	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
+	const expectedFiles = chunkMultiplier * options.chunkCount;
+
 	const files = await getAllFilesS3({
 		bucket: options.bucketName,
-		expectedFiles: options.chunkCount,
+		expectedFiles,
 		outdir,
 		renderId: options.renderId,
 		region: getCurrentRegionInFunction(),
@@ -216,10 +223,6 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
-
-	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(
-		options.renderMetadata,
-	);
 
 	const jobs = getFilesToDelete({
 		chunkCount: options.chunkCount,

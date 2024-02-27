@@ -210,7 +210,7 @@ export const concatVideosS3 = async ({
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
-		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec),
+		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
@@ -238,6 +238,7 @@ export const concatVideosS3 = async ({
 
 	const cleanupChunksProm = fs.promises.rm(outdir, {
 		recursive: true,
+		force: true,
 	});
 	return {outfile, cleanupChunksProm};
 };

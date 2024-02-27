@@ -87,7 +87,7 @@ export const combineVideoStreams = async ({
 		await task;
 		return output;
 	} catch (e) {
-		rmSync(filelistDir, {recursive: true});
+		rmSync(fileListTxt, {recursive: true});
 		throw e;
 	}
 };

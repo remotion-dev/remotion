@@ -11,6 +11,7 @@ import {
 	rendersPrefix,
 } from '../../shared/constants';
 import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
+import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -195,6 +196,8 @@ export const getProgress = async ({
 		renderMetadata,
 	});
 
+	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
+
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const framesRendered = renderMetadata
 		? getRenderedFramesProgress({
@@ -206,7 +209,9 @@ export const getProgress = async ({
 			})
 		: 0;
 
-	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
+	const allChunks =
+		chunks.length / chunkMultiplier ===
+		(renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
@@ -241,7 +246,7 @@ export const getProgress = async ({
 
 	const chunkCount = outputFile
 		? renderMetadata?.totalChunks ?? 0
-		: chunks.length;
+		: chunks.length * chunkMultiplier;
 
 	const availableChunks = chunks.map((c) =>
 		parseLambdaChunkKey(c.Key as string),

@@ -7,6 +7,7 @@ import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreams} from './combine-video-streams';
+import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
@@ -64,21 +65,18 @@ export const combineVideos = async ({
 	const audioOutput = shouldCreateAudio
 		? join(
 				filelistDir,
-				`audio.${
-					resolvedAudioCodec === 'pcm-16'
-						? 'wav'
-						: resolvedAudioCodec === 'opus'
-							? 'opus'
-							: getFileExtensionFromCodec(resolvedAudioCodec, null)
-				}`,
+				`audio.${getExtensionFromAudioCodec(resolvedAudioCodec)}`,
 			)
 		: null;
+
+	const audioFiles = files.filter((f) => f.endsWith('audio'));
+	const videoFiles = files.filter((f) => f.endsWith('video'));
 
 	if (shouldCreateAudio) {
 		await createCombinedAudio({
 			audioBitrate,
 			filelistDir,
-			files,
+			files: audioFiles,
 			indent,
 			logLevel,
 			output: shouldCreateVideo ? (audioOutput as string) : output,
@@ -102,7 +100,7 @@ export const combineVideos = async ({
 			numberOfGifLoops,
 			onProgress,
 			output: shouldCreateAudio ? videoOutput : output,
-			files,
+			files: videoFiles,
 			addRemotionMetadata: !shouldCreateAudio,
 			binariesDirectory,
 			cancelSignal,

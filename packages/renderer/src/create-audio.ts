@@ -112,6 +112,7 @@ export const createAudio = async ({
 		binariesDirectory,
 		indent,
 		logLevel,
+		inName: merged,
 		outName,
 		cancelSignal,
 	});
