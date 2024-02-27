@@ -1,6 +1,7 @@
-import {cpSync, promises} from 'node:fs';
+import {promises} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -10,8 +11,11 @@ import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
-import {getDefaultAudioCodec} from './audio-codec';
-import {callFfNative} from './call-ffmpeg';
+import {
+	getDefaultAudioCodec,
+	mapAudioCodecToFfmpegAudioCodecName,
+} from './audio-codec';
+import {callFf, callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -176,7 +180,7 @@ const getAssetsData = async ({
 		)
 	).filter(truthy);
 
-	const outName = path.join(downloadMap.audioPreprocessing, `audio.aac`);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
 		files: preprocessed,
@@ -186,7 +190,6 @@ const getAssetsData = async ({
 		remotionRoot,
 		indent,
 		logLevel,
-		forceLossless: false,
 		binariesDirectory,
 	});
 
@@ -368,7 +371,27 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		cpSync(audio as string, outputLocation ?? (tempFile as string));
+		const ffmpegTask = callFf({
+			bin: 'ffmpeg',
+			args: [
+				'-i',
+				audio,
+				'-c:a',
+				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
+				'-b:a',
+				audioBitrate ?? '320k',
+				force ? '-y' : null,
+				outputLocation ?? tempFile,
+			].filter(NoReactInternals.truthy),
+			indent,
+			logLevel,
+			binariesDirectory,
+		});
+
+		cancelSignal?.(() => {
+			ffmpegTask.kill();
+		});
+		await ffmpegTask;
 		onProgress?.(expectedFrames);
 		if (audio) {
 			deleteDirectory(path.dirname(audio));
@@ -421,7 +444,12 @@ const innerStitchFramesToVideo = async (
 			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
-		resolvedAudioCodec ? ['-c:a', 'copy'] : null,
+		resolvedAudioCodec
+			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
+			: null,
+		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
+		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
+		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],
