@@ -30,6 +30,7 @@ export const muxVideoAndAudio = async ({
 	const startTime = Date.now();
 	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
 	const command = [
+		'-hide_banner',
 		'-i',
 		videoOutput,
 		'-i',
@@ -55,9 +56,16 @@ export const muxVideoAndAudio = async ({
 		cancelSignal,
 	});
 	task.stderr?.on('data', (data: Buffer) => {
-		const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
+		const utf8 = data.toString('utf8');
+		const parsed = parseFfmpegProgress(utf8, fps);
 		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, data.toString('utf8'));
+			if (
+				!utf8.includes(
+					'Estimating duration from bitrate, this may be inaccurate',
+				)
+			) {
+				Log.verbose({indent, logLevel}, utf8);
+			}
 		} else {
 			Log.verbose({indent, logLevel}, `Combined ${parsed} frames`);
 			onProgress(parsed);
