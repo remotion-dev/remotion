@@ -94,7 +94,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 - [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
-- [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
+- Anime.js example ([Source code](https://github.com/remotion-dev/anime-example), [Preview](https://anime-example.vercel.app/))
 - [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
 - [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 - [Shader example](https://github.com/onion2k/a-roll)
