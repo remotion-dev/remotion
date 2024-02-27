@@ -2,12 +2,12 @@
 
 import {rmSync} from 'node:fs';
 import {join} from 'node:path';
-import {RenderInternals} from '.';
 import type {AudioCodec} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreams} from './combine-video-streams';
+import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {muxVideoAndAudio} from './mux-video-and-audio';
@@ -61,17 +61,13 @@ export const combineVideos = async (options: Options) => {
 					? 'wav'
 					: resolvedAudioCodec === 'opus'
 						? 'opus'
-						: RenderInternals.getFileExtensionFromCodec(
-								resolvedAudioCodec,
-								null,
-							)
+						: getFileExtensionFromCodec(resolvedAudioCodec, null)
 			}`
 		: null;
 	const audioOutput = newLocal ? join(filelistDir, newLocal) : null;
 	const videoOutput = join(
 		filelistDir,
-		'video.' +
-			RenderInternals.getFileExtensionFromCodec(codec, resolvedAudioCodec),
+		'video.' + getFileExtensionFromCodec(codec, resolvedAudioCodec),
 	);
 
 	if (shouldCreateAudio) {
