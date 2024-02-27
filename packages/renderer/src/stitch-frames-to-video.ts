@@ -275,12 +275,15 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		cpSync(audio as string, outputLocation ?? (tempFile as string));
-
-		onProgress?.(expectedFrames);
-		if (audio) {
-			deleteDirectory(path.dirname(audio));
+		if (!audio) {
+			throw new TypeError(
+				'exporting audio but has no audio file. Report this in the Remotion repo.',
+			);
 		}
+
+		cpSync(audio, outputLocation ?? (tempFile as string));
+		onProgress?.(expectedFrames);
+		deleteDirectory(path.dirname(audio));
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
 			if (tempFile) {
