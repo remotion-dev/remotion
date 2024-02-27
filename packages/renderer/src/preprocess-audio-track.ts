@@ -5,6 +5,7 @@ import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
@@ -19,6 +20,7 @@ type Options = {
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 };
 
 export type PreprocessedAudioTrack = {
@@ -35,6 +37,7 @@ const preprocessAudioTrackUnlimited = async ({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -42,6 +45,7 @@ const preprocessAudioTrackUnlimited = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 
 	const filter = calculateFfmpegFilter({
@@ -67,7 +71,14 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await callFf({bin: 'ffmpeg', args, indent, logLevel, binariesDirectory});
+	await callFf({
+		bin: 'ffmpeg',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
 
 	cleanup();
 	return {outName, filter};

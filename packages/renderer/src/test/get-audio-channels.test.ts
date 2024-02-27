@@ -19,12 +19,13 @@ test('Get audio channels for video', async () => {
 		'framer-music.mp4',
 	);
 	expect(existsSync(videoWithoutAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDurationWithoutCache(
-		videoWithoutAudio,
-		false,
-		'info',
-		null,
-	);
+	const channels = await getAudioChannelsAndDurationWithoutCache({
+		src: videoWithoutAudio,
+		indent: false,
+		logLevel: 'info',
+		binariesDirectory: null,
+		cancelSignal: undefined,
+	});
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
 
@@ -40,12 +41,13 @@ test('Get audio channels for video without music', async () => {
 		'framer.mp4',
 	);
 	expect(existsSync(videoWithAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDurationWithoutCache(
-		videoWithAudio,
-		false,
-		'info',
-		null,
-	);
+	const channels = await getAudioChannelsAndDurationWithoutCache({
+		src: videoWithAudio,
+		indent: false,
+		logLevel: 'info',
+		binariesDirectory: null,
+		cancelSignal: undefined,
+	});
 
 	expect(channels.channels).toEqual(0);
 	expect(channels.duration).toBeCloseTo(3.334, 2);
@@ -70,6 +72,7 @@ test('Get audio channels for video with music', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 	cleanDownloadMap(downloadMap);
 
@@ -87,6 +90,7 @@ test('Throw error if parsing a non video file', () => {
 			indent: false,
 			logLevel: 'info',
 			binariesDirectory: null,
+			cancelSignal: undefined,
 		}),
 	).rejects.toThrow(/Invalid data found when processing input/);
 	cleanDownloadMap(downloadMap);

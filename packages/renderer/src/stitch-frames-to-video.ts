@@ -1,6 +1,5 @@
-import {promises} from 'node:fs';
+import {cpSync, promises} from 'node:fs';
 import path from 'node:path';
-import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
@@ -10,7 +9,7 @@ import {
 	getDefaultAudioCodec,
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
-import {callFf, callFfNative} from './call-ffmpeg';
+import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -250,21 +249,24 @@ const innerStitchFramesToVideo = async (
 		onProgress?.(muxProgress);
 	};
 
-	const audio = shouldRenderAudio
-		? await createAudio({
-				assets: assetsInfo.assets,
-				onDownload,
-				fps,
-				expectedFrames,
-				logLevel,
-				onProgress: () => updateProgress(0),
-				downloadMap: assetsInfo.downloadMap,
-				remotionRoot,
-				indent,
-				binariesDirectory,
-				forceLossless: preferLossless,
-			})
-		: null;
+	const audio =
+		shouldRenderAudio && resolvedAudioCodec
+			? await createAudio({
+					assets: assetsInfo.assets,
+					onDownload,
+					fps,
+					expectedFrames,
+					logLevel,
+					onProgress: () => updateProgress(0),
+					downloadMap: assetsInfo.downloadMap,
+					remotionRoot,
+					indent,
+					binariesDirectory,
+					audioBitrate,
+					audioCodec: resolvedAudioCodec,
+					cancelSignal: cancelSignal ?? undefined,
+				})
+			: null;
 
 	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!resolvedAudioCodec) {
@@ -273,27 +275,8 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const ffmpegTask = callFf({
-			bin: 'ffmpeg',
-			args: [
-				'-i',
-				audio,
-				'-c:a',
-				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				'-b:a',
-				audioBitrate ?? '320k',
-				force ? '-y' : null,
-				outputLocation ?? tempFile,
-			].filter(NoReactInternals.truthy),
-			indent,
-			logLevel,
-			binariesDirectory,
-		});
+		cpSync(audio as string, outputLocation ?? (tempFile as string));
 
-		cancelSignal?.(() => {
-			ffmpegTask.kill();
-		});
-		await ffmpegTask;
 		onProgress?.(expectedFrames);
 		if (audio) {
 			deleteDirectory(path.dirname(audio));
@@ -387,9 +370,7 @@ const innerStitchFramesToVideo = async (
 		indent,
 		logLevel,
 		binariesDirectory,
-	});
-	cancelSignal?.(() => {
-		task.kill();
+		cancelSignal: cancelSignal ?? undefined,
 	});
 	let ffmpegStderr = '';
 	let isFinished = false;

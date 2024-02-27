@@ -6,6 +6,7 @@ import type {Codec} from './codec';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
@@ -21,6 +22,7 @@ export const combineVideoStreams = async ({
 	files,
 	addRemotionMetadata,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	fps: number;
 	codec: Codec;
@@ -33,6 +35,7 @@ export const combineVideoStreams = async ({
 	files: string[];
 	addRemotionMetadata: boolean;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -70,6 +73,7 @@ export const combineVideoStreams = async ({
 			indent,
 			logLevel,
 			binariesDirectory,
+			cancelSignal,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
 			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);

@@ -6,9 +6,12 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
+import type {AudioCodec} from './audio-codec';
+import {compressAudio} from './compress-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import {truthy} from './truthy';
@@ -24,7 +27,9 @@ export const createAudio = async ({
 	remotionRoot,
 	indent,
 	binariesDirectory,
-	forceLossless,
+	audioBitrate,
+	audioCodec,
+	cancelSignal,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -36,7 +41,9 @@ export const createAudio = async ({
 	remotionRoot: string;
 	indent: boolean;
 	binariesDirectory: string | null;
-	forceLossless: boolean;
+	audioBitrate: string | null;
+	audioCodec: AudioCodec;
+	cancelSignal: CancelSignal | undefined;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -75,6 +82,7 @@ export const createAudio = async ({
 				indent,
 				logLevel,
 				binariesDirectory,
+				cancelSignal,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();
@@ -83,23 +91,37 @@ export const createAudio = async ({
 	);
 
 	const preprocessed = audioTracks.filter(truthy);
+	const merged = path.join(downloadMap.audioPreprocessing, 'merged.wav');
 	const outName = path.join(downloadMap.audioPreprocessing, 'audio.wav');
 
 	await mergeAudioTrack({
 		files: preprocessed,
-		outName,
+		outName: merged,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
 		remotionRoot,
 		indent,
 		logLevel,
 		binariesDirectory,
-		forceLossless,
+		cancelSignal,
 	});
 
+	await compressAudio({
+		audioBitrate,
+		audioCodec,
+		binariesDirectory,
+		indent,
+		logLevel,
+		outName,
+		cancelSignal,
+	});
+
+	// TODO: Handle new progress
 	onProgress(1);
 
+	deleteDirectory(merged);
 	deleteDirectory(downloadMap.audioMixing);
+
 	preprocessed.forEach((p) => {
 		deleteDirectory(p.outName);
 	});

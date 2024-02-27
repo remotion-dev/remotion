@@ -2,6 +2,7 @@ import {VERSION} from 'remotion/version';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
@@ -14,6 +15,7 @@ export const muxVideoAndAudio = async ({
 	onProgress,
 	binariesDirectory,
 	fps,
+	cancelSignal,
 }: {
 	videoOutput: string;
 	audioOutput: string;
@@ -23,6 +25,7 @@ export const muxVideoAndAudio = async ({
 	binariesDirectory: string | null;
 	fps: number;
 	onProgress: (p: number) => void;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const command = [
 		'-i',
@@ -47,6 +50,7 @@ export const muxVideoAndAudio = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 	task.stderr?.on('data', (data: Buffer) => {
 		const parsed = parseFfmpegProgress(data.toString('utf8'), fps);

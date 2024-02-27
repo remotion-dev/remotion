@@ -1,5 +1,6 @@
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const createSilentAudio = async ({
@@ -8,12 +9,14 @@ export const createSilentAudio = async ({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	numberOfSeconds: number;
 	outName: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	await callFf({
 		bin: 'ffmpeg',
@@ -33,5 +36,6 @@ export const createSilentAudio = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 };

@@ -2,6 +2,7 @@ import type {AudioCodec} from './audio-codec';
 import {mapAudioCodecToFfmpegAudioCodecName} from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {truthy} from './truthy';
 
 export const compressAudio = async ({
@@ -11,6 +12,7 @@ export const compressAudio = async ({
 	indent,
 	logLevel,
 	audioBitrate,
+	cancelSignal,
 }: {
 	audioCodec: AudioCodec;
 	outName: string;
@@ -18,6 +20,7 @@ export const compressAudio = async ({
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	audioBitrate: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const args = [
 		['-c:a', mapAudioCodecToFfmpegAudioCodecName(audioCodec)],
@@ -36,5 +39,6 @@ export const compressAudio = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 };

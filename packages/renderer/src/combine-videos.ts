@@ -10,6 +10,7 @@ import {combineVideoStreams} from './combine-video-streams';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 
 type Options = {
@@ -27,26 +28,26 @@ type Options = {
 	logLevel: LogLevel;
 	chunkDurationInSeconds: number;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 };
 
-export const combineVideos = async (options: Options) => {
-	const {
-		files,
-		filelistDir,
-		output,
-		onProgress,
-		numberOfFrames,
-		codec,
-		fps,
-		numberOfGifLoops,
-		audioCodec,
-		audioBitrate,
-		indent,
-		logLevel,
-		chunkDurationInSeconds,
-		binariesDirectory,
-	} = options;
-
+export const combineVideos = async ({
+	files,
+	filelistDir,
+	output,
+	onProgress,
+	numberOfFrames,
+	codec,
+	fps,
+	numberOfGifLoops,
+	audioCodec,
+	audioBitrate,
+	indent,
+	logLevel,
+	chunkDurationInSeconds,
+	binariesDirectory,
+	cancelSignal,
+}: Options) => {
 	// TODO: onProgress is now reused across 3 functions
 
 	const resolvedAudioCodec =
@@ -84,6 +85,7 @@ export const combineVideos = async (options: Options) => {
 			addRemotionMetadata: !shouldCreateVideo,
 			binariesDirectory,
 			fps,
+			cancelSignal,
 		});
 	}
 
@@ -100,6 +102,7 @@ export const combineVideos = async (options: Options) => {
 			files,
 			addRemotionMetadata: !shouldCreateAudio,
 			binariesDirectory,
+			cancelSignal,
 		});
 	}
 
@@ -118,6 +121,7 @@ export const combineVideos = async (options: Options) => {
 			videoOutput,
 			binariesDirectory,
 			fps,
+			cancelSignal,
 		});
 		onProgress(numberOfFrames);
 		rmSync(filelistDir, {recursive: true});

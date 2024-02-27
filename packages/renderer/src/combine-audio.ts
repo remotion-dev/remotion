@@ -6,6 +6,7 @@ import {mapAudioCodecToFfmpegAudioCodecName} from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
@@ -29,6 +30,7 @@ const encodeAudio = async ({
 	addRemotionMetadata,
 	fps,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	files: string[];
 	resolvedAudioCodec: AudioCodec;
@@ -40,6 +42,7 @@ const encodeAudio = async ({
 	addRemotionMetadata: boolean;
 	fps: number;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
@@ -72,6 +75,7 @@ const encodeAudio = async ({
 			indent,
 			logLevel,
 			binariesDirectory,
+			cancelSignal,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
 			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
@@ -99,6 +103,7 @@ const combineAudioSeamlessly = async ({
 	addRemotionMetadata,
 	fps,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -109,6 +114,7 @@ const combineAudioSeamlessly = async ({
 	addRemotionMetadata: boolean;
 	fps: number;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const fileList = files
 		.map((p, i) => {
@@ -170,6 +176,7 @@ const combineAudioSeamlessly = async ({
 			indent,
 			logLevel,
 			binariesDirectory,
+			cancelSignal,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
 			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
@@ -201,6 +208,7 @@ export const createCombinedAudio = ({
 	addRemotionMetadata,
 	binariesDirectory,
 	fps,
+	cancelSignal,
 }: {
 	seamless: boolean;
 	filelistDir: string;
@@ -214,6 +222,7 @@ export const createCombinedAudio = ({
 	addRemotionMetadata: boolean;
 	binariesDirectory: string | null;
 	fps: number;
+	cancelSignal: CancelSignal | undefined;
 }): Promise<string> => {
 	if (seamless) {
 		return combineAudioSeamlessly({
@@ -226,6 +235,7 @@ export const createCombinedAudio = ({
 			addRemotionMetadata,
 			binariesDirectory,
 			fps,
+			cancelSignal,
 		});
 	}
 
@@ -240,5 +250,6 @@ export const createCombinedAudio = ({
 		addRemotionMetadata,
 		binariesDirectory,
 		fps,
+		cancelSignal,
 	});
 };

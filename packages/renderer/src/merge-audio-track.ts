@@ -7,6 +7,7 @@ import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 import {tmpDir} from './tmp-dir';
@@ -21,6 +22,7 @@ type Options = {
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -32,6 +34,7 @@ const mergeAudioTrackUnlimited = async ({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
@@ -40,6 +43,7 @@ const mergeAudioTrackUnlimited = async ({
 			indent,
 			logLevel,
 			binariesDirectory,
+			cancelSignal,
 		});
 		return;
 	}
@@ -64,6 +68,7 @@ const mergeAudioTrackUnlimited = async ({
 						indent,
 						logLevel,
 						binariesDirectory,
+						cancelSignal,
 					});
 					return chunkOutname;
 				}),
@@ -84,6 +89,7 @@ const mergeAudioTrackUnlimited = async ({
 				indent,
 				logLevel,
 				binariesDirectory,
+				cancelSignal,
 			});
 			return;
 		} finally {
@@ -113,6 +119,7 @@ const mergeAudioTrackUnlimited = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 	await task;
 	cleanup();
