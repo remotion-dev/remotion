@@ -13,6 +13,7 @@ import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
+import {truthy} from './truthy';
 
 type Options = {
 	files: string[];
@@ -72,40 +73,44 @@ export const combineVideos = async ({
 	const audioFiles = files.filter((f) => f.endsWith('audio'));
 	const videoFiles = files.filter((f) => f.endsWith('video'));
 
-	if (shouldCreateAudio) {
-		await createCombinedAudio({
-			audioBitrate,
-			filelistDir,
-			files: audioFiles,
-			indent,
-			logLevel,
-			output: shouldCreateVideo ? (audioOutput as string) : output,
-			resolvedAudioCodec,
-			seamless: resolvedAudioCodec === 'aac',
-			chunkDurationInSeconds,
-			addRemotionMetadata: !shouldCreateVideo,
-			binariesDirectory,
-			fps,
-			cancelSignal,
-		});
-	}
+	await Promise.all(
+		[
+			shouldCreateAudio
+				? createCombinedAudio({
+						audioBitrate,
+						filelistDir,
+						files: audioFiles,
+						indent,
+						logLevel,
+						output: shouldCreateVideo ? (audioOutput as string) : output,
+						resolvedAudioCodec,
+						seamless: resolvedAudioCodec === 'aac',
+						chunkDurationInSeconds,
+						addRemotionMetadata: !shouldCreateVideo,
+						binariesDirectory,
+						fps,
+						cancelSignal,
+					})
+				: null,
 
-	if (shouldCreateVideo) {
-		await combineVideoStreams({
-			codec,
-			filelistDir,
-			fps,
-			indent,
-			logLevel,
-			numberOfGifLoops,
-			onProgress,
-			output: shouldCreateAudio ? videoOutput : output,
-			files: videoFiles,
-			addRemotionMetadata: !shouldCreateAudio,
-			binariesDirectory,
-			cancelSignal,
-		});
-	}
+			shouldCreateVideo
+				? combineVideoStreams({
+						codec,
+						filelistDir,
+						fps,
+						indent,
+						logLevel,
+						numberOfGifLoops,
+						onProgress,
+						output: shouldCreateAudio ? videoOutput : output,
+						files: videoFiles,
+						addRemotionMetadata: !shouldCreateAudio,
+						binariesDirectory,
+						cancelSignal,
+					})
+				: null,
+		].filter(truthy),
+	);
 
 	if (!(audioOutput && shouldCreateVideo)) {
 		rmSync(filelistDir, {recursive: true});
