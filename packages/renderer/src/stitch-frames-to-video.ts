@@ -1,15 +1,10 @@
 import {promises} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {calculateAssetPositions} from './assets/calculate-asset-positions';
-import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
+import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
-import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -20,6 +15,7 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {getAssetsData} from './create-audio';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
@@ -31,7 +27,6 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
-import {mergeAudioTrack} from './merge-audio-track';
 import type {ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -40,10 +35,8 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
-import {truthy} from './truthy';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -110,101 +103,6 @@ export type StitchFramesToVideoOptions = {
 };
 
 type ReturnType = Promise<Buffer | null>;
-
-const getAssetsData = async ({
-	assets,
-	onDownload,
-	fps,
-	expectedFrames,
-	logLevel,
-	onProgress,
-	downloadMap,
-	remotionRoot,
-	indent,
-	binariesDirectory,
-	forceLossless,
-}: {
-	assets: TRenderAsset[][];
-	onDownload: RenderMediaOnDownload | undefined;
-	fps: number;
-	expectedFrames: number;
-	logLevel: LogLevel;
-	onProgress: (progress: number) => void;
-	downloadMap: DownloadMap;
-	remotionRoot: string;
-	indent: boolean;
-	binariesDirectory: string | null;
-	forceLossless: boolean;
-}): Promise<string> => {
-	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets,
-		onDownload: onDownload ?? (() => () => undefined),
-		downloadMap,
-		indent,
-		logLevel,
-	});
-
-	markAllAssetsAsDownloaded(downloadMap);
-	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
-
-	Log.verbose(
-		{indent, logLevel, tag: 'audio'},
-		'asset positions',
-		JSON.stringify(assetPositions),
-	);
-
-	const preprocessProgress = new Array(assetPositions.length).fill(0);
-
-	const updateProgress = () => {
-		onProgress(
-			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length,
-		);
-	};
-
-	const preprocessed = (
-		await Promise.all(
-			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
-				const result = await preprocessAudioTrack({
-					outName: filterFile,
-					asset,
-					expectedFrames,
-					fps,
-					downloadMap,
-					indent,
-					logLevel,
-					binariesDirectory,
-				});
-				preprocessProgress[index] = 1;
-				updateProgress();
-				return result;
-			}),
-		)
-	).filter(truthy);
-
-	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
-
-	await mergeAudioTrack({
-		files: preprocessed,
-		outName,
-		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
-		downloadMap,
-		remotionRoot,
-		indent,
-		logLevel,
-		binariesDirectory,
-		forceLossless,
-	});
-
-	onProgress(1);
-
-	deleteDirectory(downloadMap.audioMixing);
-	preprocessed.forEach((p) => {
-		deleteDirectory(p.outName);
-	});
-
-	return outName;
-};
 
 const innerStitchFramesToVideo = async (
 	{
