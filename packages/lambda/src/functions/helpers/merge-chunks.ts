@@ -171,6 +171,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		logLevel: options.logLevel,
 		framesPerLambda: options.framesPerLambda,
 		binariesDirectory: options.binariesDirectory,
+		cancelSignal: undefined,
 	});
 	const encodingStop = Date.now();
 

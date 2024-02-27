@@ -110,6 +110,7 @@ test('Should be able to render to another bucket', async () => {
 			stdin: file,
 		},
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);

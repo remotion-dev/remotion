@@ -1,4 +1,4 @@
-import type {AudioCodec, LogLevel} from '@remotion/renderer';
+import type {AudioCodec, CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream, promises} from 'node:fs';
 import path, {join} from 'node:path';
@@ -192,6 +192,7 @@ export const concatVideosS3 = async ({
 	logLevel,
 	framesPerLambda,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -205,6 +206,7 @@ export const concatVideosS3 = async ({
 	logLevel: LogLevel;
 	framesPerLambda: number;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -230,6 +232,7 @@ export const concatVideosS3 = async ({
 		logLevel,
 		chunkDurationInSeconds,
 		binariesDirectory,
+		cancelSignal,
 	});
 	combine.end();
 
