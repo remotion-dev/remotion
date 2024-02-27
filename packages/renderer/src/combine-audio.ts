@@ -47,8 +47,10 @@ const encodeAudio = async ({
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
 	writeFileSync(fileListTxt, fileList);
+	const startCombining = Date.now();
 
 	const command = [
+		'-hide_banner',
 		'-f',
 		'concat',
 		'-safe',
@@ -67,6 +69,10 @@ const encodeAudio = async ({
 		'-y',
 		output,
 	];
+	Log.verbose(
+		{indent, logLevel},
+		`Combining audio with re-encoding, command: ${command.join(' ')}`,
+	);
 
 	try {
 		const task = callFf({
@@ -78,14 +84,19 @@ const encodeAudio = async ({
 			cancelSignal,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
+			const utf8 = data.toString('utf8');
+			const parsed = parseFfmpegProgress(utf8, fps);
 			if (parsed === undefined) {
-				Log.verbose({indent, logLevel}, data.toString('utf8'));
+				Log.verbose({indent, logLevel}, utf8);
 			} else {
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}
 		});
 		await task;
+		Log.verbose(
+			{indent, logLevel},
+			`Encoded audio in ${Date.now() - startCombining}ms`,
+		);
 		return output;
 	} catch (e) {
 		rmSync(fileListTxt, {recursive: true});
@@ -107,7 +118,6 @@ const combineAudioSeamlessly = async ({
 }: {
 	files: string[];
 	filelistDir: string;
-	indent: boolean;
 	logLevel: LogLevel;
 	output: string;
 	chunkDurationInSeconds: number;
@@ -115,7 +125,9 @@ const combineAudioSeamlessly = async ({
 	fps: number;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	indent: boolean;
 }) => {
+	const startConcatenating = Date.now();
 	const fileList = files
 		.map((p, i) => {
 			const isLast = i === files.length - 1;
@@ -139,7 +151,7 @@ const combineAudioSeamlessly = async ({
 			// inpoint is inclusive and outpoint is exclusive. To avoid overlap, we subtract
 			// the duration of one frame from the outpoint.
 			// we don't have to subtract a frame if this is the last segment.
-			const outpoint =
+			const outpoint: number =
 				(i === 0 ? durationOf1Frame * 2 : inpoint) +
 				realDuration -
 				(isLast ? 0 : durationOf1Frame);
@@ -154,6 +166,7 @@ const combineAudioSeamlessly = async ({
 	writeFileSync(fileListTxt, fileList);
 
 	const command = [
+		'-hide_banner',
 		'-f',
 		'concat',
 		'-safe',
@@ -168,6 +181,10 @@ const combineAudioSeamlessly = async ({
 		'-y',
 		output,
 	];
+	Log.verbose(
+		{indent, logLevel},
+		`Combining AAC audio seamlessly, command: ${command.join(' ')}`,
+	);
 
 	try {
 		const task = callFf({
@@ -179,14 +196,26 @@ const combineAudioSeamlessly = async ({
 			cancelSignal,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
+			const utf8 = data.toString('utf8');
+			const parsed = parseFfmpegProgress(utf8, fps);
 			if (parsed === undefined) {
-				Log.verbose({indent, logLevel}, data.toString('utf8'));
+				if (
+					!utf8.includes('Estimating duration from bitrate') &&
+					!utf8.includes(
+						'Application provided invalid, non monotonically increasing',
+					)
+				) {
+					Log.verbose({indent, logLevel}, utf8);
+				}
 			} else {
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}
 		});
 		await task;
+		Log.verbose(
+			{indent, logLevel},
+			`Combined audio seamlessly in ${Date.now() - startConcatenating}ms`,
+		);
 		return output;
 	} catch (e) {
 		rmSync(fileListTxt, {recursive: true});

@@ -27,6 +27,8 @@ export const muxVideoAndAudio = async ({
 	onProgress: (p: number) => void;
 	cancelSignal: CancelSignal | undefined;
 }) => {
+	const startTime = Date.now();
+	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
 	const command = [
 		'-i',
 		videoOutput,
@@ -63,4 +65,5 @@ export const muxVideoAndAudio = async ({
 	});
 
 	await task;
+	Log.verbose({indent, logLevel}, `Muxing done in ${Date.now() - startTime}ms`);
 };
