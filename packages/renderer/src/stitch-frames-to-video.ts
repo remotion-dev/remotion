@@ -5,10 +5,7 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
 import type {AudioCodec} from './audio-codec';
-import {
-	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
-} from './audio-codec';
+import {getDefaultAudioCodec} from './audio-codec';
 import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -315,7 +312,7 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio ? ['-i', audio] : null,
+		audio ? ['-i', audio, '-c:a', 'copy'] : null,
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
@@ -332,12 +329,6 @@ const innerStitchFramesToVideo = async (
 			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
-		resolvedAudioCodec
-			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
-			: null,
-		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
-		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
-		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],
