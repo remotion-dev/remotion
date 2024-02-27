@@ -8,7 +8,7 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Templates
 
-- Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://template-helloworld-71lz.vercel.app/))
+- Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://remotion-helloworld.vercel.app/))
 - Hello World (JavaScript) ([Source code](https://github.com/remotion-dev/template-helloworld-javascript), [Preview](https://template-helloworld-javascript.vercel.app/))
 - Blank ([Source code](https://github.com/remotion-dev/template-empty), [Preview](https://template-empty.vercel.app/))
 - React Three Fiber ([Source code](https://github.com/remotion-dev/template-three), [Preview](https://template-three-remotion.vercel.app/))
