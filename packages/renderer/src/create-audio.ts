@@ -13,7 +13,7 @@ import {mergeAudioTrack} from './merge-audio-track';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import {truthy} from './truthy';
 
-export const getAssetsData = async ({
+export const createAudio = async ({
 	assets,
 	onDownload,
 	fps,
@@ -63,28 +63,27 @@ export const getAssetsData = async ({
 		);
 	};
 
-	const preprocessed = (
-		await Promise.all(
-			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
-				const result = await preprocessAudioTrack({
-					outName: filterFile,
-					asset,
-					expectedFrames,
-					fps,
-					downloadMap,
-					indent,
-					logLevel,
-					binariesDirectory,
-				});
-				preprocessProgress[index] = 1;
-				updateProgress();
-				return result;
-			}),
-		)
-	).filter(truthy);
+	const audioTracks = await Promise.all(
+		assetPositions.map(async (asset, index) => {
+			const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
+			const result = await preprocessAudioTrack({
+				outName: filterFile,
+				asset,
+				expectedFrames,
+				fps,
+				downloadMap,
+				indent,
+				logLevel,
+				binariesDirectory,
+			});
+			preprocessProgress[index] = 1;
+			updateProgress();
+			return result;
+		}),
+	);
 
-	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
+	const preprocessed = audioTracks.filter(truthy);
+	const outName = path.join(downloadMap.audioPreprocessing, 'audio.wav');
 
 	await mergeAudioTrack({
 		files: preprocessed,

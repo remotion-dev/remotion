@@ -15,7 +15,7 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
-import {getAssetsData} from './create-audio';
+import {createAudio} from './create-audio';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
@@ -251,7 +251,7 @@ const innerStitchFramesToVideo = async (
 	};
 
 	const audio = shouldRenderAudio
-		? await getAssetsData({
+		? await createAudio({
 				assets: assetsInfo.assets,
 				onDownload,
 				fps,
