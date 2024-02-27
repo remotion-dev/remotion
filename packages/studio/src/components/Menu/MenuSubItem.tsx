@@ -222,6 +222,7 @@ export const MenuSubItem: React.FC<{
 								portalStyle={portalStyle}
 								subMenuActivated={subMenuActivated}
 								setHideParent={setIsChildPortalVisible}
+								showBackButton={mobileLayout}
 							/>,
 							getPortal(currentZIndex),
 						)

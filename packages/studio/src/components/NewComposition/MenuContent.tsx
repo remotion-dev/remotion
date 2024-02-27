@@ -1,7 +1,6 @@
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
-import {useMobileLayout} from '../../helpers/mobile-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
@@ -303,7 +302,6 @@ export const MenuContent: React.FC<{
 		current.addEventListener('pointerleave', onPointerLeave);
 		return () => current.removeEventListener('pointerleave', onPointerLeave);
 	}, [onHide, subMenuActivated]);
-	const mobileLayout = useMobileLayout();
 
 	return (
 		<div
@@ -311,7 +309,7 @@ export const MenuContent: React.FC<{
 			style={containerWithHeight}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{mobileLayout && showBackButton && (
+			{showBackButton && (
 				<MenuSubItem
 					selected={selectedItem === 'back'}
 					onActionChosen={(_, e) => {
