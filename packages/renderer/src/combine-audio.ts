@@ -199,14 +199,7 @@ const combineAudioSeamlessly = async ({
 			const utf8 = data.toString('utf8');
 			const parsed = parseFfmpegProgress(utf8, fps);
 			if (parsed === undefined) {
-				if (
-					!utf8.includes('Estimating duration from bitrate') &&
-					!utf8.includes(
-						'Application provided invalid, non monotonically increasing',
-					)
-				) {
-					Log.verbose({indent, logLevel}, utf8);
-				}
+				Log.verbose({indent, logLevel}, utf8);
 			} else {
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}

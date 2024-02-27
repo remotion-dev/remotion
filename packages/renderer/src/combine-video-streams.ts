@@ -43,6 +43,7 @@ export const combineVideoStreams = async ({
 	writeFileSync(fileListTxt, fileList);
 
 	const command = [
+		'-hide_banner',
 		'-r',
 		String(fps),
 		'-f',
@@ -66,6 +67,12 @@ export const combineVideoStreams = async ({
 		output,
 	].filter(truthy);
 
+	const startTime = Date.now();
+	Log.verbose(
+		{indent, logLevel},
+		`Combining video without re-encoding, command: ${command.join(' ')}`,
+	);
+
 	try {
 		const task = callFf({
 			args: command,
@@ -85,6 +92,10 @@ export const combineVideoStreams = async ({
 			}
 		});
 		await task;
+		Log.verbose(
+			{indent, logLevel},
+			`Finished combining video in ${Date.now() - startTime}ms`,
+		);
 		return output;
 	} catch (e) {
 		rmSync(fileListTxt, {recursive: true});

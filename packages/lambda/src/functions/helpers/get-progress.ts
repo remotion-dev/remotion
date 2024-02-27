@@ -246,7 +246,7 @@ export const getProgress = async ({
 
 	const chunkCount = outputFile
 		? renderMetadata?.totalChunks ?? 0
-		: chunks.length * chunkMultiplier;
+		: chunks.length / chunkMultiplier;
 
 	const availableChunks = chunks.map((c) =>
 		parseLambdaChunkKey(c.Key as string),
