@@ -12,12 +12,16 @@ export const muxVideoAndAudio = async ({
 	indent,
 	logLevel,
 	onProgress,
+	binariesDirectory,
+	fps,
 }: {
 	videoOutput: string;
 	audioOutput: string;
 	output: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	fps: number;
 	onProgress: (p: number) => void;
 }) => {
 	const command = [
@@ -42,9 +46,10 @@ export const muxVideoAndAudio = async ({
 		args: command,
 		indent,
 		logLevel,
+		binariesDirectory,
 	});
 	task.stderr?.on('data', (data: Buffer) => {
-		const parsed = parseFfmpegProgress(data.toString('utf8'));
+		const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 		if (parsed === undefined) {
 			Log.verbose({indent, logLevel}, data.toString('utf8'));
 		} else {

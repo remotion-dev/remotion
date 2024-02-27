@@ -86,6 +86,8 @@ export const combineVideos = async (options: Options) => {
 			seamless: resolvedAudioCodec === 'aac',
 			chunkDurationInSeconds,
 			addRemotionMetadata: !shouldCreateVideo,
+			binariesDirectory,
+			fps,
 		});
 	}
 
@@ -101,6 +103,7 @@ export const combineVideos = async (options: Options) => {
 			output: shouldCreateAudio ? videoOutput : output,
 			files,
 			addRemotionMetadata: !shouldCreateAudio,
+			binariesDirectory,
 		});
 	}
 
@@ -117,6 +120,8 @@ export const combineVideos = async (options: Options) => {
 			onProgress,
 			output,
 			videoOutput,
+			binariesDirectory,
+			fps,
 		});
 		onProgress(numberOfFrames);
 		rmSync(filelistDir, {recursive: true});

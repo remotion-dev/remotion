@@ -20,6 +20,7 @@ export const combineVideoStreams = async ({
 	onProgress,
 	files,
 	addRemotionMetadata,
+	binariesDirectory,
 }: {
 	fps: number;
 	codec: Codec;
@@ -31,6 +32,7 @@ export const combineVideoStreams = async ({
 	onProgress: (p: number) => void;
 	files: string[];
 	addRemotionMetadata: boolean;
+	binariesDirectory: string | null;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -67,9 +69,10 @@ export const combineVideoStreams = async ({
 			bin: 'ffmpeg',
 			indent,
 			logLevel,
+			binariesDirectory,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			const parsed = parseFfmpegProgress(data.toString('utf8'));
+			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 			if (parsed === undefined) {
 				Log.verbose({indent, logLevel}, data.toString('utf8'));
 			} else {

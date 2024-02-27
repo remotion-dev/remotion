@@ -11,7 +11,7 @@ import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
-import {preferLossless} from './prefer-lossless';
+import {preferLosslessOption} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
@@ -67,7 +67,7 @@ export const optionsMap = {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		videoBitrate: videoBitrateOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
-		preferLossless,
+		preferLossless: preferLosslessOption,
 		audioBitrate: audioBitrateOption,
 		deleteAfter: deleteAfterOption,
 		x264Preset: x264Option,
@@ -94,7 +94,7 @@ export const optionsMap = {
 	renderMediaOnCloudRun: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
-		preferLossless,
+		preferLossless: preferLosslessOption,
 		colorSpace: colorSpaceOption,
 		audioBitrate: audioBitrateOption,
 		videoBitrate: videoBitrateOption,

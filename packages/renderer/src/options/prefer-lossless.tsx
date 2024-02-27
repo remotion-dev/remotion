@@ -1,11 +1,29 @@
 import type {AnyRemotionOption} from './option';
 
-export const preferLossless = {
+const cliFlag = 'prefer-lossless' as const;
+
+let input: boolean | null = false;
+
+export const preferLosslessOption = {
 	name: 'Prefer lossless',
-	cliFlag: 'prefer-lossless' as const,
+	cliFlag,
 	description: () =>
 		'Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.',
 	docLink: 'https://www.remotion.dev/docs/encoding',
 	type: false as boolean,
 	ssrName: 'preferLossless' as const,
-} satisfies AnyRemotionOption;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag]) {
+			return {value: true, source: 'cli'};
+		}
+
+		if (input === true) {
+			return {value: true, source: 'config'};
+		}
+
+		return {value: false, source: 'default'};
+	},
+	setConfig: (val: boolean) => {
+		input = val;
+	},
+} satisfies AnyRemotionOption<boolean>;

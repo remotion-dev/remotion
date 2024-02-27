@@ -27,6 +27,8 @@ const encodeAudio = async ({
 	indent,
 	logLevel,
 	addRemotionMetadata,
+	fps,
+	binariesDirectory,
 }: {
 	files: string[];
 	resolvedAudioCodec: AudioCodec;
@@ -36,6 +38,8 @@ const encodeAudio = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	addRemotionMetadata: boolean;
+	fps: number;
+	binariesDirectory: string | null;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
@@ -67,9 +71,10 @@ const encodeAudio = async ({
 			bin: 'ffmpeg',
 			indent,
 			logLevel,
+			binariesDirectory,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			const parsed = parseFfmpegProgress(data.toString('utf8'));
+			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 			if (parsed === undefined) {
 				Log.verbose({indent, logLevel}, data.toString('utf8'));
 			} else {
@@ -92,6 +97,8 @@ const combineAudioSeamlessly = async ({
 	output,
 	chunkDurationInSeconds,
 	addRemotionMetadata,
+	fps,
+	binariesDirectory,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -100,6 +107,8 @@ const combineAudioSeamlessly = async ({
 	output: string;
 	chunkDurationInSeconds: number;
 	addRemotionMetadata: boolean;
+	fps: number;
+	binariesDirectory: string | null;
 }) => {
 	const fileList = files
 		.map((p, i) => {
@@ -160,9 +169,10 @@ const combineAudioSeamlessly = async ({
 			bin: 'ffmpeg',
 			indent,
 			logLevel,
+			binariesDirectory,
 		});
 		task.stderr?.on('data', (data: Buffer) => {
-			const parsed = parseFfmpegProgress(data.toString('utf8'));
+			const parsed = parseFfmpegProgress(data.toString('utf8'), fps);
 			if (parsed === undefined) {
 				Log.verbose({indent, logLevel}, data.toString('utf8'));
 			} else {
@@ -189,6 +199,8 @@ export const createCombinedAudio = ({
 	output,
 	chunkDurationInSeconds,
 	addRemotionMetadata,
+	binariesDirectory,
+	fps,
 }: {
 	seamless: boolean;
 	filelistDir: string;
@@ -200,6 +212,8 @@ export const createCombinedAudio = ({
 	output: string;
 	chunkDurationInSeconds: number;
 	addRemotionMetadata: boolean;
+	binariesDirectory: string | null;
+	fps: number;
 }): Promise<string> => {
 	if (seamless) {
 		return combineAudioSeamlessly({
@@ -210,6 +224,8 @@ export const createCombinedAudio = ({
 			output,
 			chunkDurationInSeconds,
 			addRemotionMetadata,
+			binariesDirectory,
+			fps,
 		});
 	}
 
@@ -222,5 +238,7 @@ export const createCombinedAudio = ({
 		indent,
 		logLevel,
 		addRemotionMetadata,
+		binariesDirectory,
+		fps,
 	});
 };

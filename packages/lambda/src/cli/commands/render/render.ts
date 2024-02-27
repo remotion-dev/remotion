@@ -60,6 +60,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	preferLosslessOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -163,6 +164,9 @@ export const renderCommand = async (
 		false,
 	).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const preferLossless = preferLosslessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
@@ -311,7 +315,7 @@ export const renderCommand = async (
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
-		preferLossless: parsedLambdaCli['prefer-lossless'] ?? false,
+		preferLossless,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
