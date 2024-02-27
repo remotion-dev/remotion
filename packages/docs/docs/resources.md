@@ -76,7 +76,7 @@ This list tries to compile all templates, libraries, building blocks and example
 ## Examples
 
 - Music with Tone.JS ([Source code](https://github.com/remotion-dev/tone-js-example), [Preview](https://tone-js-example.vercel.app/))
-- Animate a .glb model ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
+- Animate .glb models ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
 - Typewriter effect ([Source code](https://github.com/remotion-dev/typewriter), [Preview](https://typewriter-remotion.vercel.app/))
 - D3.js example ([Source code](https://github.com/remotion-dev/d3-example), [Preview](https://d3-example-remotion.vercel.app/))
 - Greenscreen Effect ([Docs](/docs/video-manipulation))
@@ -85,10 +85,10 @@ This list tries to compile all templates, libraries, building blocks and example
 - 3D Text ([Source code](https://github.com/remotion-dev/3d-text), [Preview](https://3d-text-remotion.vercel.app/))
 - Wavy TikTok Effect ([Source code](https://github.com/JonnyBurger/wavy-meme))
 - Apple "Spring loaded" animation ([Source code](https://github.com/JonnyBurger/spring-loaded))
-- ThreeJS particles animation ([Source code](https://github.com/JonnyBurger/three-particles), [Preview](https://three-particles-remotion.vercel.app/))
+- Three.js particles animation ([Source code](https://github.com/JonnyBurger/three-particles), [Preview](https://three-particles-remotion.vercel.app/))
 - Text morphing ([Source code](https://github.com/remotion-dev/morph-text), [Preview](https://morph-text-remotion.vercel.app/))
 - Text warping ([Source code](https://github.com/remotion-dev/text-warping), [Preview](https://text-warping.vercel.app/?/Promo))
-- Include GLTF models ([Source code](https://github.com/remotion-dev/remotion-three-gltf-example), [Preview](https://remotion-three-gltf-example.vercel.app/))
+- Animate GLTF models ([Source code](https://github.com/remotion-dev/remotion-three-gltf-example), [Preview](https://remotion-three-gltf-example.vercel.app/))
 - OpenGL transitions ([Source code](https://github.com/remotion-dev/remotion-gl-transitions), [Preview](https://remotion-gl-transitions.vercel.app/))
 - Conference talk in React ([Source code](https://github.com/pomber/record-talk-with-remotion))
 - Conference talk in React #2 ([Source code](https://github.com/JonnyBurger/react-summit-talk))
