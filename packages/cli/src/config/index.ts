@@ -115,6 +115,7 @@ const {
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	preferLosslessOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -458,6 +459,10 @@ declare global {
 			for Remotion are located.
 		 */
 		readonly setBinariesDirectory: (directory: string | null) => void;
+		/**
+		 * Prefer lossless audio encoding. Default: false
+		 */
+		readonly setPreferLosslessAudio: (lossless: boolean) => void;
 	}
 }
 
@@ -611,6 +616,7 @@ export const Config: FlatConfig = {
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
+	setPreferLosslessAudio: preferLosslessOption.setConfig,
 };
 
 export const ConfigInternals = {

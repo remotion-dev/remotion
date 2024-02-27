@@ -19,7 +19,7 @@ import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
-import {preferLosslessOption} from './prefer-lossless';
+import {preferLosslessAudioOption} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
@@ -50,7 +50,7 @@ export const allOptions = {
 	beepOnFinishOption,
 	numberOfGifLoopsOption,
 	reproOption,
-	preferLosslessOption,
+	preferLosslessOption: preferLosslessAudioOption,
 	x264Option,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,

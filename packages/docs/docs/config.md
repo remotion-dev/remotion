@@ -747,7 +747,7 @@ import { Config } from "@remotion/cli/config";
 Config.setBufferStateDelayInMilliseconds(0);
 ```
 
-## `binariesDirectory?`<AvailableFrom v="4.0.120" />
+## `setBinariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
 
@@ -755,6 +755,16 @@ Config.setBufferStateDelayInMilliseconds(0);
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setBinariesDirectory("/path/to/custom/directory");
+```
+
+## `setPreferLosslessAudio?`<AvailableFrom v="4.0.TODO" />
+
+<Options id="prefer-lossless" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPreferLosslessAudio(true);
 ```
 
 ## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />

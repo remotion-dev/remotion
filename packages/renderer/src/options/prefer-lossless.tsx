@@ -4,11 +4,16 @@ const cliFlag = 'prefer-lossless' as const;
 
 let input: boolean | null = false;
 
-export const preferLosslessOption = {
+export const preferLosslessAudioOption = {
 	name: 'Prefer lossless',
 	cliFlag,
-	description: () =>
-		'Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.',
+	description: () => (
+		<>
+			Uses a lossless audio codec, if one is available for the codec. If you set
+			<code>audioCodec</code>, it takes priority over{' '}
+			<code>preferLossless</code>.
+		</>
+	),
 	docLink: 'https://www.remotion.dev/docs/encoding',
 	type: false as boolean,
 	ssrName: 'preferLossless' as const,
