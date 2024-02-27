@@ -1,4 +1,4 @@
-import {cpSync, promises} from 'node:fs';
+import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -67,6 +67,7 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace;
 	binariesDirectory: string | null;
+	separateAudioTo: string | null;
 };
 
 export type StitchFramesToVideoOptions = {
@@ -96,6 +97,7 @@ export type StitchFramesToVideoOptions = {
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
+	separateAudioTo?: string | null;
 };
 
 type ReturnType = Promise<Buffer | null>;
@@ -131,6 +133,7 @@ const innerStitchFramesToVideo = async (
 		x264Preset,
 		colorSpace,
 		binariesDirectory,
+		separateAudioTo,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -278,6 +281,12 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
+		if (separateAudioTo) {
+			throw new Error(
+				'`separateAudioTo` was set, but this render was audio-only. This option is meant to be used for video renders.',
+			);
+		}
+
 		cpSync(audio, outputLocation ?? (tempFile as string));
 		onProgress?.(expectedFrames);
 		deleteDirectory(path.dirname(audio));
@@ -312,7 +321,7 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio ? ['-i', audio, '-c:a', 'copy'] : null,
+		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : null,
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
@@ -390,6 +399,19 @@ const innerStitchFramesToVideo = async (
 			}
 		}
 	});
+
+	if (separateAudioTo) {
+		if (!audio) {
+			throw new Error(
+				`\`separateAudioTo\` was set to ${JSON.stringify(
+					separateAudioTo,
+				)}, but this render included no audio`,
+			);
+		}
+
+		cpSync(audio, separateAudioTo);
+		rmSync(audio);
+	}
 
 	return new Promise<Buffer | null>((resolve, reject) => {
 		task.once('close', (code, signal) => {
@@ -472,6 +494,7 @@ export const stitchFramesToVideo = ({
 	x264Preset,
 	colorSpace,
 	binariesDirectory,
+	separateAudioTo,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -503,5 +526,6 @@ export const stitchFramesToVideo = ({
 		x264Preset: x264Preset ?? null,
 		colorSpace: colorSpace ?? 'default',
 		binariesDirectory: binariesDirectory ?? null,
+		separateAudioTo: separateAudioTo ?? null,
 	});
 };

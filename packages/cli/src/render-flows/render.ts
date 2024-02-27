@@ -518,6 +518,7 @@ export const renderVideoFlow = async ({
 			updateRenderProgress({newline: true, printToConsole: true});
 		},
 		binariesDirectory,
+		separateAudioTo: null,
 	});
 
 	Log.info(

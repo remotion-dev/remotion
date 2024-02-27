@@ -38,6 +38,10 @@ export const mergeHandler = async (
 		throw new Error('expected codec');
 	}
 
+	if (renderMetadata.type === 'still') {
+		throw new Error('Cannot merge stills');
+	}
+
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		params.bucketName,

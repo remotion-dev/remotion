@@ -31,6 +31,7 @@ test("Should be able to render a MP3 audio file", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("mp3");

@@ -460,6 +460,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					finishRenderProgress: () => undefined,
+					separateAudioTo: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

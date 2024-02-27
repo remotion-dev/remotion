@@ -115,10 +115,12 @@ export const chunkKey = (renderId: string) =>
 export const chunkKeyForIndex = ({
 	renderId,
 	index,
+	type,
 }: {
 	renderId: string;
 	index: number;
-}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}`;
+	type: 'video' | 'audio';
+}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}:${type}`;
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
@@ -450,6 +452,9 @@ type Discriminated =
 	| {
 			type: 'video';
 			imageFormat: VideoImageFormat;
+			muted: boolean;
+			frameRange: [number, number];
+			everyNthFrame: number;
 	  };
 
 export type RenderMetadata = Discriminated & {
@@ -470,8 +475,6 @@ export type RenderMetadata = Discriminated & {
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
-	frameRange: [number, number];
-	everyNthFrame: number;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;
 	audioBitrate: string | null;

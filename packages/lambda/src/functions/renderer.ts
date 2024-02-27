@@ -14,6 +14,7 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {truthy} from '../shared/truthy';
 import {enableNodeIntrospection} from '../shared/why-is-node-running';
 import type {
 	ChunkTimingData,
@@ -102,20 +103,24 @@ const renderHandler = async (
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
 	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
+	const defaultAudioCodec = RenderInternals.getDefaultAudioCodec({
+		codec: params.codec,
+		preferLossless: params.preferLossless,
+	});
 
-	const outputLocation = path.join(
-		outdir,
-		`localchunk-${String(params.chunk).padStart(
-			8,
-			'0',
-		)}.${RenderInternals.getFileExtensionFromCodec(
-			chunkCodec,
-			RenderInternals.getDefaultAudioCodec({
-				codec: params.codec,
-				preferLossless: params.preferLossless,
-			}),
-		)}`,
+	const videoExtension = RenderInternals.getFileExtensionFromCodec(
+		chunkCodec,
+		defaultAudioCodec,
 	);
+	const audioExtension = defaultAudioCodec
+		? RenderInternals.getExtensionFromAudioCodec(defaultAudioCodec)
+		: null;
+
+	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
+	const audioOutputLocation = audioExtension
+		? path.join(outdir, `${chunk}.${audioExtension}`)
+		: null;
 
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
@@ -188,7 +193,7 @@ const renderHandler = async (
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
-			outputLocation,
+			outputLocation: videoOutputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
@@ -222,6 +227,7 @@ const renderHandler = async (
 			colorSpace: params.colorSpace,
 			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
+			separateAudioTo: audioOutputLocation,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -250,14 +256,34 @@ const renderHandler = async (
 		key: chunkKeyForIndex({
 			renderId: params.renderId,
 			index: params.chunk,
+			type: 'video',
 		}),
-		body: fs.createReadStream(outputLocation),
+		body: fs.createReadStream(videoOutputLocation),
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+
+	// TODO: Make it parallel
+	if (audioOutputLocation) {
+		await lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: chunkKeyForIndex({
+				renderId: params.renderId,
+				index: params.chunk,
+				type: 'audio',
+			}),
+			body: fs.createReadStream(audioOutputLocation),
+			region: getCurrentRegionInFunction(),
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
+			customCredentials: null,
+		});
+	}
+
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		`Wrote chunk to S3 (${Date.now() - writeStart}ms)`,
@@ -266,25 +292,30 @@ const renderHandler = async (
 		{indent: false, logLevel: params.logLevel},
 		'Cleaning up and writing timings',
 	);
-	await Promise.all([
-		fs.promises.rm(outputLocation, {recursive: true}),
-		fs.promises.rm(outputPath, {recursive: true}),
-		lambdaWriteFile({
-			bucketName: params.bucketName,
-			body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-			key: lambdaTimingsKey({
-				renderId: params.renderId,
-				chunk: params.chunk,
-				rendered: endRendered,
-				start,
+	await Promise.all(
+		[
+			fs.promises.rm(videoOutputLocation, {recursive: true}),
+			audioOutputLocation
+				? fs.promises.rm(audioOutputLocation, {recursive: true})
+				: null,
+			fs.promises.rm(outputPath, {recursive: true}),
+			lambdaWriteFile({
+				bucketName: params.bucketName,
+				body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
+				key: lambdaTimingsKey({
+					renderId: params.renderId,
+					chunk: params.chunk,
+					rendered: endRendered,
+					start,
+				}),
+				region: getCurrentRegionInFunction(),
+				privacy: 'private',
+				expectedBucketOwner: options.expectedBucketOwner,
+				downloadBehavior: null,
+				customCredentials: null,
 			}),
-			region: getCurrentRegionInFunction(),
-			privacy: 'private',
-			expectedBucketOwner: options.expectedBucketOwner,
-			downloadBehavior: null,
-			customCredentials: null,
-		}),
-	]);
+		].filter(truthy),
+	);
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		'Done!',

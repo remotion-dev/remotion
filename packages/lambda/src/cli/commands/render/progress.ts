@@ -184,12 +184,13 @@ export const makeMultiProgressFromStatus = (
 			totalChunks: status.renderMetadata?.totalChunks ?? null,
 			doneIn: status.timeToFinishChunks,
 			framesRendered: status.framesRendered,
-			totalFrames: status.renderMetadata
-				? RenderInternals.getFramesToRender(
-						status.renderMetadata.frameRange,
-						status.renderMetadata.everyNthFrame,
-					).length
-				: null,
+			totalFrames:
+				status.renderMetadata && status.renderMetadata.type === 'video'
+					? RenderInternals.getFramesToRender(
+							status.renderMetadata.frameRange,
+							status.renderMetadata.everyNthFrame,
+						).length
+					: null,
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,

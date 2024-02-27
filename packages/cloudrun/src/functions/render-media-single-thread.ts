@@ -121,6 +121,7 @@ export const renderMediaSingleThread = async (
 			repro: false,
 			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
+			separateAudioTo: null,
 		});
 
 		const storage = new Storage();

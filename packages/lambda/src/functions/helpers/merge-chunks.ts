@@ -31,6 +31,7 @@ import {getFilesToDelete} from './get-files-to-delete';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
@@ -216,9 +217,15 @@ export const mergeChunksAndFinishRender = async (options: {
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
+	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(
+		options.renderMetadata,
+	);
+
 	const jobs = getFilesToDelete({
 		chunkCount: options.chunkCount,
 		renderId: options.renderId,
+		hasAudio,
+		hasVideo,
 	});
 
 	const deletProm =

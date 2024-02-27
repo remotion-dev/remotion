@@ -124,6 +124,7 @@ export type InternalRenderMediaOptions = {
 	concurrency: number | string | null;
 	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
+	separateAudioTo: string | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -179,6 +180,7 @@ export type RenderMediaOptions = Prettify<{
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 	binariesDirectory?: string | null;
+	separateAudioTo?: string | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -238,6 +240,7 @@ const internalRenderMediaRaw = ({
 	repro,
 	finishRenderProgress,
 	binariesDirectory,
+	separateAudioTo,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -689,6 +692,7 @@ const internalRenderMediaRaw = ({
 						x264Preset: x264Preset ?? null,
 						colorSpace,
 						binariesDirectory,
+						separateAudioTo,
 					}),
 					stitchStart,
 				]);
@@ -837,6 +841,7 @@ export const renderMedia = ({
 	colorSpace,
 	repro,
 	binariesDirectory,
+	separateAudioTo,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -903,5 +908,6 @@ export const renderMedia = ({
 		repro: repro ?? false,
 		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
+		separateAudioTo: separateAudioTo ?? null,
 	});
 };

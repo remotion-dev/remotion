@@ -32,7 +32,7 @@ import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 export const RENDER_COMMAND = 'render';
 
 function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata
+	return status.renderMetadata && status.renderMetadata.type === 'video'
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
 				status.renderMetadata.everyNthFrame,

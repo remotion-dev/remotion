@@ -62,6 +62,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   expect(probe.stderr).toMatch(/Video: h264/);
 

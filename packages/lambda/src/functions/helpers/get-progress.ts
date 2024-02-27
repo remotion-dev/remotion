@@ -31,6 +31,7 @@ import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 import {makeTimeoutError} from './make-timeout-error';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
@@ -64,10 +65,13 @@ export const getProgress = async ({
 			customCredentials,
 		);
 
-		const totalFrameCount = RenderInternals.getFramesToRender(
-			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame,
-		).length;
+		const totalFrameCount =
+			postRenderData.renderMetadata.type === 'still'
+				? 1
+				: RenderInternals.getFramesToRender(
+						postRenderData.renderMetadata.frameRange,
+						postRenderData.renderMetadata.everyNthFrame,
+					).length;
 
 		return {
 			framesRendered: totalFrameCount,
@@ -173,11 +177,17 @@ export const getProgress = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
+	const {hasAudio, hasVideo} = renderMetadata
+		? lambdaRenderHasAudioVideo(renderMetadata)
+		: {hasAudio: false, hasVideo: false};
+
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
 		contents,
 		output: outputFile?.url ?? null,
 		renderId,
+		hasAudio,
+		hasVideo,
 	});
 
 	const timeToFinish = getTimeToFinish({

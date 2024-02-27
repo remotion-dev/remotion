@@ -322,6 +322,7 @@ const innerLaunchHandler = async ({
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
+		muted: params.muted,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
