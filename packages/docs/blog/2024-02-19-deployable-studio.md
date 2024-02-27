@@ -53,10 +53,11 @@ Sequences are mapped back to the original source code. Click on them in the depl
 
 Our templates and examples are deployed as a Studio:
 
-// TODO:
-
-- [Hello World](https://hello-world.remotion.pro)
-- [Watercolor Map](https://watercolor-map.remotion.pro)
+- Watercolor Map ([Source code](https://github.com/remotion-dev/watercolor-map), [Preview](https://watercolor-map.vercel.app/))
+- Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://remotion-helloworld.vercel.app/))
+- React Three Fiber ([Source code](https://github.com/remotion-dev/template-three), [Preview](https://template-three-remotion.vercel.app/))
+- Stills ([Source code](https://github.com/remotion-dev/template-still), [Preview](https://template-still.vercel.app/))
+- Watercolor Map ([Source code](https://github.com/remotion-dev/watercolor-map), [Preview](https://watercolor-map-remotion.vercel.app/))
 
 ## Deploy the Studio to a server
 
