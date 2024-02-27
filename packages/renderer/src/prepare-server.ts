@@ -36,6 +36,7 @@ type PrepareServerOptions = {
 	logLevel: LogLevel;
 	indent: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	binariesDirectory: string | null;
 };
 
 export const prepareServer = async ({
@@ -46,6 +47,7 @@ export const prepareServer = async ({
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
 	Log.verbose(
@@ -67,6 +69,7 @@ export const prepareServer = async ({
 			logLevel,
 			indent,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		let remoteSourceMap: AnySourceMapConsumer | null = null;
@@ -139,6 +142,7 @@ export const prepareServer = async ({
 		logLevel,
 		indent,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 
 	return Promise.resolve({

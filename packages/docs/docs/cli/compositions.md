@@ -71,9 +71,9 @@ _available since v2.6.5_
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--disable-headless`
+### `--disable-headless?`
 
-Opens an actual browser to observe the composition fetching.
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 
@@ -86,6 +86,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
 
 ### `--quiet`, `--q`
 

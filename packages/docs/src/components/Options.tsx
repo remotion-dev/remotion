@@ -4,7 +4,7 @@ import type React from "react";
 
 const options = Object.values(BrowserSafeApis.options);
 
-const getOption = (id: string): AnyRemotionOption => {
+const getOption = (id: string): AnyRemotionOption<unknown> => {
   const option = options.find((o) => o.cliFlag === id);
 
   if (!option) {

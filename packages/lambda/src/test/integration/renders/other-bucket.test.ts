@@ -86,6 +86,7 @@ test('Should be able to render to another bucket', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
+			logLevel: 'info',
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -108,6 +109,7 @@ test('Should be able to render to another bucket', async () => {
 		options: {
 			stdin: file,
 		},
+		binariesDirectory: null,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);

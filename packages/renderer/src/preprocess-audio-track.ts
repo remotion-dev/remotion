@@ -18,6 +18,7 @@ type Options = {
 	downloadMap: DownloadMap;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 };
 
 export type PreprocessedAudioTrack = {
@@ -33,13 +34,15 @@ const preprocessAudioTrackUnlimited = async ({
 	downloadMap,
 	indent,
 	logLevel,
+	binariesDirectory,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
-	const {channels, duration} = await getAudioChannelsAndDuration(
+	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
-		resolveAssetSrc(asset.src),
+		src: resolveAssetSrc(asset.src),
 		indent,
 		logLevel,
-	);
+		binariesDirectory,
+	});
 
 	const filter = calculateFfmpegFilter({
 		asset,
@@ -64,7 +67,8 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await callFf({bin: 'ffmpeg', args, indent, logLevel});
+	await callFf({bin: 'ffmpeg', args, indent, logLevel, binariesDirectory});
+
 	cleanup();
 	return {outName, filter};
 };

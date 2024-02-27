@@ -1,5 +1,6 @@
 import {audioBitrateOption} from './audio-bitrate';
 import {beepOnFinishOption} from './beep-on-finish';
+import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -10,27 +11,33 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {glOption} from './gl';
+import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
-import {muteOption} from './mute';
+import {logLevelOption} from './log-level';
+import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
-import {offthreadVideoCacheSizeInBytes} from './offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import type {AnyRemotionOption} from './option';
+import {overwriteOption} from './overwrite';
 import {preferLossless} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
-import {videoBitrate} from './video-bitrate';
+import {delayRenderTimeoutInMillisecondsOption} from './timeout';
+import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
+import {x264Option} from './x264-preset';
 
 export const allOptions = {
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
-	videoBitrate,
+	videoBitrateOption,
 	audioBitrateOption,
 	enforceAudioOption,
-	muteOption,
+	mutedOption,
 	videoCodecOption,
-	offthreadVideoCacheSizeInBytes,
+	offthreadVideoCacheSizeInBytesOption,
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
@@ -44,6 +51,15 @@ export const allOptions = {
 	numberOfGifLoopsOption,
 	reproOption,
 	preferLossless,
+	x264Option,
+	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
+	binariesDirectoryOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
+export type TypeOfOption<Type> = Type extends AnyRemotionOption<infer X>
+	? X
+	: never;

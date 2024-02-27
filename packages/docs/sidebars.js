@@ -491,6 +491,18 @@ module.exports = {
         "animation-utils/interpolate-styles",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/install-whisper-cpp",
+      link: {
+        type: "doc",
+        id: "install-whisper-cpp/index",
+      },
+      items: [
+        "install-whisper-cpp/install-whisper-cpp",
+        "install-whisper-cpp/download-whisper-model",
+      ],
+    },
   ],
   mainSidebar: [
     {
@@ -511,15 +523,15 @@ module.exports = {
       items: [
         "transforms",
         "assets",
+        "layers",
         "transitioning",
-        "use-img-and-iframe",
         "using-audio",
         "fonts",
+        "measuring",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
-        "measuring",
       ],
     },
     {
@@ -699,17 +711,7 @@ module.exports = {
     {
       type: "category",
       label: "Building apps",
-      items: [
-        {
-          type: "link",
-          href: "/docs/player",
-          label: "Player",
-        },
-        "brownfield",
-        "video-uploads",
-        "presigned-urls",
-        "font-picker",
-      ],
+      items: ["brownfield", "video-uploads", "presigned-urls", "font-picker"],
     },
     {
       type: "category",

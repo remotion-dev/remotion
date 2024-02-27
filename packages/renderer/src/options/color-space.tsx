@@ -4,6 +4,10 @@ export const validColorSpaces = ['default', 'bt709', 'bt2020-ncl'] as const;
 
 export type ColorSpace = (typeof validColorSpaces)[number];
 
+let colorSpace: ColorSpace = 'default';
+
+const cliFlag = 'color-space' as const;
+
 export const colorSpaceOption = {
 	name: 'Color space',
 	cliFlag: 'color-space' as const,
@@ -38,7 +42,30 @@ export const colorSpaceOption = {
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',
 	ssrName: 'colorSpace',
 	type: 'default' as ColorSpace,
-} satisfies AnyRemotionOption;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as ColorSpace,
+			};
+		}
+
+		if (colorSpace !== 'default') {
+			return {
+				source: 'config',
+				value: colorSpace,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: 'default',
+		};
+	},
+	setConfig: (value) => {
+		colorSpace = value;
+	},
+} satisfies AnyRemotionOption<ColorSpace>;
 
 export const validateColorSpace = (option: unknown) => {
 	if (validColorSpaces.includes(option as ColorSpace)) {

@@ -1,8 +1,12 @@
 import type {AnyRemotionOption} from './option';
 
+const cliFlag = 'enable-lambda-insights' as const;
+
+let option = false;
+
 export const enableLambdaInsights = {
 	name: 'Enable Lambda Insights',
-	cliFlag: 'enable-lambda-insights' as const,
+	cliFlag,
 	description: () => (
 		<>
 			Enable{' '}
@@ -15,4 +19,27 @@ export const enableLambdaInsights = {
 	ssrName: 'enableLambdaInsights',
 	docLink: 'https://www.remotion.dev/docs/lambda/insights',
 	type: false as boolean,
-} satisfies AnyRemotionOption;
+	setConfig: (value: boolean) => {
+		option = value;
+	},
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				value: commandLine[cliFlag] as boolean,
+				source: 'cli',
+			};
+		}
+
+		if (option) {
+			return {
+				value: option,
+				source: 'config',
+			};
+		}
+
+		return {
+			value: false,
+			source: 'default',
+		};
+	},
+} satisfies AnyRemotionOption<boolean>;

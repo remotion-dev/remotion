@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -39,6 +40,28 @@ function getTotalFrames(status: RenderProgress): number | null {
 		: null;
 }
 
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	mutedOption,
+	colorSpaceOption,
+	deleteAfterOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	headlessOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
+	overwriteOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
+
 export const renderCommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -46,12 +69,14 @@ export const renderCommand = async (
 ) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
+		Log.info({indent: false, logLevel});
 		Log.info(
+			{indent: false, logLevel},
 			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`,
 		);
 		quit(1);
@@ -60,41 +85,102 @@ export const renderCommand = async (
 	const region = getAwsRegion();
 
 	const {
-		chromiumOptions,
-		crf,
 		envVariables,
 		frameRange,
 		inputProps,
 		pixelFormat,
 		proResProfile,
-		puppeteerTimeout,
-		jpegQuality,
-		scale,
 		everyNthFrame,
-		numberOfGifLoops,
-		muted,
-		overwrite,
-		audioBitrate,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
 		height,
 		width,
 		browserExecutable,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
-		deleteAfter,
-		x264Preset,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
 	} = CliInternals.getCliOptions({
-		type: 'series',
-		isLambda: true,
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const deleteAfter = deleteAfterOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: CliInternals.parsedCli,
+		},
+	).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: CliInternals.parsedCli,
+		},
+		false,
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
 	let composition: string = args[1];
 	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
 
 		validateServeUrl(serveUrl);
 
@@ -112,6 +198,7 @@ export const renderCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		const {compositionId} =
@@ -132,11 +219,12 @@ export const renderCommand = async (
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
-				timeoutInMilliseconds: puppeteerTimeout,
+				timeoutInMilliseconds,
 				logLevel,
 				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			});
 		composition = compositionId;
 	}
@@ -144,14 +232,19 @@ export const renderCommand = async (
 	const outName = parsedLambdaCli['out-name'];
 	const downloadName = args[2] ?? null;
 
-	const {codec, reason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-		compositionCodec: null,
-	});
+	const {value: codec, source: reason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
 
 	const imageFormat = CliInternals.getVideoImageFormat({
 		codec,
@@ -189,7 +282,7 @@ export const renderCommand = async (
 		logLevel,
 		frameRange: frameRange ?? null,
 		outName: parsedLambdaCli['out-name'] ?? null,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
 		numberOfGifLoops,
@@ -232,11 +325,13 @@ export const renderCommand = async (
 	});
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`bucket = ${res.bucketName}, function = ${functionName}`,
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`renderId = ${res.renderId}, codec = ${codec} (${reason})`,
 		),
@@ -259,6 +354,7 @@ export const renderCommand = async (
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
+		logLevel,
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
@@ -282,6 +378,7 @@ export const renderCommand = async (
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
+			logLevel,
 		});
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
@@ -353,16 +450,22 @@ export const renderCommand = async (
 					}),
 					false,
 				);
-				Log.info();
-				Log.info();
-				Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
+				Log.info({indent: false, logLevel});
+				Log.info({indent: false, logLevel});
+				Log.info(
+					{indent: false, logLevel},
+					'Done!',
+					outputPath,
+					CliInternals.formatBytes(sizeInBytes),
+				);
 			} else {
-				Log.info();
-				Log.info();
-				Log.info('Done! ' + newStatus.outputFile);
+				Log.info({indent: false, logLevel});
+				Log.info({indent: false, logLevel});
+				Log.info({indent: false, logLevel}, 'Done! ' + newStatus.outputFile);
 			}
 
 			Log.info(
+				{indent: false, logLevel},
 				[
 					newStatus.renderMetadata
 						? `${newStatus.renderMetadata.estimatedTotalLambdaInvokations} λ's used`
@@ -391,7 +494,7 @@ export const renderCommand = async (
 		}
 
 		if (newStatus.fatalErrorEncountered) {
-			Log.error('\n');
+			Log.error({indent: false, logLevel}, '\n');
 			const uniqueErrors: EnhancedErrorInfo[] = [];
 			for (const err of newStatus.errors) {
 				if (uniqueErrors.find((e) => e.stack === err.stack)) {
@@ -400,7 +503,7 @@ export const renderCommand = async (
 
 				uniqueErrors.push(err);
 				if (err.explanation) {
-					Log.error(err.explanation);
+					Log.error({indent: false, logLevel}, err.explanation);
 				}
 
 				const frames = RenderInternals.parseStack(err.stack.split('\n'));
@@ -415,11 +518,13 @@ export const renderCommand = async (
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}
 
-			Log.info();
+			Log.info({indent: false, logLevel});
 			Log.info(
+				{indent: false, logLevel},
 				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
 			);
 			Log.info(
+				{indent: false, logLevel},
 				'This is an estimate and continuing Lambda functions may incur additional costs.',
 			);
 			quit(1);

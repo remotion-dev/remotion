@@ -169,7 +169,7 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 _optional_
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `jpegQuality`
 
@@ -338,9 +338,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 

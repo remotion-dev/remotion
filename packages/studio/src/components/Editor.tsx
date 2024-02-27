@@ -37,7 +37,6 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
-
 	useEffect(() => {
 		if (readOnlyStudio) {
 			return;
@@ -73,12 +72,16 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 		};
 	}, [size]);
 
+	const MemoRoot = useMemo(() => {
+		return React.memo(Root);
+	}, [Root]);
+
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<Internals.CurrentScaleContext.Provider value={value}>
 					<div style={background}>
-						{canvasMounted ? <Root /> : null}
+						{canvasMounted ? <MemoRoot /> : null}
 						<Internals.CanUseRemotionHooksProvider>
 							<EditorContent
 								drawRef={drawRef}

@@ -106,7 +106,7 @@ The project has the deployment script configured in [package.json](https://githu
   // ...
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy-fn": "ts-nodwe src/infra/deploy-lambda-fn.ts",
+    "deploy-fn": "ts-node src/infra/deploy-lambda-fn.ts",
     "delete-fn": "ts-node src/infra/delete-lambda-fn.ts",
     "render-fn": "ts-node src/infra/local-render-fn.ts"
   }

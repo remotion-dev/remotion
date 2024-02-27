@@ -2,15 +2,13 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
@@ -19,13 +17,18 @@ import {Log} from './log';
 const {
 	beepOnFinishOption,
 	colorSpaceOption,
-	offthreadVideoCacheSizeInBytes,
+	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
+	x264Option,
+	enforceAudioOption,
+	jpegQualityOption,
+	audioBitrateOption,
+	videoBitrateOption,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -33,27 +36,31 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
-	['x264-preset']: X264Preset;
+	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
-	[numberOfGifLoopsOption.cliFlag]: number;
+	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	['number-of-shared-audio-tags']: number;
-	[offthreadVideoCacheSizeInBytes.cliFlag]: typeof offthreadVideoCacheSizeInBytes.type;
-	[colorSpaceOption.cliFlag]: typeof colorSpaceOption.type;
-	[beepOnFinishOption.cliFlag]: typeof beepOnFinishOption.type;
+	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
+		typeof offthreadVideoCacheSizeInBytesOption
+	>;
+	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
 	['public-dir']: string;
-	['audio-bitrate']: string;
-	['video-bitrate']: string;
-	[encodingBufferSizeOption.cliFlag]: typeof encodingBufferSizeOption.type;
-	[encodingMaxRateOption.cliFlag]: typeof encodingMaxRateOption.type;
+	[audioBitrateOption.cliFlag]: TypeOfOption<typeof audioBitrateOption>;
+	[videoBitrateOption.cliFlag]: TypeOfOption<typeof videoBitrateOption>;
+	[encodingBufferSizeOption.cliFlag]: TypeOfOption<
+		typeof encodingBufferSizeOption
+	>;
+	[encodingMaxRateOption.cliFlag]: TypeOfOption<typeof encodingMaxRateOption>;
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
@@ -62,7 +69,7 @@ type CommandLineOptions = {
 	png: boolean;
 	props: string;
 	quality: number;
-	['jpeg-quality']: number;
+	[jpegQualityOption.cliFlag]: TypeOfOption<typeof jpegQualityOption>;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -79,7 +86,7 @@ type CommandLineOptions = {
 	width: number;
 	runs: number;
 	concurrencies: string;
-	['enforce-audio-track']: boolean;
+	[enforceAudioOption.cliFlag]: TypeOfOption<typeof enforceAudioOption>;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
 	['webpack-poll']: number;
@@ -88,15 +95,17 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
-	[deleteAfterOption.cliFlag]: string | undefined;
-	[folderExpiryOption.cliFlag]: boolean | undefined;
-	[enableMultiprocessOnLinuxOption.cliFlag]: boolean;
+	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
+	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
+	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
+		typeof enableMultiprocessOnLinuxOption
+	>;
 	repro: boolean;
 };
 
 export const BooleanFlags = [
-	'force',
 	'overwrite',
+	'force',
 	'sequence',
 	'help',
 	'quiet',
@@ -123,6 +132,9 @@ export const BooleanFlags = [
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
+	default: {
+		overwrite: true,
+	},
 }) as CommandLineOptions & {
 	_: string[];
 };
@@ -140,10 +152,6 @@ export const parseCommandLine = () => {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli[numberOfGifLoopsOption.cliFlag]) {
-		Config.setNumberOfGifLoops(parsedCli[numberOfGifLoopsOption.cliFlag]);
-	}
-
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
 		Config.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
 	}
@@ -156,34 +164,12 @@ export const parseCommandLine = () => {
 		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
-	if (parsedCli['disable-headless']) {
-		Config.setChromiumHeadlessMode(false);
-	}
-
 	if (parsedCli['user-agent']) {
 		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
 
-	if (parsedCli.log) {
-		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
-			Log.error('Invalid `--log` value passed.');
-			Log.error(
-				`Accepted values: ${RenderInternals.logLevels
-					.map((l) => `'${l}'`)
-					.join(', ')}.`,
-			);
-			process.exit(1);
-		}
-
-		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
-	}
-
 	if (parsedCli.concurrency) {
 		Config.setConcurrency(parsedCli.concurrency);
-	}
-
-	if (parsedCli.timeout) {
-		Config.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
 	if (parsedCli.height) {
@@ -220,22 +206,10 @@ export const parseCommandLine = () => {
 		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 
-	if (parsedCli.gl) {
-		Config.setChromiumOpenGlRenderer(parsedCli.gl);
-	}
-
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile,
 		);
-	}
-
-	if (parsedCli['x264-preset']) {
-		Config.setX264Preset(String(parsedCli['x264-preset']) as X264Preset);
-	}
-
-	if (parsedCli.overwrite) {
-		Config.setOverwriteOutput(parsedCli.overwrite);
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
@@ -264,10 +238,6 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
-		Config.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
-	}
-
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.setPublicDir(parsedCli['public-dir']);
 	}
@@ -286,46 +256,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['buffer-size'] !== 'undefined') {
 		Config.setEncodingBufferSize(parsedCli['buffer-size']);
-	}
-
-	if (typeof parsedCli['max-rate'] !== 'undefined') {
-		Config.setEncodingMaxRate(parsedCli['max-rate']);
-	}
-
-	if (typeof parsedCli['beep-on-finish'] !== 'undefined') {
-		Config.setBeepOnFinish(parsedCli['beep-on-finish']);
-	}
-
-	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {
-		Config.setOffthreadVideoCacheSizeInBytes(
-			parsedCli['offthreadvideo-cache-size-in-bytes'],
-		);
-	}
-
-	if (typeof parsedCli['delete-after'] !== 'undefined') {
-		Config.setDeleteAfter(
-			parsedCli['delete-after'] as '1-day' | '3-days' | '7-days' | '30-days',
-		);
-	}
-
-	if (typeof parsedCli['color-space'] !== 'undefined') {
-		Config.setColorSpace(parsedCli['color-space']);
-	}
-
-	if (typeof parsedCli['enable-folder-expiry'] !== 'undefined') {
-		Config.setEnableFolderExpiry(parsedCli['enable-folder-expiry']);
-	}
-
-	if (
-		typeof parsedCli[
-			BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
-		] !== 'undefined'
-	) {
-		Config.setEnableFolderExpiry(
-			parsedCli[
-				BrowserSafeApis.options.enableMultiprocessOnLinuxOption.cliFlag
-			],
-		);
 	}
 };
 

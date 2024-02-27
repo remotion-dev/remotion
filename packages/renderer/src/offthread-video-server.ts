@@ -31,10 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 	const transparent = params.get('transparent');
 
+	const toneMapped = params.get('toneMapped');
+
+	if (!toneMapped) {
+		throw new Error('Did not get `toneMapped` parameter');
+	}
+
 	return {
 		src,
 		time: parseFloat(time),
 		transparent: transparent === 'true',
+		toneMapped: toneMapped === 'true',
 	};
 };
 
@@ -46,28 +53,31 @@ export const startOffthreadVideoServer = ({
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: {
 	downloadMap: DownloadMap;
 	offthreadVideoCacheSizeInBytes: number | null;
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	binariesDirectory: string | null;
 }): {
 	listener: RequestListener;
 	close: () => Promise<void>;
 	compositor: Compositor;
 } => {
 	validateOffthreadVideoCacheSizeInBytes(offthreadVideoCacheSizeInBytes);
-	const compositor = startCompositor(
-		'StartLongRunningProcess',
-		{
+	const compositor = startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency,
 			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
 		indent,
-	);
+		binariesDirectory,
+	});
 
 	return {
 		close: async () => {
@@ -93,7 +103,9 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			const {src, time, transparent, toneMapped} = extractUrlAndSourceFromUrl(
+				req.url,
+			);
 			response.setHeader('access-control-allow-origin', '*');
 			if (transparent) {
 				response.setHeader('content-type', `image/png`);
@@ -137,14 +149,16 @@ export const startOffthreadVideoServer = ({
 						}
 
 						extractStart = Date.now();
-						resolve(
-							compositor.executeCommand('ExtractFrame', {
+						compositor
+							.executeCommand('ExtractFrame', {
 								src: to,
 								original_src: src,
 								time,
 								transparent,
-							}),
-						);
+								tone_mapped: toneMapped,
+							})
+							.then(resolve)
+							.catch(reject);
 					});
 				})
 				.then((readable) => {

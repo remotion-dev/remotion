@@ -1,11 +1,12 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.110",
+	"version": "4.0.120",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"remotion": "remotion-cli.js"
+		"remotion": "remotion-cli.js",
+		"remotionb": "remotionb-cli.js"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

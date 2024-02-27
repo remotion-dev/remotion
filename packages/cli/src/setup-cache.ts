@@ -195,7 +195,7 @@ export const bundleOnCli = async ({
 		onSymlinkDetected,
 	};
 
-	const [hash] = BundlerInternals.getConfig({
+	const [hash] = await BundlerInternals.getConfig({
 		outDir: '',
 		entryPoint: fullPath,
 		onProgress,
@@ -210,15 +210,12 @@ export const bundleOnCli = async ({
 		hash,
 	);
 	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {
-		Log.infoAdvanced(
-			{indent, logLevel},
-			'🧹 Cache disabled but found. Deleting... ',
-		);
+		Log.info({indent, logLevel}, '🧹 Cache disabled but found. Deleting... ');
 		await BundlerInternals.clearCache(remotionRoot, 'production');
 	}
 
 	if (cacheExistedBefore === 'other-exists' && shouldCache) {
-		Log.infoAdvanced(
+		Log.info(
 			{indent, logLevel},
 			'🧹 Webpack config change detected. Clearing cache... ',
 		);
@@ -282,7 +279,7 @@ export const bundleOnCli = async ({
 			cacheExistedBefore === 'does-not-exist' ||
 			cacheExistedBefore === 'other-exists'
 		) {
-			Log.infoAdvanced(
+			Log.info(
 				{indent, logLevel},
 				'⚡️ Cached bundle. Subsequent renders will be faster.',
 			);

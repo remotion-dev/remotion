@@ -45,8 +45,7 @@ The [ID](/docs/terminology/composition#composition-id) of the composition you wa
 
 ### `logLevel?`
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `port?`
 
@@ -85,6 +84,10 @@ See: [Environment variables](/docs/env-variables/)
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
 
 ## See also
 

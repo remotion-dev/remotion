@@ -76,6 +76,9 @@
       "path": "./packages/animation-utils"
     },
     {
+      "path": "./packages/install-whisper-cpp"
+    },
+    {
       "path": "./packages/motion-blur"
     },
     {

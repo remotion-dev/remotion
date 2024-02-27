@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {getFunctions} from '../../../api/get-functions';
@@ -9,7 +9,7 @@ import {confirmCli} from '../../helpers/confirm';
 export const FUNCTIONS_RMALL_SUBCOMMAND = 'rmall';
 const LEFT_COL = 16;
 
-export const functionsRmallCommand = async () => {
+export const functionsRmallCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const functions = await getFunctions({
 		region,
@@ -50,7 +50,7 @@ export const functionsRmallCommand = async () => {
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
 			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-				logLevel: RenderInternals.getLogLevel(),
+				logLevel,
 			}),
 			indent: false,
 		});

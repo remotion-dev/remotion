@@ -82,6 +82,7 @@ test('Should add silent audio if there is no audio', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
+			logLevel: 'info',
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -105,6 +106,7 @@ test('Should add silent audio if there is no audio', async () => {
 		options: {
 			stdin: file,
 		},
+		binariesDirectory: null,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);

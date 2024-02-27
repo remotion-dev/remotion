@@ -24,10 +24,8 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, ffmpegOverride} = await getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+	const {publicDir, browserExecutable, ffmpegOverride} = getCliOptions({
+		isStill: true,
 		logLevel,
 	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
@@ -71,7 +69,7 @@ export const processVideoJob = async ({
 		enforceAudioTrack: job.type === 'video' ? job.enforceAudioTrack : false,
 		proResProfile:
 			job.type === 'video' ? job.proResProfile ?? undefined : undefined,
-		x264Preset: job.type === 'video' ? job.x264Preset ?? undefined : undefined,
+		x264Preset: job.type === 'video' ? job.x264Preset ?? null : null,
 		pixelFormat: job.type === 'video' ? job.pixelFormat : 'yuv420p',
 		videoBitrate: job.type === 'video' ? job.videoBitrate : null,
 		encodingBufferSize: job.type === 'video' ? job.encodingBufferSize : null,
@@ -83,5 +81,6 @@ export const processVideoJob = async ({
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		colorSpace: job.type === 'video' ? job.colorSpace : 'default',
 		repro: job.repro,
+		binariesDirectory: job.binariesDirectory,
 	});
 };

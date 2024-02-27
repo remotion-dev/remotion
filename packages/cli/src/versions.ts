@@ -1,7 +1,6 @@
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
-import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
@@ -77,7 +76,7 @@ export const validateVersionsBeforeCommand = async (
 			Log.warn(logOptions, `  - ${pkg}`);
 		}
 
-		Log.info();
+		Log.info({indent: false, logLevel});
 	}
 
 	Log.warn(logOptions, 'You may experience breakages such as:');
@@ -94,12 +93,7 @@ export const validateVersionsBeforeCommand = async (
 		logOptions,
 		'- Remove the `^` character in front of a version to pin a package.',
 	);
-	if (
-		!RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose',
-		)
-	) {
+	if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 		Log.warn(
 			logOptions,
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.',
@@ -107,7 +101,7 @@ export const validateVersionsBeforeCommand = async (
 	}
 
 	Log.warn(logOptions, '-------------');
-	Log.info();
+	Log.info({indent: false, logLevel});
 };
 
 export const versionsCommand = async (
@@ -121,50 +115,59 @@ export const versionsCommand = async (
 
 	const installedVersions = Object.keys(grouped);
 
-	Log.info(`Node.JS = ${process.version}, OS = ${process.platform}`);
-	Log.info();
+	Log.info(
+		{indent: false, logLevel},
+		`Node.JS = ${process.version}, OS = ${process.platform}`,
+	);
+	Log.info({indent: false, logLevel});
 	for (const version of installedVersions) {
-		Log.info(`On version: ${version}`);
+		Log.info({indent: false, logLevel}, `On version: ${version}`);
 		for (const pkg of grouped[version]) {
-			Log.info(`- ${pkg}`);
+			Log.info({indent: false, logLevel}, `- ${pkg}`);
 			Log.verbose(
 				{indent: false, logLevel},
 				`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`,
 			);
 		}
 
-		Log.info();
+		Log.info({indent: false, logLevel});
 	}
 
 	if (installedVersions.length === 0) {
-		Log.info('No Remotion packages found.');
-		Log.info('Maybe @remotion/cli is installed globally.');
+		Log.info({indent: false, logLevel}, 'No Remotion packages found.');
+		Log.info(
+			{indent: false, logLevel},
+			'Maybe @remotion/cli is installed globally.',
+		);
 
 		Log.info(
+			{indent: false, logLevel},
 			'If you try to render a video that was bundled with a different version, you will get a warning.',
 		);
 		process.exit(1);
 	}
 
 	if (installedVersions.length === 1) {
-		Log.info(`✅ Great! All packages have the same version.`);
+		Log.info(
+			{indent: false, logLevel},
+			`✅ Great! All packages have the same version.`,
+		);
 	} else {
 		Log.error(
+			{indent: false, logLevel},
 			'Version mismatch: Not all Remotion packages have the same version.',
 		);
 		Log.info(
+			{indent: false, logLevel},
 			'- Make sure your package.json has all Remotion packages pointing to the same version.',
 		);
 		Log.info(
+			{indent: false, logLevel},
 			'- Remove the `^` character in front of a version to pin a package.',
 		);
-		if (
-			!RenderInternals.isEqualOrBelowLogLevel(
-				ConfigInternals.Logging.getLogLevel(),
-				'verbose',
-			)
-		) {
+		if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 			Log.info(
+				{indent: false, logLevel},
 				'- Rerun this command with --log=verbose to see the path of the modules resolved.',
 			);
 		}

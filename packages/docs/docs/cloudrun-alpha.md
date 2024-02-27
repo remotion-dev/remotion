@@ -24,53 +24,7 @@ We are welcoming any [bug reports](https://remotion.dev/issue).
 
 ## 1. Install `@remotion/cloudrun`
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/cloudrun
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/cloudrun
-```
-
-  </TabItem>
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/cloudrun
-```
-
-  </TabItem>
-
-</Tabs>
-
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
-
-:::note
-Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
-:::
-
-Your package.json should look like the following:
-
-```json
-  "@remotion/cli": "4.0.0", // Replace 4.0.0 with the current version
-  "@remotion/cloudrun": "4.0.0", // Remove any `^` character
-  // ...
-  "remotion": "4.0.0",
-```
+<Installation pkg="@remotion/cloudrun"/>
 
 From `v4.0.18`, Cloud run is distributed together with the main release of Remotion. Before that, you had to install the alpha release (see below).
 

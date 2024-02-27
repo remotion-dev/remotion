@@ -78,6 +78,7 @@ export const startStudio = async ({
 	previewEntry,
 	gitSource,
 	bufferStateDelayInMilliseconds,
+	binariesDirectory,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -101,6 +102,7 @@ export const startStudio = async ({
 	parsedCliOpen: boolean;
 	previewEntry: string;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
@@ -160,6 +162,7 @@ export const startStudio = async ({
 		queueMethods,
 		gitSource,
 		bufferStateDelayInMilliseconds,
+		binariesDirectory,
 	});
 
 	setLiveEventsListener(liveEventsServer);
@@ -176,7 +179,7 @@ export const startStudio = async ({
 		setServerReadyComment(`http://localhost:${port}`);
 	}
 
-	printServerReadyComment('Server ready');
+	printServerReadyComment('Server ready', logLevel);
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
 		configValueShouldOpenBrowser,

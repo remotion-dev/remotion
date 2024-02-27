@@ -27,6 +27,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	muted,
 	allowAmplificationDuringRender,
 	transparent = false,
+	toneMapped = true,
 	toneFrequency,
 	name,
 	...props
@@ -127,8 +128,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
-		return getOffthreadVideoSource({src, currentTime, transparent});
-	}, [currentTime, src, transparent]);
+		return getOffthreadVideoSource({
+			src,
+			currentTime,
+			transparent,
+			toneMapped,
+		});
+	}, [toneMapped, currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(

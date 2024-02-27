@@ -93,8 +93,9 @@ export const renderStillSingleThread = async (
 			puppeteerInstance: null,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
 		});
-		Log.info('Still rendered');
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 
 		const storage = new Storage();
 
@@ -107,7 +108,7 @@ export const renderStillSingleThread = async (
 				predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 			});
 
-		Log.info('Still uploaded');
+		Log.info({indent: false, logLevel: body.logLevel}, 'Still uploaded');
 
 		const uploadedFile = uploadedResponse[0];
 		const renderMetadata = await uploadedFile.getMetadata();
@@ -121,7 +122,11 @@ export const renderStillSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.info('Render Completed:', responseData);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: body.logLevel},
+			'Render Completed:',
+			responseData,
+		);
 
 		res.end(JSON.stringify({response: responseData}));
 	} catch (err) {

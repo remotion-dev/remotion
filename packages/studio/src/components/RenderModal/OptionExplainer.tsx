@@ -59,7 +59,7 @@ const copyWrapper: React.CSSProperties = {
 };
 
 export const OptionExplainer: React.FC<{
-	option: AnyRemotionOption;
+	option: AnyRemotionOption<unknown>;
 }> = ({option}) => {
 	return (
 		<div style={container} className="__remotion-info-button-container">

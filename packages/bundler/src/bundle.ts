@@ -1,10 +1,5 @@
 import type {GitSource} from '@remotion/studio-shared';
-import {
-	DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
-	DEFAULT_TIMELINE_TRACKS,
-	getProjectName,
-	SOURCE_MAP_ENDPOINT,
-} from '@remotion/studio-shared';
+import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -197,16 +192,16 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const {onProgress, ...options} = actualArgs;
-	const [, config] = getConfig({
+	const [, config] = await getConfig({
 		outDir,
 		entryPoint,
 		resolvedRemotionRoot,
 		onProgress,
 		options,
+		// Should be null to keep cache hash working
 		bufferStateDelayInMilliseconds:
-			actualArgs.bufferStateDelayInMilliseconds ??
-			DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS,
-		maxTimelineTracks: actualArgs.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
+			actualArgs.bufferStateDelayInMilliseconds ?? null,
+		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
 	});
 
 	const output = await promisified([config]);

@@ -1,10 +1,10 @@
 {
   "name": "@remotion/it-tests",
-  "version": "4.0.110",
+  "version": "4.0.120",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run && vitest src/monorepo --run",
-    "testssr": "bun test src/ssr src/bundle src/templates --timeout 30000",
+    "testssr": "bun test src/ssr src/bundle src/templates --timeout 40000",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,
@@ -23,6 +23,7 @@
     "@remotion/media-utils": "workspace:*",
     "@remotion/lottie": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
+    "@remotion/install-whisper-cpp": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@types/sharp": "^0.28.5",

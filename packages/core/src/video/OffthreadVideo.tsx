@@ -47,7 +47,10 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 				durationInFrames={endAtFrameNo}
 				name={name}
 			>
-				<OffthreadVideo {...otherProps} />
+				<OffthreadVideo
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					{...otherProps}
+				/>
 			</Sequence>
 		);
 	}
@@ -58,7 +61,7 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	const {transparent, ...withoutTransparent} = otherProps;
+	const {transparent, toneMapped, ...withoutTransparent} = otherProps;
 
 	return (
 		<VideoForPreview

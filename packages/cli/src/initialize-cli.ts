@@ -1,8 +1,8 @@
 import type {LogLevel} from '@remotion/renderer';
-import {ConfigInternals} from './config';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
-import {parseCommandLine} from './parse-command-line';
+import {parseCommandLine, parsedCli} from './parse-command-line';
 
 export const initializeCli = async (
 	remotionRoot: string,
@@ -10,7 +10,9 @@ export const initializeCli = async (
 	const appliedName = await loadConfig(remotionRoot);
 
 	parseCommandLine();
-	const logLevel = ConfigInternals.Logging.getLogLevel();
+	const logLevel = BrowserSafeApis.options.logLevelOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	// Only now Log.verbose is available
 	Log.verbose(
 		{indent: false, logLevel},

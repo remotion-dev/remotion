@@ -123,6 +123,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="enable-multiprocess-on-linux" />
 
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_

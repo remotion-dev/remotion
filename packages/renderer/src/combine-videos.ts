@@ -26,6 +26,7 @@ type Options = {
 	indent: boolean;
 	logLevel: LogLevel;
 	chunkDurationInSeconds: number;
+	binariesDirectory: string | null;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -43,6 +44,7 @@ export const combineVideos = async (options: Options) => {
 		indent,
 		logLevel,
 		chunkDurationInSeconds,
+		binariesDirectory,
 	} = options;
 
 	// TODO: onProgress is now reused across 3 functions

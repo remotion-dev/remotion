@@ -50,13 +50,20 @@ const watchEnvFile = ({
 					Log.warn({indent: false, logLevel}, `${envFile} was deleted.`);
 				} else if (type === 'changed') {
 					await updateFile();
-					Log.info(chalk.blueBright(`Updated env file ${envFile}`));
+					Log.info(
+						{indent: false, logLevel},
+						chalk.blueBright(`Updated env file ${envFile}`),
+					);
 				} else if (type === 'created') {
 					await updateFile();
-					Log.info(chalk.blueBright(`Created env file ${envFile}`));
+					Log.info(
+						{indent: false, logLevel},
+						chalk.blueBright(`Created env file ${envFile}`),
+					);
 				}
 			} catch (err) {
 				Log.error(
+					{indent: false, logLevel},
 					`${envFile} update failed with error ${(err as Error).stack}`,
 				);
 			}
@@ -98,8 +105,11 @@ const getEnvForEnvFile = ({
 			...dotenv.parse(envFileData),
 		};
 	} catch (err) {
-		Log.error(`Your .env file at ${envFile} could not not be parsed.`);
-		Log.error(err);
+		Log.error(
+			{indent: false, logLevel},
+			`Your .env file at ${envFile} could not not be parsed.`,
+		);
+		Log.error({indent: false, logLevel}, err);
 		process.exit(1);
 	}
 };
@@ -129,9 +139,19 @@ export const getEnvironmentVariables = (
 	if (parsedCli['env-file']) {
 		const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
 		if (!fs.existsSync(envFile)) {
-			Log.error('You passed a --env-file but it could not be found.');
-			Log.error('We looked for the file at:', envFile);
-			Log.error('Check that your path is correct and try again.');
+			Log.error(
+				{indent: false, logLevel},
+				'You passed a --env-file but it could not be found.',
+			);
+			Log.error(
+				{indent: false, logLevel},
+				'We looked for the file at:',
+				envFile,
+			);
+			Log.error(
+				{indent: false, logLevel},
+				'Check that your path is correct and try again.',
+			);
 			process.exit(1);
 		}
 
@@ -145,10 +165,18 @@ export const getEnvironmentVariables = (
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
+				{indent: false, logLevel},
 				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found',
 			);
-			Log.error('We looked for the file at:', envFile);
-			Log.error('Check that your path is correct and try again.');
+			Log.error(
+				{indent: false, logLevel},
+				'We looked for the file at:',
+				envFile,
+			);
+			Log.error(
+				{indent: false, logLevel},
+				'Check that your path is correct and try again.',
+			);
 			process.exit(1);
 		}
 

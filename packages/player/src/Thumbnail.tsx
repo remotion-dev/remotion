@@ -114,6 +114,7 @@ export const ThumbnailFn = <
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI
+						ref={rootRef}
 						className={className}
 						errorFallback={errorFallback}
 						inputProps={passedInputProps}
