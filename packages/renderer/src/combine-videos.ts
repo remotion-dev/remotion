@@ -56,20 +56,23 @@ export const combineVideos = async ({
 	const shouldCreateAudio = resolvedAudioCodec !== null;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
-	const newLocal = shouldCreateAudio
-		? `audio.${
-				resolvedAudioCodec === 'pcm-16'
-					? 'wav'
-					: resolvedAudioCodec === 'opus'
-						? 'opus'
-						: getFileExtensionFromCodec(resolvedAudioCodec, null)
-			}`
-		: null;
-	const audioOutput = newLocal ? join(filelistDir, newLocal) : null;
 	const videoOutput = join(
 		filelistDir,
-		'video.' + getFileExtensionFromCodec(codec, resolvedAudioCodec),
+		`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 	);
+
+	const audioOutput = shouldCreateAudio
+		? join(
+				filelistDir,
+				`audio.${
+					resolvedAudioCodec === 'pcm-16'
+						? 'wav'
+						: resolvedAudioCodec === 'opus'
+							? 'opus'
+							: getFileExtensionFromCodec(resolvedAudioCodec, null)
+				}`,
+			)
+		: null;
 
 	if (shouldCreateAudio) {
 		await createCombinedAudio({
@@ -78,7 +81,7 @@ export const combineVideos = async ({
 			files,
 			indent,
 			logLevel,
-			output: shouldCreateVideo && audioOutput ? audioOutput : output,
+			output: shouldCreateVideo ? (audioOutput as string) : output,
 			resolvedAudioCodec,
 			seamless: resolvedAudioCodec === 'aac',
 			chunkDurationInSeconds,
@@ -106,14 +109,14 @@ export const combineVideos = async ({
 		});
 	}
 
-	if (!(shouldCreateAudio && shouldCreateVideo)) {
+	if (!(audioOutput && shouldCreateVideo)) {
 		rmSync(filelistDir, {recursive: true});
 		return;
 	}
 
 	try {
 		await muxVideoAndAudio({
-			audioOutput: audioOutput as string,
+			audioOutput,
 			indent,
 			logLevel,
 			onProgress,

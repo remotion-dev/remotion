@@ -221,7 +221,7 @@ export const concatVideosS3 = async ({
 		files,
 		filelistDir,
 		output: outfile,
-		onProgress: (p) => onProgress(p),
+		onProgress,
 		numberOfFrames,
 		codec,
 		fps,
