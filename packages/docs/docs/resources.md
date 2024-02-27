@@ -85,7 +85,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - 3D Text ([Source code](https://github.com/remotion-dev/3d-text), [Preview](https://3d-text-remotion.vercel.app/))
 - [Wavy TikTok Effect](https://github.com/JonnyBurger/wavy-meme)
 - [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
-- [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
+- ThreeJS particles animation ([Source code](https://github.com/JonnyBurger/three-particles), [Preview](https://three-particles-remotion.vercel.app/))
 - Text morphing ([Source code](https://github.com/remotion-dev/morph-text), [Preview](https://morph-text-remotion.vercel.app/))
 - Text warping ([Source code](https://github.com/remotion-dev/text-warping), [Preview](https://text-warping.vercel.app/?/Promo))
 - Include GLTF models ([Source code](https://github.com/remotion-dev/remotion-three-gltf-example), [Preview](https://remotion-three-gltf-example.vercel.app/))
