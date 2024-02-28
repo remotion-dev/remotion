@@ -32,8 +32,6 @@ export const MenuContent: React.FC<{
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
 	fixedHeight: number | null;
-	showBackButton?: boolean;
-	setHideParent: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	onHide,
 	values,
@@ -43,8 +41,6 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace,
 	topItemCanBeUnselected,
 	fixedHeight,
-	showBackButton,
-	setHideParent,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -257,10 +253,6 @@ export const MenuContent: React.FC<{
 		onArrowRight,
 	]);
 
-	useEffect(() => {
-		setHideParent(Boolean(subMenuActivated));
-	}, [setHideParent, subMenuActivated]);
-
 	// Disable submenu if not selected
 	useEffect(() => {
 		if (!subMenuActivated) {
@@ -309,27 +301,6 @@ export const MenuContent: React.FC<{
 			style={containerWithHeight}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{showBackButton && (
-				<MenuSubItem
-					selected={selectedItem === 'back'}
-					onActionChosen={(_, e) => {
-						e.stopPropagation();
-						onPreviousMenu();
-					}}
-					onItemSelected={onItemSelected}
-					label={'Back'}
-					id={'back'}
-					keyHint={null}
-					leaveLeftSpace={leaveLeftSpace}
-					leftItem={null}
-					subMenu={null}
-					onQuitMenu={onHide}
-					onNextMenu={onNextMenu}
-					subMenuActivated={subMenuActivated}
-					setSubMenuActivated={setSubMenuActivated}
-					setHideParent={setHideParent}
-				/>
-			)}
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;
@@ -359,7 +330,6 @@ export const MenuContent: React.FC<{
 						onNextMenu={onNextMenu}
 						subMenuActivated={subMenuActivated}
 						setSubMenuActivated={setSubMenuActivated}
-						setHideParent={setHideParent}
 					/>
 				);
 			})}

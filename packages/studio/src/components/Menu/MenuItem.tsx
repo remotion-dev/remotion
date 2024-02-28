@@ -3,7 +3,6 @@ import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
-import {useMobileLayout} from '../../helpers/mobile-layout';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -55,9 +54,6 @@ export const MenuItem: React.FC<{
 	menu,
 }) => {
 	const [hovered, setHovered] = useState(false);
-	const [isChildPortalVisible, setIsChildPortalVisible] = useState(false);
-
-	const mobileLayout = useMobileLayout();
 
 	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
@@ -81,19 +77,12 @@ export const MenuItem: React.FC<{
 			return null;
 		}
 
-		if (mobileLayout && isChildPortalVisible) {
-			return {
-				...menuContainerTowardsBottom,
-				visibility: 'hidden',
-			};
-		}
-
 		return {
 			...menuContainerTowardsBottom,
 			left: size.left,
 			top: size.top + size.height,
 		};
-	}, [mobileLayout, selected, size, isChildPortalVisible]);
+	}, [selected, size]);
 
 	const onPointerEnter = useCallback(() => {
 		onItemHovered(id);
@@ -181,8 +170,6 @@ export const MenuItem: React.FC<{
 										preselectIndex={false}
 										topItemCanBeUnselected
 										fixedHeight={null}
-										showBackButton={false}
-										setHideParent={setIsChildPortalVisible}
 									/>
 								</div>
 							</HigherZIndex>

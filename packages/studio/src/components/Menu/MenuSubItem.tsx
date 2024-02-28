@@ -64,7 +64,6 @@ export const MenuSubItem: React.FC<{
 	onNextMenu: () => void;
 	subMenuActivated: SubMenuActivated;
 	setSubMenuActivated: React.Dispatch<React.SetStateAction<SubMenuActivated>>;
-	setHideParent: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -87,7 +86,6 @@ export const MenuSubItem: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const {currentZIndex} = useZIndex();
-	const [isChildPortalVisible, setIsChildPortalVisible] = useState(false);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -122,34 +120,12 @@ export const MenuSubItem: React.FC<{
 			return null;
 		}
 
-		if (isChildPortalVisible && mobileLayout) {
-			return {
-				...menuContainerTowardsBottom,
-				visibility: 'hidden',
-			};
-		}
-
-		if (mobileLayout) {
-			return {
-				...menuContainerTowardsBottom,
-				top: '32px',
-				left: '4px',
-			};
-		}
-
 		return {
 			...menuContainerTowardsBottom,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
-	}, [
-		mobileLayout,
-		selected,
-		size,
-		subMenu,
-		subMenuActivated,
-		isChildPortalVisible,
-	]);
+	}, [selected, size, subMenu, subMenuActivated]);
 
 	useEffect(() => {
 		if (!hovered || !subMenu || mobileLayout) {
@@ -221,8 +197,6 @@ export const MenuSubItem: React.FC<{
 								onQuitSubMenu={onQuitSubmenu}
 								portalStyle={portalStyle}
 								subMenuActivated={subMenuActivated}
-								setHideParent={setIsChildPortalVisible}
-								showBackButton={mobileLayout}
 							/>,
 							getPortal(currentZIndex),
 						)
