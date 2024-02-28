@@ -32,7 +32,7 @@ test('Should create a basic filter correctly', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:6.666667[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:6720000us[a0]',
 		pad_end: null,
 		pad_start: null,
 	});
@@ -48,8 +48,8 @@ test('Trim the end', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:0.666667[a0]',
-		pad_end: 'apad=pad_len=128000',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:703999.9999999999us[a0]',
+		pad_end: 'apad=pad_len=126208',
 		pad_start: null,
 	});
 });
@@ -68,8 +68,8 @@ test('Should handle trim correctly', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
-		pad_end: 'apad=pad_len=128000',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=298666.6666666666us:1045333.3333333333us[a0]',
+		pad_end: 'apad=pad_len=124160',
 		pad_start: null,
 	});
 });
@@ -88,8 +88,8 @@ test('Should add padding if audio is too short', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
-		pad_end: 'apad=pad_len=128000',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=298666.6666666666us:1000000us[a0]',
+		pad_end: 'apad=pad_len=126336',
 		pad_start: null,
 	});
 });
@@ -110,7 +110,7 @@ test('Should handle delay correctly', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=298666.6666666666us:1000000us[a0]',
 		pad_end: null,
 		pad_start: 'adelay=2667|2667',
 	});
@@ -131,7 +131,7 @@ test('Should offset multiple channels', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=298666.6666666666us:1000000us[a0]',
 		pad_end: null,
 		pad_start: 'adelay=2667|2667|2667|2667',
 	});
@@ -162,7 +162,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:33.333333,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:33333333.000000004us,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
 		pad_end: `apad=pad_len=${expectedPadLength}`,
 		pad_start: null,
 	});

@@ -5,6 +5,7 @@ import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -71,6 +72,15 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
+	Log.verbose(
+		{indent, logLevel},
+		'Preprocessing audio track',
+		args,
+		'Filter:',
+		filter.filter,
+	);
+	const startTime = Date.now();
+
 	await callFf({
 		bin: 'ffmpeg',
 		args,
@@ -79,6 +89,12 @@ const preprocessAudioTrackUnlimited = async ({
 		binariesDirectory,
 		cancelSignal,
 	});
+
+	Log.verbose(
+		{indent, logLevel},
+		'Preprocessed audio track',
+		`${Date.now() - startTime}ms`,
+	);
 
 	cleanup();
 	return {outName, filter};
