@@ -54,7 +54,6 @@ export const MenuItem: React.FC<{
 	menu,
 }) => {
 	const [hovered, setHovered] = useState(false);
-
 	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
