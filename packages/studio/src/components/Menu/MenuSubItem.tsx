@@ -3,7 +3,6 @@ import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
-import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
@@ -100,7 +99,6 @@ export const MenuSubItem: React.FC<{
 		},
 		[id, onActionChosen],
 	);
-	const mobileLayout = useMobileLayout();
 
 	const onPointerEnter = useCallback(() => {
 		onItemSelected(id);
@@ -152,21 +150,9 @@ export const MenuSubItem: React.FC<{
 			ref={ref}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
-			onClick={(e) => {
-				e.stopPropagation();
-			}}
 			style={style}
 			onPointerUp={(e) => {
-				if (mobileLayout) {
-					if (subMenu) {
-						onItemSelected(id);
-						setSubMenuActivated('with-mouse');
-					} else {
-						onItemTriggered(e);
-					}
-				} else {
-					onItemTriggered(e);
-				}
+				onItemTriggered(e);
 			}}
 			role="button"
 			className={MENU_ITEM_CLASSNAME}

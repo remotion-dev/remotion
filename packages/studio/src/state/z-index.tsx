@@ -48,7 +48,7 @@ const EscapeHook: React.FC<{
 
 export const HigherZIndex: React.FC<{
 	onEscape: () => void;
-	onOutsideClick: () => void;
+	onOutsideClick: (target: Node) => void;
 	children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
@@ -82,7 +82,7 @@ export const HigherZIndex: React.FC<{
 					document.contains(upEvent.target as Node)
 				) {
 					upEvent.stopPropagation();
-					onOutsideClick();
+					onOutsideClick(upEvent.target as Node);
 				}
 			};
 
