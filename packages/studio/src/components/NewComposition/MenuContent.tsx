@@ -265,7 +265,8 @@ export const MenuContent: React.FC<{
 
 		const item = values.find((i) => i.id === selectedItem);
 		if (!item) {
-			throw new Error('cannot find item');
+			// Can happen if resizing the window
+			return;
 		}
 
 		if (item.type === 'divider') {
