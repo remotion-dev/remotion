@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex} from '../../state/z-index';
 import type {SubMenu} from '../NewComposition/ComboBox';
@@ -19,15 +20,16 @@ export const SubMenuComponent: React.FC<{
 	onQuitFullMenu,
 	onQuitSubMenu,
 }) => {
+	const mobileLayout = useMobileLayout();
 	const onOutsideClick = useCallback(
 		(e: Node) => {
-			if (portals.find((p) => p.contains(e))) {
+			if (portals.find((p) => p.contains(e)) || mobileLayout) {
 				onQuitSubMenu();
 			} else {
 				onQuitFullMenu();
 			}
 		},
-		[onQuitFullMenu, onQuitSubMenu],
+		[mobileLayout, onQuitFullMenu, onQuitSubMenu],
 	);
 
 	return (

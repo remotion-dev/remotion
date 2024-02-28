@@ -3,6 +3,7 @@ import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
@@ -83,6 +84,7 @@ export const MenuSubItem: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const mobileLayout = useMobileLayout();
 	const {currentZIndex} = useZIndex();
 
 	const style = useMemo((): React.CSSProperties => {
@@ -123,12 +125,14 @@ export const MenuSubItem: React.FC<{
 			return null;
 		}
 
+		const left = size.left + size.width + SUBMENU_LEFT_INSET;
+
 		return {
 			...menuContainerTowardsBottom,
-			left: size.left + size.width + SUBMENU_LEFT_INSET,
+			left: mobileLayout ? left * 0.7 : left,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
-	}, [selected, size, subMenu, subMenuActivated]);
+	}, [mobileLayout, selected, size, subMenu, subMenuActivated]);
 
 	useEffect(() => {
 		if (!hovered || !subMenu) {
