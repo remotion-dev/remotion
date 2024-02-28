@@ -78,7 +78,6 @@ export const MenuSubItem: React.FC<{
 	setSubMenuActivated,
 }) => {
 	const [hovered, setHovered] = useState(false);
-
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -151,9 +150,7 @@ export const MenuSubItem: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onPointerUp={(e) => {
-				onItemTriggered(e);
-			}}
+			onPointerUp={onItemTriggered}
 			role="button"
 			className={MENU_ITEM_CLASSNAME}
 		>
