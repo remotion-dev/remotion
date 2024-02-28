@@ -48,7 +48,7 @@ const EscapeHook: React.FC<{
 
 export const HigherZIndex: React.FC<{
 	onEscape: () => void;
-	onOutsideClick: () => void;
+	onOutsideClick: (target: Node) => void;
 	children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
@@ -75,14 +75,13 @@ export const HigherZIndex: React.FC<{
 
 			onUp = (upEvent: MouseEvent) => {
 				if (
-					outsideClick &&
 					highestContext.highestIndex === currentIndex &&
 					!getClickLock() &&
 					// Don't trigger if that click removed that node
 					document.contains(upEvent.target as Node)
 				) {
 					upEvent.stopPropagation();
-					onOutsideClick();
+					onOutsideClick(upEvent.target as Node);
 				}
 			};
 
@@ -95,11 +94,12 @@ export const HigherZIndex: React.FC<{
 			window.addEventListener('pointerdown', listener);
 		});
 		return () => {
-			onUp = null;
 			if (onUp) {
 				// @ts-expect-error
 				window.removeEventListener('pointerup', onUp, {once: true});
 			}
+
+			onUp = null;
 
 			return window.removeEventListener('pointerdown', listener);
 		};

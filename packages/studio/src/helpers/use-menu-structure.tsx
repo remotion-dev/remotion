@@ -25,6 +25,7 @@ import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {StudioServerConnectionCtx} from './client-id';
 import {getGitMenuItem} from './get-git-menu-item';
+import {useMobileLayout} from './mobile-layout';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -207,8 +208,9 @@ export const useMenuStructure = (
 	const isFullscreenSupported =
 		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
+	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
-		const struct: Structure = [
+		let struct: Structure = [
 			{
 				id: 'remotion' as const,
 				label: (
@@ -812,10 +814,37 @@ export const useMenuStructure = (
 				],
 			},
 		].filter(Internals.truthy);
+		if (mobileLayout) {
+			struct = [
+				{
+					...struct[0],
+					items: [
+						...struct.slice(1).map((s) => {
+							return {
+								...s,
+								keyHint: null,
+								onClick: () => undefined,
+								type: 'item' as const,
+								value: s.id,
+								leftItem: null,
+								subMenu: {
+									items: s.items,
+									leaveLeftSpace: true,
+									preselectIndex: 0,
+								},
+								quickSwitcherLabel: null,
+							} as SelectionItem;
+						}),
+						...struct[0].items,
+					],
+				},
+			];
+		}
 
 		return struct;
 	}, [
 		readOnlyStudio,
+		mobileLayout,
 		sizes,
 		editorZoomGestures,
 		editorShowRulers,

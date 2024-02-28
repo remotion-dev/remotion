@@ -1,4 +1,4 @@
-const portals = [
+export const portals = [
 	document.getElementById('menuportal-0') as Element,
 	document.getElementById('menuportal-1') as Element,
 	document.getElementById('menuportal-2') as Element,
