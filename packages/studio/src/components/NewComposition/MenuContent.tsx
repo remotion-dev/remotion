@@ -265,7 +265,8 @@ export const MenuContent: React.FC<{
 
 		const item = values.find((i) => i.id === selectedItem);
 		if (!item) {
-			throw new Error('cannot find item');
+			// Can happen if resizing the window
+			return;
 		}
 
 		if (item.type === 'divider') {
@@ -307,8 +308,12 @@ export const MenuContent: React.FC<{
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					onHide();
 					item.onClick(id, e);
+					if (item.subMenu) {
+						return null;
+					}
+
+					onHide();
 				};
 
 				return (
