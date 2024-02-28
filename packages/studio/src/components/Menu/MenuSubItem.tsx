@@ -92,11 +92,17 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onItemTriggered = useCallback(
+	const onPointerUp = useCallback(
 		(e: PointerEvent<HTMLDivElement>) => {
+			if (subMenu) {
+				setSubMenuActivated('with-mouse');
+				setHovered(true);
+				return;
+			}
+
 			onActionChosen(id, e);
 		},
-		[id, onActionChosen],
+		[id, onActionChosen, setSubMenuActivated, subMenu],
 	);
 
 	const onPointerEnter = useCallback(() => {
@@ -150,7 +156,7 @@ export const MenuSubItem: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onPointerUp={onItemTriggered}
+			onPointerUp={onPointerUp}
 			role="button"
 			className={MENU_ITEM_CLASSNAME}
 		>

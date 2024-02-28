@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex} from '../../state/z-index';
 import type {SubMenu} from '../NewComposition/ComboBox';
@@ -18,8 +18,12 @@ export const SubMenuComponent: React.FC<{
 	onQuitFullMenu,
 	onQuitSubMenu,
 }) => {
+	const onOutsideClick = useCallback(() => {
+		onQuitFullMenu();
+	}, [onQuitFullMenu]);
+
 	return (
-		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
+		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={onOutsideClick}>
 			<div style={portalStyle} className="css-reset">
 				<MenuContent
 					onNextMenu={noop}

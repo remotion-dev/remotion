@@ -75,7 +75,6 @@ export const HigherZIndex: React.FC<{
 
 			onUp = (upEvent: MouseEvent) => {
 				if (
-					outsideClick &&
 					highestContext.highestIndex === currentIndex &&
 					!getClickLock() &&
 					// Don't trigger if that click removed that node
@@ -95,11 +94,12 @@ export const HigherZIndex: React.FC<{
 			window.addEventListener('pointerdown', listener);
 		});
 		return () => {
-			onUp = null;
 			if (onUp) {
 				// @ts-expect-error
 				window.removeEventListener('pointerup', onUp, {once: true});
 			}
+
+			onUp = null;
 
 			return window.removeEventListener('pointerdown', listener);
 		};
