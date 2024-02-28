@@ -439,6 +439,10 @@ _boolean - default `false`_
 
 <Options id="repro" />
 
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
 ### ~~`parallelism?`~~
 
 Renamed to `concurrency` in v3.2.17.

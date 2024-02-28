@@ -72,11 +72,17 @@ You can also set the settings on the command line:
 --image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444
 ```
 
+## Enabling transparency when using `<OffthreadVideo>`
+
+By default, the [`<OffthreadVideo>`](/docs/offthreadvideo) does not add an alpha layer during export.  
+Add the [`transparent`](/docs/offthreadvideo#transparent) prop to flag that the video has an alpha channel.  
+This slightly reduces the performance of the render.
+
 ## Creating a fallback version
 
 Given the poor browser support, consider making two versions of a video, one with alpha channel, and an opaque video as a fallback. You can achieve this in Remotion using standard React props:
 
-```tsx twoslash {1}
+```tsx twoslash
 // @include: example-MyVideo
 ```
 

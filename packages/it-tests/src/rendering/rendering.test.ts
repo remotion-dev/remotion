@@ -40,6 +40,7 @@ test("Should be able to render video with custom port", async () => {
     args: [outputPath],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -146,6 +147,7 @@ test("Should render a ProRes video", async () => {
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data.includes("prores (4444)") || data.includes("prores (ap4h")).toBe(
@@ -173,6 +175,7 @@ test("Should render a still image if single frame specified", async () => {
     args: [outImg],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: png");
@@ -200,6 +203,7 @@ test("Should be able to render a WAV audio file", async () => {
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("pcm_s16le");
@@ -230,6 +234,7 @@ test("Should be able to render a MP3 audio file", async () => {
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("mp3");
@@ -260,6 +265,7 @@ test("Should be able to render a AAC audio file", async () => {
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("aac");
@@ -287,6 +293,7 @@ test("Should render a video with GIFs", async () => {
     args: [outputPath],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -314,6 +321,7 @@ test("Should render a video with Offline Audio-context", async () => {
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Stream #0:0: Audio: mp3");
@@ -336,6 +344,7 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
     args: [out],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Duration: 00:00:00.36");
@@ -396,6 +405,7 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     args: [outputPath],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");

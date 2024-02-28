@@ -120,6 +120,7 @@ export const renderMediaSingleThread = async (
 			colorSpace: body.colorSpace,
 			repro: false,
 			finishRenderProgress: () => undefined,
+			binariesDirectory: null,
 		});
 
 		const storage = new Storage();

@@ -19,6 +19,7 @@ export type OpenInFileExplorerRequest = {
 
 export type CopyStillToClipboardRequest = {
 	outName: string;
+	binariesDirectory: string | null;
 };
 
 type ReqAndRes<A, B> = {

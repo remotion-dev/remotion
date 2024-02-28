@@ -100,6 +100,7 @@ export const renderVideoFlow = async ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
+	binariesDirectory,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -149,6 +150,7 @@ export const renderVideoFlow = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
 	repro: boolean;
+	binariesDirectory: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -268,6 +270,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -290,6 +293,7 @@ export const renderVideoFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 	const {value: codec, source: codecReason} =
@@ -427,6 +431,7 @@ export const renderVideoFlow = async ({
 				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
 			parallelEncodingEnabled: isUsingParallelEncoding,
+			binariesDirectory,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -512,6 +517,7 @@ export const renderVideoFlow = async ({
 		finishRenderProgress: () => {
 			updateRenderProgress({newline: true, printToConsole: true});
 		},
+		binariesDirectory,
 	});
 
 	Log.info(

@@ -32,7 +32,11 @@ const fetchWithCorsCatch = async (src: string) => {
 	}
 };
 
-const fn = async (src: string): Promise<AudioData> => {
+type Options = {
+	sampleRate?: number;
+};
+
+const fn = async (src: string, options?: Options): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
@@ -41,7 +45,9 @@ const fn = async (src: string): Promise<AudioData> => {
 		throw new Error('getAudioData() is only available in the browser.');
 	}
 
-	const audioContext = new AudioContext();
+	const audioContext = new AudioContext({
+		sampleRate: options?.sampleRate ?? 48000,
+	});
 
 	const response = await fetchWithCorsCatch(src);
 	const arrayBuffer = await response.arrayBuffer();
@@ -56,7 +62,7 @@ const fn = async (src: string): Promise<AudioData> => {
 
 	const metadata: AudioData = {
 		channelWaveforms,
-		sampleRate: audioContext.sampleRate,
+		sampleRate: wave.sampleRate,
 		durationInSeconds: wave.duration,
 		numberOfChannels: wave.numberOfChannels,
 		resultId: String(Math.random()),
@@ -70,6 +76,6 @@ const fn = async (src: string): Promise<AudioData> => {
  * @description Takes an audio src, loads it and returns data and metadata for the specified source.
  * @see [Documentation](https://www.remotion.dev/docs/get-audio-data)
  */
-export const getAudioData = (src: string) => {
-	return limit(fn, src);
+export const getAudioData = (src: string, options?: Options) => {
+	return limit(fn, src, options);
 };

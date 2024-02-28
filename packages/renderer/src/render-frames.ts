@@ -620,6 +620,7 @@ const internalRenderFramesRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
+	binariesDirectory,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -685,6 +686,7 @@ const internalRenderFramesRaw = ({
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
+						binariesDirectory,
 					},
 					{
 						onDownload,
@@ -698,13 +700,14 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
+				const cycle = cycleBrowserTabs(
+					browserReplacer,
+					actualConcurrency,
+					logLevel,
+					indent,
+				);
 				cleanup.push(() => {
-					cycleBrowserTabs(
-						browserReplacer,
-						actualConcurrency,
-						logLevel,
-						indent,
-					).stopCycling();
+					cycle.stopCycling();
 					return Promise.resolve();
 				});
 				cleanup.push(() => cleanupServer(false));
@@ -741,6 +744,7 @@ const internalRenderFramesRaw = ({
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
+					binariesDirectory,
 				});
 			}),
 		])
@@ -823,6 +827,7 @@ export const renderFrames = (
 		quality,
 		logLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	} = options;
 
 	if (!composition) {
@@ -883,5 +888,6 @@ export const renderFrames = (
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

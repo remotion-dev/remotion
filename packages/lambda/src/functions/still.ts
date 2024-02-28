@@ -119,6 +119,7 @@ const innerStillHandler = async ({
 		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
 	});
 
 	const browserInstance = await browserInstancePromise;
@@ -209,6 +210,7 @@ const innerStillHandler = async ({
 				data: composition.props,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

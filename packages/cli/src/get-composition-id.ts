@@ -50,6 +50,7 @@ export const getCompositionId = async ({
 	indent,
 	server,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
@@ -65,6 +66,7 @@ export const getCompositionId = async ({
 	indent: boolean;
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
+	binariesDirectory: string | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -96,6 +98,7 @@ export const getCompositionId = async ({
 				indent,
 				onBrowserLog: null,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -137,6 +140,7 @@ export const getCompositionId = async ({
 			onBrowserLog: null,
 			serializedInputPropsWithCustomSchema,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(
 			comps,

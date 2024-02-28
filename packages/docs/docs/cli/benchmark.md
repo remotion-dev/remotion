@@ -217,6 +217,10 @@ Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
 <Options cli id="color-space" />
 
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _optional, removed in v4.0_

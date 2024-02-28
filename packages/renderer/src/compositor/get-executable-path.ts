@@ -31,12 +31,18 @@ export function isMusl({
 	return !glibcVersionRuntime;
 }
 
-export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe',
-	indent: boolean,
-	logLevel: LogLevel,
-): string => {
-	const base = getExecutableDir(indent, logLevel);
+export const getExecutablePath = ({
+	indent,
+	logLevel,
+	type,
+	binariesDirectory,
+}: {
+	type: 'compositor' | 'ffmpeg' | 'ffprobe';
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): string => {
+	const base = binariesDirectory ?? getExecutableDir(indent, logLevel);
 	switch (type) {
 		case 'compositor':
 			if (process.platform === 'win32') {

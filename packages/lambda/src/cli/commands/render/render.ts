@@ -59,6 +59,7 @@ const {
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
 	overwriteOption,
+	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -161,6 +162,10 @@ export const renderCommand = async (
 		},
 		false,
 	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -193,6 +198,7 @@ export const renderCommand = async (
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
 		const {compositionId} =
@@ -218,6 +224,7 @@ export const renderCommand = async (
 				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
 			});
 		composition = compositionId;
 	}

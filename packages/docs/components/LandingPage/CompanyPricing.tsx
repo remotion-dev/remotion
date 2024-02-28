@@ -44,7 +44,7 @@ export const CompanyPricing: React.FC = () => {
 
   return (
     <div className={styles.pricingcontainer}>
-      <div className={styles.text}>For companies of 4+ people</div>
+      <div className={styles.audience}>For companies of 4+ people</div>
       <h2 className={styles.pricingtitle}>Company license</h2>
       <PricingBulletPoint text="Everything in free" checked />
       <PricingBulletPoint text="Prioritized Support" checked />

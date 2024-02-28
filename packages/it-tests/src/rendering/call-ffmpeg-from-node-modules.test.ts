@@ -4,7 +4,12 @@ import path from "path";
 import { expect, test } from "vitest";
 
 test("Should be able to call ffmpeg from node_modules (not officially supported)", async () => {
-  const binary = RenderInternals.getExecutablePath("ffmpeg", false, "info");
+  const binary = RenderInternals.getExecutablePath({
+    type: "ffmpeg",
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+  });
   const a = execSync(`${binary} -buildconf`, {
     cwd: path.dirname(binary),
     stdio: "pipe",

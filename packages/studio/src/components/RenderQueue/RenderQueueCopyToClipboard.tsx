@@ -44,7 +44,10 @@ export const RenderQueueCopyToClipboard: React.FC<{
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
-			copyToClipboard({outName: job.outName})
+			copyToClipboard({
+				outName: job.outName,
+				binariesDirectory: job.binariesDirectory,
+			})
 				.catch((err) => {
 					sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
 				})
@@ -57,7 +60,7 @@ export const RenderQueueCopyToClipboard: React.FC<{
 					});
 				});
 		},
-		[job.outName],
+		[job.binariesDirectory, job.outName],
 	);
 
 	return (

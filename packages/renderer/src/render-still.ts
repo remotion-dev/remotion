@@ -349,6 +349,7 @@ const internalRenderStillRaw = (
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+				binariesDirectory: options.binariesDirectory,
 			},
 			{
 				onDownload: options.onDownload,
@@ -433,6 +434,7 @@ export const renderStill = (
 		quality,
 		offthreadVideoCacheSizeInBytes,
 		logLevel,
+		binariesDirectory,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -481,5 +483,6 @@ export const renderStill = (
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };
