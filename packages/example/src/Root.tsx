@@ -535,7 +535,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={30 * 60 * 8}
+					durationInFrames={30 * 60 * 60}
 				/>
 				<Composition
 					id="video-testing-webm"
