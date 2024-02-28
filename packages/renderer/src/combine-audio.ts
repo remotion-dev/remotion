@@ -168,6 +168,7 @@ const combineAudioSeamlessly = async ({
 		.join('\n');
 
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
+
 	writeFileSync(fileListTxt, fileList);
 
 	const command = [
@@ -203,9 +204,7 @@ const combineAudioSeamlessly = async ({
 		task.stderr?.on('data', (data: Buffer) => {
 			const utf8 = data.toString('utf8');
 			const parsed = parseFfmpegProgress(utf8, fps);
-			if (parsed === undefined) {
-				Log.verbose({indent, logLevel}, utf8);
-			} else {
+			if (parsed !== undefined) {
 				onProgress(parsed);
 				Log.verbose({indent, logLevel}, `Encoded ${parsed} audio frames`);
 			}
