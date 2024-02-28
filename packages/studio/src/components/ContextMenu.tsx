@@ -136,7 +136,6 @@ export const ContextMenu: React.FC<{
 											preselectIndex={false}
 											topItemCanBeUnselected={false}
 											fixedHeight={null}
-											setHideParent={() => {}}
 										/>
 									</div>
 								</HigherZIndex>

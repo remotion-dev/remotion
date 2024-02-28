@@ -128,7 +128,7 @@ export const MenuSubItem: React.FC<{
 	}, [selected, size, subMenu, subMenuActivated]);
 
 	useEffect(() => {
-		if (!hovered || !subMenu || mobileLayout) {
+		if (!hovered || !subMenu) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ export const MenuSubItem: React.FC<{
 			setSubMenuActivated('with-mouse');
 		}, 100);
 		return () => clearTimeout(hi);
-	}, [hovered, mobileLayout, selected, setSubMenuActivated, subMenu]);
+	}, [hovered, selected, setSubMenuActivated, subMenu]);
 
 	useEffect(() => {
 		if (selected) {

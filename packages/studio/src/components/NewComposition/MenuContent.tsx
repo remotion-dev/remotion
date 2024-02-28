@@ -307,9 +307,7 @@ export const MenuContent: React.FC<{
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					if (!item.subMenu) {
-						onHide();
-					}
+					onHide();
 
 					item.onClick(id, e);
 				};

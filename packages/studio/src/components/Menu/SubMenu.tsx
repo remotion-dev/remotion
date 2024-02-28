@@ -19,13 +19,13 @@ export const SubMenuComponent: React.FC<{
 	onQuitSubMenu,
 }) => {
 	return (
-		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={onQuitFullMenu}>
+		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
 			<div style={portalStyle} className="css-reset">
 				<MenuContent
 					onNextMenu={noop}
 					onPreviousMenu={onQuitSubMenu}
 					values={subMenu.items}
-					onHide={onQuitFullMenu}
+					onHide={noop}
 					leaveLeftSpace={subMenu.leaveLeftSpace}
 					preselectIndex={
 						subMenuActivated === 'without-mouse' &&

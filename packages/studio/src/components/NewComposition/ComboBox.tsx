@@ -259,7 +259,6 @@ export const Combobox: React.FC<{
 											)}
 											topItemCanBeUnselected={false}
 											fixedHeight={derivedMaxHeight}
-											setHideParent={() => {}}
 										/>
 									</div>
 								</HigherZIndex>
