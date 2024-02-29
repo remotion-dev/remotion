@@ -53,7 +53,6 @@ Sequences are mapped back to the original source code. Click on them in the depl
 
 Our templates and examples are deployed as a Studio:
 
-- Watercolor Map ([Source code](https://github.com/remotion-dev/watercolor-map), [Preview](https://watercolor-map.vercel.app/))
 - Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://remotion-helloworld.vercel.app/))
 - Hello World (JavaScript) ([Source code](https://github.com/remotion-dev/template-helloworld-javascript), [Preview](https://template-helloworld-javascript.vercel.app/))
 - Blank ([Source code](https://github.com/remotion-dev/template-empty), [Preview](https://template-empty.vercel.app/))
@@ -63,6 +62,7 @@ Our templates and examples are deployed as a Studio:
 
 ## Deployed examples
 
+- Watercolor Map ([Source code](https://github.com/remotion-dev/watercolor-map), [Preview](https://watercolor-map.vercel.app/))
 - Music with Tone.JS ([Source code](https://github.com/remotion-dev/tone-js-example), [Preview](https://tone-js-example.vercel.app/))
 - Animate .glb models ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
 - Typewriter effect ([Source code](https://github.com/remotion-dev/typewriter), [Preview](https://typewriter-remotion.vercel.app/))
