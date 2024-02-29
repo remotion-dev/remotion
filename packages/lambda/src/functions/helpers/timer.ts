@@ -1,17 +1,23 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+
 const formatTime = (time: number) => {
 	return time + 'ms';
 };
 
-export const timer = (label: string) => {
+export const timer = (label: string, logLevel: LogLevel) => {
 	const start = Date.now();
-	process.stdout.write(`${label} - start`);
+	RenderInternals.Log.verbose({indent: false, logLevel}, `${label} - start\n`);
 
 	return {
 		end: () => {
 			const end = Date.now();
 			const time = end - start;
 
-			process.stdout.write(`${label} - ${formatTime(time)}\n`);
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`${label} - ${formatTime(time)}\n`,
+			);
 		},
 	};
 };

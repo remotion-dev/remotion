@@ -81,7 +81,7 @@ export const getAllFilesS3 = ({
 
 	const getFiles = async () => {
 		const prefix = rendersPrefix(renderId);
-		const lsTimer = timer('Listing files');
+		const lsTimer = timer('Listing files', logLevel);
 		const contents = await lambdaLs({
 			bucketName: bucket,
 			prefix,
@@ -145,7 +145,7 @@ export const getAllFilesS3 = ({
 
 				alreadyDownloading[key] = true;
 				try {
-					const downloadTimer = timer('Downloading ' + key);
+					const downloadTimer = timer('Downloading ' + key, logLevel);
 					await downloadS3File({
 						bucket,
 						key,
@@ -212,7 +212,7 @@ export const concatVideosS3 = async ({
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
 		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
-	const combine = timer('Combine videos');
+	const combine = timer('Combine videos', logLevel);
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const chunkDurationInSeconds = framesPerLambda / fps;

@@ -35,14 +35,7 @@ export const createCombinedVideo = async ({
 }) => {
 	if (seamless) {
 		return combineVideoStreamsSeamlessly({
-			binariesDirectory,
-			cancelSignal,
 			files,
-			fps,
-			indent,
-			logLevel,
-			onProgress,
-			output,
 		});
 	}
 

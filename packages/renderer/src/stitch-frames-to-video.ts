@@ -321,7 +321,7 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : null,
+		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : ['-an'],
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],

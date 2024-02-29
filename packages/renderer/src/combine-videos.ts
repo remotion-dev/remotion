@@ -6,6 +6,7 @@ import type {AudioCodec} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
+import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
 import {createCombinedVideo} from './create-combined-video';
 import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -51,8 +52,6 @@ export const combineVideos = async ({
 	binariesDirectory,
 	cancelSignal,
 }: Options) => {
-	// TODO: onProgress is now reused across 3 functions
-
 	const resolvedAudioCodec =
 		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
 
@@ -118,7 +117,7 @@ export const combineVideos = async ({
 					})
 				: null,
 
-			shouldCreateVideo
+			shouldCreateVideo && !seamless
 				? createCombinedVideo({
 						codec,
 						filelistDir,
@@ -156,7 +155,9 @@ export const combineVideos = async ({
 				updateProgress();
 			},
 			output,
-			videoOutput,
+			videoOutput: seamless
+				? combineVideoStreamsSeamlessly({files: videoFiles})
+				: videoOutput,
 			binariesDirectory,
 			fps,
 			cancelSignal,

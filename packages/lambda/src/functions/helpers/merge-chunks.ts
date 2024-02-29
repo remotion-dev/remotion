@@ -186,7 +186,10 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	const outputSize = fs.statSync(outfile);
 
-	const writeToS3 = timer(`Writing to S3 (${outputSize} bytes)`);
+	const writeToS3 = timer(
+		`Writing to S3 (${outputSize.size} bytes)`,
+		options.logLevel,
+	);
 
 	await lambdaWriteFile({
 		bucketName: options.renderBucketName,

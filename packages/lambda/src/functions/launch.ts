@@ -218,7 +218,7 @@ const innerLaunchHandler = async ({
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
-	const reqSend = timer('sending off requests');
+	const reqSend = timer('sending off requests', params.logLevel);
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
