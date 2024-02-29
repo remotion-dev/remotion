@@ -16,6 +16,7 @@ export type FileExtension =
 	| 'mov'
 	| 'mxf'
 	| 'wav'
+	| 'ts'
 	| 'webm';
 
 export const defaultFileExtensionMap: {
@@ -34,6 +35,13 @@ export const defaultFileExtensionMap: {
 		forAudioCodec: {
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 			mp3: {possible: ['mkv'], default: 'mkv'},
+		},
+	},
+	'h264-ts': {
+		default: 'ts',
+		forAudioCodec: {
+			'pcm-16': {possible: ['ts'], default: 'ts'},
+			aac: {possible: ['ts'], default: 'ts'},
 		},
 	},
 	aac: {

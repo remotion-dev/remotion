@@ -90,4 +90,5 @@ export const defaultCodecsForFileExtension: Record<FileExtension, Codec> = {
 	mxf: 'prores',
 	wav: 'wav',
 	webm: 'vp8',
+	ts: 'h264-ts',
 };
