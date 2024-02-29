@@ -102,7 +102,12 @@ const renderHandler = async (
 
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
-	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+	const chunkCodec: Codec =
+		params.codec === 'gif'
+			? 'h264-mkv'
+			: params.codec === 'h264'
+				? 'h264-ts'
+				: params.codec;
 	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
 	const defaultAudioCodec = RenderInternals.getDefaultAudioCodec({
 		codec: params.codec,
