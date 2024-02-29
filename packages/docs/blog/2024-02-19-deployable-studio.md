@@ -49,7 +49,7 @@ Sequences are mapped back to the original source code. Click on them in the depl
   <p align="center" style={{fontSize: '0.8em', marginTop: -30}}><a href="https://watercolor-map.vercel.app"><em>watercolor-map.vercel.app</em></a> <a href="https://www.remotion.pro/watercolor-map">(Template)</a></p>
 </p>
 
-## All our templates
+## Deployed templates
 
 Our templates and examples are deployed as a Studio:
 
