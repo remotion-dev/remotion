@@ -6,11 +6,12 @@ import type {AudioCodec} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
-import {combineVideoStreams} from './combine-video-streams';
+import {createCombinedVideo} from './create-combined-video';
 import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 import {truthy} from './truthy';
@@ -87,6 +88,12 @@ export const combineVideos = async ({
 		onProgress((actualProgress / totalFrames) * numberOfFrames);
 	};
 
+	// TODO: Better way of determining if the concatenation is seamless
+	const seamless = resolvedAudioCodec === 'aac' && codec === 'h264';
+	Log.verbose(
+		{indent, logLevel},
+		'Combining chunks ' + seamless ? 'seamlessly' : 'normally',
+	);
 	await Promise.all(
 		[
 			shouldCreateAudio
@@ -98,7 +105,7 @@ export const combineVideos = async ({
 						logLevel,
 						output: shouldCreateVideo ? (audioOutput as string) : output,
 						resolvedAudioCodec,
-						seamless: resolvedAudioCodec === 'aac',
+						seamless,
 						chunkDurationInSeconds,
 						addRemotionMetadata: !shouldCreateVideo,
 						binariesDirectory,
@@ -112,7 +119,7 @@ export const combineVideos = async ({
 				: null,
 
 			shouldCreateVideo
-				? combineVideoStreams({
+				? createCombinedVideo({
 						codec,
 						filelistDir,
 						fps,
@@ -128,6 +135,7 @@ export const combineVideos = async ({
 							concatenatedVideo = frames;
 							updateProgress();
 						},
+						seamless,
 					})
 				: null,
 		].filter(truthy),

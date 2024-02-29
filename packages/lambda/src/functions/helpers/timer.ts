@@ -4,6 +4,7 @@ const formatTime = (time: number) => {
 
 export const timer = (label: string) => {
 	const start = Date.now();
+	process.stdout.write(`${label} - start`);
 
 	return {
 		end: () => {

@@ -33,6 +33,7 @@ import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
+import {timer} from './timer';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
@@ -185,6 +186,8 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	const outputSize = fs.statSync(outfile);
 
+	const writeToS3 = timer(`Writing to S3 (${outputSize} bytes)`);
+
 	await lambdaWriteFile({
 		bucketName: options.renderBucketName,
 		key: options.key,
@@ -195,6 +198,8 @@ export const mergeChunksAndFinishRender = async (options: {
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
 	});
+
+	writeToS3.end();
 
 	const contents = await lambdaLs({
 		bucketName: options.bucketName,
