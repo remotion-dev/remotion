@@ -52,12 +52,17 @@ type State = {
 	publicFolderExists: string | null;
 };
 
-export const AssetSelector: React.FC = () => {
+export const AssetSelector: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {tabIndex} = useZIndex();
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
 	const [dropLocation, setDropLocation] = useState<string | null>(null);
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const shouldAllowUpload = connectionStatus === 'connected' && readOnlyStudio;
 
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
@@ -121,22 +126,11 @@ export const AssetSelector: React.FC = () => {
 	);
 
 	return (
-		<div style={container} onDragOver={onDragOver} onDrop={onDrop}>
-			{true && (
-				<div
-					style={{
-						backgroundColor: 'white',
-						padding: 20,
-						borderRadius: 10,
-						boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
-						position: 'fixed',
-						bottom: 20,
-						right: 20,
-					}}
-				>
-					Uploading file...
-				</div>
-			)}
+		<div
+			style={container}
+			onDragOver={shouldAllowUpload ? onDragOver : undefined}
+			onDrop={shouldAllowUpload ? onDrop : undefined}
+		>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>
