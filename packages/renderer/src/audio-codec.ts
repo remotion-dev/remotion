@@ -7,6 +7,7 @@ export type AudioCodec = (typeof validAudioCodecs)[number];
 export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16', 'mp3'] as const,
 	'h264-mkv': ['pcm-16', 'mp3'] as const,
+	'h264-ts': ['pcm-16', 'aac'] as const,
 	aac: ['aac', 'pcm-16'] as const,
 	gif: [] as const,
 	h265: ['aac', 'pcm-16'] as const,
@@ -64,6 +65,10 @@ export const defaultAudioCodecs: {
 	'h264-mkv': {
 		lossless: 'pcm-16',
 		compressed: 'pcm-16',
+	},
+	'h264-ts': {
+		lossless: 'pcm-16',
+		compressed: 'aac',
 	},
 	aac: {
 		lossless: 'pcm-16',
