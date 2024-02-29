@@ -8,7 +8,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts') {
 		return 18; // FFMPEG default 23
 	}
 
@@ -48,7 +48,7 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [0, 0];
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts') {
 		return [1, 51];
 	}
 
