@@ -63,6 +63,7 @@ export const screenshotTask = async ({
 			// we are using on Lambda?
 			// We already found out that the problem is not a general Linux problem.
 			const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+			const scaleFactor = fromSurface ? 1 : scale;
 
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
@@ -79,9 +80,9 @@ export const screenshotTask = async ({
 						: {
 								x: 0,
 								y: 0,
-								height: height * scale,
+								height: height * scaleFactor,
 								scale: 1,
-								width: width * scale,
+								width: width * scaleFactor,
 							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
