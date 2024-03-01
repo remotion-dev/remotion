@@ -62,7 +62,7 @@ export const AssetSelector: React.FC<{
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const shouldAllowUpload = connectionStatus === 'connected' && readOnlyStudio;
+	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
 
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
