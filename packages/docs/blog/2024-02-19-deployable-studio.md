@@ -62,7 +62,6 @@ Our templates and examples are deployed as a Studio:
 
 ## Deployed examples
 
-- Watercolor Map ([Source code](https://github.com/remotion-dev/watercolor-map), [Preview](https://watercolor-map.vercel.app/))
 - Music with Tone.JS ([Source code](https://github.com/remotion-dev/tone-js-example), [Preview](https://tone-js-example.vercel.app/))
 - Animate .glb models ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
 - Typewriter effect ([Source code](https://github.com/remotion-dev/typewriter), [Preview](https://typewriter-remotion.vercel.app/))
@@ -71,7 +70,7 @@ Our templates and examples are deployed as a Studio:
 - Apple "Spring loaded" animation ([Source code](https://github.com/JonnyBurger/spring-loaded), [Preview](https://spring-editor.vercel.app/))
 - Three.js particles animation ([Source code](https://github.com/JonnyBurger/three-particles), [Preview](https://three-particles-remotion.vercel.app/))
 - Text morphing ([Source code](https://github.com/remotion-dev/morph-text), [Preview](https://morph-text-remotion.vercel.app/))
-- Text warping ([Source code](https://github.com/remotion-dev/text-warping), [Preview](https://text-warping.vercel.app/?/Promo))
+- Text warping ([Source code](https://github.com/remotion-dev/text-warping), [Preview](https://text-warping.vercel.app/))
 - Animate GLTF models ([Source code](https://github.com/remotion-dev/remotion-three-gltf-example), [Preview](https://remotion-three-gltf-example.vercel.app/))
 - OpenGL transitions ([Source code](https://github.com/remotion-dev/remotion-gl-transitions), [Preview](https://remotion-gl-transitions.vercel.app/))
 - Anime.js example ([Source code](https://github.com/remotion-dev/anime-example), [Preview](https://anime-example-remotion.vercel.app/))
