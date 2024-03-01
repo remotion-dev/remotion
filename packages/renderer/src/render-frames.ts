@@ -32,8 +32,7 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
-import {getLogLevel, Log} from './logger';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -82,7 +81,6 @@ export type InternalRenderFramesOptions = {
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
 	onDownload: RenderMediaOnDownload | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
@@ -93,7 +91,6 @@ export type InternalRenderFramesOptions = {
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
@@ -111,7 +108,6 @@ type InnerRenderFramesOptions = {
 	outputDir: string | null;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
-	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -132,12 +128,11 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
-	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
-};
+} & ToOptions<typeof optionsMap.renderFrames>;
 
 export type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
@@ -154,7 +149,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Renamed to "jpegQuality"
 	 */
 	quality?: never;
-	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	/**
@@ -165,7 +159,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -180,8 +173,7 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
 const innerRenderFrames = async ({
 	onFrameUpdate,
@@ -215,7 +207,10 @@ const innerRenderFrames = async ({
 	logLevel,
 	indent,
 	parallelEncodingEnabled,
-}: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
+}: Omit<
+	InnerRenderFramesOptions,
+	'offthreadVideoCacheSizeInBytes'
+>): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -625,6 +620,7 @@ const internalRenderFramesRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
+	binariesDirectory,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -690,6 +686,7 @@ const internalRenderFramesRaw = ({
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
+						binariesDirectory,
 					},
 					{
 						onDownload,
@@ -703,13 +700,14 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
+				const cycle = cycleBrowserTabs(
+					browserReplacer,
+					actualConcurrency,
+					logLevel,
+					indent,
+				);
 				cleanup.push(() => {
-					cycleBrowserTabs(
-						browserReplacer,
-						actualConcurrency,
-						logLevel,
-						indent,
-					).stopCycling();
+					cycle.stopCycling();
 					return Promise.resolve();
 				});
 				cleanup.push(() => cleanupServer(false));
@@ -746,6 +744,7 @@ const internalRenderFramesRaw = ({
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
+					binariesDirectory,
 				});
 			}),
 		])
@@ -828,6 +827,7 @@ export const renderFrames = (
 		quality,
 		logLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	} = options;
 
 	if (!composition) {
@@ -882,12 +882,12 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel:
-			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

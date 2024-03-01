@@ -115,6 +115,7 @@ describe('Webhooks', () => {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
+				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,

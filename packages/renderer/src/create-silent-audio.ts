@@ -7,11 +7,13 @@ export const createSilentAudio = async ({
 	outName,
 	indent,
 	logLevel,
+	binariesDirectory,
 }: {
 	numberOfSeconds: number;
 	outName: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }) => {
 	await callFf({
 		bin: 'ffmpeg',
@@ -30,5 +32,6 @@ export const createSilentAudio = async ({
 		],
 		indent,
 		logLevel,
+		binariesDirectory,
 	});
 };

@@ -1,4 +1,5 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
@@ -8,6 +9,18 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
+
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
 
 export const still = async (
 	remotionRoot: string,
@@ -21,11 +34,18 @@ export const still = async (
 	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.error(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
 		process.exit(1);
 	}
 
@@ -33,6 +53,7 @@ export const still = async (
 
 	if (parsedCli.frames) {
 		Log.error(
+			{indent: false, logLevel},
 			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
@@ -40,24 +61,56 @@ export const still = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		height,
 		inputProps,
-		overwrite,
 		publicDir,
-		puppeteerTimeout,
-		jpegQuality,
-		scale,
 		stillFrame,
 		width,
-		offthreadVideoCacheSizeInBytes,
+		disableWebSecurity,
+		ignoreCertificateErrors,
+		userAgent,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+		isStill: true,
 		logLevel,
 	});
+
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	await renderStillFlow({
 		remotionRoot,
@@ -94,5 +147,6 @@ export const still = async (
 		cancelSignal: null,
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 };

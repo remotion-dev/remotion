@@ -1,15 +1,11 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	ColorSpace,
-	Crf,
 	FrameRange,
-	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
@@ -46,29 +42,17 @@ type InternalRenderMediaOnCloudrun = {
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
-	crf: Crf | null;
 	pixelFormat: PixelFormat | undefined;
 	imageFormat: VideoImageFormat | undefined;
-	scale: number | undefined;
 	everyNthFrame: number | undefined;
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
-	muted: boolean | undefined;
 	forceWidth: number | null;
 	forceHeight?: number | null;
-	logLevel: LogLevel | undefined;
-	delayRenderTimeoutInMilliseconds: number | undefined;
 	concurrency: number | string | null;
-	enforceAudioTrack: boolean | undefined;
 	preferLossless: boolean | undefined;
-	colorSpace: ColorSpace | undefined;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -84,30 +68,19 @@ export type RenderMediaOnCloudrunInput = {
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
 	codec: CloudrunCodec;
 	audioCodec?: AudioCodec;
-	jpegQuality?: number;
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
-	crf?: number | undefined;
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
-	scale?: number;
 	everyNthFrame?: number;
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
-	muted?: boolean;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-	logLevel?: LogLevel;
-	delayRenderTimeoutInMilliseconds?: number;
 	concurrency?: number | string | null;
-	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
-	colorSpace?: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -396,7 +369,7 @@ export const renderMediaOnCloudrun = ({
 		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? undefined,
-		crf: crf ?? null,
+		crf: crf ?? undefined,
 		pixelFormat: pixelFormat ?? undefined,
 		imageFormat: imageFormat ?? undefined,
 		scale: scale ?? undefined,

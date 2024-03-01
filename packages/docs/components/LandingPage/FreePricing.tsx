@@ -5,7 +5,7 @@ import { PricingBulletPoint } from "./PricingBulletPoint";
 export const FreePricing: React.FC = () => {
   return (
     <div className={styles.pricingcontainer}>
-      <div className={styles.text}>
+      <div className={styles.audience}>
         For individuals and companies of up to 3
       </div>
       <h2 className={styles.pricingtitle}>Free forever</h2>

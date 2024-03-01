@@ -20,7 +20,9 @@ Gets metadata about a video file in Node.js. Useful for calculating metadata on 
 // @target: ESNext
 import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
-const videoMetadata: VideoMetadata = await getVideoMetadata("./bunny.mp4");
+const videoMetadata: VideoMetadata = await getVideoMetadata(
+  "/Users/john/Documents/bunny.mp4",
+);
 
 const {
   width,
@@ -36,6 +38,10 @@ const {
 } = videoMetadata;
 ```
 
+:::info
+Pass an absolute path to `getVideoMetadata()`. URLs are not supported.
+:::
+
 ## Arguments
 
 ### `videoSource`
@@ -43,6 +49,16 @@ const {
 _string_
 
 A local video file path.
+
+### options?
+
+### `logLevel?`
+
+<Options id="log" />
+
+#### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
 
 ## Return Value
 

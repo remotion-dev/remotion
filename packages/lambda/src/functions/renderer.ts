@@ -140,6 +140,7 @@ const renderHandler = async (
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
+						{indent: false, logLevel: params.logLevel},
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 					writeLambdaInitializedFile({
@@ -195,7 +196,7 @@ const renderHandler = async (
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
-			x264Preset: params.x264Preset ?? undefined,
+			x264Preset: params.x264Preset,
 			onDownload: onDownloadsHelper(),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
@@ -226,6 +227,7 @@ const renderHandler = async (
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
 			finishRenderProgress: () => undefined,
+			binariesDirectory: null,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

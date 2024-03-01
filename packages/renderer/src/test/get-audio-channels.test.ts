@@ -23,6 +23,7 @@ test('Get audio channels for video', async () => {
 		videoWithoutAudio,
 		false,
 		'info',
+		null,
 	);
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
@@ -43,6 +44,7 @@ test('Get audio channels for video without music', async () => {
 		videoWithAudio,
 		false,
 		'info',
+		null,
 	);
 
 	expect(channels.channels).toEqual(0);
@@ -62,12 +64,13 @@ test('Get audio channels for video with music', async () => {
 		'sound1.mp3',
 	);
 	expect(existsSync(audio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
+	const channels = await getAudioChannelsAndDuration({
 		downloadMap,
-		audio,
-		false,
-		'info',
-	);
+		src: audio,
+		indent: false,
+		logLevel: 'info',
+		binariesDirectory: null,
+	});
 	cleanDownloadMap(downloadMap);
 
 	expect(channels).toEqual({channels: 2, duration: 56.529});
@@ -78,7 +81,13 @@ test('Throw error if parsing a non video file', () => {
 	const tsFile = path.join(__dirname, '..', 'can-use-parallel-encoding.ts');
 	expect(existsSync(tsFile)).toEqual(true);
 	expect(() =>
-		getAudioChannelsAndDuration(downloadMap, tsFile, false, 'info'),
+		getAudioChannelsAndDuration({
+			downloadMap,
+			src: tsFile,
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+		}),
 	).rejects.toThrow(/Invalid data found when processing input/);
 	cleanDownloadMap(downloadMap);
 });

@@ -24,6 +24,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 				body.delayRenderTimeoutInMilliseconds ??
 				RenderInternals.DEFAULT_TIMEOUT,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
 		},
 	);
 

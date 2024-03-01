@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {parseFfmpegProgress} from '../parse-ffmpeg-progress';
 
-test('Should be able to parse FFMPEG progress', () => {
+test('Should be able to parse Ffmpeg progress', () => {
 	const result = parseFfmpegProgress('anything', 30);
 	expect(result).toBe(undefined);
 	expect(

@@ -1,4 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
@@ -47,10 +48,12 @@ export const studioCommand = async (
 
 	if (!file) {
 		Log.error(
+			{indent: false, logLevel},
 			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
-		Log.error('  npx remotion studio src/index.ts');
+		Log.error({indent: false, logLevel}, '  npx remotion studio src/index.ts');
 		Log.error(
+			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
@@ -88,6 +91,11 @@ export const studioCommand = async (
 
 	const gitSource = getGitSource(remotionRoot);
 
+	const binariesDirectory =
+		BrowserSafeApis.options.binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
 		browserArgs: parsedCli['browser-args'],
@@ -119,5 +127,6 @@ export const studioCommand = async (
 		gitSource,
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		binariesDirectory,
 	});
 };

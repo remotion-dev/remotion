@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteSite} from '../../../api/delete-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
@@ -10,16 +10,17 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
-export const sitesRmSubcommand = async (args: string[]) => {
+export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
 		Log.error(
+			{indent: false, logLevel},
 			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
 		quit(1);
 	}
 
 	if (args[0] === '()') {
-		Log.info('No sites to remove.');
+		Log.info({indent: false, logLevel}, 'No sites to remove.');
 		return;
 	}
 
@@ -34,9 +35,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		(
 			await internalGetOrCreateBucket({
 				region,
-				enableFolderExpiry:
-					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
-					null,
+				enableFolderExpiry: false,
 				customCredentials: null,
 			})
 		).bucketName;
@@ -45,6 +44,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
 			Log.error(
+				{indent: false, logLevel},
 				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`,
 			);
 			return quit(1);
@@ -66,11 +66,15 @@ export const sitesRmSubcommand = async (args: string[]) => {
 			siteName,
 			region,
 			onAfterItemDeleted: ({itemName}) => {
-				Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.gray(`Deleted ${itemName}`),
+				);
 			},
 		});
 
 		Log.info(
+			{indent: false, logLevel},
 			`Deleted site ${siteName} and freed up ${CliInternals.formatBytes(
 				totalSize,
 			)}.`,

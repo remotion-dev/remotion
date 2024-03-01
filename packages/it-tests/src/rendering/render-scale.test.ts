@@ -43,6 +43,7 @@ test("Should be able to render video with scale 2", async () => {
     args: [outputPath],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -82,6 +83,7 @@ test("Should be able to render video with scale 0.1", async () => {
     args: [outputPath],
     indent: false,
     logLevel: "info",
+    binariesDirectory: null,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");

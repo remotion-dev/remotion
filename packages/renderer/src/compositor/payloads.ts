@@ -226,6 +226,7 @@ export type CompositorCommand = {
 		original_src: string;
 		time: number;
 		transparent: boolean;
+		tone_mapped: boolean;
 	};
 	GetSilences: {
 		src: string;

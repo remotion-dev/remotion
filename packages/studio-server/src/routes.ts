@@ -149,6 +149,7 @@ const handleOpenInEditor = async (
 	remotionRoot: string,
 	req: IncomingMessage,
 	res: ServerResponse,
+	logLevel: LogLevel,
 ) => {
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
@@ -173,6 +174,7 @@ const handleOpenInEditor = async (
 			fileName: path.resolve(remotionRoot, stack.originalFileName as string),
 			lineNumber: stack.originalLineNumber as number,
 			vsCodeNewWindow: false,
+			logLevel,
 		});
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
@@ -257,6 +259,7 @@ export const handleRoutes = ({
 	numberOfAudioTags,
 	queueMethods: methods,
 	gitSource,
+	binariesDirectory,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -276,6 +279,7 @@ export const handleRoutes = ({
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -293,7 +297,7 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/open-in-editor') {
-		return handleOpenInEditor(remotionRoot, request, response);
+		return handleOpenInEditor(remotionRoot, request, response, logLevel);
 	}
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {
@@ -309,6 +313,7 @@ export const handleRoutes = ({
 				response,
 				logLevel,
 				methods,
+				binariesDirectory,
 			});
 		}
 	}

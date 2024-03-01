@@ -1,16 +1,39 @@
 // eslint-disable-next-line no-restricted-imports
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {renderVideoFlow} from './render-flows/render';
+
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	colorSpaceOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	reproOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
 
 export const render = async (
 	remotionRoot: string,
@@ -24,11 +47,18 @@ export const render = async (
 	} = findEntryPoint(args, remotionRoot, logLevel);
 
 	if (!file) {
-		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.error(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
 		process.exit(1);
 	}
 
@@ -36,6 +66,7 @@ export const render = async (
 
 	if (parsedCli.frame) {
 		Log.error(
+			{indent: false, logLevel},
 			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
@@ -45,48 +76,98 @@ export const render = async (
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		overwrite,
 		inputProps,
 		envVariables,
-		jpegQuality,
 		browserExecutable,
-		scale,
-		chromiumOptions,
 		everyNthFrame,
-		puppeteerTimeout,
+		userAgent,
+		disableWebSecurity,
+		ignoreCertificateErrors,
 		publicDir,
 		height,
 		width,
-		crf,
 		ffmpegOverride,
-		audioBitrate,
-		muted,
-		enforceAudioTrack,
 		proResProfile,
-		x264Preset,
 		pixelFormat,
-		videoBitrate,
-		encodingMaxRate,
-		encodingBufferSize,
-		numberOfGifLoops,
-		offthreadVideoCacheSizeInBytes,
-		colorSpace,
-		repro,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
 
-	const audioCodec = getResolvedAudioCodec();
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const crf = shouldOutputImageSequence
+		? null
+		: crfOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const repro = reproOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
+
+	const audioCodec =
+		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
 
 	await renderVideoFlow({
 		fullEntryPoint,
 		remotionRoot,
 		browserExecutable,
 		indent: false,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
+		logLevel,
 		browser: 'chrome',
 		chromiumOptions,
 		scale,
@@ -137,5 +218,6 @@ export const render = async (
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,
+		binariesDirectory,
 	});
 };

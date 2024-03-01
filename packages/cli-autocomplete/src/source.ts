@@ -1,5 +1,6 @@
 import { uniqueOptions } from "./unique-options";
 import { RenderInternals } from "@remotion/renderer";
+import { BrowserSafeApis } from "@remotion/renderer/client";
 
 const alwaysOptions: Fig.Option[] = [
   {
@@ -104,7 +105,7 @@ const localRenderAndStillOptions: Fig.Option[] = [
   },
   {
     name: "--ffmpeg-executable",
-    description: "Custom path for FFMPEG executable",
+    description: "Custom path for FFmpeg executable",
     args: {
       template: "filepaths",
     },
@@ -318,7 +319,7 @@ const renderOptions: Fig.Option[] = [
   },
   {
     name: "--crf",
-    description: "FFMPEG CRF value, controls quality, see docs for info",
+    description: "FFmpeg CRF value, controls quality, see docs for info",
     exclusiveOn: ["--video-bitrate"],
   },
   {
@@ -498,7 +499,7 @@ const benchmarkOptions: Fig.Option[] = uniqueOptions(
 );
 
 const completionSpec: Fig.Spec = {
-  name: "remotion",
+  name: ["remotion", "remotionb"],
   description: "Create videos programmatically in React",
   subcommands: [
     {
@@ -715,7 +716,7 @@ const completionSpec: Fig.Spec = {
                   exclusiveOn: ["--retention-period"],
                 },
                 {
-                  name: "--enable-lambda-insights",
+                  name: `--${BrowserSafeApis.options.enableLambdaInsights.cliFlag}`,
                   description: "Enable Lambda Insights",
                 },
                 {

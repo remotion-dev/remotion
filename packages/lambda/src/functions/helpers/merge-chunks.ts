@@ -61,6 +61,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	onAllChunks: OnAllChunksAvailable;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -107,7 +108,11 @@ export const mergeChunksAndFinishRender = async (options: {
 	};
 
 	const onErrors = (errors: EnhancedErrorInfo[]) => {
-		RenderInternals.Log.error('Found Errors', errors);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: options.logLevel},
+			'Found Errors',
+			errors,
+		);
 
 		const firstError = errors[0];
 		if (firstError.chunk !== null) {
@@ -143,6 +148,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 		onErrors,
+		logLevel: options.logLevel,
 	});
 	options.onAllChunks({
 		inputProps: options.inputProps,
@@ -160,6 +166,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		audioCodec: options.audioCodec,
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
+		binariesDirectory: options.binariesDirectory,
 	});
 	const encodingStop = Date.now();
 

@@ -6,7 +6,6 @@ import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
-import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -14,7 +13,6 @@ import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {gpuCommand} from './gpu';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
@@ -41,7 +39,7 @@ import {
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
 	if (parsedCli.help) {
-		printHelp();
+		printHelp('info');
 		process.exit(0);
 	}
 
@@ -49,6 +47,8 @@ export const cli = async () => {
 	if (command !== VERSIONS_COMMAND) {
 		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
+
+	const logLevel = await initializeCli(remotionRoot);
 
 	const isBun = typeof Bun !== 'undefined';
 	if (isBun) {
@@ -64,6 +64,7 @@ export const cli = async () => {
 		}
 
 		Log.info(
+			{indent: false, logLevel},
 			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
 		);
 	}
@@ -74,7 +75,6 @@ export const cli = async () => {
 		? 0
 		: RenderInternals.registerErrorSymbolicationLock();
 
-	const logLevel = await initializeCli(remotionRoot);
 	handleCtrlC({indent: false, logLevel});
 
 	try {
@@ -93,35 +93,36 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
-			ffmpegCommand(remotionRoot, process.argv.slice(3));
+			ffmpegCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
-			await gpuCommand(remotionRoot, logLevel);
+			await gpuCommand(logLevel);
 		} else if (command === 'ffprobe') {
-			ffprobeCommand(remotionRoot, process.argv.slice(3));
+			ffprobeCommand(remotionRoot, process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {
 			await upgrade(
 				remotionRoot,
 				parsedCli['package-manager'],
 				parsedCli.version,
+				logLevel,
 			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else if (command === 'help') {
-			printHelp();
+			printHelp(logLevel);
 			process.exit(0);
 		} else {
 			if (command) {
-				Log.error(`Command ${command} not found.`);
+				Log.error({indent: false, logLevel}, `Command ${command} not found.`);
 			}
 
-			printHelp();
+			printHelp(logLevel);
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.info();
-		await printError(err as Error, ConfigInternals.Logging.getLogLevel());
+		Log.info({indent: false, logLevel});
+		await printError(err as Error, logLevel);
 		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);
 	} finally {
@@ -151,7 +152,6 @@ export const CliInternals = {
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
-	getFinalOutputCodec,
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,
 	getCompositionWithDimensionOverride,

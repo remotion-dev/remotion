@@ -65,6 +65,7 @@ export const getAllFilesS3 = ({
 	region,
 	expectedBucketOwner,
 	onErrors,
+	logLevel,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -73,6 +74,7 @@ export const getAllFilesS3 = ({
 	region: AwsRegion;
 	expectedBucketOwner: string;
 	onErrors: (errors: EnhancedErrorInfo[]) => void;
+	logLevel: LogLevel;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -151,7 +153,11 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					RenderInternals.Log.info('Successfully downloaded', key);
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Successfully downloaded',
+						key,
+					);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
@@ -184,6 +190,7 @@ export const concatVideosS3 = async ({
 	audioCodec,
 	audioBitrate,
 	logLevel,
+	binariesDirectory,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -195,6 +202,7 @@ export const concatVideosS3 = async ({
 	audioCodec: AudioCodec | null;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -216,6 +224,7 @@ export const concatVideosS3 = async ({
 		audioBitrate,
 		indent: false,
 		logLevel,
+		binariesDirectory,
 	});
 	combine.end();
 

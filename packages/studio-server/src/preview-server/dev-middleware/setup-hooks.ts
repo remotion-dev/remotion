@@ -1,9 +1,10 @@
 import type {webpack} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {DevMiddlewareContext} from './types';
 
-export function setupHooks(context: DevMiddlewareContext) {
+export function setupHooks(context: DevMiddlewareContext, logLevel: LogLevel) {
 	function invalid() {
 		// We are now in invalid state
 		context.state = false;
@@ -46,7 +47,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 				.join('\n');
 
 			if (lines) {
-				RenderInternals.Log.info(lines);
+				RenderInternals.Log.info({indent: false, logLevel}, lines);
 			}
 
 			context.callbacks = [];

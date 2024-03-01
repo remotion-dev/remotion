@@ -1,4 +1,4 @@
-import path from 'node:path';
+import {pathNormalize} from './path-normalize';
 
 export const getExtensionOfFilename = (
 	filename: string | null,
@@ -7,7 +7,7 @@ export const getExtensionOfFilename = (
 		return null;
 	}
 
-	const filenameArr = path.normalize(filename).split('.');
+	const filenameArr = pathNormalize(filename).split('.');
 
 	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;

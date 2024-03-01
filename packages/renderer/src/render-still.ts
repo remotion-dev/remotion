@@ -23,8 +23,6 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -60,14 +58,12 @@ type InternalRenderStillOptions = {
 	overwrite: boolean;
 	browserExecutable: BrowserExecutable;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	onDownload: RenderMediaOnDownload | null;
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -80,7 +76,6 @@ export type RenderStillOptions = {
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
@@ -90,7 +85,6 @@ export type RenderStillOptions = {
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
@@ -104,8 +98,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -356,6 +349,7 @@ const internalRenderStillRaw = (
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+				binariesDirectory: options.binariesDirectory,
 			},
 			{
 				onDownload: options.onDownload,
@@ -439,6 +433,8 @@ export const renderStill = (
 		verbose,
 		quality,
 		offthreadVideoCacheSizeInBytes,
+		logLevel,
+		binariesDirectory,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -479,7 +475,7 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		logLevel: logLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info'),
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,
@@ -487,5 +483,6 @@ export const renderStill = (
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
 	});
 };

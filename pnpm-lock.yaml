@@ -608,6 +608,9 @@ importers:
       '@remotion/google-fonts':
         specifier: workspace:*
         version: link:../google-fonts
+      '@remotion/install-whisper-cpp':
+        specifier: workspace:*
+        version: link:../install-whisper-cpp
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -1102,6 +1105,43 @@ importers:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
 
+  packages/install-whisper-cpp:
+    dependencies:
+      react:
+        specifier: '>=16.8.0'
+        version: 18.2.0
+      react-dom:
+        specifier: '>=16.8.0'
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.276
+        version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.42.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.42.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.42.0)
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
+
   packages/it-tests:
     devDependencies:
       '@remotion/bundler':
@@ -1116,6 +1156,9 @@ importers:
       '@remotion/google-fonts':
         specifier: workspace:*
         version: link:../google-fonts
+      '@remotion/install-whisper-cpp':
+        specifier: workspace:*
+        version: link:../install-whisper-cpp
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -3747,7 +3790,7 @@ packages:
       '@babel/core': 7.15.5
       '@babel/helper-validator-option': 7.18.6
       browserslist: 4.21.5
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /@babel/helper-compilation-targets@7.19.1(@babel/core@7.18.6):
@@ -3760,7 +3803,7 @@ packages:
       '@babel/core': 7.18.6
       '@babel/helper-validator-option': 7.18.6
       browserslist: 4.21.5
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /@babel/helper-compilation-targets@7.23.6:
@@ -3844,7 +3887,7 @@ packages:
       debug: 4.3.4(supports-color@5.5.0)
       lodash.debounce: 4.0.8
       resolve: 1.22.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3860,7 +3903,7 @@ packages:
       debug: 4.3.4(supports-color@5.5.0)
       lodash.debounce: 4.0.8
       resolve: 1.22.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3903,7 +3946,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.18.10
-      '@babel/types': 7.21.0
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-function-name@7.23.0:
@@ -3932,7 +3975,7 @@ packages:
     resolution: {integrity: sha512-UlJQPkFqFULIcyW5sbzgbkxn2FKRgwWiRexcuaR8RNJRy8+LLveqPjwZV/bwrLZCN0eUHD/x8D0heK1ozuoo6Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.21.0
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-hoist-variables@7.22.5:
@@ -5862,7 +5905,7 @@ packages:
       babel-plugin-polyfill-corejs2: 0.3.3(@babel/core@7.18.6)
       babel-plugin-polyfill-corejs3: 0.6.0(@babel/core@7.18.6)
       babel-plugin-polyfill-regenerator: 0.4.1(@babel/core@7.18.6)
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -6204,7 +6247,7 @@ packages:
       babel-plugin-polyfill-corejs3: 0.6.0(@babel/core@7.18.6)
       babel-plugin-polyfill-regenerator: 0.4.1(@babel/core@7.18.6)
       core-js-compat: 3.25.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -11088,14 +11131,6 @@ packages:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       acorn: 8.11.3
-    dev: false
-
-  /acorn-jsx@5.3.2(acorn@8.8.2):
-    resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
-    peerDependencies:
-      acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
-    dependencies:
-      acorn: 8.8.2
 
   /acorn-walk@8.2.0:
     resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
@@ -11586,7 +11621,7 @@ packages:
       '@babel/compat-data': 7.19.1
       '@babel/core': 7.18.6
       '@babel/helper-define-polyfill-provider': 0.3.3(@babel/core@7.18.6)
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -13898,7 +13933,7 @@ packages:
       object.values: 1.1.6
       prop-types: 15.8.1
       resolve: 2.0.0-next.4
-      semver: 6.3.0
+      semver: 6.3.1
       string.prototype.matchall: 4.0.8
     dev: true
 
@@ -13945,7 +13980,7 @@ packages:
       object.values: 1.1.6
       prop-types: 15.8.1
       resolve: 2.0.0-next.4
-      semver: 6.3.0
+      semver: 6.3.1
       string.prototype.matchall: 4.0.8
 
   /eslint-plugin-require-extensions@0.1.2(eslint@8.42.0):
@@ -14039,8 +14074,8 @@ packages:
     resolution: {integrity: sha512-7OASN1Wma5fum5SrNhFMAMJxOUAbhyfQ8dQ//PJaJbNw0URTPWqIghHWt1MmAANKhHZIYOHruW4Kw4ruUWOdGw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.2
-      acorn-jsx: 5.3.2(acorn@8.8.2)
+      acorn: 8.11.3
+      acorn-jsx: 5.3.2(acorn@8.11.3)
       eslint-visitor-keys: 3.4.1
 
   /esprima@4.0.1:
@@ -18049,7 +18084,7 @@ packages:
       got: 9.6.0
       registry-auth-token: 4.2.1
       registry-url: 5.1.0
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /param-case@3.0.4:
@@ -20424,7 +20459,7 @@ packages:
     resolution: {integrity: sha512-GX0Ix/CJcHyB8c4ykpHGIAvLyOwOobtM/8d+TQkAd81/bEjgPHrfba41Vpesr7jX/t8Uh+R3EX9eAS5be+jQYg==}
     engines: {node: '>=8'}
     dependencies:
-      semver: 6.3.0
+      semver: 6.3.1
     dev: false
 
   /semver@5.7.1:
@@ -20439,7 +20474,6 @@ packages:
   /semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
-    dev: true
 
   /semver@7.0.0:
     resolution: {integrity: sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A==}

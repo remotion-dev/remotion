@@ -20,11 +20,12 @@ test("Should be able to bundle the renderer", () => {
   });
   expect(errors.length).toBe(0);
   expect(warnings.length).toBe(0);
-  const binaryPath = RenderInternals.getExecutablePath(
-    "compositor",
-    false,
-    "info"
-  );
+  const binaryPath = RenderInternals.getExecutablePath({
+    type: "compositor",
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+  });
   const ffmpegCwd = path.dirname(binaryPath);
   const filesInCwd = readdirSync(ffmpegCwd);
   const filesToCopy = filesInCwd.filter(

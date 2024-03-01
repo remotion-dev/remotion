@@ -10,7 +10,7 @@ const textUnitWrapper: React.CSSProperties = {
 export const EnterpriseLicense: React.FC = () => {
   return (
     <div className={styles.pricingcontainer}>
-      <div className={styles.text}>For advanced needs</div>
+      <div className={styles.audience}>For advanced needs</div>
       <h2 className={styles.pricingtitle}>Enterprise license</h2>
       <PricingBulletPoint text="Custom terms and pricing" checked />
       <PricingBulletPoint text="Prioritized feature requests" checked />

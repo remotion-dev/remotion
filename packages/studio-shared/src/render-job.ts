@@ -151,6 +151,7 @@ export type RenderJob = {
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	repro: boolean;
+	binariesDirectory: string | null;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

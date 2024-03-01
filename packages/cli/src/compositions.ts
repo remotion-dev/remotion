@@ -1,14 +1,24 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+
+const {
+	enableMultiprocessOnLinuxOption,
+	offthreadVideoCacheSizeInBytesOption,
+	glOption,
+	headlessOption,
+	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
@@ -19,10 +29,15 @@ export const listCompositionsCommand = async (
 
 	if (!file) {
 		Log.error(
+			{indent: false, logLevel},
 			'The `compositions` command requires you to specify a entry point. For example',
 		);
-		Log.error('  npx remotion compositions src/index.ts');
 		Log.error(
+			{indent: false, logLevel},
+			'  npx remotion compositions src/index.ts',
+		);
+		Log.error(
+			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
@@ -38,18 +53,27 @@ export const listCompositionsCommand = async (
 
 	const {
 		browserExecutable,
-		chromiumOptions,
 		envVariables,
 		inputProps,
-		puppeteerTimeout,
 		publicDir,
-		offthreadVideoCacheSizeInBytes,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
 	} = getCliOptions({
-		isLambda: false,
-		type: 'get-compositions',
-		remotionRoot,
+		isStill: false,
 		logLevel,
 	});
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		gl: glOption.getValue({commandLine: parsedCli}).value,
+		headless: headlessOption.getValue({commandLine: parsedCli}).value,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -86,15 +110,23 @@ export const listCompositionsCommand = async (
 				staticBase: null,
 				indent: undefined,
 			}).serializedString,
-		timeoutInMilliseconds: puppeteerTimeout,
+		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes:
+			offthreadVideoCacheSizeInBytesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		binariesDirectory: binariesDirectoryOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 	});
 
-	printCompositions(compositions);
+	printCompositions(compositions, logLevel);
 };

@@ -1,6 +1,8 @@
 import type {CodecOrUndefined} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {describe, expect, test} from 'vitest';
-import {getFinalOutputCodec} from '../get-final-output-codec';
+
+const {videoCodecOption} = BrowserSafeApis.options;
 
 describe('Codec tests valid codec input', () => {
 	const validCodecInput: CodecOrUndefined[] = [
@@ -16,17 +18,19 @@ describe('Codec tests valid codec input', () => {
 	validCodecInput.forEach((entry) =>
 		test(`codec ${entry}`, () =>
 			expect(
-				getFinalOutputCodec({
-					cliFlag: entry,
-					outName: 'out',
-					configFile: null,
-					downloadName: null,
-					uiCodec: null,
-					compositionCodec: null,
-				}),
+				videoCodecOption.getValue(
+					{commandLine: {codec: entry}},
+					{
+						outName: 'out',
+						configFile: null,
+						downloadName: null,
+						uiCodec: null,
+						compositionCodec: null,
+					},
+				),
 			).toEqual({
-				codec: entry,
-				reason: 'from --codec flag',
+				value: entry,
+				source: 'from --codec flag',
 			})),
 	);
 });
@@ -43,17 +47,21 @@ describe('Codec tests undefined codec input with known extension', () => {
 	codecExtensionCombination.forEach((entry) =>
 		test(`${entry[1]} should be recognized as ${entry[0]}`, () => {
 			return expect(
-				getFinalOutputCodec({
-					cliFlag: undefined,
-					configFile: null,
-					downloadName: null,
-					outName: 'hi.' + entry[1],
-					uiCodec: null,
-					compositionCodec: null,
-				}),
+				videoCodecOption.getValue(
+					{
+						commandLine: {},
+					},
+					{
+						configFile: null,
+						downloadName: null,
+						outName: 'hi.' + entry[1],
+						uiCodec: null,
+						compositionCodec: null,
+					},
+				),
 			).toEqual({
-				codec: entry[0],
-				reason: 'derived from out name',
+				value: entry[0],
+				source: 'derived from out name',
 			});
 		}),
 	);
@@ -61,23 +69,31 @@ describe('Codec tests undefined codec input with known extension', () => {
 
 test('Codec tests undefined codec input with unknown extension', () => {
 	expect(
-		getFinalOutputCodec({
-			cliFlag: undefined,
-			outName: 'hi.',
-			configFile: null,
-			downloadName: null,
-			uiCodec: null,
-			compositionCodec: null,
-		}),
-	).toEqual({codec: 'h264', reason: 'default'});
+		videoCodecOption.getValue(
+			{
+				commandLine: {},
+			},
+			{
+				outName: 'hi.',
+				configFile: null,
+				downloadName: null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		),
+	).toEqual({value: 'h264', source: 'default'});
 	expect(
-		getFinalOutputCodec({
-			cliFlag: undefined,
-			outName: 'hi.abc',
-			configFile: null,
-			downloadName: null,
-			uiCodec: null,
-			compositionCodec: null,
-		}),
-	).toEqual({codec: 'h264', reason: 'default'});
+		videoCodecOption.getValue(
+			{
+				commandLine: {},
+			},
+			{
+				outName: 'hi.abc',
+				configFile: null,
+				downloadName: null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		),
+	).toEqual({value: 'h264', source: 'default'});
 });

@@ -22,11 +22,12 @@ export const lambdaCommand = async (
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
-		Log.error(err);
-		Log.error('Remotion Lambda is not installed.');
-		Log.info('');
-		Log.info('You can install it using:');
+		Log.error({indent: false, logLevel}, err);
+		Log.error({indent: false, logLevel}, 'Remotion Lambda is not installed.');
+		Log.info({indent: false, logLevel}, '');
+		Log.info({indent: false, logLevel}, 'You can install it using:');
 		Log.info(
+			{indent: false, logLevel},
 			`${installCommand} @remotion/lambda@${StudioServerInternals.getRemotionVersion()}`,
 		);
 		process.exit(1);

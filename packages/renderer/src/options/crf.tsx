@@ -1,8 +1,19 @@
+import type {Crf} from '../crf';
 import type {AnyRemotionOption} from './option';
+
+let currentCrf: Crf;
+
+export const validateCrf = (newCrf: Crf) => {
+	if (typeof newCrf !== 'number' && newCrf !== undefined) {
+		throw new TypeError('The CRF must be a number or undefined.');
+	}
+};
+
+const cliFlag = 'crf' as const;
 
 export const crfOption = {
 	name: 'CRF',
-	cliFlag: 'crf' as const,
+	cliFlag,
 	description: () => (
 		<>
 			No matter which codec you end up using, there&apos;s always a tradeoff
@@ -16,4 +27,29 @@ export const crfOption = {
 	docLink:
 		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
 	type: 0 as number,
-} satisfies AnyRemotionOption;
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			validateCrf(commandLine[cliFlag] as number);
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as Crf,
+			};
+		}
+
+		if (currentCrf !== null) {
+			return {
+				source: 'config',
+				value: currentCrf,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: undefined,
+		};
+	},
+	setConfig: (crf) => {
+		validateCrf(crf);
+		currentCrf = crf;
+	},
+} satisfies AnyRemotionOption<Crf>;

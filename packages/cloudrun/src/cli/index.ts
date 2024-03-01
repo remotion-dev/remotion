@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
@@ -19,7 +18,7 @@ const matchCommand = (
 	logLevel: LogLevel,
 ) => {
 	if (parsedCloudrunCli.help || args.length === 0 || args[0] === 'help') {
-		printHelp();
+		printHelp(logLevel);
 		quit(0);
 	}
 
@@ -32,7 +31,7 @@ const matchCommand = (
 	}
 
 	if (args[0] === SERVICES_COMMAND) {
-		return servicesCommand(args.slice(1));
+		return servicesCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === SITES_COMMAND) {
@@ -40,20 +39,20 @@ const matchCommand = (
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
-		return regionsCommand();
+		return regionsCommand(logLevel);
 	}
 
 	if (args[0] === PERMISSIONS_COMMAND) {
-		return permissionsCommand();
+		return permissionsCommand(logLevel);
 	}
 
 	if (args[0] === 'deploy') {
-		Log.info(`The "deploy" command does not exist.`);
-		Log.info(`Did you mean "service deploy"?`);
+		Log.info({indent: false, logLevel}, `The "deploy" command does not exist.`);
+		Log.info({indent: false, logLevel}, `Did you mean "service deploy"?`);
 	}
 
-	Log.error(`Command ${args[0]} not found.`);
-	printHelp();
+	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
+	printHelp(logLevel);
 	quit(1);
 };
 
@@ -67,10 +66,7 @@ export const executeCommand = async (
 	} catch (err) {
 		const error = err as Error;
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.printError(
-				error,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(error, logLevel);
 		} else {
 			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
 
@@ -81,10 +77,7 @@ export const executeCommand = async (
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.printError(
-				errorWithStackFrame,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
 
 		quit(1);

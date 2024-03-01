@@ -7,7 +7,7 @@ crumb: "API"
 
 _Available from Remotion 3.0.11_
 
-This component imports and displays a video, similar to [`<Video/>`](/docs/video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFMPEG.
+This component imports and displays a video, similar to [`<Video/>`](/docs/video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
 
 This component was designed to combat limitations of the default `<Video>` element. See: [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo).
 
@@ -195,9 +195,18 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-### `pauseWhenBuffering`<AvailableFrom v="4.1.111"/>
+### `pauseWhenBuffering`<AvailableFrom v="4.0.111"/>
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
+### `toneMapped`<AvailableFrom v="4.0.117" />
+
+Since Remotion 4.0.117, Remotion will adjust the colors of videos in different color spaces (such as HDR) when converting to RGB, to counteract color shifts.  
+Since the browser is painting in sRGB, this is necessary to ensure that the colors are displayed correctly.  
+This behavior is by default `true` and can be disabled by setting `toneMapped` to `false`.  
+Disabling tone mapping will speed up rendering, but may result in less vibrant colors.
+
+Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
 ### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
 
@@ -212,7 +221,8 @@ The props [`onError`](/docs/img#onerror), `className` and `style` are supported 
 
 ## Performance tips
 
-Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.
+Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.  
+If you don't care about color accuracy, you can set `toneMapped` to `false` as well to save time on color conversion.
 
 ## Looping a video
 

@@ -2,18 +2,9 @@ import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
-	getChromiumHeadlessMode,
-	getChromiumMultiProcessOnLinux,
-	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
-	setChromiumMultiProcessOnLinux,
 } from './chromium-flags';
-import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
-import {
-	getEnableFolderExpiry,
-	setEnableFolderExpiry,
-} from './enable-folder-expiry';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {
@@ -23,14 +14,11 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getJpegQuality} from './jpeg-quality';
-import * as Logging from './log';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
 } from './override-webpack';
-import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {
 	getRendererPortFromConfigFile,
@@ -38,12 +26,8 @@ import {
 	getStudioPort,
 } from './preview-server';
 import {getProResProfile} from './prores-profile';
-import {getDeleteAfter, setDeleteAfter} from './render-folder-expiry';
-import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
-import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
-import {getX264Preset} from './x264-preset';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
@@ -51,23 +35,15 @@ import type {
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
+	DeleteAfter,
 	FrameRange,
+	NumberOfGifLoops,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
-import {getBeepOnFinish, setBeepOnFinish} from './beep-on-finish';
-import {
-	getAudioBitrate,
-	getEncodingBufferSize,
-	getEncodingMaxRate,
-	getVideoBitrate,
-	setAudioBitrate,
-	setEncodingBufferSize,
-	setEncodingMaxRate,
-	setVideoBitrate,
-} from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -75,19 +51,10 @@ import {
 } from './buffer-state-delay-in-milliseconds';
 import {
 	setChromiumDisableWebSecurity,
-	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {setCodec} from './codec';
-import {getColorSpace, setColorSpace} from './color-space';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
-import {getCrfOrUndefined, setCrf} from './crf';
-import {
-	getEnforceAudioTrack,
-	setEnforceAudioTrack,
-} from './enforce-audio-track';
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
@@ -98,32 +65,19 @@ import {
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
-import {setJpegQuality} from './jpeg-quality';
 import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
-import {setLogLevel} from './log';
-import {getMuted, setMuted} from './muted';
-import type {Loop} from './number-of-gif-loops';
-import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
-import {
-	getOffthreadVideoCacheSizeInBytes,
-	setOffthreadVideoCacheSizeInBytes,
-} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
-import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
-import {getRepro, setRepro} from './repro';
-import {setScale} from './scale';
-import {setPuppeteerTimeout} from './timeout';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
@@ -131,9 +85,37 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
-import {setX264Preset} from './x264-preset';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	x264Option,
+	audioBitrateOption,
+	videoBitrateOption,
+	scaleOption,
+	crfOption,
+	jpegQualityOption,
+	enforceAudioOption,
+	overwriteOption,
+	mutedOption,
+	videoCodecOption,
+	colorSpaceOption,
+	deleteAfterOption,
+	folderExpiryOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	headlessOption,
+	numberOfGifLoopsOption,
+	beepOnFinishOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	reproOption,
+	enableLambdaInsights,
+	logLevelOption,
+	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
+} = BrowserSafeApis.options;
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -324,7 +306,7 @@ declare global {
 		 * Specify the number of Loop a GIF should have.
 		 * Default: null (means GIF will loop infinite)
 		 */
-		readonly setNumberOfGifLoops: (newLoop: Loop) => void;
+		readonly setNumberOfGifLoops: (newLoop: NumberOfGifLoops) => void;
 		/**
 		 * Disable audio output.
 		 * Default: false
@@ -346,7 +328,7 @@ declare global {
 		 */
 		readonly setOverwriteOutput: (newOverwrite: boolean) => void;
 		/**
-		 * Sets the pixel format in FFMPEG.
+		 * Sets the pixel format in FFmpeg.
 		 * See https://trac.ffmpeg.org/wiki/Chroma%20Subsampling for an explanation.
 		 * You can override this using the `--pixel-format` Cli flag.
 		 */
@@ -367,7 +349,7 @@ declare global {
 		 */
 		readonly setCodec: (newCodec: CodecOrUndefined) => void;
 		/**
-		 * Set the Constant Rate Factor to pass to FFMPEG.
+		 * Set the Constant Rate Factor to pass to FFmpeg.
 		 * Lower values mean better quality, but be aware that the ranges of
 		 * possible values greatly differs between codecs.
 		 */
@@ -413,10 +395,10 @@ declare global {
 				| 'slower'
 				| 'veryslow'
 				| 'placebo'
-				| undefined,
+				| null,
 		) => void;
 		/**
-		 * Override the arguments that Remotion passes to FFMPEG.
+		 * Override the arguments that Remotion passes to FFmpeg.
 		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
 		 */
 		readonly overrideFfmpegCommand: (
@@ -427,12 +409,12 @@ declare global {
 		) => void;
 
 		/**
-		 * Set a target audio bitrate to be passed to FFMPEG.
+		 * Set a target audio bitrate to be passed to FFmpeg.
 		 */
 		readonly setAudioBitrate: (bitrate: string | null) => void;
 
 		/**
-		 * Set a target video bitrate to be passed to FFMPEG.
+		 * Set a target video bitrate to be passed to FFmpeg.
 		 * Mutually exclusive with setCrf().
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
@@ -471,6 +453,11 @@ declare global {
 		 * Collect information that you can submit to Remotion if asked for a reproduction.
 		 */
 		readonly setRepro: (enableRepro: boolean) => void;
+		/**
+		 * The directory where the platform-specific binaries and libraries needed
+			for Remotion are located.
+		 */
+		readonly setBinariesDirectory: (directory: string | null) => void;
 	}
 }
 
@@ -483,13 +470,15 @@ type FlatConfig = RemotionConfigObject &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 
-		setDeleteAfter: (
-			day: '1-day' | '3-days' | '7-days' | '30-days' | null,
-		) => void;
+		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
+		/**
+		 * Set whether Lambda Insights should be enabled when deploying a function.
+		 */
+		setLambdaInsights: (value: boolean) => void;
 		/**
 		 * Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state.
 		 */
@@ -564,18 +553,19 @@ export const Config: FlatConfig = {
 	setRendererPort,
 	setPublicDir,
 	setEntryPoint,
-	setLevel: setLogLevel,
+	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable,
-	setTimeoutInMilliseconds: setPuppeteerTimeout,
-	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
+	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
+	setDelayRenderTimeoutInMilliseconds:
+		delayRenderTimeoutInMillisecondsOption.setConfig,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumHeadlessMode,
-	setChromiumOpenGlRenderer,
+	setChromiumHeadlessMode: headlessOption.setConfig,
+	setChromiumOpenGlRenderer: glOption.setConfig,
 	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
-	setChromiumMultiProcessOnLinux,
+	setChromiumMultiProcessOnLinux: enableMultiprocessOnLinuxOption.setConfig,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -586,60 +576,56 @@ export const Config: FlatConfig = {
 			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")',
 		);
 	},
-	setJpegQuality,
+	setJpegQuality: jpegQualityOption.setConfig,
 	setStillImageFormat,
 	setVideoImageFormat,
-	setEncodingMaxRate,
-	setEncodingBufferSize,
+	setEncodingMaxRate: encodingMaxRateOption.setConfig,
+	setEncodingBufferSize: encodingBufferSizeOption.setConfig,
 	setFrameRange,
-	setScale,
+	setScale: scaleOption.setConfig,
 	setEveryNthFrame,
-	setNumberOfGifLoops,
-	setMuted,
-	setEnforceAudioTrack,
+	setNumberOfGifLoops: numberOfGifLoopsOption.setConfig,
+	setMuted: mutedOption.setConfig,
+	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
-	setOverwriteOutput,
+	setOverwriteOutput: overwriteOption.setConfig,
 	setPixelFormat,
-	setCodec,
-	setCrf,
+	setCodec: videoCodecOption.setConfig,
+	setCrf: crfOption.setConfig,
 	setImageSequence,
 	setProResProfile,
-	setX264Preset,
-	setAudioBitrate,
-	setVideoBitrate,
+	setX264Preset: x264Option.setConfig,
+	setAudioBitrate: audioBitrateOption.setConfig,
+	setVideoBitrate: videoBitrateOption.setConfig,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
-	setOffthreadVideoCacheSizeInBytes,
-	setDeleteAfter,
-	setColorSpace,
-	setBeepOnFinish,
-	setEnableFolderExpiry,
-	setRepro,
+	setOffthreadVideoCacheSizeInBytes: (size) => {
+		offthreadVideoCacheSizeInBytesOption.setConfig(size);
+	},
+	setDeleteAfter: deleteAfterOption.setConfig,
+	setColorSpace: colorSpaceOption.setConfig,
+	setBeepOnFinish: beepOnFinishOption.setConfig,
+	setEnableFolderExpiry: folderExpiryOption.setConfig,
+	setRepro: reproOption.setConfig,
+	setLambdaInsights: enableLambdaInsights.setConfig,
+	setBinariesDirectory: binariesDirectoryOption.setConfig,
 };
 
 export const ConfigInternals = {
 	getRange,
-	getOutputCodecOrUndefined,
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
-	getPresetProfile: getX264Preset,
-	getShouldOverwrite,
 	getBrowserExecutable,
-	getScale,
 	getStudioPort,
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
-	getChromiumHeadlessMode,
-	getChromiumOpenGlRenderer,
 	getEveryNthFrame,
 	getConcurrency,
-	getCurrentPuppeteerTimeout,
-	getJpegQuality,
 	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
@@ -649,36 +635,19 @@ export const ConfigInternals = {
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
-	getBeepOnFinish,
-	getRepro,
-	Logging,
 	setFrameRangeFromCli,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
-	setMuted,
-	getMuted,
-	getEnforceAudioTrack,
-	setEnforceAudioTrack,
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,
-	getAudioBitrate,
-	getVideoBitrate,
-	getEncodingBufferSize,
-	getEncodingMaxRate,
 	getHeight,
 	getWidth,
-	getCrfOrUndefined,
 	getEntryPoint,
-	getNumberOfGifLoops,
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getOffthreadVideoCacheSizeInBytes,
-	getDeleteAfter,
-	getColorSpace,
-	getEnableFolderExpiry,
-	getChromiumMultiProcessOnLinux,
 	getBufferStateDelayInMilliseconds,
+	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };

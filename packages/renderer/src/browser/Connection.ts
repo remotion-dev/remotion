@@ -246,7 +246,7 @@ export class CDPSession extends EventEmitter {
 			(resolve, reject) => {
 				if (this.#callbacks.size > 100) {
 					for (const callback of this.#callbacks.values()) {
-						Log.info(callback.fn);
+						Log.info({indent: false, logLevel: 'info'}, callback.fn);
 					}
 
 					throw new Error('Leak detected: Too many callbacks');

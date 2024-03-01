@@ -48,7 +48,7 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
+import {INDENT_TOKEN, Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
@@ -103,8 +103,11 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
+export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
+export {NumberOfGifLoops} from './options/number-of-gif-loops';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
+export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
@@ -129,7 +132,6 @@ export {
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
-export {X264Preset} from './x264-preset';
 
 import {makeDownloadMap} from './assets/download-map';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -203,8 +205,6 @@ export const RenderInternals = {
 	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
-	getLogLevel,
-	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
 	HeadlessBrowser,

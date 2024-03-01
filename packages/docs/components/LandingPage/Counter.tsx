@@ -28,9 +28,9 @@ const container: React.CSSProperties = {
   alignItems: "center",
   border: "1px solid #EAEAEA",
   borderRadius: 4,
-  width: 110,
   height: 42,
   overflow: "hidden",
+  flexShrink: 0,
 };
 
 const buttonContainer: React.CSSProperties = {
@@ -62,7 +62,7 @@ export const Counter: React.FC<{
     [setCount],
   );
   return (
-    <div style={container}>
+    <div style={container} className={styles.countercontainer}>
       <input
         className={styles.counterinput}
         type="number"

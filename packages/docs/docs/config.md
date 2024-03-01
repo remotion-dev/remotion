@@ -25,26 +25,6 @@ Config.setPixelFormat("yuv444p");
 Config.setCodec("h265");
 ```
 
-## Old config file format
-
-In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
-
-Previously, each config option was two levels deep:
-
-```ts title="remotion.config.ts"
-Config.Bundling.setCachingEnabled(false);
-```
-
-From v3.3.39 on, all options can be accessed directly from the `Config` object.
-
-```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.setCachingEnabled(false);
-```
-
-The old way is deprecated, but will work for the foreseeable future.
-
 ## overrideWebpackConfig()<AvailableFrom v="1.1.0" />
 
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
@@ -254,7 +234,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+<Options id="disable-headless"  />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -661,11 +641,7 @@ The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence ove
 
 ## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -701,11 +677,7 @@ The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take prec
 
 ## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -717,8 +689,6 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
-For Lambda:
-
 <Options id="enable-folder-expiry" />
 <br/>
 <br/>
@@ -729,9 +699,19 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
+## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
-For Lambda:
+<Options id="enable-lambda-insights" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setLambdaInsights(true);
+```
+
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
 <br/>
@@ -757,7 +737,7 @@ Config.setBeepOnFinish(true);
 
 The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
 
-## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.1.111" />
+## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
 
@@ -765,6 +745,16 @@ Set the amount of milliseconds after which the Player in the Studio will display
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setBufferStateDelayInMilliseconds(0);
+```
+
+## `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBinariesDirectory("/path/to/custom/directory");
 ```
 
 ## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
@@ -866,6 +856,45 @@ Config.setPort(3003);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
+
+## Importing ES Modules
+
+The [config file](/docs/config) gets executed in a CommonJS environment. If you want to import ES modules to override the Webpack config, you can pass an async function to `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: src/enable-sass.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableSass: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig(async (currentConfiguration) => {
+  const { enableSass } = await import("./src/enable-sass");
+  return enableSass(currentConfiguration);
+});
+```
+
+## Old config file format
+
+In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
+
+Previously, each config option was two levels deep:
+
+```ts title="remotion.config.ts"
+Config.Bundling.setCachingEnabled(false);
+```
+
+From v3.3.39 on, all options can be accessed directly from the `Config` object.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setCachingEnabled(false);
+```
+
+The old way is deprecated, but will work for the foreseeable future.
 
 ## See also
 

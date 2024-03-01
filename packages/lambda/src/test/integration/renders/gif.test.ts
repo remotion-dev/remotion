@@ -84,6 +84,7 @@ test('Should make a distributed GIF', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
+			logLevel: 'info',
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,
@@ -109,6 +110,7 @@ test('Should make a distributed GIF', async () => {
 		args: [out],
 		indent: false,
 		logLevel: 'info',
+		binariesDirectory: null,
 	});
 	unlinkSync(out);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);

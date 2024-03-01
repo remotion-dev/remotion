@@ -491,6 +491,18 @@ module.exports = {
         "animation-utils/interpolate-styles",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/install-whisper-cpp",
+      link: {
+        type: "doc",
+        id: "install-whisper-cpp/index",
+      },
+      items: [
+        "install-whisper-cpp/install-whisper-cpp",
+        "install-whisper-cpp/download-whisper-model",
+      ],
+    },
   ],
   mainSidebar: [
     {

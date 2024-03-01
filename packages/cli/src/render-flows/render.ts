@@ -10,6 +10,7 @@ import type {
 	FfmpegOverrideFn,
 	FrameRange,
 	LogLevel,
+	NumberOfGifLoops,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -17,6 +18,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
 	BundlingState,
@@ -33,11 +35,9 @@ import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
-import type {Loop} from '../config/number-of-gif-loops';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
-import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
@@ -100,6 +100,7 @@ export const renderVideoFlow = async ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
+	binariesDirectory,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -141,14 +142,15 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
+	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
-	numberOfGifLoops: Loop;
+	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	colorSpace: ColorSpace;
 	repro: boolean;
+	binariesDirectory: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -268,6 +270,7 @@ export const renderVideoFlow = async ({
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -290,19 +293,25 @@ export const renderVideoFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
 		});
 
-	const {codec, reason: codecReason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		downloadName: null,
-		outName: getUserPassedOutputLocation(
-			argsAfterComposition,
-			outputLocationFromUI,
-		),
-		uiCodec,
-		compositionCodec: config.defaultCodec,
-	});
+	const {value: codec, source: codecReason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: parsedCli,
+			},
+			{
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				downloadName: null,
+				outName: getUserPassedOutputLocation(
+					argsAfterComposition,
+					outputLocationFromUI,
+				),
+				uiCodec,
+				compositionCodec: config.defaultCodec,
+			},
+		);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -329,7 +338,7 @@ export const renderVideoFlow = async ({
 		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.gray(
 			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`,
@@ -339,6 +348,7 @@ export const renderVideoFlow = async ({
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
 		overwrite,
+		logLevel,
 	);
 	const exists = existsSync(absoluteOutputFile);
 
@@ -421,13 +431,11 @@ export const renderVideoFlow = async ({
 				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
 			parallelEncodingEnabled: isUsingParallelEncoding,
+			binariesDirectory,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
-		Log.infoAdvanced(
-			{indent, logLevel},
-			chalk.blue(`▶ ${absoluteOutputFile}`),
-		);
+		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -453,7 +461,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
+		x264Preset: x264Preset ?? null,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
@@ -509,9 +517,10 @@ export const renderVideoFlow = async ({
 		finishRenderProgress: () => {
 			updateRenderProgress({newline: true, printToConsole: true});
 		},
+		binariesDirectory,
 	});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);

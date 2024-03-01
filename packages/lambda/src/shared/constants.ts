@@ -287,12 +287,14 @@ export type LambdaStatusPayload = {
 	bucketName: string;
 	renderId: string;
 	version: string;
+	logLevel: LogLevel;
 	s3OutputProvider?: CustomCredentials;
 };
 
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
+		logLevel: LogLevel;
 	};
 	start: LambdaStartPayload;
 	launch: {
