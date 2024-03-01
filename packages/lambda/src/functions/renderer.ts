@@ -3,6 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
+import {Log} from '../cli/log';
 import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
@@ -109,12 +110,15 @@ const renderHandler = async (
 		preferLossless: params.preferLossless,
 	});
 
+	const seamless = canConcatSeamlessly(defaultAudioCodec, params.codec);
+	Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Preparing for rendering a ${seamless ? 'seamless' : 'normal'} chunk`,
+		params.logLevel,
+	);
+
 	const chunkCodec: Codec =
-		params.codec === 'gif'
-			? 'h264-mkv'
-			: canConcatSeamlessly(defaultAudioCodec, params.codec)
-				? 'h264-ts'
-				: params.codec;
+		params.codec === 'gif' ? 'h264-mkv' : seamless ? 'h264-ts' : params.codec;
 
 	const videoExtension = RenderInternals.getFileExtensionFromCodec(
 		chunkCodec,
