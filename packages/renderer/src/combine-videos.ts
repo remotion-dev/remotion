@@ -33,6 +33,7 @@ type Options = {
 	chunkDurationInSeconds: number;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	seamless: boolean;
 };
 
 export const combineVideos = async ({
@@ -51,6 +52,7 @@ export const combineVideos = async ({
 	chunkDurationInSeconds,
 	binariesDirectory,
 	cancelSignal,
+	seamless,
 }: Options) => {
 	const resolvedAudioCodec =
 		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
@@ -87,11 +89,9 @@ export const combineVideos = async ({
 		onProgress((actualProgress / totalFrames) * numberOfFrames);
 	};
 
-	// TODO: Better way of determining if the concatenation is seamless
-	const seamless = resolvedAudioCodec === 'aac' && codec === 'h264';
 	Log.verbose(
 		{indent, logLevel},
-		'Combining chunks ' + seamless ? 'seamlessly' : 'normally',
+		`Combining chunks ${seamless ? 'seamlessly' : 'normally'}`,
 	);
 	await Promise.all(
 		[

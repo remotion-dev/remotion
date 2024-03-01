@@ -20,6 +20,7 @@ import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
+import {canConcatSeamlessly} from './helpers/can-concat-seamlessly';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
@@ -102,17 +103,18 @@ const renderHandler = async (
 
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
-	const chunkCodec: Codec =
-		params.codec === 'gif'
-			? 'h264-mkv'
-			: params.codec === 'h264'
-				? 'h264-ts'
-				: params.codec;
 	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
 	const defaultAudioCodec = RenderInternals.getDefaultAudioCodec({
 		codec: params.codec,
 		preferLossless: params.preferLossless,
 	});
+
+	const chunkCodec: Codec =
+		params.codec === 'gif'
+			? 'h264-mkv'
+			: canConcatSeamlessly(defaultAudioCodec, params.codec)
+				? 'h264-ts'
+				: params.codec;
 
 	const videoExtension = RenderInternals.getFileExtensionFromCodec(
 		chunkCodec,
@@ -256,38 +258,38 @@ const renderHandler = async (
 		'Writing chunk to S3',
 	);
 	const writeStart = Date.now();
-	await lambdaWriteFile({
-		bucketName: params.bucketName,
-		key: chunkKeyForIndex({
-			renderId: params.renderId,
-			index: params.chunk,
-			type: 'video',
-		}),
-		body: fs.createReadStream(videoOutputLocation),
-		region: getCurrentRegionInFunction(),
-		privacy: params.privacy,
-		expectedBucketOwner: options.expectedBucketOwner,
-		downloadBehavior: null,
-		customCredentials: null,
-	});
-
-	// TODO: Make it parallel
-	if (audioOutputLocation) {
-		await lambdaWriteFile({
+	await Promise.all([
+		lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: chunkKeyForIndex({
 				renderId: params.renderId,
 				index: params.chunk,
-				type: 'audio',
+				type: 'video',
 			}),
-			body: fs.createReadStream(audioOutputLocation),
+			body: fs.createReadStream(videoOutputLocation),
 			region: getCurrentRegionInFunction(),
 			privacy: params.privacy,
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
 			customCredentials: null,
-		});
-	}
+		}),
+		audioOutputLocation
+			? lambdaWriteFile({
+					bucketName: params.bucketName,
+					key: chunkKeyForIndex({
+						renderId: params.renderId,
+						index: params.chunk,
+						type: 'audio',
+					}),
+					body: fs.createReadStream(audioOutputLocation),
+					region: getCurrentRegionInFunction(),
+					privacy: params.privacy,
+					expectedBucketOwner: options.expectedBucketOwner,
+					downloadBehavior: null,
+					customCredentials: null,
+				})
+			: null,
+	]);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
