@@ -13,6 +13,7 @@ export const screenshotTask = async ({
 	path,
 	jpegQuality,
 	clipRegion,
+	scale,
 }: {
 	page: Page;
 	format: StillImageFormat;
@@ -22,6 +23,7 @@ export const screenshotTask = async ({
 	width: number;
 	height: number;
 	clipRegion: ClipRegion | null;
+	scale: number;
 }): Promise<Buffer | string> => {
 	const client = page._client();
 	const target = page.target();
@@ -39,6 +41,12 @@ export const screenshotTask = async ({
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
 
+	// We find that there is a 0.1% framedrop when rendering under memory pressure
+	// which can be circumvented by disabling this option on Lambda.
+	// To be determined: Is this a problem with Lambda, or the Chrome version
+	// we are using on Lambda?
+	// We already found out that the problem is not a general Linux problem.
+
 	const cap = startPerfMeasure('capture');
 	try {
 		let result;
@@ -55,6 +63,13 @@ export const screenshotTask = async ({
 			});
 			result = res.value;
 		} else {
+			// We find that there is a 0.1% framedrop when rendering under memory pressure
+			// which can be circumvented by disabling this option on Lambda.
+			// To be determined: Is this a problem with Lambda, or the Chrome version
+			// we are using on Lambda?
+			// We already found out that the problem is not a general Linux problem.
+			const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
 				quality: jpegQuality,
@@ -70,18 +85,13 @@ export const screenshotTask = async ({
 						: {
 								x: 0,
 								y: 0,
-								height,
+								height: fromSurface ? height : height * scale,
 								scale: 1,
-								width,
+								width: fromSurface ? width : width * scale,
 							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
-				// We find that there is a 0.1% framedrop when rendering under memory pressure
-				// which can be circumvented by disabling this option on Lambda.
-				// To be determined: Is this a problem with Lambda, or the Chrome version
-				// we are using on Lambda?
-				// We already found out that the problem is not a general Linux problem.
-				fromSurface: !process.env.DISABLE_FROM_SURFACE,
+				fromSurface,
 			});
 			result = value;
 		}

@@ -13,6 +13,7 @@ export const screenshot = (options: {
 	width: number;
 	height: number;
 	clipRegion: ClipRegion | null;
+	scale: number;
 }): Promise<Buffer | string> => {
 	if (options.jpegQuality) {
 		assert.ok(
@@ -41,6 +42,7 @@ export const screenshot = (options: {
 			path: options.path,
 			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			clipRegion: options.clipRegion,
+			scale: options.scale,
 		}),
 	);
 };
