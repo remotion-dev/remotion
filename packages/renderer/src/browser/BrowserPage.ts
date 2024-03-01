@@ -344,22 +344,35 @@ export class Page extends EventEmitter {
 	}
 
 	async setViewport(viewport: Viewport): Promise<void> {
-		const request: SetDeviceMetricsOverrideRequest = {
-			mobile: false,
-			width: viewport.width,
-			height: viewport.height,
-			deviceScaleFactor: 1,
-			screenHeight: viewport.height,
-			screenWidth: viewport.width,
-			scale: viewport.deviceScaleFactor,
-			viewport: {
-				height: viewport.height * 2,
-				width: viewport.width * 2,
-				scale: 1,
-				x: 0,
-				y: 0,
-			},
-		};
+		const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+		const request: SetDeviceMetricsOverrideRequest = fromSurface
+			? {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: viewport.deviceScaleFactor,
+					screenOrientation: {
+						angle: 0,
+						type: 'portraitPrimary',
+					},
+				}
+			: {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: 1,
+					screenHeight: viewport.height,
+					screenWidth: viewport.width,
+					scale: viewport.deviceScaleFactor,
+					viewport: {
+						height: viewport.height * 2,
+						width: viewport.width * 2,
+						scale: 1,
+						x: 0,
+						y: 0,
+					},
+				};
 
 		const {value} = await this.#client.send(
 			'Emulation.setDeviceMetricsOverride',

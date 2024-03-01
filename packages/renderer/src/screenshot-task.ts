@@ -63,23 +63,6 @@ export const screenshotTask = async ({
 			// we are using on Lambda?
 			// We already found out that the problem is not a general Linux problem.
 			const fromSurface = !process.env.DISABLE_FROM_SURFACE;
-			console.log(
-				clipRegion !== null && clipRegion !== 'hide'
-					? {
-							x: clipRegion.x,
-							y: clipRegion.y,
-							height: clipRegion.height,
-							scale: 1,
-							width: clipRegion.width,
-						}
-					: {
-							x: 0,
-							y: 0,
-							height: height * scale,
-							scale: 1,
-							width: width * scale,
-						},
-			);
 
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
@@ -96,9 +79,9 @@ export const screenshotTask = async ({
 						: {
 								x: 0,
 								y: 0,
-								height: height * 2,
+								height: height * scale,
 								scale: 1,
-								width: width * 2,
+								width: width * scale,
 							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
