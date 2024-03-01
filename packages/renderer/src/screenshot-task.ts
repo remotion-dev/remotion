@@ -41,12 +41,6 @@ export const screenshotTask = async ({
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
 
-	// We find that there is a 0.1% framedrop when rendering under memory pressure
-	// which can be circumvented by disabling this option on Lambda.
-	// To be determined: Is this a problem with Lambda, or the Chrome version
-	// we are using on Lambda?
-	// We already found out that the problem is not a general Linux problem.
-
 	const cap = startPerfMeasure('capture');
 	try {
 		let result;
@@ -69,6 +63,23 @@ export const screenshotTask = async ({
 			// we are using on Lambda?
 			// We already found out that the problem is not a general Linux problem.
 			const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+			console.log(
+				clipRegion !== null && clipRegion !== 'hide'
+					? {
+							x: clipRegion.x,
+							y: clipRegion.y,
+							height: clipRegion.height,
+							scale: 1,
+							width: clipRegion.width,
+						}
+					: {
+							x: 0,
+							y: 0,
+							height: height * scale,
+							scale: 1,
+							width: width * scale,
+						},
+			);
 
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
@@ -85,9 +96,9 @@ export const screenshotTask = async ({
 						: {
 								x: 0,
 								y: 0,
-								height: fromSurface ? height : height * scale,
+								height: height * 2,
 								scale: 1,
-								width: fromSurface ? width : width * scale,
+								width: width * 2,
 							},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
