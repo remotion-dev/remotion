@@ -27,7 +27,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"formidable": "^3.5.1",
+		"busboy": "^1.6.0",
 		"memfs": "3.4.3",
 		"open": "^8.4.2",
 		"remotion": "workspace:*",
@@ -36,6 +36,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.276",
+		"@types/busboy": "^1.5.3",
 		"@types/formidable": "^3.4.5",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",

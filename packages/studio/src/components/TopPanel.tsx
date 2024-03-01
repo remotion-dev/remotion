@@ -113,7 +113,7 @@ export const TopPanel: React.FC<{
 				>
 					{actualStateLeft === 'expanded' ? (
 						<SplitterElement sticky={null} type="flexer">
-							<ExplorerPanel />
+							<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 						</SplitterElement>
 					) : null}
 					{actualStateLeft === 'expanded' ? (
