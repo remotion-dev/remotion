@@ -366,8 +366,8 @@ export class Page extends EventEmitter {
 					screenWidth: viewport.width,
 					scale: viewport.deviceScaleFactor,
 					viewport: {
-						height: viewport.height * 2,
-						width: viewport.width * 2,
+						height: viewport.height * viewport.deviceScaleFactor,
+						width: viewport.width * viewport.deviceScaleFactor,
 						scale: 1,
 						x: 0,
 						y: 0,
