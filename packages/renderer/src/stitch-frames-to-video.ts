@@ -68,6 +68,7 @@ type InternalStitchFramesToVideoOptions = {
 	colorSpace: ColorSpace;
 	binariesDirectory: string | null;
 	separateAudioTo: string | null;
+	forSeamlessAacConcatentation: boolean;
 };
 
 export type StitchFramesToVideoOptions = {
@@ -98,6 +99,7 @@ export type StitchFramesToVideoOptions = {
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
 	separateAudioTo?: string | null;
+	forSeamlessAacConcatentation?: boolean;
 };
 
 type ReturnType = Promise<Buffer | null>;
@@ -134,6 +136,7 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
+		forSeamlessAacConcatentation,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -265,6 +268,7 @@ const innerStitchFramesToVideo = async (
 					audioBitrate,
 					audioCodec: resolvedAudioCodec,
 					cancelSignal: cancelSignal ?? undefined,
+					forSeamlessAacConcatentation,
 				})
 			: null;
 
@@ -495,6 +499,7 @@ export const stitchFramesToVideo = ({
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
+	forSeamlessAacConcatentation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -527,5 +532,6 @@ export const stitchFramesToVideo = ({
 		colorSpace: colorSpace ?? 'default',
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
+		forSeamlessAacConcatentation: forSeamlessAacConcatentation ?? false,
 	});
 };

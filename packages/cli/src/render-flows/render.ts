@@ -519,6 +519,7 @@ export const renderVideoFlow = async ({
 		},
 		binariesDirectory,
 		separateAudioTo: null,
+		forSeamlessAacConcatentation: false,
 	});
 
 	Log.info(

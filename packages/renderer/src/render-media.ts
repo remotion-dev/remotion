@@ -125,6 +125,7 @@ export type InternalRenderMediaOptions = {
 	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
 	separateAudioTo: string | null;
+	forSeamlessAacConcatentation: boolean;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -181,6 +182,7 @@ export type RenderMediaOptions = Prettify<{
 	repro?: boolean;
 	binariesDirectory?: string | null;
 	separateAudioTo?: string | null;
+	forSeamlessAacConcatentation?: boolean;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -241,6 +243,7 @@ const internalRenderMediaRaw = ({
 	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
+	forSeamlessAacConcatentation,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -693,6 +696,7 @@ const internalRenderMediaRaw = ({
 						colorSpace,
 						binariesDirectory,
 						separateAudioTo,
+						forSeamlessAacConcatentation,
 					}),
 					stitchStart,
 				]);
@@ -842,6 +846,7 @@ export const renderMedia = ({
 	repro,
 	binariesDirectory,
 	separateAudioTo,
+	forSeamlessAacConcatentation,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -909,5 +914,6 @@ export const renderMedia = ({
 		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
+		forSeamlessAacConcatentation: forSeamlessAacConcatentation ?? false,
 	});
 };

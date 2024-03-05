@@ -11,32 +11,37 @@ export const calculateFfmpegFilter = ({
 	durationInFrames,
 	channels,
 	assetDuration,
+	forSeamlessAacConcatentation,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	durationInFrames: number;
 	channels: number;
 	assetDuration: number | null;
+	forSeamlessAacConcatentation: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
 	}
 
-	const assetTrimLeft = Math.max(
-		0,
-		getClosestAlignedTime(
-			((asset.trimLeft * asset.playbackRate) / fps) * 1_000_000,
-		) /
-			1_000_000 -
-			2 * (1024 / DEFAULT_SAMPLE_RATE),
-	);
-	const assetTrimRight =
-		getClosestAlignedTime(
-			((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
-				1_000_000,
-		) /
-			1_000_000 +
-		2 * (1024 / DEFAULT_SAMPLE_RATE);
+	const assetTrimLeft = forSeamlessAacConcatentation
+		? Math.max(
+				0,
+				getClosestAlignedTime(
+					((asset.trimLeft * asset.playbackRate) / fps) * 1_000_000,
+				) /
+					1_000_000 -
+					2 * (1024 / DEFAULT_SAMPLE_RATE),
+			)
+		: (asset.trimLeft * asset.playbackRate) / fps;
+	const assetTrimRight = forSeamlessAacConcatentation
+		? getClosestAlignedTime(
+				((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
+					1_000_000,
+			) /
+				1_000_000 +
+			2 * (1024 / DEFAULT_SAMPLE_RATE)
+		: assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
 
 	return stringifyFfmpegFilter({
 		channels,

@@ -31,6 +31,7 @@ export const createAudio = async ({
 	audioBitrate,
 	audioCodec,
 	cancelSignal,
+	forSeamlessAacConcatentation,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -45,6 +46,7 @@ export const createAudio = async ({
 	audioBitrate: string | null;
 	audioCodec: AudioCodec;
 	cancelSignal: CancelSignal | undefined;
+	forSeamlessAacConcatentation: boolean;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -84,6 +86,7 @@ export const createAudio = async ({
 				logLevel,
 				binariesDirectory,
 				cancelSignal,
+				forSeamlessAacConcatentation,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();

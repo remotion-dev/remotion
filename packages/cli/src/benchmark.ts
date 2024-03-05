@@ -461,6 +461,7 @@ export const benchmarkCommand = async (
 					}).value,
 					finishRenderProgress: () => undefined,
 					separateAudioTo: null,
+					forSeamlessAacConcatentation: false,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -239,6 +239,7 @@ const renderHandler = async (
 			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
+			forSeamlessAacConcatentation: seamless,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
