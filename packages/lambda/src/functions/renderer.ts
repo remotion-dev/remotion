@@ -3,7 +3,6 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {Log} from '../cli/log';
 import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
@@ -111,7 +110,7 @@ const renderHandler = async (
 	});
 
 	const seamless = canConcatSeamlessly(defaultAudioCodec, params.codec);
-	Log.verbose(
+	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
 		`Preparing for rendering a ${seamless ? 'seamless' : 'normal'} chunk`,
 		params.logLevel,
@@ -331,6 +330,8 @@ const renderHandler = async (
 		{indent: false, logLevel: params.logLevel},
 		'Done!',
 	);
+	console.log('tmpdir state', getTmpDirStateIfENoSp('ENOSPC'));
+
 	return {};
 };
 
