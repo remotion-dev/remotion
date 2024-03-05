@@ -212,12 +212,12 @@ const handleAddAsset = ({
 
 		const folder = query.get('folder');
 		if (typeof folder !== 'string') {
-			throw new Error('No path provided');
+			throw new Error('No `folder` provided');
 		}
 
 		const file = query.get('file');
 		if (typeof file !== 'string') {
-			throw new Error('No path provided');
+			throw new Error('No `file` provided');
 		}
 
 		const absolutePath = path.join(publicDir, folder, file);
