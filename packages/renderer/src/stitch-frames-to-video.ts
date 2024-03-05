@@ -499,6 +499,7 @@ export const stitchFramesToVideo = ({
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
+	// TODO: Document
 	forSeamlessAacConcatentation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({

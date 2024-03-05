@@ -243,6 +243,7 @@ const internalRenderMediaRaw = ({
 	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
+	// TODO: Document
 	forSeamlessAacConcatentation,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
