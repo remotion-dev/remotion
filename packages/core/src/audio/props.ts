@@ -21,4 +21,5 @@ export type RemotionAudioProps = Omit<
 	_remotionInternalNativeLoopPassed?: boolean;
 	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
+	showInTimeline?: boolean;
 };
