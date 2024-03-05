@@ -9,6 +9,7 @@ import type {Assets} from './assets/types';
 import type {AudioCodec} from './audio-codec';
 import {compressAudio} from './compress-audio';
 import {deleteDirectory} from './delete-directory';
+import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
@@ -92,7 +93,11 @@ export const createAudio = async ({
 
 	const preprocessed = audioTracks.filter(truthy);
 	const merged = path.join(downloadMap.audioPreprocessing, 'merged.wav');
-	const outName = path.join(downloadMap.audioPreprocessing, 'audio.wav');
+	const extension = getExtensionFromAudioCodec(audioCodec);
+	const outName = path.join(
+		downloadMap.audioPreprocessing,
+		`audio.${extension}`,
+	);
 
 	await mergeAudioTrack({
 		files: preprocessed,

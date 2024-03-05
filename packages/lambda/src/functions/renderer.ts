@@ -1,4 +1,4 @@
-import type {BrowserLog, Codec} from '@remotion/renderer';
+import type {AudioCodec, BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -118,13 +118,14 @@ const renderHandler = async (
 
 	const chunkCodec: Codec =
 		params.codec === 'gif' ? 'h264-mkv' : seamless ? 'h264-ts' : params.codec;
+	const audioCodec: AudioCodec | null = seamless ? defaultAudioCodec : 'pcm-16';
 
 	const videoExtension = RenderInternals.getFileExtensionFromCodec(
 		chunkCodec,
-		defaultAudioCodec,
+		audioCodec,
 	);
-	const audioExtension = defaultAudioCodec
-		? RenderInternals.getExtensionFromAudioCodec(defaultAudioCodec)
+	const audioExtension = audioCodec
+		? RenderInternals.getExtensionFromAudioCodec(audioCodec)
 		: null;
 
 	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
@@ -223,7 +224,7 @@ const renderHandler = async (
 			videoBitrate: params.videoBitrate,
 			encodingBufferSize: params.encodingBufferSize,
 			encodingMaxRate: params.encodingMaxRate,
-			audioCodec: null,
+			audioCodec,
 			preferLossless: params.preferLossless,
 			browserExecutable: executablePath(),
 			cancelSignal: undefined,
