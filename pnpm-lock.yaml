@@ -1949,9 +1949,6 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
-      busboy:
-        specifier: ^1.6.0
-        version: 1.6.0
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -1971,9 +1968,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
-      '@types/busboy':
-        specifier: ^1.5.3
-        version: 1.5.3
       '@types/formidable':
         specifier: ^3.4.5
         version: 3.4.5
@@ -9877,12 +9871,6 @@ packages:
     resolution: {integrity: sha512-sHp0vCkml/FTnJ2aY9wjMxbpsuB5WGg5hAtxfTjIHE5B8mXXWrnTChVl8HxCuvjG0ORP6vQ7XHYHBf1kPehEjw==}
     dependencies:
       bun-types: 1.0.24
-    dev: true
-
-  /@types/busboy@1.5.3:
-    resolution: {integrity: sha512-YMBLFN/xBD8bnqywIlGyYqsNFXu6bsiY7h3Ae0kO17qEuTjsqeyYMRPSUDacIKIquws2Y6KjmxAyNx8xB3xQbw==}
-    dependencies:
-      '@types/node': 18.14.6
     dev: true
 
   /@types/cacheable-request@6.0.2:
