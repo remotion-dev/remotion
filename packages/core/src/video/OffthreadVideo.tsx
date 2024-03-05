@@ -14,8 +14,15 @@ import {VideoForPreview} from './VideoForPreview.js';
 export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
-	const {startFrom, endAt, name, pauseWhenBuffering, stack, ...otherProps} =
-		props;
+	const {
+		startFrom,
+		endAt,
+		name,
+		pauseWhenBuffering,
+		stack,
+		showInTimeline,
+		...otherProps
+	} = props;
 	const environment = getRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
@@ -70,6 +77,7 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
+			showInTimeline={showInTimeline ?? true}
 			{...withoutTransparent}
 		/>
 	);

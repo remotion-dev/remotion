@@ -216,6 +216,10 @@ Handle an error playing the video. From v3.3.89, if you pass an `onError` callba
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
+### `showInTimeline`<AvailableFrom v="4.0.122"/>
+
+If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
+
 ## Speed up renders for video with silent audio
 
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
