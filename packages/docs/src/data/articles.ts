@@ -177,7 +177,7 @@ export const articles = [
   {
     id: "cli",
     title: "Command line reference",
-    relativePath: "docs/cli/cli.md",
+    relativePath: "docs/cli/cli.mdx",
     compId: "articles-docs-cli-cli",
     crumb: null,
   },
@@ -1789,7 +1789,7 @@ export const articles = [
   {
     id: "offthreadvideo",
     title: "<OffthreadVideo>",
-    relativePath: "docs/offthreadvideo.md",
+    relativePath: "docs/offthreadvideo.mdx",
     compId: "articles-docs-offthreadvideo",
     crumb: "API",
   },
@@ -1810,7 +1810,7 @@ export const articles = [
   {
     id: "webpack",
     title: "Custom Webpack config",
-    relativePath: "docs/overwriting-webpack-config.md",
+    relativePath: "docs/overwriting-webpack-config.mdx",
     compId: "articles-docs-overwriting-webpack-config",
     crumb: "How To",
   },
@@ -2888,7 +2888,7 @@ export const articles = [
   {
     id: "transparent-videos",
     title: "Transparent videos",
-    relativePath: "docs/transparent-videos.md",
+    relativePath: "docs/transparent-videos.mdx",
     compId: "articles-docs-transparent-videos",
     crumb: "Techniques",
   },
