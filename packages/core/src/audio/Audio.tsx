@@ -28,8 +28,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
-	const {startFrom, endAt, name, stack, pauseWhenBuffering, ...otherProps} =
-		props;
+	const {
+		startFrom,
+		endAt,
+		name,
+		stack,
+		pauseWhenBuffering,
+		showInTimeline,
+		...otherProps
+	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = getRemotionEnvironment();
@@ -150,6 +157,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };

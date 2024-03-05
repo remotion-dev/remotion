@@ -32,6 +32,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		pauseWhenBuffering,
 		stack,
 		_remotionInternalNativeLoopPassed,
+		showInTimeline,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -130,6 +131,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
+			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };

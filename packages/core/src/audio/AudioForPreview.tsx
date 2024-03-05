@@ -33,6 +33,7 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	pauseWhenBuffering: boolean;
 	_remotionInternalNativeLoopPassed: boolean;
 	_remotionInternalStack: string | null;
+	showInTimeline: boolean;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -67,6 +68,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		name,
 		pauseWhenBuffering,
+		showInTimeline,
 		...nativeProps
 	} = props;
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
@@ -138,7 +140,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: props._remotionInternalStack,
+		stack: _remotionInternalStack,
+		showInTimeline,
 	});
 
 	useMediaPlayback({

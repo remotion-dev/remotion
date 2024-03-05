@@ -33,6 +33,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	pauseWhenBuffering: boolean;
 	_remotionInternalNativeLoopPassed: boolean;
 	_remotionInternalStack: string | null;
+	showInTimeline: boolean;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -65,6 +66,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalStack,
 		style,
 		pauseWhenBuffering,
+		showInTimeline,
 		...nativeProps
 	} = props;
 	if (typeof acceptableTimeShift !== 'undefined') {
@@ -87,7 +89,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: props._remotionInternalStack,
+		stack: _remotionInternalStack,
+		showInTimeline,
 	});
 
 	useSyncVolumeWithMediaTag({

@@ -34,6 +34,7 @@ export const useMediaInTimeline = ({
 	displayName,
 	id,
 	stack,
+	showInTimeline,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -44,6 +45,7 @@ export const useMediaInTimeline = ({
 	displayName: string | null;
 	id: string;
 	stack: string | null;
+	showInTimeline: boolean;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -102,6 +104,10 @@ export const useMediaInTimeline = ({
 			return;
 		}
 
+		if (!showInTimeline) {
+			return;
+		}
+
 		registerSequence({
 			type: mediaType,
 			src,
@@ -142,6 +148,7 @@ export const useMediaInTimeline = ({
 		playbackRate,
 		displayName,
 		stack,
+		showInTimeline,
 	]);
 
 	useEffect(() => {
