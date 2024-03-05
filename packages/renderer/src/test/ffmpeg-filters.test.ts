@@ -29,7 +29,7 @@ test('Should create a basic filter correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -46,7 +46,7 @@ test('Trim the end', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -67,7 +67,7 @@ test('Should handle trim correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 10,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -88,7 +88,7 @@ test('Should add padding if audio is too short', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 1,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -111,7 +111,7 @@ test('Should handle delay correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 1,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -133,7 +133,7 @@ test('Should offset multiple channels', () => {
 			durationInFrames: 100,
 			channels: 3,
 			assetDuration: 1,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:
@@ -165,7 +165,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			durationInFrames: 2000,
 			channels: 1,
 			assetDuration: 33.333333,
-			forSeamlessAacConcatentation: true,
+			forSeamlessAacConcatenation: true,
 		}),
 	).toEqual({
 		filter:

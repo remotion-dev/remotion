@@ -22,7 +22,7 @@ type Options = {
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	forSeamlessAacConcatentation: boolean;
+	forSeamlessAacConcatenation: boolean;
 };
 
 export type PreprocessedAudioTrack = {
@@ -40,7 +40,7 @@ const preprocessAudioTrackUnlimited = async ({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
-	forSeamlessAacConcatentation,
+	forSeamlessAacConcatenation,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -57,7 +57,7 @@ const preprocessAudioTrackUnlimited = async ({
 		fps,
 		channels,
 		assetDuration: duration,
-		forSeamlessAacConcatentation,
+		forSeamlessAacConcatenation,
 	});
 
 	if (filter === null) {

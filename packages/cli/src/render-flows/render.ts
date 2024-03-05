@@ -101,6 +101,7 @@ export const renderVideoFlow = async ({
 	colorSpace,
 	repro,
 	binariesDirectory,
+	forSeamlessAacConcatenation,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -151,6 +152,7 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace;
 	repro: boolean;
 	binariesDirectory: string | null;
+	forSeamlessAacConcatenation: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -519,7 +521,7 @@ export const renderVideoFlow = async ({
 		},
 		binariesDirectory,
 		separateAudioTo: null,
-		forSeamlessAacConcatentation: false,
+		forSeamlessAacConcatenation,
 	});
 
 	Log.info(

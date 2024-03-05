@@ -24,6 +24,7 @@ const {
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	forSeamlessAacConcatenationOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -90,6 +91,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const forSeamlessAacConcatenation =
+		forSeamlessAacConcatenationOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const audioCodec = ConfigInternals.getAudioCodec();
@@ -137,5 +142,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		repro,
 		numberOfGifLoops,
 		beepOnFinish,
+		forSeamlessAacConcatenation,
 	};
 };

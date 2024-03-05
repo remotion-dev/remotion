@@ -111,7 +111,7 @@ export const BooleanFlags = [
 	'quiet',
 	'q',
 	'muted',
-	'enforce-audio-track',
+	enforceAudioOption.cliFlag,
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',

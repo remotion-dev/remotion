@@ -122,7 +122,7 @@ export const renderMediaSingleThread = async (
 			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: null,
-			forSeamlessAacConcatentation: false,
+			forSeamlessAacConcatenation: false,
 		});
 
 		const storage = new Storage();

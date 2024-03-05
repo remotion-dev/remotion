@@ -116,6 +116,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	preferLosslessOption,
+	forSeamlessAacConcatenationOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -318,6 +319,14 @@ declare global {
 		 * Default: true
 		 */
 		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
+
+		/**
+		 * Prepare a video for later seamless audio concatenation.
+		 * Default: false
+		 */
+		readonly setForSeamlessAacConcatenation: (
+			forSeamlessAacConcatenation: boolean,
+		) => void;
 
 		/**
 		 * Set the output file location string. Default: `out/{composition}.{codec}`
@@ -602,6 +611,7 @@ export const Config: FlatConfig = {
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
+	setForSeamlessAacConcatenation: forSeamlessAacConcatenationOption.setConfig,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,

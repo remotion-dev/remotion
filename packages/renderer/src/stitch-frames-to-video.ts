@@ -24,6 +24,8 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ColorSpace} from './options/color-space';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -68,8 +70,7 @@ type InternalStitchFramesToVideoOptions = {
 	colorSpace: ColorSpace;
 	binariesDirectory: string | null;
 	separateAudioTo: string | null;
-	forSeamlessAacConcatentation: boolean;
-};
+} & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
@@ -99,8 +100,7 @@ export type StitchFramesToVideoOptions = {
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
 	separateAudioTo?: string | null;
-	forSeamlessAacConcatentation?: boolean;
-};
+} & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
 
@@ -136,7 +136,7 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
-		forSeamlessAacConcatentation,
+		forSeamlessAacConcatenation,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -268,7 +268,7 @@ const innerStitchFramesToVideo = async (
 					audioBitrate,
 					audioCodec: resolvedAudioCodec,
 					cancelSignal: cancelSignal ?? undefined,
-					forSeamlessAacConcatentation,
+					forSeamlessAacConcatenation,
 				})
 			: null;
 
@@ -499,8 +499,7 @@ export const stitchFramesToVideo = ({
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
-	// TODO: Document
-	forSeamlessAacConcatentation,
+	forSeamlessAacConcatenation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -533,6 +532,6 @@ export const stitchFramesToVideo = ({
 		colorSpace: colorSpace ?? 'default',
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
-		forSeamlessAacConcatentation: forSeamlessAacConcatentation ?? false,
+		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 	});
 };

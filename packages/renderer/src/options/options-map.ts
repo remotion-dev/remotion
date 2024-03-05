@@ -6,6 +6,7 @@ import {deleteAfterOption} from './delete-after';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
+import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
@@ -36,6 +37,10 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
+	},
+	stitchFramesToVideo: {
+		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,

@@ -33,6 +33,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -150,6 +151,11 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 
+	const forSeamlessAacConcatenation =
+		forSeamlessAacConcatenationOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -219,5 +225,6 @@ export const render = async (
 		colorSpace,
 		repro,
 		binariesDirectory,
+		forSeamlessAacConcatenation,
 	});
 };

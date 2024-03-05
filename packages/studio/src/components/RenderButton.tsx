@@ -108,6 +108,7 @@ export const RenderButton: React.FC = () => {
 			initialUserAgent: defaults.userAgent,
 			initialBeep: defaults.beepOnFinish,
 			initialRepro: defaults.repro,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

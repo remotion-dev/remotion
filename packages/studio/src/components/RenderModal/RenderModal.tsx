@@ -236,6 +236,7 @@ type RenderModalProps = {
 	initialMultiProcessOnLinux: boolean;
 	defaultConfigurationVideoCodec: Codec | null;
 	defaultConfigurationAudioCodec: AudioCodec | null;
+	initialForSeamlessAacConcatenation: boolean;
 };
 
 const RenderModal: React.FC<
@@ -286,6 +287,7 @@ const RenderModal: React.FC<
 	defaultConfigurationVideoCodec,
 	initialBeep,
 	initialRepro,
+	initialForSeamlessAacConcatenation,
 }) => {
 	const isMounted = useRef(true);
 
@@ -360,6 +362,8 @@ const RenderModal: React.FC<
 	const [enforceAudioTrackState, setEnforceAudioTrackState] = useState(
 		() => initialEnforceAudioTrack,
 	);
+	const [forSeamlessAacConcatenation, setForSeamlessAacConcatenation] =
+		useState(() => initialForSeamlessAacConcatenation);
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
@@ -817,6 +821,7 @@ const RenderModal: React.FC<
 			encodingMaxRate,
 			beepOnFinish,
 			repro,
+			forSeamlessAacConcatenation,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -863,6 +868,7 @@ const RenderModal: React.FC<
 		encodingMaxRate,
 		beepOnFinish,
 		repro,
+		forSeamlessAacConcatenation,
 		onClose,
 	]);
 
@@ -1318,6 +1324,8 @@ const RenderModal: React.FC<
 							shouldHaveCustomTargetAudioBitrate={
 								shouldHaveCustomTargetAudioBitrate
 							}
+							forSeamlessAacConcatenation={forSeamlessAacConcatenation}
+							setForSeamlessAacConcatenation={setForSeamlessAacConcatenation}
 						/>
 					) : tab === 'gif' ? (
 						<RenderModalGif

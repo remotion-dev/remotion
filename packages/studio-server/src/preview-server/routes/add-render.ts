@@ -58,6 +58,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				beepOnFinish: input.beepOnFinish,
 				repro: input.repro,
 				binariesDirectory,
+				forSeamlessAacConcatenation: input.forSeamlessAacConcatenation,
 			},
 			logLevel,
 		});

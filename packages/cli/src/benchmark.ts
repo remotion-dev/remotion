@@ -46,6 +46,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -461,7 +462,10 @@ export const benchmarkCommand = async (
 					}).value,
 					finishRenderProgress: () => undefined,
 					separateAudioTo: null,
-					forSeamlessAacConcatentation: false,
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenationOption.getValue({
+							commandLine: parsedCli,
+						}).value,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

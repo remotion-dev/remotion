@@ -374,6 +374,18 @@ Config.setEnforceAudioTrack(true);
 
 The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
+### setForSeamlessAacConcatenation()<AvailableFrom v="4.0.122" />
+
+<Options id="for-seamless-aac-concatenation" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setForSeamlessAacConcatenation(true);
+```
+
+The [command line flag](/docs/cli/render#--for-seamless-aac-concatenation) `--for-seamless-aac-concatenation` will take precedence over this option.
+
 ## setFrameRange()<AvailableFrom v="2.0.0" />
 
 Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.

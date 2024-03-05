@@ -4,6 +4,7 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -25,6 +26,8 @@ export const RenderModalAudio: React.FC<{
 	renderMode: RenderType;
 	enforceAudioTrack: boolean;
 	setEnforceAudioTrackState: React.Dispatch<React.SetStateAction<boolean>>;
+	forSeamlessAacConcatenation: boolean;
+	setForSeamlessAacConcatenation: React.Dispatch<React.SetStateAction<boolean>>;
 	shouldHaveCustomTargetAudioBitrate: boolean;
 	setShouldHaveCustomTargetAudioBitrate: React.Dispatch<
 		React.SetStateAction<boolean>
@@ -49,6 +52,8 @@ export const RenderModalAudio: React.FC<{
 	audioCodec,
 	codec,
 	setAudioCodec,
+	forSeamlessAacConcatenation,
+	setForSeamlessAacConcatenation,
 }) => {
 	const onShouldHaveTargetAudioBitrateChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +69,13 @@ export const RenderModalAudio: React.FC<{
 			},
 			[setCustomTargetAudioBitrateValue],
 		);
+
+	const onSeamlessAacConcatenationChanges = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setForSeamlessAacConcatenation(e.target.checked);
+		},
+		[setForSeamlessAacConcatenation],
+	);
 
 	const audioCodecOptions = useCallback(
 		(currentCodec: Codec): ComboboxValue[] => {
@@ -109,6 +121,7 @@ export const RenderModalAudio: React.FC<{
 					setMuted={setMuted}
 				/>
 			) : null}
+
 			{(renderMode === 'video' || renderMode === 'audio') && (
 				<>
 					<EnforceAudioTrackSetting
@@ -119,6 +132,22 @@ export const RenderModalAudio: React.FC<{
 					<RenderModalHr />
 				</>
 			)}
+			<div style={optionRow}>
+				<div style={label}>
+					For seamless AAC concatenation
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="forSeamlessAacConcatenationOption" />
+				</div>
+
+				<div style={rightRow}>
+					<Checkbox
+						disabled={false}
+						checked={forSeamlessAacConcatenation}
+						onChange={onSeamlessAacConcatenationChanges}
+						name="enforce-audio-track"
+					/>
+				</div>
+			</div>
 
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>

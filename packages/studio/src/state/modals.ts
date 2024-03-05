@@ -48,6 +48,7 @@ export type RenderModalState = {
 	initialUserAgent: string | null;
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
+	initialForSeamlessAacConcatenation: boolean;
 	initialBeep: boolean;
 	initialRepro: boolean;
 	minConcurrency: number;

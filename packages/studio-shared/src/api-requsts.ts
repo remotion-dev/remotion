@@ -74,6 +74,7 @@ type AddRenderRequestDynamicFields =
 			disallowParallelEncoding: boolean;
 			colorSpace: ColorSpace;
 			repro: boolean;
+			forSeamlessAacConcatenation: boolean;
 	  };
 
 export type CancelRenderRequest = {

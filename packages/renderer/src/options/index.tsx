@@ -10,6 +10,7 @@ import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
+import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
 import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
@@ -57,6 +58,7 @@ export const allOptions = {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
