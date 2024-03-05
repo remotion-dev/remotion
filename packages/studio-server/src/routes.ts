@@ -8,12 +8,9 @@ import type {
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
-import busboy from 'busboy';
-import {randomFillSync} from 'crypto';
-import fs from 'fs';
+import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import os from 'node:os';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {getFileSource} from './helpers/get-file-source';
@@ -199,85 +196,47 @@ const handleOpenInEditor = async (
 	}
 };
 
-const random = (() => {
-	const buf = Buffer.alloc(16);
-	return () => randomFillSync(buf).toString('hex');
-})();
+const handleAddAsset = ({
+	req,
+	res,
+	search,
+	publicDir,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+	search: string;
+	publicDir: string;
+}): void => {
+	try {
+		const query = new URLSearchParams(search);
 
-const handleAddAsset = (
-	req: IncomingMessage,
-	res: ServerResponse,
-	publicDir: string,
-): void => {
-	const TWO_GIGABYTES = 2 * 1024 * 1024 * 1024;
-	const fields: Record<string, string[]> = {};
-	const bb = busboy({
-		headers: req.headers,
-		limits: {
-			fileSize: TWO_GIGABYTES,
-		},
-	});
-	bb.on('file', (_, file, info) => {
-		fields.filename = [info.filename];
-		const saveTo = path.join(os.tmpdir(), `busboy-upload-${random()}`);
-		fields.fileLocation = [saveTo];
-		file.pipe(fs.createWriteStream(saveTo));
-		file.on('limit', () => {
-			res.writeHead(400, {'Content-Type': 'application/json'});
-			res.end(
-				JSON.stringify({
-					success: false,
-					error: 'File should be smaller than 2GB',
-				}),
-			);
-		});
-	});
-	bb.on('field', (name, value) => {
-		if (!fields[name]) {
-			fields[name] = [];
+		const folder = query.get('folder');
+		if (typeof folder !== 'string') {
+			throw new Error('No path provided');
 		}
 
-		fields[name].push(value);
-	});
-
-	bb.on('close', () => {
-		const fileName = fields.filename?.[0];
-		const assetPath = fields.assetPath?.[0];
-		const fileLocation = fields.fileLocation?.[0];
-		if (!assetPath) {
-			res.writeHead(400, {'Content-Type': 'application/json'});
-			res.end(
-				JSON.stringify({success: false, error: 'assetPath field is missing'}),
-			);
-			return;
+		const file = query.get('file');
+		if (typeof file !== 'string') {
+			throw new Error('No path provided');
 		}
 
-		if (!fileLocation) {
-			res.writeHead(400, {'Content-Type': 'application/json'});
-			res.end(JSON.stringify({success: false, error: 'File is missing'}));
-			return;
+		const absolutePath = path.join(publicDir, folder, file);
+
+		const relativeToPublicDir = path.relative(publicDir, absolutePath);
+		if (relativeToPublicDir.startsWith('..')) {
+			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
 		}
 
-		const absolutePath = path.join(publicDir, assetPath);
-		const fileNamePath = path.join(absolutePath, fileName);
 		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-		fs.rename(fileLocation, fileNamePath, (err1) => {
-			if (err1) {
-				res.writeHead(500, {'Content-Type': 'application/json'});
-				res.end(JSON.stringify({success: false, error: 'Error saving file'}));
-				return;
-			}
 
-			res.writeHead(200, {'Content-Type': 'application/json'});
-			res.end(
-				JSON.stringify({success: true, message: 'File uploaded and saved'}),
-			);
+		req.pipe(createWriteStream(absolutePath));
+		req.on('end', () => {
+			res.end(JSON.stringify({success: true}));
 		});
-
-		res.writeHead(200, {Connection: 'close'});
-		res.end(`That's all folks!`);
-	});
-	req.pipe(bb);
+	} catch (err) {
+		res.statusCode = 500;
+		res.end(JSON.stringify({error: (err as Error).message}));
+	}
 };
 
 const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
@@ -386,7 +345,12 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/add-asset') {
-		return handleAddAsset(request, response, publicDir);
+		return handleAddAsset({
+			req: request,
+			res: response,
+			search: url.search,
+			publicDir,
+		});
 	}
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {

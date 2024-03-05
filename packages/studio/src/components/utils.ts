@@ -11,14 +11,16 @@ export const handleUploadFile = async (file: File, assetPath: string) => {
 		return;
 	}
 
-	const formData = new FormData();
-	formData.append('file', file);
-	formData.append('assetPath', assetPath);
-
 	try {
-		const response = await fetch('/api/add-asset', {
+		const url = new URL('/api/add-asset', window.location.origin);
+		url.search = new URLSearchParams({
+			folder: assetPath,
+			file: file.name,
+		}).toString();
+
+		const response = await fetch(url, {
 			method: 'POST',
-			body: formData,
+			body: file,
 		});
 
 		if (response.ok) {
