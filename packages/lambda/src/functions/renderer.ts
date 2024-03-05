@@ -330,7 +330,6 @@ const renderHandler = async (
 		{indent: false, logLevel: params.logLevel},
 		'Done!',
 	);
-	console.log('tmpdir state', getTmpDirStateIfENoSp('ENOSPC'));
 
 	return {};
 };
