@@ -1968,9 +1968,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
-      '@types/formidable':
-        specifier: ^3.4.5
-        version: 3.4.5
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -9979,12 +9976,6 @@ packages:
       '@types/qs': 6.9.7
       '@types/serve-static': 1.13.10
     dev: false
-
-  /@types/formidable@3.4.5:
-    resolution: {integrity: sha512-s7YPsNVfnsng5L8sKnG/Gbb2tiwwJTY1conOkJzTMRvJAlLFW1nEua+ADsJQu8N1c0oTHx9+d5nqg10WuT9gHQ==}
-    dependencies:
-      '@types/node': 18.14.6
-    dev: true
 
   /@types/glob@8.1.0:
     resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
