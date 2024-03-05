@@ -28,6 +28,7 @@ import type {
 	BindingCalledEvent,
 	ConsoleAPICalledEvent,
 	EntryAddedEvent,
+	SetDeviceMetricsOverrideRequest,
 	StackTrace,
 } from './devtools-types';
 import type {
@@ -343,18 +344,39 @@ export class Page extends EventEmitter {
 	}
 
 	async setViewport(viewport: Viewport): Promise<void> {
+		const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+		const request: SetDeviceMetricsOverrideRequest = fromSurface
+			? {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: viewport.deviceScaleFactor,
+					screenOrientation: {
+						angle: 0,
+						type: 'portraitPrimary',
+					},
+				}
+			: {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: 1,
+					screenHeight: viewport.height,
+					screenWidth: viewport.width,
+					scale: viewport.deviceScaleFactor,
+					viewport: {
+						height: viewport.height * viewport.deviceScaleFactor,
+						width: viewport.width * viewport.deviceScaleFactor,
+						scale: 1,
+						x: 0,
+						y: 0,
+					},
+				};
+
 		const {value} = await this.#client.send(
 			'Emulation.setDeviceMetricsOverride',
-			{
-				mobile: false,
-				width: viewport.width,
-				height: viewport.height,
-				deviceScaleFactor: viewport.deviceScaleFactor,
-				screenOrientation: {
-					angle: 0,
-					type: 'portraitPrimary',
-				},
-			},
+			request,
 		);
 		return value;
 	}

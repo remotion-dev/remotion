@@ -134,6 +134,7 @@ export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
 
 import {makeDownloadMap} from './assets/download-map';
+import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -224,6 +225,7 @@ export const RenderInternals = {
 	getPortConfig,
 	makeDownloadMap,
 	getExtensionFromAudioCodec,
+	makeFileExecutableIfItIsNot,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

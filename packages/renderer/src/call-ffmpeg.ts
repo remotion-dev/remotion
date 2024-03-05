@@ -1,9 +1,9 @@
 import execa from 'execa';
 import type {SpawnOptionsWithoutStdio} from 'node:child_process';
 import {spawn} from 'node:child_process';
-import {chmodSync} from 'node:fs';
 import path from 'path';
 import {getExecutablePath} from './compositor/get-executable-path';
+import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
 import {truthy} from './truthy';
@@ -31,9 +31,7 @@ export const callFf = ({
 		logLevel,
 		binariesDirectory,
 	});
-	if (!process.env.READ_ONLY_FS) {
-		chmodSync(executablePath, 0o755);
-	}
+	makeFileExecutableIfItIsNot(executablePath);
 
 	const task = execa(executablePath, args.filter(truthy), {
 		cwd: path.dirname(executablePath),
@@ -70,9 +68,7 @@ export const callFfNative = ({
 		logLevel,
 		binariesDirectory,
 	});
-	if (!process.env.READ_ONLY_FS) {
-		chmodSync(executablePath, 0o755);
-	}
+	makeFileExecutableIfItIsNot(executablePath);
 
 	const task = spawn(executablePath, args.filter(truthy), {
 		cwd: path.dirname(executablePath),
