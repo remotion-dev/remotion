@@ -1,4 +1,5 @@
 import {spawn} from 'node:child_process';
+import {chmodSync} from 'node:fs';
 import path from 'node:path';
 import {getActualConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
@@ -6,7 +7,6 @@ import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
-import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
@@ -86,7 +86,9 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		logLevel,
 		binariesDirectory,
 	});
-	makeFileExecutableIfItIsNot(bin);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(bin, 0o755);
+	}
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,

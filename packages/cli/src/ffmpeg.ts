@@ -2,6 +2,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {spawnSync} from 'node:child_process';
+import {chmodSync} from 'node:fs';
 import path from 'node:path';
 import {parsedCli} from './parse-command-line';
 
@@ -51,7 +52,9 @@ export const ffmpegCommand = (
 		logLevel,
 		binariesDirectory,
 	});
-	RenderInternals.makeFileExecutableIfItIsNot(binary);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(binary, 0o755);
+	}
 
 	const done = spawnSync(binary, args, {
 		stdio: 'inherit',
@@ -75,7 +78,9 @@ export const ffprobeCommand = (
 		logLevel,
 		binariesDirectory,
 	});
-	RenderInternals.makeFileExecutableIfItIsNot(binary);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(binary, 0o755);
+	}
 
 	const done = spawnSync(binary, args, {
 		cwd: path.dirname(binary),
