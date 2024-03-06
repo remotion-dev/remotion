@@ -29,11 +29,13 @@ We recommend to add `build` to your `.gitignore` file. The command will offer to
 
 To deploy to Vercel, connect your repository to Vercel.
 
-In the "Build and Output" settings, set the following:
+In the "Build and Output" settings, enable "OVERRIDE" and set the following:
 
 - **Build Command**: `bunx remotion bundle`
 - **Output Directory**: `build`
 - **Installation Command**: _Leave default_
+
+![Alt text](https://github.com/remotion-dev/remotion/assets/86873911/ac38e1fb-0c95-4f64-b2b9-b72b90d69f22)
 
 :::note
 Using bunx as a script runner is slightly faster than using `npx`.

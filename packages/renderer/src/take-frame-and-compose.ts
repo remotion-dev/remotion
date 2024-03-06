@@ -97,6 +97,7 @@ export const takeFrameAndCompose = async ({
 			width,
 			clipRegion,
 			timeoutInMilliseconds,
+			scale,
 		});
 
 		if (shouldMakeBuffer) {
