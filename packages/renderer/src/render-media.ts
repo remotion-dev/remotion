@@ -124,7 +124,6 @@ export type InternalRenderMediaOptions = {
 	concurrency: number | string | null;
 	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
-	separateAudioTo: string | null;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {

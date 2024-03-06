@@ -69,7 +69,6 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace;
 	binariesDirectory: string | null;
-	separateAudioTo: string | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -99,7 +98,6 @@ export type StitchFramesToVideoOptions = {
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
-	separateAudioTo?: string | null;
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
