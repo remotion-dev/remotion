@@ -1,6 +1,6 @@
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
 
-export type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 
 /**
  * @description This function allows you to map a range of values to another with a conside syntax
@@ -21,7 +21,7 @@ function interpolateFunction(
 	outputRange: [number, number],
 	options: Required<InterpolateOptions>,
 ): number {
-	const {extrapolateLeft, extrapolateRight, easing} = options;
+	const { extrapolateLeft, extrapolateRight, easing } = options;
 
 	let result = input;
 	const [inputMin, inputMax] = inputRange;
@@ -34,8 +34,13 @@ function interpolateFunction(
 
 		if (extrapolateLeft === 'clamp') {
 			result = inputMin;
-		} else if (extrapolateLeft === 'extend') {
-			// noop
+		}
+		else if (extrapolateLeft === 'wrap') {
+			const range = inputMax - inputMin + 1;
+			result = ((result - inputMin) % range + range) % range + inputMin;
+		}
+		else if (extrapolateLeft === 'extend') {
+			// Noop
 		}
 	}
 
@@ -46,8 +51,13 @@ function interpolateFunction(
 
 		if (extrapolateRight === 'clamp') {
 			result = inputMax;
-		} else if (extrapolateRight === 'extend') {
-			// noop
+		}
+		else if (extrapolateRight === 'wrap') {
+			const range = inputMax - inputMin + 1;
+			result = ((result - inputMin) % range + range) % range + inputMin;
+		}
+		else if (extrapolateRight === 'extend') {
+			// Noop
 		}
 	}
 
@@ -140,10 +150,10 @@ export function interpolate(
 	if (inputRange.length !== outputRange.length) {
 		throw new Error(
 			'inputRange (' +
-				inputRange.length +
-				') and outputRange (' +
-				outputRange.length +
-				') must have the same length',
+			inputRange.length +
+			') and outputRange (' +
+			outputRange.length +
+			') must have the same length',
 		);
 	}
 
