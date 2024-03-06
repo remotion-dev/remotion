@@ -8,6 +8,7 @@ import type {
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
@@ -195,6 +196,49 @@ const handleOpenInEditor = async (
 	}
 };
 
+const handleAddAsset = ({
+	req,
+	res,
+	search,
+	publicDir,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+	search: string;
+	publicDir: string;
+}): void => {
+	try {
+		const query = new URLSearchParams(search);
+
+		const folder = query.get('folder');
+		if (typeof folder !== 'string') {
+			throw new Error('No `folder` provided');
+		}
+
+		const file = query.get('file');
+		if (typeof file !== 'string') {
+			throw new Error('No `file` provided');
+		}
+
+		const absolutePath = path.join(publicDir, folder, file);
+
+		const relativeToPublicDir = path.relative(publicDir, absolutePath);
+		if (relativeToPublicDir.startsWith('..')) {
+			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
+		}
+
+		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
+
+		req.pipe(createWriteStream(absolutePath));
+		req.on('end', () => {
+			res.end(JSON.stringify({success: true}));
+		});
+	} catch (err) {
+		res.statusCode = 500;
+		res.end(JSON.stringify({error: (err as Error).message}));
+	}
+};
+
 const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
@@ -298,6 +342,15 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
+	}
+
+	if (url.pathname === '/api/add-asset') {
+		return handleAddAsset({
+			req: request,
+			res: response,
+			search: url.search,
+			publicDir,
+		});
 	}
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {

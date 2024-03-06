@@ -1,15 +1,23 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
+import useAssetDragEvents from '../helpers/use-asset-drag-events';
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
+import {handleUploadFile} from './utils';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -45,12 +53,17 @@ type State = {
 	publicFolderExists: string | null;
 };
 
-export const AssetSelector: React.FC = () => {
+export const AssetSelector: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {tabIndex} = useZIndex();
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
-
+	const [dropLocation, setDropLocation] = useState<string | null>(null);
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
 
 	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
 		() => {
@@ -96,15 +109,42 @@ export const AssetSelector: React.FC = () => {
 		[setAssetFoldersExpanded],
 	);
 
+	const {isDropDiv, onDragEnter, onDragLeave} = useAssetDragEvents({
+		name: null,
+		parentFolder: null,
+		dropLocation,
+		setDropLocation,
+	});
+	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+		},
+		[],
+	);
+
+	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
+			setDropLocation(null);
+		},
+		[dropLocation],
+	);
+
 	return (
-		<div style={container}>
+		<div
+			style={container}
+			onDragOver={shouldAllowUpload ? onDragOver : undefined}
+			onDrop={shouldAllowUpload ? onDrop : undefined}
+		>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>
 						<div style={label}>
 							To add assets, place a file in the{' '}
 							<code style={inlineCodeSnippet}>public</code> folder of your
-							project.
+							project or drag and drop a file here.
 						</div>
 					</div>
 				) : (
@@ -117,7 +157,15 @@ export const AssetSelector: React.FC = () => {
 					</div>
 				)
 			) : (
-				<div className="__remotion-vertical-scrollbar" style={list}>
+				<div
+					className="__remotion-vertical-scrollbar"
+					style={{
+						...list,
+						backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+					}}
+					onDragEnter={onDragEnter}
+					onDragLeave={onDragLeave}
+				>
 					<AssetFolderTree
 						item={assetTree}
 						level={0}
@@ -125,6 +173,8 @@ export const AssetSelector: React.FC = () => {
 						name={null}
 						tabIndex={tabIndex}
 						toggleFolder={toggleFolder}
+						dropLocation={dropLocation}
+						setDropLocation={setDropLocation}
 					/>
 				</div>
 			)}
