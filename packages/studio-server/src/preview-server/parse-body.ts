@@ -15,20 +15,3 @@ export const parseRequestBody = async (
 
 	return JSON.parse(body);
 };
-
-export const parseMultipartRequestBody = async (
-	req: IncomingMessage,
-): Promise<Buffer> => {
-	return new Promise((resolve, reject) => {
-		const data: Buffer[] = [];
-		req.on('data', (chunk: Buffer) => {
-			data.push(chunk);
-		});
-		req.on('end', () => {
-			resolve(Buffer.concat(data));
-		});
-		req.on('error', (err) => {
-			reject(err);
-		});
-	});
-};

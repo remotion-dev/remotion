@@ -25,7 +25,7 @@ export const handleUploadFile = async (file: File, assetPath: string) => {
 
 		if (response.ok) {
 			notificationCenter.current?.addNotification({
-				content: `File uploaded successfully`,
+				content: `Added ${file.name} to ${assetPath}`,
 				created: Date.now(),
 				duration: 3000,
 				id: String(Math.random()),
