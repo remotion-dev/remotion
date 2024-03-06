@@ -183,6 +183,7 @@ impl OpenedStream {
                 "Seeking to {} from dts = {:?}, duration = {}",
                 position, self.last_position, self.duration_or_zero
             ))?;
+            self.video.flush();
             self.input
                 .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
             freshly_seeked = true
