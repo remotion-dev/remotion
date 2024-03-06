@@ -389,11 +389,14 @@ export const experts: Expert[] = [
     since: new Date("2023-07-03").getTime(),
     description: (
       <div>
-        I&apos;ve built{" "}
+        Launched apps that combine Remotion & AI for generative video -{" "}
+        <a target={"_blank"} href="https://maxroom.co/">
+          MaxRoom
+        </a>{" "}
+        and{" "}
         <a target={"_blank"} href="https://swiftube.vercel.app/">
           Swiftube
-        </a>{" "}
-        - an AI-based Video Making tool.
+        </a>.
         <br />
         Looking at leveraging the power of Remotion for your projects?
         Let&apos;s join forces!
