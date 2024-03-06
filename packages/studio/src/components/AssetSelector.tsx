@@ -8,10 +8,11 @@ import React, {
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
+import useAssetDragEvents from '../helpers/use-asset-drag-events';
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
@@ -108,6 +109,12 @@ export const AssetSelector: React.FC<{
 		[setAssetFoldersExpanded],
 	);
 
+	const {isDropDiv, onDragEnter, onDragLeave} = useAssetDragEvents({
+		name: null,
+		parentFolder: null,
+		dropLocation,
+		setDropLocation,
+	});
 	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
 			e.preventDefault();
@@ -150,7 +157,15 @@ export const AssetSelector: React.FC<{
 					</div>
 				)
 			) : (
-				<div className="__remotion-vertical-scrollbar" style={list}>
+				<div
+					className="__remotion-vertical-scrollbar"
+					style={{
+						...list,
+						backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+					}}
+					onDragEnter={onDragEnter}
+					onDragLeave={onDragLeave}
+				>
 					<AssetFolderTree
 						item={assetTree}
 						level={0}
