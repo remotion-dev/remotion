@@ -34,6 +34,7 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
+	separateAudioOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -156,6 +157,13 @@ export const render = async (
 			commandLine: parsedCli,
 		}).value;
 
+	const separateAudioTo = separateAudioOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		remotionRoot,
+	).value;
+
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -226,5 +234,6 @@ export const render = async (
 		repro,
 		binariesDirectory,
 		forSeamlessAacConcatenation,
+		separateAudioTo,
 	});
 };

@@ -179,7 +179,6 @@ export type RenderMediaOptions = Prettify<{
 	colorSpace?: ColorSpace;
 	repro?: boolean;
 	binariesDirectory?: string | null;
-	separateAudioTo?: string | null;
 }> &
 	Partial<MoreRenderMediaOptions>;
 

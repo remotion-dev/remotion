@@ -84,5 +84,6 @@ export const processVideoJob = async ({
 		binariesDirectory: job.binariesDirectory,
 		forSeamlessAacConcatenation:
 			job.type === 'video' ? job.forSeamlessAacConcatenation : false,
+		separateAudioTo: job.type === 'video' ? job.separateAudioTo : null,
 	});
 };
