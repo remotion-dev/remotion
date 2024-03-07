@@ -208,6 +208,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="binaries-directory" />
 
+### `--separate-audio-to`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_

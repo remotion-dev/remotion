@@ -354,6 +354,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		logLevel,
 	);
+
 	const absoluteSeparateAudioTo =
 		separateAudioTo === null ? null : path.resolve(separateAudioTo);
 	const exists = existsSync(absoluteOutputFile);
