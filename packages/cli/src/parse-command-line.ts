@@ -29,6 +29,7 @@ const {
 	jpegQualityOption,
 	audioBitrateOption,
 	videoBitrateOption,
+	audioCodecOption,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -61,7 +62,7 @@ type CommandLineOptions = {
 		typeof encodingBufferSizeOption
 	>;
 	[encodingMaxRateOption.cliFlag]: TypeOfOption<typeof encodingMaxRateOption>;
-	['audio-codec']: AudioCodec;
+	[audioCodecOption.cliFlag]: AudioCodec;
 	crf: number;
 	force: boolean;
 	output: string;

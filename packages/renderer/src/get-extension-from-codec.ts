@@ -1,8 +1,8 @@
-import type {AudioCodec, supportedAudioCodecs} from './audio-codec';
 import type {Codec} from './codec';
 import {validCodecs} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
+import type {AudioCodec, supportedAudioCodecs} from './options/audio-codec';
 
 export const getFileExtensionFromCodec = <T extends Codec>(
 	codec: T,

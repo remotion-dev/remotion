@@ -2,8 +2,6 @@
 
 import {rmSync} from 'node:fs';
 import {join} from 'node:path';
-import type {AudioCodec} from './audio-codec';
-import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
@@ -15,6 +13,8 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
+import type {AudioCodec} from './options/audio-codec';
+import {getDefaultAudioCodec} from './options/audio-codec';
 import {truthy} from './truthy';
 
 type Options = {

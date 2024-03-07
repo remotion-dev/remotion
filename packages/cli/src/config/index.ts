@@ -43,7 +43,6 @@ import type {
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -117,6 +116,7 @@ const {
 	binariesDirectoryOption,
 	preferLosslessOption,
 	forSeamlessAacConcatenationOption,
+	audioCodecOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -615,7 +615,7 @@ export const Config: FlatConfig = {
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
-	setAudioCodec,
+	setAudioCodec: audioCodecOption.setConfig,
 	setOffthreadVideoCacheSizeInBytes: (size) => {
 		offthreadVideoCacheSizeInBytesOption.setConfig(size);
 	},
@@ -642,7 +642,6 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getEveryNthFrame,
 	getConcurrency,
-	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,

@@ -1,4 +1,5 @@
 import {audioBitrateOption} from './audio-bitrate';
+import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
@@ -31,6 +32,7 @@ import {webhookCustomDataOption} from './webhook-custom-data';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	audioCodecOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,

@@ -1,5 +1,5 @@
-import type {supportedAudioCodecs} from './audio-codec';
 import type {Codec} from './codec';
+import type {supportedAudioCodecs} from './options/audio-codec';
 
 export type FileExtension =
 	| 'aac'

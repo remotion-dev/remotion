@@ -1,8 +1,8 @@
-import type {AudioCodec} from './audio-codec';
-import {mapAudioCodecToFfmpegAudioCodecName} from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
+import type {AudioCodec} from './options/audio-codec';
+import {mapAudioCodecToFfmpegAudioCodecName} from './options/audio-codec';
 import {truthy} from './truthy';
 
 export const compressAudio = async ({

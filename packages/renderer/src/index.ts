@@ -1,10 +1,5 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
-import {
-	getDefaultAudioCodec,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
@@ -76,7 +71,6 @@ import {
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
@@ -132,10 +126,16 @@ export {
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
+export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
+import type {AudioCodec} from './options/audio-codec';
+import {
+	getDefaultAudioCodec,
+	supportedAudioCodecs,
+} from './options/audio-codec';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -193,7 +193,6 @@ export const RenderInternals = {
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,
-	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
 	makeFileExtensionMap,

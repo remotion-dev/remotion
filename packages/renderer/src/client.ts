@@ -1,8 +1,3 @@
-import {
-	defaultAudioCodecs,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
@@ -19,6 +14,11 @@ import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {logLevels} from './log-level';
 import {allOptions} from './options';
+import {
+	defaultAudioCodecs,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './options/audio-codec';
 import {validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';

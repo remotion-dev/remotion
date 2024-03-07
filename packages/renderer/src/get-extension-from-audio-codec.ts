@@ -1,4 +1,4 @@
-import type {AudioCodec} from './audio-codec';
+import type {AudioCodec} from './options/audio-codec';
 
 export const getExtensionFromAudioCodec = (audioCodec: AudioCodec) => {
 	if (audioCodec === 'aac') {

@@ -103,7 +103,10 @@ export const RenderModalAudio: React.FC<{
 		<div style={container}>
 			{renderMode === 'video' && audioCodecOptions(codec).length >= 2 ? (
 				<div style={optionRow}>
-					<div style={label}>Audio Codec</div>
+					<div style={label}>
+						Audio Codec <Spacing x={0.5} />
+						<OptionExplainerBubble id="audioCodecOption" />
+					</div>
 					<div style={rightRow}>
 						<Combobox
 							values={audioCodecOptions(codec)}

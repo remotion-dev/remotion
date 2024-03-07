@@ -1,12 +1,12 @@
 import {rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import type {AudioCodec} from './audio-codec';
-import {mapAudioCodecToFfmpegAudioCodecName} from './audio-codec';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import type {AudioCodec} from './options/audio-codec';
+import {mapAudioCodecToFfmpegAudioCodecName} from './options/audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
