@@ -14,15 +14,14 @@ type Props = {
 	renderType: RenderType;
 };
 
-// eslint-disable-next-line react/function-component-definition
-export function RenderModalInput({
+export const RenderModalOutputName = ({
 	existence,
 	inputStyle,
 	outName,
 	onValueChange,
 	validationMessage,
 	renderType,
-}: Props) {
+}: Props) => {
 	return (
 		<div style={optionRow}>
 			<Column>
@@ -64,4 +63,4 @@ export function RenderModalInput({
 			</div>
 		</div>
 	);
-}
+};

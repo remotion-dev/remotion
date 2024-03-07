@@ -333,7 +333,7 @@ const RenderModal: React.FC<
 	);
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
-	const [separateAudioTo] = useState<string | null>(null);
+	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(null);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
 		envVariablesObjectToArray(initialEnvVariables).filter(
@@ -1330,6 +1330,8 @@ const RenderModal: React.FC<
 							}
 							forSeamlessAacConcatenation={forSeamlessAacConcatenation}
 							setForSeamlessAacConcatenation={setForSeamlessAacConcatenation}
+							separateAudioTo={separateAudioTo}
+							setSeparateAudioTo={setSeparateAudioTo}
 						/>
 					) : tab === 'gif' ? (
 						<RenderModalGif

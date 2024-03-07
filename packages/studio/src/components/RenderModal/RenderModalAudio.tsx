@@ -15,6 +15,7 @@ import {MutedSetting} from './MutedSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
+import {SeparateAudioOption} from './SeparateAudioOption';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -39,6 +40,8 @@ export const RenderModalAudio: React.FC<{
 	audioCodec: AudioCodec;
 	setAudioCodec: (newAudioCodec: AudioCodec) => void;
 	codec: Codec;
+	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
+	separateAudioTo: string | null;
 }> = ({
 	muted,
 	setMuted,
@@ -54,6 +57,8 @@ export const RenderModalAudio: React.FC<{
 	setAudioCodec,
 	forSeamlessAacConcatenation,
 	setForSeamlessAacConcatenation,
+	separateAudioTo,
+	setSeparateAudioTo,
 }) => {
 	const onShouldHaveTargetAudioBitrateChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -135,6 +140,12 @@ export const RenderModalAudio: React.FC<{
 					<RenderModalHr />
 				</>
 			)}
+			{renderMode === 'video' ? (
+				<SeparateAudioOption
+					separateAudioTo={separateAudioTo}
+					setSeparateAudioTo={setSeparateAudioTo}
+				/>
+			) : null}
 			<div style={optionRow}>
 				<div style={label}>
 					For seamless AAC concatenation
