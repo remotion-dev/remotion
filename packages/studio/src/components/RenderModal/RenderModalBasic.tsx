@@ -200,7 +200,7 @@ export const RenderModalBasic: React.FC<{
 				outName={outName}
 				onValueChange={onValueChange}
 				validationMessage={validationMessage}
-				renderType={renderMode}
+				label={renderMode === 'sequence' ? 'Folder name' : 'Output name'}
 			/>
 		</div>
 	);

@@ -5,6 +5,7 @@ import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -19,6 +20,7 @@ import {SeparateAudioOption} from './SeparateAudioOption';
 
 const container: React.CSSProperties = {
 	flex: 1,
+	overflowY: 'auto',
 };
 
 export const RenderModalAudio: React.FC<{
@@ -105,8 +107,20 @@ export const RenderModalAudio: React.FC<{
 	);
 
 	return (
-		<div style={container}>
-			{renderMode === 'video' && audioCodecOptions(codec).length >= 2 ? (
+		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			{renderMode === 'video' ? (
+				<>
+					<MutedSetting
+						enforceAudioTrack={enforceAudioTrack}
+						muted={muted}
+						setMuted={setMuted}
+					/>
+					<RenderModalHr />
+				</>
+			) : null}
+			{renderMode === 'video' &&
+			audioCodecOptions(codec).length >= 2 &&
+			!muted ? (
 				<div style={optionRow}>
 					<div style={label}>
 						Audio Codec <Spacing x={0.5} />
@@ -121,16 +135,7 @@ export const RenderModalAudio: React.FC<{
 					</div>
 				</div>
 			) : null}
-
-			{renderMode === 'video' ? (
-				<MutedSetting
-					enforceAudioTrack={enforceAudioTrack}
-					muted={muted}
-					setMuted={setMuted}
-				/>
-			) : null}
-
-			{(renderMode === 'video' || renderMode === 'audio') && (
+			{(renderMode === 'video' || renderMode === 'audio') && !muted && (
 				<>
 					<EnforceAudioTrackSetting
 						muted={muted}
@@ -140,30 +145,32 @@ export const RenderModalAudio: React.FC<{
 					<RenderModalHr />
 				</>
 			)}
-			{renderMode === 'video' ? (
+			{renderMode === 'video' && !muted ? (
 				<SeparateAudioOption
 					separateAudioTo={separateAudioTo}
 					setSeparateAudioTo={setSeparateAudioTo}
 				/>
 			) : null}
-			<div style={optionRow}>
-				<div style={label}>
-					For seamless AAC concatenation
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="forSeamlessAacConcatenationOption" />
-				</div>
+			{audioCodec === 'aac' && !muted ? (
+				<div style={optionRow}>
+					<div style={label}>
+						For seamless AAC concatenation
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="forSeamlessAacConcatenationOption" />
+					</div>
 
-				<div style={rightRow}>
-					<Checkbox
-						disabled={false}
-						checked={forSeamlessAacConcatenation}
-						onChange={onSeamlessAacConcatenationChanges}
-						name="enforce-audio-track"
-					/>
+					<div style={rightRow}>
+						<Checkbox
+							disabled={false}
+							checked={forSeamlessAacConcatenation}
+							onChange={onSeamlessAacConcatenationChanges}
+							name="enforce-audio-track"
+						/>
+					</div>
 				</div>
-			</div>
+			) : null}
 
-			{renderMode === 'still' ? null : (
+			{renderMode === 'still' || muted ? null : (
 				<div style={optionRow}>
 					<div style={label}>
 						Custom audio bitrate{' '}
@@ -179,7 +186,9 @@ export const RenderModalAudio: React.FC<{
 				</div>
 			)}
 
-			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
+			{shouldHaveCustomTargetAudioBitrate &&
+			renderMode !== 'still' &&
+			!muted ? (
 				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
 
