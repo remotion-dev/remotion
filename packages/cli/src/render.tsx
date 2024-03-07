@@ -157,12 +157,9 @@ export const render = async (
 			commandLine: parsedCli,
 		}).value;
 
-	const separateAudioTo = separateAudioOption.getValue(
-		{
-			commandLine: parsedCli,
-		},
-		remotionRoot,
-	).value;
+	const separateAudioTo = separateAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

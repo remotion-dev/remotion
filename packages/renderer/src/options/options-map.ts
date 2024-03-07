@@ -15,7 +15,7 @@ import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size'
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
-import {separateAudioOption} from './separate-audio';
+import {separateAudioOption} from './separate-audio-to';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';

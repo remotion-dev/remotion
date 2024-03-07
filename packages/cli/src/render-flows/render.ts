@@ -247,7 +247,7 @@ export const renderVideoFlow = async ({
 			// Not needed for render
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		},
 	);
 
@@ -354,7 +354,12 @@ export const renderVideoFlow = async ({
 		overwrite,
 		logLevel,
 	);
+	const absoluteSeparateAudioTo =
+		separateAudioTo === null ? null : path.resolve(separateAudioTo);
 	const exists = existsSync(absoluteOutputFile);
+	const audioExists = absoluteSeparateAudioTo
+		? existsSync(absoluteSeparateAudioTo)
+		: false;
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
@@ -522,7 +527,7 @@ export const renderVideoFlow = async ({
 			updateRenderProgress({newline: true, printToConsole: true});
 		},
 		binariesDirectory,
-		separateAudioTo,
+		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
 	});
 
@@ -530,6 +535,13 @@ export const renderVideoFlow = async ({
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
+
+	if (absoluteSeparateAudioTo) {
+		Log.info(
+			{indent, logLevel},
+			chalk.blue(`${audioExists ? '○' : '+'} ${absoluteSeparateAudioTo}`),
+		);
+	}
 
 	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {

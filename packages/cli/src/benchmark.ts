@@ -257,7 +257,7 @@ export const benchmarkCommand = async (
 			// Not needed for benchmark
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

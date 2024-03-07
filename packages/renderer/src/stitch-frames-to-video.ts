@@ -411,7 +411,8 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		cpSync(audio, separateAudioTo);
+		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
+		cpSync(audio, finalDestination);
 		rmSync(audio);
 	}
 
