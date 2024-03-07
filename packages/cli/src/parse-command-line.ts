@@ -199,10 +199,6 @@ export const parseCommandLine = () => {
 		Config.setImageSequence(true);
 	}
 
-	if (typeof parsedCli.crf !== 'undefined') {
-		Config.setCrf(parsedCli.crf);
-	}
-
 	if (parsedCli['every-nth-frame']) {
 		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
@@ -221,16 +217,8 @@ export const parseCommandLine = () => {
 		Config.setJpegQuality(parsedCli.quality);
 	}
 
-	if (typeof parsedCli['jpeg-quality'] !== 'undefined') {
-		Config.setJpegQuality(parsedCli['jpeg-quality']);
-	}
-
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.setScale(parsedCli.scale);
-	}
-
-	if (typeof parsedCli.muted !== 'undefined') {
-		Config.setMuted(parsedCli.muted);
 	}
 
 	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
