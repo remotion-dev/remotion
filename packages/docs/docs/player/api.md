@@ -415,7 +415,13 @@ export const App: React.FC = () => {
 
 _optional_
 
-If true, displays the player controls at all times even if the mouse is outside the player area. Default `false`.
+If true, displays the player controls at all times even if the mouse is outside the player area. This settings override the default behavior, which automatically hides the controls after a period of mouse inactivity over the player area. Default `false`.
+
+### `hideControlsWhenPointerDoesntMove`<AvailableFrom v="4.0.123" />
+
+_optional_
+
+Hides the player controls after 3 seconds of mouse inactivity while the mouse is over the player. By default, this behavior is enabled (`true`). The `alwaysShowControls` prop is respected, meaning, if it is set to `true`, then the controls should never hide.
 
 ### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
 

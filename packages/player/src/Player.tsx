@@ -76,6 +76,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	showPlaybackRateControl?: boolean | number[];
 	posterFillMode?: PosterFillMode;
 	bufferStateDelayInMilliseconds?: number;
+	hideControlsWhenPointerDoesntMove?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -127,6 +128,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		showPlaybackRateControl = false,
 		posterFillMode = 'player-size',
 		bufferStateDelayInMilliseconds,
+		hideControlsWhenPointerDoesntMove = true,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -378,6 +380,9 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							showPlaybackRateControl={showPlaybackRateControl}
 							bufferStateDelayInMilliseconds={
 								bufferStateDelayInMilliseconds ?? 300
+							}
+							hideControlsWhenPointerDoesntMove={
+								hideControlsWhenPointerDoesntMove
 							}
 						/>
 					</PlayerEmitterProvider>
