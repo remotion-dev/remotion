@@ -153,7 +153,8 @@ export const resolveAudioCodec = ({
 				if (
 					!(supportedAudioCodecs[codec] as readonly string[]).includes(
 						derivedFromSeparateAudioToExtension as string,
-					)
+					) &&
+					derivedFromSeparateAudioToExtension
 				) {
 					throw new Error(
 						`The codec is ${codec} but the audio codec derived from --${
@@ -190,7 +191,10 @@ export const resolveAudioCodec = ({
 		return getDefaultAudioCodec({codec, preferLossless});
 	}
 
-	if (derivedFromSeparateAudioToExtension !== setting) {
+	if (
+		derivedFromSeparateAudioToExtension !== setting &&
+		derivedFromSeparateAudioToExtension
+	) {
 		throw new Error(
 			`The audio codec derived from --${separateAudioOption.cliFlag} is ${derivedFromSeparateAudioToExtension}, but does not match the audio codec derived from your ${audioCodecOption.name} setting (${setting}). Remove any conflicting options.`,
 		);
