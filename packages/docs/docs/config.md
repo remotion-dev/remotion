@@ -374,7 +374,7 @@ Config.setEnforceAudioTrack(true);
 
 The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
-### setForSeamlessAacConcatenation()<AvailableFrom v="4.0.122" />
+### setForSeamlessAacConcatenation()<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
 
@@ -769,7 +769,7 @@ import { Config } from "@remotion/cli/config";
 Config.setBinariesDirectory("/path/to/custom/directory");
 ```
 
-## `setPreferLosslessAudio?`<AvailableFrom v="4.0.TODO" />
+## `setPreferLosslessAudio?`<AvailableFrom v="4.0.123" />
 
 <Options id="prefer-lossless" />
 

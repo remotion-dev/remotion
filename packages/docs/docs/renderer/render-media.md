@@ -443,7 +443,7 @@ _boolean - default `false`_
 
 <Options id="binaries-directory" />
 
-### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.122" />
+### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
 

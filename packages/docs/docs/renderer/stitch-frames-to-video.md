@@ -156,7 +156,7 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 <Options id="binaries-directory" />
 
-### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.122" />
+### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
 
