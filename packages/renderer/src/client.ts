@@ -11,11 +11,11 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {validStillImageFormats, validVideoImageFormats} from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {logLevels} from './log-level';
 import {allOptions} from './options';
 import {
 	defaultAudioCodecs,
+	isAudioCodec,
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './options/audio-codec';

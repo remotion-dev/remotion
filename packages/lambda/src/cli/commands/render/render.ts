@@ -309,7 +309,8 @@ export const renderCommand = async (
 			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
-		audioCodec: CliInternals.parsedCli['audio-codec'],
+		audioCodec:
+			CliInternals.parsedCli[BrowserSafeApis.options.audioCodecOption.cliFlag],
 		deleteAfter: deleteAfter ?? null,
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},

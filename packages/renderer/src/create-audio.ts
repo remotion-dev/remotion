@@ -8,12 +8,12 @@ import type {DownloadMap} from './assets/download-map';
 import type {Assets} from './assets/types';
 import {compressAudio} from './compress-audio';
 import {deleteDirectory} from './delete-directory';
-import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import type {AudioCodec} from './options/audio-codec';
+import {getExtensionFromAudioCodec} from './options/audio-codec';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import {truthy} from './truthy';
 

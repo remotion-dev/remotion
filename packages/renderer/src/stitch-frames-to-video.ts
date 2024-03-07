@@ -22,7 +22,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {AudioCodec} from './options/audio-codec';
-import {getDefaultAudioCodec} from './options/audio-codec';
+import {resolveAudioCodec} from './options/audio-codec';
 import type {ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -106,7 +106,7 @@ const innerStitchFramesToVideo = async (
 	{
 		assetsInfo,
 		audioBitrate,
-		audioCodec,
+		audioCodec: audioCodecSetting,
 		cancelSignal,
 		codec,
 		crf,
@@ -177,10 +177,12 @@ const innerStitchFramesToVideo = async (
 		);
 	}
 
-	// Explanation: https://github.com/remotion-dev/remotion/issues/1647
-	const resolvedAudioCodec = preferLossless
-		? getDefaultAudioCodec({codec, preferLossless: true})
-		: audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
+	const resolvedAudioCodec = resolveAudioCodec({
+		codec,
+		preferLossless,
+		setting: audioCodecSetting,
+		separateAudioTo,
+	});
 
 	const tempFile = outputLocation
 		? null

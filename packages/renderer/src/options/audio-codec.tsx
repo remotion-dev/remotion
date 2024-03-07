@@ -5,6 +5,10 @@ export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
 export type AudioCodec = (typeof validAudioCodecs)[number];
 
+export const isAudioCodec = (codec: Codec | undefined | null) => {
+	return codec === 'mp3' || codec === 'aac' || codec === 'wav';
+};
+
 export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16', 'mp3'] as const,
 	'h264-mkv': ['pcm-16', 'mp3'] as const,
@@ -55,6 +59,9 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 
 	throw new Error('unknown audio codec: ' + audioCodec);
 };
+
+const cliFlag = 'audio-codec' as const;
+const ssrName = 'audioCodec' as const;
 
 export const defaultAudioCodecs: {
 	[key in Codec]: {
@@ -109,6 +116,68 @@ export const defaultAudioCodecs: {
 	},
 };
 
+const extensionMap = {
+	aac: 'aac',
+	mp3: 'mp3',
+	opus: 'opus',
+	'pcm-16': 'wav',
+} as const;
+
+export const getExtensionFromAudioCodec = (audioCodec: AudioCodec) => {
+	if (extensionMap[audioCodec]) {
+		return extensionMap[audioCodec];
+	}
+
+	throw new Error(`Unsupported audio codec: ${audioCodec}`);
+};
+
+export const resolveAudioCodec = ({
+	codec,
+	setting,
+	preferLossless,
+	separateAudioTo,
+}: {
+	setting: AudioCodec | null;
+	codec: Codec;
+	preferLossless: boolean;
+	separateAudioTo: string | null;
+}) => {
+	let derivedFromSeparateAudioToExtension: AudioCodec | null = null;
+
+	if (separateAudioTo) {
+		const extension = separateAudioTo.split('.').pop();
+		for (const [key, value] of Object.entries(extensionMap)) {
+			if (value === extension) {
+				derivedFromSeparateAudioToExtension = key as AudioCodec;
+				if (
+					!(supportedAudioCodecs[codec] as readonly string[]).includes(
+						derivedFromSeparateAudioToExtension as string,
+					)
+				) {
+					throw new Error(
+						`The codec is ${codec} but the audio codec derived from --${cliFlag}/${ssrName} is ${derivedFromSeparateAudioToExtension}. The only supported codecs are: ${supportedAudioCodecs[
+							codec
+						].join(', ')}`,
+					);
+				}
+
+				return key as AudioCodec;
+			}
+		}
+	}
+
+	// Explanation: https://github.com/remotion-dev/remotion/issues/1647
+	if (preferLossless) {
+		return getDefaultAudioCodec({codec, preferLossless});
+	}
+
+	if (setting === null) {
+		return getDefaultAudioCodec({codec, preferLossless});
+	}
+
+	return setting;
+};
+
 export const getDefaultAudioCodec = ({
 	codec,
 	preferLossless,
@@ -120,8 +189,6 @@ export const getDefaultAudioCodec = ({
 };
 
 let _audioCodec: AudioCodec | null = null;
-
-const cliFlag = 'audio-codec' as const;
 
 export const audioCodecOption = {
 	cliFlag,
@@ -154,7 +221,7 @@ export const audioCodecOption = {
 
 			return {
 				source: 'cli',
-				value: 'aac',
+				value: commandLine[cliFlag] as AudioCodec,
 			};
 		}
 
@@ -183,6 +250,6 @@ export const audioCodecOption = {
 	),
 	docLink: 'https://www.remotion.dev/docs/encoding/#audio-codec',
 	name: 'Audio Codec',
-	ssrName: 'audioCodec',
+	ssrName,
 	type: 'aac' as AudioCodec,
 } satisfies AnyRemotionOption<AudioCodec | null>;

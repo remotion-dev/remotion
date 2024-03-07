@@ -871,6 +871,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		repro,
 		forSeamlessAacConcatenation,
+		separateAudioTo,
 		onClose,
 	]);
 
@@ -1104,6 +1105,7 @@ const RenderModal: React.FC<
 		audioCodec,
 		renderMode,
 		stillImageFormat,
+		separateAudioTo,
 	});
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);

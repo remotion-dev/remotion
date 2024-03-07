@@ -21,12 +21,14 @@ export const validateOutnameGui = ({
 	audioCodec,
 	renderMode,
 	stillImageFormat,
+	separateAudioTo,
 }: {
 	outName: string;
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
 	stillImageFormat: StillImageFormat | null;
+	separateAudioTo: string | null;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		isValidOutName({
@@ -35,6 +37,7 @@ export const validateOutnameGui = ({
 			outName,
 			renderMode,
 			stillImageFormat,
+			separateAudioTo,
 		});
 		return {valid: true};
 	} catch (err) {
@@ -48,12 +51,14 @@ const isValidOutName = ({
 	audioCodec,
 	renderMode,
 	stillImageFormat,
+	separateAudioTo,
 }: {
 	outName: string;
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
 	stillImageFormat: StillImageFormat | null;
+	separateAudioTo: string | null;
 }): void => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
@@ -87,9 +92,10 @@ const isValidOutName = ({
 	if (renderMode === 'video' || renderMode === 'audio') {
 		BrowserSafeApis.validateOutputFilename({
 			codec,
-			audioCodec: audioCodec ?? null,
+			audioCodecSetting: audioCodec ?? null,
 			extension,
 			preferLossless: false,
+			separateAudioTo,
 		});
 	}
 

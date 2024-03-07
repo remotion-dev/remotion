@@ -2,18 +2,20 @@ import type {Codec} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
 import type {AudioCodec, supportedAudioCodecs} from './options/audio-codec';
-import {getDefaultAudioCodec} from './options/audio-codec';
+import {resolveAudioCodec} from './options/audio-codec';
 
 export const validateOutputFilename = <T extends Codec>({
 	codec,
-	audioCodec,
+	audioCodecSetting,
 	extension,
 	preferLossless,
+	separateAudioTo,
 }: {
 	codec: T;
-	audioCodec: AudioCodec | null;
+	audioCodecSetting: AudioCodec | null;
 	extension: string;
 	preferLossless: boolean;
+	separateAudioTo: string | null;
 }) => {
 	if (!defaultFileExtensionMap[codec]) {
 		throw new TypeError(
@@ -24,8 +26,12 @@ export const validateOutputFilename = <T extends Codec>({
 	}
 
 	const map = defaultFileExtensionMap[codec];
-	const resolvedAudioCodec =
-		audioCodec ?? getDefaultAudioCodec({codec, preferLossless});
+	const resolvedAudioCodec = resolveAudioCodec({
+		codec,
+		preferLossless,
+		setting: audioCodecSetting,
+		separateAudioTo,
+	});
 
 	if (resolvedAudioCodec === null) {
 		if (extension !== map.default) {

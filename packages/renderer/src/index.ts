@@ -39,7 +39,6 @@ import {
 	validStillImageFormats,
 	validVideoImageFormats,
 } from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -130,10 +129,11 @@ export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
-import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
+	getExtensionFromAudioCodec,
+	isAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';

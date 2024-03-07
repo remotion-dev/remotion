@@ -6,15 +6,17 @@ import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
 import {createCombinedVideo} from './create-combined-video';
-import {getExtensionFromAudioCodec} from './get-extension-from-audio-codec';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
-import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
-import {getDefaultAudioCodec} from './options/audio-codec';
+import {
+	getExtensionFromAudioCodec,
+	isAudioCodec,
+	resolveAudioCodec,
+} from './options/audio-codec';
 import {truthy} from './truthy';
 
 type Options = {
@@ -45,7 +47,7 @@ export const combineVideos = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
-	audioCodec,
+	audioCodec: audioCodecSetting,
 	audioBitrate,
 	indent,
 	logLevel,
@@ -54,8 +56,12 @@ export const combineVideos = async ({
 	cancelSignal,
 	seamless,
 }: Options) => {
-	const resolvedAudioCodec =
-		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
+	const resolvedAudioCodec = resolveAudioCodec({
+		setting: audioCodecSetting,
+		codec,
+		preferLossless: false,
+		separateAudioTo: null,
+	});
 
 	const shouldCreateAudio = resolvedAudioCodec !== null;
 	const shouldCreateVideo = !isAudioCodec(codec);

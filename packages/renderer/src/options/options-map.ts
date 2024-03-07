@@ -1,4 +1,5 @@
 import {audioBitrateOption} from './audio-bitrate';
+import {audioCodecOption} from './audio-codec';
 import {binariesDirectoryOption} from './binaries-directory';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
@@ -40,6 +41,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		separateAudioTo: separateAudioOption,
+		audioCodec: audioCodecOption,
 	},
 	stitchFramesToVideo: {
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
