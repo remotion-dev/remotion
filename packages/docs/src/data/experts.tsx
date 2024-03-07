@@ -396,7 +396,8 @@ export const experts: Expert[] = [
         and{" "}
         <a target={"_blank"} href="https://swiftube.vercel.app/">
           Swiftube
-        </a>.
+        </a>
+        .
         <br />
         Looking at leveraging the power of Remotion for your projects?
         Let&apos;s join forces!
