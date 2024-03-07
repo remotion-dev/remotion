@@ -208,3 +208,7 @@ test('Handle bad types', () => {
 		/inputRange can not be undefined/,
 	);
 });
+
+test('wrap option', () => {
+	expect(interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'})).toBe(1);
+});

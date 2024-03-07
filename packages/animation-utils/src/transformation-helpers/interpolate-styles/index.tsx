@@ -1,4 +1,4 @@
-import type {InterpolateOptions} from 'remotion';
+import type {ExtrapolateType, InterpolateOptions} from 'remotion';
 import {interpolate, interpolateColors} from 'remotion';
 import type {
 	CSSPropertiesKey,
@@ -7,8 +7,6 @@ import type {
 	UnitNumberAndFunction,
 } from '../../type';
 import {breakDownValueIntoUnitNumberAndFunctions} from './utils';
-
-type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
 const interpolatedPropertyPart = ({
 	inputValue,
