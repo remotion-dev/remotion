@@ -1,5 +1,6 @@
 import type {Codec} from '../codec';
 import type {AnyRemotionOption} from './option';
+import {separateAudioOption} from './separate-audio';
 
 export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
@@ -155,24 +156,44 @@ export const resolveAudioCodec = ({
 					)
 				) {
 					throw new Error(
-						`The codec is ${codec} but the audio codec derived from --${cliFlag}/${ssrName} is ${derivedFromSeparateAudioToExtension}. The only supported codecs are: ${supportedAudioCodecs[
+						`The codec is ${codec} but the audio codec derived from --${
+							separateAudioOption.cliFlag
+						} is ${derivedFromSeparateAudioToExtension}. The only supported codecs are: ${supportedAudioCodecs[
 							codec
 						].join(', ')}`,
 					);
 				}
-
-				return key as AudioCodec;
 			}
 		}
 	}
 
 	// Explanation: https://github.com/remotion-dev/remotion/issues/1647
 	if (preferLossless) {
-		return getDefaultAudioCodec({codec, preferLossless});
+		const selected = getDefaultAudioCodec({codec, preferLossless});
+		if (
+			derivedFromSeparateAudioToExtension &&
+			selected !== derivedFromSeparateAudioToExtension
+		) {
+			throw new Error(
+				`The audio codec derived from --${separateAudioOption.cliFlag} is ${derivedFromSeparateAudioToExtension}, but does not match the audio codec derived from the "Prefer lossless" option (${selected}). Remove any conflicting options.`,
+			);
+		}
+
+		return selected;
 	}
 
 	if (setting === null) {
+		if (derivedFromSeparateAudioToExtension) {
+			return derivedFromSeparateAudioToExtension;
+		}
+
 		return getDefaultAudioCodec({codec, preferLossless});
+	}
+
+	if (derivedFromSeparateAudioToExtension !== setting) {
+		throw new Error(
+			`The audio codec derived from --${separateAudioOption.cliFlag} is ${derivedFromSeparateAudioToExtension}, but does not match the audio codec derived from your ${audioCodecOption.name} setting (${setting}). Remove any conflicting options.`,
+		);
 	}
 
 	return setting;

@@ -25,6 +25,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	forSeamlessAacConcatenationOption,
+	audioCodecOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -95,9 +96,11 @@ export const getRenderDefaults = (): RenderDefaults => {
 		forSeamlessAacConcatenationOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const audioCodec = audioCodecOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();

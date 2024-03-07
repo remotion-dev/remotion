@@ -200,7 +200,12 @@ const innerLaunchHandler = async ({
 		durationInFrames: frameCount.length,
 	});
 
-	validateOutname(params.outName, params.codec, params.audioCodec);
+	validateOutname({
+		outName: params.outName,
+		codec: params.codec,
+		audioCodecSetting: params.audioCodec,
+		separateAudioTo: null,
+	});
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 

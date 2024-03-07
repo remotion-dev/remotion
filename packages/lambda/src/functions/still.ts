@@ -74,7 +74,12 @@ const innerStillHandler = async ({
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy, true);
-	validateOutname(lambdaParams.outName, null, null);
+	validateOutname({
+		outName: lambdaParams.outName,
+		codec: null,
+		audioCodecSetting: null,
+		separateAudioTo: null,
+	});
 
 	const start = Date.now();
 
