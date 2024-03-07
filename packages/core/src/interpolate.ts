@@ -21,7 +21,7 @@ function interpolateFunction(
 	outputRange: [number, number],
 	options: Required<InterpolateOptions>,
 ): number {
-	const { extrapolateLeft, extrapolateRight, easing } = options;
+	const {extrapolateLeft, extrapolateRight, easing} = options;
 
 	let result = input;
 	const [inputMin, inputMax] = inputRange;
@@ -34,12 +34,10 @@ function interpolateFunction(
 
 		if (extrapolateLeft === 'clamp') {
 			result = inputMin;
-		}
-		else if (extrapolateLeft === 'wrap') {
+		} else if (extrapolateLeft === 'wrap') {
 			const range = inputMax - inputMin + 1;
-			result = ((result - inputMin) % range + range) % range + inputMin;
-		}
-		else if (extrapolateLeft === 'extend') {
+			result = ((((result - inputMin) % range) + range) % range) + inputMin;
+		} else if (extrapolateLeft === 'extend') {
 			// Noop
 		}
 	}
@@ -51,12 +49,10 @@ function interpolateFunction(
 
 		if (extrapolateRight === 'clamp') {
 			result = inputMax;
-		}
-		else if (extrapolateRight === 'wrap') {
+		} else if (extrapolateRight === 'wrap') {
 			const range = inputMax - inputMin + 1;
-			result = ((result - inputMin) % range + range) % range + inputMin;
-		}
-		else if (extrapolateRight === 'extend') {
+			result = ((((result - inputMin) % range) + range) % range) + inputMin;
+		} else if (extrapolateRight === 'extend') {
 			// Noop
 		}
 	}
@@ -150,10 +146,10 @@ export function interpolate(
 	if (inputRange.length !== outputRange.length) {
 		throw new Error(
 			'inputRange (' +
-			inputRange.length +
-			') and outputRange (' +
-			outputRange.length +
-			') must have the same length',
+				inputRange.length +
+				') and outputRange (' +
+				outputRange.length +
+				') must have the same length',
 		);
 	}
 
