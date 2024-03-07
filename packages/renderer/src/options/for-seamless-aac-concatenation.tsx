@@ -18,6 +18,9 @@ export const forSeamlessAacConcatenationOption = {
 			If enabled, the audio is trimmed to the nearest AAC frame, which is
 			required for seamless concatenation of AAC files. This is a requirement if
 			you later want to combine multiple video snippets seamlessly.
+			<br />
+			<br /> This option is used internally. There is currently no documentation
+			yet for to concatenate the audio chunks.
 		</>
 	),
 	docLink: 'https://remotion.dev/docs/renderer',

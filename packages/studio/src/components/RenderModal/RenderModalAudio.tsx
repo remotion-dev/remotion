@@ -44,6 +44,7 @@ export const RenderModalAudio: React.FC<{
 	codec: Codec;
 	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
 	separateAudioTo: string | null;
+	outName: string;
 }> = ({
 	muted,
 	setMuted,
@@ -61,6 +62,7 @@ export const RenderModalAudio: React.FC<{
 	setForSeamlessAacConcatenation,
 	separateAudioTo,
 	setSeparateAudioTo,
+	outName,
 }) => {
 	const onShouldHaveTargetAudioBitrateChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -149,6 +151,8 @@ export const RenderModalAudio: React.FC<{
 				<SeparateAudioOption
 					separateAudioTo={separateAudioTo}
 					setSeparateAudioTo={setSeparateAudioTo}
+					audioCodec={audioCodec}
+					outName={outName}
 				/>
 			) : null}
 			{audioCodec === 'aac' && !muted ? (

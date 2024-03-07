@@ -1,8 +1,11 @@
+import type {AudioCodec} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChangeEvent} from 'react';
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
@@ -10,7 +13,8 @@ import {RenderModalOutputName} from './RenderModalOutputName';
 export const SeparateAudioOptionInput: React.FC<{
 	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
 	separateAudioTo: string;
-}> = ({separateAudioTo, setSeparateAudioTo}) => {
+	audioCodec: AudioCodec;
+}> = ({separateAudioTo, setSeparateAudioTo, audioCodec}) => {
 	const existence = useFileExistence(separateAudioTo);
 
 	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -20,6 +24,17 @@ export const SeparateAudioOptionInput: React.FC<{
 		[setSeparateAudioTo],
 	);
 
+	const validationMessage = useMemo(() => {
+		const expectedExtension =
+			BrowserSafeApis.getExtensionFromAudioCodec(audioCodec);
+		const actualExtension = separateAudioTo.split('.').pop();
+		if (actualExtension !== expectedExtension) {
+			return `Expected extension: .${expectedExtension}`;
+		}
+
+		return null;
+	}, [audioCodec, separateAudioTo]);
+
 	return (
 		<RenderModalOutputName
 			existence={existence}
@@ -27,8 +42,7 @@ export const SeparateAudioOptionInput: React.FC<{
 			onValueChange={onValueChange}
 			outName={separateAudioTo}
 			label={'Separate audio to'}
-			// TODO
-			validationMessage={'hi there'}
+			validationMessage={validationMessage}
 		/>
 	);
 };
@@ -36,17 +50,22 @@ export const SeparateAudioOptionInput: React.FC<{
 export const SeparateAudioOption: React.FC<{
 	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
 	separateAudioTo: string | null;
-}> = ({separateAudioTo, setSeparateAudioTo}) => {
+	audioCodec: AudioCodec;
+	outName: string;
+}> = ({separateAudioTo, setSeparateAudioTo, audioCodec, outName}) => {
 	const onSeparateAudioChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			if (e.target.checked) {
-				setSeparateAudioTo(String(e.target.checked));
+				const extension =
+					BrowserSafeApis.getExtensionFromAudioCodec(audioCodec);
+				setSeparateAudioTo(`${getStringBeforeSuffix(outName)}.${extension}`);
 			} else {
 				setSeparateAudioTo(null);
 			}
 		},
-		[setSeparateAudioTo],
+		[audioCodec, outName, setSeparateAudioTo],
 	);
+
 	return (
 		<>
 			<div style={optionRow}>
@@ -69,6 +88,7 @@ export const SeparateAudioOption: React.FC<{
 				<SeparateAudioOptionInput
 					separateAudioTo={separateAudioTo}
 					setSeparateAudioTo={setSeparateAudioTo}
+					audioCodec={audioCodec}
 				/>
 			)}
 		</>

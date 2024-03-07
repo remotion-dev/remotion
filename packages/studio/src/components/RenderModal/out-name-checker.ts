@@ -129,3 +129,49 @@ const isValidOutName = ({
 		}
 	}
 };
+
+export const isValidSeparateAudioName = ({
+	audioCodec,
+	separateAudioTo,
+}: {
+	separateAudioTo: string;
+	audioCodec: AudioCodec;
+}): void => {
+	const prefix = separateAudioTo.substring(0, separateAudioTo.lastIndexOf('.'));
+
+	const expectedExtension =
+		BrowserSafeApis.getExtensionFromAudioCodec(audioCodec);
+	const actualExtension = separateAudioTo.split('.').pop();
+	if (actualExtension !== expectedExtension) {
+		throw new Error(`Expected extension: .${expectedExtension}`);
+	}
+
+	const hasDotAfterSlash = () => {
+		const substrings = prefix.split('/');
+		for (const str of substrings) {
+			if (str[0] === '.') {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	const hasInvalidChar = () => {
+		return prefix.split('').some((char) => invalidCharacters.includes(char));
+	};
+
+	if (prefix.length < 1) {
+		throw new Error('The prefix must be at least 1 character long');
+	}
+
+	if (prefix[0] === '.' || hasDotAfterSlash()) {
+		throw new Error('The output name must not start with a dot');
+	}
+
+	if (hasInvalidChar()) {
+		throw new Error(
+			"Filename can't contain the following characters:  ?, *, +, %, :",
+		);
+	}
+};

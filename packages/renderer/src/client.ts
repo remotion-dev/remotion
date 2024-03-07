@@ -15,6 +15,7 @@ import {logLevels} from './log-level';
 import {allOptions} from './options';
 import {
 	defaultAudioCodecs,
+	getExtensionFromAudioCodec,
 	isAudioCodec,
 	supportedAudioCodecs,
 	validAudioCodecs,
@@ -62,4 +63,5 @@ export const BrowserSafeApis = {
 	codecSupportsVideoBitrate,
 	logLevels,
 	getOutputCodecOrUndefined,
+	getExtensionFromAudioCodec,
 };

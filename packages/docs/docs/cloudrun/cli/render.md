@@ -106,7 +106,7 @@ Specify the name of the service which should be used to perform the render. This
 
 ### `--audio-codec`
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`
 

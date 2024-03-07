@@ -71,6 +71,7 @@ import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
 import {getDefaultCodecs} from './get-default-codecs';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -599,16 +600,6 @@ const RenderModal: React.FC<
 		);
 	}, [resolvedComposition.durationInFrames, unclampedFrame]);
 
-	const getStringBeforeSuffix = useCallback((fileName: string) => {
-		const dotPos = fileName.lastIndexOf('.');
-		if (dotPos === -1) {
-			return fileName;
-		}
-
-		const bitBeforeDot = fileName.substring(0, dotPos);
-		return bitBeforeDot;
-	}, []);
-
 	const deriveFinalAudioCodec = useCallback(
 		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec | null) => {
 			if (
@@ -662,7 +653,7 @@ const RenderModal: React.FC<
 				});
 			}
 		},
-		[deriveFinalAudioCodec, getStringBeforeSuffix],
+		[deriveFinalAudioCodec],
 	);
 
 	const setAudioCodec = useCallback(
@@ -672,6 +663,16 @@ const RenderModal: React.FC<
 				type: 'render',
 				codec: videoCodecForVideoTab,
 				audioCodec: newAudioCodec,
+			});
+			setSeparateAudioTo((prev) => {
+				if (prev === null) {
+					return null;
+				}
+
+				const newExtension =
+					BrowserSafeApis.getExtensionFromAudioCodec(newAudioCodec);
+				const newFileName = getStringBeforeSuffix(prev) + '.' + newExtension;
+				return newFileName;
 			});
 		},
 		[setDefaultOutName, videoCodecForVideoTab],
@@ -1332,6 +1333,7 @@ const RenderModal: React.FC<
 							setForSeamlessAacConcatenation={setForSeamlessAacConcatenation}
 							separateAudioTo={separateAudioTo}
 							setSeparateAudioTo={setSeparateAudioTo}
+							outName={outName}
 						/>
 					) : tab === 'gif' ? (
 						<RenderModalGif
