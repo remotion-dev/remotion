@@ -45,6 +45,7 @@ class RenderParams
         'type' => 'play-in-browser',
     ];
     private $muted = false;
+    private $preferLossless = false;
     private $overwrite = false;
     private $audioBitrate = null;
     private $videoBitrate = null;
@@ -99,7 +100,8 @@ class RenderParams
         ?string $x264Preset = null,
         ?string $deleteAfter = null,
         ?string $encodingBufferSize = null,
-        ?string $maxRate = null
+        ?string $maxRate = null,
+        ?bool $preferLossless = false 
         )
     {
         if ($chromiumOptions === null) {
@@ -144,6 +146,7 @@ class RenderParams
         $this->pixelFormat = $pixelFormat;
         $this->x264Preset = $x264Preset;
         $this->deleteAfter = $deleteAfter;
+        $this->preferLossless = $preferLossless;
     }
 
     private array $inputProps = array();
@@ -172,6 +175,7 @@ class RenderParams
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
+            'preferLossless' => $this->getPreferLossless(),
             'version' => VERSION,
             'overwrite' => $this->getOverwrite(),
             'audioBitrate' => $this->getAudioBitrate(),
@@ -623,6 +627,11 @@ class RenderParams
     {
         $this->muted = $muted;
     }
+    // Setter methods
+    public function setPreferLossless($preferLossless)
+    {
+        $this->preferLossless = $preferLossless;
+    }
 
     public function setOverwrite($overwrite)
     {
@@ -663,6 +672,11 @@ class RenderParams
     public function getMuted()
     {
         return $this->muted;
+    }
+
+    public function getPreferLossless()
+    {
+        return $this->preferLossless;
     }
 
     public function getOverwrite()
