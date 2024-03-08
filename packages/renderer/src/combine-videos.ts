@@ -4,8 +4,8 @@ import {rmSync} from 'node:fs';
 import {join} from 'node:path';
 import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
+import {combineVideoStreams} from './combine-video-streams';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
-import {createCombinedVideo} from './create-combined-video';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -117,7 +117,7 @@ export const combineVideos = async ({
 				: null,
 
 			shouldCreateVideo && !seamlessVideo
-				? createCombinedVideo({
+				? combineVideoStreams({
 						codec,
 						filelistDir,
 						fps,
