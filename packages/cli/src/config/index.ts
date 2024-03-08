@@ -43,7 +43,6 @@ import type {
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -115,6 +114,9 @@ const {
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	preferLosslessOption,
+	forSeamlessAacConcatenationOption,
+	audioCodecOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -319,6 +321,14 @@ declare global {
 		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
 
 		/**
+		 * Prepare a video for later seamless audio concatenation.
+		 * Default: false
+		 */
+		readonly setForSeamlessAacConcatenation: (
+			forSeamlessAacConcatenation: boolean,
+		) => void;
+
+		/**
 		 * Set the output file location string. Default: `out/{composition}.{codec}`
 		 */
 		readonly setOutputLocation: (newOutputLocation: string) => void;
@@ -458,6 +468,10 @@ declare global {
 			for Remotion are located.
 		 */
 		readonly setBinariesDirectory: (directory: string | null) => void;
+		/**
+		 * Prefer lossless audio encoding. Default: false
+		 */
+		readonly setPreferLosslessAudio: (lossless: boolean) => void;
 	}
 }
 
@@ -597,10 +611,11 @@ export const Config: FlatConfig = {
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
+	setForSeamlessAacConcatenation: forSeamlessAacConcatenationOption.setConfig,
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
-	setAudioCodec,
+	setAudioCodec: audioCodecOption.setConfig,
 	setOffthreadVideoCacheSizeInBytes: (size) => {
 		offthreadVideoCacheSizeInBytesOption.setConfig(size);
 	},
@@ -611,6 +626,7 @@ export const Config: FlatConfig = {
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
+	setPreferLosslessAudio: preferLosslessOption.setConfig,
 };
 
 export const ConfigInternals = {
@@ -626,7 +642,6 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getEveryNthFrame,
 	getConcurrency,
-	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,

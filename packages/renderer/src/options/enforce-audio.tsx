@@ -1,6 +1,6 @@
 import type {AnyRemotionOption} from './option';
 
-const DEFAULT_ENFORCE_AUDIO_TRACK = true;
+const DEFAULT_ENFORCE_AUDIO_TRACK = false;
 
 let enforceAudioTrackState = DEFAULT_ENFORCE_AUDIO_TRACK;
 
@@ -16,10 +16,10 @@ export const enforceAudioOption = {
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag]) {
 			return {
 				source: 'cli',
-				value: commandLine[cliFlag] as boolean,
+				value: true,
 			};
 		}
 

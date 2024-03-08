@@ -17,7 +17,7 @@ import {humanReadableCodec} from './human-readable-codec';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
-import {RenderModalInput} from './RenderModalInput';
+import {RenderModalOutputName} from './RenderModalOutputName';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -194,13 +194,13 @@ export const RenderModalBasic: React.FC<{
 					startFrame={startFrame}
 				/>
 			)}
-			<RenderModalInput
+			<RenderModalOutputName
 				existence={existence}
 				inputStyle={input}
 				outName={outName}
 				onValueChange={onValueChange}
 				validationMessage={validationMessage}
-				renderType={renderMode}
+				label={renderMode === 'sequence' ? 'Folder name' : 'Output name'}
 			/>
 		</div>
 	);

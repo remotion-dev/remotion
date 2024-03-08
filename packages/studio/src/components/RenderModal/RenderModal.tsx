@@ -71,6 +71,7 @@ import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
 import {getDefaultCodecs} from './get-default-codecs';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -236,6 +237,7 @@ type RenderModalProps = {
 	initialMultiProcessOnLinux: boolean;
 	defaultConfigurationVideoCodec: Codec | null;
 	defaultConfigurationAudioCodec: AudioCodec | null;
+	initialForSeamlessAacConcatenation: boolean;
 };
 
 const RenderModal: React.FC<
@@ -286,6 +288,7 @@ const RenderModal: React.FC<
 	defaultConfigurationVideoCodec,
 	initialBeep,
 	initialRepro,
+	initialForSeamlessAacConcatenation,
 }) => {
 	const isMounted = useRef(true);
 
@@ -331,6 +334,7 @@ const RenderModal: React.FC<
 	);
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
+	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(null);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
 		envVariablesObjectToArray(initialEnvVariables).filter(
@@ -360,6 +364,8 @@ const RenderModal: React.FC<
 	const [enforceAudioTrackState, setEnforceAudioTrackState] = useState(
 		() => initialEnforceAudioTrack,
 	);
+	const [forSeamlessAacConcatenation, setForSeamlessAacConcatenation] =
+		useState(() => initialForSeamlessAacConcatenation);
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
@@ -594,16 +600,6 @@ const RenderModal: React.FC<
 		);
 	}, [resolvedComposition.durationInFrames, unclampedFrame]);
 
-	const getStringBeforeSuffix = useCallback((fileName: string) => {
-		const dotPos = fileName.lastIndexOf('.');
-		if (dotPos === -1) {
-			return fileName;
-		}
-
-		const bitBeforeDot = fileName.substring(0, dotPos);
-		return bitBeforeDot;
-	}, []);
-
 	const deriveFinalAudioCodec = useCallback(
 		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec | null) => {
 			if (
@@ -657,7 +653,7 @@ const RenderModal: React.FC<
 				});
 			}
 		},
-		[deriveFinalAudioCodec, getStringBeforeSuffix],
+		[deriveFinalAudioCodec],
 	);
 
 	const setAudioCodec = useCallback(
@@ -667,6 +663,16 @@ const RenderModal: React.FC<
 				type: 'render',
 				codec: videoCodecForVideoTab,
 				audioCodec: newAudioCodec,
+			});
+			setSeparateAudioTo((prev) => {
+				if (prev === null) {
+					return null;
+				}
+
+				const newExtension =
+					BrowserSafeApis.getExtensionFromAudioCodec(newAudioCodec);
+				const newFileName = getStringBeforeSuffix(prev) + '.' + newExtension;
+				return newFileName;
 			});
 		},
 		[setDefaultOutName, videoCodecForVideoTab],
@@ -817,6 +823,8 @@ const RenderModal: React.FC<
 			encodingMaxRate,
 			beepOnFinish,
 			repro,
+			forSeamlessAacConcatenation,
+			separateAudioTo,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -863,6 +871,8 @@ const RenderModal: React.FC<
 		encodingMaxRate,
 		beepOnFinish,
 		repro,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
 		onClose,
 	]);
 
@@ -1096,6 +1106,7 @@ const RenderModal: React.FC<
 		audioCodec,
 		renderMode,
 		stillImageFormat,
+		separateAudioTo,
 	});
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
@@ -1318,6 +1329,11 @@ const RenderModal: React.FC<
 							shouldHaveCustomTargetAudioBitrate={
 								shouldHaveCustomTargetAudioBitrate
 							}
+							forSeamlessAacConcatenation={forSeamlessAacConcatenation}
+							setForSeamlessAacConcatenation={setForSeamlessAacConcatenation}
+							separateAudioTo={separateAudioTo}
+							setSeparateAudioTo={setSeparateAudioTo}
+							outName={outName}
 						/>
 					) : tab === 'gif' ? (
 						<RenderModalGif

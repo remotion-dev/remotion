@@ -138,10 +138,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		indent: options.indent,
 		logLevel: options.logLevel,
 		binariesDirectory: options.binariesDirectory,
-	});
-
-	options.signal(() => {
-		task.kill();
+		cancelSignal: options.signal,
 	});
 
 	let ffmpegOutput = '';

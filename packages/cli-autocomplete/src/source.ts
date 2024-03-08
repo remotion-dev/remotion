@@ -280,7 +280,7 @@ const renderOptions: Fig.Option[] = [
     },
   },
   {
-    name: "--audio-codec",
+    name: `--${BrowserSafeApis.options.audioCodecOption.cliFlag}`,
     description: "Codec to be used for the audio",
     args: {
       suggestions: [

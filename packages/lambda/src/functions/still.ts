@@ -74,7 +74,12 @@ const innerStillHandler = async ({
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy, true);
-	validateOutname(lambdaParams.outName, null, null);
+	validateOutname({
+		outName: lambdaParams.outName,
+		codec: null,
+		audioCodecSetting: null,
+		separateAudioTo: null,
+	});
 
 	const start = Date.now();
 
@@ -158,8 +163,6 @@ const innerStillHandler = async ({
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
-		everyNthFrame: 1,
-		frameRange: [lambdaParams.frame, lambdaParams.frame],
 		audioCodec: null,
 		deleteAfter: lambdaParams.deleteAfter,
 		numberOfGifLoops: null,

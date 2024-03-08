@@ -176,7 +176,7 @@ export const renderStillFlow = async ({
 			// Not needed for still
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		},
 	);
 

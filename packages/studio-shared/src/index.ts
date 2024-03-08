@@ -16,7 +16,7 @@ export {
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
-} from './api-requsts';
+} from './api-requests';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';

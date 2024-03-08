@@ -46,6 +46,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -256,7 +257,7 @@ export const benchmarkCommand = async (
 			// Not needed for benchmark
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -460,6 +461,11 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					finishRenderProgress: () => undefined,
+					separateAudioTo: null,
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenationOption.getValue({
+							commandLine: parsedCli,
+						}).value,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

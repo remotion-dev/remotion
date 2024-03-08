@@ -101,6 +101,8 @@ export const renderVideoFlow = async ({
 	colorSpace,
 	repro,
 	binariesDirectory,
+	forSeamlessAacConcatenation,
+	separateAudioTo,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -151,6 +153,8 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace;
 	repro: boolean;
 	binariesDirectory: string | null;
+	forSeamlessAacConcatenation: boolean;
+	separateAudioTo: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -243,7 +247,7 @@ export const renderVideoFlow = async ({
 			// Not needed for render
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		},
 	);
 
@@ -350,7 +354,13 @@ export const renderVideoFlow = async ({
 		overwrite,
 		logLevel,
 	);
+
+	const absoluteSeparateAudioTo =
+		separateAudioTo === null ? null : path.resolve(separateAudioTo);
 	const exists = existsSync(absoluteOutputFile);
+	const audioExists = absoluteSeparateAudioTo
+		? existsSync(absoluteSeparateAudioTo)
+		: false;
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
@@ -417,7 +427,7 @@ export const renderVideoFlow = async ({
 			browserExecutable,
 			port,
 			composition: config,
-			server: await server,
+			server,
 			indent,
 			muted,
 			onBrowserLog: null,
@@ -497,7 +507,7 @@ export const renderVideoFlow = async ({
 		onDownload,
 		onCtrlCExit: addCleanupCallback,
 		indent,
-		server: await server,
+		server,
 		cancelSignal: cancelSignal ?? undefined,
 		audioCodec,
 		preferLossless: false,
@@ -518,12 +528,21 @@ export const renderVideoFlow = async ({
 			updateRenderProgress({newline: true, printToConsole: true});
 		},
 		binariesDirectory,
+		separateAudioTo: absoluteSeparateAudioTo,
+		forSeamlessAacConcatenation,
 	});
 
 	Log.info(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
+
+	if (absoluteSeparateAudioTo) {
+		Log.info(
+			{indent, logLevel},
+			chalk.blue(`${audioExists ? '○' : '+'} ${absoluteSeparateAudioTo}`),
+		);
+	}
 
 	Log.verbose({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {

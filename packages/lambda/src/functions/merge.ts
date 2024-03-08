@@ -38,6 +38,10 @@ export const mergeHandler = async (
 		throw new Error('expected codec');
 	}
 
+	if (renderMetadata.type === 'still') {
+		throw new Error('Cannot merge stills');
+	}
+
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		params.bucketName,
@@ -79,7 +83,9 @@ export const mergeHandler = async (
 		},
 		audioBitrate: renderMetadata.audioBitrate,
 		logLevel: params.logLevel,
+		framesPerLambda: params.framesPerLambda,
 		binariesDirectory: null,
+		preferLossless: params.preferLossless,
 	});
 
 	return {type: 'success' as const, postRenderData};

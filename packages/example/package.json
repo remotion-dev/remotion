@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.122",
+	"version": "4.0.123",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -82,7 +82,8 @@
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"sharp": "0.32.6"
+		"sharp": "0.32.6",
+		"@types/bun": "^1.0.5"
 	},
 	"publishConfig": {
 		"access": "public"
