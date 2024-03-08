@@ -60,7 +60,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
-			initialForSeamlessAacConcatenation: false,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 		};
 	}
 
@@ -108,7 +108,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
-			initialForSeamlessAacConcatenation: false,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 		};
 	}
 
