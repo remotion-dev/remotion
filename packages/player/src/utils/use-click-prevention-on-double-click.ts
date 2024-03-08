@@ -13,6 +13,12 @@ const useClickPreventionOnDoubleClick = (
 
 	const handleClick = useCallback(
 		async (e: SyntheticEvent) => {
+			// UnSupported double click on touch.(mobile)
+			if ((e.nativeEvent as PointerEvent).pointerType === 'touch') {
+				onClick(e);
+				return;
+			}
+
 			api.clearPendingPromises();
 			const waitForClick = cancellablePromise(delay(200));
 			api.appendPendingPromise(waitForClick);
