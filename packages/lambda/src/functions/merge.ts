@@ -85,6 +85,7 @@ export const mergeHandler = async (
 		logLevel: params.logLevel,
 		framesPerLambda: params.framesPerLambda,
 		binariesDirectory: null,
+		preferLossless: params.preferLossless,
 	});
 
 	return {type: 'success' as const, postRenderData};

@@ -408,6 +408,7 @@ const innerLaunchHandler = async ({
 		logLevel: params.logLevel,
 		framesPerLambda,
 		binariesDirectory: null,
+		preferLossless: params.preferLossless,
 	});
 
 	return postRenderData;
@@ -463,6 +464,7 @@ export const launchHandler = async (
 						inputProps: allChunksAvailable.inputProps,
 						logLevel: params.logLevel,
 						framesPerLambda: allChunksAvailable.framesPerLambda,
+						preferLossless: params.preferLossless,
 					},
 					retries: 2,
 				});

@@ -67,6 +67,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	logLevel: LogLevel;
 	framesPerLambda: number;
 	binariesDirectory: string | null;
+	preferLossless: boolean;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -181,6 +182,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		framesPerLambda: options.framesPerLambda,
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
+		preferLossless: options.preferLossless,
 	});
 	const encodingStop = Date.now();
 

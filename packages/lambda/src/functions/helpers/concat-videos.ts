@@ -197,6 +197,7 @@ export const concatVideosS3 = async ({
 	framesPerLambda,
 	binariesDirectory,
 	cancelSignal,
+	preferLossless,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -211,6 +212,7 @@ export const concatVideosS3 = async ({
 	framesPerLambda: number;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	preferLossless: boolean;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -224,7 +226,7 @@ export const concatVideosS3 = async ({
 	const resolvedAudioCodec = RenderInternals.resolveAudioCodec({
 		setting: audioCodec,
 		codec,
-		preferLossless: false,
+		preferLossless,
 		separateAudioTo: null,
 	});
 

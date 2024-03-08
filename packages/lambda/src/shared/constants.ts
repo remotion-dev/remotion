@@ -435,6 +435,7 @@ export type LambdaPayloads = {
 		serializedResolvedProps: SerializedInputProps;
 		logLevel: LogLevel;
 		framesPerLambda: number;
+		preferLossless: boolean;
 	};
 };
 
