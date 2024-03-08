@@ -46,17 +46,11 @@ const useClickPreventionOnDoubleClick = (
 
 	const returnValue = useMemo((): [(e: SyntheticEvent) => void, () => void] => {
 		if (!doubleClickToFullscreen) {
-			return [onClick, onDoubleClick];
+			return [onClick, () => undefined];
 		}
 
 		return [handleClick, handleDoubleClick];
-	}, [
-		doubleClickToFullscreen,
-		handleClick,
-		handleDoubleClick,
-		onClick,
-		onDoubleClick,
-	]);
+	}, [doubleClickToFullscreen, handleClick, handleDoubleClick, onClick]);
 
 	return returnValue;
 };
