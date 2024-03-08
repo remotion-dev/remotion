@@ -81,6 +81,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPlaybackRateControl: boolean | number[];
 		posterFillMode: PosterFillMode;
 		bufferStateDelayInMilliseconds: number;
+		hideControlsWhenPointerDoesntMove: boolean | number;
 	}
 > = (
 	{
@@ -113,6 +114,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPlaybackRateControl,
 		posterFillMode,
 		bufferStateDelayInMilliseconds,
+		hideControlsWhenPointerDoesntMove,
 	},
 	ref,
 ) => {
@@ -630,6 +632,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
 					buffering={showBufferIndicator}
+					hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}

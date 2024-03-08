@@ -71,6 +71,10 @@ const ControlsOnly: React.FC<{
 	setShowPlaybackRateControl: React.Dispatch<React.SetStateAction<boolean>>;
 	showPosterWhenBuffering: boolean;
 	setShowPosterWhenBuffering: React.Dispatch<React.SetStateAction<boolean>>;
+	hideControlsWhenPointerDoesntMove: boolean;
+	setHideControlsWhenPointerDoesntMove: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 }> = ({
 	playerRef: ref,
 	color,
@@ -109,6 +113,8 @@ const ControlsOnly: React.FC<{
 	showVolumeControls,
 	showPlaybackrateControl: showPlaybackControl,
 	setShowPlaybackRateControl: setShowPlaybackControl,
+	hideControlsWhenPointerDoesntMove,
+	setHideControlsWhenPointerDoesntMove,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -423,6 +429,13 @@ const ControlsOnly: React.FC<{
 			<button type="button" onClick={() => setAlwaysShowControls((l) => !l)}>
 				alwaysShowControls = {String(alwaysShowControls)}
 			</button>
+			<button
+				type="button"
+				onClick={() => setHideControlsWhenPointerDoesntMove((l) => !l)}
+			>
+				hideControlsWhenPointerDoesntMove ={' '}
+				{String(hideControlsWhenPointerDoesntMove)}
+			</button>
 			<br />
 			<button
 				type="button"
@@ -535,6 +548,7 @@ const PlayerOnly: React.FC<
 		alwaysShowControls: boolean;
 		showVolumeControls: boolean;
 		showPlaybackRateControl: boolean | number[];
+		hideControlsWhenPointerDoesntMove: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -555,6 +569,7 @@ const PlayerOnly: React.FC<
 	alwaysShowControls,
 	showVolumeControls,
 	showPlaybackRateControl,
+	hideControlsWhenPointerDoesntMove,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -628,6 +643,7 @@ const PlayerOnly: React.FC<
 			outFrame={outFrame}
 			alwaysShowControls={alwaysShowControls}
 			showPlaybackRateControl={showPlaybackRateControl}
+			hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
 			style={{
 				height: '100%',
 				width: '100%',
@@ -667,6 +683,10 @@ export default ({
 	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
 	const [showVolumeControls, setShowVolumeControls] = useState(true);
 	const [showPlaybackRateControl, setPlaybackRateControl] = useState(false);
+	const [
+		hideControlsWhenPointerDoesntMove,
+		setHideControlsWhenPointerDoesntMove,
+	] = useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -681,6 +701,7 @@ export default ({
 	return (
 		<div style={{margin: '2rem'}}>
 			<PlayerOnly
+				hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
 				alwaysShowControls={alwaysShowControls}
 				clickToPlay={clickToPlay}
 				{...props}
@@ -739,6 +760,10 @@ export default ({
 				durationInFrames={durationInFrames}
 				showPlaybackrateControl={showPlaybackRateControl}
 				setShowPlaybackRateControl={setPlaybackRateControl}
+				hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
+				setHideControlsWhenPointerDoesntMove={
+					setHideControlsWhenPointerDoesntMove
+				}
 			/>
 		</div>
 	);
