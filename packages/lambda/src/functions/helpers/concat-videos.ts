@@ -221,7 +221,14 @@ export const concatVideosS3 = async ({
 
 	const chunkDurationInSeconds = framesPerLambda / fps;
 
-	const seamlessAudio = canConcatAudioSeamlessly(audioCodec);
+	const resolvedAudioCodec = RenderInternals.resolveAudioCodec({
+		setting: audioCodec,
+		codec,
+		preferLossless: false,
+		separateAudioTo: null,
+	});
+
+	const seamlessAudio = canConcatAudioSeamlessly(resolvedAudioCodec);
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
 
 	await RenderInternals.combineVideos({
@@ -233,7 +240,7 @@ export const concatVideosS3 = async ({
 		codec,
 		fps,
 		numberOfGifLoops,
-		audioCodec,
+		resolvedAudioCodec,
 		audioBitrate,
 		indent: false,
 		logLevel,

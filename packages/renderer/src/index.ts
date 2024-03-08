@@ -134,6 +134,7 @@ import {
 	getDefaultAudioCodec,
 	getExtensionFromAudioCodec,
 	isAudioCodec,
+	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -225,6 +226,7 @@ export const RenderInternals = {
 	makeDownloadMap,
 	getExtensionFromAudioCodec,
 	makeFileExecutableIfItIsNot,
+	resolveAudioCodec,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

@@ -12,11 +12,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
-import {
-	getExtensionFromAudioCodec,
-	isAudioCodec,
-	resolveAudioCodec,
-} from './options/audio-codec';
+import {getExtensionFromAudioCodec, isAudioCodec} from './options/audio-codec';
 import {truthy} from './truthy';
 
 type Options = {
@@ -28,7 +24,7 @@ type Options = {
 	codec: Codec;
 	fps: number;
 	numberOfGifLoops: number | null;
-	audioCodec: AudioCodec | null;
+	resolvedAudioCodec: AudioCodec | null;
 	audioBitrate: string | null;
 	indent: boolean;
 	logLevel: LogLevel;
@@ -48,7 +44,7 @@ export const combineVideos = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
-	audioCodec: audioCodecSetting,
+	resolvedAudioCodec,
 	audioBitrate,
 	indent,
 	logLevel,
@@ -58,13 +54,6 @@ export const combineVideos = async ({
 	seamlessAudio,
 	seamlessVideo,
 }: Options) => {
-	const resolvedAudioCodec = resolveAudioCodec({
-		setting: audioCodecSetting,
-		codec,
-		preferLossless: false,
-		separateAudioTo: null,
-	});
-
 	const shouldCreateAudio = resolvedAudioCodec !== null;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
