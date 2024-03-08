@@ -630,6 +630,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					alwaysShowControls={alwaysShowControls}
 					showPlaybackRateControl={showPlaybackRateControl}
 					buffering={showBufferIndicator}
+					onDoubleClick={
+						doubleClickToFullscreen ? handleDoubleClick : undefined
+					}
+					onPointerUp={clickToPlay ? handleClick : undefined}
 				/>
 			) : null}
 		</>
