@@ -85,6 +85,8 @@ export const SidebarRenderButton: React.FC<{
 				initialUserAgent: defaults.userAgent,
 				initialBeep: defaults.beepOnFinish,
 				initialRepro: defaults.repro,
+				initialForSeamlessAacConcatenation:
+					defaults.forSeamlessAacConcatenation,
 			});
 		},
 		[composition.defaultProps, composition.id, props, setSelectedModal],

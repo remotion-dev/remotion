@@ -22,6 +22,7 @@ import {
 	rendersPrefix,
 } from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
+import {truthy} from '../../shared/truthy';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {concatVideosS3, getAllFilesS3} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
@@ -31,6 +32,8 @@ import {getFilesToDelete} from './get-files-to-delete';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
+import {timer} from './timer';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
@@ -38,6 +41,7 @@ import {writePostRenderData} from './write-post-render-data';
 export type OnAllChunksAvailable = (options: {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
+	framesPerLambda: number;
 }) => void;
 
 export const mergeChunksAndFinishRender = async (options: {
@@ -61,7 +65,9 @@ export const mergeChunksAndFinishRender = async (options: {
 	onAllChunks: OnAllChunksAvailable;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
+	framesPerLambda: number;
 	binariesDirectory: string | null;
+	preferLossless: boolean;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -140,9 +146,15 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	mkdirSync(outdir);
 
+	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(
+		options.renderMetadata,
+	);
+	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
+	const expectedFiles = chunkMultiplier * options.chunkCount;
+
 	const files = await getAllFilesS3({
 		bucket: options.bucketName,
-		expectedFiles: options.chunkCount,
+		expectedFiles,
 		outdir,
 		renderId: options.renderId,
 		region: getCurrentRegionInFunction(),
@@ -153,6 +165,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	options.onAllChunks({
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
+		framesPerLambda: options.framesPerLambda,
 	});
 	const encodingStart = Date.now();
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
@@ -166,11 +179,19 @@ export const mergeChunksAndFinishRender = async (options: {
 		audioCodec: options.audioCodec,
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
+		framesPerLambda: options.framesPerLambda,
 		binariesDirectory: options.binariesDirectory,
+		cancelSignal: undefined,
+		preferLossless: options.preferLossless,
 	});
 	const encodingStop = Date.now();
 
 	const outputSize = fs.statSync(outfile);
+
+	const writeToS3 = timer(
+		`Writing to S3 (${outputSize.size} bytes)`,
+		options.logLevel,
+	);
 
 	await lambdaWriteFile({
 		bucketName: options.renderBucketName,
@@ -182,6 +203,8 @@ export const mergeChunksAndFinishRender = async (options: {
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
 	});
+
+	writeToS3.end();
 
 	const contents = await lambdaLs({
 		bucketName: options.bucketName,
@@ -214,6 +237,8 @@ export const mergeChunksAndFinishRender = async (options: {
 	const jobs = getFilesToDelete({
 		chunkCount: options.chunkCount,
 		renderId: options.renderId,
+		hasAudio,
+		hasVideo,
 	});
 
 	const deletProm =

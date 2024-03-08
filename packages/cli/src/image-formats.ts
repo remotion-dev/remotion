@@ -39,6 +39,7 @@ export const getVideoImageFormat = ({
 	if (
 		codec === 'h264' ||
 		codec === 'h264-mkv' ||
+		codec === 'h264-ts' ||
 		codec === 'h265' ||
 		codec === 'vp8' ||
 		codec === 'vp9' ||

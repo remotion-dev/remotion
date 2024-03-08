@@ -200,7 +200,12 @@ const innerLaunchHandler = async ({
 		durationInFrames: frameCount.length,
 	});
 
-	validateOutname(params.outName, params.codec, params.audioCodec);
+	validateOutname({
+		outName: params.outName,
+		codec: params.codec,
+		audioCodecSetting: params.audioCodec,
+		separateAudioTo: null,
+	});
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -218,7 +223,7 @@ const innerLaunchHandler = async ({
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
-	const reqSend = timer('sending off requests');
+	const reqSend = timer('sending off requests', params.logLevel);
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
@@ -280,6 +285,7 @@ const innerLaunchHandler = async ({
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
+			preferLossless: params.preferLossless,
 		};
 		return payload;
 	});
@@ -321,6 +327,7 @@ const innerLaunchHandler = async ({
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
+		muted: params.muted,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -399,7 +406,9 @@ const innerLaunchHandler = async ({
 		onAllChunks: onAllChunksAvailable,
 		audioBitrate: params.audioBitrate,
 		logLevel: params.logLevel,
+		framesPerLambda,
 		binariesDirectory: null,
+		preferLossless: params.preferLossless,
 	});
 
 	return postRenderData;
@@ -408,6 +417,7 @@ const innerLaunchHandler = async ({
 type AllChunksAvailable = {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
+	framesPerLambda: number;
 };
 
 export const launchHandler = async (
@@ -453,6 +463,8 @@ export const launchHandler = async (
 						serializedResolvedProps: allChunksAvailable.serializedResolvedProps,
 						inputProps: allChunksAvailable.inputProps,
 						logLevel: params.logLevel,
+						framesPerLambda: allChunksAvailable.framesPerLambda,
+						preferLossless: params.preferLossless,
 					},
 					retries: 2,
 				});
@@ -587,8 +599,16 @@ export const launchHandler = async (
 			functionName,
 			params,
 			options,
-			onAllChunksAvailable: ({inputProps, serializedResolvedProps}) => {
-				allChunksAvailable = {inputProps, serializedResolvedProps};
+			onAllChunksAvailable: ({
+				inputProps,
+				serializedResolvedProps,
+				framesPerLambda,
+			}) => {
+				allChunksAvailable = {
+					inputProps,
+					serializedResolvedProps,
+					framesPerLambda,
+				};
 			},
 		});
 		clearTimeout(webhookDueToTimeout);

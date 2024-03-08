@@ -129,6 +129,8 @@ type RenderJobDynamicFields =
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
 			colorSpace: ColorSpace;
+			forSeamlessAacConcatenation: boolean;
+			separateAudioTo: string | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

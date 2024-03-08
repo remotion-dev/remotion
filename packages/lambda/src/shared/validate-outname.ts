@@ -20,11 +20,17 @@ const validateS3Key = (s3Key: string) => {
 	}
 };
 
-export const validateOutname = (
-	outName: OutNameInputWithoutCredentials | undefined | null,
-	codec: Codec | null,
-	audioCodec: AudioCodec | null,
-) => {
+export const validateOutname = ({
+	outName,
+	codec,
+	audioCodecSetting,
+	separateAudioTo,
+}: {
+	outName: OutNameInputWithoutCredentials | undefined | null;
+	codec: Codec | null;
+	audioCodecSetting: AudioCodec | null;
+	separateAudioTo: string | null;
+}) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;
 	}
@@ -38,9 +44,10 @@ export const validateOutname = (
 	if (codec) {
 		NoReactAPIs.validateOutputFilename({
 			codec,
-			audioCodec,
+			audioCodecSetting,
 			extension: NoReactAPIs.getExtensionOfFilename(outName) as string,
 			preferLossless: false,
+			separateAudioTo,
 		});
 	}
 

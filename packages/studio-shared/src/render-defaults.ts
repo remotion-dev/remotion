@@ -45,6 +45,7 @@ export type RenderDefaults = {
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	repro: boolean;
+	forSeamlessAacConcatenation: boolean;
 };
 
 declare global {

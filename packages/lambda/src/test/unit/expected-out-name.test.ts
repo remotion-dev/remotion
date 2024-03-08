@@ -42,6 +42,7 @@ const testRenderMetadata: RenderMetadata = {
 	numberOfGifLoops: null,
 	downloadBehavior: {type: 'play-in-browser'},
 	audioBitrate: null,
+	muted: false,
 };
 
 test('Should get a custom outname', () => {

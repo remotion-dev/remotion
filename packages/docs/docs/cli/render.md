@@ -84,7 +84,7 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
@@ -207,6 +207,14 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--binaries-directory`<AvailableFrom v="4.0.120" />
 
 <Options cli id="binaries-directory" />
+
+### `--for-seamless-aac-concatenation`<AvailableFrom v="4.0.123" />
+
+<Options cli id="for-seamless-aac-concatenation" />
+
+### `--separate-audio-to`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
 
 ### ~~`--ffmpeg-executable`~~
 

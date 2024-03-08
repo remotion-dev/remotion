@@ -120,6 +120,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
+	preferLossless,
 }: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -186,6 +187,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? 'default',
+		preferLossless: preferLossless ?? false,
 	};
 };
 

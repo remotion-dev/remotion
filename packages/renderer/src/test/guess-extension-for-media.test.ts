@@ -16,6 +16,7 @@ test('Guess extension for media - H264', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 
 	expect(extension).toBe('mp4');
@@ -35,6 +36,7 @@ test('Guess extension for media - WebM', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 
 	expect(extension).toBe('webm');
@@ -54,6 +56,7 @@ test('Guess extension for media - WAV', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 
 	expect(extension).toBe('wav');
@@ -73,6 +76,7 @@ test('Guess extension for media - MP3', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 
 	expect(extension).toBe('mp3');

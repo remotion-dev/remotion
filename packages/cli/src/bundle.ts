@@ -121,7 +121,7 @@ export const bundleCommand = async (
 		outDir: outputPath,
 		gitSource,
 		bufferStateDelayInMilliseconds: null,
-		maxTimlineTracks: null,
+		maxTimelineTracks: null,
 	});
 
 	Log.info(

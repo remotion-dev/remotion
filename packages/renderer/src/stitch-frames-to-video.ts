@@ -1,25 +1,15 @@
-import {promises} from 'node:fs';
+import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
-import type {TRenderAsset} from 'remotion/no-react';
-import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {calculateAssetPositions} from './assets/calculate-asset-positions';
-import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
+import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
-import type {Assets} from './assets/types';
-import type {AudioCodec} from './audio-codec';
-import {
-	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
-} from './audio-codec';
-import {callFf, callFfNative} from './call-ffmpeg';
+import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {createAudio} from './create-audio';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
@@ -31,8 +21,11 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
-import {mergeAudioTrack} from './merge-audio-track';
+import type {AudioCodec} from './options/audio-codec';
+import {resolveAudioCodec} from './options/audio-codec';
 import type {ColorSpace} from './options/color-space';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -40,10 +33,8 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
-import {truthy} from './truthy';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -78,7 +69,7 @@ type InternalStitchFramesToVideoOptions = {
 	ffmpegOverride: null | FfmpegOverrideFn;
 	colorSpace: ColorSpace;
 	binariesDirectory: string | null;
-};
+} & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
@@ -107,107 +98,15 @@ export type StitchFramesToVideoOptions = {
 	x264Preset?: X264Preset | null;
 	colorSpace?: ColorSpace;
 	binariesDirectory?: string | null;
-};
+} & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
-
-const getAssetsData = async ({
-	assets,
-	onDownload,
-	fps,
-	expectedFrames,
-	logLevel,
-	onProgress,
-	downloadMap,
-	remotionRoot,
-	indent,
-	binariesDirectory,
-}: {
-	assets: TRenderAsset[][];
-	onDownload: RenderMediaOnDownload | undefined;
-	fps: number;
-	expectedFrames: number;
-	logLevel: LogLevel;
-	onProgress: (progress: number) => void;
-	downloadMap: DownloadMap;
-	remotionRoot: string;
-	indent: boolean;
-	binariesDirectory: string | null;
-}): Promise<string> => {
-	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets,
-		onDownload: onDownload ?? (() => () => undefined),
-		downloadMap,
-		indent,
-		logLevel,
-	});
-
-	markAllAssetsAsDownloaded(downloadMap);
-	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
-
-	Log.verbose(
-		{indent, logLevel, tag: 'audio'},
-		'asset positions',
-		JSON.stringify(assetPositions),
-	);
-
-	const preprocessProgress = new Array(assetPositions.length).fill(0);
-
-	const updateProgress = () => {
-		onProgress(
-			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length,
-		);
-	};
-
-	const preprocessed = (
-		await Promise.all(
-			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
-				const result = await preprocessAudioTrack({
-					outName: filterFile,
-					asset,
-					expectedFrames,
-					fps,
-					downloadMap,
-					indent,
-					logLevel,
-					binariesDirectory,
-				});
-				preprocessProgress[index] = 1;
-				updateProgress();
-				return result;
-			}),
-		)
-	).filter(truthy);
-
-	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
-
-	await mergeAudioTrack({
-		files: preprocessed,
-		outName,
-		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
-		downloadMap,
-		remotionRoot,
-		indent,
-		logLevel,
-		binariesDirectory,
-	});
-
-	onProgress(1);
-
-	deleteDirectory(downloadMap.audioMixing);
-	preprocessed.forEach((p) => {
-		deleteDirectory(p.outName);
-	});
-
-	return outName;
-};
 
 const innerStitchFramesToVideo = async (
 	{
 		assetsInfo,
 		audioBitrate,
-		audioCodec,
+		audioCodec: audioCodecSetting,
 		cancelSignal,
 		codec,
 		crf,
@@ -234,6 +133,8 @@ const innerStitchFramesToVideo = async (
 		x264Preset,
 		colorSpace,
 		binariesDirectory,
+		separateAudioTo,
+		forSeamlessAacConcatenation,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -276,10 +177,12 @@ const innerStitchFramesToVideo = async (
 		);
 	}
 
-	// Explanation: https://github.com/remotion-dev/remotion/issues/1647
-	const resolvedAudioCodec = preferLossless
-		? getDefaultAudioCodec({codec, preferLossless: true})
-		: audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
+	const resolvedAudioCodec = resolveAudioCodec({
+		codec,
+		preferLossless,
+		setting: audioCodecSetting,
+		separateAudioTo,
+	});
 
 	const tempFile = outputLocation
 		? null
@@ -349,20 +252,25 @@ const innerStitchFramesToVideo = async (
 		onProgress?.(muxProgress);
 	};
 
-	const audio = shouldRenderAudio
-		? await getAssetsData({
-				assets: assetsInfo.assets,
-				onDownload,
-				fps,
-				expectedFrames,
-				logLevel,
-				onProgress: () => updateProgress(0),
-				downloadMap: assetsInfo.downloadMap,
-				remotionRoot,
-				indent,
-				binariesDirectory,
-			})
-		: null;
+	const audio =
+		shouldRenderAudio && resolvedAudioCodec
+			? await createAudio({
+					assets: assetsInfo.assets,
+					onDownload,
+					fps,
+					expectedFrames,
+					logLevel,
+					onProgress: () => updateProgress(0),
+					downloadMap: assetsInfo.downloadMap,
+					remotionRoot,
+					indent,
+					binariesDirectory,
+					audioBitrate,
+					audioCodec: resolvedAudioCodec,
+					cancelSignal: cancelSignal ?? undefined,
+					forSeamlessAacConcatenation,
+				})
+			: null;
 
 	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!resolvedAudioCodec) {
@@ -371,31 +279,21 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const ffmpegTask = callFf({
-			bin: 'ffmpeg',
-			args: [
-				'-i',
-				audio,
-				'-c:a',
-				mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec),
-				'-b:a',
-				audioBitrate ?? '320k',
-				force ? '-y' : null,
-				outputLocation ?? tempFile,
-			].filter(NoReactInternals.truthy),
-			indent,
-			logLevel,
-			binariesDirectory,
-		});
-
-		cancelSignal?.(() => {
-			ffmpegTask.kill();
-		});
-		await ffmpegTask;
-		onProgress?.(expectedFrames);
-		if (audio) {
-			deleteDirectory(path.dirname(audio));
+		if (!audio) {
+			throw new TypeError(
+				'exporting audio but has no audio file. Report this in the Remotion repo.',
+			);
 		}
+
+		if (separateAudioTo) {
+			throw new Error(
+				'`separateAudioTo` was set, but this render was audio-only. This option is meant to be used for video renders.',
+			);
+		}
+
+		cpSync(audio, outputLocation ?? (tempFile as string));
+		onProgress?.(expectedFrames);
+		deleteDirectory(path.dirname(audio));
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
 			if (tempFile) {
@@ -427,7 +325,7 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio ? ['-i', audio] : null,
+		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : ['-an'],
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
@@ -444,12 +342,6 @@ const innerStitchFramesToVideo = async (
 			colorSpace,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
-		resolvedAudioCodec
-			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
-			: null,
-		resolvedAudioCodec ? ['-b:a', audioBitrate || '320k'] : null,
-		resolvedAudioCodec === 'aac' ? '-cutoff' : null,
-		resolvedAudioCodec === 'aac' ? '18000' : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		['-metadata', `comment=Made with Remotion ${VERSION}`],
@@ -485,9 +377,7 @@ const innerStitchFramesToVideo = async (
 		indent,
 		logLevel,
 		binariesDirectory,
-	});
-	cancelSignal?.(() => {
-		task.kill();
+		cancelSignal: cancelSignal ?? undefined,
 	});
 	let ffmpegStderr = '';
 	let isFinished = false;
@@ -513,6 +403,20 @@ const innerStitchFramesToVideo = async (
 			}
 		}
 	});
+
+	if (separateAudioTo) {
+		if (!audio) {
+			throw new Error(
+				`\`separateAudioTo\` was set to ${JSON.stringify(
+					separateAudioTo,
+				)}, but this render included no audio`,
+			);
+		}
+
+		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
+		cpSync(audio, finalDestination);
+		rmSync(audio);
+	}
 
 	return new Promise<Buffer | null>((resolve, reject) => {
 		task.once('close', (code, signal) => {
@@ -595,6 +499,8 @@ export const stitchFramesToVideo = ({
 	x264Preset,
 	colorSpace,
 	binariesDirectory,
+	separateAudioTo,
+	forSeamlessAacConcatenation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -626,5 +532,7 @@ export const stitchFramesToVideo = ({
 		x264Preset: x264Preset ?? null,
 		colorSpace: colorSpace ?? 'default',
 		binariesDirectory: binariesDirectory ?? null,
+		separateAudioTo: separateAudioTo ?? null,
+		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 	});
 };

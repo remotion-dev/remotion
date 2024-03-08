@@ -32,7 +32,7 @@ import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 export const RENDER_COMMAND = 'render';
 
 function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata
+	return status.renderMetadata && status.renderMetadata.type === 'video'
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
 				status.renderMetadata.everyNthFrame,
@@ -60,6 +60,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	preferLosslessOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -163,6 +164,9 @@ export const renderCommand = async (
 		false,
 	).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const preferLossless = preferLosslessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
@@ -305,12 +309,14 @@ export const renderCommand = async (
 			: null,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
-		audioCodec: CliInternals.parsedCli['audio-codec'],
+		audioCodec:
+			CliInternals.parsedCli[BrowserSafeApis.options.audioCodecOption.cliFlag],
 		deleteAfter: deleteAfter ?? null,
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
+		preferLossless,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

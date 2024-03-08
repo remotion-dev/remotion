@@ -210,6 +210,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize,
 	beepOnFinish,
 	repro,
+	forSeamlessAacConcatenation,
+	separateAudioTo,
 }: {
 	compositionId: string;
 	outName: string;
@@ -244,6 +246,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize: string | null;
 	beepOnFinish: boolean;
 	repro: boolean;
+	forSeamlessAacConcatenation: boolean;
+	separateAudioTo: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -285,6 +289,8 @@ export const addVideoRenderJob = ({
 		encodingMaxRate,
 		beepOnFinish,
 		repro,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
 	});
 };
 

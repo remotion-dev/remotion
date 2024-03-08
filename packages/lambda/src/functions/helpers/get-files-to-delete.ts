@@ -13,16 +13,33 @@ export type CleanupJob = {
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
+	hasVideo,
+	hasAudio,
 }: {
 	chunkCount: number;
 	renderId: string;
+	hasVideo: boolean;
+	hasAudio: boolean;
 }): CleanupJob[] => {
-	const chunks = new Array(chunkCount).fill(true).map((_x, i) =>
-		chunkKeyForIndex({
-			index: i,
-			renderId,
-		}),
-	);
+	const videoChunks = hasVideo
+		? new Array(chunkCount).fill(true).map((_x, i) =>
+				chunkKeyForIndex({
+					index: i,
+					renderId,
+					type: 'video',
+				}),
+			)
+		: [];
+	const audioChunks = hasAudio
+		? new Array(chunkCount).fill(true).map((_x, i) =>
+				chunkKeyForIndex({
+					index: i,
+					renderId,
+					type: 'audio',
+				}),
+			)
+		: [];
+
 	const lambdaTimings = new Array(chunkCount)
 		.fill(true)
 		.map((_x, i) => lambdaTimingsPrefixForChunk(renderId, i));
@@ -31,7 +48,13 @@ export const getFilesToDelete = ({
 			name: lambdaChunkInitializedPrefix(renderId),
 			type: 'prefix' as const,
 		},
-		...chunks.map((i) => {
+		...videoChunks.map((i) => {
+			return {
+				name: i,
+				type: 'exact' as const,
+			};
+		}),
+		...audioChunks.map((i) => {
 			return {
 				name: i,
 				type: 'exact' as const,

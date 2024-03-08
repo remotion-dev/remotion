@@ -1,5 +1,7 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
 import type {MediaAsset} from './assets/types';
+import {getClosestAlignedTime} from './combine-audio';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {FilterWithoutPaddingApplied} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
@@ -9,20 +11,38 @@ export const calculateFfmpegFilter = ({
 	durationInFrames,
 	channels,
 	assetDuration,
+	forSeamlessAacConcatenation,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	durationInFrames: number;
 	channels: number;
 	assetDuration: number | null;
+	forSeamlessAacConcatenation: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
 	}
 
-	const assetTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
-	const assetTrimRight =
-		assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+	const assetTrimLeft = forSeamlessAacConcatenation
+		? Math.max(
+				0,
+				getClosestAlignedTime(
+					((asset.trimLeft * asset.playbackRate) / fps) * 1_000_000,
+				) /
+					1_000_000 -
+					2 * (1024 / DEFAULT_SAMPLE_RATE),
+			)
+		: (asset.trimLeft * asset.playbackRate) / fps;
+	const assetTrimRight = forSeamlessAacConcatenation
+		? getClosestAlignedTime(
+				((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
+					1_000_000,
+			) /
+				1_000_000 +
+			2 * (1024 / DEFAULT_SAMPLE_RATE)
+		: assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+
 	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,

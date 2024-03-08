@@ -1,4 +1,4 @@
-import {random, useCurrentFrame} from 'remotion';
+import {Audio, random, staticFile, useCurrentFrame} from 'remotion';
 
 export function selectColor(color: string, frame: number): number {
 	return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -24,6 +24,7 @@ export const Framer: React.FC = () => {
 			}}
 		>
 			<h1 style={{fontSize: 120}}>{frame} 😁</h1>
+			<Audio src={staticFile('sine.wav')} />
 		</div>
 	);
 };
