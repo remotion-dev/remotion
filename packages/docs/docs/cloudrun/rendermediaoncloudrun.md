@@ -272,7 +272,7 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 Render a silent audio track if there wouldn't be any otherwise.
 
-### `preferLossless?`
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
 
 <Options id="prefer-lossless" />
 
