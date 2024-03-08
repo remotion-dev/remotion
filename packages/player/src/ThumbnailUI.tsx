@@ -104,9 +104,6 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		[thumbnail.emitter],
 	);
 
-	const rootRef = useRef<ThumbnailMethods>(null);
-	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
-
 	const loadingMarkup = useMemo(() => {
 		return renderLoading
 			? renderLoading({
