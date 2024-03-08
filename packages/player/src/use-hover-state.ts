@@ -4,7 +4,7 @@ export const useHoverState = (
 	ref: React.RefObject<HTMLDivElement>,
 	hideControlsWhenPointerDoesntMove?: boolean,
 ) => {
-	const [hovered, stetHovered] = useState(false);
+	const [hovered, setHovered] = useState(false);
 
 	useEffect(() => {
 		const {current} = ref;
@@ -17,23 +17,23 @@ export const useHoverState = (
 			if (hideControlsWhenPointerDoesntMove) {
 				clearTimeout(hoverTimeout);
 				hoverTimeout = setTimeout(() => {
-					stetHovered(false);
+					setHovered(false);
 				}, 3000);
 			}
 		};
 
 		const onHover = () => {
-			stetHovered(true);
+			setHovered(true);
 			addHoverTimeout();
 		};
 
 		const onLeave = () => {
-			stetHovered(false);
+			setHovered(false);
 			clearTimeout(hoverTimeout);
 		};
 
 		const onMove = () => {
-			stetHovered(true);
+			setHovered(true);
 			addHoverTimeout();
 		};
 
