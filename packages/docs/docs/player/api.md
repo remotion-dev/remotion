@@ -417,7 +417,7 @@ _optional_
 
 If true, displays the player controls at all times even if the mouse is outside the player area. This settings override the default behavior, which automatically hides the controls after a period of mouse inactivity over the player area. Default `false`.
 
-### `hideControlsWhenPointerDoesntMove`<AvailableFrom v="4.0.123" />
+### `hideControlsWhenPointerDoesntMove`<AvailableFrom v="4.0.124" />
 
 _optional_
 
