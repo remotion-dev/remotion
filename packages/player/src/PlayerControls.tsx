@@ -276,7 +276,6 @@ export const Controls: React.FC<{
 	const onPointerUpIfContainer: React.PointerEventHandler<HTMLDivElement> =
 		useCallback(
 			(e) => {
-				console.log(e.target);
 				// Only if pressing the container
 				if (e.target === ref.current || e.target === flexRef.current) {
 					onPointerUp?.(e);
