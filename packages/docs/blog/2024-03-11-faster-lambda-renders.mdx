@@ -1,0 +1,54 @@
+---
+slug: faster-lambda-renders
+title: Lambda renders finish faster now
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/todo.png
+---
+
+With Remotion v4.0.123, Lambda renders now render significantly faster.  
+Thanks to an innovative audio concatenation strategy that we implemented with help from [Max Schnur](https://github.com/maxpower15) from [Wistia](https://wistia.com/), we can skip an audio re-encoding step at the end.
+
+## Constraints of AAC audio
+
+Remotion Lambda renders video parts in parallel and concatenates them at the end.  
+The slow part is actually not the video, but the audio rendering!
+
+A `.mp4` file is a container format which usually contains:
+
+- A H.264 video stream
+- An AAC audio stream
+
+While other audio streams are possible (like in MP3 format for example), AAC audio is the most widely-supported audio codec for MP4.
+
+AAC has a weird restriction: The duration of the audio must be divisible by 1024 samples. That makes it impossible to create an AAC audio that is exactly 1 second long. At a sample rate of 48000 Hz, we need 47 packets to fit all of the audio: `1024 * 47 = 48128`. The leftover 128 samples will get padded with silence.
+
+When concatenating AAC audio, this padding of silence is noticeable. To remove it, we'd have to shift the samples and recreate all packets after the first seam:
+
+[IMG]
+
+## The longer the audio, the worse the problem
+
+So far, Remotion has just created lossless audio in each chunk and was encoding the audio only at the end. This was the only part of the distributed renderer which was not parallelizable.
+
+The longer the audio, the worse the problem is. If you wanted to render an hour long video with audio on Remotion Lambda, re-encoding the audio at the end would take longer than rendering all chunks and sometimes you would hit the 900 second Lambda timeout.
+
+We've previously cut the audio encoding time in half by switching from the default FFmpeg encoder to the `libfdk-aac` encoder, solving the problem partially.
+
+Now, we're cutting out the AAC encoding completely!
+
+## An innovative way to contatenate AAC
+
+I've been thinking about this problem (without understanding it completely) for a while and been talking about it at the [RTC.on](https://rtcon.live/) multimedia conference about it. Thanks to those who came up afterwards and helped me grasp the problem, and thanks to [Software Mansion](https://swmansion.com) for joining me on a small hackathon searching for the solution.
+
+Ultimately, this made me understand the problem better, but no solution was found. Out of the blue, Max Schnur from Wistia appeared with a solution and posted it on the [Remotion Discord](https://remotion.dev/discord)!
+
+Here is how it works: Instead of only encoding the audio for a specific chunk, a bit more audio is being rendered - at the start and at the end, 2 more packets (2048 samples) are being added. This is because AAC packets also depend on the previous and next packet and cannot be used standalone.
+
+Also, the start sample and end sample are aligned to always be divisible by 1024.
+
+When concatenating, we can slice off between 2-3 packets by giving FFmpeg microsecond-exact timing and concatenate the audio canConcatAudioSeamlessly.
+
+## Benchmarks
