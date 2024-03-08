@@ -121,7 +121,7 @@ export const Controls: React.FC<{
 	showPlaybackRateControl: boolean | number[];
 	containerRef: React.RefObject<HTMLDivElement>;
 	buffering: boolean;
-	hideControlsWhenPointerDoesntMove: boolean;
+	hideControlsWhenPointerDoesntMove: boolean | number;
 }> = ({
 	durationInFrames,
 	isFullscreen,

@@ -76,7 +76,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	showPlaybackRateControl?: boolean | number[];
 	posterFillMode?: PosterFillMode;
 	bufferStateDelayInMilliseconds?: number;
-	hideControlsWhenPointerDoesntMove?: boolean;
+	hideControlsWhenPointerDoesntMove?: boolean | number;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 

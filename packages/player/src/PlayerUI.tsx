@@ -81,7 +81,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPlaybackRateControl: boolean | number[];
 		posterFillMode: PosterFillMode;
 		bufferStateDelayInMilliseconds: number;
-		hideControlsWhenPointerDoesntMove: boolean;
+		hideControlsWhenPointerDoesntMove: boolean | number;
 	}
 > = (
 	{

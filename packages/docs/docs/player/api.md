@@ -421,7 +421,9 @@ If true, displays the player controls at all times even if the mouse is outside 
 
 _optional_
 
-Hides the player controls after 3 seconds of mouse inactivity while the mouse is over the player. By default, this behavior is enabled (`true`). The `alwaysShowControls` prop is respected, meaning, if it is set to `true`, then the controls should never hide.
+Hides the player controls after 3 seconds of mouse inactivity while the mouse is over the player. By default, this behavior is enabled (`true`). The [`alwaysShowControls`](#alwaysshowcontrols) prop is respected, meaning, if it is set to `true`, then the controls will never hide.
+
+You may also pass in a number to customize the hide delay in milliseconds, by default `3000`.
 
 ### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
 

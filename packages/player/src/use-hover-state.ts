@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 
 export const useHoverState = (
 	ref: React.RefObject<HTMLDivElement>,
-	hideControlsWhenPointerDoesntMove?: boolean,
+	hideControlsWhenPointerDoesntMove: boolean | number,
 ) => {
 	const [hovered, setHovered] = useState(false);
 
@@ -16,9 +16,14 @@ export const useHoverState = (
 		const addHoverTimeout = () => {
 			if (hideControlsWhenPointerDoesntMove) {
 				clearTimeout(hoverTimeout);
-				hoverTimeout = setTimeout(() => {
-					setHovered(false);
-				}, 3000);
+				hoverTimeout = setTimeout(
+					() => {
+						setHovered(false);
+					},
+					hideControlsWhenPointerDoesntMove === true
+						? 3000
+						: hideControlsWhenPointerDoesntMove,
+				);
 			}
 		};
 
