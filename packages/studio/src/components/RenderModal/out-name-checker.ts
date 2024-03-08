@@ -21,12 +21,14 @@ export const validateOutnameGui = ({
 	audioCodec,
 	renderMode,
 	stillImageFormat,
+	separateAudioTo,
 }: {
 	outName: string;
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
 	stillImageFormat: StillImageFormat | null;
+	separateAudioTo: string | null;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		isValidOutName({
@@ -35,6 +37,7 @@ export const validateOutnameGui = ({
 			outName,
 			renderMode,
 			stillImageFormat,
+			separateAudioTo,
 		});
 		return {valid: true};
 	} catch (err) {
@@ -48,12 +51,14 @@ const isValidOutName = ({
 	audioCodec,
 	renderMode,
 	stillImageFormat,
+	separateAudioTo,
 }: {
 	outName: string;
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
 	stillImageFormat: StillImageFormat | null;
+	separateAudioTo: string | null;
 }): void => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
@@ -87,9 +92,10 @@ const isValidOutName = ({
 	if (renderMode === 'video' || renderMode === 'audio') {
 		BrowserSafeApis.validateOutputFilename({
 			codec,
-			audioCodec: audioCodec ?? null,
+			audioCodecSetting: audioCodec ?? null,
 			extension,
 			preferLossless: false,
+			separateAudioTo,
 		});
 	}
 
@@ -121,5 +127,51 @@ const isValidOutName = ({
 		if (outName.includes('.')) {
 			throw new Error('Folder names must not contain a dot');
 		}
+	}
+};
+
+export const isValidSeparateAudioName = ({
+	audioCodec,
+	separateAudioTo,
+}: {
+	separateAudioTo: string;
+	audioCodec: AudioCodec;
+}): void => {
+	const prefix = separateAudioTo.substring(0, separateAudioTo.lastIndexOf('.'));
+
+	const expectedExtension =
+		BrowserSafeApis.getExtensionFromAudioCodec(audioCodec);
+	const actualExtension = separateAudioTo.split('.').pop();
+	if (actualExtension !== expectedExtension) {
+		throw new Error(`Expected extension: .${expectedExtension}`);
+	}
+
+	const hasDotAfterSlash = () => {
+		const substrings = prefix.split('/');
+		for (const str of substrings) {
+			if (str[0] === '.') {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	const hasInvalidChar = () => {
+		return prefix.split('').some((char) => invalidCharacters.includes(char));
+	};
+
+	if (prefix.length < 1) {
+		throw new Error('The prefix must be at least 1 character long');
+	}
+
+	if (prefix[0] === '.' || hasDotAfterSlash()) {
+		throw new Error('The output name must not start with a dot');
+	}
+
+	if (hasInvalidChar()) {
+		throw new Error(
+			"Filename can't contain the following characters:  ?, *, +, %, :",
+		);
 	}
 };

@@ -75,7 +75,7 @@ export const stringifyFfmpegFilter = ({
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// Order matters! First trim the audio
-				`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
+				`atrim=${trimLeft * 1_000_000}us:${actualTrimRight * 1_000_000}us`,
 				// then set the tempo
 				calculateATempo(playbackRate),
 				// set the volume if needed
@@ -87,12 +87,6 @@ export const stringifyFfmpegFilter = ({
 				toneFrequency && toneFrequency !== 1
 					? `asetrate=${DEFAULT_SAMPLE_RATE}*${toneFrequency},aresample=${DEFAULT_SAMPLE_RATE},atempo=1/${toneFrequency}`
 					: null,
-				// For n channels, we delay n + 1 channels.
-				// This is because `ffprobe` for some audio files reports the wrong amount
-				// of channels.
-				// This should be fine because FFMPEG documentation states:
-				// "Unused delays will be silently ignored."
-				// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			]
 				.filter(truthy)
 				.join(',') +
@@ -102,6 +96,12 @@ export const stringifyFfmpegFilter = ({
 				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
 				: null,
 		pad_start:
+			// For n channels, we delay n + 1 channels.
+			// This is because `ffprobe` for some audio files reports the wrong amount
+			// of channels.
+			// This should be fine because FFMPEG documentation states:
+			// "Unused delays will be silently ignored."
+			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			startInVideoSeconds === 0
 				? null
 				: `adelay=${new Array(channels + 1)

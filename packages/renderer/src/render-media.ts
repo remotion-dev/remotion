@@ -5,7 +5,6 @@ import path from 'node:path';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -30,12 +29,12 @@ import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import {isAudioCodec} from './options/audio-codec';
 import type {ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -119,7 +118,6 @@ export type InternalRenderMediaOptions = {
 	enforceAudioTrack: boolean;
 	ffmpegOverride: FfmpegOverrideFn | undefined;
 	disallowParallelEncoding: boolean;
-	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
 	finishRenderProgress: () => void;
@@ -173,7 +171,6 @@ export type RenderMediaOptions = Prettify<{
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	disallowParallelEncoding?: boolean;
-	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
 	colorSpace?: ColorSpace;
@@ -238,6 +235,8 @@ const internalRenderMediaRaw = ({
 	repro,
 	finishRenderProgress,
 	binariesDirectory,
+	separateAudioTo,
+	forSeamlessAacConcatenation,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -275,9 +274,10 @@ const internalRenderMediaRaw = ({
 	if (outputLocation) {
 		validateOutputFilename({
 			codec,
-			audioCodec,
+			audioCodecSetting: audioCodec,
 			extension: getExtensionOfFilename(outputLocation) as string,
 			preferLossless,
+			separateAudioTo,
 		});
 	}
 
@@ -689,6 +689,8 @@ const internalRenderMediaRaw = ({
 						x264Preset: x264Preset ?? null,
 						colorSpace,
 						binariesDirectory,
+						separateAudioTo,
+						forSeamlessAacConcatenation,
 					}),
 					stitchStart,
 				]);
@@ -837,6 +839,8 @@ export const renderMedia = ({
 	colorSpace,
 	repro,
 	binariesDirectory,
+	separateAudioTo,
+	forSeamlessAacConcatenation,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -903,5 +907,7 @@ export const renderMedia = ({
 		repro: repro ?? false,
 		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
+		separateAudioTo: separateAudioTo ?? null,
+		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 	});
 };

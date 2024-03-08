@@ -20,7 +20,7 @@ type ChunkProgress = {
 	framesRendered: number;
 	totalFrames: number | null;
 	totalChunks: number | null;
-	chunksInvoked: number;
+	chunksEncoded: number;
 };
 
 type MultiRenderProgress = {
@@ -55,13 +55,13 @@ const makeRenderProgress = ({
 	chunkProgress: ChunkProgress;
 	totalSteps: number;
 }) => {
-	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
+	const {chunksEncoded, totalChunks, doneIn} = chunkProgress;
 	const renderProgress =
 		chunkProgress.totalFrames === null
 			? 0
 			: chunkProgress.framesRendered / chunkProgress.totalFrames;
 	const encodingProgress =
-		totalChunks === null ? 0 : chunksInvoked / totalChunks;
+		totalChunks === null ? 0 : chunksEncoded / totalChunks;
 
 	const frames =
 		chunkProgress.totalFrames === null
@@ -180,16 +180,17 @@ export const makeMultiProgressFromStatus = (
 ): MultiRenderProgress => {
 	return {
 		chunkProgress: {
-			chunksInvoked: status.chunks,
+			chunksEncoded: status.chunks,
 			totalChunks: status.renderMetadata?.totalChunks ?? null,
 			doneIn: status.timeToFinishChunks,
 			framesRendered: status.framesRendered,
-			totalFrames: status.renderMetadata
-				? RenderInternals.getFramesToRender(
-						status.renderMetadata.frameRange,
-						status.renderMetadata.everyNthFrame,
-					).length
-				: null,
+			totalFrames:
+				status.renderMetadata && status.renderMetadata.type === 'video'
+					? RenderInternals.getFramesToRender(
+							status.renderMetadata.frameRange,
+							status.renderMetadata.everyNthFrame,
+						).length
+					: null,
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,

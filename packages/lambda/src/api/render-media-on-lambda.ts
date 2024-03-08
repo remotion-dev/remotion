@@ -192,6 +192,7 @@ export const renderMediaOnLambda = (
 		webhook: options.webhook ?? null,
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
+		preferLossless: options.preferLossless ?? false,
 	});
 };
 

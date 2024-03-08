@@ -29,9 +29,12 @@ const makeChunkMissingMessage = ({
 			.map((ch) => {
 				const isLastChunk = ch === renderMetadata.totalChunks - 1;
 				const start = ch * renderMetadata.framesPerLambda;
-				const end = isLastChunk
-					? renderMetadata.frameRange[1]
-					: (ch + 1) * renderMetadata.framesPerLambda - 1;
+				const end =
+					renderMetadata.type === 'still'
+						? 0
+						: isLastChunk
+							? renderMetadata.frameRange[1]
+							: (ch + 1) * renderMetadata.framesPerLambda - 1;
 
 				const msg = `Chunk ${ch} (Frames ${start} - ${end})`;
 

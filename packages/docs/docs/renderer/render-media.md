@@ -443,6 +443,10 @@ _boolean - default `false`_
 
 <Options id="binaries-directory" />
 
+### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
+
+<Options id="for-seamless-aac-concatenation" />
+
 ### ~~`parallelism?`~~
 
 Renamed to `concurrency` in v3.2.17.

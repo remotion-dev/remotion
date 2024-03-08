@@ -252,6 +252,7 @@ class RenderMediaParams:
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[str] = None
+    prefer_lossless: Optional[bool] = False
     composition: str = ""
     serve_url: str = ""
     frames_per_lambda: Optional[int] = None
@@ -312,6 +313,7 @@ class RenderMediaParams:
             'logLevel': self.log_level,
             'frameRange': self.frame_range,
             'outName': self.out_name,
+            'preferLossless': self.prefer_lossless,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,

@@ -3,7 +3,6 @@ import {Column, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
-import type {RenderType} from './RenderModalAdvanced';
 
 type Props = {
 	existence: boolean;
@@ -11,24 +10,21 @@ type Props = {
 	outName: string;
 	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
 	validationMessage: string | null;
-	renderType: RenderType;
+	label: string;
 };
 
-// eslint-disable-next-line react/function-component-definition
-export function RenderModalInput({
+export const RenderModalOutputName = ({
 	existence,
 	inputStyle,
 	outName,
 	onValueChange,
 	validationMessage,
-	renderType,
-}: Props) {
+	label: labelText,
+}: Props) => {
 	return (
 		<div style={optionRow}>
 			<Column>
-				<div style={label}>
-					{renderType === 'sequence' ? 'Folder name' : 'Output name'}
-				</div>
+				<div style={label}>{labelText}</div>
 			</Column>
 
 			<div style={rightRow}>
@@ -64,4 +60,4 @@ export function RenderModalInput({
 			</div>
 		</div>
 	);
-}
+};

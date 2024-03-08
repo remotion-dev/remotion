@@ -94,7 +94,7 @@ export const listCompositionsCommand = async (
 			// Not needed for compositions
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
-			maxTimlineTracks: null,
+			maxTimelineTracks: null,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

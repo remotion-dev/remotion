@@ -5,7 +5,10 @@ import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
+import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {ProcessedTrack} from './stringify-ffmpeg-filter';
@@ -19,6 +22,9 @@ type Options = {
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+	forSeamlessAacConcatenation: boolean;
+	onProgress: (progress: number) => void;
 };
 
 export type PreprocessedAudioTrack = {
@@ -35,6 +41,9 @@ const preprocessAudioTrackUnlimited = async ({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
+	forSeamlessAacConcatenation,
+	onProgress,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -42,6 +51,7 @@ const preprocessAudioTrackUnlimited = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 
 	const filter = calculateFfmpegFilter({
@@ -50,6 +60,7 @@ const preprocessAudioTrackUnlimited = async ({
 		fps,
 		channels,
 		assetDuration: duration,
+		forSeamlessAacConcatenation,
 	});
 
 	if (filter === null) {
@@ -67,7 +78,41 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await callFf({bin: 'ffmpeg', args, indent, logLevel, binariesDirectory});
+	Log.verbose(
+		{indent, logLevel},
+		'Preprocessing audio track',
+		args,
+		'Filter:',
+		filter.filter,
+	);
+	const startTime = Date.now();
+
+	const task = callFf({
+		bin: 'ffmpeg',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
+
+	task.stderr?.on('data', (data: Buffer) => {
+		const utf8 = data.toString('utf8');
+		const parsed = parseFfmpegProgress(utf8, fps);
+		if (parsed === undefined) {
+			Log.verbose({indent, logLevel}, utf8);
+		} else {
+			onProgress(parsed / expectedFrames);
+		}
+	});
+
+	await task;
+
+	Log.verbose(
+		{indent, logLevel},
+		'Preprocessed audio track',
+		`${Date.now() - startTime}ms`,
+	);
 
 	cleanup();
 	return {outName, filter};

@@ -41,6 +41,7 @@ test("Should be able to render video with custom port", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -148,6 +149,7 @@ test("Should render a ProRes video", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data.includes("prores (4444)") || data.includes("prores (ap4h")).toBe(
@@ -176,6 +178,7 @@ test("Should render a still image if single frame specified", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Video: png");
@@ -204,6 +207,7 @@ test("Should be able to render a WAV audio file", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("pcm_s16le");
@@ -235,6 +239,7 @@ test("Should be able to render a MP3 audio file", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("mp3");
@@ -266,6 +271,7 @@ test("Should be able to render a AAC audio file", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("aac");
@@ -294,6 +300,7 @@ test("Should render a video with GIFs", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -322,6 +329,7 @@ test("Should render a video with Offline Audio-context", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Stream #0:0: Audio: mp3");
@@ -345,6 +353,7 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Duration: 00:00:00.36");
@@ -373,23 +382,22 @@ test("Should render a still that uses the staticFile() API and should apply prop
   fs.unlinkSync(out);
 });
 
-test("Dynamic duration should work, and render from inside src/", async () => {
+test("Dynamic duration should work and audio separation", async () => {
+  const audio = path.join(process.cwd(), "..", "example", "audio.wav");
+
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
-    path.join(
-      process.cwd(),
-      "..",
-      "example",
-      "node_modules",
-      ".bin",
-      "remotion"
-    ),
+    "pnpm",
     [
+      "exec",
+      "remotion",
       "render",
       "src/index.ts",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
+      "--separate-audio-to",
+      "audio.wav",
       outputPath,
     ],
     {
@@ -406,16 +414,34 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     indent: false,
     logLevel: "info",
     binariesDirectory: null,
+    cancelSignal: undefined,
   });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   const expectedDuration = (randomDuration / 30).toFixed(2);
   expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+  expect(data).toContain(
+    `Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive)`
+  );
 
   fs.unlinkSync(outputPath);
+
+  const audioInfo = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [audio],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
+  const audioData = audioInfo.stderr;
+  expect(audioData).toContain(
+    "  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16"
+  );
+  fs.unlinkSync(audio);
 });
 
-test("Should be able to render if remotion.config.js is not provided", async () => {
+test("Should be able to render if remotion.config.js is not provided, and separate audio", async () => {
   const task = await execa(
     "node",
     [
@@ -442,6 +468,7 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       "render",
       "packages/example/src/ts-entry.tsx",
       "framer",
+      "--public-dir=packages/example/public",
       outputPath,
     ],
     {

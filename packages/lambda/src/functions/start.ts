@@ -105,6 +105,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		deleteAfter: params.deleteAfter,
 		colorSpace: params.colorSpace,
+		preferLossless: params.preferLossless,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone

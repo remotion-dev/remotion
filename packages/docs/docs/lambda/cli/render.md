@@ -131,7 +131,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
@@ -254,3 +254,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 
 <Options cli id="color-space" />
+
+### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
+
+<Options cli id="prefer-lossless" />

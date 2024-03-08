@@ -71,6 +71,7 @@ test('Should make a transparent video', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			deleteAfter: null,
 			colorSpace: 'default',
+			preferLossless: false,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -115,6 +116,7 @@ test('Should make a transparent video', async () => {
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);

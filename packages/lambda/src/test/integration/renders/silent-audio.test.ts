@@ -67,6 +67,7 @@ test('Should add silent audio if there is no audio', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			deleteAfter: null,
 			colorSpace: 'default',
+			preferLossless: false,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
@@ -106,6 +107,7 @@ test('Should add silent audio if there is no audio', async () => {
 			stdin: file,
 		},
 		binariesDirectory: null,
+		cancelSignal: undefined,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);

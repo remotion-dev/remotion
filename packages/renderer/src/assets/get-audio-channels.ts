@@ -1,5 +1,6 @@
 import {callFf} from '../call-ffmpeg';
 import type {LogLevel} from '../log-level';
+import type {CancelSignal} from '../make-cancel-signal';
 import {pLimit} from '../p-limit';
 import type {
 	AudioChannelsAndDurationResultCache,
@@ -8,12 +9,19 @@ import type {
 
 const limit = pLimit(1);
 
-export const getAudioChannelsAndDurationWithoutCache = async (
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-	binariesDirectory: string | null,
-) => {
+export const getAudioChannelsAndDurationWithoutCache = async ({
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+	cancelSignal,
+}: {
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+}) => {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels:format=duration'],
@@ -29,6 +37,7 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
@@ -47,23 +56,26 @@ async function getAudioChannelsAndDurationUnlimited({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> {
 	if (downloadMap.durationOfAssetCache[src]) {
 		return downloadMap.durationOfAssetCache[src];
 	}
 
-	const result = await getAudioChannelsAndDurationWithoutCache(
+	const result = await getAudioChannelsAndDurationWithoutCache({
 		src,
 		indent,
 		logLevel,
 		binariesDirectory,
-	);
+		cancelSignal,
+	});
 
 	downloadMap.durationOfAssetCache[src] = result;
 
@@ -76,12 +88,14 @@ export const getAudioChannelsAndDuration = ({
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() =>
 		getAudioChannelsAndDurationUnlimited({
@@ -90,6 +104,7 @@ export const getAudioChannelsAndDuration = ({
 			indent,
 			logLevel,
 			binariesDirectory,
+			cancelSignal,
 		}),
 	);
 };

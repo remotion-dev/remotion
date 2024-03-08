@@ -62,6 +62,9 @@ export const Modals: React.FC<{
 					}
 					initialRepro={modalContextType.initialRepro}
 					initialBeep={modalContextType.initialBeep}
+					initialForSeamlessAacConcatenation={
+						modalContextType.initialForSeamlessAacConcatenation
+					}
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}

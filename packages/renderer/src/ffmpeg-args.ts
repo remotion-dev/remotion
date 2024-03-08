@@ -109,6 +109,7 @@ export const generateFfmpegArgs = ({
 
 	return [
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
+		codec === 'h264-ts' ? ['-f', 'mpegts'] : null,
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		...colorSpaceOptions,

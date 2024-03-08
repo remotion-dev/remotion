@@ -3,7 +3,6 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -33,6 +32,9 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
+	separateAudioOption,
+	audioCodecOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -150,6 +152,15 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 
+	const forSeamlessAacConcatenation =
+		forSeamlessAacConcatenationOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
+	const separateAudioTo = separateAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
@@ -159,8 +170,7 @@ export const render = async (
 		userAgent,
 	};
 
-	const audioCodec =
-		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
+	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -219,5 +229,7 @@ export const render = async (
 		colorSpace,
 		repro,
 		binariesDirectory,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
 	});
 };

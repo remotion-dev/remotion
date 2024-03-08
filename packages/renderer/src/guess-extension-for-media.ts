@@ -1,16 +1,19 @@
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 
 export const guessExtensionForVideo = async ({
 	src,
 	indent,
 	logLevel,
 	binariesDirectory,
+	cancelSignal,
 }: {
 	src: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
 }) => {
 	const {stderr} = await callFf({
 		bin: 'ffprobe',
@@ -18,6 +21,7 @@ export const guessExtensionForVideo = async ({
 		indent,
 		logLevel,
 		binariesDirectory,
+		cancelSignal,
 	});
 	if (stderr.includes('Audio: mp3,')) {
 		return 'mp3';

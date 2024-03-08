@@ -8,10 +8,12 @@ test('Should be able to parse Lambda key', () => {
 			chunkKeyForIndex({
 				index: 1111,
 				renderId: 'abcdef',
+				type: 'video',
 			}),
 		),
 	).toEqual({
 		chunk: 1111,
 		renderId: 'abcdef',
+		type: 'video',
 	});
 });
