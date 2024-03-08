@@ -1,7 +1,6 @@
 import type {AudioCodec} from '@remotion/renderer';
 
-// There is seamless concatenation for audio and video.
-// Maybe we should separate this.
+// Cannot do WAV yet, because currently assumes AAC in+outpoint
 export const canConcatAudioSeamlessly = (audioCodec: AudioCodec | null) => {
 	return audioCodec === 'aac';
 };
