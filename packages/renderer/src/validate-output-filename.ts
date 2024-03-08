@@ -54,7 +54,10 @@ export const validateOutputFilename = <T extends Codec>({
 			resolvedAudioCodec as (typeof supportedAudioCodecs)[T][number]
 		].possible;
 
-	if (!acceptableExtensions.includes(extension as FileExtension)) {
+	if (
+		!acceptableExtensions.includes(extension as FileExtension) &&
+		!separateAudioTo
+	) {
 		throw new TypeError(
 			`When using the ${codec} codec with the ${resolvedAudioCodec} audio codec, the output filename must end in one of the following: ${acceptableExtensions.join(
 				', ',
