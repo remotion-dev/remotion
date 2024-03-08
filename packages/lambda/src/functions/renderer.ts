@@ -20,7 +20,10 @@ import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {canConcatSeamlessly} from './helpers/can-concat-seamlessly';
+import {
+	canConcatAudioSeamlessly,
+	canConcatVideoSeamlessly,
+} from './helpers/can-concat-seamlessly';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
@@ -109,16 +112,26 @@ const renderHandler = async (
 		preferLossless: params.preferLossless,
 	});
 
-	const seamless = canConcatSeamlessly(defaultAudioCodec, params.codec);
+	const seamlessAudio = canConcatAudioSeamlessly(defaultAudioCodec);
+	const seamlessVideo = canConcatVideoSeamlessly(params.codec);
+
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		`Preparing for rendering a ${seamless ? 'seamless' : 'normal'} chunk`,
+		`Preparing for rendering a chunk. Audio = ${
+			seamlessAudio ? 'seamless' : 'normal'
+		}, Video = ${seamlessVideo ? 'seamless' : 'normal'}`,
 		params.logLevel,
 	);
 
 	const chunkCodec: Codec =
-		params.codec === 'gif' ? 'h264-mkv' : seamless ? 'h264-ts' : params.codec;
-	const audioCodec: AudioCodec | null = seamless ? defaultAudioCodec : 'pcm-16';
+		params.codec === 'gif'
+			? 'h264-mkv'
+			: seamlessVideo
+				? 'h264-ts'
+				: params.codec;
+	const audioCodec: AudioCodec | null = seamlessAudio
+		? defaultAudioCodec
+		: 'pcm-16';
 
 	const videoExtension = RenderInternals.getFileExtensionFromCodec(
 		chunkCodec,
@@ -239,7 +252,7 @@ const renderHandler = async (
 			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
-			forSeamlessAacConcatenation: seamless,
+			forSeamlessAacConcatenation: seamlessAudio,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

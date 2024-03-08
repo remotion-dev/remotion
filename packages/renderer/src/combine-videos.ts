@@ -35,7 +35,8 @@ type Options = {
 	chunkDurationInSeconds: number;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	seamless: boolean;
+	seamlessAudio: boolean;
+	seamlessVideo: boolean;
 };
 
 export const combineVideos = async ({
@@ -54,7 +55,8 @@ export const combineVideos = async ({
 	chunkDurationInSeconds,
 	binariesDirectory,
 	cancelSignal,
-	seamless,
+	seamlessAudio,
+	seamlessVideo,
 }: Options) => {
 	const resolvedAudioCodec = resolveAudioCodec({
 		setting: audioCodecSetting,
@@ -97,7 +99,9 @@ export const combineVideos = async ({
 
 	Log.verbose(
 		{indent, logLevel},
-		`Combining chunks ${seamless ? 'seamlessly' : 'normally'}`,
+		`Combining chunks, audio = ${
+			seamlessAudio ? 'seamlessly' : 'normally'
+		}, video = ${seamlessVideo ? 'seamlessly' : 'normally'}`,
 	);
 	await Promise.all(
 		[
@@ -110,7 +114,7 @@ export const combineVideos = async ({
 						logLevel,
 						output: shouldCreateVideo ? (audioOutput as string) : output,
 						resolvedAudioCodec,
-						seamless,
+						seamless: seamlessAudio,
 						chunkDurationInSeconds,
 						addRemotionMetadata: !shouldCreateVideo,
 						binariesDirectory,
@@ -123,7 +127,7 @@ export const combineVideos = async ({
 					})
 				: null,
 
-			shouldCreateVideo && !seamless
+			shouldCreateVideo && !seamlessVideo
 				? createCombinedVideo({
 						codec,
 						filelistDir,
@@ -140,7 +144,6 @@ export const combineVideos = async ({
 							concatenatedVideo = frames;
 							updateProgress();
 						},
-						seamless,
 					})
 				: null,
 		].filter(truthy),
@@ -161,7 +164,7 @@ export const combineVideos = async ({
 				updateProgress();
 			},
 			output,
-			videoOutput: seamless
+			videoOutput: seamlessVideo
 				? combineVideoStreamsSeamlessly({files: videoFiles})
 				: videoOutput,
 			binariesDirectory,

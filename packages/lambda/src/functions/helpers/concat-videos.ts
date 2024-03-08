@@ -11,7 +11,10 @@ import {
 	rendersPrefix,
 } from '../../shared/constants';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
-import {canConcatSeamlessly} from './can-concat-seamlessly';
+import {
+	canConcatAudioSeamlessly,
+	canConcatVideoSeamlessly,
+} from './can-concat-seamlessly';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
@@ -218,7 +221,8 @@ export const concatVideosS3 = async ({
 
 	const chunkDurationInSeconds = framesPerLambda / fps;
 
-	const seamless = canConcatSeamlessly(audioCodec, codec);
+	const seamlessAudio = canConcatAudioSeamlessly(audioCodec);
+	const seamlessVideo = canConcatVideoSeamlessly(codec);
 
 	await RenderInternals.combineVideos({
 		files,
@@ -236,7 +240,8 @@ export const concatVideosS3 = async ({
 		chunkDurationInSeconds,
 		binariesDirectory,
 		cancelSignal,
-		seamless,
+		seamlessAudio,
+		seamlessVideo,
 	});
 	combine.end();
 

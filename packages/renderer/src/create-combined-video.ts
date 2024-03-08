@@ -1,6 +1,5 @@
 import type {Codec} from './codec';
 import {combineVideoStreams} from './combine-video-streams';
-import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
 
@@ -17,7 +16,6 @@ export const createCombinedVideo = async ({
 	numberOfGifLoops,
 	onProgress,
 	output,
-	seamless,
 }: {
 	fps: number;
 	codec: Codec;
@@ -31,14 +29,7 @@ export const createCombinedVideo = async ({
 	addRemotionMetadata: boolean;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	seamless: boolean;
 }) => {
-	if (seamless) {
-		return combineVideoStreamsSeamlessly({
-			files,
-		});
-	}
-
 	await combineVideoStreams({
 		addRemotionMetadata,
 		binariesDirectory,

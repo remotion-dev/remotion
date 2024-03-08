@@ -354,7 +354,7 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 <Options id="delete-after"/>
 
-### `preferLossless?`<AvailableFrom v="4.0.110"/>
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
 
 <Options  id="prefer-lossless" />
 
