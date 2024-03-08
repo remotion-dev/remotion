@@ -131,6 +131,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
 
+	const supportsFullScreen = useMemo(() => {
+		if (typeof document === 'undefined') {
+			return false;
+		}
+
+		return Boolean(
+			document.fullscreenEnabled || document.webkitFullscreenEnabled,
+		);
+	}, []);
+
 	const player = usePlayer();
 	usePlayback({
 		loop,
@@ -189,9 +199,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('allowFullscreen is false');
 		}
 
-		const supportsFullScreen =
-			document.fullscreenEnabled || document.webkitFullscreenEnabled;
-
 		if (!supportsFullScreen) {
 			throw new Error('Browser doesnt support fullscreen');
 		}
@@ -205,7 +212,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		} else {
 			container.current.requestFullscreen();
 		}
-	}, [allowFullscreen]);
+	}, [allowFullscreen, supportsFullScreen]);
 
 	const exitFullscreen = useCallback(() => {
 		if (document.webkitExitFullscreen) {
@@ -492,7 +499,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
 		onSingleClick,
 		onDoubleClick,
-		doubleClickToFullscreen,
+		doubleClickToFullscreen && allowFullscreen && supportsFullScreen,
 	);
 
 	useEffect(() => {
@@ -558,7 +565,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<>
 			<div
 				style={outer}
-				onClick={clickToPlay ? handleClick : undefined}
+				onPointerUp={clickToPlay ? handleClick : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
@@ -581,7 +588,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								width: config.width,
 								height: config.height,
 							}}
-							onClick={clickToPlay ? handleClick : undefined}
+							onPointerUp={clickToPlay ? handleClick : undefined}
 							onDoubleClick={
 								doubleClickToFullscreen ? handleDoubleClick : undefined
 							}
@@ -594,7 +601,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
 					style={outer}
-					onClick={clickToPlay ? handleClick : undefined}
+					onPointerUp={clickToPlay ? handleClick : undefined}
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
@@ -626,6 +633,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					showPlaybackRateControl={showPlaybackRateControl}
 					buffering={showBufferIndicator}
 					hideControlsWhenPointerDoesntMove={hideControlsWhenPointerDoesntMove}
+					onDoubleClick={
+						doubleClickToFullscreen ? handleDoubleClick : undefined
+					}
+					onPointerUp={clickToPlay ? handleClick : undefined}
 				/>
 			) : null}
 		</>

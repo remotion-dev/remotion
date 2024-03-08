@@ -1,5 +1,5 @@
 import type {MouseEventHandler, ReactNode} from 'react';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
 import {formatTime} from './format-time.js';
@@ -122,6 +122,8 @@ export const Controls: React.FC<{
 	containerRef: React.RefObject<HTMLDivElement>;
 	buffering: boolean;
 	hideControlsWhenPointerDoesntMove: boolean | number;
+	onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
+	onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -145,6 +147,8 @@ export const Controls: React.FC<{
 	containerRef,
 	buffering,
 	hideControlsWhenPointerDoesntMove,
+	onPointerUp,
+	onDoubleClick,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -271,9 +275,38 @@ export const Controls: React.FC<{
 		return null;
 	}, [showPlaybackRateControl]);
 
+	const ref = useRef<HTMLDivElement | null>(null);
+	const flexRef = useRef<HTMLDivElement | null>(null);
+
+	const onPointerUpIfContainer: React.PointerEventHandler<HTMLDivElement> =
+		useCallback(
+			(e) => {
+				// Only if pressing the container
+				if (e.target === ref.current || e.target === flexRef.current) {
+					onPointerUp?.(e);
+				}
+			},
+			[onPointerUp],
+		);
+	const onDoubleClickIfContainer: MouseEventHandler<HTMLDivElement> =
+		useCallback(
+			(e) => {
+				// Only if pressing the container
+				if (e.target === ref.current || e.target === flexRef.current) {
+					onDoubleClick?.(e);
+				}
+			},
+			[onDoubleClick],
+		);
+
 	return (
-		<div style={containerCss}>
-			<div style={controlsRow}>
+		<div
+			ref={ref}
+			style={containerCss}
+			onPointerUp={onPointerUpIfContainer}
+			onDoubleClick={onDoubleClickIfContainer}
+		>
+			<div ref={flexRef} style={controlsRow}>
 				<div style={leftPartStyle}>
 					<button
 						ref={playButtonRef}
