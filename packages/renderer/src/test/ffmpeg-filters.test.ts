@@ -88,12 +88,12 @@ test('Should add padding if audio is too short', () => {
 			durationInFrames: 100,
 			channels: 1,
 			assetDuration: 1,
-			forSeamlessAacConcatenation: true,
+			forSeamlessAacConcatenation: false,
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=298666.6666666666us:1000000us[a0]',
-		pad_end: 'apad=pad_len=126336',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+		pad_end: 'apad=pad_len=128000',
 		pad_start: null,
 	});
 });
