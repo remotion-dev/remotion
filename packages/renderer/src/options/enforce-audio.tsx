@@ -1,6 +1,6 @@
 import type {AnyRemotionOption} from './option';
 
-const DEFAULT_ENFORCE_AUDIO_TRACK = true;
+const DEFAULT_ENFORCE_AUDIO_TRACK = false;
 
 let enforceAudioTrackState = DEFAULT_ENFORCE_AUDIO_TRACK;
 

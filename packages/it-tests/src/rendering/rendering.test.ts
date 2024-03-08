@@ -399,6 +399,7 @@ test("Dynamic duration should work, and render from inside src/", async () => {
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
+      "--public-dir=packages/example/public",
       outputPath,
     ],
     {
@@ -452,6 +453,7 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       "render",
       "packages/example/src/ts-entry.tsx",
       "framer",
+      "--public-dir=packages/example/public",
       outputPath,
     ],
     {
