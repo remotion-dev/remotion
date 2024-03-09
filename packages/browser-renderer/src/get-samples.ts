@@ -12,10 +12,12 @@ export const getSamples = ({
   });
 
   return new Promise<Sample[]>((resolve, reject) => {
-    mp4File.onSamples = (_track_id, _ref, samples) => {
-      resolve(samples);
-      mp4File.onSamples = undefined;
-      mp4File.onError = undefined;
+    mp4File.onSamples = (track_id, _ref, samples) => {
+      if (track_id === track.id) {
+        resolve(samples);
+        mp4File.onSamples = undefined;
+        mp4File.onError = undefined;
+      }
     };
 
     mp4File.onError = (e) => {

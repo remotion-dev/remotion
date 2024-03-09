@@ -1,14 +1,14 @@
 import { createFile } from "mp4box";
 
+const timescale = 90000;
+
 export const createEncoder = ({
   width,
   height,
-  sampleDurations,
   onProgress,
 }: {
   width: number;
   height: number;
-  sampleDurations: number[];
   onProgress: (encoded: number) => void;
 }) => {
   let trackID: number | null = null;
@@ -22,7 +22,6 @@ export const createEncoder = ({
       const uint8 = new Uint8Array(chunk.byteLength);
       chunk.copyTo(uint8);
 
-      const timescale = 90000;
       if (trackID === null) {
         trackID = outputMp4.addTrack({
           width,
@@ -33,8 +32,11 @@ export const createEncoder = ({
         });
       }
 
-      const sampleDuration =
-        (sampleDurations.shift() as number) / (1_000_000 / timescale);
+      if (chunk.duration === null) {
+        throw new Error("No duration in the chunk");
+      }
+
+      const sampleDuration = chunk.duration / (1_000_000 / timescale);
 
       outputMp4.addSample(trackID, uint8, {
         duration: sampleDuration,

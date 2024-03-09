@@ -22,6 +22,7 @@ export const createDecoder = ({
 
       const outputFrame = new VideoFrame(bitmap, {
         timestamp: inputFrame.timestamp,
+        duration: inputFrame.duration as number,
       });
 
       onFrame(outputFrame, keyFrame);
