@@ -1,6 +1,6 @@
 import type { MP4MediaTrack } from "mp4box";
 import { DataStream } from "mp4box";
-import { createEncoder } from "./encode";
+import { createEncoder } from "./create-encoder";
 import { getSamples } from "./get-samples";
 import { loadMp4File } from "./load-mp4-file";
 
