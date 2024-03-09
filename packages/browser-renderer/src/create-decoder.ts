@@ -1,9 +1,9 @@
 export const createDecoder = ({
-  encoder,
   onProgress,
+  onFrame,
 }: {
-  encoder: VideoEncoder;
   onProgress: (decoded: number) => void;
+  onFrame: (frame: VideoFrame, keyframe: boolean) => void;
 }) => {
   let decodedFrames = 0;
   let nextKeyFrameTimestamp = 0;
@@ -24,8 +24,7 @@ export const createDecoder = ({
         timestamp: inputFrame.timestamp,
       });
 
-      encoder.encode(outputFrame, { keyFrame });
-      outputFrame.close();
+      onFrame(outputFrame, keyFrame);
 
       inputFrame.close();
 

@@ -1,12 +1,23 @@
-import { MP4File, Sample } from "mp4box";
+import type { MP4File, MP4MediaTrack, Sample } from "mp4box";
 
-export const getSamples = (mp4File: MP4File) => {
+export const getSamples = ({
+  mp4File,
+  track,
+}: {
+  mp4File: MP4File;
+  track: MP4MediaTrack;
+}) => {
+  mp4File.setExtractionOptions(track.id, null, {
+    nbSamples: Infinity,
+  });
+
   return new Promise<Sample[]>((resolve, reject) => {
-    mp4File.onSamples = async (_track_id, _ref, samples) => {
+    mp4File.onSamples = (_track_id, _ref, samples) => {
       resolve(samples);
       mp4File.onSamples = undefined;
       mp4File.onError = undefined;
     };
+
     mp4File.onError = (e) => {
       reject(e);
       mp4File.onSamples = undefined;
