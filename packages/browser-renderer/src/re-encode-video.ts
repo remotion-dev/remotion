@@ -70,12 +70,13 @@ export const reencodeVideo = async (file: File) => {
       let uint8 = new Uint8Array(chunk.byteLength);
       chunk.copyTo(uint8);
 
+      console.log({ metadata, chunk });
       const timescale = 90000;
       const description = (metadata.decoderConfig as VideoDecoderConfig)
         .description;
       const trackID = mp4boxOutputFile.addTrack({
-        width: (track as MP4MediaTrack).track_width,
-        height: (track as MP4MediaTrack).track_height,
+        width: track.track_width,
+        height: track.track_height,
         timescale,
         avcDecoderConfigRecord: description,
       });
