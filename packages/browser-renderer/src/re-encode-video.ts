@@ -2,7 +2,6 @@ import {
   DataStream,
   createFile,
   MP4MediaTrack,
-  ISOFile,
   MP4ArrayBuffer,
   MP4VideoTrack,
 } from "mp4box";
@@ -10,23 +9,18 @@ import {
 export const reencodeVideo = (file: File) => {
   const startNow = performance.now();
 
-  let decoder: VideoDecoder;
-  let encoder: VideoEncoder;
-
-  let track: MP4MediaTrack | null = null;
   let decodedFrameIndex = 0;
   let encodedFrameIndex = 0;
   let nextKeyFrameTimestamp = 0;
   let sampleDurations: number[] = [];
-  let trackID: number | null = null;
 
-  const mp4boxOutputFile = createFile() as unknown as ISOFile;
+  const mp4boxOutputFile = createFile();
   const mp4boxInputFile = createFile();
   mp4boxInputFile.onError = (error) => console.error(error);
   mp4boxInputFile.onReady = async (info) => {
-    track = info.videoTracks[0];
+    const track = info.videoTracks[0] as MP4MediaTrack;
 
-    decoder = new VideoDecoder({
+    const decoder = new VideoDecoder({
       async output(inputFrame) {
         const bitmap = await createImageBitmap(inputFrame);
 
@@ -76,22 +70,20 @@ export const reencodeVideo = (file: File) => {
       description,
     });
 
-    encoder = new VideoEncoder({
+    const encoder = new VideoEncoder({
       output(chunk, metadata) {
         let uint8 = new Uint8Array(chunk.byteLength);
         chunk.copyTo(uint8);
 
         const timescale = 90000;
-        if (trackID === null) {
-          const description = (metadata.decoderConfig as VideoDecoderConfig)
-            .description;
-          trackID = mp4boxOutputFile.addTrack({
-            width: (track as MP4MediaTrack).track_width,
-            height: (track as MP4MediaTrack).track_height,
-            timescale,
-            avcDecoderConfigRecord: description,
-          });
-        }
+        const description = (metadata.decoderConfig as VideoDecoderConfig)
+          .description;
+        const trackID = mp4boxOutputFile.addTrack({
+          width: (track as MP4MediaTrack).track_width,
+          height: (track as MP4MediaTrack).track_height,
+          timescale,
+          avcDecoderConfigRecord: description,
+        });
 
         const sampleDuration =
           (sampleDurations.shift() as number) / (1_000_000 / timescale);
@@ -119,58 +111,59 @@ export const reencodeVideo = (file: File) => {
     mp4boxInputFile.setExtractionOptions(track.id, null, {
       nbSamples: Infinity,
     });
-    mp4boxInputFile.start();
-  };
 
-  function displayProgress() {
-    console.log(
-      "Decoding frame " +
-        decodedFrameIndex +
-        " (" +
-        Math.round(
-          (100 * decodedFrameIndex) / (track as MP4VideoTrack).nb_samples
-        ) +
-        "%)\n" +
-        "Encoding frame " +
-        encodedFrameIndex +
-        " (" +
-        Math.round(
-          (100 * encodedFrameIndex) / (track as MP4VideoTrack).nb_samples
-        ) +
-        "%)\n"
-    );
-  }
-
-  mp4boxInputFile.onSamples = async (_track_id, _ref, samples) => {
-    for (const sample of samples) {
-      sampleDurations.push((sample.duration * 1_000_000) / sample.timescale);
-      decoder.decode(
-        new EncodedVideoChunk({
-          type: sample.is_sync ? "key" : "delta",
-          timestamp: (sample.cts * 1_000_000) / sample.timescale,
-          duration: (sample.duration * 1_000_000) / sample.timescale,
-          data: sample.data,
-        })
+    function displayProgress() {
+      console.log(
+        "Decoding frame " +
+          decodedFrameIndex +
+          " (" +
+          Math.round(
+            (100 * decodedFrameIndex) / (track as MP4VideoTrack).nb_samples
+          ) +
+          "%)\n" +
+          "Encoding frame " +
+          encodedFrameIndex +
+          " (" +
+          Math.round(
+            (100 * encodedFrameIndex) / (track as MP4VideoTrack).nb_samples
+          ) +
+          "%)\n"
       );
     }
-    await decoder.flush();
-    await encoder.flush();
-    encoder.close();
-    decoder.close();
 
-    mp4boxOutputFile.save("mp4box.mp4");
+    mp4boxInputFile.onSamples = async (_track_id, _ref, samples) => {
+      for (const sample of samples) {
+        sampleDurations.push((sample.duration * 1_000_000) / sample.timescale);
+        decoder.decode(
+          new EncodedVideoChunk({
+            type: sample.is_sync ? "key" : "delta",
+            timestamp: (sample.cts * 1_000_000) / sample.timescale,
+            duration: (sample.duration * 1_000_000) / sample.timescale,
+            data: sample.data,
+          })
+        );
+      }
+      await decoder.flush();
+      await encoder.flush();
+      encoder.close();
+      decoder.close();
 
-    const seconds = (performance.now() - startNow) / 1000;
+      mp4boxOutputFile.save("mp4box.mp4");
 
-    console.log(
-      "Re-encoded " +
-        encodedFrameIndex +
-        " frames in " +
-        Math.round(seconds * 100) / 100 +
-        "s at " +
-        Math.round(encodedFrameIndex / seconds) +
-        " fps"
-    );
+      const seconds = (performance.now() - startNow) / 1000;
+
+      console.log(
+        "Re-encoded " +
+          encodedFrameIndex +
+          " frames in " +
+          Math.round(seconds * 100) / 100 +
+          "s at " +
+          Math.round(encodedFrameIndex / seconds) +
+          " fps"
+      );
+    };
+
+    mp4boxInputFile.start();
   };
 
   var reader = new FileReader();

@@ -69,6 +69,14 @@ declare module "mp4box" {
     stop(): void;
     flush(): void;
 
+    addTrack(options?: TrackOptions): number;
+    addSample(
+      track: number,
+      data: ArrayBuffer,
+      options?: SampleOptions
+    ): Sample;
+    save(filename: string): void;
+
     setExtractionOptions(
       id: number,
       user: any,
