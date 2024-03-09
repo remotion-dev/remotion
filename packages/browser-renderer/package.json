@@ -1,0 +1,51 @@
+{
+  "name": "@remotion/browser-renderer",
+  "version": "4.0.123",
+  "description": "Render client-side with ",
+  "main": "dist/index.js",
+  "sideEffects": false,
+  "repository": {
+    "url": "https://github.com/remotion-dev/remotion"
+  },
+  "bugs": {
+    "url": "https://github.com/remotion-dev/remotion/issues"
+  },
+  "scripts": {
+    "formatting": "prettier src --check",
+    "lint": "eslint src --ext ts,tsx",
+    "build": "tsc -d",
+    "watch": "tsc -w",
+    "test": "vitest --run"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "Jonny Burger <jonny@remotion.dev>",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "dependencies": {
+    "mp4box": "0.5.2"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@jonny/eslint-config": "3.0.276",
+    "eslint": "8.42.0",
+    "eslint-plugin-10x": "1.5.2",
+    "eslint-plugin-react": "7.32.2",
+    "eslint-plugin-react-hooks": "4.4.0",
+    "prettier": "3.1.1",
+    "prettier-plugin-organize-imports": "3.2.4",
+    "@types/dom-webcodecs": "0.1.11",
+    "vitest": "0.31.1"
+  },
+  "keywords": [
+    "remotion",
+    "ffmpeg",
+    "video",
+    "react",
+    "webpack",
+    "player"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

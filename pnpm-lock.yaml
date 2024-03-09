@@ -156,6 +156,40 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/browser-renderer:
+    dependencies:
+      mp4box:
+        specifier: 0.5.2
+        version: 0.5.2
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.276
+        version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
+      '@types/dom-webcodecs':
+        specifier: 0.1.11
+        version: 0.1.11
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.42.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.42.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.42.0)
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
+
   packages/bundler:
     dependencies:
       '@remotion/studio':
@@ -845,6 +879,9 @@ importers:
       '@remotion/babel-loader':
         specifier: workspace:*
         version: link:../babel-loader
+      '@remotion/browser-renderer':
+        specifier: workspace:*
+        version: link:../browser-renderer
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
@@ -9922,6 +9959,10 @@ packages:
       '@types/ms': 0.7.31
     dev: false
 
+  /@types/dom-webcodecs@0.1.11:
+    resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}
+    dev: true
+
   /@types/draco3d@1.4.2:
     resolution: {integrity: sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==}
     dev: false
@@ -17594,6 +17635,10 @@ packages:
       pathe: 1.1.2
       pkg-types: 1.0.3
       ufo: 1.3.2
+
+  /mp4box@0.5.2:
+    resolution: {integrity: sha512-zRmGlvxy+YdW3Dmt+TR4xPHynbxwXtAQDTN/Fo9N3LMxaUlB2C5KmZpzYyGKy4c7k4Jf3RCR0A2pm9SZELOLXw==}
+    dev: false
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}

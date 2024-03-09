@@ -73,6 +73,9 @@
       "path": "./packages/media-utils"
     },
     {
+      "path": "./packages/browser-renderer"
+    },
+    {
       "path": "./packages/animation-utils"
     },
     {
