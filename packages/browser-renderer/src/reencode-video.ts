@@ -1,15 +1,13 @@
 import type { MP4MediaTrack } from "mp4box";
 import { DataStream } from "mp4box";
+import { createDecoder } from "./create-decoder";
 import { createEncoder } from "./create-encoder";
 import { getSamples } from "./get-samples";
 import { loadMp4File } from "./load-mp4-file";
 
 export const reencodeVideo = async (file: File) => {
-  const startNow = performance.now();
-
   let decodedFrames = 0;
   let encodedFrames = 0;
-  let nextKeyFrameTimestamp = 0;
 
   const sampleDurations: number[] = [];
 
@@ -39,31 +37,11 @@ export const reencodeVideo = async (file: File) => {
     },
   });
 
-  const decoder = new VideoDecoder({
-    async output(inputFrame) {
-      const bitmap = await createImageBitmap(inputFrame);
-
-      const outputFrame = new VideoFrame(bitmap, {
-        timestamp: inputFrame.timestamp,
-      });
-
-      const keyFrameEveryHowManySeconds = 2;
-      let keyFrame = false;
-      if (inputFrame.timestamp >= nextKeyFrameTimestamp) {
-        keyFrame = true;
-        nextKeyFrameTimestamp =
-          inputFrame.timestamp + keyFrameEveryHowManySeconds * 1e6;
-      }
-
-      encoder.encode(outputFrame, { keyFrame });
-      inputFrame.close();
-      outputFrame.close();
-
-      decodedFrames++;
+  const { decoder } = createDecoder({
+    encoder,
+    onProgress: (decoded) => {
+      decodedFrames = decoded;
       displayProgress();
-    },
-    error(error) {
-      console.error(error);
     },
   });
 
@@ -115,12 +93,4 @@ export const reencodeVideo = async (file: File) => {
   decoder.close();
 
   outputMp4.save("mp4box.mp4");
-
-  const seconds = (performance.now() - startNow) / 1000;
-
-  console.log(
-    `Re-encoded ${encodedFrames} frames in ${
-      Math.round(seconds * 100) / 100
-    }s at ${Math.round(encodedFrames / seconds)} fps`,
-  );
 };
