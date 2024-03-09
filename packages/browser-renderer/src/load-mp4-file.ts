@@ -1,4 +1,5 @@
-import { createFile, MP4ArrayBuffer, MP4File, MP4Info } from "mp4box";
+import type { MP4ArrayBuffer, MP4File, MP4Info } from "mp4box";
+import { createFile } from "mp4box";
 
 type ReturnType = {
   mp4File: MP4File;
@@ -14,11 +15,13 @@ const readFile = (file: File): Promise<MP4ArrayBuffer> => {
       reader.onerror = null;
       reader.onload = null;
     };
+
     reader.onerror = (error) => {
       reject(error);
       reader.onerror = null;
       reader.onload = null;
     };
+
     reader.readAsArrayBuffer(file);
   });
 };
@@ -33,7 +36,7 @@ export const loadMp4File = async (file: File) => {
       reject(error);
     };
 
-    mp4File.onReady = async (info) => {
+    mp4File.onReady = (info) => {
       resolve({ mp4File, info });
     };
   });
