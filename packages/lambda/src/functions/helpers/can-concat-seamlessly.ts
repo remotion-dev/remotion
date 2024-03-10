@@ -1,8 +1,10 @@
 import type {AudioCodec} from '@remotion/renderer';
 
+// Temporarily disable seamless audio concat
 // Cannot do WAV yet, because currently assumes AAC in+outpoint
-export const canConcatAudioSeamlessly = (audioCodec: AudioCodec | null) => {
-	return audioCodec === 'aac';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const canConcatAudioSeamlessly = (_audioCodec: AudioCodec | null) => {
+	return false;
 };
 
 export const canConcatVideoSeamlessly = (codec: string) => {
