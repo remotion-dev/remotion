@@ -8,6 +8,13 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Audio issues on Lambda",
+    description:
+      "The new seamless audio concatenation feature does not produce clean audio in all cases.",
+    link: "https://github.com/remotion-dev/remotion/pull/3518",
+    versions: ["4.0.124"],
+  },
+  {
     title: "Videos have bad colors during rendering",
     description:
       "Videos could become too dark when rendering by being tone-mapped when they should not. Upgrade to 4.0.118.",
