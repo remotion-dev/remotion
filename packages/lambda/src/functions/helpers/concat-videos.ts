@@ -218,7 +218,7 @@ export const concatVideosS3 = async ({
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
 		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
-	const combine = timer('Combine videos', logLevel);
+	const combine = timer('Combine chunks', logLevel);
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const chunkDurationInSeconds = framesPerLambda / fps;

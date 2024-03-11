@@ -142,9 +142,11 @@ const renderHandler = async (
 		: null;
 
 	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
-	const audioOutputLocation = audioExtension
-		? path.join(outdir, `${chunk}.${audioExtension}`)
-		: null;
+	const audioOutputLocation = RenderInternals.isAudioCodec(params.codec)
+		? null
+		: audioExtension
+			? path.join(outdir, `${chunk}.${audioExtension}`)
+			: null;
 
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
@@ -282,7 +284,7 @@ const renderHandler = async (
 			key: chunkKeyForIndex({
 				renderId: params.renderId,
 				index: params.chunk,
-				type: 'video',
+				type: RenderInternals.isAudioCodec(params.codec) ? 'audio' : 'video',
 			}),
 			body: fs.createReadStream(videoOutputLocation),
 			region: getCurrentRegionInFunction(),

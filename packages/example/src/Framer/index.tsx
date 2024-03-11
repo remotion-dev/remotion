@@ -24,7 +24,7 @@ export const Framer: React.FC = () => {
 			}}
 		>
 			<h1 style={{fontSize: 120}}>{frame} 😁</h1>
-			<Audio src={staticFile('sine.wav')} />
+			<Audio src={staticFile('chirp.wav')} />
 		</div>
 	);
 };

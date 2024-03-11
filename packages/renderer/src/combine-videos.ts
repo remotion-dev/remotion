@@ -138,6 +138,7 @@ export const combineVideos = async ({
 		].filter(truthy),
 	);
 
+	// Either only audio or only video
 	if (!(audioOutput && shouldCreateVideo)) {
 		rmSync(filelistDir, {recursive: true});
 		return;
