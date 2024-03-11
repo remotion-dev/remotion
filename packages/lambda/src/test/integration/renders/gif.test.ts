@@ -3,19 +3,12 @@ import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import {callLambda} from '../../../shared/call-lambda';
-import {disableLogs, enableLogs} from '../../disable-logs';
-
-beforeAll(() => {
-	disableLogs();
-});
 
 afterAll(async () => {
-	enableLogs();
-
 	await RenderInternals.killAllBrowsers();
 });
 
@@ -40,7 +33,7 @@ test('Should make a distributed GIF', async () => {
 				type: 'payload',
 				payload: '{}',
 			},
-			logLevel: 'warn',
+			logLevel: 'error',
 			maxRetries: 3,
 			outName: 'out.gif',
 			pixelFormat: 'yuv420p',
@@ -85,7 +78,7 @@ test('Should make a distributed GIF', async () => {
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			version: VERSION,
-			logLevel: 'info',
+			logLevel: 'error',
 		},
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,

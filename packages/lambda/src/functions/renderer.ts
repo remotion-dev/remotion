@@ -195,7 +195,10 @@ const renderHandler = async (
 				);
 
 				if (renderedFrames === allFrames.length) {
-					console.log('Rendered all frames!');
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						'Rendered all frames!',
+					);
 				}
 
 				chunkTimingData.timings[renderedFrames] = Date.now() - start;
@@ -257,9 +260,15 @@ const renderHandler = async (
 			forSeamlessAacConcatenation: seamlessAudio,
 		})
 			.then(({slowestFrames}) => {
-				console.log(`Slowest frames:`);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Slowest frames:`,
+				);
 				slowestFrames.forEach(({frame, time}) => {
-					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						`  Frame ${frame} (${time.toFixed(3)}ms)`,
+					);
 				});
 				resolve();
 			})

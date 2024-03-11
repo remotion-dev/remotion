@@ -109,13 +109,17 @@ export const getAllFilesS3 = ({
 			const checkFinish = () => {
 				const areAllFilesDownloaded =
 					Object.keys(downloaded).length === expectedFiles;
-				console.log(
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
 					'Checking for finish... ',
 					Object.keys(downloaded),
 					expectedFiles + ' files expected',
 				);
 				if (areAllFilesDownloaded) {
-					console.log('All files are downloaded!');
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'All files are downloaded!',
+					);
 					resolve(
 						// Need to use downloaded variable, not filesInBucket
 						// as it may be out of date
@@ -126,7 +130,11 @@ export const getAllFilesS3 = ({
 				}
 			};
 
-			console.log('Found ', filesInBucket);
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				'Found ',
+				filesInBucket,
+			);
 			const errors = (
 				await inspectErrors({
 					bucket,
