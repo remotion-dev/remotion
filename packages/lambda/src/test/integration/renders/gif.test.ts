@@ -17,12 +17,24 @@ afterAll(async () => {
 test('Should make a distributed GIF', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
+	const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+
+	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+		binariesDirectory: null,
+		concurrency: 1,
+		downloadMap: RenderInternals.makeDownloadMap(),
+		indent: false,
+		logLevel: 'error',
+		offthreadVideoCacheSizeInBytes: null,
+		port: null,
+		remotionRoot: path.dirname(exampleBuild),
+	});
+
 	const res = await callLambda({
 		type: LambdaRoutines.start,
 		payload: await makeLambdaRenderMediaPayload(
 			renderMediaOnLambdaOptionalToRequired({
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				serveUrl: `http://localhost:${port}`,
 				codec: 'gif',
 				composition: 'framer',
 				// 61 frames, which is uneven, to challenge the frame planner
@@ -81,4 +93,6 @@ test('Should make a distributed GIF', async () => {
 	});
 	unlinkSync(out);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
+
+	await close();
 }, 90000);
