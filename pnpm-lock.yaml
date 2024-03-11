@@ -796,10 +796,10 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin
       '@typescript-eslint/eslint-plugin':
-        specifier: 6.7.4
+        specifier: ^6.7.4
         version: 6.7.4(@typescript-eslint/parser@6.7.4)(eslint@8.42.0)(typescript@4.9.5)
       '@typescript-eslint/parser':
-        specifier: 6.7.4
+        specifier: ^6.7.4
         version: 6.7.4(eslint@8.42.0)(typescript@4.9.5)
       eslint-plugin-10x:
         specifier: 1.5.2
