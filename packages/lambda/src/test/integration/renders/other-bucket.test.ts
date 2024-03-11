@@ -1,67 +1,27 @@
 import {RenderInternals} from '@remotion/renderer';
-import {VERSION} from 'remotion/version';
 import {afterAll, expect, test} from 'vitest';
-import {makeLambdaRenderMediaPayload} from '../../../api/make-lambda-payload';
-import {renderMediaOnLambdaOptionalToRequired} from '../../../api/render-media-on-lambda';
-import {LambdaRoutines} from '../../../defaults';
-import {lambdaReadFile} from '../../../functions/helpers/io';
-import {callLambda} from '../../../shared/call-lambda';
+import {simulateLambdaRender} from '../simulate-lambda-render';
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
 test('Should be able to render to another bucket, and silent audio should be added', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
-	const res = await callLambda({
-		type: LambdaRoutines.start,
-		payload: await makeLambdaRenderMediaPayload(
-			renderMediaOnLambdaOptionalToRequired({
-				serveUrl:
-					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-				codec: 'h264',
-				composition: 'react-svg',
-				crf: 9,
-				frameRange: [0, 12],
-				framesPerLambda: 8,
-				logLevel: 'error',
-				outName: {
-					bucketName: 'my-other-bucket',
-					key: 'my-key',
-				},
-				functionName: 'remotion-dev-render',
-				region: 'eu-central-1',
-			}),
-		),
-		functionName: 'remotion-dev-render',
-		receivedStreamingPayload: () => undefined,
-		region: 'eu-central-1',
-		timeoutInTest: 120000,
-		retriesRemaining: 0,
-	});
-
-	const progress = await callLambda({
-		type: LambdaRoutines.status,
-		payload: {
-			bucketName: res.bucketName,
-			renderId: res.renderId,
-			version: VERSION,
-			logLevel: 'info',
+	const {close, file} = await simulateLambdaRender({
+		codec: 'h264',
+		composition: 'react-svg',
+		crf: 9,
+		frameRange: [0, 12],
+		framesPerLambda: 8,
+		logLevel: 'error',
+		outName: {
+			bucketName: 'my-other-bucket',
+			key: 'my-key',
 		},
 		functionName: 'remotion-dev-render',
-		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
-		timeoutInTest: 120000,
-		retriesRemaining: 0,
 	});
 
-	const file = await lambdaReadFile({
-		bucketName: progress.outBucket as string,
-		key: progress.outKey as string,
-		expectedBucketOwner: 'abc',
-		region: 'eu-central-1',
-	});
 	const probe = await RenderInternals.callFf({
 		bin: 'ffprobe',
 		args: ['-'],
@@ -77,4 +37,6 @@ test('Should be able to render to another bucket, and silent audio should be add
 	expect(probe.stderr).toMatch(/Video: h264/);
 	expect(probe.stderr).toMatch(/Stream #0:1/);
 	expect(probe.stderr).toMatch(/Audio: aac/);
+
+	await close();
 });
