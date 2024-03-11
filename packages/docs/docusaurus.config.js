@@ -233,6 +233,9 @@ const config = (mode) => ({
     [
       "@docusaurus/preset-classic",
       {
+        gtag: {
+          trackingID: "G-Z6B254S5Q4",
+        },
         docs: {
           path: mode === "complete" ? "docs" : "new-docs",
           sidebarPath:
