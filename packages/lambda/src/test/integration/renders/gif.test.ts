@@ -4,6 +4,8 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, expect, test} from 'vitest';
+import {makeLambdaRenderMediaPayload} from '../../../api/make-lambda-payload';
+import {renderMediaOnLambdaOptionalToRequired} from '../../../api/render-media-on-lambda';
 import {LambdaRoutines} from '../../../defaults';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import {callLambda} from '../../../shared/call-lambda';
@@ -17,54 +19,24 @@ test('Should make a distributed GIF', async () => {
 
 	const res = await callLambda({
 		type: LambdaRoutines.start,
-		payload: {
-			serveUrl:
-				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-			chromiumOptions: {},
-			codec: 'gif',
-			composition: 'framer',
-			crf: 9,
-			envVariables: {},
-			// 61 frames, which is uneven, to challenge the frame planner
-			frameRange: [0, 60],
-			framesPerLambda: 8,
-			imageFormat: 'png',
-			inputProps: {
-				type: 'payload',
-				payload: '{}',
-			},
-			logLevel: 'error',
-			maxRetries: 3,
-			outName: 'out.gif',
-			pixelFormat: 'yuv420p',
-			privacy: 'public',
-			proResProfile: undefined,
-			x264Preset: null,
-			jpegQuality: undefined,
-			scale: 1,
-			timeoutInMilliseconds: 12000,
-			numberOfGifLoops: null,
-			everyNthFrame: 2,
-			concurrencyPerLambda: 1,
-			downloadBehavior: {type: 'play-in-browser'},
-			muted: false,
-			version: VERSION,
-			overwrite: true,
-			webhook: null,
-			audioBitrate: null,
-			videoBitrate: null,
-			encodingBufferSize: null,
-			encodingMaxRate: null,
-			forceHeight: null,
-			forceWidth: null,
-			rendererFunctionName: null,
-			bucketName: null,
-			audioCodec: null,
-			offthreadVideoCacheSizeInBytes: null,
-			deleteAfter: null,
-			colorSpace: 'default',
-			preferLossless: false,
-		},
+		payload: await makeLambdaRenderMediaPayload(
+			renderMediaOnLambdaOptionalToRequired({
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				codec: 'gif',
+				composition: 'framer',
+				// 61 frames, which is uneven, to challenge the frame planner
+				frameRange: [0, 60],
+				framesPerLambda: 8,
+				imageFormat: 'png',
+				logLevel: 'error',
+				outName: 'out.gif',
+				timeoutInMilliseconds: 12000,
+				everyNthFrame: 2,
+				functionName: 'remotion-dev-lambda',
+				region: 'eu-central-1',
+			}),
+		),
 		functionName: 'remotion-dev-lambda',
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
