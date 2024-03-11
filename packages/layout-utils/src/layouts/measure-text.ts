@@ -6,7 +6,7 @@ type Dimensions = {
 export type Word = {
 	text: string;
 	fontFamily: string;
-	fontSize: number;
+	fontSize: number | string;
 	fontWeight?: number | string;
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
@@ -35,7 +35,8 @@ export const measureText = ({
 	node.style.position = 'absolute';
 	node.style.top = `-10000px`;
 	node.style.whiteSpace = 'pre';
-	node.style.fontSize = `${fontSize}px`;
+	node.style.fontSize =
+		typeof fontSize === 'string' ? fontSize : `${fontSize}px`;
 
 	if (fontWeight) {
 		node.style.fontWeight = fontWeight.toString();
