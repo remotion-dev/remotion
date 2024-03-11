@@ -87,7 +87,9 @@ export const transcribe = async (transcribeProps: TranscribeProps) => {
 	const {whisperPath, inputPath, model, modelFolder} = transcribeProps;
 
 	if (!existsSync(whisperPath)) {
-		throw new Error(`Whisper does not exist at ${whisperPath}`);
+		throw new Error(
+			`Whisper does not exist at ${whisperPath}. Double-check the passed whisperPath. If you havent installed whisper, check out the installWhisperCpp() API at https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp to see how to install whisper programatically.`,
+		);
 	}
 
 	// Check if the file exists
