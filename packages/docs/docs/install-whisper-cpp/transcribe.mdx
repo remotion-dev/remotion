@@ -1,0 +1,58 @@
+---
+# image: /generated/articles-docs-install-whisper-cpp-download-whisper-model.png
+title: transcribe()
+crumb: "@remotion/install-whisper-cpp"
+---
+
+# downloadWhisperModel()<AvailableFrom v="?"/>
+
+Transcribes a media file by utilizing whisper.cpp.
+You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
+
+```tsx twoslash title="transcribe.mjs"
+// @module: esnext
+// @target: es2022
+import path from "path";
+import { transcribe } from "@remotion/install-whisper-cpp";
+
+const { transcription } = await transcribe({
+  filePath: "pathToYourFile"
+  whisperPath: path.join(process.cwd(), "whisper.cpp")
+  model: "base.en",
+});
+```
+
+## Options
+
+### `filePath`
+
+The path to the file you want to transcribe. The accepted file types are ???
+
+### `whisperPath`
+
+The path to your whisper.cpp folder. If you haven't installed whisper, you can use the [installWhisperCpp](docs/install-whisper-cpp/install-whisper-cpp) API to do so.
+
+### `model`
+
+The model you want to use for the transcription.
+
+Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
+
+Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](docs/install-whisper-cpp/download-whisper-model) API
+
+### `modelFolder?`
+
+If you have
+
+## Return value
+
+### `transcription`
+
+A JSON file containing the transcription of the provided media file including timestamps.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
+- [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)

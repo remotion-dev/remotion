@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
           <strong>downloadWhisperModel()</strong>
           <div>Download a Whisper model</div>
         </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp/transcribe">
+          <strong>transcribe()</strong>
+          <div>Transcribe audio from a media file</div>
+        </TOCItem>
       </Grid>
     </div>
   );

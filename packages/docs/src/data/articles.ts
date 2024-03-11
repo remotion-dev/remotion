@@ -868,6 +868,13 @@ export const articles = [
     crumb: "@remotion/install-whisper-cpp",
   },
   {
+    id: "install-whisper-cpp/transcribe",
+    title: "downloadWhisperModel()",
+    relativePath: "docs/install-whisper-cpp/transcribe.mdx",
+    compId: "articles-docs-install-whisper-cpp-transcribe",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
     id: "install-whisper-cpp/index",
     title: "@remotion/install-whisper-cpp",
     relativePath: "docs/install-whisper-cpp/index.mdx",

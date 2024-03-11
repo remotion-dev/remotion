@@ -5,12 +5,7 @@ import path from 'node:path';
 import util from 'node:util';
 import type {WhisperModel} from './download-whisper-model';
 
-interface TranscribeProps {
-	whisperPath: string;
-	model: WhisperModel;
-	inputPath: string;
-	modelFolder: string;
-}
+type transcription = {};
 
 const cleanUpTmpFiles = (tmpJSONPath: string, tmpWaveFilePath: string) => {
 	fs.unlink(tmpJSONPath + '.json', (err) => {
@@ -82,24 +77,30 @@ const transcribeToTempJSON = async (
 	);
 };
 
-export const transcribe = async (transcribeProps: TranscribeProps) => {
-	// Check if whisper exists, throw an error with a good error message if not
-	const {whisperPath, inputPath, model, modelFolder} = transcribeProps;
-
+export const transcribe = async ({
+	filePath,
+	whisperPath,
+	model,
+	modelFolder,
+}: {
+	filePath: string;
+	whisperPath: string;
+	model: WhisperModel;
+	modelFolder?: string;
+}): Promise<{transcription: transcription}> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
 			`Whisper does not exist at ${whisperPath}. Double-check the passed whisperPath. If you havent installed whisper, check out the installWhisperCpp() API at https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp to see how to install whisper programatically.`,
 		);
 	}
 
-	// Check if the file exists
-	if (!existsSync(inputPath)) {
-		throw new Error(`Input file does not exist at ${inputPath}`);
+	if (!existsSync(filePath)) {
+		throw new Error(`Input file does not exist at ${filePath}`);
 	}
 
 	const tmpWaveFilePath = path.join(process.cwd(), 'tmp.wav');
 	const tmpJSONPath = path.join(process.cwd(), 'tmp');
-	extractToTempAudioFile(inputPath, tmpWaveFilePath);
+	extractToTempAudioFile(filePath, tmpWaveFilePath);
 
 	await transcribeToTempJSON(
 		tmpWaveFilePath,
@@ -113,5 +114,5 @@ export const transcribe = async (transcribeProps: TranscribeProps) => {
 
 	cleanUpTmpFiles(tmpJSONPath, tmpWaveFilePath);
 
-	return json;
+	return Promise.resolve({transcription: json});
 };
