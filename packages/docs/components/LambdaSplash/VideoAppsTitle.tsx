@@ -13,3 +13,12 @@ export const VideoAppsTitle: React.FC = () => {
     </div>
   );
 };
+
+export const PricingTitle: React.FC = () => {
+  return (
+    <div className={styles.container}>
+      <h2 className={styles.title}>Pricing</h2>
+      <br />
+    </div>
+  );
+};
