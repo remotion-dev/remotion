@@ -224,4 +224,4 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 
 ## See also
 
-- [Deploying the Remotion Studio](/docs/deploy-studio)
+- [Deploying the Remotion Studio](/docs/studio/deploy-server)
