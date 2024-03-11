@@ -215,7 +215,7 @@ const config = (mode) => ({
             },
             {
               label: "Acknowledgements",
-              to: "acknowledgements",
+              href: "https://remotion.dev/acknowledgements",
             },
             {
               label: "License",
