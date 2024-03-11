@@ -34,7 +34,13 @@ export const EnterpriseLicense: React.FC = () => {
               lineHeight: 1.4,
             }}
           >
-            Contact us
+            <a
+              className={styles.contactuslink}
+              target={"_blank"}
+              href="https://www.remotion.pro/contact"
+            >
+              Contact us
+            </a>
           </div>
           <div className={styles.descriptionsmall}>
             Starting at $500 per month
