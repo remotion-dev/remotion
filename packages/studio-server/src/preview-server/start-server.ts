@@ -141,6 +141,10 @@ export const startServer = async (options: {
 					hostsToTry: portConfig.hostsToTry,
 				})
 					.then(({port, unlockPort}) => {
+						RenderInternals.Log.verbose(
+							{indent: false, logLevel: options.logLevel},
+							`Binding server to host ${portConfig.host}, port ${port}`,
+						);
 						server.listen({
 							port,
 							host: portConfig.host,
