@@ -28,9 +28,9 @@ Same as CSS style `font-family`
 
 ### `fontSize`
 
-_Required_ _number_
+_Required_ _number_ / _string_
 
-Same as CSS style `font-size`. Only _numbers_ allowed, unit `px`
+Same as CSS style `font-size`. Since v4.0.125, strings are allowed too, before only numbers.
 
 ### `fontWeight`
 
