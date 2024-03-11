@@ -687,6 +687,7 @@ const internalRenderFramesRaw = ({
 						indent,
 						offthreadVideoCacheSizeInBytes,
 						binariesDirectory,
+						forceIPv4: false,
 					},
 					{
 						onDownload,

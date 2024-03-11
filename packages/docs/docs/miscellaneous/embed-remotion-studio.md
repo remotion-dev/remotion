@@ -20,7 +20,7 @@ The Remotion Studio uses the [Remotion Player](/player) and builds a UI around i
 
 ## Deploy the Remotion Studio
 
-You can deploy the Remotion Studio to a long-running server in the cloud and make it accessible to your team. [Read here how to do so](/docs/deploy-studio).
+You can deploy the Remotion Studio to a long-running server in the cloud and make it accessible to your team. [Read here how to do so](/docs/studio/deploy-server).
 
 ## Wait for Remotion Bundles to include the Studio
 
@@ -28,5 +28,5 @@ If you are creating a [bundle](/docs/bundle), you will get a static folder that 
 
 ## See also
 
-- [Deploy the Remotion Studio](/docs/deploy-studio)
+- [Deploy the Remotion Studio](/docs/studio/deploy-server)
 - [Remotion Player](/docs/player)
