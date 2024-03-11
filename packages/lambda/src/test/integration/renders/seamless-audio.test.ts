@@ -1,7 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
@@ -12,7 +9,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should make a transparent video', async () => {
+test('Should make seamless audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'aac',
 		composition: 'framer',
@@ -23,26 +20,18 @@ test('Should make a transparent video', async () => {
 		region: 'eu-central-1',
 	});
 
-	// We create a temporary directory for storing the frames
-	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));
-	const out = path.join(tmpdir, 'hithere.webm');
-	file.pipe(createWriteStream(out));
-
-	await new Promise<void>((resolve) => {
-		file.on('close', () => resolve());
-	});
 	const probe = await RenderInternals.callFf({
 		bin: 'ffprobe',
-		args: [out],
+		args: ['-'],
+		options: {
+			stdin: file,
+		},
 		indent: false,
 		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
 	});
-	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
-	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
-	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
-	fs.unlinkSync(out);
+	expect(probe.stderr).toMatch(/Duration: 00:00:00.38/);
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,
@@ -66,7 +55,6 @@ test('Should make a transparent video', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	RenderInternals.deleteDirectory(tmpdir);
 	expect(expectFiles.length).toBe(0);
 
 	await close();
