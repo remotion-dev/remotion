@@ -12,6 +12,8 @@ export const calculateFfmpegFilter = ({
 	channels,
 	assetDuration,
 	forSeamlessAacConcatenation,
+	compositionStart,
+	chunkStart,
 }: {
 	asset: MediaAsset;
 	fps: number;
@@ -19,6 +21,8 @@ export const calculateFfmpegFilter = ({
 	channels: number;
 	assetDuration: number | null;
 	forSeamlessAacConcatenation: boolean;
+	compositionStart: number;
+	chunkStart: number;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
@@ -28,7 +32,9 @@ export const calculateFfmpegFilter = ({
 		? Math.max(
 				0,
 				getClosestAlignedTime(
-					((asset.trimLeft * asset.playbackRate) / fps) * 1_000_000,
+					(asset.trimLeft * asset.playbackRate) / fps,
+					compositionStart,
+					true,
 				) /
 					1_000_000 -
 					2 * (1024 / DEFAULT_SAMPLE_RATE),
@@ -36,12 +42,22 @@ export const calculateFfmpegFilter = ({
 		: (asset.trimLeft * asset.playbackRate) / fps;
 	const assetTrimRight = forSeamlessAacConcatenation
 		? getClosestAlignedTime(
-				((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
-					1_000_000,
+				(asset.trimLeft + asset.duration * asset.playbackRate) / fps,
+				compositionStart,
+				true,
 			) /
 				1_000_000 +
 			2 * (1024 / DEFAULT_SAMPLE_RATE)
 		: assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+
+	console.log({
+		assetTrimLeft,
+		assetTrimRight,
+		asset,
+		targetRight:
+			((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
+			1_000_000,
+	});
 
 	return stringifyFfmpegFilter({
 		channels,

@@ -577,6 +577,8 @@ const innerRenderFrames = async ({
 				),
 				firstFrameIndex,
 				downloadMap,
+				compositionStart:
+					frameRange === null ? 0 : realFrameRange[0] / composition.fps,
 			},
 			frameCount: framesToRender.length,
 		};

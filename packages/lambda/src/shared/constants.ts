@@ -436,6 +436,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		framesPerLambda: number;
 		preferLossless: boolean;
+		compositionStart: number;
 	};
 };
 

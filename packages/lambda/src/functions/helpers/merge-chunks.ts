@@ -42,6 +42,7 @@ export type OnAllChunksAvailable = (options: {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
 	framesPerLambda: number;
+	compositionStart: number;
 }) => void;
 
 export const mergeChunksAndFinishRender = async (options: {
@@ -68,6 +69,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	framesPerLambda: number;
 	binariesDirectory: string | null;
 	preferLossless: boolean;
+	compositionStart: number;
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -166,6 +168,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		inputProps: options.inputProps,
 		serializedResolvedProps: options.serializedResolvedProps,
 		framesPerLambda: options.framesPerLambda,
+		compositionStart: options.compositionStart,
 	});
 	const encodingStart = Date.now();
 	const {outfile, cleanupChunksProm} = await concatVideosS3({

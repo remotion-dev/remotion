@@ -269,6 +269,7 @@ const innerStitchFramesToVideo = async (
 					audioCodec: resolvedAudioCodec,
 					cancelSignal: cancelSignal ?? undefined,
 					forSeamlessAacConcatenation,
+					compositionStart: assetsInfo.compositionStart,
 				})
 			: null;
 

@@ -50,6 +50,7 @@ export type RenderAssetInfo = {
 	imageSequenceName: string;
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;
+	compositionStart: number;
 };
 
 const makeAndReturn = (dir: string, name: string) => {
