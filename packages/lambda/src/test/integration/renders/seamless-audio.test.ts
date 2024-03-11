@@ -14,15 +14,13 @@ afterAll(async () => {
 
 test('Should make a transparent video', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
-		codec: 'vp8',
-		composition: 'ten-frame-tester',
+		codec: 'aac',
+		composition: 'framer',
 		frameRange: [0, 9],
 		imageFormat: 'png',
 		framesPerLambda: 5,
 		logLevel: 'error',
 		region: 'eu-central-1',
-		outName: 'out.webm',
-		pixelFormat: 'yuva420p',
 	});
 
 	// We create a temporary directory for storing the frames

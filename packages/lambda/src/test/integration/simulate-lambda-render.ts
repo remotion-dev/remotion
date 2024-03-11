@@ -8,8 +8,10 @@ import {LambdaRoutines} from '../../defaults';
 import {lambdaReadFile} from '../../functions/helpers/io';
 import {callLambda} from '../../shared/call-lambda';
 
+const functionName = 'remotion-dev-render';
+
 export const simulateLambdaRender = async (
-	input: Omit<RenderMediaOnLambdaInput, 'serveUrl'>,
+	input: Omit<RenderMediaOnLambdaInput, 'serveUrl' | 'functionName'>,
 ) => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
@@ -32,6 +34,7 @@ export const simulateLambdaRender = async (
 			renderMediaOnLambdaOptionalToRequired({
 				...input,
 				serveUrl: `http://localhost:${port}`,
+				functionName,
 			}),
 		),
 		functionName: 'remotion-dev-lambda',

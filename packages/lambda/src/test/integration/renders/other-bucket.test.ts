@@ -18,7 +18,6 @@ test('Should be able to render to another bucket, and silent audio should be add
 			bucketName: 'my-other-bucket',
 			key: 'my-key',
 		},
-		functionName: 'remotion-dev-render',
 		region: 'eu-central-1',
 	});
 

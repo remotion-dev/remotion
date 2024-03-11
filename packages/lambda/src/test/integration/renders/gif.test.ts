@@ -21,7 +21,6 @@ test('Should make a distributed GIF', async () => {
 		outName: 'out.gif',
 		timeoutInMilliseconds: 12000,
 		everyNthFrame: 2,
-		functionName: 'remotion-dev-lambda',
 		region: 'eu-central-1',
 	});
 
