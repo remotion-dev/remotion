@@ -877,5 +877,6 @@ module.exports = {
       ],
     },
     "license",
+    "acknowledgements",
   ],
 };
