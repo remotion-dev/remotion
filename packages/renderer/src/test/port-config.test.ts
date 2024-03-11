@@ -267,7 +267,10 @@ const macOsM1Interfaces: NodeJS.Dict<NetworkInterfaceInfo[]> = {
 };
 
 test('Port config on Docker with IPv6 support', () => {
-	const hostToBind = getHostToBind(flattenNetworkInterfaces(dockerInterfaces));
+	const hostToBind = getHostToBind(
+		flattenNetworkInterfaces(dockerInterfaces),
+		false,
+	);
 	expect(hostToBind).toBe('::');
 });
 
@@ -277,7 +280,10 @@ test('Port config on Docker with no loopback address', () => {
 });
 
 test('Port config on M1 Mac', () => {
-	const hostToBind = getHostToBind(flattenNetworkInterfaces(macOsM1Interfaces));
+	const hostToBind = getHostToBind(
+		flattenNetworkInterfaces(macOsM1Interfaces),
+		false,
+	);
 	expect(hostToBind).toBe('::');
 });
 

@@ -19,6 +19,7 @@ export const serveStatic = async (
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		binariesDirectory: string | null;
+		forceIPv4: boolean;
 	},
 ): Promise<{
 	port: number;
@@ -74,7 +75,7 @@ export const serveStatic = async (
 
 	const maxTries = 5;
 
-	const portConfig = getPortConfig();
+	const portConfig = getPortConfig(options.forceIPv4);
 
 	for (let i = 0; i < maxTries; i++) {
 		let unlock = () => {};
