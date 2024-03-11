@@ -4,7 +4,6 @@ import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import {disableLogs, enableLogs} from '../disable-logs';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -30,10 +29,7 @@ beforeEach(() => {
 });
 
 beforeAll(() => {
-	disableLogs();
 	return async () => {
-		enableLogs();
-
 		await RenderInternals.killAllBrowsers();
 	};
 });

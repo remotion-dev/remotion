@@ -3,19 +3,15 @@ import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
+import {makeLambdaRenderMediaPayload} from '../../../api/make-lambda-payload';
+import {renderMediaOnLambdaOptionalToRequired} from '../../../api/render-media-on-lambda';
 import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
 import {callLambda} from '../../../shared/call-lambda';
-import {disableLogs, enableLogs} from '../../disable-logs';
-
-beforeAll(() => {
-	disableLogs();
-});
 
 afterAll(async () => {
-	enableLogs();
 	await RenderInternals.killAllBrowsers();
 });
 
@@ -24,55 +20,22 @@ test('Should make a transparent video', async () => {
 
 	const res = await callLambda({
 		type: LambdaRoutines.start,
-		payload: {
-			serveUrl:
-				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-			chromiumOptions: {},
-			codec: 'vp8',
-			composition: 'ten-frame-tester',
-			crf: 9,
-			envVariables: {},
-			frameRange: [0, 9],
-			framesPerLambda: 5,
-			imageFormat: 'png',
-			inputProps: {
-				type: 'payload',
-				payload: '{}',
-			},
-			logLevel: 'warn',
-			maxRetries: 3,
-			outName: 'out.webm',
-			pixelFormat: 'yuva420p',
-			privacy: 'public',
-			proResProfile: undefined,
-			x264Preset: null,
-			jpegQuality: undefined,
-			scale: 1,
-			timeoutInMilliseconds: 12000,
-			numberOfGifLoops: null,
-			everyNthFrame: 1,
-			concurrencyPerLambda: 1,
-			downloadBehavior: {
-				type: 'play-in-browser',
-			},
-			muted: false,
-			version: VERSION,
-			overwrite: true,
-			webhook: null,
-			audioBitrate: null,
-			videoBitrate: null,
-			encodingBufferSize: null,
-			encodingMaxRate: null,
-			forceHeight: null,
-			forceWidth: null,
-			rendererFunctionName: null,
-			bucketName: null,
-			audioCodec: null,
-			offthreadVideoCacheSizeInBytes: null,
-			deleteAfter: null,
-			colorSpace: 'default',
-			preferLossless: false,
-		},
+		payload: await makeLambdaRenderMediaPayload(
+			renderMediaOnLambdaOptionalToRequired({
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
+				codec: 'vp8',
+				composition: 'ten-frame-tester',
+				frameRange: [0, 9],
+				imageFormat: 'png',
+				framesPerLambda: 5,
+				logLevel: 'error',
+				functionName: 'remotion-dev-render',
+				region: 'eu-central-1',
+				outName: 'out.webm',
+				pixelFormat: 'yuva420p',
+			}),
+		),
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
