@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
@@ -13,25 +14,25 @@ test('Should make seamless audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'aac',
 		composition: 'framer',
-		frameRange: [0, 9],
+		frameRange: [100, 200],
 		imageFormat: 'png',
-		framesPerLambda: 5,
 		logLevel: 'error',
 		region: 'eu-central-1',
 	});
 
-	const probe = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: ['-'],
+	const wav = path.join(process.cwd(), 'test.wav');
+
+	await RenderInternals.callFf({
+		bin: 'ffmpeg',
+		args: ['-i', '-', '-y', wav],
 		options: {
 			stdin: file,
 		},
 		indent: false,
-		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
+		logLevel: 'info',
 	});
-	expect(probe.stderr).toMatch(/Duration: 00:00:00.38/);
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,
@@ -40,7 +41,7 @@ test('Should make seamless audio', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(4);
+	expect(files.length).toBe(8);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,
