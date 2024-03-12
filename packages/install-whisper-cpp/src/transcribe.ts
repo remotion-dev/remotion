@@ -80,6 +80,7 @@ const transcribeToTempJSON = async (
 	model: WhisperModel,
 	tmpJSONPath: string,
 	modelFolder: string | null,
+	translate: boolean,
 ) => {
 	const promisifiedExec = util.promisify(exec);
 
@@ -107,8 +108,11 @@ const transcribeToTempJSON = async (
 			? path.join(whisperPath, 'main.exe')
 			: path.join(whisperPath, './main');
 
+	const modelOption = model ? `-m ${modelPath}` : '';
+	const translateOption = translate ? `-tr ` : '';
+
 	await promisifiedExec(
-		`${executable} -f ${fileToTranscribe} --output-file ${tmpJSONPath} --output-json --max-len 1 -m ${modelPath}`,
+		`${executable} -f ${fileToTranscribe} --output-file ${tmpJSONPath} --output-json --max-len 1 ${modelOption} ${translateOption}`,
 		{cwd: whisperPath},
 	).then(({stderr}) => {
 		if (stderr.includes('error')) {
@@ -122,11 +126,13 @@ export const transcribe = async ({
 	whisperPath,
 	model = 'base.en',
 	modelFolder,
+	translateToEnglish = false,
 }: {
 	filePath: string;
 	whisperPath: string;
 	model?: WhisperModel;
 	modelFolder?: string;
+	translateToEnglish?: boolean;
 }): Promise<{transcription: TranscriptionJson}> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -152,13 +158,17 @@ export const transcribe = async ({
 		model,
 		tmpJSONPath,
 		modelFolder ?? null,
+		translateToEnglish,
 	);
 
 	const json = await readJson(tmpJSONPath + '.json');
 
 	fs.unlink(tmpJSONPath + '.json', (err) => {
 		if (err) {
-			console.error('Error while deleting a file: ', err);
+			console.error(
+				'An error occured while deleting the temporary json file: ',
+				err,
+			);
 		}
 	});
 

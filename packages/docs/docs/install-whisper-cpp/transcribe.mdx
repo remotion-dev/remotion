@@ -4,7 +4,7 @@ title: transcribe()
 crumb: "@remotion/install-whisper-cpp"
 ---
 
-# downloadWhisperModel()<AvailableFrom v="?"/>
+# downloadWhisperModel()<AvailableFrom v="4.0.125 "/>
 
 Transcribes a media file by utilizing Whisper.cpp.
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
@@ -47,9 +47,9 @@ The path to your Whisper.cpp folder. If you haven't installed Whisper.cpp, you c
 
 ### `model?`
 
-Specify a specific Whisper model for the transcription.
+_optional - default: `base.en`_
 
-Default: `base.en`
+Specify a specific Whisper model for the transcription.
 
 Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
 
@@ -57,9 +57,22 @@ Make sure the model you want to use exists in your `whisper.cpp/models` folder. 
 
 ### `modelFolder?`
 
+_optional - default: whisperPath/models_
+
 If you saved Whisper models to a specific folder, pass its path here.
 
 Uses the `whisper.cpp/models` folder at the location defined through `whisperPath` as default.
+
+### `translateToEnglish?`
+
+_optional - default: false_
+
+Set this boolean flag if you want to get a translated transcription of the provided file in English.
+Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
+
+:::info
+We recommend using at least the `medium` model to get satisfactory results.
+:::
 
 ## Return value
 
