@@ -122,6 +122,7 @@ export type InternalRenderMediaOptions = {
 	concurrency: number | string | null;
 	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
+	compositionStart: number;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -237,6 +238,7 @@ const internalRenderMediaRaw = ({
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
+	compositionStart,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -625,6 +627,7 @@ const internalRenderMediaRaw = ({
 					offthreadVideoCacheSizeInBytes,
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
+					compositionStart,
 				});
 
 				return renderFramesProc;
@@ -910,5 +913,7 @@ export const renderMedia = ({
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
+		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
+		compositionStart: 0,
 	});
 };

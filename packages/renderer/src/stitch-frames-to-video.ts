@@ -270,6 +270,7 @@ const innerStitchFramesToVideo = async (
 					cancelSignal: cancelSignal ?? undefined,
 					forSeamlessAacConcatenation,
 					compositionStart: assetsInfo.compositionStart,
+					chunkStart: assetsInfo.chunkStart,
 				})
 			: null;
 

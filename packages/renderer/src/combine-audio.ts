@@ -13,21 +13,10 @@ import {truthy} from './truthy';
 
 export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000;
 
-export const getClosestAlignedTime = (
-	targetTime: number,
-	compositionStart: number,
-	_override: boolean,
-) => {
-	if (_override) {
-		compositionStart = 3.333333;
-	}
-
+export const getClosestAlignedTime = (targetTime: number) => {
 	const decimalFramesToTargetTime = (targetTime * 1_000_000) / durationOf1Frame;
 	const nearestFrameIndexForTargetTime = Math.round(decimalFramesToTargetTime);
-	return (
-		nearestFrameIndexForTargetTime * durationOf1Frame +
-		compositionStart * 1_000_000
-	);
+	return (nearestFrameIndexForTargetTime * durationOf1Frame) / 1_000_000;
 };
 
 const encodeAudio = async ({
@@ -150,11 +139,10 @@ const combineAudioSeamlessly = async ({
 			const targetStart = i * chunkDurationInSeconds;
 			const endStart = (i + 1) * chunkDurationInSeconds;
 
-			const startTime = getClosestAlignedTime(targetStart, 0, false);
-			const endTime = getClosestAlignedTime(endStart, 0, false);
+			const startTime = getClosestAlignedTime(targetStart) * 1_000_000;
+			const endTime = getClosestAlignedTime(endStart) * 1_000_000;
 
 			const realDuration = endTime - startTime;
-			console.log({realDuration, chunkDurationInSeconds});
 
 			let inpoint = 0;
 			if (i > 0) {

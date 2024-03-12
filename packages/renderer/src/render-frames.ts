@@ -94,6 +94,7 @@ export type InternalRenderFramesOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
+	compositionStart: number;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -132,6 +133,7 @@ type InnerRenderFramesOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
+	compositionStart: number;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 export type RenderFramesOptions = {
@@ -207,6 +209,7 @@ const innerRenderFrames = async ({
 	logLevel,
 	indent,
 	parallelEncodingEnabled,
+	compositionStart,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -577,8 +580,9 @@ const innerRenderFrames = async ({
 				),
 				firstFrameIndex,
 				downloadMap,
-				compositionStart:
+				chunkStart:
 					frameRange === null ? 0 : realFrameRange[0] / composition.fps,
+				compositionStart,
 			},
 			frameCount: framesToRender.length,
 		};
@@ -623,6 +627,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
 	binariesDirectory,
+	compositionStart,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -748,6 +753,7 @@ const internalRenderFramesRaw = ({
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
 					binariesDirectory,
+					compositionStart,
 				});
 			}),
 		])
@@ -892,5 +898,7 @@ export const renderFrames = (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
 		binariesDirectory: binariesDirectory ?? null,
+		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
+		compositionStart: 0,
 	});
 };

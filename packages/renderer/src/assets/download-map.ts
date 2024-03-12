@@ -51,6 +51,7 @@ export type RenderAssetInfo = {
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;
 	compositionStart: number;
+	chunkStart: number;
 };
 
 const makeAndReturn = (dir: string, name: string) => {

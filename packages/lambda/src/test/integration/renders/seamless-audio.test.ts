@@ -17,7 +17,7 @@ test('Should make seamless audio', async () => {
 		composition: 'framer',
 		frameRange: [100, 200],
 		imageFormat: 'png',
-		logLevel: 'error',
+		logLevel: 'verbose',
 		region: 'eu-central-1',
 	});
 

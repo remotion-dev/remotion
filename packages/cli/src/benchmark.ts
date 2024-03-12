@@ -466,6 +466,7 @@ export const benchmarkCommand = async (
 						forSeamlessAacConcatenationOption.getValue({
 							commandLine: parsedCli,
 						}).value,
+					compositionStart: 0,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

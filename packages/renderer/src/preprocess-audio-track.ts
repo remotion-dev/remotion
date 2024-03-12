@@ -25,6 +25,7 @@ type Options = {
 	cancelSignal: CancelSignal | undefined;
 	forSeamlessAacConcatenation: boolean;
 	compositionStart: number;
+	chunkStart: number;
 	onProgress: (progress: number) => void;
 };
 
@@ -46,6 +47,7 @@ const preprocessAudioTrackUnlimited = async ({
 	forSeamlessAacConcatenation,
 	onProgress,
 	compositionStart,
+	chunkStart,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -64,6 +66,7 @@ const preprocessAudioTrackUnlimited = async ({
 		assetDuration: duration,
 		forSeamlessAacConcatenation,
 		compositionStart,
+		chunkStart,
 	});
 
 	if (filter === null) {

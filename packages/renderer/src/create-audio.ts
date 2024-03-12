@@ -33,6 +33,7 @@ export const createAudio = async ({
 	cancelSignal,
 	forSeamlessAacConcatenation,
 	compositionStart,
+	chunkStart,
 }: {
 	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -49,6 +50,7 @@ export const createAudio = async ({
 	cancelSignal: CancelSignal | undefined;
 	forSeamlessAacConcatenation: boolean;
 	compositionStart: number;
+	chunkStart: number;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -102,6 +104,7 @@ export const createAudio = async ({
 					updateProgress();
 				},
 				compositionStart,
+				chunkStart,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();

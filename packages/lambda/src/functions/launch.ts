@@ -286,6 +286,7 @@ const innerLaunchHandler = async ({
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
+			compositionStart: realFrameRange[0],
 		};
 		return payload;
 	});

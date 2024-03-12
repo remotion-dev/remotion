@@ -28,36 +28,29 @@ export const calculateFfmpegFilter = ({
 		return null;
 	}
 
+	const realLeftEnd = chunkStart - compositionStart;
+	const realRightEnd = realLeftEnd + durationInFrames / fps;
+
+	const actualLeftEnd =
+		getClosestAlignedTime(realLeftEnd) - 2 * (1024 / DEFAULT_SAMPLE_RATE);
+	const actualRightEnd =
+		getClosestAlignedTime(realRightEnd) + 2 * (1024 / DEFAULT_SAMPLE_RATE);
+
+	console.log({actualLeftEnd, actualRightEnd});
+
 	const assetTrimLeft = forSeamlessAacConcatenation
 		? Math.max(
 				0,
-				getClosestAlignedTime(
-					(asset.trimLeft * asset.playbackRate) / fps,
-					compositionStart,
-					true,
-				) /
-					1_000_000 -
+				getClosestAlignedTime((asset.trimLeft * asset.playbackRate) / fps) -
 					2 * (1024 / DEFAULT_SAMPLE_RATE),
 			)
 		: (asset.trimLeft * asset.playbackRate) / fps;
 	const assetTrimRight = forSeamlessAacConcatenation
 		? getClosestAlignedTime(
 				((asset.trimLeft + asset.duration) * asset.playbackRate) / fps,
-				compositionStart,
-				true,
-			) /
-				1_000_000 +
+			) +
 			2 * (1024 / DEFAULT_SAMPLE_RATE)
 		: assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
-
-	console.log({
-		assetTrimLeft,
-		assetTrimRight,
-		asset,
-		targetRight:
-			((asset.trimLeft + asset.duration * asset.playbackRate) / fps) *
-			1_000_000,
-	});
 
 	return stringifyFfmpegFilter({
 		channels,

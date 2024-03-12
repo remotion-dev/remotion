@@ -258,6 +258,7 @@ const renderHandler = async (
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
 			forSeamlessAacConcatenation: seamlessAudio,
+			compositionStart: params.compositionStart,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
