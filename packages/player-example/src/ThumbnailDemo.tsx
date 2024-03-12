@@ -1,11 +1,24 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
+import {Thumbnail, ThumbnailRef} from '@remotion/player';
+import {NativeBufferState} from './BufferState';
 import {VideoautoplayDemo} from './VideoAutoplay';
-import {Thumbnail} from '@remotion/player';
 
 export const ThumbnailDemo: React.FC = () => {
+	const ref = useRef<ThumbnailRef>(null);
+
+	useEffect(() => {
+		ref.current?.addEventListener('resume', () => {
+			console.log('resume');
+		});
+		ref.current?.addEventListener('waiting', () => {
+			console.log('waiting');
+		});
+	}, []);
+
 	return (
 		<div style={{margin: '2rem'}}>
 			<Thumbnail
+				ref={ref}
 				inputProps={{}}
 				component={VideoautoplayDemo}
 				compositionWidth={500}
