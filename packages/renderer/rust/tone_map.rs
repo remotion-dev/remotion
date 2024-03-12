@@ -98,7 +98,9 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         true => "copy".to_string()
     };
 
-    _print_verbose(&format!("Creating tone-mapping filter {}", filter_string)).unwrap();
+    if filter_string != "copy" {
+        _print_verbose(&format!("Creating tone-mapping filter {}", filter_string)).unwrap();
+    }
 
     filter
         .output("in", 0)?
