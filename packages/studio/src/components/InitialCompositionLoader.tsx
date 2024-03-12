@@ -2,9 +2,11 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
 import {getStaticFiles, Internals} from 'remotion';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {getRoute, pushUrl} from '../helpers/url-state';
 import {FolderContext} from '../state/folders';
+import {SidebarContext} from '../state/sidebar';
 import {getKeysToExpand} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanel';
 import {deriveCanvasContentFromUrl} from './ZoomPersistor';
@@ -37,6 +39,8 @@ export const useSelectAsset = () => {
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionManager);
+	const isMobileLayout = useMobileLayout();
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	return (c: AnyComposition, push: boolean) => {
 		if (push) {
@@ -61,6 +65,9 @@ export const useSelectComposition = () => {
 
 				return newState;
 			});
+			if (isMobileLayout) {
+				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+			}
 		}
 	};
 };

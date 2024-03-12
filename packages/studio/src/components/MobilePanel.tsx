@@ -1,16 +1,15 @@
 import ReactDOM from 'react-dom';
 import {BACKGROUND} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
+import {getPortal} from './Menu/portals';
 import {CancelButton} from './NewComposition/CancelButton';
 
 export default function MobilePanel({
 	children,
 	onClose,
-	portal,
 }: {
 	children: React.ReactNode;
 	onClose: () => void;
-	portal: Element;
 }) {
 	const {currentZIndex} = useZIndex();
 
@@ -22,9 +21,8 @@ export default function MobilePanel({
 				left: 0,
 				width: '100%',
 				height: '100%',
-				padding: '0 10px 50px 10px',
+				padding: '0 0px 50px 0px',
 				background: BACKGROUND,
-				zIndex: currentZIndex + 1,
 			}}
 		>
 			<div
@@ -46,6 +44,6 @@ export default function MobilePanel({
 			</div>
 			{children}
 		</div>,
-		portal,
+		getPortal(currentZIndex),
 	);
 }

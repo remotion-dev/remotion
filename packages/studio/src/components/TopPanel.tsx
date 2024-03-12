@@ -52,9 +52,6 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	return actualStateLeft;
 };
 
-const explorerPortal = document.getElementById('explorer-panel') as Element;
-const optionPortal = document.getElementById('option-panel') as Element;
-
 export const TopPanel: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
@@ -120,7 +117,7 @@ export const TopPanel: React.FC<{
 				>
 					{actualStateLeft === 'expanded' ? (
 						isMobileLayout ? (
-							<MobilePanel onClose={onCollapseLeft} portal={explorerPortal}>
+							<MobilePanel onClose={onCollapseLeft}>
 								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 							</MobilePanel>
 						) : (
@@ -156,7 +153,7 @@ export const TopPanel: React.FC<{
 							) : null}
 							{actualStateRight === 'expanded' ? (
 								isMobileLayout ? (
-									<MobilePanel onClose={onCollapseRight} portal={optionPortal}>
+									<MobilePanel onClose={onCollapseRight}>
 										<OptionsPanel readOnlyStudio={readOnlyStudio} />
 									</MobilePanel>
 								) : (
