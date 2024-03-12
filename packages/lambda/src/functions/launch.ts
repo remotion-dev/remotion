@@ -242,6 +242,8 @@ const innerLaunchHandler = async ({
 		needsToUpload,
 	});
 
+	const fps = comp.fps / params.everyNthFrame;
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -286,7 +288,7 @@ const innerLaunchHandler = async ({
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
-			compositionStart: realFrameRange[0],
+			compositionStart: realFrameRange[0] / fps,
 		};
 		return payload;
 	});
@@ -385,7 +387,6 @@ const innerLaunchHandler = async ({
 
 	reqSend.end();
 
-	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
 		bucketName: params.bucketName,
 		renderId: params.renderId,

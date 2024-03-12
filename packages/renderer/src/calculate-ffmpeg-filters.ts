@@ -31,26 +31,30 @@ export const calculateFfmpegFilter = ({
 	const realLeftEnd = chunkStart - compositionStart;
 	const realRightEnd = realLeftEnd + durationInFrames / fps;
 
-	const actualLeftEnd =
-		getClosestAlignedTime(realLeftEnd) - 2 * (1024 / DEFAULT_SAMPLE_RATE);
-	const actualRightEnd =
+	const aacAdjustedLeftEnd = Math.max(
+		0,
+		getClosestAlignedTime(realLeftEnd) - 2 * (1024 / DEFAULT_SAMPLE_RATE),
+	);
+	const aacAdjustedRightEnd =
 		getClosestAlignedTime(realRightEnd) + 2 * (1024 / DEFAULT_SAMPLE_RATE);
 
-	console.log({actualLeftEnd, actualRightEnd});
+	const aacAdjustedLeft = forSeamlessAacConcatenation
+		? aacAdjustedLeftEnd - realLeftEnd
+		: 0;
+	const aacAdjustedRight = forSeamlessAacConcatenation
+		? aacAdjustedRightEnd - realRightEnd
+		: 0;
+
+	const normalTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
+	const normalTrimRight =
+		((asset.trimLeft + asset.duration) * asset.playbackRate) / fps;
 
 	const assetTrimLeft = forSeamlessAacConcatenation
-		? Math.max(
-				0,
-				getClosestAlignedTime((asset.trimLeft * asset.playbackRate) / fps) -
-					2 * (1024 / DEFAULT_SAMPLE_RATE),
-			)
-		: (asset.trimLeft * asset.playbackRate) / fps;
+		? normalTrimLeft + aacAdjustedLeft
+		: normalTrimLeft;
 	const assetTrimRight = forSeamlessAacConcatenation
-		? getClosestAlignedTime(
-				((asset.trimLeft + asset.duration) * asset.playbackRate) / fps,
-			) +
-			2 * (1024 / DEFAULT_SAMPLE_RATE)
-		: assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+		? normalTrimRight + aacAdjustedRight
+		: normalTrimRight;
 
 	return stringifyFfmpegFilter({
 		channels,
