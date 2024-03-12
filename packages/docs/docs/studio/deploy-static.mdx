@@ -150,7 +150,7 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderMediaOnCloudrun({
   region: "us-east1",

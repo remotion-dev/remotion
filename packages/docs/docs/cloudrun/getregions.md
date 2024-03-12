@@ -16,13 +16,17 @@ Gets an array of all supported GCP regions of this release of Remotion Cloud Run
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getRegions } from "@remotion/cloudrun";
+import { getRegions } from "@remotion/cloudrun/client";
 
 // ---cut---
 
 const regions = getRegions();
 // ["asia-east1", "us-east1"]
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Return value
 

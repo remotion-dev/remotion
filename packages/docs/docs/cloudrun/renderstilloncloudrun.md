@@ -20,7 +20,7 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderStillOnCloudrun } from "@remotion/cloudrun";
+import { renderStillOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderStillOnCloudrun({
   region: "us-east1",
@@ -36,6 +36,10 @@ if (result.type === "success") {
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Arguments
 
