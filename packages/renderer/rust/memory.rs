@@ -1,9 +1,18 @@
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 
 pub fn get_available_memory() -> u64 {
     let mut sys = System::new();
     sys.refresh_memory();
-    return sys.total_memory() - sys.used_memory();
+    let total_memory = sys.total_memory();
+    let used_memory = sys.used_memory();
+
+    // Underflow can only happen in release mode, is prevented in debug
+    // At least with sysinfo 0.29.9, we spotted an underflow
+    // https://github.com/remotion-dev/remotion/issues/3576
+    if used_memory >= total_memory {
+        return 0;
+    }
+    return total_memory - used_memory;
 }
 
 // Is there less than 100MB of memory left?
