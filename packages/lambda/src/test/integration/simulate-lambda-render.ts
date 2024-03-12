@@ -26,6 +26,7 @@ export const simulateLambdaRender = async (
 		offthreadVideoCacheSizeInBytes: null,
 		port: null,
 		remotionRoot: path.dirname(exampleBuild),
+		forceIPv4: false,
 	});
 
 	const res = await callLambda({
