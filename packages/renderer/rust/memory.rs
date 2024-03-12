@@ -1,5 +1,7 @@
 use sysinfo::System;
 
+use crate::global_printer::_print_verbose;
+
 pub fn get_available_memory() -> u64 {
     let mut sys = System::new();
     sys.refresh_memory();
@@ -12,6 +14,11 @@ pub fn get_available_memory() -> u64 {
     if used_memory >= total_memory {
         return 0;
     }
+    _print_verbose(&format!(
+        "Warning: Detected total memory as {} bytes, free memory as {} bytes. This implies a non-positive amount of free memory. Free memory detection might be broken on this system, please report this at https://remotion.dev/issue",
+        total_memory, used_memory
+    ))
+    .unwrap();
     return total_memory - used_memory;
 }
 
