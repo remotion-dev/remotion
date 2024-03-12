@@ -106,6 +106,7 @@ export const stillCommand = async (
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4: false,
 		});
 
 		const {compositionId} =

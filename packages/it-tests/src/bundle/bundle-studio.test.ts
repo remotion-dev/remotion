@@ -22,6 +22,7 @@ test("Bundle studio", async () => {
       offthreadVideoCacheSizeInBytes: null,
       remotionRoot: path.join(process.cwd(), "..", "example"),
       binariesDirectory: null,
+      forceIPv4: false,
     }
   );
   await tab.goto({

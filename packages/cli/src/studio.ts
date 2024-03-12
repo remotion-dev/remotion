@@ -128,5 +128,6 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
+		forceIPv4: parsedCli.ipv4,
 	});
 };

@@ -229,6 +229,7 @@ export const internalSelectCompositionRaw = async (
 				indent,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: () => undefined,

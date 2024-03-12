@@ -1,28 +1,43 @@
 use ffmpeg_next::{
     color::{self, transfer_characteristic, Primaries, TransferCharacteristic},
     filter::{self, Graph},
+    util::format,
     Rational,
 };
 
 use crate::global_printer::_print_verbose;
 
-pub fn make_tone_map_filtergraph(
-    original_width: u32,
-    original_height: u32,
-    format: &str,
-    time_base: Rational,
-    video_primaries: Primaries,
-    transfer_characteristic: transfer_characteristic::TransferCharacteristic,
-    space: color::Space,
-    color_range: color::Range,
-    aspect_ratio: Rational,
-) -> Result<(Graph, bool), ffmpeg_next::Error> {
+#[derive(Clone, Copy)]
+pub struct FilterGraph {
+    pub original_width: u32,
+    pub original_height: u32,
+    pub format: format::Pixel,
+    pub time_base: Rational,
+    pub video_primaries: Primaries,
+    pub transfer_characteristic: transfer_characteristic::TransferCharacteristic,
+    pub color_space: color::Space,
+    pub color_range: color::Range,
+    pub aspect_ratio: Rational,
+}
+
+pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ffmpeg_next::Error> {
     let mut filter = filter::Graph::new();
+
+    let original_width = graph.original_width;
+    let original_height = graph.original_height;
+    let pixel_format = graph.format;
+    let time_base = graph.time_base;
+    let aspect_ratio = graph.aspect_ratio;
+    let video_primaries = graph.video_primaries;
+    let transfer_characteristic = graph.transfer_characteristic;
+    let color_range = graph.color_range;
+    let color_space = graph.color_space;
+
     let args = format!(
         "width={}:height={}:pix_fmt={}:time_base={}/{}:sar={}/{}",
         original_width,
         original_height,
-        format,
+        format!("{:?}", pixel_format).to_lowercase(),
         time_base.0,
         time_base.1,
         aspect_ratio.0,
@@ -49,7 +64,7 @@ pub fn make_tone_map_filtergraph(
         _ => "input",
     };
 
-    let matrix_in = match space {
+    let matrix_in = match color_space {
         color::Space::BT2020NCL => "2020_ncl",
         color::Space::BT2020CL => "2020_cl",
         color::Space::BT470BG => "470bg",
@@ -65,7 +80,8 @@ pub fn make_tone_map_filtergraph(
         _ => "input",
     };
 
-    let matrix_is_target = matrix_in == "input" || matrix_in == "470bg" || matrix_in == "709" || matrix_in == "170m";
+    let matrix_is_target =
+        matrix_in == "input" || matrix_in == "470bg" || matrix_in == "709" || matrix_in == "170m";
     let transfer_is_target = transfer_in == "input" || transfer_in == "709";
     let primaries_is_target = primaries == "input" || primaries == "709" || primaries == "170m";
 
@@ -82,7 +98,9 @@ pub fn make_tone_map_filtergraph(
         true => "copy".to_string()
     };
 
-    _print_verbose(&format!("Creating tone-mapping filter {}", filter_string)).unwrap();
+    if filter_string != "copy" {
+        _print_verbose(&format!("Creating tone-mapping filter {}", filter_string)).unwrap();
+    }
 
     filter
         .output("in", 0)?

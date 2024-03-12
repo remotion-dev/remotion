@@ -46,7 +46,7 @@ An official Remotion package for Cloud Run is in development. Register your inte
 
 ### Remotion Studio deployment
 
-It’s possible to deploy the Remotion Studio onto a long-running server in the cloud, which can then be accessed by your non-technical team members using just a URL. Check out the [Deploy the Remotion Studio](/docs/deploy-studio) guide to learn how to do this.
+It’s possible to deploy the Remotion Studio onto a long-running server in the cloud, which can then be accessed by your non-technical team members using just a URL. Check out the [Deploy the Remotion Studio](/docs/studio/deploy-server) guide to learn how to do this.
 
 ## Variants
 

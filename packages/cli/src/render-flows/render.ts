@@ -275,6 +275,7 @@ export const renderVideoFlow = async ({
 		webpackConfigOrServeUrl: urlOrBundle,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		forceIPv4: false,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));

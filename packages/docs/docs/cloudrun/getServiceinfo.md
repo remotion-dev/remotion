@@ -22,7 +22,7 @@ To deploy a service, use [`deployService()`](/docs/cloudrun/deployservice).
 // @module: esnext
 // @target: es2017
 
-import { getServiceInfo } from "@remotion/cloudrun";
+import { getServiceInfo } from "@remotion/cloudrun/client";
 
 const info = await getServiceInfo({
   region: "us-east1",
@@ -37,6 +37,10 @@ console.log(info.uri); // "https://remotion--3-3-82--mem512mi--cpu1-0--t-500-1a2
 console.log(info.region); // "us-east1"
 console.log(info.consoleUrl); // "https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-500/logs"
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Arguments
 

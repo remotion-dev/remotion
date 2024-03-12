@@ -189,6 +189,7 @@ export const renderStillFlow = async ({
 		webpackConfigOrServeUrl: urlOrBundle,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		forceIPv4: false,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));

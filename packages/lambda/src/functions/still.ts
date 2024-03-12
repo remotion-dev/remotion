@@ -125,6 +125,7 @@ const innerStillHandler = async ({
 		webpackConfigOrServeUrl: serveUrl,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
+		forceIPv4: false,
 	});
 
 	const browserInstance = await browserInstancePromise;
