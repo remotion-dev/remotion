@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from 'react';
 import {Thumbnail, ThumbnailRef} from '@remotion/player';
-import {NativeBufferState} from './BufferState';
 import {VideoautoplayDemo} from './VideoAutoplay';
 
 export const ThumbnailDemo: React.FC = () => {
