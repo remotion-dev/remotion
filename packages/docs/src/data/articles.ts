@@ -93,7 +93,7 @@ export const articles = [
   {
     id: "audio",
     title: "<Audio>",
-    relativePath: "docs/audio.md",
+    relativePath: "docs/audio.mdx",
     compId: "articles-docs-audio",
     crumb: "How to",
   },
@@ -868,13 +868,6 @@ export const articles = [
     crumb: "@remotion/install-whisper-cpp",
   },
   {
-    id: "install-whisper-cpp/transcribe",
-    title: "downloadWhisperModel()",
-    relativePath: "docs/install-whisper-cpp/transcribe.mdx",
-    compId: "articles-docs-install-whisper-cpp-transcribe",
-    crumb: "@remotion/install-whisper-cpp",
-  },
-  {
     id: "install-whisper-cpp/index",
     title: "@remotion/install-whisper-cpp",
     relativePath: "docs/install-whisper-cpp/index.mdx",
@@ -886,6 +879,13 @@ export const articles = [
     title: "installWhisperCpp()",
     relativePath: "docs/install-whisper-cpp/install-whisper-cpp.mdx",
     compId: "articles-docs-install-whisper-cpp-install-whisper-cpp",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
+    id: "install-whisper-cpp/transcribe",
+    title: "transcribe()",
+    relativePath: "docs/install-whisper-cpp/transcribe.mdx",
+    compId: "articles-docs-install-whisper-cpp-transcribe",
     crumb: "@remotion/install-whisper-cpp",
   },
   {
@@ -3098,7 +3098,7 @@ export const articles = [
   {
     id: "video",
     title: "<Video>",
-    relativePath: "docs/video.md",
+    relativePath: "docs/video.mdx",
     compId: "articles-docs-video",
     crumb: "API",
   },

@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import util from 'node:util';
 import type {WhisperModel} from './download-whisper-model';
+import {getModelPath} from './download-whisper-model';
 
 type Timestamps = {
 	from: string;
@@ -59,8 +60,8 @@ export type TranscriptionJson = {
 	transcription: TranscriptionItem[];
 };
 
-const isWavFile = (filePath: string) => {
-	const splitted = filePath.split('.');
+const isWavFile = (inputPath: string) => {
+	const splitted = inputPath.split('.');
 	if (!splitted) {
 		return false;
 	}
@@ -74,31 +75,29 @@ const readJson = async (jsonPath: string) => {
 	return jsonData;
 };
 
-const transcribeToTempJSON = async (
-	fileToTranscribe: string,
-	whisperPath: string,
-	model: WhisperModel,
-	tmpJSONPath: string,
-	modelFolder: string | null,
-	translate: boolean,
-) => {
+const transcribeToTempJSON = async ({
+	fileToTranscribe,
+	whisperPath,
+	model,
+	tmpJSONPath,
+	modelFolder,
+	translate,
+}: {
+	fileToTranscribe: string;
+	whisperPath: string;
+	model: WhisperModel;
+	tmpJSONPath: string;
+	modelFolder: string | null;
+	translate: boolean;
+}) => {
 	const promisifiedExec = util.promisify(exec);
 
-	const modelExecutableName = `ggml-${model}.bin`;
-	const defaultModelPath = path.join(
-		whisperPath,
-		'models',
-		modelExecutableName,
-	);
-
-	const modelPath = modelFolder
-		? path.join(modelFolder, modelExecutableName)
-		: defaultModelPath;
+	const modelPath = getModelPath(modelFolder ?? whisperPath, model);
 
 	if (!fs.existsSync(modelPath)) {
 		throw new Error(
 			`Error: Model ${model} does not exist at ${
-				modelFolder ? modelFolder : defaultModelPath
+				modelFolder ? modelFolder : modelPath
 			}. Check out the downloadWhisperMode() API at https://www.remotion.dev/docs/install-whisper-cpp/download-whisper-model to see how to install whisper models`,
 		);
 	}
@@ -122,55 +121,49 @@ const transcribeToTempJSON = async (
 };
 
 export const transcribe = async ({
-	filePath,
+	inputPath,
 	whisperPath,
-	model = 'base.en',
+	model,
 	modelFolder,
 	translateToEnglish = false,
 }: {
-	filePath: string;
+	inputPath: string;
 	whisperPath: string;
-	model?: WhisperModel;
+	model: WhisperModel;
 	modelFolder?: string;
 	translateToEnglish?: boolean;
-}): Promise<{transcription: TranscriptionJson}> => {
+}): Promise<TranscriptionJson> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
 			`Whisper does not exist at ${whisperPath}. Double-check the passed whisperPath. If you havent installed whisper, check out the installWhisperCpp() API at https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp to see how to install whisper programatically.`,
 		);
 	}
 
-	if (!existsSync(filePath)) {
-		throw new Error(`Input file does not exist at ${filePath}`);
+	if (!existsSync(inputPath)) {
+		throw new Error(`Input file does not exist at ${inputPath}`);
 	}
 
-	if (!isWavFile(filePath)) {
+	if (!isWavFile(inputPath)) {
 		throw new Error(
 			'Invalid inputFile type. The provided file is not a wav file!',
 		);
 	}
 
-	const tmpJSONPath = path.join(process.cwd(), 'tmp');
+	const tmpJSONDir = path.join(process.cwd(), 'tmp');
 
-	await transcribeToTempJSON(
-		filePath,
+	await transcribeToTempJSON({
+		fileToTranscribe: inputPath,
 		whisperPath,
 		model,
-		tmpJSONPath,
-		modelFolder ?? null,
-		translateToEnglish,
-	);
-
-	const json = await readJson(tmpJSONPath + '.json');
-
-	fs.unlink(tmpJSONPath + '.json', (err) => {
-		if (err) {
-			console.error(
-				'An error occured while deleting the temporary json file: ',
-				err,
-			);
-		}
+		tmpJSONPath: tmpJSONDir,
+		modelFolder: modelFolder ?? null,
+		translate: translateToEnglish,
 	});
 
-	return Promise.resolve({transcription: json});
+	const tmpJSONPath = `${tmpJSONDir}.json`;
+
+	const json = (await readJson(tmpJSONPath)) as TranscriptionJson;
+	fs.unlinkSync(tmpJSONPath);
+
+	return json;
 };

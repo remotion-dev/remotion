@@ -1,12 +1,12 @@
 ---
-# image: /generated/articles-docs-install-whisper-cpp-download-whisper-model.png
+image: /generated/articles-docs-install-whisper-cpp-transcribe.png
 title: transcribe()
 crumb: "@remotion/install-whisper-cpp"
 ---
 
-# downloadWhisperModel()<AvailableFrom v="4.0.125 "/>
+# transcribe()<AvailableFrom v="4.0.125 "/>
 
-Transcribes a media file by utilizing Whisper.cpp.
+Transcribes a media file by utilizing Whisper.cpp.  
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
 
 ```tsx twoslash title="transcribe.mjs"
@@ -16,15 +16,19 @@ import path from "path";
 import { transcribe } from "@remotion/install-whisper-cpp";
 
 const { transcription } = await transcribe({
-  filePath: "pathToYourFile",
+  inputPath: "/path/to/audio.wav",
   whisperPath: path.join(process.cwd(), "whisper.cpp"),
   model: "base.en",
 });
+
+for (const token of transcription) {
+  console.log(token.timestamps.from, token.timestamps.to, token.text);
+}
 ```
 
 ## Options
 
-### `filePath`
+### `inputPath`
 
 The path to the file you want extract text from.
 
@@ -35,7 +39,7 @@ example by utilizing FFmpeg with the following command:
 ffmpeg -i input.mp4 -ar 16000 output.wav -y
 ```
 
-If you don't want to install FFmpeg, you can also use the smaller FFmpeg binary provided by Remotion.
+If you don't want to install FFmpeg, you can also use the [smaller FFmpeg binary](/docs/cli/ffmpeg) provided by Remotion.
 
 ```bash
 npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
@@ -43,7 +47,8 @@ npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
 
 ### `whisperPath`
 
-The path to your Whisper.cpp folder. If you haven't installed Whisper.cpp, you can do so for example through [installWhisperCpp()](docs/install-whisper-cpp/install-whisper-cpp).
+The path to your `whisper.cpp` folder.  
+If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `folder`.
 
 ### `model?`
 
@@ -53,7 +58,7 @@ Specify a specific Whisper model for the transcription.
 
 Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
 
-Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](docs/install-whisper-cpp/download-whisper-model) API.
+Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](/docs/install-whisper-cpp/download-whisper-model) API.
 
 ### `modelFolder?`
 
@@ -80,13 +85,17 @@ We recommend using at least the `medium` model to get satisfactory results.
 
 An object containing all the metadata and transcriptions resulting from the transcription process.
 
-```ts
-type TranscriptionJson = {
-  systeminfo: string;
-  model: Model;
-  params: Params;
-  result: Result;
-  transcription: TranscriptionItem[];
+```ts twoslash
+type TranscriptionItem = {
+  timestamps: {
+    from: string;
+    to: string;
+  };
+  offsets: {
+    from: number;
+    to: number;
+  };
+  text: string;
 };
 
 type Model = {
@@ -109,30 +118,18 @@ type Model = {
   ftype: number;
 };
 
-type Params = {
-  model: string;
-  language: string;
-  translate: boolean;
-};
-
-type TranscriptionItem = {
-  timestamps: Timestamps;
-  offsets: Offsets;
-  text: string;
-};
-
-type Result = {
-  language: string;
-};
-
-type Timestamps = {
-  from: string;
-  to: string;
-};
-
-type Offsets = {
-  from: number;
-  to: number;
+type TranscriptionJson = {
+  systeminfo: string;
+  model: Model;
+  params: {
+    model: string;
+    language: string;
+    translate: boolean;
+  };
+  result: {
+    language: string;
+  };
+  transcription: TranscriptionItem[];
 };
 ```
 

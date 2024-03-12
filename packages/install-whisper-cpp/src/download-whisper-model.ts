@@ -20,6 +20,10 @@ const models = [
 export type WhisperModel = (typeof models)[number];
 export type OnProgress = (downloadedBytes: number, totalBytes: number) => void;
 
+export const getModelPath = (folder: string, model: WhisperModel) => {
+	return path.join(folder, `ggml-${model}.bin`);
+};
+
 export const downloadWhisperModel = async ({
 	model,
 	folder,
@@ -39,7 +43,8 @@ export const downloadWhisperModel = async ({
 		);
 	}
 
-	const filePath = path.join(folder, `ggml-${model}.bin`);
+	const filePath = getModelPath(folder, model);
+
 	if (existsSync(filePath)) {
 		if (printOutput) {
 			console.log(`Model already exists at ${filePath}`);
