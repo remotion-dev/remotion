@@ -42,7 +42,7 @@ export const calculateFfmpegFilter = ({
 		: (asset.trimLeft * asset.playbackRate) / fps;
 	const assetTrimRight = forSeamlessAacConcatenation
 		? getClosestAlignedTime(
-				(asset.trimLeft + asset.duration * asset.playbackRate) / fps,
+				((asset.trimLeft + asset.duration) * asset.playbackRate) / fps,
 				compositionStart,
 				true,
 			) /
