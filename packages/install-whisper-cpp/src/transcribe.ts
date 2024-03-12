@@ -5,7 +5,59 @@ import path from 'node:path';
 import util from 'node:util';
 import type {WhisperModel} from './download-whisper-model';
 
-type transcription = {};
+type Timestamps = {
+	from: string;
+	to: string;
+};
+
+type Offsets = {
+	from: number;
+	to: number;
+};
+
+type TranscriptionItem = {
+	timestamps: Timestamps;
+	offsets: Offsets;
+	text: string;
+};
+
+type Model = {
+	type: string;
+	multilingual: boolean;
+	vocab: number;
+	audio: {
+		ctx: number;
+		state: number;
+		head: number;
+		layer: number;
+	};
+	text: {
+		ctx: number;
+		state: number;
+		head: number;
+		layer: number;
+	};
+	mels: number;
+	ftype: number;
+};
+
+type Params = {
+	model: string;
+	language: string;
+	translate: boolean;
+};
+
+type Result = {
+	language: string;
+};
+
+export type TranscriptionJson = {
+	systeminfo: string;
+	model: Model;
+	params: Params;
+	result: Result;
+	transcription: TranscriptionItem[];
+};
 
 const cleanUpTmpFiles = (tmpJSONPath: string, tmpWaveFilePath: string) => {
 	fs.unlink(tmpJSONPath + '.json', (err) => {
@@ -80,14 +132,14 @@ const transcribeToTempJSON = async (
 export const transcribe = async ({
 	filePath,
 	whisperPath,
-	model,
+	model = 'base.en',
 	modelFolder,
 }: {
 	filePath: string;
 	whisperPath: string;
-	model: WhisperModel;
+	model?: WhisperModel;
 	modelFolder?: string;
-}): Promise<{transcription: transcription}> => {
+}): Promise<{transcription: TranscriptionJson}> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
 			`Whisper does not exist at ${whisperPath}. Double-check the passed whisperPath. If you havent installed whisper, check out the installWhisperCpp() API at https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp to see how to install whisper programatically.`,

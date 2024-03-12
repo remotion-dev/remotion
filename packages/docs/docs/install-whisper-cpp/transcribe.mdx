@@ -26,29 +26,102 @@ const { transcription } = await transcribe({
 
 ### `filePath`
 
-The path to the file you want to transcribe. The accepted file types are ???
+The path to the file you want extract text from.
+
+The file has to be a 16KHz wav file. You can extract a 16KHz wav file from a video or audio file for
+example by utilizing FFmpeg with the following command:
+
+```bash
+ffmpeg -i input.mp4 -ar 16000 output.wav -y
+```
+
+If you don't want to install FFmpeg, you can also use the smaller FFmpeg binary provided by Remotion.
+
+```bash
+npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
+```
 
 ### `whisperPath`
 
-The path to your whisper.cpp folder. If you haven't installed whisper, you can use the [installWhisperCpp](docs/install-whisper-cpp/install-whisper-cpp) API to do so.
+The path to your whisper.cpp folder. If you haven't installed whisper, you can do so for example through [installWhisperCpp()](docs/install-whisper-cpp/install-whisper-cpp).
 
-### `model`
+### `model?`
 
-The model you want to use for the transcription.
+Specify a specific whisper model for the transcription.
+
+Default: `base.en`
 
 Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
 
-Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](docs/install-whisper-cpp/download-whisper-model) API
+Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](docs/install-whisper-cpp/download-whisper-model) API.
 
 ### `modelFolder?`
 
-If you have
+If you saved whisper models to a specific folder, pass its path here.
+
+Uses the `whisper.cpp/models` folder at the location defined through `whisperPath` as default.
 
 ## Return value
 
-### `transcription`
+### `TranscriptionJson`
 
-A JSON file containing the transcription of the provided media file including timestamps.
+An object containing all the metadata and transcriptions resulting from the transcription process of whisper.
+
+```ts
+type TranscriptionJson = {
+  systeminfo: string;
+  model: Model;
+  params: Params;
+  result: Result;
+  transcription: TranscriptionItem[];
+};
+
+type Model = {
+  type: string;
+  multilingual: boolean;
+  vocab: number;
+  audio: {
+    ctx: number;
+    state: number;
+    head: number;
+    layer: number;
+  };
+  text: {
+    ctx: number;
+    state: number;
+    head: number;
+    layer: number;
+  };
+  mels: number;
+  ftype: number;
+};
+
+type Params = {
+  model: string;
+  language: string;
+  translate: boolean;
+};
+
+type TranscriptionItem = {
+  timestamps: Timestamps;
+  offsets: Offsets;
+  text: string;
+};
+
+type Result = {
+  language: string;
+};
+
+type Timestamps = {
+  from: string;
+  to: string;
+};
+
+type Offsets = {
+  from: number;
+  to: number;
+};
+```
 
 ## See also
 
