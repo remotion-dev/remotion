@@ -1,5 +1,5 @@
 import type {SyntheticEvent} from 'react';
-import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter.js';
+import type {PlayerEmitter} from './event-emitter.js';
 
 export type ThumbnailMethods = {
 	getContainerNode: () => HTMLDivElement | null;
@@ -24,5 +24,5 @@ export type PlayerMethods = ThumbnailMethods & {
 	pauseAndReturnToPlayStart: () => void;
 };
 
-export type ThumbnailRef = ThumbnailEmitter & ThumbnailMethods;
+export type ThumbnailRef = PlayerEmitter & ThumbnailMethods;
 export type PlayerRef = PlayerEmitter & PlayerMethods;
