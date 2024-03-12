@@ -6,7 +6,7 @@ crumb: "@remotion/install-whisper-cpp"
 
 # downloadWhisperModel()<AvailableFrom v="?"/>
 
-Transcribes a media file by utilizing whisper.cpp.
+Transcribes a media file by utilizing Whisper.cpp.
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
 
 ```tsx twoslash title="transcribe.mjs"
@@ -16,8 +16,8 @@ import path from "path";
 import { transcribe } from "@remotion/install-whisper-cpp";
 
 const { transcription } = await transcribe({
-  filePath: "pathToYourFile"
-  whisperPath: path.join(process.cwd(), "whisper.cpp")
+  filePath: "pathToYourFile",
+  whisperPath: path.join(process.cwd(), "whisper.cpp"),
   model: "base.en",
 });
 ```
@@ -43,11 +43,11 @@ npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
 
 ### `whisperPath`
 
-The path to your whisper.cpp folder. If you haven't installed whisper, you can do so for example through [installWhisperCpp()](docs/install-whisper-cpp/install-whisper-cpp).
+The path to your Whisper.cpp folder. If you haven't installed Whisper.cpp, you can do so for example through [installWhisperCpp()](docs/install-whisper-cpp/install-whisper-cpp).
 
 ### `model?`
 
-Specify a specific whisper model for the transcription.
+Specify a specific Whisper model for the transcription.
 
 Default: `base.en`
 
@@ -57,7 +57,7 @@ Make sure the model you want to use exists in your `whisper.cpp/models` folder. 
 
 ### `modelFolder?`
 
-If you saved whisper models to a specific folder, pass its path here.
+If you saved Whisper models to a specific folder, pass its path here.
 
 Uses the `whisper.cpp/models` folder at the location defined through `whisperPath` as default.
 
@@ -65,7 +65,7 @@ Uses the `whisper.cpp/models` folder at the location defined through `whisperPat
 
 ### `TranscriptionJson`
 
-An object containing all the metadata and transcriptions resulting from the transcription process of whisper.
+An object containing all the metadata and transcriptions resulting from the transcription process.
 
 ```ts
 type TranscriptionJson = {
