@@ -35,6 +35,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "acknowledgements",
+    title: "Acknowledgements",
+    relativePath: "docs/acknowledgements.md",
+    compId: "articles-docs-acknowledgements",
+    crumb: "Credits",
+  },
+  {
     id: "after-effects",
     title: "Import from After Effects",
     relativePath: "docs/after-effects.md",
@@ -93,7 +100,7 @@ export const articles = [
   {
     id: "audio",
     title: "<Audio>",
-    relativePath: "docs/audio.md",
+    relativePath: "docs/audio.mdx",
     compId: "articles-docs-audio",
     crumb: "How to",
   },
@@ -614,13 +621,6 @@ export const articles = [
     relativePath: "docs/delay-render.md",
     compId: "articles-docs-delay-render",
     crumb: "How to",
-  },
-  {
-    id: "deploy-studio",
-    title: "Deploy the Remotion Studio",
-    relativePath: "docs/deploy-remotion-studio.md",
-    compId: "articles-docs-deploy-remotion-studio",
-    crumb: "Remotion Studio",
   },
   {
     id: "docker",
@@ -3091,7 +3091,7 @@ export const articles = [
   {
     id: "video",
     title: "<Video>",
-    relativePath: "docs/video.md",
+    relativePath: "docs/video.mdx",
     compId: "articles-docs-video",
     crumb: "API",
   },

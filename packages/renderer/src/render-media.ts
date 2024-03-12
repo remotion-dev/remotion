@@ -543,6 +543,7 @@ const internalRenderMediaRaw = ({
 						offthreadVideoCacheSizeInBytes:
 							offthreadVideoCacheSizeInBytes ?? null,
 						binariesDirectory,
+						forceIPv4: false,
 					},
 					{
 						onDownload,

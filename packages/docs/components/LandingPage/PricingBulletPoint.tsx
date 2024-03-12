@@ -12,7 +12,7 @@ const greyCircle: React.CSSProperties = {
   width: 20,
   height: 20,
   borderRadius: 10,
-  backgroundColor: "#EAEAEA",
+  backgroundColor: "var(--footer-border)",
 };
 
 export const PricingBulletPoint: React.FC<{

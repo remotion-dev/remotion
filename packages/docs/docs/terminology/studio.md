@@ -10,7 +10,7 @@ It is included in the [`@remotion/cli`](https://npmjs.org/packages/@remotion/cli
 
 Not to be confused with the [Remotion Player](/docs/player).
 
-You can [deploy the Remotion Studio](/docs/deploy-studio) to render on a VPS.  
+You can [deploy the Remotion Studio](/docs/studio/deploy-server) to render on a VPS.  
 Since v4.0.93, the Studio is also embedded in every [Remotion Bundle](/docs/terminology/bundle), albeit it does not support rendering.
 
 ## Remotion Preview
@@ -21,4 +21,4 @@ Since the Preview gained more capabilities than just previewing, the name was no
 ## See
 
 - [Remotion Studio](/docs/studio)
-- [Deploy the Remotion Studio](/docs/deploy-studio)
+- [Deploy the Remotion Studio](/docs/studio/deploy-server)

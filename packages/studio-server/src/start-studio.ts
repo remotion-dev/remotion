@@ -79,6 +79,7 @@ export const startStudio = async ({
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
+	forceIPv4,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -103,6 +104,7 @@ export const startStudio = async ({
 	previewEntry: string;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
+	forceIPv4: boolean;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
@@ -163,6 +165,7 @@ export const startStudio = async ({
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
+		forceIPv4,
 	});
 
 	setLiveEventsListener(liveEventsServer);

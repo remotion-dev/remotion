@@ -48,6 +48,11 @@
       "permanent": false
     },
     {
+      "source": "/acknowledgements",
+      "destination": "/docs/acknowledgements",
+      "permanent": false
+    },
+    {
       "source": "/issue",
       "destination": "https://github.com/remotion-dev/remotion/issues/new/choose",
       "permanent": false

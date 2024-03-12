@@ -203,6 +203,7 @@ export const renderCommand = async (
 			webpackConfigOrServeUrl: serveUrl,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			forceIPv4: false,
 		});
 
 		const {compositionId} =

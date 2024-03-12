@@ -569,6 +569,9 @@ importers:
       '@docusaurus/plugin-content-blog':
         specifier: 2.4.1
         version: 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
+      '@docusaurus/plugin-google-gtag':
+        specifier: 2.4.1
+        version: 2.4.1(@swc/core@1.3.80)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
       '@docusaurus/preset-classic':
         specifier: 2.4.1
         version: 2.4.1(@algolia/client-search@4.14.2)(@swc/core@1.3.80)(@types/react@18.2.48)(eslint@8.42.0)(react-dom@18.2.0)(react@18.2.0)(typescript@4.9.5)
@@ -793,10 +796,10 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin
       '@typescript-eslint/eslint-plugin':
-        specifier: 6.7.4
+        specifier: ^6.7.4
         version: 6.7.4(@typescript-eslint/parser@6.7.4)(eslint@8.42.0)(typescript@4.9.5)
       '@typescript-eslint/parser':
-        specifier: 6.7.4
+        specifier: ^6.7.4
         version: 6.7.4(eslint@8.42.0)(typescript@4.9.5)
       eslint-plugin-10x:
         specifier: 1.5.2

@@ -21,6 +21,7 @@
   border: none;
   text-align: end;
   font-feature-settings: "ss03" on;
+  background: transparent;
 }
 
 /* removes up and down arrows from input field */
@@ -33,7 +34,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .pricingcontainer {
   display: flex;
   flex-direction: column;
-  border: 5px solid black;
+  border: 5px solid var(--text-color);
   border-radius: 10px;
   padding: 20px 26px;
 }
@@ -145,6 +146,16 @@ input[type="number"]::-webkit-outer-spin-button {
 .rowcontainer {
   display: flex;
   flex-direction: row;
+}
+
+.contactuslink {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+.contactuslink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
 }
 
 @media screen and (max-width: 900px) {

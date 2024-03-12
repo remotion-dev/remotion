@@ -96,6 +96,7 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
+	ipv4: boolean;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
@@ -127,6 +128,7 @@ export const BooleanFlags = [
 	'disable-keyboard-shortcuts',
 	'default-only',
 	'no-open',
+	'ipv4',
 	beepOnFinishOption.cliFlag,
 	'repro',
 ];
