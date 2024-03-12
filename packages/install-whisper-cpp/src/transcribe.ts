@@ -1,4 +1,4 @@
-import {exec, execSync} from 'node:child_process';
+import {exec} from 'node:child_process';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -59,29 +59,13 @@ export type TranscriptionJson = {
 	transcription: TranscriptionItem[];
 };
 
-const cleanUpTmpFiles = (tmpJSONPath: string, tmpWaveFilePath: string) => {
-	fs.unlink(tmpJSONPath + '.json', (err) => {
-		if (err) {
-			console.error('Error while deleting a file: ', err);
-		}
-	});
+const isWavFile = (filePath: string) => {
+	const splitted = filePath.split('.');
+	if (!splitted) {
+		return false;
+	}
 
-	fs.unlink(tmpWaveFilePath, (err) => {
-		if (err) {
-			console.error('Error while deleting a file: ', err);
-		}
-	});
-};
-
-const extractToTempAudioFile = (
-	fileToTranscribe: string,
-	tempOutFile: string,
-) => {
-	// Extracting audio from mp4 and save it as 16khz wav file
-	execSync(
-		`npx remotion ffmpeg -i ${fileToTranscribe} -ar 16000 ${tempOutFile} -y`,
-		{stdio: 'inherit'},
-	);
+	return splitted[splitted.length - 1] === 'wav';
 };
 
 const readJson = async (jsonPath: string) => {
@@ -126,7 +110,11 @@ const transcribeToTempJSON = async (
 	await promisifiedExec(
 		`${executable} -f ${fileToTranscribe} --output-file ${tmpJSONPath} --output-json --max-len 1 -m ${modelPath}`,
 		{cwd: whisperPath},
-	);
+	).then(({stderr}) => {
+		if (stderr.includes('error')) {
+			throw new Error('An error occured while transcribing: ' + stderr);
+		}
+	});
 };
 
 export const transcribe = async ({
@@ -150,12 +138,16 @@ export const transcribe = async ({
 		throw new Error(`Input file does not exist at ${filePath}`);
 	}
 
-	const tmpWaveFilePath = path.join(process.cwd(), 'tmp.wav');
+	if (!isWavFile(filePath)) {
+		throw new Error(
+			'Invalid inputFile type. The provided file is not a wav file!',
+		);
+	}
+
 	const tmpJSONPath = path.join(process.cwd(), 'tmp');
-	extractToTempAudioFile(filePath, tmpWaveFilePath);
 
 	await transcribeToTempJSON(
-		tmpWaveFilePath,
+		filePath,
 		whisperPath,
 		model,
 		tmpJSONPath,
@@ -164,7 +156,11 @@ export const transcribe = async ({
 
 	const json = await readJson(tmpJSONPath + '.json');
 
-	cleanUpTmpFiles(tmpJSONPath, tmpWaveFilePath);
+	fs.unlink(tmpJSONPath + '.json', (err) => {
+		if (err) {
+			console.error('Error while deleting a file: ', err);
+		}
+	});
 
 	return Promise.resolve({transcription: json});
 };
