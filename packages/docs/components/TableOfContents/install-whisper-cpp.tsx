@@ -16,7 +16,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/install-whisper-cpp/transcribe">
           <strong>transcribe()</strong>
-          <div>Transcribe audio from a media file</div>
+          <div>Transcribe an audio file</div>
         </TOCItem>
       </Grid>
     </div>
