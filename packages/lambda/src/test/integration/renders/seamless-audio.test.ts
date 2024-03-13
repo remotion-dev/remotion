@@ -19,6 +19,7 @@ test('Should make seamless audio', async () => {
 		imageFormat: 'png',
 		logLevel: 'error',
 		region: 'eu-central-1',
+		inputProps: {playbackRate: 2},
 	});
 
 	const wav = path.join(process.cwd(), 'test.wav');
