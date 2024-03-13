@@ -26,7 +26,7 @@ type Options = {
 	cancelSignal: CancelSignal | undefined;
 	onProgress: (progress: number) => void;
 	fps: number;
-	expectedFrames: number;
+	chunkLengthInSeconds: number;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -40,14 +40,12 @@ const mergeAudioTrackUnlimited = async ({
 	cancelSignal,
 	onProgress,
 	fps,
-	expectedFrames,
+	chunkLengthInSeconds,
 }: Options): Promise<void> => {
-	const numberOfSeconds = Number((expectedFrames / fps).toFixed(3));
-
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
-			numberOfSeconds,
+			chunkLengthInSeconds,
 			indent,
 			logLevel,
 			binariesDirectory,
@@ -81,7 +79,7 @@ const mergeAudioTrackUnlimited = async ({
 					const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
 					await mergeAudioTrack({
 						files: chunkFiles,
-						expectedFrames,
+						chunkLengthInSeconds,
 						outName: chunkOutname,
 						downloadMap,
 						remotionRoot,
@@ -119,7 +117,7 @@ const mergeAudioTrackUnlimited = async ({
 					callProgress();
 				},
 				fps,
-				expectedFrames,
+				chunkLengthInSeconds,
 			});
 			return;
 		} finally {
@@ -158,7 +156,7 @@ const mergeAudioTrackUnlimited = async ({
 		if (parsed === undefined) {
 			Log.verbose({indent, logLevel}, utf8);
 		} else {
-			onProgress(parsed / expectedFrames);
+			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
 

@@ -628,6 +628,7 @@ const internalRenderMediaRaw = ({
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
+					forSeamlessAacConcatenation,
 				});
 
 				return renderFramesProc;
@@ -694,7 +695,6 @@ const internalRenderMediaRaw = ({
 						colorSpace,
 						binariesDirectory,
 						separateAudioTo,
-						forSeamlessAacConcatenation,
 					}),
 					stitchStart,
 				]);

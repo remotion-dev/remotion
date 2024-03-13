@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TRenderAsset, VideoConfig} from 'remotion/no-react';
+// eslint-disable-next-line no-restricted-imports
+import type {TAsset} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -24,6 +26,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
+import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
 import {
 	getFilePadLength,
@@ -136,6 +139,11 @@ type InnerRenderFramesOptions = {
 	compositionStart: number;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
+export type FrameAndAssets = {
+	frame: number;
+	assets: TAsset[];
+};
+
 export type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
@@ -210,6 +218,7 @@ const innerRenderFrames = async ({
 	indent,
 	parallelEncodingEnabled,
 	compositionStart,
+	forSeamlessAacConcatenation,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -228,6 +237,18 @@ const innerRenderFrames = async ({
 		composition.durationInFrames,
 		frameRange,
 	);
+
+	const {
+		extraFramesToCaptureAssets,
+		chunkLengthInSeconds,
+		trimLeftOffset,
+		trimRightOffset,
+	} = getExtraFramesToCapture({
+		fps: composition.fps,
+		compositionStart,
+		realFrameRange,
+		forSeamlessAacConcatenation,
+	});
 
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
@@ -341,9 +362,9 @@ const innerRenderFrames = async ({
 		parallelEncoding: parallelEncodingEnabled,
 	});
 
-	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
-		undefined,
-	);
+	const assets: FrameAndAssets[] = new Array(
+		framesToRender.length + extraFramesToCaptureAssets.length,
+	).fill(undefined);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
@@ -358,6 +379,7 @@ const innerRenderFrames = async ({
 		width,
 		height,
 		compId,
+		assetsOnly,
 	}: {
 		frame: number;
 		index: number;
@@ -365,6 +387,7 @@ const innerRenderFrames = async ({
 		width: number;
 		height: number;
 		compId: string;
+		assetsOnly: boolean;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -423,7 +446,7 @@ const innerRenderFrames = async ({
 			frame,
 			freePage,
 			height,
-			imageFormat,
+			imageFormat: assetsOnly ? 'none' : imageFormat,
 			output: path.join(
 				frameDir,
 				getFrameOutputFileName({
@@ -443,7 +466,7 @@ const innerRenderFrames = async ({
 			compositor,
 			timeoutInMilliseconds,
 		});
-		if (onFrameBuffer) {
+		if (onFrameBuffer && !assetsOnly) {
 			if (!buffer) {
 				throw new Error('unexpected null buffer');
 			}
@@ -454,9 +477,18 @@ const innerRenderFrames = async ({
 		stopPerfMeasure(id);
 
 		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(assets.filter(truthy).flat(1), asset),
+			compressAsset(
+				assets
+					.filter(truthy)
+					.map((a) => a.assets)
+					.flat(2),
+				asset,
+			),
 		);
-		assets[index] = compressedAssets;
+		assets.push({
+			assets: compressedAssets,
+			frame,
+		});
 		compressedAssets.forEach((renderAsset) => {
 			downloadAndMapAssetsToFileUrl({
 				renderAsset,
@@ -470,14 +502,17 @@ const innerRenderFrames = async ({
 				);
 			});
 		});
-		framesRendered++;
-		onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
+		if (!assetsOnly) {
+			framesRendered++;
+			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
+		}
+
 		cleanupPageError();
 		freePage.off('error', errorCallbackOnFrame);
 		pool.release(freePage);
 	};
 
-	const renderFrame = (frame: number, index: number) => {
+	const renderFrame = (frame: number, index: number, assetsOnly: boolean) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
 				frame,
@@ -486,6 +521,7 @@ const innerRenderFrames = async ({
 				width: composition.width,
 				height: composition.height,
 				compId: composition.id,
+				assetsOnly,
 			})
 				.then(() => {
 					resolve();
@@ -501,15 +537,17 @@ const innerRenderFrames = async ({
 		index,
 		retriesLeft,
 		attempt,
+		assetsOnly,
 	}: {
 		frame: number;
 		index: number;
 		retriesLeft: number;
 		attempt: number;
+		assetsOnly: boolean;
 	}) => {
 		try {
 			await Promise.race([
-				renderFrame(frame, index),
+				renderFrame(frame, index, assetsOnly),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -554,38 +592,45 @@ const innerRenderFrames = async ({
 				index,
 				retriesLeft: retriesLeft - 1,
 				attempt: attempt + 1,
+				assetsOnly,
 			});
 		}
 	};
 
 	const progress = Promise.all(
-		framesToRender.map((frame, index) =>
-			renderFrameAndRetryTargetClose({
-				frame,
-				index,
-				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
-			}),
-		),
+		[...framesToRender, ...extraFramesToCaptureAssets]
+			.sort()
+			.map((frame, index) =>
+				renderFrameAndRetryTargetClose({
+					frame,
+					index,
+					retriesLeft: MAX_RETRIES_PER_FRAME,
+					attempt: 1,
+					assetsOnly: extraFramesToCaptureAssets.includes(frame),
+				}),
+			),
 	);
 
 	const happyPath = progress.then(() => {
 		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
-				assets,
+				assets: assets.sort((a, b) => {
+					return a.frame - b.frame;
+				}),
 				imageSequenceName: path.join(
 					frameDir,
 					`element-%0${filePadLength}d.${imageFormat}`,
 				),
 				firstFrameIndex,
 				downloadMap,
-				chunkStart:
-					frameRange === null ? 0 : realFrameRange[0] / composition.fps,
-				compositionStart,
+				trimLeftOffset,
+				trimRightOffset,
+				chunkLengthInSeconds,
 			},
 			frameCount: framesToRender.length,
 		};
+		console.log(returnValue.assetsInfo.assets);
 		return returnValue;
 	});
 
@@ -627,6 +672,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
 	binariesDirectory,
+	forSeamlessAacConcatenation,
 	compositionStart,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
@@ -753,6 +799,7 @@ const internalRenderFramesRaw = ({
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
 					binariesDirectory,
+					forSeamlessAacConcatenation,
 					compositionStart,
 				});
 			}),
@@ -898,7 +945,7 @@ export const renderFrames = (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
 		binariesDirectory: binariesDirectory ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
+		forSeamlessAacConcatenation: false,
 	});
 };

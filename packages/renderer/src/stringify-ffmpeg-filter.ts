@@ -21,10 +21,10 @@ export const stringifyFfmpegFilter = ({
 	volume,
 	fps,
 	playbackRate,
-	durationInFrames,
 	assetDuration,
 	allowAmplificationDuringRender,
 	toneFrequency,
+	chunkLengthInSeconds,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -32,11 +32,11 @@ export const stringifyFfmpegFilter = ({
 	startInVideo: number;
 	volume: AssetVolume;
 	fps: number;
-	durationInFrames: number;
 	playbackRate: number;
 	assetDuration: number | null;
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
+	chunkLengthInSeconds: number;
 }): FilterWithoutPaddingApplied | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
@@ -59,15 +59,13 @@ export const stringifyFfmpegFilter = ({
 
 	// Avoid setting filters if possible, as combining them can create noise
 
-	const chunkLength = durationInFrames / fps;
-
 	const actualTrimRight = assetDuration
 		? Math.min(trimRight, assetDuration)
 		: trimRight;
 
 	const audibleDuration = (actualTrimRight - trimLeft) / playbackRate;
 
-	const padAtEnd = chunkLength - audibleDuration - startInVideoSeconds;
+	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
 	return {
 		filter:

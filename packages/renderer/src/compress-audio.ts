@@ -18,7 +18,7 @@ export const compressAudio = async ({
 	cancelSignal,
 	inName,
 	onProgress,
-	expectedFrames,
+	chunkLengthInSeconds,
 	fps,
 }: {
 	audioCodec: AudioCodec;
@@ -30,7 +30,7 @@ export const compressAudio = async ({
 	cancelSignal: CancelSignal | undefined;
 	inName: string;
 	onProgress: (progress: number) => void;
-	expectedFrames: number;
+	chunkLengthInSeconds: number;
 	fps: number;
 }) => {
 	if (audioCodec === 'pcm-16') {
@@ -65,7 +65,7 @@ export const compressAudio = async ({
 		if (parsed === undefined) {
 			Log.verbose({indent, logLevel}, utf8);
 		} else {
-			onProgress(parsed / expectedFrames);
+			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
 

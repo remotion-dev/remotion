@@ -444,6 +444,7 @@ export const renderVideoFlow = async ({
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
 			compositionStart: 0,
+			extraFramesToCaptureAssets: [],
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
