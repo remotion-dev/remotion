@@ -167,8 +167,6 @@ const combineAudioSeamlessly = async ({
 		})
 		.join('\n');
 
-	console.log(fileList);
-
 	const fileListTxt = join(filelistDir, 'audio-files.txt');
 
 	writeFileSync(fileListTxt, fileList);

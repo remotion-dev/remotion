@@ -362,9 +362,7 @@ const innerRenderFrames = async ({
 		parallelEncoding: parallelEncodingEnabled,
 	});
 
-	const assets: FrameAndAssets[] = new Array(
-		framesToRender.length + extraFramesToCaptureAssets.length,
-	).fill(undefined);
+	const assets: FrameAndAssets[] = [];
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
@@ -382,7 +380,7 @@ const innerRenderFrames = async ({
 		assetsOnly,
 	}: {
 		frame: number;
-		index: number;
+		index: number | null;
 		reject: (err: Error) => void;
 		width: number;
 		height: number;
@@ -447,17 +445,20 @@ const innerRenderFrames = async ({
 			freePage,
 			height,
 			imageFormat: assetsOnly ? 'none' : imageFormat,
-			output: path.join(
-				frameDir,
-				getFrameOutputFileName({
-					frame,
-					imageFormat,
-					index,
-					countType,
-					lastFrame,
-					totalFrames: framesToRender.length,
-				}),
-			),
+			output:
+				index === null
+					? null
+					: path.join(
+							frameDir,
+							getFrameOutputFileName({
+								frame,
+								imageFormat,
+								index,
+								countType,
+								lastFrame,
+								totalFrames: framesToRender.length,
+							}),
+						),
 			jpegQuality,
 			width,
 			scale,
@@ -512,7 +513,11 @@ const innerRenderFrames = async ({
 		pool.release(freePage);
 	};
 
-	const renderFrame = (frame: number, index: number, assetsOnly: boolean) => {
+	const renderFrame = (
+		frame: number,
+		index: number | null,
+		assetsOnly: boolean,
+	) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
 				frame,
@@ -540,7 +545,7 @@ const innerRenderFrames = async ({
 		assetsOnly,
 	}: {
 		frame: number;
-		index: number;
+		index: number | null;
 		retriesLeft: number;
 		attempt: number;
 		assetsOnly: boolean;
@@ -598,17 +603,16 @@ const innerRenderFrames = async ({
 	};
 
 	const progress = Promise.all(
-		[...framesToRender, ...extraFramesToCaptureAssets]
-			.sort()
-			.map((frame, index) =>
-				renderFrameAndRetryTargetClose({
-					frame,
-					index,
-					retriesLeft: MAX_RETRIES_PER_FRAME,
-					attempt: 1,
-					assetsOnly: extraFramesToCaptureAssets.includes(frame),
-				}),
-			),
+		[...framesToRender, ...extraFramesToCaptureAssets].sort().map((frame) => {
+			const frameIndex = framesToRender.indexOf(frame);
+			return renderFrameAndRetryTargetClose({
+				frame,
+				index: frameIndex === -1 ? null : frameIndex,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assetsOnly: extraFramesToCaptureAssets.includes(frame),
+			});
+		}),
 	);
 
 	const happyPath = progress.then(() => {
@@ -630,7 +634,6 @@ const innerRenderFrames = async ({
 			},
 			frameCount: framesToRender.length,
 		};
-		console.log(returnValue.assetsInfo.assets);
 		return returnValue;
 	});
 
