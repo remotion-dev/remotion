@@ -17,7 +17,7 @@ test('Should make seamless audio', async () => {
 		codec: 'aac',
 		composition: 'framer',
 		frameRange: [100, 200],
-		imageFormat: 'png',
+		imageFormat: 'none',
 		logLevel: 'error',
 		region: 'eu-central-1',
 		inputProps: {playbackRate: 2},

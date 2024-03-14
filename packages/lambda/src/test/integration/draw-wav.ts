@@ -344,7 +344,11 @@ export class Wavedraw {
 		const {filename} = options;
 
 		const currentFile = readFileSync(filename);
-		await PImage.encodePNGToStream(img1, fs.createWriteStream(filename));
+		const stream = fs.createWriteStream(filename);
+		PImage.encodePNGToStream(img1, stream);
+		await new Promise((resolve) => {
+			stream.on('finish', resolve);
+		});
 		const newFile = readFileSync(filename);
 		if (Buffer.compare(currentFile, newFile) !== 0) {
 			throw new Error('Waveforms are different');
