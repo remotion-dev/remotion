@@ -30,11 +30,12 @@ export const sitesCreateSubcommand = async (
 	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(
+	const {file, reason} = CliInternals.findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: false,
+	});
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(

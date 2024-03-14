@@ -36,7 +36,12 @@ export const studioCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 
 	Log.verbose(
 		{indent: false, logLevel},

@@ -25,7 +25,12 @@ export const listCompositionsCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: true,
+	});
 
 	if (!file) {
 		Log.error(

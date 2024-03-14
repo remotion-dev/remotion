@@ -18,7 +18,12 @@ export const bundleCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	const explicitlyPassed = args[0];
 	if (
 		explicitlyPassed &&
