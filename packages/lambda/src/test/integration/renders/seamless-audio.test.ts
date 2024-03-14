@@ -42,6 +42,8 @@ test('Should make seamless audio', async () => {
 
 	const wd = new Wavedraw(wav);
 
+	const snapShot = path.join(__dirname, 'seamless-audio.png');
+
 	const options = {
 		width: 600,
 		height: 300,
@@ -55,7 +57,7 @@ test('Should make seamless audio', async () => {
 			rms: '#659df7',
 			background: '#ffffff',
 		},
-		filename: 'example1.png',
+		filename: snapShot,
 	};
 
 	await wd.drawWave(options); // outputs wave drawing to example1.png
