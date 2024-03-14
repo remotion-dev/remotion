@@ -7,7 +7,6 @@ import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
-import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -132,6 +131,7 @@ const mergeAudioTrackUnlimited = async ({
 		});
 
 	const args = [
+		['-hide_banner'],
 		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
 		['-c:a', 'pcm_s16le'],
@@ -153,9 +153,7 @@ const mergeAudioTrackUnlimited = async ({
 	task.stderr?.on('data', (data: Buffer) => {
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, utf8);
-		} else {
+		if (parsed !== undefined) {
 			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});

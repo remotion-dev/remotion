@@ -73,6 +73,7 @@ const preprocessAudioTrackUnlimited = async ({
 	const {cleanup, file} = await makeFfmpegFilterFile(filter, downloadMap);
 
 	const args = [
+		['-hide_banner'],
 		['-i', resolveAssetSrc(asset.src)],
 		['-ac', '2'],
 		['-filter_script:a', file],
@@ -102,9 +103,7 @@ const preprocessAudioTrackUnlimited = async ({
 	task.stderr?.on('data', (data: Buffer) => {
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, utf8);
-		} else {
+		if (parsed !== undefined) {
 			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
