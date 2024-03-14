@@ -258,8 +258,7 @@ export class Wavedraw {
 			throw new Error('drawWave() currently only supports 16 bit audio files!');
 		}
 
-		const samples = await this.getSamples(options);
-		console.log(samples);
+		const samples = this.getSamples(options);
 		const img1 = PImage.make(options.width, options.height);
 		const ctx = img1.getContext('2d');
 		const ceiling = 32767;
@@ -342,8 +341,14 @@ export class Wavedraw {
 			}
 		}
 
-		const filename = options.filename ? options.filename : 'wave.png';
+		const {filename} = options;
+
+		const currentFile = readFileSync(filename);
 		await PImage.encodePNGToStream(img1, fs.createWriteStream(filename));
+		const newFile = readFileSync(filename);
+		if (Buffer.compare(currentFile, newFile) !== 0) {
+			throw new Error('Waveforms are different');
+		}
 	}
 
 	getSamples(options: Options) {
