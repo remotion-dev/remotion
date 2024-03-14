@@ -52,7 +52,7 @@
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.42.0",
 		"prettier": "3.1.1",
-		"pureimage": "^0.1.6",
+		"pureimage": "0.4.13",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"ts-node": "^10.8.0",
 		"vitest": "0.31.1",

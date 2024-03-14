@@ -28,10 +28,9 @@ test('Should make seamless audio', async () => {
 		unlinkSync(wav);
 	}
 
-	console.log('aac');
 	await RenderInternals.callFf({
 		bin: 'ffmpeg',
-		args: ['-i', '-', '-y', wav],
+		args: ['-i', '-', '-ac', '1', '-c:a', 'pcm_s16le', '-y', wav],
 		options: {
 			stdin: file,
 		},
@@ -40,7 +39,6 @@ test('Should make seamless audio', async () => {
 		cancelSignal: undefined,
 		logLevel: 'info',
 	});
-	console.log('wav');
 
 	const wd = new Wavedraw(wav);
 
@@ -60,9 +58,7 @@ test('Should make seamless audio', async () => {
 		filename: 'example1.png',
 	};
 
-	console.log('drawn');
 	await wd.drawWave(options); // outputs wave drawing to example1.png
-	console.log('drawn');
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,

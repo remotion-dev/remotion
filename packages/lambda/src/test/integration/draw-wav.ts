@@ -1,5 +1,6 @@
-import fs, {closeSync, readSync} from 'fs';
-import PImage from 'pureimage';
+import fs, {closeSync, readFileSync, readSync} from 'fs';
+import * as PImage from 'pureimage';
+import {Line} from 'pureimage/dist/line';
 
 const DATA_START = 44;
 
@@ -26,24 +27,95 @@ type Sample = {
 	negMax?: number;
 };
 
+const getStringBE = (bytes: Buffer) => {
+	const arr = Array.prototype.slice.call(bytes, 0);
+	let result = '';
+	for (let i = 0; i < arr.length; i += 1) {
+		result += String.fromCharCode(arr[i]);
+	}
+
+	return result;
+};
+
+type Chunk =
+	| {
+			type: 'fmt';
+			chunkSize: number;
+			audioFormat: number;
+			numChannels: number;
+			sampleRate: number;
+			byteRate: number;
+			blockAlign: number;
+			bitsPerSample: number;
+	  }
+	| {
+			type: 'data';
+			chunkSize: number;
+	  }
+	| {
+			type: 'list';
+			chunkSize: number;
+			listTypeId: number;
+	  };
+
+const readChunk = (
+	buf: Buffer,
+	currentOffset: number,
+): {chunk: Chunk; offset: number} => {
+	const subChunk = getStringBE(buf.slice(currentOffset, currentOffset + 4));
+	if (subChunk === 'fmt ') {
+		const chunkSize = buf.readInt32LE(currentOffset + 4);
+		const audioFormat = buf.readUInt16LE(currentOffset + 8);
+		const numChannels = buf.readUInt16LE(currentOffset + 10);
+		const sampleRate = buf.readInt32LE(currentOffset + 12);
+		const byteRate = buf.readInt32LE(currentOffset + 16);
+		const blockAlign = buf.readUInt16LE(currentOffset + 20);
+		const bitsPerSample = buf.readUInt16LE(currentOffset + 22);
+		return {
+			chunk: {
+				audioFormat,
+				bitsPerSample,
+				blockAlign,
+				byteRate,
+				numChannels,
+				sampleRate,
+				chunkSize,
+				type: 'fmt',
+			},
+			offset: currentOffset + 8 + chunkSize,
+		};
+	}
+
+	if (subChunk === 'data') {
+		const chunkSize = buf.readInt32LE(currentOffset + 4);
+		return {
+			chunk: {
+				chunkSize,
+				type: 'data',
+			},
+			offset: currentOffset + 8 + chunkSize,
+		};
+	}
+
+	if (subChunk === 'LIST') {
+		const chunkSize = buf.readInt32LE(currentOffset + 4);
+		const listTypeId = buf.readInt32LE(currentOffset + 8);
+		return {
+			chunk: {
+				chunkSize,
+				type: 'list',
+				listTypeId,
+			},
+			offset: currentOffset + 8 + chunkSize,
+		};
+	}
+
+	throw new Error('Invalid chunk type');
+};
+
 export class Wavedraw {
 	path: string;
-	header: {
-		chunkId: string;
-		chunkSize: number;
-		format: string;
-		subChunk1ID: string;
-		subChunk1Size: number;
-		audioFormat: number;
-		numChannels: number;
-		sampleRate: number;
-		byteRate: number;
-		blockAlign: number;
-		bitsPerSample: number;
-		subChunk2ID: string;
-		subChunk2Size: number;
-		length?: {seconds: number; minutes: number; hours: number};
-	} | null;
+	chunks: Chunk[];
 
 	constructor(path: string) {
 		if (!path) {
@@ -51,65 +123,44 @@ export class Wavedraw {
 		}
 
 		this.path = path;
-		this.header = null;
+		this.chunks = this.getHeader();
 	}
 
 	getHeader() {
-		if (this.header) {
-			return this.header;
+		const buf = readFileSync(this.path);
+
+		let currentOffset = 12;
+		const chunks: Chunk[] = [];
+		while (currentOffset < buf.length) {
+			const {chunk, offset} = readChunk(buf, currentOffset);
+			currentOffset = offset;
+			chunks.push(chunk);
 		}
 
-		const buf = Buffer.alloc(44);
-		let file;
-		try {
-			file = fs.openSync(this.path, 'r');
-		} catch (err) {
-			throw new Error(`Cannot open file of path ${this.path}`);
-		}
-
-		readSync(file, buf, 0, 44, 0);
-		const h = {
-			chunkId: Wavedraw.getStringBE(buf.slice(0, 4)),
-			chunkSize: buf.readInt32LE(4),
-			format: Wavedraw.getStringBE(buf.slice(8, 12)),
-			subChunk1ID: Wavedraw.getStringBE(buf.slice(12, 16)),
-			subChunk1Size: buf.readInt32LE(16),
-			audioFormat: buf.readUInt16LE(20),
-			numChannels: buf.readUInt16LE(22),
-			sampleRate: buf.readInt32LE(24),
-			byteRate: buf.readInt32LE(28),
-			blockAlign: buf.readUInt16LE(32),
-			bitsPerSample: buf.readUInt16LE(34),
-			subChunk2ID: Wavedraw.getStringBE(buf.slice(36, 40)),
-			subChunk2Size: buf.readInt32LE(40),
-		};
-		this.header = h;
-		closeSync(file);
-		this.header.length = this.getFileLength();
-		return this.header;
+		return chunks;
 	}
 
-	static getStringBE(bytes: Buffer) {
-		const arr = Array.prototype.slice.call(bytes, 0);
-		let result = '';
-		for (let i = 0; i < arr.length; i += 1) {
-			result += String.fromCharCode(arr[i]);
+	getChunk(type: Chunk['type']) {
+		const found = this.chunks.find((chunk) => chunk.type === type);
+		if (!found) {
+			throw new Error(`Chunk type ${type} not found`);
 		}
 
-		return result;
+		return found;
 	}
 
 	getFileLength() {
-		if (!this.header) {
-			throw new Error('Cannot get file length until header is loaded');
+		const chunk = this.getChunk('fmt');
+		if (chunk.type !== 'fmt') {
+			throw new Error('fmt chunk not found');
 		}
 
 		const numSamples = parseInt(
-			(this.header.subChunk2Size / this.header.blockAlign) as unknown as string,
+			(chunk.chunkSize / chunk.blockAlign) as unknown as string,
 			10,
 		);
 		let seconds = parseInt(
-			(numSamples / this.header.sampleRate) as unknown as string,
+			(numSamples / chunk.sampleRate) as unknown as string,
 			10,
 		);
 		const minutes = parseInt((seconds / 60) as unknown as string, 10);
@@ -137,20 +188,29 @@ export class Wavedraw {
 		}
 
 		if (end === undefined || end === 'END') {
-			endPos = this.header?.subChunk2Size;
+			const chunk = this.getChunk('data');
+			if (chunk.type !== 'data') {
+				throw new Error('data chunk not found');
+			}
+
+			endPos = chunk.chunkSize;
 		} else {
 			endPos = this.getOffset(end);
 		}
 
+		const fmt = this.getChunk('fmt');
+		if (fmt.type !== 'fmt') {
+			throw new Error('fmt chunk not found');
+		}
+
 		const blockSize = parseInt(
 			(((endPos as number) - startPos) /
-				(this.header?.blockAlign as number) /
+				(fmt.blockAlign as number) /
 				width) as unknown as string,
 			10,
 		);
 		const chunkSize = parseInt(
-			// eslint-disable-next-line no-unsafe-optional-chaining
-			(blockSize * (this.header?.blockAlign as number)) as unknown as string,
+			(blockSize * (fmt.blockAlign as number)) as unknown as string,
 			10,
 		);
 		return {
@@ -165,23 +225,18 @@ export class Wavedraw {
 		const [hours, minutes, seconds] = time
 			.split(':')
 			.map((unit) => parseInt(unit, 10));
-		if (hours > (this.header?.length?.hours as number)) {
-			throw new Error('Length in hours is too long');
-		} else if (minutes > (this.header?.length?.minutes as number)) {
-			throw new Error('Length in minutes is too long');
-		} else if (
-			seconds > (this.header?.length?.seconds as number) &&
-			minutes === (this.header?.length?.minutes as number)
-		) {
-			throw new Error('Length in seconds is too long');
-		}
 
 		let adjustedSeconds = seconds + hours * 60 * 60;
 		adjustedSeconds += minutes * 60;
+		const fmt = this.getChunk('fmt');
+		if (fmt.type !== 'fmt') {
+			throw new Error('fmt chunk not found');
+		}
+
 		return parseInt(
 			(adjustedSeconds *
-				(this.header?.sampleRate as number) *
-				(this.header?.blockAlign as number)) as unknown as string,
+				(fmt.sampleRate as number) *
+				(fmt.blockAlign as number)) as unknown as string,
 			10,
 		);
 	}
@@ -194,13 +249,17 @@ export class Wavedraw {
 
 	async drawWave(options: Options) {
 		Wavedraw.validateDrawWaveOptions(options);
-		if (!this.header) await this.getHeader();
-		if (this.header?.bitsPerSample !== 16) {
+		const fmt = this.getChunk('fmt');
+		if (fmt.type !== 'fmt') {
+			throw new Error('fmt chunk not found');
+		}
+
+		if (fmt.bitsPerSample !== 16) {
 			throw new Error('drawWave() currently only supports 16 bit audio files!');
 		}
 
 		const samples = await this.getSamples(options);
-		console.log('got samples');
+		console.log(samples);
 		const img1 = PImage.make(options.width, options.height);
 		const ctx = img1.getContext('2d');
 		const ceiling = 32767;
@@ -217,30 +276,26 @@ export class Wavedraw {
 						? options.colors.maximums
 						: '#0000ff';
 
-				ctx.drawLine({
-					start: {
-						x: i,
-						y: Number.parseInt((options.height / 2) as unknown as string, 10),
-					},
-					end: {
-						x: i,
-						y: Number.parseInt(
+				ctx.drawLine(
+					new Line(
+						i,
+						Number.parseInt((options.height / 2) as unknown as string, 10),
+						i,
+						Number.parseInt(
 							(options.height / 2 -
 								(options.height / 2 / ceiling) *
 									(samples[i].posMax as number)) as unknown as string,
 							10,
 						),
-					},
-				});
+					),
+				);
 
-				ctx.drawLine({
-					start: {
-						x: i,
-						y: Number.parseInt((options.height / 2) as unknown as string, 10),
-					},
-					end: {
-						x: i,
-						y: Number.parseInt(
+				ctx.drawLine(
+					new Line(
+						i,
+						Number.parseInt((options.height / 2) as unknown as string, 10),
+						i,
+						Number.parseInt(
 							(options.height / 2 +
 								-(
 									(options.height / 2 / ceiling) *
@@ -248,37 +303,33 @@ export class Wavedraw {
 								)) as unknown as string,
 							10,
 						),
-					},
-				});
+					),
+				);
 			}
 
 			if (options.rms) {
 				ctx.strokeStyle =
 					options.colors && options.colors.rms ? options.colors.rms : '#659df7';
-				ctx.drawLine({
-					start: {
-						x: i,
-						y: Number.parseInt((options.height / 2) as unknown as string, 10),
-					},
-					end: {
-						x: i,
-						y: Number.parseInt(
+				ctx.drawLine(
+					new Line(
+						i,
+						Number.parseInt((options.height / 2) as unknown as string, 10),
+						i,
+						Number.parseInt(
 							(options.height / 2 -
 								(options.height / 2 / ceiling) *
 									(samples[i].posRms as number)) as unknown as string,
 							10,
 						),
-					},
-				});
+					),
+				);
 
-				ctx.drawLine({
-					start: {
-						x: i,
-						y: Number.parseInt((options.height / 2) as unknown as string, 10),
-					},
-					end: {
-						x: i,
-						y: Number.parseInt(
+				ctx.drawLine(
+					new Line(
+						i,
+						Number.parseInt((options.height / 2) as unknown as string, 10),
+						i,
+						Number.parseInt(
 							(options.height / 2 +
 								-(
 									(options.height / 2 / ceiling) *
@@ -286,8 +337,8 @@ export class Wavedraw {
 								)) as unknown as string,
 							10,
 						),
-					},
-				});
+					),
+				);
 			}
 		}
 
@@ -295,13 +346,9 @@ export class Wavedraw {
 		await PImage.encodePNGToStream(img1, fs.createWriteStream(filename));
 	}
 
-	async getSamples(options: Options) {
+	getSamples(options: Options) {
 		if (!options.width) {
 			throw new Error('getSamples() required parameter: width');
-		}
-
-		if (!this.header) {
-			await this.getHeader();
 		}
 
 		const offsetInfo = this.getOffsetInfo(
@@ -309,7 +356,6 @@ export class Wavedraw {
 			options.end,
 			options.width,
 		);
-		console.log({offsetInfo});
 		const file = fs.openSync(this.path, 'r');
 		if (!file) {
 			throw new Error(`Error opening file ${this.path}`);
@@ -330,10 +376,7 @@ export class Wavedraw {
 			samples.push(sampleInfo);
 		}
 
-		console.log('closing');
-
 		closeSync(file);
-		console.log('done');
 		return samples;
 	}
 

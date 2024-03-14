@@ -1308,8 +1308,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
       pureimage:
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: 0.4.13
+        version: 0.4.13
       ts-node:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
@@ -16185,8 +16185,8 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: false
 
-  /jpeg-js@0.3.7:
-    resolution: {integrity: sha512-9IXdWudL61npZjvLuVe/ktHiA41iE8qFyLB+4VDTblEsWBzeg8WQTlktdUK4CdncUqtUgUg0bbOmTE2bKBKaBQ==}
+  /jpeg-js@0.4.4:
+    resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
     dev: true
 
   /js-string-escape@1.0.1:
@@ -18343,9 +18343,9 @@ packages:
       url-polyfill: 1.1.12
     dev: false
 
-  /pngjs@3.4.0:
-    resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
-    engines: {node: '>=4.0.0'}
+  /pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
     dev: true
 
   /polished@4.1.2:
@@ -19446,12 +19446,13 @@ packages:
     resolution: {integrity: sha512-QFADYnsVoBMw1srW7OVKEYjG+MbIa49s54w1MA1EDY6r2r/sTcKKYqRX1f4GYvnXP7eN/Pe9HFcX+hwzmrXRHA==}
     dev: false
 
-  /pureimage@0.1.6:
-    resolution: {integrity: sha512-t74leLaXyD3VGmMbcFZNWZoHqPQNX805gHYNBCrNEVRjUkDfdlopLJnDJI9QYdhWXwtNiD02coq+NB7+CryAwg==}
+  /pureimage@0.4.13:
+    resolution: {integrity: sha512-P8aonTNAnXWJn2pBIqyeWw0I/D4YDOfEavCVvbDG+wx3dCujQX0ENZiW5OcHfbd8HKLfVhCf4F/3Xivf1yWDiA==}
+    engines: {node: '>=14.19.0'}
     dependencies:
-      jpeg-js: 0.3.7
+      jpeg-js: 0.4.4
       opentype.js: 0.4.11
-      pngjs: 3.4.0
+      pngjs: 7.0.0
     dev: true
 
   /qs@6.9.7:
