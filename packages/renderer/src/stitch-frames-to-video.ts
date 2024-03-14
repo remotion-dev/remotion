@@ -358,7 +358,7 @@ const innerStitchFramesToVideo = async (
 			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
-		'Generated final FFMPEG command:',
+		'Generated final FFmpeg command:',
 	);
 	Log.verbose(
 		{
