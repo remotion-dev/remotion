@@ -1,11 +1,7 @@
-import fs, {closeSync} from 'fs';
-import util from 'util';
-const PImage = require('pureimage');
+import fs, {closeSync, readSync} from 'fs';
+import PImage from 'pureimage';
 
 const DATA_START = 44;
-
-const read = util.promisify(fs.read);
-const close = util.promisify(fs.close);
 
 type Options = {
 	width: number;
@@ -58,7 +54,7 @@ export class Wavedraw {
 		this.header = null;
 	}
 
-	async getHeader() {
+	getHeader() {
 		if (this.header) {
 			return this.header;
 		}
@@ -71,24 +67,24 @@ export class Wavedraw {
 			throw new Error(`Cannot open file of path ${this.path}`);
 		}
 
-		const result = await read(file, buf, 0, 44, 0);
+		readSync(file, buf, 0, 44, 0);
 		const h = {
-			chunkId: Wavedraw.getStringBE(result.buffer.slice(0, 4)),
-			chunkSize: result.buffer.readInt32LE(4),
-			format: Wavedraw.getStringBE(result.buffer.slice(8, 12)),
-			subChunk1ID: Wavedraw.getStringBE(result.buffer.slice(12, 16)),
-			subChunk1Size: result.buffer.readInt32LE(16),
-			audioFormat: result.buffer.readUInt16LE(20),
-			numChannels: result.buffer.readUInt16LE(22),
-			sampleRate: result.buffer.readInt32LE(24),
-			byteRate: result.buffer.readInt32LE(28),
-			blockAlign: result.buffer.readUInt16LE(32),
-			bitsPerSample: result.buffer.readUInt16LE(34),
-			subChunk2ID: Wavedraw.getStringBE(result.buffer.slice(36, 40)),
-			subChunk2Size: result.buffer.readInt32LE(40),
+			chunkId: Wavedraw.getStringBE(buf.slice(0, 4)),
+			chunkSize: buf.readInt32LE(4),
+			format: Wavedraw.getStringBE(buf.slice(8, 12)),
+			subChunk1ID: Wavedraw.getStringBE(buf.slice(12, 16)),
+			subChunk1Size: buf.readInt32LE(16),
+			audioFormat: buf.readUInt16LE(20),
+			numChannels: buf.readUInt16LE(22),
+			sampleRate: buf.readInt32LE(24),
+			byteRate: buf.readInt32LE(28),
+			blockAlign: buf.readUInt16LE(32),
+			bitsPerSample: buf.readUInt16LE(34),
+			subChunk2ID: Wavedraw.getStringBE(buf.slice(36, 40)),
+			subChunk2Size: buf.readInt32LE(40),
 		};
 		this.header = h;
-		await close(file);
+		closeSync(file);
 		this.header.length = this.getFileLength();
 		return this.header;
 	}
@@ -324,7 +320,7 @@ export class Wavedraw {
 			const buf = new ArrayBuffer(offsetInfo.chunkSize);
 			const intView = new Int16Array(buf);
 			const position = offsetInfo.chunkSize * x + offsetInfo.startPos;
-			await read(file, intView, 0, offsetInfo.chunkSize, position);
+			readSync(file, intView, 0, offsetInfo.chunkSize, position);
 			let sampleInfo = {};
 			if (options.maximums) sampleInfo = {...Wavedraw.computeMaximums(intView)};
 			if (options.average)

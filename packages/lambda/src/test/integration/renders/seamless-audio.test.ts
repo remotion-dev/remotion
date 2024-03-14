@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {createWriteStream} from 'fs';
+import {existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
@@ -18,31 +18,28 @@ test('Should make seamless audio', async () => {
 		composition: 'framer',
 		frameRange: [100, 200],
 		imageFormat: 'png',
-		logLevel: 'verbose',
+		logLevel: 'error',
 		region: 'eu-central-1',
 		inputProps: {playbackRate: 2},
 	});
 
-	const aac = path.join(process.cwd(), 'out.aac');
-
-	const stream = createWriteStream(aac);
-	await new Promise<void>((resolve) => {
-		file.pipe(stream).on('finish', () => {
-			resolve();
-		});
-	});
-
 	const wav = path.join(process.cwd(), 'test.wav');
+	if (existsSync(wav)) {
+		unlinkSync(wav);
+	}
 
+	console.log('aac');
 	await RenderInternals.callFf({
 		bin: 'ffmpeg',
-		args: ['-i', aac, '-acodec', 'pcm_s16le', '-ac', '1', '-y', wav],
+		args: ['-i', '-', '-y', wav],
+		options: {
+			stdin: file,
+		},
 		indent: false,
 		binariesDirectory: null,
 		cancelSignal: undefined,
 		logLevel: 'info',
 	});
-
 	console.log('wav');
 
 	const wd = new Wavedraw(wav);
