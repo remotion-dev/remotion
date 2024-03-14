@@ -86,5 +86,6 @@ test('Should make seamless audio', async () => {
 
 	expect(expectFiles.length).toBe(0);
 
+	unlinkSync(wav);
 	await close();
 });
