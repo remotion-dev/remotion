@@ -1307,6 +1307,9 @@ importers:
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
+      pureimage:
+        specifier: ^0.1.6
+        version: 0.1.6
       ts-node:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
@@ -16182,6 +16185,10 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: false
 
+  /jpeg-js@0.3.7:
+    resolution: {integrity: sha512-9IXdWudL61npZjvLuVe/ktHiA41iE8qFyLB+4VDTblEsWBzeg8WQTlktdUK4CdncUqtUgUg0bbOmTE2bKBKaBQ==}
+    dev: true
+
   /js-string-escape@1.0.1:
     resolution: {integrity: sha512-Smw4xcfIQ5LVjAOuJCvN/zIodzA/BBSsluuoSykP+lUvScIi4U6RJLfwHet5cxFnCswUjISV8oAXaqaJDY3chg==}
     engines: {node: '>= 0.8'}
@@ -17988,6 +17995,11 @@ packages:
     hasBin: true
     dev: false
 
+  /opentype.js@0.4.11:
+    resolution: {integrity: sha512-GthxucX/6aftfLdeU5Ho7o7zmQcC8uVtqdcelVq12X++ndxwBZG8Xb5rFEKT7nEcWDD2P1x+TNuJ70jtj1Mbpw==}
+    hasBin: true
+    dev: true
+
   /opentype.js@1.3.4:
     resolution: {integrity: sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==}
     engines: {node: '>= 8.0.0'}
@@ -18330,6 +18342,11 @@ packages:
       rangetouch: 2.0.1
       url-polyfill: 1.1.12
     dev: false
+
+  /pngjs@3.4.0:
+    resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
+    engines: {node: '>=4.0.0'}
+    dev: true
 
   /polished@4.1.2:
     resolution: {integrity: sha512-jq4t3PJUpVRcveC53nnbEX35VyQI05x3tniwp26WFdm1dwaNUBHAi5awa/roBlwQxx1uRhwNSYeAi/aMbfiJCQ==}
@@ -19428,6 +19445,14 @@ packages:
   /pure-color@1.3.0:
     resolution: {integrity: sha512-QFADYnsVoBMw1srW7OVKEYjG+MbIa49s54w1MA1EDY6r2r/sTcKKYqRX1f4GYvnXP7eN/Pe9HFcX+hwzmrXRHA==}
     dev: false
+
+  /pureimage@0.1.6:
+    resolution: {integrity: sha512-t74leLaXyD3VGmMbcFZNWZoHqPQNX805gHYNBCrNEVRjUkDfdlopLJnDJI9QYdhWXwtNiD02coq+NB7+CryAwg==}
+    dependencies:
+      jpeg-js: 0.3.7
+      opentype.js: 0.4.11
+      pngjs: 3.4.0
+    dev: true
 
   /qs@6.9.7:
     resolution: {integrity: sha512-IhMFgUmuNpyRfxA90umL7ByLlgRXu6tIfKPpF5TmcfRLlLCckfP/g3IQmju6jjpu+Hh8rA+2p6A27ZSPOOHdKw==}
