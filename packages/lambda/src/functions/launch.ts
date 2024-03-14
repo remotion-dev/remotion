@@ -288,7 +288,7 @@ const innerLaunchHandler = async ({
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
-			compositionStart: realFrameRange[0] / fps,
+			compositionStart: realFrameRange[0],
 		};
 		return payload;
 	});
@@ -411,7 +411,7 @@ const innerLaunchHandler = async ({
 		framesPerLambda,
 		binariesDirectory: null,
 		preferLossless: params.preferLossless,
-		compositionStart: realFrameRange[0] / fps,
+		compositionStart: realFrameRange[0],
 	});
 
 	return postRenderData;

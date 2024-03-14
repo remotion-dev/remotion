@@ -15,7 +15,7 @@ test('Extra frames to capture 0', () => {
 test('Extra frames to capture 1', () => {
 	const {extraFramesToCaptureAssets} = getExtraFramesToCapture({
 		fps: 30,
-		compositionStart: 3.3333333333333335,
+		compositionStart: 100,
 		realFrameRange: [100, 116],
 		forSeamlessAacConcatenation: true,
 	});
@@ -26,7 +26,7 @@ test('Extra frames to capture 1', () => {
 test('Extra frames to capture 2', () => {
 	const {extraFramesToCaptureAssets} = getExtraFramesToCapture({
 		fps: 30,
-		compositionStart: 3.3333333333333335,
+		compositionStart: 100,
 		realFrameRange: [151, 167],
 		forSeamlessAacConcatenation: true,
 	});
@@ -42,7 +42,7 @@ test('Extra frames to capture 3', () => {
 		chunkLengthInSeconds,
 	} = getExtraFramesToCapture({
 		fps: 30,
-		compositionStart: 3.3333333333333335,
+		compositionStart: 100,
 		realFrameRange: [134, 150],
 		forSeamlessAacConcatenation: true,
 	});

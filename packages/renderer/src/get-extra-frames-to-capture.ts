@@ -31,7 +31,7 @@ export const getExtraFramesToCapture = ({
 		};
 	}
 
-	const chunkStart = realFrameRange[0] / fps;
+	const chunkStart = realFrameRange[0];
 
 	if (chunkStart < compositionStart) {
 		throw new Error('chunkStart may not be below compositionStart');
@@ -43,25 +43,24 @@ export const getExtraFramesToCapture = ({
 	}
 
 	const realRightEnd =
-		realLeftEnd + (realFrameRange[1] - realFrameRange[0] + 1) / fps;
+		realLeftEnd + (realFrameRange[1] - realFrameRange[0] + 1);
 
 	const aacAdjustedLeftEnd = Math.max(
 		0,
-		getClosestAlignedTime(realLeftEnd) - 2 * (1024 / DEFAULT_SAMPLE_RATE),
+		getClosestAlignedTime(realLeftEnd / fps) - 2 * (1024 / DEFAULT_SAMPLE_RATE),
 	);
 	const aacAdjustedRightEnd =
-		getClosestAlignedTime(realRightEnd) + 2 * (1024 / DEFAULT_SAMPLE_RATE);
+		getClosestAlignedTime(realRightEnd / fps) +
+		2 * (1024 / DEFAULT_SAMPLE_RATE);
 
 	const startTimeWithoutOffset = Math.floor(aacAdjustedLeftEnd * fps);
 
-	// TODO: Prevent floating point issues by dividing and then multiplying by FPS
-	const startFrame = startTimeWithoutOffset + compositionStart * fps;
+	const startFrame = startTimeWithoutOffset + compositionStart;
 
 	const trimLeftOffset =
 		(aacAdjustedLeftEnd * fps - startTimeWithoutOffset) / fps;
 
-	const endFrame =
-		Math.ceil(aacAdjustedRightEnd * fps) + compositionStart * fps;
+	const endFrame = Math.ceil(aacAdjustedRightEnd * fps) + compositionStart;
 
 	const trimRightOffset =
 		(aacAdjustedRightEnd * fps - Math.ceil(aacAdjustedRightEnd * fps)) / fps;
