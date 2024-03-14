@@ -24,8 +24,13 @@ export const calculateFfmpegFilter = ({
 		return null;
 	}
 
-	const trimLeft = (asset.trimLeft * asset.playbackRate) / fps;
-	const trimRight = trimLeft + (asset.duration * asset.playbackRate) / fps;
+	const trimLeft =
+		(asset.trimLeft * asset.playbackRate) / fps +
+		trimLeftOffset * asset.playbackRate;
+	const trimRight =
+		trimLeft +
+		(asset.duration * asset.playbackRate) / fps +
+		trimRightOffset * asset.playbackRate;
 
 	return stringifyFfmpegFilter({
 		channels,
@@ -39,7 +44,5 @@ export const calculateFfmpegFilter = ({
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 		toneFrequency: asset.toneFrequency,
 		chunkLengthInSeconds,
-		trimAacLeft: trimLeftOffset,
-		trimAacRight: trimRightOffset,
 	});
 };

@@ -25,8 +25,6 @@ export const stringifyFfmpegFilter = ({
 	allowAmplificationDuringRender,
 	toneFrequency,
 	chunkLengthInSeconds,
-	trimAacLeft,
-	trimAacRight,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -39,8 +37,6 @@ export const stringifyFfmpegFilter = ({
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
 	chunkLengthInSeconds: number;
-	trimAacLeft: number;
-	trimAacRight: number;
 }): FilterWithoutPaddingApplied | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
@@ -71,10 +67,6 @@ export const stringifyFfmpegFilter = ({
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
-	const actualTrimAacRight = actualTrimRight - trimLeft + trimAacRight;
-
-	console.log({actualTrimAacRight, trimLeft, trimAacLeft, actualTrimRight});
-
 	return {
 		filter:
 			`[0:a]` +
@@ -84,11 +76,6 @@ export const stringifyFfmpegFilter = ({
 				`atrim=${trimLeft * 1_000_000}us:${actualTrimRight * 1_000_000}us`,
 				// then set the tempo
 				calculateATempo(playbackRate),
-				// Apply AAC trimming
-				(trimAacLeft !== 0 || trimAacRight !== 0) &&
-					`atrim=${trimAacLeft * 1_000_000}us:${
-						actualTrimAacRight * 1_000_000
-					}us`,
 				// set the volume if needed
 				// The timings for volume must include whatever is in atrim, unless the volume
 				// filter gets applied before atrim
