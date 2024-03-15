@@ -7,11 +7,5 @@ export const calculateATempo = (playbackRate: number): string | null => {
 		return null;
 	}
 
-	if (playbackRate >= 0.5 && playbackRate <= 2) {
-		return `atempo=${playbackRate.toFixed(5)}`;
-	}
-
-	return `${calculateATempo(Math.sqrt(playbackRate))},${calculateATempo(
-		Math.sqrt(playbackRate),
-	)}`;
+	return `rubberband=tempo=${playbackRate}`;
 };
