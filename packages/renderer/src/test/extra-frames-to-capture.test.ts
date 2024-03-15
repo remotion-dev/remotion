@@ -52,3 +52,22 @@ test('Extra frames to capture 3', () => {
 	expect(trimRightOffset).toEqual(-0.017333333333333437);
 	expect(chunkLengthInSeconds).toEqual(0.6613333333333333);
 });
+
+test('Extra frames to capture 4', () => {
+	const {
+		extraFramesToCaptureAssets,
+		trimLeftOffset,
+		trimRightOffset,
+		chunkLengthInSeconds,
+	} = getExtraFramesToCapture({
+		compositionStart: 100,
+		realFrameRange: [117, 133],
+		fps: 30,
+		forSeamlessAacConcatenation: true,
+	});
+
+	expect(extraFramesToCaptureAssets).toEqual([116, 134, 135]);
+	expect(trimLeftOffset).toEqual(0);
+	expect(trimRightOffset).toEqual(-0.026666666666666807);
+	expect(chunkLengthInSeconds).toEqual(0.6399999999999998);
+});
