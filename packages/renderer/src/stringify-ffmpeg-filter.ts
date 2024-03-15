@@ -72,10 +72,12 @@ export const stringifyFfmpegFilter = ({
 			`[0:a]` +
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
-				// Order matters! First trim the audio
-				`atrim=${trimLeft * 1_000_000}us:${actualTrimRight * 1_000_000}us`,
-				// then set the tempo
 				calculateATempo(playbackRate),
+				// Order matters! First trim the audio
+				`atrim=${(trimLeft / playbackRate) * 1_000_000}us:${
+					(actualTrimRight / playbackRate) * 1_000_000
+				}us`,
+				// then set the tempo
 				// set the volume if needed
 				// The timings for volume must include whatever is in atrim, unless the volume
 				// filter gets applied before atrim
