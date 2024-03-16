@@ -18,6 +18,7 @@ import {ErrorBoundary} from './error-boundary.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 import {useThumbnail} from './use-thumbnail.js';
 import {IS_NODE} from './utils/is-node.js';
 import {useElementSize} from './utils/use-element-size.js';
@@ -64,6 +65,8 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 	const scale = layout?.scale ?? 1;
 
 	const thumbnail = useThumbnail();
+
+	useBufferStateEmitter(thumbnail.emitter);
 
 	useImperativeHandle(
 		ref,

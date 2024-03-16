@@ -882,6 +882,13 @@ export const articles = [
     crumb: "@remotion/install-whisper-cpp",
   },
   {
+    id: "install-whisper-cpp/transcribe",
+    title: "transcribe()",
+    relativePath: "docs/install-whisper-cpp/transcribe.mdx",
+    compId: "articles-docs-install-whisper-cpp-transcribe",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
     id: "interpolate-colors",
     title: "interpolateColors()",
     relativePath: "docs/interpolate-colors.md",

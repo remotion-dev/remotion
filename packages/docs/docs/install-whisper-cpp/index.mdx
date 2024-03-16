@@ -24,6 +24,7 @@ import path from "path";
 import {
   downloadWhisperModel,
   installWhisperCpp,
+  transcribe,
 } from "@remotion/install-whisper-cpp";
 
 const to = path.join(process.cwd(), "whisper.cpp");
@@ -37,6 +38,16 @@ await downloadWhisperModel({
   model: "base.en",
   folder: to,
 });
+
+const { transcription } = await transcribe({
+  model: "base.en",
+  whisperPath: to,
+  inputPath: "/path/to/audio.wav",
+});
+
+for (const token of transcription) {
+  console.log(token.timestamps.from, token.timestamps.to, token.text);
+}
 ```
 
 ## Functions

@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 
 export const PlayerEmitterProvider: React.FC<{
 	children: React.ReactNode;
@@ -19,21 +20,7 @@ export const PlayerEmitterProvider: React.FC<{
 		}
 	}, [emitter, currentPlaybackRate]);
 
-	useEffect(() => {
-		const clear1 = bufferManager.listenForBuffering(() => {
-			bufferManager.buffering.current = true;
-			emitter.dispatchWaiting({});
-		});
-		const clear2 = bufferManager.listenForResume(() => {
-			bufferManager.buffering.current = false;
-			emitter.dispatchResume({});
-		});
-
-		return () => {
-			clear1.remove();
-			clear2.remove();
-		};
-	}, [bufferManager, emitter]);
+	useBufferStateEmitter(emitter);
 
 	return (
 		<PlayerEventEmitterContext.Provider value={emitter}>
