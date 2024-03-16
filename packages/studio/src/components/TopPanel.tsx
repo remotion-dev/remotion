@@ -1,5 +1,6 @@
 import type {Size} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
@@ -10,6 +11,7 @@ import {
 } from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
+import MobilePanel from './MobilePanel';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -101,6 +103,8 @@ export const TopPanel: React.FC<{
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
 	}, [setSidebarCollapsedState]);
 
+	const isMobileLayout = useMobileLayout();
+
 	return (
 		<div style={container}>
 			<div style={row}>
@@ -112,9 +116,15 @@ export const TopPanel: React.FC<{
 					orientation="vertical"
 				>
 					{actualStateLeft === 'expanded' ? (
-						<SplitterElement sticky={null} type="flexer">
-							<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-						</SplitterElement>
+						isMobileLayout ? (
+							<MobilePanel onClose={onCollapseLeft}>
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</MobilePanel>
+						) : (
+							<SplitterElement sticky={null} type="flexer">
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</SplitterElement>
+						)
 					) : null}
 					{actualStateLeft === 'expanded' ? (
 						<SplitterHandle
@@ -142,9 +152,15 @@ export const TopPanel: React.FC<{
 								/>
 							) : null}
 							{actualStateRight === 'expanded' ? (
-								<SplitterElement sticky={null} type="anti-flexer">
-									<OptionsPanel readOnlyStudio={readOnlyStudio} />
-								</SplitterElement>
+								isMobileLayout ? (
+									<MobilePanel onClose={onCollapseRight}>
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</MobilePanel>
+								) : (
+									<SplitterElement sticky={null} type="anti-flexer">
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</SplitterElement>
+								)
 							) : null}
 						</SplitterContainer>
 					</SplitterElement>
