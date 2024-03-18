@@ -1,5 +1,5 @@
-import type {LegacyBundleOptions} from '@remotion/bundler';
-import {bundle, BundlerInternals} from '@remotion/bundler';
+import type {MandatoryLegacyBundleOptions} from '@remotion/bundler';
+import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {GitSource} from '@remotion/studio';
@@ -29,6 +29,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
+	publicPath,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -48,6 +49,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	gitSource: GitSource | null;
 	bufferStateDelayInMilliseconds: number | null;
 	maxTimelineTracks: number | null;
+	publicPath: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -85,6 +87,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		maxTimelineTracks,
+		publicPath,
 	});
 
 	return {
@@ -109,6 +112,7 @@ export const bundleOnCli = async ({
 	gitSource,
 	maxTimelineTracks,
 	bufferStateDelayInMilliseconds,
+	publicPath,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -128,6 +132,7 @@ export const bundleOnCli = async ({
 	gitSource: GitSource | null;
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
+	publicPath: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -186,14 +191,15 @@ export const bundleOnCli = async ({
 		updateProgress(false);
 	};
 
-	const options: LegacyBundleOptions = {
+	const options: MandatoryLegacyBundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
 		publicDir,
 		onPublicDirCopyProgress,
 		onSymlinkDetected,
-		publicPath: './',
+		outDir: outDir ?? null,
+		publicPath,
 	};
 
 	const [hash] = await BundlerInternals.getConfig({
@@ -236,7 +242,7 @@ export const bundleOnCli = async ({
 		doneIn: null,
 	};
 
-	const bundled = await bundle({
+	const bundled = await BundlerInternals.internalBundle({
 		entryPoint: fullPath,
 		onProgress: (progress) => {
 			bundlingState = {
@@ -246,9 +252,11 @@ export const bundleOnCli = async ({
 			updateProgress(false);
 		},
 		onDirectoryCreated,
-		outDir: outDir ?? undefined,
 		gitSource,
 		...options,
+		ignoreRegisterRootWarning: false,
+		maxTimelineTracks,
+		bufferStateDelayInMilliseconds,
 	});
 
 	bundlingState = {

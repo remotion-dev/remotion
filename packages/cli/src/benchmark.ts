@@ -47,6 +47,7 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -218,6 +219,7 @@ export const benchmarkCommand = async (
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -258,6 +260,7 @@ export const benchmarkCommand = async (
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

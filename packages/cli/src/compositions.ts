@@ -18,6 +18,7 @@ const {
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -75,6 +76,20 @@ export const listCompositionsCommand = async (
 		userAgent,
 	};
 
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
@@ -95,6 +110,7 @@ export const listCompositionsCommand = async (
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -110,22 +126,15 @@ export const listCompositionsCommand = async (
 				staticBase: null,
 				indent: undefined,
 			}).serializedString,
-		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		timeoutInMilliseconds,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes:
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: parsedCli,
-			}).value,
-		binariesDirectory: binariesDirectoryOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 
 	printCompositions(compositions, logLevel);

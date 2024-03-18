@@ -20,6 +20,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -102,6 +103,9 @@ export const still = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const publicPath = publicPathOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -148,5 +152,6 @@ export const still = async (
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		publicPath,
 	});
 };

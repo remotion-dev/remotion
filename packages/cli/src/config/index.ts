@@ -117,6 +117,7 @@ const {
 	preferLosslessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -472,6 +473,10 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPreferLosslessAudio: (lossless: boolean) => void;
+		/**
+		 * Prefer lossless audio encoding. Default: false
+		 */
+		readonly setPublicPath: (publicPath: string | null) => void;
 	}
 }
 
@@ -627,6 +632,7 @@ export const Config: FlatConfig = {
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
+	setPublicPath: publicPathOption.setConfig,
 };
 
 export const ConfigInternals = {

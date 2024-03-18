@@ -70,6 +70,7 @@ export const renderStillFlow = async ({
 	outputLocationFromUi,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	publicPath,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -99,6 +100,7 @@ export const renderStillFlow = async ({
 	outputLocationFromUi: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
+	publicPath: string | null;
 }) => {
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -177,6 +179,7 @@ export const renderStillFlow = async ({
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		},
 	);
 

@@ -22,6 +22,7 @@ import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size'
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {publicPathOption} from './public-path';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
@@ -63,6 +64,7 @@ export const allOptions = {
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
+	publicPathOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

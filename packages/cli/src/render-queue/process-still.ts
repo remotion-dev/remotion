@@ -58,5 +58,6 @@ export const processStill = async ({
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: job.binariesDirectory,
+		publicPath: null,
 	});
 };

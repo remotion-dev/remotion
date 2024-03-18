@@ -35,6 +35,7 @@ const {
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
 	audioCodecOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -160,6 +161,7 @@ export const render = async (
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -231,5 +233,6 @@ export const render = async (
 		binariesDirectory,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
+		publicPath,
 	});
 };
