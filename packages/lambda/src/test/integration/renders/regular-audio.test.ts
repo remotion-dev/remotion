@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {existsSync, unlinkSync} from 'fs';
+import {createWriteStream, unlinkSync} from 'fs';
 import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
@@ -14,35 +14,23 @@ afterAll(async () => {
 
 test('Should make seamless audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
-		codec: 'aac',
+		codec: 'wav',
 		composition: 'framer',
-		frameRange: [100, 200],
+		frameRange: [300, 400],
 		imageFormat: 'none',
 		logLevel: 'error',
 		region: 'eu-central-1',
-		inputProps: {playbackRate: 2},
+		inputProps: {playbackRate: 1},
 	});
 
-	const wav = path.join(process.cwd(), 'seamless.wav');
-	if (existsSync(wav)) {
-		unlinkSync(wav);
-	}
-
-	await RenderInternals.callFf({
-		bin: 'ffmpeg',
-		args: ['-i', '-', '-ac', '1', '-c:a', 'pcm_s16le', '-y', wav],
-		options: {
-			stdin: file,
-		},
-		indent: false,
-		binariesDirectory: null,
-		cancelSignal: undefined,
-		logLevel: 'info',
+	const wav = path.join(process.cwd(), 'regular.wav');
+	await new Promise<void>((resolve) => {
+		file.pipe(createWriteStream(wav)).on('finish', () => resolve());
 	});
 
 	const wd = new Wavedraw(wav);
 
-	const snapShot = path.join(__dirname, 'seamless-audio.png');
+	const snapShot = path.join(__dirname, 'regular-audio.png');
 
 	const options = {
 		width: 600,

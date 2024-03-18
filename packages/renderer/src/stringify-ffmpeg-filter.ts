@@ -65,7 +65,7 @@ export const stringifyFfmpegFilter = ({
 		(assetDuration ? Math.min(trimRight, assetDuration) : trimRight) /
 		playbackRate;
 
-	const audibleDuration = actualTrimLeft - actualTrimLeft;
+	const audibleDuration = actualTrimRight - actualTrimLeft;
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
