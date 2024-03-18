@@ -57,9 +57,9 @@ const trimAndSetTempo = ({
 		return {
 			filter: [
 				calculateATempo(playbackRate),
-				`atrim=${stringifyTrim(actualTrimLeft)}us:${stringifyTrim(
+				`atrim=${stringifyTrim(actualTrimLeft)}:${stringifyTrim(
 					actualTrimRight,
-				)}us`,
+				)}`,
 			],
 			actualTrimLeft,
 			audibleDuration: actualTrimRight - actualTrimLeft,
@@ -71,9 +71,9 @@ const trimAndSetTempo = ({
 	if (!forSeamlessAacConcatenation) {
 		return {
 			filter: [
-				`atrim=${stringifyTrim(trimLeft)}us:${stringifyTrim(
+				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(
 					trimRightOrAssetDuration,
-				)}us`,
+				)}`,
 				calculateATempo(playbackRate),
 			],
 			actualTrimLeft: trimLeft,
