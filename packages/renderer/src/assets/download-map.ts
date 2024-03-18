@@ -53,6 +53,7 @@ export type RenderAssetInfo = {
 	chunkLengthInSeconds: number;
 	trimLeftOffset: number;
 	trimRightOffset: number;
+	forSeamlessAacConcatenation: boolean;
 };
 
 const makeAndReturn = (dir: string, name: string) => {

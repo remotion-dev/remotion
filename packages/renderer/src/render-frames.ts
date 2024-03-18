@@ -631,6 +631,7 @@ const innerRenderFrames = async ({
 				trimLeftOffset,
 				trimRightOffset,
 				chunkLengthInSeconds,
+				forSeamlessAacConcatenation,
 			},
 			frameCount: framesToRender.length,
 		};

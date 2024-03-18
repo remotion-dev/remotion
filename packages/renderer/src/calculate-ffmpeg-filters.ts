@@ -11,6 +11,7 @@ export const calculateFfmpegFilter = ({
 	trimLeftOffset,
 	trimRightOffset,
 	chunkLengthInSeconds,
+	forSeamlessAacConcatenation,
 }: {
 	asset: MediaAsset;
 	fps: number;
@@ -19,6 +20,7 @@ export const calculateFfmpegFilter = ({
 	trimLeftOffset: number;
 	trimRightOffset: number;
 	chunkLengthInSeconds: number;
+	forSeamlessAacConcatenation: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
@@ -44,5 +46,6 @@ export const calculateFfmpegFilter = ({
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 		toneFrequency: asset.toneFrequency,
 		chunkLengthInSeconds,
+		forSeamlessAacConcatenation,
 	});
 };

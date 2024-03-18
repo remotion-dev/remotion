@@ -267,6 +267,7 @@ const innerStitchFramesToVideo = async (
 					cancelSignal: cancelSignal ?? undefined,
 					trimLeftOffset: assetsInfo.trimLeftOffset,
 					trimRightOffset: assetsInfo.trimRightOffset,
+					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 				})
 			: null;
 

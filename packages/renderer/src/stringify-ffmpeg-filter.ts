@@ -13,6 +13,59 @@ export type ProcessedTrack = {
 	pad_end: string | null;
 };
 
+const trimAndSetTempo = ({
+	playbackRate,
+	trimLeft,
+	trimRight,
+	forSeamlessAacConcatenation,
+	assetDuration,
+}: {
+	playbackRate: number;
+	trimLeft: number;
+	trimRight: number;
+	forSeamlessAacConcatenation: boolean;
+	assetDuration: number | null;
+}): {
+	filter: (string | null)[];
+	actualTrimLeft: number;
+	audibleDuration: number;
+} => {
+	const trimRightOrAssetDuration = assetDuration
+		? Math.min(trimRight, assetDuration)
+		: trimRight;
+
+	if (forSeamlessAacConcatenation) {
+		const actualTrimLeft = trimLeft / playbackRate;
+		const actualTrimRight = trimRightOrAssetDuration / playbackRate;
+
+		return {
+			filter: [
+				calculateATempo(playbackRate),
+				`atrim=${actualTrimLeft * 1_000_000}us:${
+					actualTrimRight * 1_000_000
+				}us`,
+			],
+			actualTrimLeft,
+			audibleDuration: actualTrimRight - actualTrimLeft,
+		};
+	}
+
+	if (!forSeamlessAacConcatenation) {
+		return {
+			filter: [
+				`atrim=${trimLeft * 1_000_000}us:${
+					trimRightOrAssetDuration * 1_000_000
+				}us`,
+				calculateATempo(playbackRate),
+			],
+			actualTrimLeft: trimLeft,
+			audibleDuration: (trimRightOrAssetDuration - trimLeft) / playbackRate,
+		};
+	}
+
+	throw new Error('This should never happen');
+};
+
 export const stringifyFfmpegFilter = ({
 	trimLeft,
 	trimRight,
@@ -25,6 +78,7 @@ export const stringifyFfmpegFilter = ({
 	allowAmplificationDuringRender,
 	toneFrequency,
 	chunkLengthInSeconds,
+	forSeamlessAacConcatenation,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -37,6 +91,7 @@ export const stringifyFfmpegFilter = ({
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
 	chunkLengthInSeconds: number;
+	forSeamlessAacConcatenation: boolean;
 }): FilterWithoutPaddingApplied | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
@@ -50,7 +105,17 @@ export const stringifyFfmpegFilter = ({
 		);
 	}
 
-	const actualTrimLeft = trimLeft / playbackRate;
+	const {
+		actualTrimLeft,
+		audibleDuration,
+		filter: trimAndTempoFilter,
+	} = trimAndSetTempo({
+		playbackRate,
+		forSeamlessAacConcatenation,
+		assetDuration,
+		trimLeft,
+		trimRight,
+	});
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
@@ -59,26 +124,16 @@ export const stringifyFfmpegFilter = ({
 		allowAmplificationDuringRender,
 	});
 
-	// Avoid setting filters if possible, as combining them can create noise
-
-	const actualTrimRight =
-		(assetDuration ? Math.min(trimRight, assetDuration) : trimRight) /
-		playbackRate;
-
-	const audibleDuration = actualTrimRight - actualTrimLeft;
-
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
+	// Set as few filters as possible, as combining them can create noise
 	return {
 		filter:
 			`[0:a]` +
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
-				calculateATempo(playbackRate),
-				// Order matters! First trim the audio
-				`atrim=${actualTrimLeft * 1_000_000}us:${
-					actualTrimRight * 1_000_000
-				}us`,
+				// The order matters here! For speed and correctness, we first trim the audio
+				...trimAndTempoFilter,
 				// then set the tempo
 				// set the volume if needed
 				// The timings for volume must include whatever is in atrim, unless the volume

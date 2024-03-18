@@ -25,6 +25,7 @@ type Options = {
 	chunkLengthInSeconds: number;
 	trimLeftOffset: number;
 	trimRightOffset: number;
+	forSeamlessAacConcatenation: boolean;
 	onProgress: (progress: number) => void;
 };
 
@@ -46,6 +47,7 @@ const preprocessAudioTrackUnlimited = async ({
 	chunkLengthInSeconds,
 	trimLeftOffset,
 	trimRightOffset,
+	forSeamlessAacConcatenation,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -64,6 +66,7 @@ const preprocessAudioTrackUnlimited = async ({
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
+		forSeamlessAacConcatenation,
 	});
 
 	if (filter === null) {
