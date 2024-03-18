@@ -28,7 +28,7 @@ export const Framer: React.FC<{
 			<h1 style={{fontSize: 120}}>{frame} 😁</h1>
 			<Sequence from={30}>
 				<Audio
-					volume={(f) => Math.sin(f / 4)}
+					volume={(f) => (Math.sin(f / 4) + 1) / 2}
 					playbackRate={playbackRate ?? 1}
 					src={staticFile('chirp.wav')}
 				/>

@@ -50,20 +50,22 @@ export const stringifyFfmpegFilter = ({
 		);
 	}
 
+	const actualTrimLeft = trimLeft / playbackRate;
+
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
 		fps,
-		trimLeft,
+		trimLeft: actualTrimLeft,
 		allowAmplificationDuringRender,
 	});
 
 	// Avoid setting filters if possible, as combining them can create noise
 
-	const actualTrimRight = assetDuration
-		? Math.min(trimRight, assetDuration)
-		: trimRight;
+	const actualTrimRight =
+		(assetDuration ? Math.min(trimRight, assetDuration) : trimRight) /
+		playbackRate;
 
-	const audibleDuration = (actualTrimRight - trimLeft) / playbackRate;
+	const audibleDuration = actualTrimLeft - actualTrimLeft;
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
@@ -74,8 +76,8 @@ export const stringifyFfmpegFilter = ({
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				calculateATempo(playbackRate),
 				// Order matters! First trim the audio
-				`atrim=${(trimLeft / playbackRate) * 1_000_000}us:${
-					(actualTrimRight / playbackRate) * 1_000_000
+				`atrim=${actualTrimLeft * 1_000_000}us:${
+					actualTrimRight * 1_000_000
 				}us`,
 				'asetpts=PTS-STARTPTS',
 				// then set the tempo
