@@ -79,7 +79,6 @@ export const stringifyFfmpegFilter = ({
 				`atrim=${actualTrimLeft * 1_000_000}us:${
 					actualTrimRight * 1_000_000
 				}us`,
-				'asetpts=PTS-STARTPTS',
 				// then set the tempo
 				// set the volume if needed
 				// The timings for volume must include whatever is in atrim, unless the volume
