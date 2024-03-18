@@ -602,20 +602,30 @@ const innerRenderFrames = async ({
 		}
 	};
 
-	const progress = Promise.all(
-		[...framesToRender, ...extraFramesToCaptureAssets].sort().map((frame) => {
-			const frameIndex = framesToRender.indexOf(frame);
+	const extraFrames = Promise.all(
+		extraFramesToCaptureAssets.map((frame) => {
 			return renderFrameAndRetryTargetClose({
 				frame,
-				index: frameIndex === -1 ? null : frameIndex,
+				index: null,
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
-				assetsOnly: extraFramesToCaptureAssets.includes(frame),
+				assetsOnly: true,
+			});
+		}),
+	);
+	const mainFrames = Promise.all(
+		framesToRender.map((frame, index) => {
+			return renderFrameAndRetryTargetClose({
+				frame,
+				index,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assetsOnly: false,
 			});
 		}),
 	);
 
-	const happyPath = progress.then(() => {
+	const happyPath = Promise.all([extraFrames, mainFrames]).then(() => {
 		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
