@@ -418,7 +418,7 @@ export class Wavedraw {
 
 		const percentWrong = (differences / currentFile.length) * 100;
 
-		if (differences > 0.01) {
+		if (percentWrong > 0.01) {
 			throw new Error(
 				`Waveforms are different, ${percentWrong} differences found`,
 			);
