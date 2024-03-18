@@ -12,7 +12,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should make regaular (non-seamless) audio', async () => {
+test('Should make regular (non-seamless) audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'wav',
 		composition: 'framer',
@@ -30,7 +30,7 @@ test('Should make regaular (non-seamless) audio', async () => {
 
 	const wd = new Wavedraw(wav);
 
-	const snapShot = path.join(__dirname, 'regular-audio.jpeg');
+	const snapShot = path.join(__dirname, 'regular-audio.bmp');
 
 	const options = {
 		width: 600,
@@ -48,7 +48,7 @@ test('Should make regaular (non-seamless) audio', async () => {
 		filename: snapShot,
 	};
 
-	await wd.drawWave(options); // outputs wave drawing to example1.png
+	wd.drawWave(options); // outputs wave drawing to example1.png
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,

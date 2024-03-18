@@ -42,7 +42,7 @@ test('Should make seamless audio', async () => {
 
 	const wd = new Wavedraw(wav);
 
-	const snapShot = path.join(__dirname, 'seamless-audio.jpeg');
+	const snapShot = path.join(__dirname, 'seamless-audio.bmp');
 
 	const options = {
 		width: 600,

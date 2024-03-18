@@ -1,4 +1,4 @@
-import fs, {closeSync, readFileSync, readSync} from 'fs';
+import fs, {closeSync, readFileSync, readSync, writeFileSync} from 'fs';
 import * as PImage from 'pureimage';
 import {Line} from 'pureimage/dist/line';
 
@@ -25,6 +25,61 @@ type Sample = {
 	negRms?: number;
 	posMax?: number;
 	negMax?: number;
+};
+
+const wavToBitmap = (
+	imageData: Uint8Array,
+	width: number,
+	height: number,
+): Uint8Array => {
+	// BMP file header and DIB header size
+	const fileHeaderSize = 14;
+	const dibHeaderSize = 40;
+
+	// The width must be a multiple of 4 bytes in a BMP file
+	const rowBytes = 4 * Math.ceil((3 * width) / 4);
+	const pixelArraySize = rowBytes * height;
+
+	// File size is the header size plus the actual pixel data
+	const fileSize = fileHeaderSize + dibHeaderSize + pixelArraySize;
+
+	// Create a buffer for the BMP file
+	const buffer = new ArrayBuffer(fileSize);
+	const view = new DataView(buffer);
+
+	// BMP File header
+	view.setUint8(0, 0x42); // 'B'
+	view.setUint8(1, 0x4d); // 'M'
+	view.setUint32(2, fileSize, true); // File size
+	view.setUint32(6, 0, true); // Reserved
+	view.setUint32(10, fileHeaderSize + dibHeaderSize, true); // Pixel data offset
+
+	// DIB header
+	view.setUint32(14, dibHeaderSize, true); // DIB header size
+	view.setInt32(18, width, true); // Image width
+	view.setInt32(22, -height, true); // Image height (negative indicates top-down DIB)
+	view.setUint16(26, 1, true); // Number of color planes
+	view.setUint16(28, 24, true); // Bits per pixel
+	view.setUint32(30, 0, true); // No compression (BI_RGB)
+	view.setUint32(34, pixelArraySize, true); // Size of raw bitmap data (including padding)
+	view.setUint32(38, 2835, true); // Print resolution X (72 DPI × 39.3701 inches/meter)
+	view.setUint32(42, 2835, true); // Print resolution Y
+	view.setUint32(46, 0, true); // Number of colors in the palette
+	view.setUint32(50, 0, true); // Important colors
+
+	// Pixel data
+	const imageDataOffset = fileHeaderSize + dibHeaderSize;
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const srcIndex = (y * width + x) * 4;
+			const destIndex = imageDataOffset + y * rowBytes + x * 3;
+			view.setUint8(destIndex + 2, imageData[srcIndex]); // Red
+			view.setUint8(destIndex + 1, imageData[srcIndex + 1]); // Green
+			view.setUint8(destIndex, imageData[srcIndex + 2]); // Blue
+		}
+	}
+
+	return new Uint8Array(buffer);
 };
 
 const getStringBE = (bytes: Buffer) => {
@@ -247,7 +302,7 @@ export class Wavedraw {
 		}
 	}
 
-	async drawWave(options: Options) {
+	drawWave(options: Options) {
 		Wavedraw.validateDrawWaveOptions(options);
 		const fmt = this.getChunk('fmt');
 		if (fmt.type !== 'fmt') {
@@ -344,13 +399,13 @@ export class Wavedraw {
 		const {filename} = options;
 
 		const currentFile = readFileSync(filename);
-		const stream = fs.createWriteStream(filename);
-		PImage.encodeJPEGToStream(img1, stream, 100);
-		await new Promise((resolve) => {
-			stream.on('finish', resolve);
-		});
-		const newFile = readFileSync(filename);
-		if (Buffer.compare(currentFile, newFile) !== 0) {
+
+		const data = ctx.getImageData(0, 0, options.width, options.height);
+		const arr = wavToBitmap(data.data, options.width, options.height);
+
+		writeFileSync(filename, Buffer.from(arr));
+
+		if (Buffer.compare(currentFile, arr) !== 0) {
 			throw new Error('Waveforms are different');
 		}
 	}
