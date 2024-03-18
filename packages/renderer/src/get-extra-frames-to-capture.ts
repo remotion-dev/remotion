@@ -11,6 +11,9 @@ type ReturnType = {
 	chunkLengthInSeconds: number;
 };
 
+// Inspired by https://github.com/wistia/seamless-aac-split-and-stitch-demo
+// We can seamlessly concatenate AAC files if we capture a bit of extra audio on both sides in each chunk and then align the audio correctly.
+// This function calculates which extra frames should be evaluated for their audio content.
 export const getExtraFramesToCapture = ({
 	compositionStart,
 	realFrameRange,
@@ -22,6 +25,7 @@ export const getExtraFramesToCapture = ({
 	realFrameRange: [number, number];
 	forSeamlessAacConcatenation: boolean;
 }): ReturnType => {
+	// If the feature is disabled, don't capture extra frames.
 	if (!forSeamlessAacConcatenation) {
 		return {
 			extraFramesToCaptureAssets: [],
@@ -31,8 +35,12 @@ export const getExtraFramesToCapture = ({
 		};
 	}
 
+	// If this video is just a chunk as part of a larger video,
+	// We also need to know the start time of this chunk to align it correctly.
 	const chunkStart = realFrameRange[0];
 
+	// If we are only rendering a portion of the composition, we also need to account for that.
+	// It cannot be that the chunk start time is earlier than the composition time.
 	if (chunkStart < compositionStart) {
 		throw new Error('chunkStart may not be below compositionStart');
 	}
@@ -45,6 +53,7 @@ export const getExtraFramesToCapture = ({
 	const realRightEnd =
 		realLeftEnd + (realFrameRange[1] - realFrameRange[0] + 1);
 
+	// Find the closest AAC packet border and add two AAC packet padding.
 	const aacAdjustedLeftEnd = Math.max(
 		0,
 		getClosestAlignedTime(realLeftEnd / fps) - 2 * (1024 / DEFAULT_SAMPLE_RATE),
@@ -53,39 +62,35 @@ export const getExtraFramesToCapture = ({
 		getClosestAlignedTime(realRightEnd / fps) +
 		2 * (1024 / DEFAULT_SAMPLE_RATE);
 
-	const startTimeWithoutOffset = Math.floor(aacAdjustedLeftEnd * fps);
-
-	const startFrame = startTimeWithoutOffset + compositionStart;
-
-	const trimLeftOffset =
-		(aacAdjustedLeftEnd * fps - startTimeWithoutOffset) / fps;
-
-	const endFrame = Math.ceil(aacAdjustedRightEnd * fps) + compositionStart;
-
-	const trimRightOffset =
-		(aacAdjustedRightEnd * fps - Math.ceil(aacAdjustedRightEnd * fps)) / fps;
-
-	const extraFramesToCaptureAudioOnly = new Array(
-		realFrameRange[0] - startFrame,
+	// Now find the additional frames that we need to capture to have enough audio
+	const alignedStartFrameWithoutOffset = Math.floor(aacAdjustedLeftEnd * fps);
+	const alignedStartFrame = alignedStartFrameWithoutOffset + compositionStart;
+	const alignedEndFrame =
+		Math.ceil(aacAdjustedRightEnd * fps) + compositionStart;
+	const extraFramesToCaptureAudioOnlyFrontend = new Array(
+		realFrameRange[0] - alignedStartFrame,
 	)
 		.fill(true)
-		.map((_, f) => {
-			return f + startFrame;
-		});
+		.map((_, f) => f + alignedStartFrame);
 
 	const extraFramesToCaptureAudioOnlyBackend = new Array(
-		endFrame - realFrameRange[1] - 1,
+		alignedEndFrame - realFrameRange[1] - 1,
 	)
 		.fill(true)
-		.map((_, f) => {
-			return f + realFrameRange[1] + 1;
-		});
+		.map((_, f) => f + realFrameRange[1] + 1);
+
+	// But now, we might have too much audio, since the extra frames only have a `1 / fps` step.
+	// When creating the lossless audio for a chunk, we need to shave that extra audio off.
+	const trimLeftOffset =
+		(aacAdjustedLeftEnd * fps - alignedStartFrameWithoutOffset) / fps;
+	const trimRightOffset =
+		(aacAdjustedRightEnd * fps - Math.ceil(aacAdjustedRightEnd * fps)) / fps;
 
 	const chunkLengthInSeconds = aacAdjustedRightEnd - aacAdjustedLeftEnd;
 
 	return {
 		extraFramesToCaptureAssets: [
-			...extraFramesToCaptureAudioOnly,
+			...extraFramesToCaptureAudioOnlyFrontend,
 			...extraFramesToCaptureAudioOnlyBackend,
 		],
 		chunkLengthInSeconds,
