@@ -405,8 +405,23 @@ export class Wavedraw {
 
 		writeFileSync(filename, Buffer.from(arr));
 
-		if (Buffer.compare(currentFile, arr) !== 0) {
-			throw new Error('Waveforms are different');
+		if (currentFile.length !== arr.length) {
+			throw new Error('Waveform file sizes are different');
+		}
+
+		let differences = 0;
+		for (let i = 0; i < currentFile.length; i += 1) {
+			if (currentFile[i] !== arr[i]) {
+				differences += 1;
+			}
+		}
+
+		const percentWrong = (differences / currentFile.length) * 100;
+
+		if (differences > 0.01) {
+			throw new Error(
+				`Waveforms are different, ${percentWrong} differences found`,
+			);
 		}
 	}
 
