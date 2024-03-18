@@ -5,6 +5,7 @@ export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;
 
 export const MAX_MENU_WIDTH = 400;
+export const MAX_MOBILE_MENU_WIDTH = 300;
 
 const menuContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,

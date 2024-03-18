@@ -28,7 +28,6 @@ export const startServer = async (options: {
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
-	userPassedPublicDir: string | null;
 	poll: number | null;
 	staticHash: string;
 	staticHashPrefix: string;

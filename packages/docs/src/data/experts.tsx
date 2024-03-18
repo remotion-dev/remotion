@@ -464,4 +464,27 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  {
+    slug: "ayush-soni",
+    name: "Ayush Soni",
+    image: "/img/freelancers/ayush.png",
+    website: "https://ayushsoni.com/",
+    x: "ayysoni",
+    github: "remotion-dev",
+    linkedin: "in/ayushsoni1001/",
+    email: "hi@ayushsoni.com",
+    videocall: "remotion-expert-ayush-soni",
+    since: new Date("2024-03-17").getTime(),
+    description: (
+      <div>
+        I’ve been coding and building cool projects since 5th grade (software
+        and hardware both) across multiple technologies. Currently I’m building
+        <a target={"_blank"} href="https://www.typeframes.com/">
+          Typeframes
+        </a>{" "}
+        using Remotion, it is a tool to create videos. I build products in
+        public on X. I’d love to hear your story.
+      </div>
+    ),
+  },
 ];

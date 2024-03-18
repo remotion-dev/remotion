@@ -2,60 +2,91 @@ import React, {useContext, useMemo} from 'react';
 import {SequenceContext} from './SequenceContext.js';
 import type {TimelineContextValue} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
+import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 
 type FreezeProps = {
 	frame: number;
 	children: React.ReactNode;
+	active?: boolean | ((f: number) => boolean);
 };
 
 /**
  * @description This method freezes all of its children to the frame that you specify as a prop
  * @see [Documentation](https://www.remotion.dev/docs/freeze)
  */
-export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
+export const Freeze: React.FC<FreezeProps> = ({
+	frame: frameToFreeze,
+	children,
+	active = true,
+}) => {
+	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	if (typeof frame === 'undefined') {
+
+	if (typeof frameToFreeze === 'undefined') {
 		throw new Error(
 			`The <Freeze /> component requires a 'frame' prop, but none was passed.`,
 		);
 	}
 
-	if (typeof frame !== 'number') {
+	if (typeof frameToFreeze !== 'number') {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frame}`,
+			`The 'frame' prop of <Freeze /> must be a number, but is of type ${typeof frameToFreeze}`,
 		);
 	}
 
-	if (Number.isNaN(frame)) {
+	if (Number.isNaN(frameToFreeze)) {
 		throw new Error(
 			`The 'frame' prop of <Freeze /> must be a real number, but it is NaN.`,
 		);
 	}
 
-	if (!Number.isFinite(frame)) {
+	if (!Number.isFinite(frameToFreeze)) {
 		throw new Error(
-			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frame}.`,
+			`The 'frame' prop of <Freeze /> must be a finite number, but it is ${frameToFreeze}.`,
 		);
 	}
 
-	const context = useContext(TimelineContext);
-	const value: TimelineContextValue = useMemo(() => {
+	const isActive = useMemo(() => {
+		if (typeof active === 'boolean') {
+			return active;
+		}
+
+		if (typeof active === 'function') {
+			return active(frame);
+		}
+	}, [active, frame]);
+
+	const timelineContext = useContext(TimelineContext);
+	const sequenceContext = useContext(SequenceContext);
+	const timelineValue: TimelineContextValue = useMemo(() => {
+		if (!isActive) {
+			return timelineContext;
+		}
+
 		return {
-			...context,
+			...timelineContext,
 			playing: false,
 			imperativePlaying: {
 				current: false,
 			},
 			frame: {
-				[videoConfig.id]: frame,
+				[videoConfig.id]: frameToFreeze,
 			},
 		};
-	}, [context, frame, videoConfig.id]);
+	}, [timelineContext, frameToFreeze, isActive, videoConfig.id]);
+
+	const sequenceValue = useMemo(() => {
+		if (isActive) {
+			return null;
+		}
+
+		return sequenceContext;
+	}, [isActive, sequenceContext]);
 
 	return (
-		<TimelineContext.Provider value={value}>
-			<SequenceContext.Provider value={null}>
+		<TimelineContext.Provider value={timelineValue}>
+			<SequenceContext.Provider value={sequenceValue}>
 				{children}
 			</SequenceContext.Provider>
 		</TimelineContext.Provider>

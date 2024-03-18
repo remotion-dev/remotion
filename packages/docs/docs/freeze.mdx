@@ -16,19 +16,13 @@ _Available from v2.2.0._
 
 When using the `<Freeze/>` component, all of it's children will freeze to the frame that you specify as a prop.
 
-If a component is a child of `<Freeze/>`, calling the `useCurrentFrame()` hook will always return the frame number you specify.
+If a component is a child of `<Freeze/>`, calling the [`useCurrentFrame()`](/docs/use-current-frame) hook will always return the frame number you specify, irrespective of any [`<Sequence>`](/docs/sequence).
 
-`<Video/>` elements will be paused and `<Audio/>` elements will render muted.
+[`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/video) elements will be paused and [`<Audio />`](/docs/audio) elements will render muted.
 
-## API
+## Example
 
-The Freeze component is a high order component and accepts, besides it's children, the following props:
-
-- `frame` _(required)_: At which frame it's children should freeze.
-
-## Example usage
-
-```tsx twoslash
+```tsx twoslash title="MyComp.tsx"
 // @include: example-BlueSquare
 // ---cut---
 import { Freeze } from "remotion";
@@ -36,6 +30,33 @@ import { Freeze } from "remotion";
 const MyVideo = () => {
   return (
     <Freeze frame={30}>
+      <BlueSquare />
+    </Freeze>
+  );
+};
+```
+
+## API
+
+The Freeze component is a high order component and accepts, besides it's children, the following props:
+
+### `frame`
+
+At which frame it's children should freeze.
+
+### `active`<AvailableFrom v="4.0.127"/>
+
+Deactivate freezing component by passing `false`.  
+You may also pass a callback function and accept the current frame and return a boolean.
+
+```tsx twoslash title="From frame 30 on"
+// @include: example-BlueSquare
+// ---cut---
+import { Freeze } from "remotion";
+
+const MyVideo = () => {
+  return (
+    <Freeze frame={30} active={(f) => f < 30}>
       <BlueSquare />
     </Freeze>
   );

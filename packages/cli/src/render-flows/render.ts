@@ -103,6 +103,7 @@ export const renderVideoFlow = async ({
 	binariesDirectory,
 	forSeamlessAacConcatenation,
 	separateAudioTo,
+	publicPath,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -155,6 +156,7 @@ export const renderVideoFlow = async ({
 	binariesDirectory: string | null;
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
+	publicPath: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -248,6 +250,7 @@ export const renderVideoFlow = async ({
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		},
 	);
 

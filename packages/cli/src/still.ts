@@ -20,6 +20,8 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -64,7 +66,6 @@ export const still = async (
 		envVariables,
 		height,
 		inputProps,
-		publicDir,
 		stillFrame,
 		width,
 		disableWebSecurity,
@@ -100,6 +101,12 @@ export const still = async (
 		true,
 	).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const publicPath = publicPathOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -148,5 +155,6 @@ export const still = async (
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		publicPath,
 	});
 };

@@ -76,7 +76,6 @@ import {overrideWebpackConfig} from './override-webpack';
 import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
-import {getPublicDir, setPublicDir} from './public-dir';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
@@ -113,10 +112,12 @@ const {
 	enableLambdaInsights,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
+	publicDirOption,
 	binariesDirectoryOption,
 	preferLosslessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -472,6 +473,10 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPreferLosslessAudio: (lossless: boolean) => void;
+		/**
+		 * Prefer lossless audio encoding. Default: false
+		 */
+		readonly setPublicPath: (publicPath: string | null) => void;
 	}
 }
 
@@ -565,7 +570,7 @@ export const Config: FlatConfig = {
 	setPort,
 	setStudioPort,
 	setRendererPort,
-	setPublicDir,
+	setPublicDir: publicDirOption.setConfig,
 	setEntryPoint,
 	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable,
@@ -627,6 +632,7 @@ export const Config: FlatConfig = {
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
+	setPublicPath: publicPathOption.setConfig,
 };
 
 export const ConfigInternals = {
@@ -655,7 +661,6 @@ export const ConfigInternals = {
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getKeyboardShortcutsEnabled,
-	getPublicDir,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

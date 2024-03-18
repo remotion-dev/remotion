@@ -1,15 +1,13 @@
 import path from 'node:path';
 
 export const getAbsolutePublicDir = ({
-	userPassedPublicDir,
+	relativePublicDir,
 	remotionRoot,
 }: {
-	userPassedPublicDir: string | null;
+	relativePublicDir: string | null;
 	remotionRoot: string;
 }) => {
-	const publicDir = userPassedPublicDir
-		? path.resolve(remotionRoot, userPassedPublicDir)
+	return relativePublicDir
+		? path.resolve(remotionRoot, relativePublicDir)
 		: path.join(remotionRoot, 'public');
-
-	return publicDir;
 };
