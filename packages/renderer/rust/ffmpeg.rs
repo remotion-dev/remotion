@@ -188,7 +188,10 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         Some(video_stream) => video_stream,
         None => Err(std::io::Error::new(
             ErrorKind::Other,
-            "No video stream found",
+            format!(
+                "No video stream found in {}. Is this a video file?",
+                file_path
+            ),
         ))?,
     };
 
