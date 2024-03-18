@@ -6,7 +6,6 @@ import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions} from './get-cli-options';
 import {getGitSource} from './get-github-repository';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -14,7 +13,7 @@ import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
 
-const {publicPathOption} = BrowserSafeApis.options;
+const {publicPathOption, publicDirOption} = BrowserSafeApis.options;
 
 export const bundleCommand = async (
 	remotionRoot: string,
@@ -53,12 +52,8 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const {publicDir} = getCliOptions({
-		isStill: false,
-		logLevel,
-	});
-
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const outputPath = parsedCli['out-dir']
 		? path.resolve(process.cwd(), parsedCli['out-dir'])

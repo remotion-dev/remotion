@@ -19,6 +19,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -56,7 +57,6 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		envVariables,
 		inputProps,
-		publicDir,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
@@ -89,6 +89,7 @@ export const listCompositionsCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({

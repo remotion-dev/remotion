@@ -1,9 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
+import {parsedCli} from '../parse-command-line';
 import {renderVideoFlow} from '../render-flows/render';
+
+const {publicDirOption} = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
 	job,
@@ -24,7 +28,11 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, ffmpegOverride} = getCliOptions({
+	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const {browserExecutable, ffmpegOverride} = getCliOptions({
 		isStill: true,
 		logLevel,
 	});

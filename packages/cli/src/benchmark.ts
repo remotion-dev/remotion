@@ -48,6 +48,7 @@ const {
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
 	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -188,7 +189,6 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		publicDir,
 		proResProfile,
 		frameRange: defaultFrameRange,
 		pixelFormat,
@@ -220,6 +220,7 @@ export const benchmarkCommand = async (
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,

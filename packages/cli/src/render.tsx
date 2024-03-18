@@ -36,6 +36,7 @@ const {
 	separateAudioOption,
 	audioCodecOption,
 	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -86,7 +87,6 @@ export const render = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		publicDir,
 		height,
 		width,
 		ffmpegOverride,
@@ -173,6 +173,7 @@ export const render = async (
 	};
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,

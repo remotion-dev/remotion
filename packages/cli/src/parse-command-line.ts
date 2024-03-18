@@ -227,10 +227,6 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['public-dir'] !== 'undefined') {
-		Config.setPublicDir(parsedCli['public-dir']);
-	}
-
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
 		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}

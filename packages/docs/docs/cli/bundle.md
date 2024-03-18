@@ -28,7 +28,7 @@ Specify a location for the Remotion config file.
 
 ### `--public-dir`
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-dir" />
 
 ### `--out-dir`
 
