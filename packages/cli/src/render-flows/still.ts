@@ -308,7 +308,7 @@ export const renderStillFlow = async ({
 		onDownload,
 		port,
 		puppeteerInstance,
-		server: await server,
+		server,
 		cancelSignal,
 		indent,
 		onBrowserLog: null,
