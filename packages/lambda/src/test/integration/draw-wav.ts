@@ -345,7 +345,7 @@ export class Wavedraw {
 
 		const currentFile = readFileSync(filename);
 		const stream = fs.createWriteStream(filename);
-		PImage.encodePNGToStream(img1, stream);
+		PImage.encodeJPEGToStream(img1, stream, 100);
 		await new Promise((resolve) => {
 			stream.on('finish', resolve);
 		});
