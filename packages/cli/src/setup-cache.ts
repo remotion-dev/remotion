@@ -4,6 +4,8 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {GitSource} from '@remotion/studio';
 import type {BundlingState, CopyingState} from '@remotion/studio-server';
+import {existsSync} from 'fs';
+import path from 'path';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 import type {SymbolicLinksState} from './progress-bar';
@@ -54,7 +56,10 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	urlOrBundle: string;
 	cleanup: () => void;
 }> => {
-	if (RenderInternals.isServeUrl(fullPath)) {
+	const isServeUrl = RenderInternals.isServeUrl(fullPath);
+	const isBundle =
+		existsSync(fullPath) && existsSync(path.join(fullPath, 'index.html'));
+	if (isServeUrl || isBundle) {
 		onProgress({
 			bundling: {
 				doneIn: 0,

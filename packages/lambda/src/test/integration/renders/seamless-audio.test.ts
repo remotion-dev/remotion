@@ -1,50 +1,66 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import {existsSync, unlinkSync} from 'fs';
+import path from 'path';
 import {afterAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {rendersPrefix} from '../../../defaults';
 import {lambdaLs} from '../../../functions/helpers/io';
+import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should make a transparent video', async () => {
+test('Should make seamless audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
-		codec: 'vp8',
-		composition: 'ten-frame-tester',
-		frameRange: [0, 9],
-		imageFormat: 'png',
-		framesPerLambda: 5,
+		codec: 'aac',
+		composition: 'framer',
+		frameRange: [100, 200],
+		imageFormat: 'none',
 		logLevel: 'error',
 		region: 'eu-central-1',
-		outName: 'out.webm',
-		pixelFormat: 'yuva420p',
+		inputProps: {playbackRate: 2},
 	});
 
-	// We create a temporary directory for storing the frames
-	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));
-	const out = path.join(tmpdir, 'hithere.webm');
-	file.pipe(createWriteStream(out));
+	const wav = path.join(process.cwd(), 'seamless.wav');
+	if (existsSync(wav)) {
+		unlinkSync(wav);
+	}
 
-	await new Promise<void>((resolve) => {
-		file.on('close', () => resolve());
-	});
-	const probe = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [out],
+	await RenderInternals.callFf({
+		bin: 'ffmpeg',
+		args: ['-i', '-', '-ac', '1', '-c:a', 'pcm_s16le', '-y', wav],
+		options: {
+			stdin: file,
+		},
 		indent: false,
-		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
+		logLevel: 'info',
 	});
-	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
-	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
-	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
-	fs.unlinkSync(out);
+
+	const wd = new Wavedraw(wav);
+
+	const snapShot = path.join(__dirname, 'seamless-audio.bmp');
+
+	const options = {
+		width: 600,
+		height: 300,
+		rms: true,
+		maximums: true,
+		average: false,
+		start: 'START' as const,
+		end: 'END' as const,
+		colors: {
+			maximums: '#0000ff',
+			rms: '#659df7',
+			background: '#ffffff',
+		},
+		filename: snapShot,
+	};
+
+	await wd.drawWave(options); // outputs wave drawing to example1.png
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,
@@ -53,7 +69,7 @@ test('Should make a transparent video', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	expect(files.length).toBe(4);
+	expect(files.length).toBe(8);
 
 	await deleteRender({
 		bucketName: progress.outBucket as string,
@@ -68,8 +84,8 @@ test('Should make a transparent video', async () => {
 		prefix: rendersPrefix(renderId),
 	});
 
-	RenderInternals.deleteDirectory(tmpdir);
 	expect(expectFiles.length).toBe(0);
 
+	unlinkSync(wav);
 	await close();
 });

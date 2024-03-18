@@ -166,11 +166,12 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file, reason, remainingArgs} = findEntryPoint(
+	const {file, reason, remainingArgs} = findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: true,
+	});
 
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');
@@ -470,6 +471,7 @@ export const benchmarkCommand = async (
 						forSeamlessAacConcatenationOption.getValue({
 							commandLine: parsedCli,
 						}).value,
+					compositionStart: 0,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

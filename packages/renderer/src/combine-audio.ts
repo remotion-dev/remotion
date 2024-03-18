@@ -14,9 +14,9 @@ import {truthy} from './truthy';
 export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000;
 
 export const getClosestAlignedTime = (targetTime: number) => {
-	const decimalFramesToTargetTime = targetTime / durationOf1Frame;
+	const decimalFramesToTargetTime = (targetTime * 1_000_000) / durationOf1Frame;
 	const nearestFrameIndexForTargetTime = Math.round(decimalFramesToTargetTime);
-	return nearestFrameIndexForTargetTime * durationOf1Frame;
+	return (nearestFrameIndexForTargetTime * durationOf1Frame) / 1_000_000;
 };
 
 const encodeAudio = async ({
@@ -136,11 +136,11 @@ const combineAudioSeamlessly = async ({
 	const fileList = files
 		.map((p, i) => {
 			const isLast = i === files.length - 1;
-			const targetStart = i * chunkDurationInSeconds * 1_000_000;
-			const endStart = (i + 1) * chunkDurationInSeconds * 1_000_000;
+			const targetStart = i * chunkDurationInSeconds;
+			const endStart = (i + 1) * chunkDurationInSeconds;
 
-			const startTime = getClosestAlignedTime(targetStart);
-			const endTime = getClosestAlignedTime(endStart);
+			const startTime = getClosestAlignedTime(targetStart) * 1_000_000;
+			const endTime = getClosestAlignedTime(endStart) * 1_000_000;
 
 			const realDuration = endTime - startTime;
 

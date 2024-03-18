@@ -242,6 +242,8 @@ const innerLaunchHandler = async ({
 		needsToUpload,
 	});
 
+	const fps = comp.fps / params.everyNthFrame;
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -286,6 +288,7 @@ const innerLaunchHandler = async ({
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
+			compositionStart: realFrameRange[0],
 		};
 		return payload;
 	});
@@ -384,7 +387,6 @@ const innerLaunchHandler = async ({
 
 	reqSend.end();
 
-	const fps = comp.fps / params.everyNthFrame;
 	const postRenderData = await mergeChunksAndFinishRender({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
@@ -409,6 +411,7 @@ const innerLaunchHandler = async ({
 		framesPerLambda,
 		binariesDirectory: null,
 		preferLossless: params.preferLossless,
+		compositionStart: realFrameRange[0],
 	});
 
 	return postRenderData;
@@ -418,6 +421,7 @@ type AllChunksAvailable = {
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
 	framesPerLambda: number;
+	compositionStart: number;
 };
 
 export const launchHandler = async (
@@ -465,6 +469,7 @@ export const launchHandler = async (
 						logLevel: params.logLevel,
 						framesPerLambda: allChunksAvailable.framesPerLambda,
 						preferLossless: params.preferLossless,
+						compositionStart: allChunksAvailable.compositionStart,
 					},
 					retries: 2,
 				});
@@ -603,11 +608,13 @@ export const launchHandler = async (
 				inputProps,
 				serializedResolvedProps,
 				framesPerLambda,
+				compositionStart,
 			}) => {
 				allChunksAvailable = {
 					inputProps,
 					serializedResolvedProps,
 					framesPerLambda,
+					compositionStart,
 				};
 			},
 		});

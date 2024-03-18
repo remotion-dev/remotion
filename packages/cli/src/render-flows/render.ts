@@ -446,6 +446,8 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
+			compositionStart: 0,
+			forSeamlessAacConcatenation,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -534,6 +536,7 @@ export const renderVideoFlow = async ({
 		binariesDirectory,
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
+		compositionStart: 0,
 	});
 
 	Log.info(

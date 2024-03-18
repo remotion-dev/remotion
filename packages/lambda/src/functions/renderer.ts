@@ -142,9 +142,11 @@ const renderHandler = async (
 		: null;
 
 	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
-	const audioOutputLocation = audioExtension
-		? path.join(outdir, `${chunk}.${audioExtension}`)
-		: null;
+	const audioOutputLocation = RenderInternals.isAudioCodec(params.codec)
+		? null
+		: audioExtension
+			? path.join(outdir, `${chunk}.${audioExtension}`)
+			: null;
 
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
@@ -193,7 +195,10 @@ const renderHandler = async (
 				);
 
 				if (renderedFrames === allFrames.length) {
-					console.log('Rendered all frames!');
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						'Rendered all frames!',
+					);
 				}
 
 				chunkTimingData.timings[renderedFrames] = Date.now() - start;
@@ -223,7 +228,7 @@ const renderHandler = async (
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
-			onDownload: onDownloadsHelper(),
+			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
@@ -253,11 +258,18 @@ const renderHandler = async (
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
 			forSeamlessAacConcatenation: seamlessAudio,
+			compositionStart: params.compositionStart,
 		})
 			.then(({slowestFrames}) => {
-				console.log(`Slowest frames:`);
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Slowest frames:`,
+				);
 				slowestFrames.forEach(({frame, time}) => {
-					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						`  Frame ${frame} (${time.toFixed(3)}ms)`,
+					);
 				});
 				resolve();
 			})
@@ -282,7 +294,7 @@ const renderHandler = async (
 			key: chunkKeyForIndex({
 				renderId: params.renderId,
 				index: params.chunk,
-				type: 'video',
+				type: RenderInternals.isAudioCodec(params.codec) ? 'audio' : 'video',
 			}),
 			body: fs.createReadStream(videoOutputLocation),
 			region: getCurrentRegionInFunction(),

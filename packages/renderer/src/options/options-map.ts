@@ -44,7 +44,6 @@ export const optionsMap = {
 		audioCodec: audioCodecOption,
 	},
 	stitchFramesToVideo: {
-		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		separateAudioTo: separateAudioOption,
 	},
 	renderStill: {
@@ -67,6 +66,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 	},
 	renderFrames: {
+		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		jpegQuality: jpegQualityOption,
 		logLevel: logLevelOption,

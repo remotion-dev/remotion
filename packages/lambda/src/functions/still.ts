@@ -203,7 +203,7 @@ const innerStillHandler = async ({
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: onDownloadsHelper(),
+		onDownload: onDownloadsHelper(lambdaParams.logLevel),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
