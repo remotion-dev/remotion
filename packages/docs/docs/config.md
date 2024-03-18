@@ -79,14 +79,12 @@ The [command line flag](/docs/cli/render#--port) `--port` will take precedence o
 
 ## setPublicDir()<AvailableFrom v="3.2.13" />
 
-Define the location of the `public/` directory.  
-By default it is a folder named "public" inside the current working directory.  
-You can either set an absolute path, or a relative path that will be resolved from the closest package.json location.
+<Options id="public-dir"  />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setPublicDir("./publico");
+Config.setPublicDir("./custom-public-dir");
 ```
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.

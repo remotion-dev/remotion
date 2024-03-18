@@ -24,12 +24,16 @@ Specify a location for the Remotion config file.
 
 ### `--log`
 
-[Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+<Options id="log" />
 
 ### `--public-dir`
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-dir" />
 
 ### `--out-dir`
 
 Define the location of the resulting bundle. By default it is a folder called `./build`, adjacent to the [Remotion Root](/docs/terminology/remotion-root).
+
+### `--public-path`<AvailableFrom v="4.0.127"/>
+
+<Options id="public-path" />

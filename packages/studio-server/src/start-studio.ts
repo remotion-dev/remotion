@@ -67,7 +67,7 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	userPassedPublicDir,
+	relativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -93,7 +93,7 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	userPassedPublicDir: string | null;
+	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -108,7 +108,7 @@ export const startStudio = async ({
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
-		userPassedPublicDir,
+		relativePublicDir,
 		remotionRoot,
 	});
 	const hash = crypto.randomBytes(6).toString('hex');
@@ -152,7 +152,6 @@ export const startStudio = async ({
 		publicDir,
 		webpackOverride,
 		poll,
-		userPassedPublicDir,
 		staticHash,
 		staticHashPrefix,
 		outputHash,

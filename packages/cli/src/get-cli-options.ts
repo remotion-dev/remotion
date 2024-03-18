@@ -98,7 +98,6 @@ export const getCliOptions = (options: {
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		height,
 		width,
