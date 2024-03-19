@@ -470,7 +470,7 @@ export const experts: Expert[] = [
     image: "/img/freelancers/ayush.png",
     website: "https://ayushsoni.com/",
     x: "ayysoni",
-    github: "remotion-dev",
+    github: null,
     linkedin: "in/ayushsoni1001/",
     email: "hi@ayushsoni.com",
     videocall: "remotion-expert-ayush-soni",
