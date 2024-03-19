@@ -239,7 +239,8 @@ const innerRenderFrames = async ({
 	);
 
 	const {
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
@@ -602,8 +603,14 @@ const innerRenderFrames = async ({
 		}
 	};
 
-	const extraFrames = Promise.all(
-		extraFramesToCaptureAssets.map((frame) => {
+	// Render the extra frames at the beginning of the video first,
+	// then the regular frames, then the extra frames at the end of the video.
+	// While the order technically doesn't matter, components such as <Video> are
+	// not always frame perfect and give a flicker.
+	// We reduce the chance of flicker by rendering the frames in order.
+
+	await Promise.all(
+		extraFramesToCaptureAssetsFrontend.map((frame) => {
 			return renderFrameAndRetryTargetClose({
 				frame,
 				index: null,
@@ -613,7 +620,7 @@ const innerRenderFrames = async ({
 			});
 		}),
 	);
-	const mainFrames = Promise.all(
+	await Promise.all(
 		framesToRender.map((frame, index) => {
 			return renderFrameAndRetryTargetClose({
 				frame,
@@ -625,32 +632,39 @@ const innerRenderFrames = async ({
 		}),
 	);
 
-	const happyPath = Promise.all([extraFrames, mainFrames]).then(() => {
-		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
-		const returnValue: RenderFramesOutput = {
-			assetsInfo: {
-				assets: assets.sort((a, b) => {
-					return a.frame - b.frame;
-				}),
-				imageSequenceName: path.join(
-					frameDir,
-					`element-%0${filePadLength}d.${imageFormat}`,
-				),
-				firstFrameIndex,
-				downloadMap,
-				trimLeftOffset,
-				trimRightOffset,
-				chunkLengthInSeconds,
-				forSeamlessAacConcatenation,
-			},
-			frameCount: framesToRender.length,
-		};
-		return returnValue;
-	});
+	await Promise.all(
+		extraFramesToCaptureAssetsBackend.map((frame) => {
+			return renderFrameAndRetryTargetClose({
+				frame,
+				index: null,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assetsOnly: true,
+			});
+		}),
+	);
 
-	const result = await happyPath;
+	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
+
 	await Promise.all(downloadPromises);
-	return result;
+	return {
+		assetsInfo: {
+			assets: assets.sort((a, b) => {
+				return a.frame - b.frame;
+			}),
+			imageSequenceName: path.join(
+				frameDir,
+				`element-%0${filePadLength}d.${imageFormat}`,
+			),
+			firstFrameIndex,
+			downloadMap,
+			trimLeftOffset,
+			trimRightOffset,
+			chunkLengthInSeconds,
+			forSeamlessAacConcatenation,
+		},
+		frameCount: framesToRender.length,
+	};
 };
 
 type CleanupFn = () => Promise<unknown>;
