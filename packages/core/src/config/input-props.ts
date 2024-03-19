@@ -19,7 +19,9 @@ const warnOnceSSRImport = () => {
 	console.warn("  typeof window === 'undefined' ? {} : getInputProps()");
 };
 
-export const getInputProps = <T extends Record<string, any> = Record<string, unknown>>(): T => {
+export const getInputProps = <
+	T extends Record<string, unknown> = Record<string, unknown>,
+>(): T => {
 	if (typeof window === 'undefined') {
 		warnOnceSSRImport();
 		return {} as T;
