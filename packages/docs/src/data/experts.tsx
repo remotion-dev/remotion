@@ -478,7 +478,7 @@ export const experts: Expert[] = [
     description: (
       <div>
         I’ve been coding and building cool projects since 5th grade (software
-        and hardware both) across multiple technologies. Currently I’m building
+        and hardware both) across multiple technologies. Currently I’m building{" "}
         <a target={"_blank"} href="https://www.typeframes.com/">
           Typeframes
         </a>{" "}
