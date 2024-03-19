@@ -709,7 +709,7 @@ export const articles = [
   {
     id: "freeze",
     title: "<Freeze>",
-    relativePath: "docs/freeze.md",
+    relativePath: "docs/freeze.mdx",
     compId: "articles-docs-freeze",
     crumb: "API",
   },
