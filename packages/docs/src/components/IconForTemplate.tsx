@@ -134,7 +134,11 @@ export const IconForTemplate: React.FC<{
     return <OverlayIcon style={{ height: scale * 42 }} />;
   }
 
-  if (template.cliId === "next" || template.cliId === "next-pages-dir") {
+  if (
+    template.cliId === "next" ||
+    template.cliId === "next-tailwind" ||
+    template.cliId === "next-pages-dir"
+  ) {
     return <NextIcon style={{ height: scale * 36 }} />;
   }
 

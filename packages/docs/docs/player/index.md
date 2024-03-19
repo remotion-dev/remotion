@@ -13,6 +13,7 @@ Using the Remotion Player you can embed Remotion videos in any React app and cus
 The following templates include the Player and Lambda rendering and are a good starting point for building a video app:
 
 - [Next.js (App dir)](/templates/next)
+- [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
 - [Next.js (Pages dir)](/templates/next-pages-dir)
 - [Remix](/templates/remix)
 

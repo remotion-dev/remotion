@@ -133,6 +133,7 @@ export const getDevCommand = (manager: PackageManager, template: Template) => {
 	if (
 		template.cliId === 'remix' ||
 		template.cliId === 'next' ||
+		template.cliId === 'next-tailwind' ||
 		template.cliId === 'next-pages-dir'
 	) {
 		return `${getRunCommand(manager)} dev`;
