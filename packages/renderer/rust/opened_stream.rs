@@ -428,9 +428,10 @@ pub fn open_stream(
     {
         Some(stream) => stream,
         None => {
-            return Err(ErrorWithBacktrace::from(
-                "No video stream found in input file",
-            ));
+            return Err(ErrorWithBacktrace::from(format!(
+                "No video stream found in input file {}. Is this a video file?",
+                original_src
+            )));
         }
     };
 

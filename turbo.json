@@ -6,7 +6,7 @@
       "outputs": ["dist/**", ".rollup.cache"],
       "outputMode": "new-only"
     },
-    "example#build": {
+    "@remotion/example#build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".rollup.cache", "build"],
       "outputMode": "new-only"
