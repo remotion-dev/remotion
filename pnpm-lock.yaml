@@ -189,54 +189,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
-      '@remotion/gif':
-        specifier: workspace:*
-        version: link:../gif
-      '@remotion/google-fonts':
-        specifier: workspace:*
-        version: link:../google-fonts
-      '@remotion/layout-utils':
-        specifier: workspace:*
-        version: link:../layout-utils
-      '@remotion/lottie':
-        specifier: workspace:*
-        version: link:../lottie
-      '@remotion/media-utils':
-        specifier: workspace:*
-        version: link:../media-utils
-      '@remotion/motion-blur':
-        specifier: workspace:*
-        version: link:../motion-blur
-      '@remotion/noise':
-        specifier: workspace:*
-        version: link:../noise
-      '@remotion/paths':
-        specifier: workspace:*
-        version: link:../paths
-      '@remotion/player':
-        specifier: workspace:*
-        version: link:../player
-      '@remotion/preload':
-        specifier: workspace:*
-        version: link:../preload
-      '@remotion/rive':
-        specifier: workspace:*
-        version: link:../rive
-      '@remotion/shapes':
-        specifier: workspace:*
-        version: link:../shapes
-      '@remotion/skia':
-        specifier: workspace:*
-        version: link:../skia
-      '@remotion/three':
-        specifier: workspace:*
-        version: link:../three
-      '@remotion/transitions':
-        specifier: workspace:*
-        version: link:../transitions
-      '@remotion/zod-types':
-        specifier: workspace:*
-        version: link:../zod-types
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -932,9 +884,15 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/noise':
+        specifier: workspace:*
+        version: link:../noise
       '@remotion/paths':
         specifier: workspace:*
         version: link:../paths
+      '@remotion/preload':
+        specifier: workspace:*
+        version: link:../preload
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer

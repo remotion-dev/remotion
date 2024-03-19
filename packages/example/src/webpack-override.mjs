@@ -3,6 +3,29 @@ import path from 'node:path';
 
 const WEBPACK_OR_ESBUILD = 'esbuild';
 
+const resolveCwd = (p) => {
+	return require.resolve(p, {
+		paths: [path.join(process.cwd(), 'node_modules')],
+	});
+};
+
+const aliases = {
+	'@remotion/gif': resolveCwd('@remotion/gif'),
+	'@remotion/layout-utils': resolveCwd('@remotion/layout-utils'),
+	'@remotion/lottie': resolveCwd('@remotion/lottie'),
+	'@remotion/media-utils': resolveCwd('@remotion/media-utils'),
+	'@remotion/motion-blur': resolveCwd('@remotion/motion-blur'),
+	'@remotion/noise': resolveCwd('@remotion/noise'),
+	'@remotion/paths': resolveCwd('@remotion/paths'),
+	'@remotion/player': resolveCwd('@remotion/player'),
+	'@remotion/preload': resolveCwd('@remotion/preload'),
+	'@remotion/rive': resolveCwd('@remotion/rive'),
+	'@remotion/shapes': resolveCwd('@remotion/shapes'),
+	'@remotion/skia': resolveCwd('@remotion/skia'),
+	'@remotion/three': resolveCwd('@remotion/three'),
+	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
+};
+
 /**
  * @typedef {import('@remotion/bundler').WebpackOverrideFn} WebpackOverrideFn
  */
@@ -52,20 +75,7 @@ export const webpackOverride = (currentConfiguration) => {
 				// ES Modules need to be generated with `pnpm build` in every package
 				// So if you just make a change while you run `pnpm watch`, you don't see the difference
 				// which is confusing for contributors
-				'@remotion/gif': require.resolve('@remotion/gif'),
-				'@remotion/layout-utils': require.resolve('@remotion/layout-utils'),
-				'@remotion/lottie': require.resolve('@remotion/lottie'),
-				'@remotion/media-utils': require.resolve('@remotion/media-utils'),
-				'@remotion/motion-blur': require.resolve('@remotion/motion-blur'),
-				'@remotion/noise': require.resolve('@remotion/noise'),
-				'@remotion/paths': require.resolve('@remotion/paths'),
-				'@remotion/player': require.resolve('@remotion/player'),
-				'@remotion/preload': require.resolve('@remotion/preload'),
-				'@remotion/rive': require.resolve('@remotion/rive'),
-				'@remotion/shapes': require.resolve('@remotion/shapes'),
-				'@remotion/skia': require.resolve('@remotion/skia'),
-				'@remotion/three': require.resolve('@remotion/three'),
-				'@remotion/zod-types': require.resolve('@remotion/zod-types'),
+				...aliases,
 			},
 		},
 	});
