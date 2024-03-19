@@ -375,7 +375,11 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
-			throw new Error(`Could not find composition with ID ${compId}`);
+			throw new Error(
+				`Could not find composition with ID ${compId}. Available compositions: ${compositions
+					.map((c) => c.id)
+					.join(', ')}`,
+			);
 		}
 
 		const abortController = new AbortController();
