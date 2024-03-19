@@ -93,7 +93,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
-		shortName: 'Next.js (App dir/TailwindCSS)',
+		shortName: 'Next.js (App dir + TailwindCSS)',
 		org: 'remotion-dev',
 		repoName: 'template-next-app-dir-tailwind',
 		description: 'SaaS template for video generation apps',
