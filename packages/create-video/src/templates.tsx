@@ -30,6 +30,7 @@ export type Template = {
 		| 'javascript'
 		| 'blank'
 		| 'next'
+		| 'next-tailwind'
 		| 'next-pages-dir'
 		| 'remix'
 		| 'three'
@@ -89,6 +90,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
+	},
+	{
+		homePageLabel: 'Next.js (App dir + TailwindCSS)',
+		shortName: 'Next.js (App dir/TailwindCSS)',
+		org: 'remotion-dev',
+		repoName: 'template-next-app-dir-tailwind',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next-tailwind' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
