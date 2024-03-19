@@ -470,7 +470,7 @@ export const experts: Expert[] = [
     image: "/img/freelancers/ayush.png",
     website: "https://ayushsoni.com/",
     x: "ayysoni",
-    github: "remotion-dev",
+    github: null,
     linkedin: "in/ayushsoni1001/",
     email: "hi@ayushsoni.com",
     videocall: "remotion-expert-ayush-soni",
@@ -478,7 +478,7 @@ export const experts: Expert[] = [
     description: (
       <div>
         I’ve been coding and building cool projects since 5th grade (software
-        and hardware both) across multiple technologies. Currently I’m building
+        and hardware both) across multiple technologies. Currently I’m building{" "}
         <a target={"_blank"} href="https://www.typeframes.com/">
           Typeframes
         </a>{" "}
