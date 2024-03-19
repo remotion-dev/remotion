@@ -43,6 +43,7 @@
 		"@remotion/motion-blur": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
+		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",

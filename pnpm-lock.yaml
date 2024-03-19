@@ -890,6 +890,9 @@ importers:
       '@remotion/paths':
         specifier: workspace:*
         version: link:../paths
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
       '@remotion/preload':
         specifier: workspace:*
         version: link:../preload
