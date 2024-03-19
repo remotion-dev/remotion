@@ -48,6 +48,24 @@ export const webpackOverride = (currentConfiguration) => {
 				...replaced.resolve.alias,
 				// eslint-disable-next-line no-undef
 				lib: path.join(process.cwd(), 'src', 'lib'),
+
+				// ES Modules need to be generated with `pnpm build` in every package
+				// So if you just make a change while you run `pnpm watch`, you don't see the difference
+				// which is confusing for contributors
+				'@remotion/gif': require.resolve('@remotion/gif'),
+				'@remotion/layout-utils': require.resolve('@remotion/layout-utils'),
+				'@remotion/lottie': require.resolve('@remotion/lottie'),
+				'@remotion/media-utils': require.resolve('@remotion/media-utils'),
+				'@remotion/motion-blur': require.resolve('@remotion/motion-blur'),
+				'@remotion/noise': require.resolve('@remotion/noise'),
+				'@remotion/paths': require.resolve('@remotion/paths'),
+				'@remotion/player': require.resolve('@remotion/player'),
+				'@remotion/preload': require.resolve('@remotion/preload'),
+				'@remotion/rive': require.resolve('@remotion/rive'),
+				'@remotion/shapes': require.resolve('@remotion/shapes'),
+				'@remotion/skia': require.resolve('@remotion/skia'),
+				'@remotion/three': require.resolve('@remotion/three'),
+				'@remotion/zod-types': require.resolve('@remotion/zod-types'),
 			},
 		},
 	});
