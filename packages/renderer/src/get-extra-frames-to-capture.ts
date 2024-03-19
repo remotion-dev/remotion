@@ -5,7 +5,8 @@ import {getClosestAlignedTime} from './combine-audio';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 type ReturnType = {
-	extraFramesToCaptureAssets: number[];
+	extraFramesToCaptureAssetsFrontend: number[];
+	extraFramesToCaptureAssetsBackend: number[];
 	trimLeftOffset: number;
 	trimRightOffset: number;
 	chunkLengthInSeconds: number;
@@ -28,7 +29,8 @@ export const getExtraFramesToCapture = ({
 	// If the feature is disabled, don't capture extra frames.
 	if (!forSeamlessAacConcatenation) {
 		return {
-			extraFramesToCaptureAssets: [],
+			extraFramesToCaptureAssetsBackend: [],
+			extraFramesToCaptureAssetsFrontend: [],
 			chunkLengthInSeconds: (realFrameRange[1] - realFrameRange[0] + 1) / fps,
 			trimLeftOffset: 0,
 			trimRightOffset: 0,
@@ -89,10 +91,8 @@ export const getExtraFramesToCapture = ({
 	const chunkLengthInSeconds = aacAdjustedRightEnd - aacAdjustedLeftEnd;
 
 	return {
-		extraFramesToCaptureAssets: [
-			...extraFramesToCaptureAudioOnlyFrontend,
-			...extraFramesToCaptureAudioOnlyBackend,
-		],
+		extraFramesToCaptureAssetsFrontend: extraFramesToCaptureAudioOnlyFrontend,
+		extraFramesToCaptureAssetsBackend: extraFramesToCaptureAudioOnlyBackend,
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,

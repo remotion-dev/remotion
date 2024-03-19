@@ -59,7 +59,8 @@ test('Trim the end', () => {
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 	} = getExtraFramesToCapture({
 		compositionStart: 0,
 		forSeamlessAacConcatenation: true,
@@ -76,7 +77,13 @@ test('Trim the end', () => {
 	expect(
 		calculateFfmpegFilter({
 			fps: 30,
-			asset: expandAsset({extraFramesToCaptureAssets, base: baseAsset}),
+			asset: expandAsset({
+				extraFramesToCaptureAssets: [
+					...extraFramesToCaptureAssetsFrontend,
+					...extraFramesToCaptureAssetsBackend,
+				],
+				base: baseAsset,
+			}),
 			channels: 1,
 			assetDuration: 100,
 			chunkLengthInSeconds,
@@ -97,7 +104,8 @@ test('Should handle trim correctly', () => {
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 	} = getExtraFramesToCapture({
 		compositionStart: 0,
 		forSeamlessAacConcatenation: true,
@@ -116,7 +124,10 @@ test('Should handle trim correctly', () => {
 					...baseAsset,
 					trimLeft: 10,
 				},
-				extraFramesToCaptureAssets,
+				extraFramesToCaptureAssets: [
+					...extraFramesToCaptureAssetsFrontend,
+					...extraFramesToCaptureAssetsBackend,
+				],
 			}),
 			channels: 1,
 			assetDuration: 10,
@@ -170,7 +181,8 @@ test('Should handle delay correctly', () => {
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 	} = getExtraFramesToCapture({
 		compositionStart: 0,
 		forSeamlessAacConcatenation: true,
@@ -187,7 +199,10 @@ test('Should handle delay correctly', () => {
 					trimLeft: 10,
 					startInVideo: 80,
 				},
-				extraFramesToCaptureAssets,
+				extraFramesToCaptureAssets: [
+					...extraFramesToCaptureAssetsFrontend,
+					...extraFramesToCaptureAssetsBackend,
+				],
 			}),
 			channels: 1,
 			assetDuration: 1,
@@ -209,7 +224,8 @@ test('Should offset multiple channels', () => {
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 	} = getExtraFramesToCapture({
 		compositionStart: 0,
 		forSeamlessAacConcatenation: true,
@@ -226,7 +242,10 @@ test('Should offset multiple channels', () => {
 					trimLeft: 10,
 					startInVideo: 80,
 				},
-				extraFramesToCaptureAssets,
+				extraFramesToCaptureAssets: [
+					...extraFramesToCaptureAssetsFrontend,
+					...extraFramesToCaptureAssetsBackend,
+				],
 			}),
 			channels: 3,
 			assetDuration: 1,
@@ -252,7 +271,8 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 		chunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
-		extraFramesToCaptureAssets,
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
 	} = getExtraFramesToCapture({
 		compositionStart: 0,
 		forSeamlessAacConcatenation: false,
@@ -276,7 +296,10 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					allowAmplificationDuringRender: false,
 					toneFrequency: null,
 				},
-				extraFramesToCaptureAssets,
+				extraFramesToCaptureAssets: [
+					...extraFramesToCaptureAssetsFrontend,
+					...extraFramesToCaptureAssetsBackend,
+				],
 			}),
 			channels: 1,
 			assetDuration: 33.333333,
