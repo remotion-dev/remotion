@@ -6,6 +6,11 @@
       "outputs": ["dist/**", ".rollup.cache"],
       "outputMode": "new-only"
     },
+    "example#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".rollup.cache", "build"],
+      "outputMode": "new-only"
+    },
     "build-docs": {
       "dependsOn": ["^build", "build"],
       "outputs": [
