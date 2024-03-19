@@ -19,10 +19,10 @@ const warnOnceSSRImport = () => {
 	console.warn("  typeof window === 'undefined' ? {} : getInputProps()");
 };
 
-export const getInputProps = () => {
+export const getInputProps = <T extends Record<string, any> = Record<string, unknown>>(): T => {
 	if (typeof window === 'undefined') {
 		warnOnceSSRImport();
-		return {};
+		return {} as T;
 	}
 
 	if (getRemotionEnvironment().isPlayer) {
@@ -33,9 +33,9 @@ export const getInputProps = () => {
 
 	const param = window.remotion_inputProps;
 	if (!param) {
-		return {};
+		return {} as T;
 	}
 
-	const parsed = deserializeJSONWithCustomFields(param);
+	const parsed = deserializeJSONWithCustomFields<T>(param);
 	return parsed;
 };
