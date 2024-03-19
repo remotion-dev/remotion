@@ -133,6 +133,7 @@ What should happen if the input value is outside left the input range:
 
 - `extend`: Interpolate nonetheless, even if outside output range.
 - `clamp`: Return the closest value inside the range instead
+- `wrap`: Loops the value change.
 - `identity`: Return the input value instead.
 
 #### extrapolateRight
@@ -149,6 +150,7 @@ import { interpolate } from "remotion";
 interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "extend" }); // 3
 interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "clamp" }); // 2
 interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "identity" }); // 1.5
+interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "wrap" }); // 1
 ```
 
 #### easing

@@ -1,6 +1,6 @@
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
 
-export type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 
 /**
  * @description This function allows you to map a range of values to another with a conside syntax
@@ -34,8 +34,11 @@ function interpolateFunction(
 
 		if (extrapolateLeft === 'clamp') {
 			result = inputMin;
+		} else if (extrapolateLeft === 'wrap') {
+			const range = inputMax - inputMin;
+			result = ((((result - inputMin) % range) + range) % range) + inputMin;
 		} else if (extrapolateLeft === 'extend') {
-			// noop
+			// Noop
 		}
 	}
 
@@ -46,8 +49,11 @@ function interpolateFunction(
 
 		if (extrapolateRight === 'clamp') {
 			result = inputMax;
+		} else if (extrapolateRight === 'wrap') {
+			const range = inputMax - inputMin;
+			result = ((((result - inputMin) % range) + range) % range) + inputMin;
 		} else if (extrapolateRight === 'extend') {
-			// noop
+			// Noop
 		}
 	}
 
