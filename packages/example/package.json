@@ -11,7 +11,7 @@
 	],
 	"scripts": {
 		"formatting": "prettier src --check",
-		"start": "remotion studio --props src/my-props.json",
+		"start": "USE_COMMON_JS_PKGS=true remotion studio --props src/my-props.json",
 		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",

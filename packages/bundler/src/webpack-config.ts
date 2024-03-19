@@ -79,6 +79,27 @@ export const webpackConfig = async ({
 			bufferStateDelayInMilliseconds,
 	});
 
+	// ES Modules need to be generated with `pnpm build` in every package
+	// So if you just make a change while you run `pnpm watch`
+	const extraAliases = process.env.USE_COMMON_JS_PKGS
+		? {
+				'@remotion/gif': require.resolve('@remotion/gif'),
+				'@remotion/layout-utils': require.resolve('@remotion/layout-utils'),
+				'@remotion/lottie': require.resolve('@remotion/lottie'),
+				'@remotion/media-utils': require.resolve('@remotion/media-utils'),
+				'@remotion/motion-blur': require.resolve('@remotion/motion-blur'),
+				'@remotion/noise': require.resolve('@remotion/noise'),
+				'@remotion/paths': require.resolve('@remotion/paths'),
+				'@remotion/player': require.resolve('@remotion/player'),
+				'@remotion/preload': require.resolve('@remotion/preload'),
+				'@remotion/rive': require.resolve('@remotion/rive'),
+				'@remotion/shapes': require.resolve('@remotion/shapes'),
+				'@remotion/skia': require.resolve('@remotion/skia'),
+				'@remotion/three': require.resolve('@remotion/three'),
+				'@remotion/zod-types': require.resolve('@remotion/zod-types'),
+			}
+		: null;
+
 	const conf: WebpackConfiguration = await webpackOverride({
 		optimization: {
 			minimize: false,
@@ -153,6 +174,7 @@ export const webpackConfig = async ({
 				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
 				'remotion/no-react': require.resolve('remotion/no-react'),
 				remotion: require.resolve('remotion'),
+				...extraAliases,
 			},
 		},
 		module: {
