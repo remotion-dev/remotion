@@ -140,6 +140,6 @@ Notes:
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/layout-utils/src/layouts/fit-text.md)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/layout-utils/src/layouts/fit-text.ts)
 - [`@remotion/layout-utils`](/docs/layout-utils)
 - [`@remotion/google-fonts`](/docs/google-fonts)
