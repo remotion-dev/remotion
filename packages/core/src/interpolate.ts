@@ -35,7 +35,7 @@ function interpolateFunction(
 		if (extrapolateLeft === 'clamp') {
 			result = inputMin;
 		} else if (extrapolateLeft === 'wrap') {
-			const range = inputMax - inputMin + 1;
+			const range = inputMax - inputMin;
 			result = ((((result - inputMin) % range) + range) % range) + inputMin;
 		} else if (extrapolateLeft === 'extend') {
 			// Noop
@@ -50,7 +50,7 @@ function interpolateFunction(
 		if (extrapolateRight === 'clamp') {
 			result = inputMax;
 		} else if (extrapolateRight === 'wrap') {
-			const range = inputMax - inputMin + 1;
+			const range = inputMax - inputMin;
 			result = ((((result - inputMin) % range) + range) % range) + inputMin;
 		} else if (extrapolateRight === 'extend') {
 			// Noop

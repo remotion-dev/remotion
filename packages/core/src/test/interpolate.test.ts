@@ -211,4 +211,5 @@ test('Handle bad types', () => {
 
 test('wrap option', () => {
 	expect(interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'})).toBe(1);
+	expect(interpolate(-0.5, [0, 1], [0, 2], {extrapolateLeft: 'wrap'})).toBe(1);
 });
