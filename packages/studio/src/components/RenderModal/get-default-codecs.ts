@@ -21,6 +21,18 @@ export const getDefaultCodecs = ({
 } => {
 	const userPreferredVideoCodec =
 		compositionDefaultVideoCodec ?? defaultConfigurationVideoCodec ?? 'h264';
+	const userPreferredVideoCodecForAudioTab: Codec =
+		userPreferredVideoCodec === 'aac'
+			? 'aac'
+			: userPreferredVideoCodec === 'mp3'
+				? 'mp3'
+				: userPreferredVideoCodec === 'wav'
+					? 'wav'
+					: defaultConfigurationAudioCodec === 'pcm-16'
+						? 'wav'
+						: defaultConfigurationAudioCodec === 'mp3'
+							? 'mp3'
+							: 'aac';
 
 	const isVideoCodecAnAudioCodec = BrowserSafeApis.isAudioCodec(
 		userPreferredVideoCodec,
@@ -31,7 +43,7 @@ export const getDefaultCodecs = ({
 			initialAudioCodec: userPreferredVideoCodec as AudioCodec,
 			initialRenderType: 'audio',
 			initialVideoCodec: userPreferredVideoCodec as Codec,
-			initialVideoCodecForAudioTab: userPreferredVideoCodec,
+			initialVideoCodecForAudioTab: userPreferredVideoCodecForAudioTab,
 			initialVideoCodecForVideoTab: BrowserSafeApis.isAudioCodec(
 				defaultConfigurationVideoCodec,
 			)
@@ -49,7 +61,7 @@ export const getDefaultCodecs = ({
 			defaultConfigurationAudioCodec ?? suitableAudioCodecForVideoCodec,
 		initialVideoCodec: userPreferredVideoCodec,
 		initialRenderType: renderType,
-		initialVideoCodecForAudioTab: userPreferredVideoCodec,
+		initialVideoCodecForAudioTab: userPreferredVideoCodecForAudioTab,
 		initialVideoCodecForVideoTab: userPreferredVideoCodec,
 	};
 };
