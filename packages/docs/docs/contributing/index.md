@@ -62,16 +62,6 @@ pnpm watch
 
 <Step>6</Step> You can start making changes!
 
-## Note about browser packages
-
-Some packages need `pnpm build` in order for their changes to apply.
-
-Packages that are imported in the browser, like `remotion`, `@remotion/player`, `@remotion/gif` have ESM versions. In the Remotion Studio and Next.js, ES Modules are preferred, and they need to build separately. If you don't see changes applied, run:
-
-```sh
-cd packages/core && pnpm build
-```
-
 ## Testing your changes
 
 You can start the Testbed using

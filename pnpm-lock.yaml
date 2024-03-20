@@ -884,9 +884,18 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/noise':
+        specifier: workspace:*
+        version: link:../noise
       '@remotion/paths':
         specifier: workspace:*
         version: link:../paths
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
+      '@remotion/preload':
+        specifier: workspace:*
+        version: link:../preload
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
