@@ -1,6 +1,6 @@
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
-import type {AssetVolume} from './assets/types';
+import type {AssetVolume, MediaAsset} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
@@ -27,30 +27,42 @@ const stringifyTrim = (trim: number) => {
 
 const trimAndSetTempo = ({
 	playbackRate,
-	trimLeft,
-	trimRight,
 	forSeamlessAacConcatenation,
 	assetDuration,
+	asset,
+	trimLeftOffset,
+	trimRightOffset,
+	fps,
 }: {
 	playbackRate: number;
-	trimLeft: number;
-	trimRight: number;
 	forSeamlessAacConcatenation: boolean;
 	assetDuration: number | null;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	asset: MediaAsset;
+	fps: number;
 }): {
-	filter: (string | null)[];
 	actualTrimLeft: number;
+	filter: (string | null)[];
 	audibleDuration: number;
 } => {
-	const trimRightOrAssetDuration = assetDuration
-		? Math.min(trimRight, assetDuration)
-		: trimRight;
-
 	// If we need seamless AAC stitching, we need to apply the tempo filter first
 	// because the atempo filter is not frame-perfect. It creates a small offset
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
+		const trimLeft =
+			(asset.trimLeft * asset.playbackRate) / fps +
+			trimLeftOffset * asset.playbackRate;
+		const trimRight =
+			trimLeft +
+			(asset.duration * asset.playbackRate) / fps +
+			trimRightOffset * asset.playbackRate;
+
+		const trimRightOrAssetDuration = assetDuration
+			? Math.min(trimRight, assetDuration * asset.playbackRate)
+			: trimRight;
+
 		const actualTrimLeft = trimLeft / playbackRate;
 		const actualTrimRight = trimRightOrAssetDuration / playbackRate;
 
@@ -69,6 +81,14 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
+		const trimLeft = asset.trimLeft / fps + trimLeftOffset * asset.playbackRate;
+		const trimRight =
+			trimLeft + asset.duration / fps + trimRightOffset * asset.playbackRate;
+
+		const trimRightOrAssetDuration = assetDuration
+			? Math.min(trimRight, assetDuration)
+			: trimRight;
+
 		return {
 			filter: [
 				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(
@@ -85,8 +105,6 @@ const trimAndSetTempo = ({
 };
 
 export const stringifyFfmpegFilter = ({
-	trimLeft,
-	trimRight,
 	channels,
 	startInVideo,
 	volume,
@@ -97,9 +115,10 @@ export const stringifyFfmpegFilter = ({
 	toneFrequency,
 	chunkLengthInSeconds,
 	forSeamlessAacConcatenation,
+	trimLeftOffset,
+	trimRightOffset,
+	asset,
 }: {
-	trimLeft: number;
-	trimRight: number;
 	channels: number;
 	startInVideo: number;
 	volume: AssetVolume;
@@ -110,10 +129,17 @@ export const stringifyFfmpegFilter = ({
 	toneFrequency: number | null;
 	chunkLengthInSeconds: number;
 	forSeamlessAacConcatenation: boolean;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	asset: MediaAsset;
 }): FilterWithoutPaddingApplied | null => {
+	if (channels === 0) {
+		return null;
+	}
+
 	const startInVideoSeconds = startInVideo / fps;
 
-	if (assetDuration && trimLeft >= assetDuration) {
+	if (assetDuration && asset.trimLeft / fps >= assetDuration) {
 		return null;
 	}
 
@@ -131,8 +157,10 @@ export const stringifyFfmpegFilter = ({
 		playbackRate,
 		forSeamlessAacConcatenation,
 		assetDuration,
-		trimLeft,
-		trimRight,
+		trimLeftOffset,
+		trimRightOffset,
+		asset,
+		fps,
 	});
 
 	const volumeFilter = ffmpegVolumeExpression({
