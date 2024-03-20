@@ -50,6 +50,59 @@ Connect your repository to Netlify.
 - **Publish directory**: `build`
 - **Functions directory**: _Leave default_
 
+## Deploy to GitHub pages using GitHub actions
+
+<Step>1</Step> Commit your repository to GitHub
+
+<Step>2</Step> Add the following code to `.github/workflows/deploy-studio.yml`
+
+```yaml twoslash title=".github/workflows/deploy-studio.yml"
+
+name: Deploy Remotion studio
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+permissions:
+  contents: write
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout & setup
+        uses: actions/checkout@main
+        
+      - uses: oven-sh/setup-bun@v1
+      - run: sudo apt update
+      
+      - name: install packages
+        run: bun i
+
+      - name: Bundle studio
+        run: bunx remotion bundle --public-path="./"
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+```
+
+The above code will deploy the bundled remotion studio to a branch `gh-pages`
+
+:::note
+Using bunx as a script runner is slightly faster than using `npx`.
+:::
+
+:::note
+The --public-path flag for `npx remotion bundle` is available only from remotion version `4.0.127`
+:::
+
+<Step>3</Step> Go to `github.com/username/repo/settings/pages`
+
+<Step>4</Step> In the Branch section, select the `gh-pages` branch and click save
+
 ## Rendering from a URL
 
 The deployed URL is a [Serve URL](/docs/terminology/serve-url) can also be used to render a video:
