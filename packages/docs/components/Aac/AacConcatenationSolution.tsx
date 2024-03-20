@@ -48,7 +48,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -61,7 +61,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -74,7 +74,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -87,7 +87,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -100,7 +100,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -113,7 +113,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -126,7 +126,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -139,7 +139,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -152,7 +152,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -165,7 +165,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -178,7 +178,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -191,7 +191,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -204,7 +204,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -232,7 +232,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -245,7 +245,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -258,7 +258,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -271,7 +271,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -284,7 +284,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -297,7 +297,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -310,7 +310,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -323,7 +323,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -336,7 +336,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -349,7 +349,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -362,7 +362,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -375,7 +375,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -388,7 +388,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -489,7 +489,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -502,7 +502,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -515,7 +515,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -528,7 +528,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -541,7 +541,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -554,7 +554,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -567,7 +567,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -580,7 +580,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -593,7 +593,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -606,7 +606,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -619,7 +619,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -632,7 +632,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"
@@ -645,7 +645,7 @@ export const AacConcatenationSolution = () => {
         fill="#A6A6A6"
         xmlSpace="preserve"
         style={{ whiteSpace: "pre" }}
-        fontFamily="GT Planar"
+        fontFamily="GTPlanar"
         fontSize="4"
         fontWeight="500"
         letterSpacing="0em"

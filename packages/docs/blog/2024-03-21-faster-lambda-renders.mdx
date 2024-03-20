@@ -13,20 +13,25 @@ import { AacPadding } from "../components/Aac/AacPadding";
 import { AacConcatenationProblem } from "../components/Aac/AacConcatenationProblem";
 import { AacKeyframes } from "../components/Aac/AacKeyframes";
 import { AacConcatenationSolution } from "../components/Aac/AacConcatenationSolution";
+import { AacBenchmarks } from "../components/Aac/Benchmarks";
 
-With Remotion v4.0.127, [Remotion Lambda](/lambda) renders now finish significantly faster!
+With Remotion v4.0.129, [Remotion Lambda](/lambda) renders now complete significantly faster!  
+The longer the video, the higher the speedup.
 
-- 1 minute video: 15 seconds faster
-- 10 minute video: 2 minutes faster
-- 40 minute Video: 8 minutes faster
-
-TODO: Quantify the speedup
+<AacBenchmarks />
+<sub style={{ opacity: 0.5, lineHeight: 0.7 }}>
+  Rendering a 1920x1080px video with an <code>&lt;OffthreadVideo&gt;</code> tag
+  loading a 15MB Full HD video and looping it. The Lambda function has been
+  given 3000MB of memory.
+</sub>
+<br />
+<br />
 
 Thanks to an innovative audio concatenation strategy that we implemented with help from [Max Schnur](https://github.com/maxpower15) from [Wistia](https://wistia.com/), we can skip an audio re-encoding step at the end.
 
 ## Audio is the slow part
 
-Remotion Lambda renders chunks of a video in parallel and concatenates them at the end.  
+Remotion Lambda renders portions of a video in parallel and concatenates them at the end.  
 The slow part is actually not the video, but the audio rendering!
 
 While other codecs are possible, a `.mp4` file usually contains AAC audio.
@@ -109,5 +114,5 @@ If all of these factors are accounted for, concatenating AAC chunks will be comp
 <br />
 <br />
 
-Upgrade to Remotion 4.0.127 or later to benefit from the faster rendering on Lambda.  
+Upgrade to Remotion 4.0.129 or later to benefit from the faster rendering on Lambda.  
 We look forward to engineer even more performance improvements in the future for lower costs and better user experience!
