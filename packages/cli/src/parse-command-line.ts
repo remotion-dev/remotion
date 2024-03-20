@@ -30,6 +30,7 @@ const {
 	audioBitrateOption,
 	videoBitrateOption,
 	audioCodecOption,
+	publicPathOption,
 } = BrowserSafeApis.options;
 
 type CommandLineOptions = {
@@ -63,6 +64,7 @@ type CommandLineOptions = {
 	>;
 	[encodingMaxRateOption.cliFlag]: TypeOfOption<typeof encodingMaxRateOption>;
 	[audioCodecOption.cliFlag]: AudioCodec;
+	[publicPathOption.cliFlag]: string;
 	crf: number;
 	force: boolean;
 	output: string;
@@ -96,6 +98,7 @@ type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
+	ipv4: boolean;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
@@ -127,6 +130,7 @@ export const BooleanFlags = [
 	'disable-keyboard-shortcuts',
 	'default-only',
 	'no-open',
+	'ipv4',
 	beepOnFinishOption.cliFlag,
 	'repro',
 ];
@@ -141,10 +145,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 };
 
 export const parseCommandLine = () => {
-	if (parsedCli.repro) {
-		Config.setRepro(true);
-	}
-
 	if (parsedCli['pixel-format']) {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -227,24 +227,8 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli['public-dir'] !== 'undefined') {
-		Config.setPublicDir(parsedCli['public-dir']);
-	}
-
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
 		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
-	}
-
-	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
-		Config.setAudioBitrate(parsedCli['audio-bitrate']);
-	}
-
-	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
-		Config.setVideoBitrate(parsedCli['video-bitrate']);
-	}
-
-	if (typeof parsedCli['buffer-size'] !== 'undefined') {
-		Config.setEncodingBufferSize(parsedCli['buffer-size']);
 	}
 };
 

@@ -1,11 +1,11 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions} from './get-cli-options';
 import {getGitSource} from './get-github-repository';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -13,12 +13,19 @@ import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
 
+const {publicPathOption, publicDirOption} = BrowserSafeApis.options;
+
 export const bundleCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	const explicitlyPassed = args[0];
 	if (
 		explicitlyPassed &&
@@ -50,10 +57,8 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const {publicDir} = getCliOptions({
-		isStill: false,
-		logLevel,
-	});
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const outputPath = parsedCli['out-dir']
 		? path.resolve(process.cwd(), parsedCli['out-dir'])
@@ -122,6 +127,7 @@ export const bundleCommand = async (
 		gitSource,
 		bufferStateDelayInMilliseconds: null,
 		maxTimelineTracks: null,
+		publicPath,
 	});
 
 	Log.info(

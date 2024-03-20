@@ -277,6 +277,20 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: License',
 					},
+					{
+						id: 'acknowledgements',
+						value: 'acknowledgements',
+						label: 'Acknowledgements',
+						onClick: () => {
+							closeMenu();
+							openExternal('https://remotion.dev/acknowledgements');
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Help: Acknowledgements',
+					},
 				],
 				quickSwitcherLabel: null,
 			},

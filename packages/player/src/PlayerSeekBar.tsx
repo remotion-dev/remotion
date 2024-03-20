@@ -58,7 +58,7 @@ export const PlayerSeekBar: React.FC<{
 	outFrame: number | null;
 }> = ({durationInFrames, onSeekEnd, onSeekStart, inFrame, outFrame}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const barHovered = useHoverState(containerRef);
+	const barHovered = useHoverState(containerRef, false);
 	const size = useElementSize(containerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,

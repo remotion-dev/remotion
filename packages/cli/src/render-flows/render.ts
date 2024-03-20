@@ -103,6 +103,7 @@ export const renderVideoFlow = async ({
 	binariesDirectory,
 	forSeamlessAacConcatenation,
 	separateAudioTo,
+	publicPath,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -155,6 +156,7 @@ export const renderVideoFlow = async ({
 	binariesDirectory: string | null;
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
+	publicPath: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -248,6 +250,7 @@ export const renderVideoFlow = async ({
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		},
 	);
 
@@ -275,6 +278,7 @@ export const renderVideoFlow = async ({
 		webpackConfigOrServeUrl: urlOrBundle,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		forceIPv4: false,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -442,6 +446,8 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
+			compositionStart: 0,
+			forSeamlessAacConcatenation,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -530,6 +536,7 @@ export const renderVideoFlow = async ({
 		binariesDirectory,
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
+		compositionStart: 0,
 	});
 
 	Log.info(

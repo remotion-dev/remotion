@@ -18,6 +18,8 @@ const {
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -25,7 +27,12 @@ export const listCompositionsCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: true,
+	});
 
 	if (!file) {
 		Log.error(
@@ -55,7 +62,6 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		envVariables,
 		inputProps,
-		publicDir,
 		ignoreCertificateErrors,
 		userAgent,
 		disableWebSecurity,
@@ -74,6 +80,21 @@ export const listCompositionsCommand = async (
 		ignoreCertificateErrors,
 		userAgent,
 	};
+
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -95,6 +116,7 @@ export const listCompositionsCommand = async (
 			gitSource: null,
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
+			publicPath,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -110,22 +132,15 @@ export const listCompositionsCommand = async (
 				staticBase: null,
 				indent: undefined,
 			}).serializedString,
-		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		timeoutInMilliseconds,
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
-		offthreadVideoCacheSizeInBytes:
-			offthreadVideoCacheSizeInBytesOption.getValue({
-				commandLine: parsedCli,
-			}).value,
-		binariesDirectory: binariesDirectoryOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
 	});
 
 	printCompositions(compositions, logLevel);

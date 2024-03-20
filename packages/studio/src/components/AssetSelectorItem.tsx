@@ -9,11 +9,13 @@ import {
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {pushUrl} from '../helpers/url-state';
 import useAssetDragEvents from '../helpers/use-asset-drag-events';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
+import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
@@ -232,7 +234,9 @@ const AssetSelectorItem: React.FC<{
 	level: number;
 	parentFolder: string;
 }> = ({item, tabIndex, level, parentFolder}) => {
+	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -261,6 +265,9 @@ const AssetSelectorItem: React.FC<{
 			: item.name;
 		setCanvasContent({type: 'asset', asset: relativePath});
 		pushUrl(`/assets/${relativePath}`);
+		if (isMobileLayout) {
+			setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+		}
 	}, [item.name, parentFolder, setCanvasContent]);
 
 	const style: React.CSSProperties = useMemo(() => {

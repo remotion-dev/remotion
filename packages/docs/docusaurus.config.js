@@ -144,6 +144,10 @@ const config = (mode) => ({
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
             },
+            {
+              label: "Remotion Pro",
+              href: "https://remotion.pro",
+            },
           ],
         },
         {
@@ -210,12 +214,12 @@ const config = (mode) => ({
               to: "/docs/support",
             },
             {
-              label: "License",
-              href: "https://remotion.dev/license",
+              label: "Acknowledgements",
+              href: "https://remotion.dev/acknowledgements",
             },
             {
-              label: "Remotion Pro",
-              href: "https://remotion.pro",
+              label: "License",
+              href: "https://remotion.dev/license",
             },
             {
               label: "Brand",
@@ -233,6 +237,9 @@ const config = (mode) => ({
     [
       "@docusaurus/preset-classic",
       {
+        gtag: {
+          trackingID: "G-Z6B254S5Q4",
+        },
         docs: {
           path: mode === "complete" ? "docs" : "new-docs",
           sidebarPath:

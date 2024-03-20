@@ -388,6 +388,7 @@ export type LambdaPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
+		compositionStart: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -436,6 +437,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		framesPerLambda: number;
 		preferLossless: boolean;
+		compositionStart: number;
 	};
 };
 

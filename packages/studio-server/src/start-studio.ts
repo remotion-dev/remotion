@@ -67,7 +67,7 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	userPassedPublicDir,
+	relativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -79,6 +79,7 @@ export const startStudio = async ({
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
+	forceIPv4,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -92,7 +93,7 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	userPassedPublicDir: string | null;
+	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -103,10 +104,11 @@ export const startStudio = async ({
 	previewEntry: string;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
+	forceIPv4: boolean;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
-		userPassedPublicDir,
+		relativePublicDir,
 		remotionRoot,
 	});
 	const hash = crypto.randomBytes(6).toString('hex');
@@ -150,7 +152,6 @@ export const startStudio = async ({
 		publicDir,
 		webpackOverride,
 		poll,
-		userPassedPublicDir,
 		staticHash,
 		staticHashPrefix,
 		outputHash,
@@ -163,6 +164,7 @@ export const startStudio = async ({
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
+		forceIPv4,
 	});
 
 	setLiveEventsListener(liveEventsServer);

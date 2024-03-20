@@ -1,4 +1,5 @@
 import React, {createContext, useMemo, useState} from 'react';
+import {useMobileLayout} from '../helpers/mobile-layout';
 
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 type RightSidebarCollapsedState = Exclude<SidebarCollapsedState, 'responsive'>;
@@ -22,8 +23,14 @@ const storageKey = (sidebar: Sidebars) => {
 	return 'remotion.sidebarCollapsing';
 };
 
-const getSavedCollapsedStateLeft = (): SidebarCollapsedState => {
+const getSavedCollapsedStateLeft = (
+	isMobileLayout = false,
+): SidebarCollapsedState => {
 	const state = window.localStorage.getItem(storageKey('left'));
+	if (isMobileLayout) {
+		return 'collapsed';
+	}
+
 	if (state === 'collapsed') {
 		return 'collapsed';
 	}
@@ -35,8 +42,15 @@ const getSavedCollapsedStateLeft = (): SidebarCollapsedState => {
 	return 'responsive';
 };
 
-const getSavedCollapsedStateRight = (): RightSidebarCollapsedState => {
+const getSavedCollapsedStateRight = (
+	isMobileLayout = false,
+): RightSidebarCollapsedState => {
 	const state = window.localStorage.getItem(storageKey('right'));
+
+	if (isMobileLayout) {
+		return 'collapsed';
+	}
+
 	if (state === 'expanded') {
 		return 'expanded';
 	}
@@ -64,10 +78,11 @@ type SidebarState = {
 export const SidebarContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
+	const isMobileLayout = useMobileLayout();
 	const [sidebarCollapsedState, setSidebarCollapsedState] =
 		useState<SidebarState>(() => ({
-			left: getSavedCollapsedStateLeft(),
-			right: getSavedCollapsedStateRight(),
+			left: getSavedCollapsedStateLeft(isMobileLayout),
+			right: getSavedCollapsedStateRight(isMobileLayout),
 		}));
 
 	const value: Context = useMemo(() => {

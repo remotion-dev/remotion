@@ -39,7 +39,7 @@ type ThumbnailProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <
+const ThumbnailFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >(

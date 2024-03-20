@@ -350,6 +350,7 @@ const internalRenderStillRaw = (
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 				binariesDirectory: options.binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: options.onDownload,

@@ -20,7 +20,7 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderMediaOnCloudrun({
   region: "us-east1",
@@ -30,11 +30,16 @@ const result = await renderMediaOnCloudrun({
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
   codec: "h264",
 });
+
 if (result.type === "success") {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Arguments
 

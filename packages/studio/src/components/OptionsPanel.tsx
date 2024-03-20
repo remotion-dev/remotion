@@ -10,19 +10,12 @@ import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-
-const container: React.CSSProperties = {
-	height: '100%',
-	width: '100%',
-	position: 'absolute',
-	display: 'flex',
-	flexDirection: 'column',
-};
 
 const circle: React.CSSProperties = {
 	width: 8,
@@ -66,6 +59,21 @@ export const OptionsPanel: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 	const [saving, setSaving] = useState(false);
+
+	const isMobileLayout = useMobileLayout();
+
+	const container: React.CSSProperties = useMemo(
+		() => ({
+			height: '100%',
+			width: '100%',
+			display: 'flex',
+			position: isMobileLayout ? 'relative' : 'absolute',
+			flexDirection: 'column',
+			flex: 1,
+		}),
+		[isMobileLayout],
+	);
+
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
 		getSelectedPanel(readOnlyStudio),
 	);

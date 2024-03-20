@@ -501,6 +501,7 @@ module.exports = {
       items: [
         "install-whisper-cpp/install-whisper-cpp",
         "install-whisper-cpp/download-whisper-model",
+        "install-whisper-cpp/transcribe",
       ],
     },
   ],
@@ -877,5 +878,6 @@ module.exports = {
       ],
     },
     "license",
+    "acknowledgements",
   ],
 };

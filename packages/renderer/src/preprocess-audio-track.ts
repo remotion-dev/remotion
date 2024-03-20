@@ -16,13 +16,15 @@ import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 type Options = {
 	outName: string;
 	asset: MediaAsset;
-	expectedFrames: number;
 	fps: number;
 	downloadMap: DownloadMap;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	chunkLengthInSeconds: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
 	forSeamlessAacConcatenation: boolean;
 	onProgress: (progress: number) => void;
 };
@@ -35,15 +37,17 @@ export type PreprocessedAudioTrack = {
 const preprocessAudioTrackUnlimited = async ({
 	outName,
 	asset,
-	expectedFrames,
 	fps,
 	downloadMap,
 	indent,
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
-	forSeamlessAacConcatenation,
 	onProgress,
+	chunkLengthInSeconds,
+	trimLeftOffset,
+	trimRightOffset,
+	forSeamlessAacConcatenation,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -56,10 +60,12 @@ const preprocessAudioTrackUnlimited = async ({
 
 	const filter = calculateFfmpegFilter({
 		asset,
-		durationInFrames: expectedFrames,
 		fps,
 		channels,
 		assetDuration: duration,
+		chunkLengthInSeconds,
+		trimLeftOffset,
+		trimRightOffset,
 		forSeamlessAacConcatenation,
 	});
 
@@ -70,6 +76,7 @@ const preprocessAudioTrackUnlimited = async ({
 	const {cleanup, file} = await makeFfmpegFilterFile(filter, downloadMap);
 
 	const args = [
+		['-hide_banner'],
 		['-i', resolveAssetSrc(asset.src)],
 		['-ac', '2'],
 		['-filter_script:a', file],
@@ -99,10 +106,8 @@ const preprocessAudioTrackUnlimited = async ({
 	task.stderr?.on('data', (data: Buffer) => {
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, utf8);
-		} else {
-			onProgress(parsed / expectedFrames);
+		if (parsed !== undefined) {
+			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
 

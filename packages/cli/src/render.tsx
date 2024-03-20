@@ -35,6 +35,8 @@ const {
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
 	audioCodecOption,
+	publicPathOption,
+	publicDirOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -46,7 +48,7 @@ export const render = async (
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint(args, remotionRoot, logLevel);
+	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
 
 	if (!file) {
 		Log.error(
@@ -85,7 +87,6 @@ export const render = async (
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
-		publicDir,
 		height,
 		width,
 		ffmpegOverride,
@@ -160,6 +161,7 @@ export const render = async (
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -171,6 +173,7 @@ export const render = async (
 	};
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -231,5 +234,6 @@ export const render = async (
 		binariesDirectory,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
+		publicPath,
 	});
 };

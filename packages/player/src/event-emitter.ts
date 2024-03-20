@@ -56,6 +56,8 @@ type PlayerStateEventMap = {
 
 type ThumbnailStateEventMap = {
 	error: ErrorPayload;
+	waiting: WaitingEventPayload;
+	resume: ResumeEventPayload;
 };
 
 export type PlayerEventTypes = keyof PlayerStateEventMap;
@@ -188,6 +190,8 @@ export class PlayerEmitter {
 export class ThumbnailEmitter {
 	listeners: ThumbnailListeners = {
 		error: [],
+		waiting: [],
+		resume: [],
 	};
 
 	addEventListener<Q extends ThumbnailEventTypes>(
@@ -203,7 +207,7 @@ export class ThumbnailEmitter {
 	) {
 		this.listeners[name] = (
 			this.listeners[name] as CallbackListener<ThumbnailEventTypes>[]
-		).filter((l) => l !== callback);
+		).filter((l) => l !== callback) as ThumbnailListeners[Q];
 	}
 
 	private dispatchEvent<T extends ThumbnailEventTypes>(
@@ -221,5 +225,13 @@ export class ThumbnailEmitter {
 		this.dispatchEvent('error', {
 			error,
 		});
+	}
+
+	dispatchWaiting(event: WaitingEventPayload) {
+		this.dispatchEvent('waiting', event);
+	}
+
+	dispatchResume(event: ResumeEventPayload) {
+		this.dispatchEvent('resume', event);
 	}
 }

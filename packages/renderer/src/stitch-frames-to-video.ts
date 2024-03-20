@@ -134,7 +134,6 @@ const innerStitchFramesToVideo = async (
 		colorSpace,
 		binariesDirectory,
 		separateAudioTo,
-		forSeamlessAacConcatenation,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -246,8 +245,6 @@ const innerStitchFramesToVideo = async (
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const expectedFrames = assetsInfo.assets.length;
-
 	const updateProgress = (muxProgress: number) => {
 		onProgress?.(muxProgress);
 	};
@@ -258,7 +255,7 @@ const innerStitchFramesToVideo = async (
 					assets: assetsInfo.assets,
 					onDownload,
 					fps,
-					expectedFrames,
+					chunkLengthInSeconds: assetsInfo.chunkLengthInSeconds,
 					logLevel,
 					onProgress: () => updateProgress(0),
 					downloadMap: assetsInfo.downloadMap,
@@ -268,7 +265,9 @@ const innerStitchFramesToVideo = async (
 					audioBitrate,
 					audioCodec: resolvedAudioCodec,
 					cancelSignal: cancelSignal ?? undefined,
-					forSeamlessAacConcatenation,
+					trimLeftOffset: assetsInfo.trimLeftOffset,
+					trimRightOffset: assetsInfo.trimRightOffset,
+					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 				})
 			: null;
 
@@ -292,7 +291,7 @@ const innerStitchFramesToVideo = async (
 		}
 
 		cpSync(audio, outputLocation ?? (tempFile as string));
-		onProgress?.(expectedFrames);
+		onProgress?.(Math.round(assetsInfo.chunkLengthInSeconds * fps));
 		deleteDirectory(path.dirname(audio));
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
@@ -360,7 +359,7 @@ const innerStitchFramesToVideo = async (
 			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
-		'Generated final FFMPEG command:',
+		'Generated final FFmpeg command:',
 	);
 	Log.verbose(
 		{
@@ -391,7 +390,7 @@ const innerStitchFramesToVideo = async (
 			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {
 				// If two times in a row the finishing frame is logged, we quit the render
-				if (parsed === expectedFrames) {
+				if (parsed === assetsInfo.assets.length) {
 					if (isFinished) {
 						task.stdin?.write('q');
 					} else {
@@ -500,7 +499,6 @@ export const stitchFramesToVideo = ({
 	colorSpace,
 	binariesDirectory,
 	separateAudioTo,
-	forSeamlessAacConcatenation,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -533,6 +531,5 @@ export const stitchFramesToVideo = ({
 		colorSpace: colorSpace ?? 'default',
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
-		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 	});
 };

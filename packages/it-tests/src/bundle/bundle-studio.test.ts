@@ -1,13 +1,8 @@
 import path from "path";
-import execa from "execa";
 import { expect, test } from "vitest";
 import { RenderInternals, openBrowser } from "@remotion/renderer";
 
 test("Bundle studio", async () => {
-  await execa("pnpm", ["exec", "remotion", "bundle"], {
-    cwd: path.join(process.cwd(), "..", "example"),
-  });
-
   const browser = openBrowser("chrome");
 
   const tab = await (await browser).newPage(() => null, "info", false);
@@ -22,6 +17,7 @@ test("Bundle studio", async () => {
       offthreadVideoCacheSizeInBytes: null,
       remotionRoot: path.join(process.cwd(), "..", "example"),
       binariesDirectory: null,
+      forceIPv4: false,
     }
   );
   await tab.goto({

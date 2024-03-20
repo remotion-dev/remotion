@@ -7,7 +7,6 @@ import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
-import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -26,7 +25,7 @@ type Options = {
 	cancelSignal: CancelSignal | undefined;
 	onProgress: (progress: number) => void;
 	fps: number;
-	expectedFrames: number;
+	chunkLengthInSeconds: number;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -40,14 +39,12 @@ const mergeAudioTrackUnlimited = async ({
 	cancelSignal,
 	onProgress,
 	fps,
-	expectedFrames,
+	chunkLengthInSeconds,
 }: Options): Promise<void> => {
-	const numberOfSeconds = Number((expectedFrames / fps).toFixed(3));
-
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
-			numberOfSeconds,
+			chunkLengthInSeconds,
 			indent,
 			logLevel,
 			binariesDirectory,
@@ -81,7 +78,7 @@ const mergeAudioTrackUnlimited = async ({
 					const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
 					await mergeAudioTrack({
 						files: chunkFiles,
-						expectedFrames,
+						chunkLengthInSeconds,
 						outName: chunkOutname,
 						downloadMap,
 						remotionRoot,
@@ -119,7 +116,7 @@ const mergeAudioTrackUnlimited = async ({
 					callProgress();
 				},
 				fps,
-				expectedFrames,
+				chunkLengthInSeconds,
 			});
 			return;
 		} finally {
@@ -134,6 +131,7 @@ const mergeAudioTrackUnlimited = async ({
 		});
 
 	const args = [
+		['-hide_banner'],
 		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
 		['-c:a', 'pcm_s16le'],
@@ -155,10 +153,8 @@ const mergeAudioTrackUnlimited = async ({
 	task.stderr?.on('data', (data: Buffer) => {
 		const utf8 = data.toString('utf8');
 		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed === undefined) {
-			Log.verbose({indent, logLevel}, utf8);
-		} else {
-			onProgress(parsed / expectedFrames);
+		if (parsed !== undefined) {
+			onProgress(parsed / (chunkLengthInSeconds * fps));
 		}
 	});
 

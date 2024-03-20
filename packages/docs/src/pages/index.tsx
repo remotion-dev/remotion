@@ -2,7 +2,10 @@ import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import React from "react";
 import { VideoApps } from "../../components/LambdaSplash/VideoApps";
-import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
+import {
+  PricingTitle,
+  VideoAppsTitle,
+} from "../../components/LambdaSplash/VideoAppsTitle";
 import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
@@ -58,6 +61,7 @@ const NewLanding: React.FC = () => {
           <VideoApps active="remotion" />
           <br />
           <br />
+          <PricingTitle />
           <Pricing />
 
           <NewsletterButton />

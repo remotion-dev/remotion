@@ -158,7 +158,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-path" />
 
 ### `--timeout`
 

@@ -33,7 +33,11 @@ const innerHandler = async (
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
-	console.log('AWS Request ID:', context.awsRequestId);
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'AWS Request ID:',
+		context.awsRequestId,
+	);
 	stopLeakDetection();
 	if (!context?.invokedFunctionArn) {
 		throw new Error(

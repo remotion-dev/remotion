@@ -1,5 +1,4 @@
 import path from 'path';
-import type {TRenderAsset} from 'remotion/no-react';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -15,13 +14,19 @@ import {mergeAudioTrack} from './merge-audio-track';
 import type {AudioCodec} from './options/audio-codec';
 import {getExtensionFromAudioCodec} from './options/audio-codec';
 import {preprocessAudioTrack} from './preprocess-audio-track';
+import type {FrameAndAssets} from './render-frames';
 import {truthy} from './truthy';
+
+export type SeamlessAudioInfo = {
+	chunkLengthInSeconds: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+};
 
 export const createAudio = async ({
 	assets,
 	onDownload,
 	fps,
-	expectedFrames,
 	logLevel,
 	onProgress,
 	downloadMap,
@@ -31,12 +36,14 @@ export const createAudio = async ({
 	audioBitrate,
 	audioCodec,
 	cancelSignal,
+	chunkLengthInSeconds,
+	trimLeftOffset,
+	trimRightOffset,
 	forSeamlessAacConcatenation,
 }: {
-	assets: TRenderAsset[][];
+	assets: FrameAndAssets[];
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
-	expectedFrames: number;
 	logLevel: LogLevel;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
@@ -46,6 +53,9 @@ export const createAudio = async ({
 	audioBitrate: string | null;
 	audioCodec: AudioCodec;
 	cancelSignal: CancelSignal | undefined;
+	chunkLengthInSeconds: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
 	forSeamlessAacConcatenation: boolean;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
@@ -87,18 +97,20 @@ export const createAudio = async ({
 			const result = await preprocessAudioTrack({
 				outName: filterFile,
 				asset,
-				expectedFrames,
 				fps,
 				downloadMap,
 				indent,
 				logLevel,
 				binariesDirectory,
 				cancelSignal,
-				forSeamlessAacConcatenation,
 				onProgress: (progress) => {
 					preprocessProgress[index] = progress;
 					updateProgress();
 				},
+				chunkLengthInSeconds,
+				trimLeftOffset,
+				trimRightOffset,
+				forSeamlessAacConcatenation,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();
@@ -128,7 +140,7 @@ export const createAudio = async ({
 			mergeProgress = progress;
 			updateProgress();
 		},
-		expectedFrames,
+		chunkLengthInSeconds,
 	});
 
 	await compressAudio({
@@ -140,7 +152,7 @@ export const createAudio = async ({
 		inName: merged,
 		outName,
 		cancelSignal,
-		expectedFrames,
+		chunkLengthInSeconds,
 		fps,
 		onProgress: (progress) => {
 			compressProgress = progress;

@@ -31,12 +31,19 @@ const getPort = () => {
 	return null;
 };
 
+const {binariesDirectoryOption, publicDirOption} = BrowserSafeApis.options;
+
 export const studioCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -91,10 +98,13 @@ export const studioCommand = async (
 
 	const gitSource = getGitSource(remotionRoot);
 
-	const binariesDirectory =
-		BrowserSafeApis.options.binariesDirectoryOption.getValue({
-			commandLine: parsedCli,
-		}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const relativePublicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),
@@ -109,7 +119,7 @@ export const studioCommand = async (
 		keyboardShortcutsEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
-		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
 		getRenderDefaults,
@@ -128,5 +138,6 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
+		forceIPv4: parsedCli.ipv4,
 	});
 };

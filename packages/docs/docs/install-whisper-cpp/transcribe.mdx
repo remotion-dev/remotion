@@ -1,0 +1,141 @@
+---
+image: /generated/articles-docs-install-whisper-cpp-transcribe.png
+title: transcribe()
+crumb: "@remotion/install-whisper-cpp"
+---
+
+# transcribe()<AvailableFrom v="4.0.125 "/>
+
+Transcribes a media file by utilizing Whisper.cpp.  
+You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
+
+```tsx twoslash title="transcribe.mjs"
+// @module: esnext
+// @target: es2022
+import path from "path";
+import { transcribe } from "@remotion/install-whisper-cpp";
+
+const { transcription } = await transcribe({
+  inputPath: "/path/to/audio.wav",
+  whisperPath: path.join(process.cwd(), "whisper.cpp"),
+  model: "base.en",
+});
+
+for (const token of transcription) {
+  console.log(token.timestamps.from, token.timestamps.to, token.text);
+}
+```
+
+## Options
+
+### `inputPath`
+
+The path to the file you want extract text from.
+
+The file has to be a 16KHz wav file. You can extract a 16KHz wav file from a video or audio file for
+example by utilizing FFmpeg with the following command:
+
+```bash
+ffmpeg -i input.mp4 -ar 16000 output.wav -y
+```
+
+If you don't want to install FFmpeg, you can also use the [smaller FFmpeg binary](/docs/cli/ffmpeg) provided by Remotion.
+
+```bash
+npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
+```
+
+### `whisperPath`
+
+The path to your `whisper.cpp` folder.  
+If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `folder`.
+
+### `model?`
+
+_optional - default: `base.en`_
+
+Specify a specific Whisper model for the transcription.
+
+Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`.
+
+Make sure the model you want to use exists in your `whisper.cpp/models` folder. You can ensure a specific model is available locally by utilizing the [downloadWhisperModel()](/docs/install-whisper-cpp/download-whisper-model) API.
+
+### `modelFolder?`
+
+_optional - default: whisperPath/models_
+
+If you saved Whisper models to a specific folder, pass its path here.
+
+Uses the `whisper.cpp/models` folder at the location defined through `whisperPath` as default.
+
+### `translateToEnglish?`
+
+_optional - default: false_
+
+Set this boolean flag if you want to get a translated transcription of the provided file in English.
+Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
+
+:::info
+We recommend using at least the `medium` model to get satisfactory results.
+:::
+
+## Return value
+
+### `TranscriptionJson`
+
+An object containing all the metadata and transcriptions resulting from the transcription process.
+
+```ts twoslash
+type TranscriptionItem = {
+  timestamps: {
+    from: string;
+    to: string;
+  };
+  offsets: {
+    from: number;
+    to: number;
+  };
+  text: string;
+};
+
+type Model = {
+  type: string;
+  multilingual: boolean;
+  vocab: number;
+  audio: {
+    ctx: number;
+    state: number;
+    head: number;
+    layer: number;
+  };
+  text: {
+    ctx: number;
+    state: number;
+    head: number;
+    layer: number;
+  };
+  mels: number;
+  ftype: number;
+};
+
+type TranscriptionJson = {
+  systeminfo: string;
+  model: Model;
+  params: {
+    model: string;
+    language: string;
+    translate: boolean;
+  };
+  result: {
+    language: string;
+  };
+  transcription: TranscriptionItem[];
+};
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
+- [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)

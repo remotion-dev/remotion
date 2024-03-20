@@ -86,6 +86,7 @@ export const mergeHandler = async (
 		framesPerLambda: params.framesPerLambda,
 		binariesDirectory: null,
 		preferLossless: params.preferLossless,
+		compositionStart: params.compositionStart,
 	});
 
 	return {type: 'success' as const, postRenderData};

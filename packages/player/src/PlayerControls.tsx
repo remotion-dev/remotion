@@ -121,6 +121,7 @@ export const Controls: React.FC<{
 	showPlaybackRateControl: boolean | number[];
 	containerRef: React.RefObject<HTMLDivElement>;
 	buffering: boolean;
+	hideControlsWhenPointerDoesntMove: boolean | number;
 	onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
 	onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 }> = ({
@@ -145,13 +146,17 @@ export const Controls: React.FC<{
 	showPlaybackRateControl,
 	containerRef,
 	buffering,
+	hideControlsWhenPointerDoesntMove,
 	onPointerUp,
 	onDoubleClick,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
-	const hovered = useHoverState(containerRef);
+	const hovered = useHoverState(
+		containerRef,
+		hideControlsWhenPointerDoesntMove,
+	);
 
 	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
 		useVideoControlsResize({

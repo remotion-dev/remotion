@@ -28,7 +28,6 @@ export const startServer = async (options: {
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
-	userPassedPublicDir: string | null;
 	poll: number | null;
 	staticHash: string;
 	staticHashPrefix: string;
@@ -41,6 +40,7 @@ export const startServer = async (options: {
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
+	forceIPv4: boolean;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -129,7 +129,7 @@ export const startServer = async (options: {
 
 	const maxTries = 5;
 
-	const portConfig = RenderInternals.getPortConfig();
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
@@ -141,6 +141,10 @@ export const startServer = async (options: {
 					hostsToTry: portConfig.hostsToTry,
 				})
 					.then(({port, unlockPort}) => {
+						RenderInternals.Log.verbose(
+							{indent: false, logLevel: options.logLevel},
+							`Binding server to host ${portConfig.host}, port ${port}`,
+						);
 						server.listen({
 							port,
 							host: portConfig.host,

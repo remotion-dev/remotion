@@ -43,7 +43,7 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-path" />
 
 ### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
 
@@ -80,4 +80,12 @@ npx remotion studio --browser-args="--disable-web-security"
 
 ```sh
 npx remotion studio --beep-on-finish
+```
+
+### `--ipv4`<AvailableFrom v="4.0.125" />
+
+Forces the Studio to be bound to an IPv4 interface, even if a IPv6 interface is available.
+
+```sh
+npx remotion studio --ipv4
 ```

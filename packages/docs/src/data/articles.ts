@@ -35,6 +35,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "acknowledgements",
+    title: "Acknowledgements",
+    relativePath: "docs/acknowledgements.md",
+    compId: "articles-docs-acknowledgements",
+    crumb: "Credits",
+  },
+  {
     id: "after-effects",
     title: "Import from After Effects",
     relativePath: "docs/after-effects.md",
@@ -93,7 +100,7 @@ export const articles = [
   {
     id: "audio",
     title: "<Audio>",
-    relativePath: "docs/audio.md",
+    relativePath: "docs/audio.mdx",
     compId: "articles-docs-audio",
     crumb: "How to",
   },
@@ -616,13 +623,6 @@ export const articles = [
     crumb: "How to",
   },
   {
-    id: "deploy-studio",
-    title: "Deploy the Remotion Studio",
-    relativePath: "docs/deploy-remotion-studio.md",
-    compId: "articles-docs-deploy-remotion-studio",
-    crumb: "Remotion Studio",
-  },
-  {
     id: "docker",
     title: "Dockerizing a Remotion app",
     relativePath: "docs/docker.md",
@@ -709,7 +709,7 @@ export const articles = [
   {
     id: "freeze",
     title: "<Freeze>",
-    relativePath: "docs/freeze.md",
+    relativePath: "docs/freeze.mdx",
     compId: "articles-docs-freeze",
     crumb: "API",
   },
@@ -879,6 +879,13 @@ export const articles = [
     title: "installWhisperCpp()",
     relativePath: "docs/install-whisper-cpp/install-whisper-cpp.mdx",
     compId: "articles-docs-install-whisper-cpp-install-whisper-cpp",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
+    id: "install-whisper-cpp/transcribe",
+    title: "transcribe()",
+    relativePath: "docs/install-whisper-cpp/transcribe.mdx",
+    compId: "articles-docs-install-whisper-cpp-transcribe",
     crumb: "@remotion/install-whisper-cpp",
   },
   {
@@ -3091,7 +3098,7 @@ export const articles = [
   {
     id: "video",
     title: "<Video>",
-    relativePath: "docs/video.md",
+    relativePath: "docs/video.mdx",
     compId: "articles-docs-video",
     crumb: "API",
   },

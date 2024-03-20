@@ -2,11 +2,16 @@ use std::usize;
 
 use ffmpeg_next::{
     format::Pixel,
-    frame::Video,
+    frame::{self, Video},
     software::scaling::{Context, Flags},
 };
 
-use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose, image::get_png_data};
+use crate::{
+    errors::ErrorWithBacktrace,
+    global_printer::_print_verbose,
+    image::get_png_data,
+    tone_map::{make_tone_map_filtergraph, FilterGraph},
+};
 
 #[derive(Clone, Copy)]
 pub enum Rotate {
@@ -17,15 +22,16 @@ pub enum Rotate {
 }
 
 pub struct NotRgbFrame {
-    pub planes: Vec<Vec<u8>>,
-    pub linesizes: [i32; 8],
-    pub format: Pixel,
     pub original_width: u32,
     pub original_height: u32,
     pub scaled_width: u32,
     pub scaled_height: u32,
     pub rotate: Rotate,
     pub original_src: String,
+    pub unscaled_frame: Video,
+    pub size: u128,
+    pub tone_mapped: bool,
+    pub filter_graph: FilterGraph,
 }
 
 pub struct RgbFrame {
@@ -58,7 +64,46 @@ impl ScalableFrame {
                 "has neither native nor rgb frame",
             ))),
             Some(frame) => {
-                let bitmap = scale_and_make_bitmap(&frame, self.transparent)?;
+                let mut video;
+                let mut planes: Vec<Vec<u8>>;
+                let format: Pixel;
+                let linesize: [i32; 8];
+                let (mut filter, should_filter) = make_tone_map_filtergraph(frame.filter_graph)?;
+                if frame.tone_mapped && should_filter {
+                    video = frame::Video::empty();
+                    filter
+                        .get("in")
+                        .unwrap()
+                        .source()
+                        .add(&frame.unscaled_frame)?;
+                    filter.get("out").unwrap().sink().frame(&mut video)?;
+
+                    let amount_of_planes = video.planes();
+
+                    planes = Vec::with_capacity(amount_of_planes);
+                    for i in 0..amount_of_planes {
+                        let d = &video.data(i).to_vec();
+                        let data = d.clone();
+                        planes.push(data);
+                    }
+                    format = video.format();
+
+                    linesize = unsafe { (*video.as_ptr()).linesize };
+                } else {
+                    let amount_of_planes = frame.unscaled_frame.planes();
+
+                    planes = Vec::with_capacity(amount_of_planes);
+                    for i in 0..amount_of_planes {
+                        let d = &frame.unscaled_frame.data(i).to_vec();
+                        let data = d.clone();
+                        planes.push(data);
+                    }
+                    format = frame.unscaled_frame.format();
+                    linesize = unsafe { (*frame.unscaled_frame.as_ptr()).linesize };
+                }
+
+                let bitmap =
+                    scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
                 self.native_frame = None;
                 Ok(())
@@ -86,11 +131,7 @@ impl ScalableFrame {
         }
         match self.native_frame {
             None => {}
-            Some(ref frame) => {
-                for plane in &frame.planes {
-                    size += plane.len() as u128;
-                }
-            }
+            Some(ref frame) => size = frame.size,
         }
 
         size
@@ -142,27 +183,30 @@ fn create_bmp_image_from_frame(
 
 pub fn scale_and_make_bitmap(
     native_frame: &NotRgbFrame,
+    planes: Vec<Vec<u8>>,
+    src_format: Pixel,
+    linesize: [i32; 8],
     transparent: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let format: Pixel = match transparent {
+    let dst_format: Pixel = match transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,
     };
 
     let mut scaler = Context::get(
-        native_frame.format,
+        src_format,
         native_frame.original_width,
         native_frame.original_height,
-        format,
+        dst_format,
         native_frame.scaled_width,
         native_frame.scaled_height,
         Flags::BILINEAR,
     )?;
 
-    let mut data: Vec<*const u8> = Vec::with_capacity(native_frame.planes.len());
+    let mut data: Vec<*const u8> = Vec::with_capacity(planes.len());
 
-    for i in 0..native_frame.planes.len() {
-        let ptr: *const u8 = native_frame.planes[i].as_ptr();
+    for i in 0..planes.len() {
+        let ptr: *const u8 = planes[i].as_ptr();
         data.push(ptr);
     }
 
@@ -170,11 +214,11 @@ pub fn scale_and_make_bitmap(
 
     let mut scaled = Video::empty();
     scaler.run(
-        native_frame.format,
+        src_format,
         native_frame.original_width,
         native_frame.original_height,
         ptr,
-        native_frame.linesizes.as_ptr(),
+        linesize.as_ptr(),
         &mut scaled,
     )?;
 
@@ -206,9 +250,9 @@ pub fn scale_and_make_bitmap(
     };
 
     if transparent {
-        let is_transparent_pixel_format = native_frame.format == Pixel::YUVA420P
-            || native_frame.format == Pixel::YUVA444P10LE
-            || native_frame.format == Pixel::YUVA444P12LE;
+        let is_transparent_pixel_format = src_format == Pixel::YUVA420P
+            || src_format == Pixel::YUVA444P10LE
+            || src_format == Pixel::YUVA444P12LE;
 
         if is_transparent_pixel_format {
             return get_png_data(&rotated, rotated_width, rotated_height);
@@ -216,7 +260,7 @@ pub fn scale_and_make_bitmap(
             _print_verbose(&format!(
                 "Requested transparent image, but the video {} is not transparent (pixel format {:?}). Returning BMP.",
                 native_frame.original_src,
-                native_frame.format
+                src_format
             ))?;
             return Ok(create_bmp_image_from_frame(
                 &rotated,
