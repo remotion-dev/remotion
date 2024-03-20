@@ -138,6 +138,7 @@ export const downloadFile = async (
 		const {message} = err as Error;
 		if (
 			message === 'aborted' ||
+			message === 'ECONNRESET' ||
 			message.includes(incorrectContentLengthToken) ||
 			// Try again if hitting internal errors
 			message.includes('503') ||
