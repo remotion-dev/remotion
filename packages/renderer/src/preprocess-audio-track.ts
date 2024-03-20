@@ -87,8 +87,8 @@ const preprocessAudioTrackUnlimited = async ({
 
 	Log.verbose(
 		{indent, logLevel},
-		'Preprocessing audio track',
-		args,
+		'Preprocessing audio track:',
+		JSON.stringify(args.join(' ')),
 		'Filter:',
 		filter.filter,
 	);
