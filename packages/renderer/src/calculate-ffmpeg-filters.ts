@@ -22,23 +22,10 @@ export const calculateFfmpegFilter = ({
 	chunkLengthInSeconds: number;
 	forSeamlessAacConcatenation: boolean;
 }): FilterWithoutPaddingApplied | null => {
-	if (channels === 0) {
-		return null;
-	}
-
-	const trimLeft =
-		(asset.trimLeft * asset.playbackRate) / fps +
-		trimLeftOffset * asset.playbackRate;
-	const trimRight =
-		trimLeft +
-		(asset.duration * asset.playbackRate) / fps +
-		trimRightOffset * asset.playbackRate;
-
+	// TODO: Don't need this wrapper function anymore
 	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,
-		trimLeft,
-		trimRight,
 		volume: flattenVolumeArray(asset.volume),
 		fps,
 		playbackRate: asset.playbackRate,
@@ -47,5 +34,8 @@ export const calculateFfmpegFilter = ({
 		toneFrequency: asset.toneFrequency,
 		chunkLengthInSeconds,
 		forSeamlessAacConcatenation,
+		trimLeftOffset,
+		trimRightOffset,
+		asset,
 	});
 };
