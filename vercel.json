@@ -296,7 +296,7 @@
       "source": "/docs/deploy-studio",
       "destination": "/docs/studio/deploy-server",
       "permanent": false
-    }
+    },
     {
       "source": "/blog/faster-lambda-renders",
       "destination": "/blog/faster-lambda",
