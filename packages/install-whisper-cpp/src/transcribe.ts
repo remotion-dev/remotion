@@ -15,6 +15,15 @@ type Offsets = {
 	to: number;
 };
 
+type WordLevelToken = {
+	t_dtw: number;
+	text: string;
+	timestamps: Timestamps;
+	offsets: Offsets;
+	id: number;
+	p: number;
+};
+
 type TranscriptionItem = {
 	timestamps: Timestamps;
 	offsets: Offsets;
@@ -22,7 +31,7 @@ type TranscriptionItem = {
 };
 
 type TranscriptionItemWithTimestamp = TranscriptionItem & {
-	t_dtw: number;
+	tokens: WordLevelToken[];
 };
 
 type Model = {

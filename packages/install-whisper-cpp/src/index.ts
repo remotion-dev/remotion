@@ -4,4 +4,4 @@ export {
 	WhisperModel,
 } from './download-whisper-model';
 export {installWhisperCpp} from './install-whisper-cpp';
-export {transcribe} from './transcribe';
+export {transcribe, TranscriptionJson} from './transcribe';
