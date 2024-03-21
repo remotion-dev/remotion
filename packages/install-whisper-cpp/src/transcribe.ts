@@ -1,8 +1,7 @@
-import {exec} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import util from 'node:util';
 import type {WhisperModel} from './download-whisper-model';
 import {getModelPath} from './download-whisper-model';
 
@@ -20,6 +19,10 @@ type TranscriptionItem = {
 	timestamps: Timestamps;
 	offsets: Offsets;
 	text: string;
+};
+
+type TranscriptionItemWithTimestamp = TranscriptionItem & {
+	t_dtw: number;
 };
 
 type Model = {
@@ -52,12 +55,14 @@ type Result = {
 	language: string;
 };
 
-export type TranscriptionJson = {
+export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 	systeminfo: string;
 	model: Model;
 	params: Params;
 	result: Result;
-	transcription: TranscriptionItem[];
+	transcription: true extends WithTokenLevelTimestamp
+		? TranscriptionItemWithTimestamp[]
+		: TranscriptionItem[];
 };
 
 const isWavFile = (inputPath: string) => {
@@ -81,6 +86,7 @@ const transcribeToTempJSON = async ({
 	tmpJSONPath,
 	modelFolder,
 	translate,
+	tokenLevelTimestamps,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -88,9 +94,10 @@ const transcribeToTempJSON = async ({
 	tmpJSONPath: string;
 	modelFolder: string | null;
 	translate: boolean;
-}) => {
-	const promisifiedExec = util.promisify(exec);
-
+	tokenLevelTimestamps: boolean;
+}): Promise<{
+	outputPath: string;
+}> => {
 	const modelPath = getModelPath(modelFolder ?? whisperPath, model);
 
 	if (!fs.existsSync(modelPath)) {
@@ -106,32 +113,76 @@ const transcribeToTempJSON = async ({
 			? path.join(whisperPath, 'main.exe')
 			: path.join(whisperPath, './main');
 
-	const modelOption = model ? `-m ${modelPath}` : '';
-	const translateOption = translate ? `-tr ` : '';
+	const args = [
+		'-f',
+		fileToTranscribe,
+		'--output-file',
+		tmpJSONPath,
+		'--output-json',
+		'--max-len',
+		'1',
+		'-ofj', // Output full JSON
+		tokenLevelTimestamps ? ['--dtw', model] : null,
+		model ? [`-m`, `${modelPath}`] : null,
+		translate ? '-tr' : null,
+	]
+		.flat(1)
+		.filter(Boolean) as string[];
 
-	await promisifiedExec(
-		`${executable} -f ${fileToTranscribe} --output-file ${tmpJSONPath} --output-json --max-len 1 ${modelOption} ${translateOption}`,
-		{cwd: whisperPath},
-	).then(({stderr}) => {
-		if (stderr.includes('error')) {
-			throw new Error('An error occured while transcribing: ' + stderr);
-		}
+	const outputPath = await new Promise<string>((resolve, reject) => {
+		const task = spawn(executable, args, {cwd: whisperPath});
+		const predictedPath = `${tmpJSONPath}.json`;
+
+		let output: string = '';
+
+		const onData = (data: Buffer) => {
+			const str = data.toString('utf-8');
+			output += str;
+
+			// Sometimes it hangs here
+			if (str.includes('ggml_metal_free: deallocating')) {
+				task.kill();
+			}
+		};
+
+		task.stdout.on('data', onData);
+		task.stderr.on('data', onData);
+
+		task.on('exit', (code) => {
+			// Whisper sometimes files also with error code 0
+			// https://github.com/ggerganov/whisper.cpp/pull/1952/files
+
+			if (existsSync(predictedPath)) {
+				resolve(predictedPath);
+				return;
+			}
+
+			reject(
+				new Error(
+					`No transcription was created (process exited with code ${code}): ${output}`,
+				),
+			);
+		});
 	});
+
+	return {outputPath};
 };
 
-export const transcribe = async ({
+export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	inputPath,
 	whisperPath,
 	model,
 	modelFolder,
 	translateToEnglish = false,
+	tokenLevelTimestamps,
 }: {
 	inputPath: string;
 	whisperPath: string;
 	model: WhisperModel;
 	modelFolder?: string;
 	translateToEnglish?: boolean;
-}): Promise<TranscriptionJson> => {
+	tokenLevelTimestamps: HasTokenLevelTimestamps;
+}): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
 			`Whisper does not exist at ${whisperPath}. Double-check the passed whisperPath. If you havent installed whisper, check out the installWhisperCpp() API at https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp to see how to install whisper programatically.`,
@@ -150,18 +201,19 @@ export const transcribe = async ({
 
 	const tmpJSONDir = path.join(process.cwd(), 'tmp');
 
-	await transcribeToTempJSON({
+	const {outputPath: tmpJSONPath} = await transcribeToTempJSON({
 		fileToTranscribe: inputPath,
 		whisperPath,
 		model,
 		tmpJSONPath: tmpJSONDir,
 		modelFolder: modelFolder ?? null,
 		translate: translateToEnglish,
+		tokenLevelTimestamps,
 	});
 
-	const tmpJSONPath = `${tmpJSONDir}.json`;
-
-	const json = (await readJson(tmpJSONPath)) as TranscriptionJson;
+	const json = (await readJson(
+		tmpJSONPath,
+	)) as TranscriptionJson<HasTokenLevelTimestamps>;
 	fs.unlinkSync(tmpJSONPath);
 
 	return json;
