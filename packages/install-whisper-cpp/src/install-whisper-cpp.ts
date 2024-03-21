@@ -49,7 +49,11 @@ const installWhisperForUnix = ({
 		stdio,
 	});
 
-	execSync(`git checkout v${version}`, {
+	const isSemVer = /^[\d]{1}\.[\d]{1,2}\.+/;
+
+	const ref = isSemVer.test(version) ? `v${version}` : version;
+
+	execSync(`git checkout v${ref}`, {
 		stdio,
 		cwd: to,
 	});
