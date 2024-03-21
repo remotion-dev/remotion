@@ -71,8 +71,7 @@ const isWavFile = (inputPath: string) => {
 
 const readJson = async (jsonPath: string) => {
 	const data = await fs.promises.readFile(jsonPath, 'utf8');
-	const jsonData = await JSON.parse(data);
-	return jsonData;
+	return JSON.parse(data);
 };
 
 const transcribeToTempJSON = async ({
@@ -98,7 +97,7 @@ const transcribeToTempJSON = async ({
 		throw new Error(
 			`Error: Model ${model} does not exist at ${
 				modelFolder ? modelFolder : modelPath
-			}. Check out the downloadWhisperMode() API at https://www.remotion.dev/docs/install-whisper-cpp/download-whisper-model to see how to install whisper models`,
+			}. Check out the downloadWhisperModel() API at https://www.remotion.dev/docs/install-whisper-cpp/download-whisper-model to see how to install whisper models`,
 		);
 	}
 
