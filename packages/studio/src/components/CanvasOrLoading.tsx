@@ -65,7 +65,11 @@ export const CanvasOrLoading: React.FC<{
 	}, [takesALongTime]);
 
 	if (!canvasContent) {
-		return null;
+		return (
+			<div style={container} className="css-reset">
+				<div style={style}>Composition id not found.</div>
+			</div>
+		);
 	}
 
 	const content = (
