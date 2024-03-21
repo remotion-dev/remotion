@@ -207,7 +207,6 @@ export const startOffthreadVideoServer = ({
 						!err.message.includes('EPIPE')
 					) {
 						downloadMap.emitter.dispatchError(err);
-						console.log('Error occurred', err);
 					}
 				});
 		},

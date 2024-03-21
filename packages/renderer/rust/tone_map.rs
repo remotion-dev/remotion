@@ -59,7 +59,12 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         TransferCharacteristic::BT2020_12 => "2020_12",
         TransferCharacteristic::BT709 => "709",
         TransferCharacteristic::Linear => "linear",
-        TransferCharacteristic::Unspecified => "input",
+        // Handle file that was not tagged with transfer characteristic
+        // by z0w0 on Discord (03/21/2024)
+        TransferCharacteristic::Unspecified => match video_primaries {
+            Primaries::BT2020 => "2020_10",
+            _ => "input",
+        },
         _ => "input",
     };
 
@@ -80,10 +85,22 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     let needs_conversion = matrix_is_target && transfer_is_target && primaries_is_target;
 
-    let filter_string  = match needs_conversion {
+    let filter_string = match needs_conversion {
         true => "copy".to_string(),
-        false => 
-          "zscale=t=linear:npl=100,format=gbrpf32le,zscale=primaries=709,tonemap=tonemap=hable:desat=0,zscale=transfer=709:matrix=bt709:range=pc,format=bgr24".to_string(),
+        false => {
+            let tin_value = match transfer_characteristic {
+                // Handle file that was not tagged with transfer characteristic
+                // If a file is not tagged with transfer characteristic, but the primaries are BT2020, we assume it's BT2020_10
+                // Otherwise, we found it is better to leave the defaults
+                // by z0w0 on Discord (03/21/2024)
+                TransferCharacteristic::Unspecified => match video_primaries {
+                    Primaries::BT2020 => "2020_10",
+                    _ => "input",
+                },
+                _ => "input",
+            };
+            format!("zscale=tin={}:t=linear:npl=100,format=gbrpf32le,zscale=primaries=709,tonemap=tonemap=hable:desat=0,zscale=transfer=709:matrix=bt709:range=pc,format=bgr24", tin_value).to_string()
+        }
     };
 
     if filter_string != "copy" {
