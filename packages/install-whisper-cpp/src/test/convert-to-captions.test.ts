@@ -3,13 +3,13 @@ import {convertToCaptions} from '../convert-to-captions';
 import {examplePayload} from './example-payload';
 
 test('Convert to captions - 200ms together', () => {
-	const transcript = convertToCaptions({
+	const {captions: transcript} = convertToCaptions({
 		transcriptions: examplePayload.transcription,
 		combineCloseWords: 200,
 	});
 
 	expect(transcript).toEqual([
-		{text: ' William', startInSeconds: 0},
+		{text: 'William', startInSeconds: 0.24},
 		{text: 'just', startInSeconds: 0.48},
 		{text: 'hit 100,000', startInSeconds: 0.7},
 		{text: 'YouTube', startInSeconds: 2.22},
@@ -122,7 +122,7 @@ test('Convert to captions - 200ms together', () => {
 });
 
 test('Convert to captions - 0ms together', () => {
-	const transcript = convertToCaptions({
+	const {captions: transcript} = convertToCaptions({
 		transcriptions: examplePayload.transcription,
 		combineCloseWords: 0,
 	});

@@ -1,3 +1,4 @@
+export {Caption, convertToCaptions} from './convert-to-captions';
 export {
 	downloadWhisperModel,
 	OnProgress,

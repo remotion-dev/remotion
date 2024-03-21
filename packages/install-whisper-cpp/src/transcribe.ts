@@ -188,9 +188,9 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	inputPath: string;
 	whisperPath: string;
 	model: WhisperModel;
+	tokenLevelTimestamps: HasTokenLevelTimestamps;
 	modelFolder?: string;
 	translateToEnglish?: boolean;
-	tokenLevelTimestamps: HasTokenLevelTimestamps;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(

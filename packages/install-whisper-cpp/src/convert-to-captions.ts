@@ -1,6 +1,6 @@
 import type {TranscriptionJson} from './transcribe';
 
-type Word = {
+export type Caption = {
 	text: string;
 	startInSeconds: number;
 };
@@ -11,8 +11,8 @@ export function convertToCaptions({
 }: {
 	transcriptions: TranscriptionJson<true>['transcription'];
 	combineCloseWords: number;
-}): Word[] {
-	const merged: Word[] = [];
+}): {captions: Caption[]} {
+	const merged: Caption[] = [];
 	let currentText = '';
 	let currentFrom = 0;
 	let currentTo = 0;
@@ -39,9 +39,11 @@ export function convertToCaptions({
 			if (currentText === '') {
 				// It's the start of the document or after a sentence that started with a space
 				currentFrom = item.offsets.from;
+				currentTokenLevelTimestamp = item.tokens[0].t_dtw;
 			}
 
 			currentText += text;
+			currentText = currentText.trimStart();
 			currentTo = item.offsets.to;
 		}
 
@@ -54,5 +56,5 @@ export function convertToCaptions({
 		}
 	});
 
-	return merged;
+	return {captions: merged};
 }
