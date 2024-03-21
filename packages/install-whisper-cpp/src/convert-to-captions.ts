@@ -6,11 +6,11 @@ export type Caption = {
 };
 
 export function convertToCaptions({
-	transcriptions,
-	combineCloseWords,
+	transcription,
+	combineTokensWithinMilliseconds,
 }: {
-	transcriptions: TranscriptionJson<true>['transcription'];
-	combineCloseWords: number;
+	transcription: TranscriptionJson<true>['transcription'];
+	combineTokensWithinMilliseconds: number;
 }): {captions: Caption[]} {
 	const merged: Caption[] = [];
 	let currentText = '';
@@ -18,10 +18,13 @@ export function convertToCaptions({
 	let currentTo = 0;
 	let currentTokenLevelTimestamp = 0;
 
-	transcriptions.forEach((item, index) => {
+	transcription.forEach((item, index) => {
 		const {text} = item;
 		// If text starts with a space, push the currentText (if it exists) and start a new one
-		if (text.startsWith(' ') && currentTo - currentFrom > combineCloseWords) {
+		if (
+			text.startsWith(' ') &&
+			currentTo - currentFrom > combineTokensWithinMilliseconds
+		) {
 			if (currentText !== '') {
 				merged.push({
 					text: currentText,
@@ -48,7 +51,7 @@ export function convertToCaptions({
 		}
 
 		// Ensure the last sentence is added
-		if (index === transcriptions.length - 1 && currentText !== '') {
+		if (index === transcription.length - 1 && currentText !== '') {
 			merged.push({
 				text: currentText,
 				startInSeconds: currentTokenLevelTimestamp / 100,

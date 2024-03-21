@@ -19,6 +19,7 @@ const { transcription } = await transcribe({
   inputPath: "/path/to/audio.wav",
   whisperPath: path.join(process.cwd(), "whisper.cpp"),
   model: "base.en",
+  tokenLevelTimestamps: true,
 });
 
 for (const token of transcription) {
@@ -81,8 +82,8 @@ _optional - default: false_
 Set this boolean flag if you want to get a translated transcription of the provided file in English.
 Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
 
-:::info
-We recommend using at least the `medium` model to get satisfactory results.
+:::note
+We recommend using at least the `medium` model to get satisfactory results when translating.
 :::
 
 ## Return value
@@ -92,16 +93,33 @@ We recommend using at least the `medium` model to get satisfactory results.
 An object containing all the metadata and transcriptions resulting from the transcription process.
 
 ```ts twoslash
-type TranscriptionItem = {
-  timestamps: {
-    from: string;
-    to: string;
-  };
-  offsets: {
-    from: number;
-    to: number;
-  };
+type Timestamps = {
+  from: string;
+  to: string;
+};
+
+type Offsets = {
+  from: number;
+  to: number;
+};
+
+type WordLevelToken = {
+  t_dtw: number;
   text: string;
+  timestamps: Timestamps;
+  offsets: Offsets;
+  id: number;
+  p: number;
+};
+
+type TranscriptionItem = {
+  timestamps: Timestamps;
+  offsets: Offsets;
+  text: string;
+};
+
+type TranscriptionItemWithTimestamp = TranscriptionItem & {
+  tokens: WordLevelToken[];
 };
 
 type Model = {
@@ -124,24 +142,34 @@ type Model = {
   ftype: number;
 };
 
-type TranscriptionJson = {
+type Params = {
+  model: string;
+  language: string;
+  translate: boolean;
+};
+
+type Result = {
+  language: string;
+};
+
+export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
   systeminfo: string;
   model: Model;
-  params: {
-    model: string;
-    language: string;
-    translate: boolean;
-  };
-  result: {
-    language: string;
-  };
-  transcription: TranscriptionItem[];
+  params: Params;
+  result: Result;
+  transcription: true extends WithTokenLevelTimestamp
+    ? TranscriptionItemWithTimestamp[]
+    : TranscriptionItem[];
 };
 ```
+
+Prefer relying on the `t_dtw` value for accurate timestamps over `offsets`.  
+Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use our opinionated suggestion for postprocessing the captions.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)
 - [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions)
 - [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
 - [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)

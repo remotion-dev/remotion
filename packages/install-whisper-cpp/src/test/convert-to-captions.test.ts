@@ -4,8 +4,8 @@ import {examplePayload} from './example-payload';
 
 test('Convert to captions - 200ms together', () => {
 	const {captions: transcript} = convertToCaptions({
-		transcriptions: examplePayload.transcription,
-		combineCloseWords: 200,
+		transcription: examplePayload.transcription,
+		combineTokensWithinMilliseconds: 200,
 	});
 
 	expect(transcript).toEqual([
@@ -123,8 +123,8 @@ test('Convert to captions - 200ms together', () => {
 
 test('Convert to captions - 0ms together', () => {
 	const {captions: transcript} = convertToCaptions({
-		transcriptions: examplePayload.transcription,
-		combineCloseWords: 0,
+		transcription: examplePayload.transcription,
+		combineTokensWithinMilliseconds: 0,
 	});
 
 	expect(transcript).toEqual([
