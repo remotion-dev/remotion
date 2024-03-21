@@ -5,7 +5,7 @@ author: Jonny Burger
 author_title: Chief Hacker @ Remotion
 author_url: https://github.com/JonnyBurger
 author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
-image: /img/deploy-studio.png
+image: /img/seamless-aac.png
 ---
 
 We now make it possible to export the Remotion Studio as a static website and deploy it to any hosting provider.
