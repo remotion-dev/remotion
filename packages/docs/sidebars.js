@@ -502,6 +502,7 @@ module.exports = {
         "install-whisper-cpp/install-whisper-cpp",
         "install-whisper-cpp/download-whisper-model",
         "install-whisper-cpp/transcribe",
+        "install-whisper-cpp/convert-to-captions",
       ],
     },
   ],

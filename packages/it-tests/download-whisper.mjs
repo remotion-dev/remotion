@@ -8,7 +8,7 @@ const to = path.join(process.cwd(), "whisper.cpp");
 
 await installWhisperCpp({
   to,
-  version: "1.5.4",
+  version: "48a145",
 });
 
 await downloadWhisperModel({

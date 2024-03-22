@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
           <strong>transcribe()</strong>
           <div>Transcribe an audio file</div>
         </TOCItem>
+        <TOCItem link="/docs/install-whisper-cpp/convert-to-captions">
+          <strong>convertToCaptions()</strong>
+          <div>Postprocessing for TikTok-style captions</div>
+        </TOCItem>
       </Grid>
     </div>
   );
