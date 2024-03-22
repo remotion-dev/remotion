@@ -53,7 +53,7 @@ const installWhisperForUnix = ({
 
 	const ref = isSemVer.test(version) ? `v${version}` : version;
 
-	execSync(`git checkout v${ref}`, {
+	execSync(`git checkout ${ref}`, {
 		stdio,
 		cwd: to,
 	});
