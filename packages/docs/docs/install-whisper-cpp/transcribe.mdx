@@ -4,7 +4,7 @@ title: transcribe()
 crumb: "@remotion/install-whisper-cpp"
 ---
 
-# transcribe()<AvailableFrom v="4.0.125 "/>
+# transcribe()<AvailableFrom v="4.0.131 "/>
 
 Transcribes a media file by utilizing Whisper.cpp.  
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
@@ -18,7 +18,8 @@ import { transcribe } from "@remotion/install-whisper-cpp";
 const { transcription } = await transcribe({
   inputPath: "/path/to/audio.wav",
   whisperPath: path.join(process.cwd(), "whisper.cpp"),
-  model: "base.en",
+  model: "medium.en",
+  tokenLevelTimestamps: true,
 });
 
 for (const token of transcription) {
@@ -50,6 +51,12 @@ npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
 The path to your `whisper.cpp` folder.  
 If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `folder`.
 
+### `tokenLevelTimestamps`<AvailableFrom v="4.0.131"/>
+
+Passes the `--dtw` flag to Whisper.cpp to generate more accurate timestamps, which are being returned under the `t_dtw` field.  
+Recommended to get actually accurate timings, but only available from Whisper.cpp versions later than 1.0.54 (commit [`741abb`](https://github.com/ggerganov/whisper.cpp/commit/741abb162ce8207eca2562e59c03efefb21c0122) or later).  
+Set to `false` if you use an older version of Whisper.cpp.
+
 ### `model?`
 
 _optional - default: `base.en`_
@@ -75,8 +82,8 @@ _optional - default: false_
 Set this boolean flag if you want to get a translated transcription of the provided file in English.
 Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
 
-:::info
-We recommend using at least the `medium` model to get satisfactory results.
+:::note
+We recommend using at least the `medium` model to get satisfactory results when translating.
 :::
 
 ## Return value
@@ -86,16 +93,33 @@ We recommend using at least the `medium` model to get satisfactory results.
 An object containing all the metadata and transcriptions resulting from the transcription process.
 
 ```ts twoslash
-type TranscriptionItem = {
-  timestamps: {
-    from: string;
-    to: string;
-  };
-  offsets: {
-    from: number;
-    to: number;
-  };
+type Timestamps = {
+  from: string;
+  to: string;
+};
+
+type Offsets = {
+  from: number;
+  to: number;
+};
+
+type WordLevelToken = {
+  t_dtw: number;
   text: string;
+  timestamps: Timestamps;
+  offsets: Offsets;
+  id: number;
+  p: number;
+};
+
+type TranscriptionItem = {
+  timestamps: Timestamps;
+  offsets: Offsets;
+  text: string;
+};
+
+type TranscriptionItemWithTimestamp = TranscriptionItem & {
+  tokens: WordLevelToken[];
 };
 
 type Model = {
@@ -118,24 +142,34 @@ type Model = {
   ftype: number;
 };
 
-type TranscriptionJson = {
+type Params = {
+  model: string;
+  language: string;
+  translate: boolean;
+};
+
+type Result = {
+  language: string;
+};
+
+export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
   systeminfo: string;
   model: Model;
-  params: {
-    model: string;
-    language: string;
-    translate: boolean;
-  };
-  result: {
-    language: string;
-  };
-  transcription: TranscriptionItem[];
+  params: Params;
+  result: Result;
+  transcription: true extends WithTokenLevelTimestamp
+    ? TranscriptionItemWithTimestamp[]
+    : TranscriptionItem[];
 };
 ```
+
+Prefer relying on the `t_dtw` value for accurate timestamps over `offsets`.  
+Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use our opinionated suggestion for postprocessing the captions.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)
 - [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions)
 - [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
 - [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)

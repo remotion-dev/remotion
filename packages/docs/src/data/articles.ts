@@ -861,6 +861,13 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "install-whisper-cpp/convert-to-captions",
+    title: "convertToCaptions()",
+    relativePath: "docs/install-whisper-cpp/convert-to-captions.mdx",
+    compId: "articles-docs-install-whisper-cpp-convert-to-captions",
+    crumb: "@remotion/install-whisper-cpp",
+  },
+  {
     id: "install-whisper-cpp/download-whisper-model",
     title: "downloadWhisperModel()",
     relativePath: "docs/install-whisper-cpp/download-whisper-model.mdx",

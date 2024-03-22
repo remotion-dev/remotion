@@ -1,0 +1,109 @@
+---
+image: /generated/articles-docs-install-whisper-cpp-convert-to-captions.png
+title: convertToCaptions()
+crumb: "@remotion/install-whisper-cpp"
+---
+
+# transcribe()<AvailableFrom v="4.0.131 "/>
+
+Opinionated function that converts the output from [`transcribe()`](/docs/install-whisper-cpp/transcribe) into easily digestable captions.  
+Can also combine words with close timestamps.  
+Useful for TikTok/Reel-type of videos that animate captions word-by-word.
+
+```tsx twoslash title="transcribe.mjs"
+// @module: esnext
+// @target: es2022
+import path from "path";
+import { transcribe, convertToCaptions } from "@remotion/install-whisper-cpp";
+
+const { transcription } = await transcribe({
+  inputPath: "/path/to/audio.wav",
+  whisperPath: path.join(process.cwd(), "whisper.cpp"),
+  model: "medium.en",
+  tokenLevelTimestamps: true,
+});
+
+const { captions } = convertToCaptions({
+  transcription,
+  combineTokensWithinMilliseconds: 200,
+});
+
+for (const line of captions) {
+  console.log(line.text, line.startInSeconds);
+}
+```
+
+## Options
+
+### `transcription`
+
+The `transcription` object that you retrieved from [`transcribe()`](/docs/install-whisper-cpp).  
+The `tokenLevelTimestamps` option must have been set to `true`.
+
+### `combineTokensWithinMilliseconds`
+
+Combine words that are close to each other.  
+If words are not combined, they might display for a very short time if word-by-word captions are being used.  
+Disable combination by setting `0`.  
+Recommendation: `200`.
+
+## Return value
+
+An array with objects of the following shape:
+
+```ts twoslash
+type Caption = {
+  text: string;
+  startInSeconds: number;
+};
+```
+
+## Suggested usage
+
+This shows how, given a data structure produced by `convertToCaptions()`, word-by-word captions can be rendered in a Remotion project.  
+See our [TikTok template](/templates/tiktok) for a full reference implementation.
+
+:::note
+`@remotion/install-whisper-cpp` cannot be imported on the frontend, it is a Node.js API.  
+Only the TypeScript type is imported in this example
+:::
+
+```tsx twoslash
+const Subtitle: React.FC<{ text: string }> = () => null;
+// ---cut---
+import type { Caption } from "@remotion/install-whisper-cpp";
+import { Sequence, useVideoConfig } from "remotion";
+
+const Captions: React.FC<{
+  subtitles: Caption[];
+}> = ({ subtitles }) => {
+  const { fps } = useVideoConfig();
+
+  return (
+    <>
+      {subtitles.map((subtitle, index) => {
+        const nextSubtitle = subtitles[index + 1] ?? null;
+        const subtitleStartFrame = subtitle.startInSeconds * fps;
+        const subtitleEndFrame = Math.min(
+          nextSubtitle ? nextSubtitle.startInSeconds * fps : Infinity,
+          subtitleStartFrame + fps,
+        );
+
+        return (
+          <Sequence
+            from={subtitleStartFrame}
+            durationInFrames={subtitleEndFrame - subtitleStartFrame}
+          >
+            <Subtitle key={index} text={subtitle.text} />;
+          </Sequence>
+        );
+      })}
+    </>
+  );
+};
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/convert-to-captions.ts)
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
