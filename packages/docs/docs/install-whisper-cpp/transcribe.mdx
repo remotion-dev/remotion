@@ -18,7 +18,7 @@ import { transcribe } from "@remotion/install-whisper-cpp";
 const { transcription } = await transcribe({
   inputPath: "/path/to/audio.wav",
   whisperPath: path.join(process.cwd(), "whisper.cpp"),
-  model: "base.en",
+  model: "medium.en",
   tokenLevelTimestamps: true,
 });
 
