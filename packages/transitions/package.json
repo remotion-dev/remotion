@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.131",
+	"version": "4.0.132",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
