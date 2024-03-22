@@ -138,7 +138,9 @@ const transcribeToTempJSON = async ({
 		.filter(Boolean) as string[];
 
 	const outputPath = await new Promise<string>((resolve, reject) => {
-		const task = spawn(executable, args, {cwd: whisperPath});
+		const task = spawn(executable, args, {
+			cwd: whisperPath,
+		});
 		const predictedPath = `${tmpJSONPath}.json`;
 
 		let output: string = '';
@@ -153,8 +155,22 @@ const transcribeToTempJSON = async ({
 			}
 		};
 
-		task.stdout.on('data', onData);
-		task.stderr.on('data', onData);
+		const onStderr = (data: Buffer) => {
+			onData(data);
+			if (printOutput) {
+				console.error(data.toString('utf-8'));
+			}
+		};
+
+		const onStdout = (data: Buffer) => {
+			onData(data);
+			if (printOutput) {
+				console.error(data.toString('utf-8'));
+			}
+		};
+
+		task.stdout.on('data', onStdout);
+		task.stderr.on('data', onStderr);
 
 		task.on('exit', (code) => {
 			// Whisper sometimes files also with error code 0
