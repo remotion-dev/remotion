@@ -3,18 +3,18 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache"],
+      "outputs": ["dist/**", ".rollup.cache/**"],
       "outputMode": "new-only"
     },
     "@remotion/example#build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache", "build"],
+      "outputs": ["dist/**", ".rollup.cache/**", "build/**"],
       "outputMode": "new-only"
     },
     "build-docs": {
       "dependsOn": ["^build", "build"],
       "outputs": [
-        ".docusaurus",
+        ".docusaurus/**",
         "../../node_modules/.cache/twoslash/**",
         "build/**"
       ]
@@ -33,7 +33,7 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src", ".cache-css", "dist/**", ".rollup.cache"],
+      "outputs": ["src/**", ".cache-css/**", "dist/**", ".rollup.cache/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
