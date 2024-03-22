@@ -27,6 +27,7 @@ const getMissedFramesforCodec = async (
       "exec",
       "remotion",
       "render",
+      "build",
       `video-testing-${codec}${offthread ? "-offthread" : ""}`,
       outputPath,
       "--image-format",
