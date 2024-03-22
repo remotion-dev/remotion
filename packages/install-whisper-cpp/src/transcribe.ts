@@ -1,9 +1,9 @@
 import {spawn} from 'node:child_process';
 import fs, {existsSync} from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import type {WhisperModel} from './download-whisper-model';
 import {getModelPath} from './download-whisper-model';
+import {getWhisperExecutablePath} from './install-whisper-cpp';
 
 type Timestamps = {
 	from: string;
@@ -117,10 +117,7 @@ const transcribeToTempJSON = async ({
 		);
 	}
 
-	const executable =
-		os.platform() === 'win32'
-			? path.join(whisperPath, 'main.exe')
-			: path.join(whisperPath, './main');
+	const executable = getWhisperExecutablePath(whisperPath);
 
 	const args = [
 		'-f',

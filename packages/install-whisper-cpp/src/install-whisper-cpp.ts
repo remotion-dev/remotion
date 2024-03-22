@@ -4,6 +4,7 @@ import {execSync} from 'node:child_process';
 import {Readable} from 'node:stream';
 import {finished} from 'node:stream/promises';
 import type {ReadableStream} from 'node:stream/web';
+import os from 'os';
 import path from 'path';
 
 const installForWindows = async ({
@@ -64,6 +65,12 @@ const installWhisperForUnix = ({
 	});
 };
 
+export const getWhisperExecutablePath = (whisperPath: string) => {
+	return os.platform() === 'win32'
+		? path.join(whisperPath, 'main.exe')
+		: path.join(whisperPath, './main');
+};
+
 export const installWhisperCpp = async ({
 	version,
 	to,
@@ -76,6 +83,16 @@ export const installWhisperCpp = async ({
 	alreadyExisted: boolean;
 }> => {
 	if (existsSync(to)) {
+		if (!existsSync(getWhisperExecutablePath(to))) {
+			if (printOutput) {
+				console.log(
+					`Whisper folder exists but the executable (${to}) is missing. Delete ${to} and try again.`,
+				);
+			}
+
+			return Promise.resolve({alreadyExisted: false});
+		}
+
 		if (printOutput) {
 			console.log(`Whisper already exists at ${to}`);
 		}
