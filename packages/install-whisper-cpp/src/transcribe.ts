@@ -96,6 +96,7 @@ const transcribeToTempJSON = async ({
 	modelFolder,
 	translate,
 	tokenLevelTimestamps,
+	printOutput,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -104,6 +105,7 @@ const transcribeToTempJSON = async ({
 	modelFolder: string | null;
 	translate: boolean;
 	tokenLevelTimestamps: boolean;
+	printOutput: boolean;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -181,6 +183,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	modelFolder,
 	translateToEnglish = false,
 	tokenLevelTimestamps,
+	printOutput = true,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -188,6 +191,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	tokenLevelTimestamps: HasTokenLevelTimestamps;
 	modelFolder?: string;
 	translateToEnglish?: boolean;
+	printOutput?: boolean;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -215,6 +219,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		modelFolder: modelFolder ?? null,
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
+		printOutput,
 	});
 
 	const json = (await readJson(
