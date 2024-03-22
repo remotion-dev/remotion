@@ -65,9 +65,11 @@ export const CanvasOrLoading: React.FC<{
 	}, [takesALongTime]);
 
 	if (!canvasContent) {
+		const compname = window.location.pathname.replace('/', '');
+
 		return (
 			<div style={container} className="css-reset">
-				<div style={style}>Composition id not found.</div>
+				<div style={style}>Composition with ID {compname} not found.</div>
 			</div>
 		);
 	}
