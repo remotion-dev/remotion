@@ -127,7 +127,7 @@ const transcribeToTempJSON = async ({
 		'--output-json',
 		'--max-len',
 		'1',
-		'-ofj', // Output full JSON
+		'-ojf', // Output full JSON
 		tokenLevelTimestamps ? ['--dtw', model] : null,
 		model ? [`-m`, `${modelPath}`] : null,
 		translate ? '-tr' : null,
