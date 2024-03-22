@@ -158,14 +158,14 @@ const transcribeToTempJSON = async ({
 		const onStderr = (data: Buffer) => {
 			onData(data);
 			if (printOutput) {
-				console.error(data.toString('utf-8'));
+				process.stderr.write(data.toString('utf-8'));
 			}
 		};
 
 		const onStdout = (data: Buffer) => {
 			onData(data);
 			if (printOutput) {
-				console.error(data.toString('utf-8'));
+				process.stdout.write(data.toString('utf-8'));
 			}
 		};
 
