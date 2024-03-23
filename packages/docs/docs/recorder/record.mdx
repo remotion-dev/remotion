@@ -1,0 +1,98 @@
+---
+title: Record a scene
+crumb: Recorder
+---
+
+import { RecordingButton } from "../../components/recorder/RecordButton";
+
+The Recorder ships with its own recording interface.  
+From it, you can record a video and add it as a scene to your project.
+
+## Setup
+
+To start the recording interface, run:
+
+```tsx
+bun run dev
+```
+
+A Vite app will start. Open the URL in the browser.  
+Give the page access to the webcam and microphone.
+
+Alternatively, you can also use the hosted version at [record.remotion.dev](https://record.remotion.dev).
+
+## Select sources
+
+In the top left panel, select the right webcam and microphone.  
+In the top right panel, select the screen you want to record.
+
+The two panels at the bottom should be left empty.  
+They are not being used by default, unless you develop your own workflow that requires more sources being recorded at once.
+
+## Before starting
+
+Take a deep breath and think of what you are about to say and show.
+
+Prefer making short recordings, because if you mess up a take, you need to discard it entirely.
+
+There is no countdown, the recording will start immediately, but the silence at the beginning will be automatically removed later.
+
+## Start the recording
+
+<div
+  style={{
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+  }}
+>
+  <div>
+    To start recording, press <kbd>R</kbd> or click{" "}
+  </div>
+  <RecordingButton type="start" />
+  <div>in the top left corner.</div>
+</div>
+<br />
+<div
+  style={{
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+  }}
+>
+  <div>Once you are done with the scene, click</div>
+  <RecordingButton type="stop" />
+  <div>.</div>
+</div>
+<br />
+<div>
+  <div>
+    The recordings will automatically be downloaded to your Downloads
+    folder.{" "}
+  </div>
+</div>
+
+## Selecting a take
+
+After you have recorded a scene and you are happy with your take, run
+
+```bash
+bun copy-from-downloads.mjs
+```
+
+to copy the file from your `Downloads` folder into your project.
+
+The script will do the following:
+
+- Remove the silence from the start and end of the videos.
+- Convert the videos from WebM to MP4
+- Put them into your project under `public/[id]`.
+
+## Discard a take
+
+If you have taken a recording, you don't want to use, you don't need to do anything.  
+Just give it another try.
+
+You may delete the files from your Downloads folder to save space.
