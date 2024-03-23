@@ -1,0 +1,38 @@
+# Setup
+
+After you got access to the repo, [create a fork](https://github.com/remotion-dev/recorder/fork) of it.
+
+ℹ️ You need to make your fork **private** to not leak the source code of the Remotion Recorder.
+
+Clone your fork and install dependencies using:
+
+## Install Bun
+
+The Remotion Recorder requires [bun](https://bun.sh/). To install it, run
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+## Install dependencies
+
+Once bun is installed, run
+
+```bash
+bun i
+```
+
+to install all the neccessary dependencies.
+
+## Create a new video
+
+In `src/Root.tsx` you have an empty `<Composition>`.  
+Duplicate the composition component and give it a different ID.
+
+In `copy-from-downloads.mjs`, set the prefix to the ID of the `<Composition>` you just cloned.
+
+```js filename="copy-from-downloads.tss"
+const prefix = "<your-composition-id>";
+```
+
+This ensures the recorded files to be correctly copied to the right folder after recording them.

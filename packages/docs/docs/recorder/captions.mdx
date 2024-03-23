@@ -1,0 +1,50 @@
+# Captions
+
+To generate captions, the Remotion Recorder uses [Whisper.cpp](https://github.com/ggerganov/whisper.cpp.
+
+## Generate
+
+To generate captions for your recording, run
+
+```
+bun sub.ts
+```
+
+After the generation process, the captions JSON file will be saved under `public/<your-composition-id>`. <br/>
+When executing this command for the first time, [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) will be automatically installed for you.
+
+## Correct
+
+If the AI has made a mistake in the caption, inside the Remotion Studio you can correct it by clicking on the faulty subtitle in the video. This opens a text editor containing the subtitles, from where you can directly edit them.
+Once you are done with your corrections, click on "Done" in the right bottom corner of the editor. This will save the changes you made into the JSON file containing your subtitles.
+Alternativel, you can directly edit your JSON files located at `public/<your-composition-id>` in your project with an editor of your choice.
+
+## Highlight Words
+
+To highlight specific words, click on the desired word within the subtitles. In the opening editor, choose the `monospace` option to apply a monospaced font and default blue color to the selected word.
+If you wish to change the highlighting color, modify the `WORD_HIGHLIGHT_COLOR` constant in the `colors.ts` file.
+
+## Language Model
+
+Per default, whisper's english base model (base.en) is used to generate the captions. If you want to use a different language model,
+you change it by specifying the model by changing the value of the `SELECTED_WHISPER_MODEL` constant in the `sub.ts` file.
+
+```javascript
+const SELECTED_WHISPER_MODEL = "base.en";
+```
+
+Valid models are:
+
+- tiny
+- tiny.en
+- base
+- base.en
+- small
+- small.en
+- medium
+- medium.en
+- large-v1
+- large-v2
+- large-v3
+
+For more information on the models, see the README file on whisper's [GitHub](https://github.com/openai/whisper?tab=readme-ov-file#available-models-and-languages) page.

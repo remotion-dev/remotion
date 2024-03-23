@@ -301,6 +301,11 @@
       "source": "/blog/faster-lambda-renders",
       "destination": "/blog/faster-lambda",
       "permanent": false
+    },
+    {
+      "source": "/recorder",
+      "destination": "/docs/recorder",
+      "permanent": false
     }
   ]
 }
