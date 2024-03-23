@@ -1,52 +1,47 @@
-# Source Control
+---
+title: Source Control
+crumb: Recorder
+---
 
-The recomended way of managing changes in your project is by using git.
-To handle the large assets that are accumulated in your projects public folder when recording, two different approaches are suggested.
+We have two recommended approaches for dealing with the videos that you add to the Remotion project.
 
-### Approach 1: Add public folder to .gitignore
+## Method 1: Add public folder to .gitignore
 
-Add the public folder containing all your assets to the .gitignore file by running
+:::tip
+👍 Recommended when you want to keep the videos local and want minimal setup.
+:::
+
+Add the public folder containing all your assets to `.gitignore` by running the following command in your Recorder root:
 
 ```bash
 echo "public" > .gitignore
 ```
 
-from your projects root directory.
-This prevents all the assets in your public folder from being added to your git repository, where they could otherwise lead it to quickly use up all its available space.
+This prevents all the assets in your public folder from being added to your Git repository.  
+The videos are being kept locally and only changes to the code can be staged.
 
-| Pro                  | Contra                  |
-| -------------------- | ----------------------- |
-| Simple to use        | Videos are kept locally |
-| No additional costs  |                         |
-| Easy to pull updates |                         |
+## Method 2: Use Git LFS
 
-### Approach 2: Use Git LFS
+:::tip
+👍 Recommended when you want to back up, archive, or share your video source files with others.
+:::
 
-If you want to keep track of all your videos in the repository, you can use Git LFS. This allows you to store recorded videos in a separate storage and only store a reference to the video in the repository.
+If you want to add all your recordings to your repository, you can use Git LFS.
 
-| Pro                                         | Contra                         |
-| ------------------------------------------- | ------------------------------ |
-| All videos are referenced in the repository | Extra costs for storage        |
-| Videos are stored online                    | Additional installation needed |
-|                                             | Difficult to pull updates      |
+Your Git provider might charge you for storage.  
+A GitHub account includes 1 GiB of free storage and 1 GiB a month of free bandwidth. [Afterwards, you can buy a 50GB data pack for $5](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/upgrading-git-large-file-storage).
 
-While a certain amount of storage is usually included, additional storage space for Git LFS has to be purchased separately.
+### Setup Git LFS
 
-#### Setup Git LFS
-
-1. Download Git LFS. You can find the instructions [here](https://git-lfs.com/)
-2. Initialize Git LFS in your repository by running
+1. [Download Git LFS](https://git-lfs.com/).
+2. Initialize Git LFS in your repository:
 
 ```bash
-    git lfs install
+git lfs install
 ```
 
-from the root folder of the cloned project.
-
-3. Configure Git LFS to track all .mp4 files located in the /public and all its subfolders by running
+3. Configure Git LFS to track all .mp4 files located in the /public and all its subfolders:
 
 ```bash
-    git lfs track public/**/*.mp4
+git lfs track public/**/*.mp4
 ```
-
-If you used up all your available storage capacity and monthly bandwith quota, you can purchase additional datapacks on on GitHub by following the steps listed [here](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/upgrading-git-large-file-storage).
