@@ -910,6 +910,7 @@ module.exports = {
         },
         "recorder/exporting",
         "recorder/source-control",
+        "recorder/upgrading",
         "recorder/gear",
         "recorder/example",
         "recorder/support",
