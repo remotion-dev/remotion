@@ -1,0 +1,59 @@
+---
+image: /generated/articles-docs-recorder-create.png
+title: Create a new video
+crumb: Recorder
+---
+
+In your repo, you will an empty [`<Composition>`](/docs/terminology/composition) under `remotion/Root.tsx`:
+
+```tsx
+<Composition
+  component={Main}
+  id="empty"
+  schema={videoConf}
+  defaultProps={{
+    theme: "light" as const,
+    canvasLayout: "square" as const,
+    scenes: [],
+    scenesAndMetadata: [],
+  }}
+  calculateMetadata={calcMetadata}
+/>
+```
+
+Copy and paste the [`<Composition />`](/docs/composition) component to duplicate it and give it an [`id`](/docs/terminology/composition#composition-id) that is different than `"empty"`. For example:
+
+```tsx title="remotion/Root.tsx"
+<Composition
+  component={Main}
+  id="empty"
+  schema={videoConf}
+  defaultProps={{
+    theme: "light" as const,
+    canvasLayout: "square" as const,
+    scenes: [],
+    scenesAndMetadata: [],
+  }}
+  calculateMetadata={calcMetadata}
+/>
+<Composition
+  component={Main}
+  id="my-video"
+  schema={videoConf}
+  defaultProps={{
+    theme: "light" as const,
+    canvasLayout: "square" as const,
+    scenes: [],
+    scenesAndMetadata: [],
+  }}
+  calculateMetadata={calcMetadata}
+/>
+```
+
+Then, edit `copy-from-downloads.mjs`, and set the `prefix` to the [ID](/docs/terminology/composition#composition-id) of the `<Composition>` you just cloned.
+
+```js filename="copy-from-downloads.tss"
+const prefix = "<your-composition-id>";
+```
+
+This ensures that when copying recordings into your project, they get added to the video you are currently working on.

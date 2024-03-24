@@ -1,0 +1,25 @@
+---
+image: /generated/articles-docs-recorder-captions.png
+title: Generate captions
+crumb: Recorder
+---
+
+To generate captions, the Remotion Recorder uses [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for fast and accurate transcriptions.
+
+## Setup
+
+The first time you will run the command below, Whisper.cpp will be installed and a 1.5GB model will be installed on your computer. This may take a few minutes.
+
+## Generate
+
+To generate captions for all of your recordings, run:
+
+```
+bun sub.ts
+```
+
+JSON files will be generated and saved under `public/<id>/sub[timestamp].json`.
+
+## Make corrections
+
+If the AI has made a mistake, no problem, there are various ways to correct the transcriptions manually. [See here how to do this](/docs/recorder/editing/captions).
