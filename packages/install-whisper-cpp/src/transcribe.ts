@@ -172,12 +172,19 @@ const transcribeToTempJSON = async ({
 		task.stdout.on('data', onStdout);
 		task.stderr.on('data', onStderr);
 
-		task.on('exit', (code) => {
+		task.on('exit', (code, signal) => {
 			// Whisper sometimes files also with error code 0
 			// https://github.com/ggerganov/whisper.cpp/pull/1952/files
 
 			if (existsSync(predictedPath)) {
 				resolve(predictedPath);
+				return;
+			}
+
+			if (signal) {
+				reject(
+					new Error(`Process was killed with signal ${signal}: ${output}`),
+				);
 				return;
 			}
 
