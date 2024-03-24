@@ -2186,6 +2186,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/exporting",
+    title: "Exporting a video",
+    relativePath: "docs/recorder/exporting.mdx",
+    compId: "articles-docs-recorder-exporting",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/gear",
     title: "Our Gear",
     relativePath: "docs/recorder/gear.mdx",
