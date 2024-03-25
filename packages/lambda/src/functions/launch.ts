@@ -289,6 +289,7 @@ const innerLaunchHandler = async ({
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
+			framesPerLambda,
 		};
 		return payload;
 	});
