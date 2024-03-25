@@ -389,6 +389,7 @@ export type LambdaPayloads = {
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace;
 		compositionStart: number;
+		framesPerLambda: number;
 	};
 	still: {
 		type: LambdaRoutines.still;

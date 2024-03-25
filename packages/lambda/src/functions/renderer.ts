@@ -112,7 +112,10 @@ const renderHandler = async (
 		preferLossless: params.preferLossless,
 	});
 
-	const seamlessAudio = canConcatAudioSeamlessly(defaultAudioCodec);
+	const seamlessAudio = canConcatAudioSeamlessly(
+		defaultAudioCodec,
+		params.framesPerLambda,
+	);
 	const seamlessVideo = canConcatVideoSeamlessly(params.codec);
 
 	RenderInternals.Log.verbose(

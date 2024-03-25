@@ -238,7 +238,10 @@ export const concatVideosS3 = async ({
 		separateAudioTo: null,
 	});
 
-	const seamlessAudio = canConcatAudioSeamlessly(resolvedAudioCodec);
+	const seamlessAudio = canConcatAudioSeamlessly(
+		resolvedAudioCodec,
+		framesPerLambda,
+	);
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
 
 	await RenderInternals.combineVideos({
