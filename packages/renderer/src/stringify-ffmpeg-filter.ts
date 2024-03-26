@@ -106,13 +106,9 @@ const trimAndSetTempo = ({
 
 export const stringifyFfmpegFilter = ({
 	channels,
-	startInVideo,
 	volume,
 	fps,
-	playbackRate,
 	assetDuration,
-	allowAmplificationDuringRender,
-	toneFrequency,
 	chunkLengthInSeconds,
 	forSeamlessAacConcatenation,
 	trimLeftOffset,
@@ -120,13 +116,9 @@ export const stringifyFfmpegFilter = ({
 	asset,
 }: {
 	channels: number;
-	startInVideo: number;
 	volume: AssetVolume;
 	fps: number;
-	playbackRate: number;
 	assetDuration: number | null;
-	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
 	chunkLengthInSeconds: number;
 	forSeamlessAacConcatenation: boolean;
 	trimLeftOffset: number;
@@ -137,9 +129,14 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
-	const startInVideoSeconds = startInVideo / fps;
+	const {toneFrequency} = asset;
 
-	if (assetDuration && asset.trimLeft / fps >= assetDuration) {
+	const startInVideoSeconds = asset.startInVideo / fps;
+
+	if (
+		assetDuration &&
+		(asset.trimLeft / fps) * asset.playbackRate >= assetDuration
+	) {
 		return null;
 	}
 
@@ -154,7 +151,7 @@ export const stringifyFfmpegFilter = ({
 		audibleDuration,
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
-		playbackRate,
+		playbackRate: asset.playbackRate,
 		forSeamlessAacConcatenation,
 		assetDuration,
 		trimLeftOffset,
@@ -167,7 +164,7 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		fps,
 		trimLeft: actualTrimLeft,
-		allowAmplificationDuringRender,
+		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
