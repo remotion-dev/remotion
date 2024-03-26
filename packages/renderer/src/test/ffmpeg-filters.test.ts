@@ -1,7 +1,8 @@
 import {expect, test} from 'vitest';
+import {flattenVolumeArray} from '../assets/flatten-volume-array';
 import type {MediaAsset} from '../assets/types';
-import {calculateFfmpegFilter} from '../calculate-ffmpeg-filters';
 import {getExtraFramesToCapture} from '../get-extra-frames-to-capture';
+import {stringifyFfmpegFilter} from '../stringify-ffmpeg-filter';
 
 const src =
 	'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicsh871Pk/1fe4a495500e1658167982183be07231.mp4';
@@ -34,7 +35,7 @@ const expandAsset = ({
 
 test('Should create a basic filter correctly', () => {
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: {
 				...baseAsset,
@@ -46,6 +47,7 @@ test('Should create a basic filter correctly', () => {
 			trimLeftOffset: 0,
 			trimRightOffset: 0,
 			forSeamlessAacConcatenation: false,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -75,7 +77,7 @@ test('Trim the end', () => {
 	const padding = Math.round((chunkLengthInSeconds - 0.704) * 48000);
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: expandAsset({
 				extraFramesToCaptureAssets: [
@@ -90,6 +92,7 @@ test('Trim the end', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -117,7 +120,7 @@ test('Should handle trim correctly', () => {
 	expect(trimRightOffset).toEqual(-0.02933333333333318);
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: expandAsset({
 				base: {
@@ -135,6 +138,7 @@ test('Should handle trim correctly', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -155,7 +159,7 @@ test('Should add padding if audio is too short', () => {
 	const padding = Math.round((3.3333 - 2 / 3) * 48000);
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: {
 				...baseAsset,
@@ -167,6 +171,7 @@ test('Should add padding if audio is too short', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -191,7 +196,7 @@ test('Should handle delay correctly', () => {
 	});
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: expandAsset({
 				base: {
@@ -210,6 +215,7 @@ test('Should handle delay correctly', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -234,7 +240,7 @@ test('Should offset multiple channels', () => {
 	});
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: expandAsset({
 				base: {
@@ -253,6 +259,7 @@ test('Should offset multiple channels', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
@@ -281,7 +288,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 	});
 
 	expect(
-		calculateFfmpegFilter({
+		stringifyFfmpegFilter({
 			fps: 30,
 			asset: expandAsset({
 				base: {
@@ -307,6 +314,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			trimLeftOffset,
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
+			volume: flattenVolumeArray(baseAsset.volume),
 		}),
 	).toEqual({
 		filter:
