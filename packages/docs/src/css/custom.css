@@ -54,6 +54,10 @@ h6 {
   font-style: normal;
 }
 
+[class*="col"][class*="lastUpdated"] {
+  display: none;
+}
+
 :root {
   --ifm-color-primary: #0b84f3;
   --ifm-color-primary-dark: #0a77db;
