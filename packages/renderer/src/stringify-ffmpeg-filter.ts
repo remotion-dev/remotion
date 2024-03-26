@@ -60,7 +60,7 @@ const trimAndSetTempo = ({
 			trimRightOffset * asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
-			? Math.min(trimRight, assetDuration * asset.playbackRate)
+			? Math.min(trimRight, assetDuration / asset.playbackRate)
 			: trimRight;
 
 		const actualTrimLeft = trimLeft / playbackRate;
