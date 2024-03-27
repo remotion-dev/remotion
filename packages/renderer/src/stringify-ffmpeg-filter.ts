@@ -52,19 +52,19 @@ const trimAndSetTempo = ({
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
 		const trimLeft =
-			(asset.trimLeft * asset.playbackRate) / fps +
-			trimLeftOffset * asset.playbackRate;
+			asset.trimLeft / asset.playbackRate / fps +
+			trimLeftOffset / asset.playbackRate;
 		const trimRight =
 			trimLeft +
-			(asset.duration * asset.playbackRate) / fps +
-			trimRightOffset * asset.playbackRate;
+			asset.duration / asset.playbackRate / fps +
+			trimRightOffset / asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)
 			: trimRight;
 
-		const actualTrimLeft = trimLeft / playbackRate;
-		const actualTrimRight = trimRightOrAssetDuration / playbackRate;
+		const actualTrimLeft = trimLeft * asset.playbackRate;
+		const actualTrimRight = trimRightOrAssetDuration * asset.playbackRate;
 
 		return {
 			filter: [
@@ -81,9 +81,8 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
-		const trimLeft = asset.trimLeft / fps + trimLeftOffset * asset.playbackRate;
-		const trimRight =
-			trimLeft + asset.duration / fps + trimRightOffset * asset.playbackRate;
+		const trimLeft = asset.trimLeft / fps;
+		const trimRight = trimLeft + asset.duration / fps;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration)
@@ -129,14 +128,11 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
-	const {toneFrequency} = asset;
+	const {toneFrequency, startInVideo, trimLeft, playbackRate} = asset;
 
-	const startInVideoSeconds = asset.startInVideo / fps;
+	const startInVideoSeconds = startInVideo / fps;
 
-	if (
-		assetDuration &&
-		(asset.trimLeft / fps) * asset.playbackRate >= assetDuration
-	) {
+	if (assetDuration && (trimLeft / fps) * playbackRate >= assetDuration) {
 		return null;
 	}
 
@@ -151,7 +147,7 @@ export const stringifyFfmpegFilter = ({
 		audibleDuration,
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
-		playbackRate: asset.playbackRate,
+		playbackRate,
 		forSeamlessAacConcatenation,
 		assetDuration,
 		trimLeftOffset,
