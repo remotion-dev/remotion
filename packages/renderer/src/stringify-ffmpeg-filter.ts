@@ -66,7 +66,7 @@ const trimAndSetTempo = ({
 
 		return {
 			filter: [
-				calculateATempo(playbackRate),
+				calculateATempo(asset.playbackRate),
 				`atrim=${stringifyTrim(actualTrimLeft)}:${stringifyTrim(
 					actualTrimRight,
 				)}`,
@@ -146,7 +146,6 @@ export const stringifyFfmpegFilter = ({
 		audibleDuration,
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
-		playbackRate,
 		forSeamlessAacConcatenation,
 		assetDuration,
 		trimLeftOffset,
