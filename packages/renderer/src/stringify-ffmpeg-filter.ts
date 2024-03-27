@@ -50,12 +50,9 @@ const trimAndSetTempo = ({
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
 		const trimLeft =
-			asset.trimLeft / asset.playbackRate / fps +
-			trimLeftOffset / asset.playbackRate;
+			(asset.trimLeft / fps + trimLeftOffset) / asset.playbackRate;
 		const trimRight =
-			trimLeft +
-			asset.duration / asset.playbackRate / fps +
-			trimRightOffset / asset.playbackRate;
+			trimLeft + (asset.duration / fps + trimRightOffset) / asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)
