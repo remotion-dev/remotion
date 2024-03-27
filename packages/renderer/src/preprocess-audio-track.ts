@@ -1,7 +1,7 @@
 import type {DownloadMap} from './assets/download-map';
+import {flattenVolumeArray} from './assets/flatten-volume-array';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
-import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import type {LogLevel} from './log-level';
@@ -12,6 +12,7 @@ import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {ProcessedTrack} from './stringify-ffmpeg-filter';
+import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
 type Options = {
 	outName: string;
@@ -58,7 +59,7 @@ const preprocessAudioTrackUnlimited = async ({
 		cancelSignal,
 	});
 
-	const filter = calculateFfmpegFilter({
+	const filter = stringifyFfmpegFilter({
 		asset,
 		fps,
 		channels,
@@ -67,6 +68,7 @@ const preprocessAudioTrackUnlimited = async ({
 		trimLeftOffset,
 		trimRightOffset,
 		forSeamlessAacConcatenation,
+		volume: flattenVolumeArray(asset.volume),
 	});
 
 	if (filter === null) {

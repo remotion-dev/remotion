@@ -26,7 +26,6 @@ const stringifyTrim = (trim: number) => {
 };
 
 const trimAndSetTempo = ({
-	playbackRate,
 	forSeamlessAacConcatenation,
 	assetDuration,
 	asset,
@@ -34,7 +33,6 @@ const trimAndSetTempo = ({
 	trimRightOffset,
 	fps,
 }: {
-	playbackRate: number;
 	forSeamlessAacConcatenation: boolean;
 	assetDuration: number | null;
 	trimLeftOffset: number;
@@ -52,23 +50,20 @@ const trimAndSetTempo = ({
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
 		const trimLeft =
-			(asset.trimLeft * asset.playbackRate) / fps +
-			trimLeftOffset * asset.playbackRate;
+			(asset.trimLeft / fps + trimLeftOffset) / asset.playbackRate;
 		const trimRight =
-			trimLeft +
-			(asset.duration * asset.playbackRate) / fps +
-			trimRightOffset * asset.playbackRate;
+			trimLeft + (asset.duration / fps + trimRightOffset) / asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
-			? Math.min(trimRight, assetDuration * asset.playbackRate)
+			? Math.min(trimRight, assetDuration / asset.playbackRate)
 			: trimRight;
 
-		const actualTrimLeft = trimLeft / playbackRate;
-		const actualTrimRight = trimRightOrAssetDuration / playbackRate;
+		const actualTrimLeft = trimLeft * asset.playbackRate;
+		const actualTrimRight = trimRightOrAssetDuration * asset.playbackRate;
 
 		return {
 			filter: [
-				calculateATempo(playbackRate),
+				calculateATempo(asset.playbackRate),
 				`atrim=${stringifyTrim(actualTrimLeft)}:${stringifyTrim(
 					actualTrimRight,
 				)}`,
@@ -81,23 +76,25 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
-		const trimLeft = asset.trimLeft / fps + trimLeftOffset * asset.playbackRate;
-		const trimRight =
-			trimLeft + asset.duration / fps + trimRightOffset * asset.playbackRate;
+		const trimLeft = asset.trimLeft / fps;
+		const trimRight = (trimLeft + asset.duration / fps) * asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration)
 			: trimRight;
 
+		const actualTrimLeft = trimLeft * asset.playbackRate;
+
 		return {
 			filter: [
-				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(
+				`atrim=${stringifyTrim(actualTrimLeft)}:${stringifyTrim(
 					trimRightOrAssetDuration,
 				)}`,
-				calculateATempo(playbackRate),
+				calculateATempo(asset.playbackRate),
 			],
-			actualTrimLeft: trimLeft,
-			audibleDuration: (trimRightOrAssetDuration - trimLeft) / playbackRate,
+			actualTrimLeft,
+			audibleDuration:
+				(trimRightOrAssetDuration - actualTrimLeft) / asset.playbackRate,
 		};
 	}
 
@@ -106,13 +103,9 @@ const trimAndSetTempo = ({
 
 export const stringifyFfmpegFilter = ({
 	channels,
-	startInVideo,
 	volume,
 	fps,
-	playbackRate,
 	assetDuration,
-	allowAmplificationDuringRender,
-	toneFrequency,
 	chunkLengthInSeconds,
 	forSeamlessAacConcatenation,
 	trimLeftOffset,
@@ -120,13 +113,9 @@ export const stringifyFfmpegFilter = ({
 	asset,
 }: {
 	channels: number;
-	startInVideo: number;
 	volume: AssetVolume;
 	fps: number;
-	playbackRate: number;
 	assetDuration: number | null;
-	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
 	chunkLengthInSeconds: number;
 	forSeamlessAacConcatenation: boolean;
 	trimLeftOffset: number;
@@ -137,9 +126,11 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
+	const {toneFrequency, startInVideo, trimLeft, playbackRate} = asset;
+
 	const startInVideoSeconds = startInVideo / fps;
 
-	if (assetDuration && asset.trimLeft / fps >= assetDuration) {
+	if (assetDuration && (trimLeft / fps) * playbackRate >= assetDuration) {
 		return null;
 	}
 
@@ -154,7 +145,6 @@ export const stringifyFfmpegFilter = ({
 		audibleDuration,
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
-		playbackRate,
 		forSeamlessAacConcatenation,
 		assetDuration,
 		trimLeftOffset,
@@ -167,7 +157,7 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		fps,
 		trimLeft: actualTrimLeft,
-		allowAmplificationDuringRender,
+		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;

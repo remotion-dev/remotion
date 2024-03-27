@@ -16,11 +16,11 @@ test('Should make regular (non-seamless) audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'wav',
 		composition: 'framer',
-		frameRange: [300, 400],
+		frameRange: [100, 200],
 		imageFormat: 'none',
 		logLevel: 'error',
 		region: 'eu-central-1',
-		inputProps: {playbackRate: 1},
+		inputProps: {playbackRate: 2},
 	});
 
 	const wav = path.join(process.cwd(), 'regular.wav');
