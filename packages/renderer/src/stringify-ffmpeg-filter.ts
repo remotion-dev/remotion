@@ -26,7 +26,6 @@ const stringifyTrim = (trim: number) => {
 };
 
 const trimAndSetTempo = ({
-	playbackRate,
 	forSeamlessAacConcatenation,
 	assetDuration,
 	asset,
@@ -34,7 +33,6 @@ const trimAndSetTempo = ({
 	trimRightOffset,
 	fps,
 }: {
-	playbackRate: number;
 	forSeamlessAacConcatenation: boolean;
 	assetDuration: number | null;
 	trimLeftOffset: number;
@@ -88,15 +86,16 @@ const trimAndSetTempo = ({
 			? Math.min(trimRight, assetDuration)
 			: trimRight;
 
+		const actualTrimRight =
+			(trimRightOrAssetDuration - trimLeft) * asset.playbackRate + trimLeft;
+
 		return {
 			filter: [
-				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(
-					trimRightOrAssetDuration,
-				)}`,
-				calculateATempo(playbackRate),
+				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(actualTrimRight)}`,
+				calculateATempo(asset.playbackRate),
 			],
 			actualTrimLeft: trimLeft,
-			audibleDuration: (trimRightOrAssetDuration - trimLeft) / playbackRate,
+			audibleDuration: (actualTrimRight - trimLeft) / asset.playbackRate,
 		};
 	}
 
