@@ -180,7 +180,8 @@ impl OpenedStream {
             self.video.flush();
             self.input
                 .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
-            freshly_seeked = true
+            freshly_seeked = true;
+            self.last_position = None
         }
 
         let mut last_frame_received: Option<LastFrameInfo> = None;
@@ -307,16 +308,17 @@ impl OpenedStream {
                         filter_graph: self.filter_graph,
                     };
 
+                    let previous_pts = match freshly_seeked || self.last_position.is_none() {
+                        true => None,
+                        false => Some(self.last_position.unwrap()),
+                    };
                     let item = FrameCacheItem {
                         resolved_pts: unfiltered.pts().expect("expected pts"),
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
                         last_used: get_time(),
-                        previous_pts: match freshly_seeked || self.last_position.is_none() {
-                            true => None,
-                            false => Some(self.last_position.unwrap()),
-                        },
+                        previous_pts,
                     };
 
                     self.last_position = Some(unfiltered.pts().expect("expected pts"));
