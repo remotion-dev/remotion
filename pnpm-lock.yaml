@@ -375,7 +375,7 @@ importers:
         version: link:../bundler
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -601,7 +601,7 @@ importers:
         version: link:../bundler
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
@@ -853,7 +853,7 @@ importers:
         version: link:../bundler
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
@@ -1022,7 +1022,7 @@ importers:
     dependencies:
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1164,7 +1164,7 @@ importers:
         version: link:../bundler
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
@@ -1269,7 +1269,7 @@ importers:
         version: link:../bundler
       '@remotion/cli':
         specifier: workspace:*
-        version: link:../cli
+        version: link:../video-parser
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -2236,6 +2236,39 @@ importers:
       rollup:
         specifier: ^2.70.1
         version: 2.76.0
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
+
+  packages/video-parser:
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.276
+        version: 3.0.276(eslint@8.42.0)(typescript@4.9.5)
+      '@types/bun':
+        specifier: ^1.0.4
+        version: 1.0.4
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.42.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.42.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.42.0)
+      prettier:
+        specifier: 3.1.1
+        version: 3.1.1
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.1.1)(typescript@4.9.5)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -9888,10 +9921,10 @@ packages:
       bun-types: 1.0.24
     dev: true
 
-  /@types/bun@1.0.5:
-    resolution: {integrity: sha512-c14fs5QLLanldcZpX/GjIEKeo++NDzOlixUZ7IUWzN7AoBTisYyWxaxdXNhpAP5I1mPcd92Zagq8sdgTnUXWjg==}
+  /@types/bun@1.0.4:
+    resolution: {integrity: sha512-2DO7sqwtpko3d3XP2kLpJsOkV12sSRt8cFR955JVB60m1DiXE56T+gJq+DcCczQ5khxgCDQKkyBRlgg5VH33Dw==}
     dependencies:
-      bun-types: 1.0.26
+      bun-types: 1.0.25
     dev: true
 
   /@types/cacheable-request@6.0.2:
@@ -11973,11 +12006,12 @@ packages:
       undici-types: 5.28.2
     dev: true
 
-  /bun-types@1.0.26:
-    resolution: {integrity: sha512-VcSj+SCaWIcMb0uSGIAtr8P92zq9q+unavcQmx27fk6HulCthXHBVrdGuXxAZbFtv7bHVjizRzR2mk9r/U8Nkg==}
+  /bun-types@1.0.25:
+    resolution: {integrity: sha512-9lxeUR/OJsvlZH4GOWteiAdx7ikrSxCUX7Rr0JJux+DrR3LejouVLxIZnTeQ3UPAZovvSgKivWeHPJ2wlo7/Kg==}
     dependencies:
-      '@types/node': 20.11.17
-      '@types/ws': 8.5.10
+      '@types/node': 18.14.6
+      '@types/ws': 8.5.3
+      undici-types: 5.28.2
     dev: true
 
   /busboy@1.6.0:
