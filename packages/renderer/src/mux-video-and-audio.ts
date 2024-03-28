@@ -17,7 +17,7 @@ export const muxVideoAndAudio = async ({
 	fps,
 	cancelSignal,
 }: {
-	videoOutput: string;
+	videoOutput: string | null;
 	audioOutput: string | null;
 	output: string;
 	indent: boolean;
@@ -31,12 +31,12 @@ export const muxVideoAndAudio = async ({
 	Log.verbose({indent, logLevel}, 'Muxing video and audio together');
 	const command = [
 		'-hide_banner',
-		'-i',
+		videoOutput ? '-i' : null,
 		videoOutput,
 		audioOutput ? '-i' : null,
 		audioOutput,
-		'-c:v',
-		'copy',
+		videoOutput ? '-c:v' : null,
+		videoOutput ? 'copy' : null,
 		audioOutput ? '-c:a' : null,
 		audioOutput ? 'copy' : null,
 		`-metadata`,

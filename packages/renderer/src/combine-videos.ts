@@ -59,10 +59,12 @@ export const combineChunks = async ({
 	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
-	const videoOutput = join(
-		filelistDir,
-		`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
-	);
+	const videoOutput = shouldCreateVideo
+		? join(
+				filelistDir,
+				`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
+			)
+		: null;
 
 	const audioOutput = shouldCreateAudio
 		? join(
@@ -106,14 +108,14 @@ export const combineChunks = async ({
 	);
 	await Promise.all(
 		[
-			shouldCreateAudio
+			shouldCreateAudio && audioOutput
 				? createCombinedAudio({
 						audioBitrate,
 						filelistDir,
 						files: audioFiles,
 						indent,
 						logLevel,
-						output: shouldCreateVideo ? (audioOutput as string) : output,
+						output: audioOutput,
 						resolvedAudioCodec,
 						seamless: seamlessAudio,
 						chunkDurationInSeconds,
@@ -128,7 +130,7 @@ export const combineChunks = async ({
 					})
 				: null,
 
-			shouldCreateVideo && !seamlessVideo
+			shouldCreateVideo && !seamlessVideo && videoOutput
 				? combineVideoStreams({
 						codec,
 						filelistDir,
@@ -136,7 +138,7 @@ export const combineChunks = async ({
 						indent,
 						logLevel,
 						numberOfGifLoops,
-						output: shouldCreateAudio ? videoOutput : output,
+						output: videoOutput,
 						files: videoFiles,
 						addRemotionMetadata: !shouldCreateAudio,
 						binariesDirectory,
