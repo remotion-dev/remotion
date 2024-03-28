@@ -132,8 +132,7 @@ export const getAllFilesS3 = ({
 
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				'Found ',
-				filesInBucket,
+				`Found ${filesInBucket.length} out of ${expectedFiles}`,
 			);
 			const errors = (
 				await inspectErrors({

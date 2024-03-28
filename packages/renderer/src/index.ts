@@ -128,6 +128,7 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
+import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import type {AudioCodec} from './options/audio-codec';
 import {
@@ -229,6 +230,7 @@ export const RenderInternals = {
 	makeFileExecutableIfItIsNot,
 	resolveAudioCodec,
 	getShouldRenderAudio,
+	codecSupportsMedia,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

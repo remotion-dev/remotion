@@ -5,7 +5,6 @@ import {getExpectedOutName} from '../../functions/helpers/expected-out-name';
 const bucketName = 'remotionlambda-98fsduf';
 
 const testRenderMetadata: RenderMetadata = {
-	codec: 'h264',
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
 	estimatedTotalLambdaInvokations: 100,
@@ -43,6 +42,7 @@ const testRenderMetadata: RenderMetadata = {
 	downloadBehavior: {type: 'play-in-browser'},
 	audioBitrate: null,
 	muted: false,
+	codec: 'h264',
 };
 
 test('Should get a custom outname', () => {
@@ -71,6 +71,7 @@ test('Should save to a different outname', () => {
 test('For stills', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		codec: null,
 		type: 'still',
 		imageFormat: 'png',
 	};
