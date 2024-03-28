@@ -21,20 +21,23 @@ const topFonts = sortBy(
         s.family !== "Material Icons Round" &&
         s.family !== "Material Icons Sharp" &&
         s.family !== "Material Symbols Outlined" &&
+        s.family !== "Material Symbols Rounded" &&
         s.family !== "Material Icons Two Tone"
       );
     })
     .slice(0, amount),
-  (s) => s.family
+  (s) => s.family,
 );
 
 const availableFonts = getAvailableFonts();
 const remotionList = topFonts.map((t) => {
   const { importName } = availableFonts.find((f) => f.fontFamily === t.family);
-  return `{family: "${t.family}", load: () => import("@remotion/google-fonts/${importName}")},`;
+  return `{family: "${t.family}", load: () => import("@remotion/google-fonts/${importName}") as Promise<GoogleFont>},`;
 });
-const js = "export const top" + amount + " = [" + remotionList.join("") + "]";
-const prettified = prettier.format(js, {
+const js = `import type {GoogleFont} from '@remotion/google-fonts';\n\nexport const top${amount} = [${remotionList.join(
+  "",
+)}]`;
+const prettified = await prettier.format(js, {
   parser: "typescript",
   singleQuote: true,
   quoteProps: "consistent",
