@@ -6,15 +6,17 @@ type Variants = Record<
   }
 >;
 
-type FontInfo = {
-  getInfo: () => {
-    fontFamily: string;
-    importName: string;
-    version: string;
-    url: string;
-    unicodeRanges: Record<string, string>;
-    fonts: Record<string, Record<string, Record<string, string>>>;
-  };
+export type FontInfo = {
+  fontFamily: string;
+  importName: string;
+  version: string;
+  url: string;
+  unicodeRanges: Record<string, string>;
+  fonts: Record<string, Record<string, Record<string, string>>>;
+};
+
+export type GoogleFont = {
+  getInfo: () => FontInfo;
   fontFamily: string;
   loadFont: <T extends keyof Variants>(
     style?: T | undefined,
