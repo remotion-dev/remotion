@@ -34,7 +34,6 @@ test('Should make muted render audio', async () => {
 	});
 
 	expect(out.stdout).not.toContain('Audio');
-	console.log(out);
 
 	const files = await lambdaLs({
 		bucketName: progress.outBucket as string,
