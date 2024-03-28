@@ -6,6 +6,11 @@ crumb: "@remotion/install-whisper-cpp"
 
 # transcribe()<AvailableFrom v="4.0.131 "/>
 
+:::warning
+This API assumes a newer version of whisper.cpp than the stable release to support `tokenLevelTimestamps`. As a downside, this version may crash unexpectedly.
+Use an older version of whisper.cpp (1.0.54 or earlier) if you prefer to use a stable version of Whisper.cpp and forgo `tokenLevelTimeStamps` support.  
+:::
+
 Transcribes a media file by utilizing Whisper.cpp.  
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
 
