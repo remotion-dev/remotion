@@ -206,6 +206,7 @@ export const concatVideosS3 = async ({
 	binariesDirectory,
 	cancelSignal,
 	preferLossless,
+	muted,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -221,6 +222,7 @@ export const concatVideosS3 = async ({
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
+	muted: boolean;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
@@ -244,7 +246,7 @@ export const concatVideosS3 = async ({
 	);
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
 
-	await RenderInternals.combineVideos({
+	await RenderInternals.combineChunks({
 		files,
 		filelistDir,
 		output: outfile,
@@ -262,6 +264,7 @@ export const concatVideosS3 = async ({
 		cancelSignal,
 		seamlessAudio,
 		seamlessVideo,
+		muted,
 	});
 	combine.end();
 

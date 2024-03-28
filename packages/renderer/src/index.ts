@@ -9,7 +9,7 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
-import {combineVideos} from './combine-videos';
+import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {copyImageToClipboard} from './copy-to-clipboard';
@@ -137,6 +137,7 @@ import {
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
+import {getShouldRenderAudio} from './render-has-audio';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -190,7 +191,7 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
-	combineVideos,
+	combineChunks,
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,
@@ -227,6 +228,7 @@ export const RenderInternals = {
 	getExtensionFromAudioCodec,
 	makeFileExecutableIfItIsNot,
 	resolveAudioCodec,
+	getShouldRenderAudio,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

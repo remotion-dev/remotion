@@ -33,9 +33,10 @@ type Options = {
 	cancelSignal: CancelSignal | undefined;
 	seamlessAudio: boolean;
 	seamlessVideo: boolean;
+	muted: boolean;
 };
 
-export const combineVideos = async ({
+export const combineChunks = async ({
 	files,
 	filelistDir,
 	output,
@@ -53,8 +54,9 @@ export const combineVideos = async ({
 	cancelSignal,
 	seamlessAudio,
 	seamlessVideo,
+	muted,
 }: Options) => {
-	const shouldCreateAudio = resolvedAudioCodec !== null;
+	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
 	const videoOutput = join(
@@ -89,8 +91,18 @@ export const combineVideos = async ({
 	Log.verbose(
 		{indent, logLevel},
 		`Combining chunks, audio = ${
-			seamlessAudio ? 'seamlessly' : 'normally'
-		}, video = ${seamlessVideo ? 'seamlessly' : 'normally'}`,
+			shouldCreateAudio === false
+				? 'no'
+				: seamlessAudio
+					? 'seamlessly'
+					: 'normally'
+		}, video = ${
+			shouldCreateVideo === false
+				? 'no'
+				: seamlessVideo
+					? 'seamlessly'
+					: 'normally'
+		}`,
 	);
 	await Promise.all(
 		[
@@ -137,12 +149,6 @@ export const combineVideos = async ({
 				: null,
 		].filter(truthy),
 	);
-
-	// Either only audio or only video
-	if (!(audioOutput && shouldCreateVideo)) {
-		rmSync(filelistDir, {recursive: true});
-		return;
-	}
 
 	try {
 		await muxVideoAndAudio({

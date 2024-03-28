@@ -18,7 +18,7 @@ export const muxVideoAndAudio = async ({
 	cancelSignal,
 }: {
 	videoOutput: string;
-	audioOutput: string;
+	audioOutput: string | null;
 	output: string;
 	indent: boolean;
 	logLevel: LogLevel;
@@ -33,12 +33,12 @@ export const muxVideoAndAudio = async ({
 		'-hide_banner',
 		'-i',
 		videoOutput,
-		'-i',
+		audioOutput ? '-i' : null,
 		audioOutput,
 		'-c:v',
 		'copy',
-		'-c:a',
-		'copy',
+		audioOutput ? '-c:a' : null,
+		audioOutput ? 'copy' : null,
 		`-metadata`,
 		`comment=Made with Remotion ${VERSION}`,
 		'-y',
