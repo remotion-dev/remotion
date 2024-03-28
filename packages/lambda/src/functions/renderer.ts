@@ -145,11 +145,26 @@ const renderHandler = async (
 		: null;
 
 	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
-	const audioOutputLocation = RenderInternals.isAudioCodec(params.codec)
-		? null
-		: audioExtension
-			? path.join(outdir, `${chunk}.${audioExtension}`)
-			: null;
+
+	const willRenderAudioEval = RenderInternals.getShouldRenderAudio({
+		assetsInfo: null,
+		codec: params.codec,
+		enforceAudioTrack: true,
+		muted: params.muted,
+	});
+
+	if (willRenderAudioEval === 'maybe') {
+		throw new Error('Cannot determine whether to render audio or not');
+	}
+
+	const audioOutputLocation =
+		willRenderAudioEval === 'no'
+			? null
+			: RenderInternals.isAudioCodec(params.codec)
+				? null
+				: audioExtension
+					? path.join(outdir, `${chunk}.${audioExtension}`)
+					: null;
 
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;

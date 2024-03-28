@@ -452,6 +452,7 @@ type Discriminated =
 	| {
 			type: 'still';
 			imageFormat: StillImageFormat;
+			codec: null;
 	  }
 	| {
 			type: 'video';
@@ -459,6 +460,7 @@ type Discriminated =
 			muted: boolean;
 			frameRange: [number, number];
 			everyNthFrame: number;
+			codec: LambdaCodec;
 	  };
 
 export type RenderMetadata = Discriminated & {
@@ -469,7 +471,6 @@ export type RenderMetadata = Discriminated & {
 	estimatedTotalLambdaInvokations: number;
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
-	codec: LambdaCodec | null;
 	audioCodec: AudioCodec | null;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;

@@ -11,10 +11,14 @@ export const lambdaRenderHasAudioVideo = (
 		throw new Error('Cannot merge stills');
 	}
 
+	const support = RenderInternals.codecSupportsMedia(renderMetadata.codec);
+
 	const hasVideo = renderMetadata
 		? !RenderInternals.isAudioCodec(renderMetadata.codec)
 		: false;
-	const hasAudio = renderMetadata ? !renderMetadata.muted : false;
+	const hasAudio = renderMetadata
+		? !renderMetadata.muted && support.audio
+		: false;
 
 	return {
 		hasAudio,

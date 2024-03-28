@@ -35,6 +35,7 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -163,11 +164,19 @@ const innerStitchFramesToVideo = async (
 
 	const mediaSupport = codecSupportsMedia(codec);
 
-	const shouldRenderAudio =
-		mediaSupport.audio &&
-		(assetsInfo.assets.flat(1).length > 0 || enforceAudioTrack) &&
-		!muted;
+	const renderAudioEvaluation = getShouldRenderAudio({
+		assetsInfo,
+		codec,
+		enforceAudioTrack,
+		muted,
+	});
+	if (renderAudioEvaluation === 'maybe') {
+		throw new Error(
+			'Remotion is not sure whether to render audio. Please report this in the Remotion repo.',
+		);
+	}
 
+	const shouldRenderAudio = renderAudioEvaluation === 'yes';
 	const shouldRenderVideo = mediaSupport.video;
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {

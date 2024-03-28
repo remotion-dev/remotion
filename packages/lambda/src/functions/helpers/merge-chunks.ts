@@ -171,6 +171,10 @@ export const mergeChunksAndFinishRender = async (options: {
 		compositionStart: options.compositionStart,
 	});
 	const encodingStart = Date.now();
+	if (options.renderMetadata.type === 'still') {
+		throw new Error('Cannot merge stills');
+	}
+
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
 		onProgress,
 		numberOfFrames: options.frameCountLength,
@@ -186,6 +190,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
+		muted: options.renderMetadata.muted,
 	});
 	const encodingStop = Date.now();
 
