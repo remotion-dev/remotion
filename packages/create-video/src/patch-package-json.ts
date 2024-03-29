@@ -45,11 +45,12 @@ export const patchPackageJson = (
 			}, {});
 	});
 
-	const updateScripts = (scripts: Record<string, string>) => {
-		for (const [key, value] of Object.entries(scripts)) {
-			scripts[key] = value.replace(/remotion\b/g, 'remotionb');
+	const updateScripts = (scriptsToUpdate: Record<string, string>) => {
+		for (const [key, value] of Object.entries(scriptsToUpdate)) {
+			scriptsToUpdate[key] = value.replace(/remotion\b/g, 'remotionb');
 		}
-		return scripts;
+
+		return scriptsToUpdate;
 	};
 
 	// update scripts to use "remotionb" instead of "remotion" if Bun is used
