@@ -6,6 +6,11 @@ crumb: "@remotion/install-whisper-cpp"
 
 # convertToCaptions()<AvailableFrom v="4.0.131 "/>
 
+:::warning
+This API assumes a newer version of Whisper.cpp than the stable release to support `tokenLevelTimestamps`. As a downside, this version may crash unexpectedly.
+Use an older version of Whisper.cpp (1.0.54 or earlier) if you prefer to use a stable version of Whisper.cpp and forgo `tokenLevelTimeStamps` support.  
+:::
+
 Opinionated function that converts the output from [`transcribe()`](/docs/install-whisper-cpp/transcribe) into easily digestable captions.  
 Can also combine words with close timestamps.  
 Useful for TikTok/Reel-type of videos that animate captions word-by-word.
