@@ -44,59 +44,13 @@ const ICON_SIZE = 16;
 const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
-	setSelectedModal,
 	previewServerState,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
-	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 }) => {
 	const items: ComboboxValue[] = [
-		readOnlyStudio
-			? null
-			: {
-					id: 'new-sequence',
-					value: 'new-sequence',
-					label: 'New composition...',
-					onClick: () => {
-						closeMenu();
-						setSelectedModal({
-							compType: 'composition',
-							type: 'new-comp',
-						});
-					},
-					type: 'item' as const,
-					keyHint: 'N',
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'New composition...',
-				},
-		readOnlyStudio
-			? null
-			: {
-					id: 'new-still',
-					value: 'new-still',
-					label: 'New still...',
-					onClick: () => {
-						closeMenu();
-						setSelectedModal({
-							compType: 'still',
-							type: 'new-comp',
-						});
-					},
-					type: 'item' as const,
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'New still...',
-				},
-		readOnlyStudio
-			? null
-			: {
-					type: 'divider' as const,
-					id: 'new-divider',
-				},
 		readOnlyStudio
 			? null
 			: {
@@ -298,7 +252,6 @@ export const useMenuStructure = (
 				readOnlyStudio,
 				closeMenu,
 				previewServerState: type,
-				setSelectedModal,
 			}),
 			{
 				id: 'view' as const,

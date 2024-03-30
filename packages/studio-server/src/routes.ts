@@ -25,7 +25,6 @@ import {getPackageManager} from './preview-server/get-package-manager';
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
-import {getProjectInfo} from './preview-server/project-info';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
 
@@ -100,17 +99,6 @@ const handleFallback = async ({
 			}),
 		}),
 	);
-};
-
-const handleProjectInfo = async (
-	remotionRoot: string,
-	_: IncomingMessage,
-	response: ServerResponse,
-) => {
-	const data = await getProjectInfo(remotionRoot);
-	response.setHeader('content-type', 'application/json');
-	response.writeHead(200);
-	response.end(JSON.stringify(data));
 };
 
 const handleFileSource = async ({
@@ -326,10 +314,6 @@ export const handleRoutes = ({
 	binariesDirectory: string | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
-
-	if (url.pathname === '/api/project-info') {
-		return handleProjectInfo(remotionRoot, request, response);
-	}
 
 	if (url.pathname === '/api/file-source') {
 		return handleFileSource({

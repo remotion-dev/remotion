@@ -12,8 +12,7 @@ import {
 } from '../../state/aspect-ratio-locked';
 import type {CompType} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
-import {CopyButton} from '../CopyButton';
-import {Flex, Row, Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import {
 	getMaxModalHeight,
 	getMaxModalWidth,
@@ -22,11 +21,9 @@ import {
 import {NewCompHeader} from '../ModalHeader';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
-import {CopyHint} from './CopyHint';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
-import {getNewCompositionCode} from './NewCompCode';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
@@ -39,33 +36,8 @@ const left: React.CSSProperties = {
 	fontSize: 13,
 };
 
-const panelRight: React.CSSProperties = {
-	backgroundColor: 'black',
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	position: 'relative',
-	width: 400,
-};
-
-const pre: React.CSSProperties = {
-	fontSize: 17,
-	fontFamily: 'monospace',
-};
-
 const comboBoxStyle: React.CSSProperties = {
 	width: inputArea.width,
-};
-
-const copyRowStyle: React.CSSProperties = {
-	position: 'absolute',
-	bottom: 10,
-	right: 0,
-	paddingRight: 10,
-	paddingLeft: 20,
-	width: '100%',
-	alignItems: 'center',
-	color: leftLabel.color,
 };
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
@@ -87,7 +59,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		return {
 			flexDirection: 'row',
 			display: 'flex',
-			width: getMaxModalWidth(950),
+			width: getMaxModalWidth(600),
 			height:
 				type === 'composition'
 					? getMaxModalHeight(490)
@@ -404,38 +376,6 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 						) : null}
 					</form>
 				</div>
-				<div style={panelRight}>
-					<pre style={pre}>
-						{getNewCompositionCode({
-							type,
-							durationInFrames: Number(durationInFrames),
-							fps: Number(selectedFrameRate),
-							height: Number(size.height),
-							width: Number(size.width),
-							name,
-							raw: false,
-						})}
-					</pre>
-					<Row align="center" style={copyRowStyle}>
-						<CopyHint />
-						<Flex />
-						<CopyButton
-							label="Copy code"
-							labelWhenCopied="Copied!"
-							textToCopy={
-								getNewCompositionCode({
-									type,
-									durationInFrames: Number(durationInFrames),
-									fps: Number(selectedFrameRate),
-									height: Number(size.height),
-									width: Number(size.width),
-									name,
-									raw: true,
-								}) as string
-							}
-						/>
-					</Row>
-				</div>{' '}
 			</div>
 		</ModalContainer>
 	);
