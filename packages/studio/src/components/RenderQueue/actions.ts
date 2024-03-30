@@ -11,10 +11,12 @@ import type {
 } from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
 	EnumPath,
 	OpenInFileExplorerRequest,
+	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
 } from '@remotion/studio-shared';
@@ -337,6 +339,13 @@ export const copyToClipboard = ({
 		binariesDirectory,
 	};
 	return callApi('/api/copy-still-to-clipboard', body);
+};
+
+export const applyCodemod = ({codemod}: {codemod: RecastCodemod}) => {
+	const body: ApplyCodemodRequest = {
+		codemod,
+	};
+	return callApi('/api/apply-codemod', body);
 };
 
 export const removeRenderJob = (job: RenderJob) => {

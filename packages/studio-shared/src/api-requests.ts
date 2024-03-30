@@ -9,6 +9,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {RecastCodemod} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {RequiredChromiumOptions} from './render-job';
 import type {EnumPath} from './stringify-default-props';
@@ -129,6 +130,19 @@ export type UpdateDefaultPropsResponse =
 			stack: string;
 	  };
 
+export type ApplyCodemodRequest = {
+	codemod: RecastCodemod;
+};
+
+export type ApplyCodemodResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type CanUpdateDefaultPropsRequest = {
 	compositionId: string;
 };
@@ -177,4 +191,5 @@ export type ApiRoutes = {
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
 	>;
+	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 };

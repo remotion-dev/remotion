@@ -17,12 +17,10 @@ export const getProjectInfo = (remotionRoot: string): Promise<ProjectInfo> => {
 		return path.join(remotionRoot, p);
 	});
 
-	const videoFile = pathsToLookFor.find((p) => existsSync(p)) ?? null;
+	const rootFile = pathsToLookFor.find((p) => existsSync(p)) ?? null;
 
 	return Promise.resolve({
-		videoFile,
-		relativeVideoFile: videoFile
-			? path.relative(remotionRoot, videoFile)
-			: null,
+		rootFile,
+		relativeRootFile: rootFile ? path.relative(remotionRoot, rootFile) : null,
 	});
 };

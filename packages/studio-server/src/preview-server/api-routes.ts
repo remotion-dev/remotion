@@ -1,6 +1,7 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
 import {handleAddRender} from './routes/add-render';
+import {applyCodemodHandler} from './routes/apply-codemod';
 import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';
 import {handleCopyStillToClipboard} from './routes/copy-still-to-clipboard-handler';
@@ -25,6 +26,7 @@ export const allApiRoutes: {
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/copy-still-to-clipboard': handleCopyStillToClipboard,
 	'/api/update-default-props': updateDefaultPropsHandler,
+	'/api/apply-codemod': applyCodemodHandler,
 	'/api/can-update-default-props': canUpdateDefaultPropsHandler,
 	'/api/update-available': handleUpdate,
 };

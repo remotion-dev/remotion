@@ -7,22 +7,7 @@ import type {
 	Statement,
 	VariableDeclarator,
 } from '@babel/types';
-
-export type RecastCodemod =
-	| {
-			type: 'duplicate-composition';
-			idToDuplicate: string;
-			newId: string;
-	  }
-	| {
-			type: 'rename-composition';
-			idToRename: string;
-			newId: string;
-	  }
-	| {
-			type: 'delete-composition';
-			idToDelete: string;
-	  };
+import type {RecastCodemod} from '@remotion/studio-shared';
 
 export const applyCodemod = ({
 	file,
