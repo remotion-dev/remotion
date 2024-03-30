@@ -1,3 +1,4 @@
+import type {ProjectInfo} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
@@ -23,10 +24,12 @@ import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {notificationCenter} from '../Notifications/NotificationCenter';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
+import {getProjectInfo} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {InputDragger} from './InputDragger';
@@ -69,6 +72,7 @@ const DuplicateCompositionLoaded: React.FC<{
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(resolved.result.fps),
 	);
+	const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
 	const [name, setName] = useState(() => {
@@ -91,10 +95,32 @@ const DuplicateCompositionLoaded: React.FC<{
 
 		return currentName;
 	});
+
 	const [size, setSize] = useState(() => ({
 		width: String(resolved.result.width),
 		height: String(resolved.result.height),
 	}));
+
+	useEffect(() => {
+		const controller = new AbortController();
+
+		getProjectInfo(controller.signal)
+			.then((info) => {
+				setProjectInfo(info.projectInfo);
+			})
+			.catch((err) => {
+				notificationCenter.current?.addNotification({
+					content: `Could not get project info: ${err.message}. Unable to duplicate composition`,
+					created: Date.now(),
+					duration: 3000,
+					id: String(Math.random()),
+				});
+			});
+
+		return () => {
+			controller.abort();
+		};
+	}, []);
 
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
 		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
@@ -233,7 +259,8 @@ const DuplicateCompositionLoaded: React.FC<{
 	const valid =
 		compNameErrMessage === null &&
 		compWidthErrMessage === null &&
-		compHeightErrMessage === null;
+		compHeightErrMessage === null &&
+		projectInfo !== null;
 
 	const {registerKeybinding} = useKeybinding();
 
@@ -441,7 +468,7 @@ const DuplicateCompositionLoaded: React.FC<{
 								backgroundColor: valid ? BLUE : BLUE_DISABLED,
 							}}
 						>
-							Add to Root.tsx
+							{projectInfo ? `Add to ${projectInfo.relativeRootFile}` : 'Add'}
 							<ShortcutHint keyToPress="↵" cmdOrCtrl />
 						</Button>
 					</Row>

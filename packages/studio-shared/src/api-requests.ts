@@ -11,6 +11,7 @@ import type {
 } from '@remotion/renderer';
 import type {RecastCodemod} from './codemods';
 import type {PackageManager} from './package-manager';
+import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
 import type {EnumPath} from './stringify-default-props';
 
@@ -165,6 +166,11 @@ export type UpdateAvailableResponse = {
 	packageManager: PackageManager | 'unknown';
 };
 
+export type ProjectInfoRequest = {};
+export type ProjectInfoResponse = {
+	projectInfo: ProjectInfo;
+};
+
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
@@ -192,4 +198,5 @@ export type ApiRoutes = {
 		UpdateAvailableResponse
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
+	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
 };

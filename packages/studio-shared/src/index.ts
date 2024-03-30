@@ -10,6 +10,8 @@ export {
 	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
+	ProjectInfoRequest,
+	ProjectInfoResponse,
 	RemoveRenderRequest,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,

@@ -364,6 +364,10 @@ export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
 };
 
+export const getProjectInfo = (signal: AbortSignal) => {
+	return callApi('/api/project-info', {}, signal);
+};
+
 export const updateDefaultProps = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
