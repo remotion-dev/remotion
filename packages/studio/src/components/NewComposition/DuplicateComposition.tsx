@@ -5,7 +5,6 @@ import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {Checkmark} from '../../icons/Checkmark';
 import {
 	loadAspectRatioOption,
 	persistAspectRatioOption,
@@ -192,26 +191,13 @@ const DuplicateCompositionLoaded: React.FC<{
 		},
 		[],
 	);
-	const onFpsChange = useCallback((newFps: number) => {
+	const onTextFpsChange = useCallback((newFps: string) => {
 		setFrameRate(String(newFps));
 	}, []);
 
-	const items: ComboboxValue[] = useMemo(() => {
-		return commonFrameRates.map((frameRate): ComboboxValue => {
-			return {
-				id: String(frameRate),
-				label: `${frameRate}fps`,
-				onClick: () => onFpsChange(frameRate),
-				type: 'item',
-				value: frameRate,
-				keyHint: null,
-				leftItem:
-					String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			};
-		});
-	}, [onFpsChange, selectedFrameRate]);
+	const onFpsChange = useCallback((newFps: number) => {
+		setFrameRate(String(newFps));
+	}, []);
 
 	const compNameErrMessage = validateCompositionName(name, compositions);
 	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
@@ -388,15 +374,26 @@ const DuplicateCompositionLoaded: React.FC<{
 						{type === 'composition' ? (
 							<div>
 								<div />
-								<Spacing y={1} />
 								<label>
-									<div style={leftLabel}>Framerate</div>
-									<Combobox
-										title="Framerate"
-										style={comboBoxStyle}
-										values={items}
-										selectedId={selectedFrameRate}
-									/>
+									<Row align="center">
+										<div style={leftLabel}>Framerate</div>
+										<div style={inputArea}>
+											<InputDragger
+												type="number"
+												value={selectedFrameRate}
+												onTextChange={onTextFpsChange}
+												placeholder="Frame rate (fps)"
+												name="fps"
+												min={1}
+												required
+												status="ok"
+												max={240}
+												step={0.01}
+												onValueChange={onFpsChange}
+												rightAlign={false}
+											/>
+										</div>
+									</Row>
 								</label>
 							</div>
 						) : null}
