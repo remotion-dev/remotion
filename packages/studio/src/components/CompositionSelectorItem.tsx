@@ -14,6 +14,7 @@ import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {notificationCenter} from './Notifications/NotificationCenter';
+import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
@@ -156,6 +157,44 @@ export const CompositionSelectorItem: React.FC<{
 							.then(() => {
 								notificationCenter.current?.addNotification({
 									content: 'Copied to clipboard',
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'remove',
+				},
+				{
+					id: '2',
+					keyHint: null,
+					label: `Delete composition`,
+					leftItem: null,
+					onClick: () => {
+						applyCodemod({
+							codemod: {
+								type: 'delete-composition',
+								idToDelete: item.composition.id,
+							},
+						})
+							.then((res) => {
+								if (!res.success) {
+									throw new Error(res.reason);
+								}
+
+								notificationCenter.current?.addNotification({
+									content: `Deleted ${item.composition.id}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							})
+							.catch((err) => {
+								notificationCenter.current?.addNotification({
+									content: `Could not delete composition: ${err.message}`,
 									created: Date.now(),
 									duration: 1000,
 									id: String(Math.random()),
