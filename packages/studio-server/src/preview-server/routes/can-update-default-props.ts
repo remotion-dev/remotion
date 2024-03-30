@@ -24,15 +24,15 @@ export const canUpdateDefaultPropsHandler: ApiHandler<
 > = async ({input: {compositionId}, remotionRoot}) => {
 	try {
 		const projectInfo = await getProjectInfo(remotionRoot);
-		if (!projectInfo.videoFile) {
+		if (!projectInfo.rootFile) {
 			throw new Error('Cannot find root file in project');
 		}
 
-		checkIfTypeScriptFile(projectInfo.videoFile);
+		checkIfTypeScriptFile(projectInfo.rootFile);
 
 		await updateDefaultProps({
 			compositionId,
-			input: readFileSync(projectInfo.videoFile, 'utf-8'),
+			input: readFileSync(projectInfo.rootFile, 'utf-8'),
 			newDefaultProps: {},
 			enumPaths: [],
 		});

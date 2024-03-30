@@ -23,15 +23,15 @@ export const CopyHint: React.FC = () => {
 			});
 	}, []);
 
-	if (!projectInfo?.videoFile) {
+	if (!projectInfo?.rootFile) {
 		return null;
 	}
 
 	return (
 		<div style={style}>
 			Copy this into <br /> your{' '}
-			<span style={style} title={projectInfo.videoFile as string}>
-				{projectInfo.relativeVideoFile}
+			<span style={style} title={projectInfo.rootFile as string}>
+				{projectInfo.relativeRootFile}
 			</span>{' '}
 			file.
 		</div>
