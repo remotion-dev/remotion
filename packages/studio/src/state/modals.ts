@@ -15,8 +15,6 @@ import {createContext} from 'react';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
-export type CompType = 'composition' | 'still';
-
 export type RenderModalState = {
 	type: 'render';
 	compositionId: string;
@@ -63,7 +61,6 @@ export type RenderModalState = {
 export type ModalState =
 	| {
 			type: 'duplicate-comp';
-			compType: CompType;
 			compositionId: string;
 	  }
 	| RenderModalState

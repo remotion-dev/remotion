@@ -10,7 +10,6 @@ import {
 	loadAspectRatioOption,
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
-import type {CompType} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
 import {Row, Spacing} from '../layout';
 import {
@@ -19,6 +18,10 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {
+	ResolveCompositionBeforeModal,
+	ResolvedCompositionContext,
+} from '../RenderModal/ResolveCompositionBeforeModal';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {InputDragger} from './InputDragger';
@@ -42,21 +45,30 @@ const comboBoxStyle: React.CSSProperties = {
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
-const DuplicateComposition: React.FC<{
-	initialCompType: CompType;
+type CompType = 'composition' | 'still';
+
+const DuplicateCompositionLoaded: React.FC<{
 	compositionId: string;
-}> = (props) => {
-	const {initialCompType} = props;
+}> = () => {
+	const context = useContext(ResolvedCompositionContext);
+	if (!context) {
+		throw new Error('Resolved composition context');
+	}
+
+	const {resolved} = context;
+
+	const initialCompType: CompType =
+		context.resolved.result.durationInFrames === 1 ? 'still' : 'composition';
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0]),
 	);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
-	const [name, setName] = useState('MyComp');
-	const [size, setSize] = useState({
-		width: '1280',
-		height: '720',
-	});
+	const [name, setName] = useState(() => resolved.result.id);
+	const [size, setSize] = useState(() => ({
+		width: String(resolved.result.width),
+		height: String(resolved.result.height),
+	}));
 
 	const panelContent: React.CSSProperties = useMemo(() => {
 		return {
@@ -384,4 +396,12 @@ const DuplicateComposition: React.FC<{
 	);
 };
 
-export default DuplicateComposition;
+export const DuplicateComposition: React.FC<{
+	compositionId: string;
+}> = ({compositionId}) => {
+	return (
+		<ResolveCompositionBeforeModal compositionId={compositionId}>
+			<DuplicateCompositionLoaded compositionId={compositionId} />
+		</ResolveCompositionBeforeModal>
+	);
+};

@@ -149,7 +149,6 @@ export const CompositionSelectorItem: React.FC<{
 					onClick: () => {
 						setSelectedModal({
 							type: 'duplicate-comp',
-							compType: 'composition',
 							compositionId: item.composition.id,
 						});
 					},
@@ -235,7 +234,7 @@ export const CompositionSelectorItem: React.FC<{
 		}
 
 		return [];
-	}, [item]);
+	}, [item, setSelectedModal]);
 
 	if (item.type === 'folder') {
 		return (
