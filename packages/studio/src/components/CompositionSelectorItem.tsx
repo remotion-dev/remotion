@@ -1,5 +1,5 @@
 import type {KeyboardEvent, MouseEvent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
@@ -10,6 +10,7 @@ import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
+import {ModalsContext} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -135,6 +136,8 @@ export const CompositionSelectorItem: React.FC<{
 		[onClick],
 	);
 
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
 			return [
@@ -144,33 +147,11 @@ export const CompositionSelectorItem: React.FC<{
 					label: `Duplicate composition...`,
 					leftItem: null,
 					onClick: () => {
-						applyCodemod({
-							codemod: {
-								type: 'duplicate-composition',
-								idToDuplicate: item.composition.id,
-								newId: `new-${item.composition.id}`,
-							},
-						})
-							.then((res) => {
-								if (!res.success) {
-									throw new Error(res.reason);
-								}
-
-								notificationCenter.current?.addNotification({
-									content: `Deleted ${item.composition.id}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
-							})
-							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not delete composition: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
-							});
+						setSelectedModal({
+							type: 'duplicate-comp',
+							compType: 'composition',
+							compositionId: item.composition.id,
+						});
 					},
 					quickSwitcherLabel: null,
 					subMenu: null,

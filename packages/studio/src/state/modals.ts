@@ -62,8 +62,9 @@ export type RenderModalState = {
 
 export type ModalState =
 	| {
-			type: 'new-comp';
+			type: 'duplicate-comp';
 			compType: CompType;
+			compositionId: string;
 	  }
 	| RenderModalState
 	| {

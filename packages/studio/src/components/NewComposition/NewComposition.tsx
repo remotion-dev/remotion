@@ -42,7 +42,10 @@ const comboBoxStyle: React.CSSProperties = {
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
-const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
+const DuplicateComposition: React.FC<{
+	initialCompType: CompType;
+	compositionId: string;
+}> = (props) => {
 	const {initialCompType} = props;
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0]),
@@ -223,7 +226,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<NewCompHeader title="New composition" />
+			<NewCompHeader title="Duplicate composition" />
 			<div style={panelContent}>
 				<div style={left}>
 					<Spacing y={3} />
@@ -381,4 +384,4 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	);
 };
 
-export default NewComposition;
+export default DuplicateComposition;

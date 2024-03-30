@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
-import NewComposition from './NewComposition/NewComposition';
+import DuplicateComposition from './NewComposition/NewComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderModalWithLoader} from './RenderModal/RenderModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -17,8 +17,11 @@ export const Modals: React.FC<{
 
 	return (
 		<>
-			{modalContextType && modalContextType.type === 'new-comp' && (
-				<NewComposition initialCompType={modalContextType.compType} />
+			{modalContextType && modalContextType.type === 'duplicate-comp' && (
+				<DuplicateComposition
+					compositionId={modalContextType.compositionId}
+					initialCompType={modalContextType.compType}
+				/>
 			)}
 
 			{modalContextType && canRender && modalContextType.type === 'render' && (
