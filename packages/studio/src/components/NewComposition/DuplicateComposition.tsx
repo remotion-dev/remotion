@@ -60,7 +60,26 @@ const DuplicateCompositionLoaded: React.FC<{
 	);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
-	const [name, setName] = useState(() => resolved.result.id);
+	const [name, setName] = useState(() => {
+		const numberAtEnd = resolved.result.id.match(/([0-9]+)$/)?.[0];
+		let prefix = numberAtEnd ? Number(numberAtEnd) : 1;
+		const initialName = resolved.result.id.replace(/([0-9]+)$/, '');
+		let currentName = initialName;
+
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			currentName = initialName + prefix;
+
+			const err = validateCompositionName(currentName, compositions);
+			if (!err) {
+				break;
+			}
+
+			prefix++;
+		}
+
+		return currentName;
+	});
 	const [size, setSize] = useState(() => ({
 		width: String(resolved.result.width),
 		height: String(resolved.result.height),
