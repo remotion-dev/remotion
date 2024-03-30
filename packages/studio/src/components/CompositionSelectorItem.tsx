@@ -171,6 +171,45 @@ export const CompositionSelectorItem: React.FC<{
 				{
 					id: '2',
 					keyHint: null,
+					label: `Duplicate composition`,
+					leftItem: null,
+					onClick: () => {
+						applyCodemod({
+							codemod: {
+								type: 'duplicate-composition',
+								idToDuplicate: item.composition.id,
+								newId: `new-${item.composition.id}`,
+							},
+						})
+							.then((res) => {
+								if (!res.success) {
+									throw new Error(res.reason);
+								}
+
+								notificationCenter.current?.addNotification({
+									content: `Deleted ${item.composition.id}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							})
+							.catch((err) => {
+								notificationCenter.current?.addNotification({
+									content: `Could not delete composition: ${err.message}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'remove',
+				},
+				{
+					id: '3',
+					keyHint: null,
 					label: `Delete composition`,
 					leftItem: null,
 					onClick: () => {

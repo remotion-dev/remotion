@@ -51,8 +51,6 @@ export const parseAndApplyCodemod = async ({
 	const prettified = await format(output, {
 		...prettierConfig,
 		filepath: 'test.tsx',
-		plugins: [],
-		endOfLine: 'auto',
 	});
 	return prettified;
 };

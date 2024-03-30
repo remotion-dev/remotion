@@ -159,10 +159,7 @@ const mapJsxChild = (
 		transformation.type === 'duplicate-composition' &&
 		compId === transformation.idToDuplicate
 	) {
-		return [
-			...mapJsxChild(c, null),
-			changeCompositionIdInJSXElement(c, transformation.newId),
-		];
+		return [c, changeCompositionIdInJSXElement(c, transformation.newId)];
 	}
 
 	if (
