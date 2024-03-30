@@ -164,7 +164,7 @@ export const updateDefaultProps = async ({
 		);
 	}
 
-	const prettified = format(newFile, {
+	const prettified = await format(newFile, {
 		...prettierConfig,
 		rangeStart: startPos,
 		rangeEnd: endPos,

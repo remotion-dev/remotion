@@ -24,8 +24,10 @@
 		"access": "public"
 	},
 	"dependencies": {
+		"@babel/parser": "7.24.1",
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
+		"recast": "0.23.6",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
@@ -38,6 +40,7 @@
 		"@jonny/eslint-config": "3.0.276",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
+		"@babel/types": "7.24.0",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
