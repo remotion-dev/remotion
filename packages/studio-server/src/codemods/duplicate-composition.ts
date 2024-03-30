@@ -1,7 +1,7 @@
 import type {File} from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import tsParser from 'recast/parsers/babel-ts';
+import * as tsParser from 'recast/parsers/babel-ts';
 import {applyCodemod} from './recast-mods';
 
 const getPrettier = async () => {

@@ -140,42 +140,57 @@ const mapJsxFragment = (
 	return {
 		...jsxFragment,
 		children: jsxFragment.children
-			.map((c) => {
-				const compId = getCompositionIdFromJSXElement(c);
-				if (
-					transformation.type === 'duplicate-composition' &&
-					compId === transformation.idToDuplicate
-				) {
-					return [
-						mapJsxChild(c),
-						changeCompositionIdInJSXElement(c, transformation.newId),
-					];
-				}
-
-				if (
-					transformation.type === 'rename-composition' &&
-					compId === transformation.idToRename
-				) {
-					return [changeCompositionIdInJSXElement(c, transformation.newId)];
-				}
-
-				if (
-					transformation.type === 'delete-composition' &&
-					compId === transformation.idToDelete
-				) {
-					return [];
-				}
-
-				return [mapJsxChild(c)];
-			})
+			.map((c) => mapJsxChild(c, transformation))
 			.flat(1),
 	};
 };
 
 const mapJsxChild = (
-	jsxChild: JSXFragment['children'][number],
-): JSXFragment['children'][number] => {
-	return jsxChild;
+	c: JSXFragment['children'][number],
+	transformation: RecastCodemod | null,
+): JSXFragment['children'][number][] => {
+	const compId = getCompositionIdFromJSXElement(c);
+
+	if (transformation === null) {
+		return [c];
+	}
+
+	if (
+		transformation.type === 'duplicate-composition' &&
+		compId === transformation.idToDuplicate
+	) {
+		return [
+			...mapJsxChild(c, null),
+			changeCompositionIdInJSXElement(c, transformation.newId),
+		];
+	}
+
+	if (
+		transformation.type === 'rename-composition' &&
+		compId === transformation.idToRename
+	) {
+		return [changeCompositionIdInJSXElement(c, transformation.newId)];
+	}
+
+	if (
+		transformation.type === 'delete-composition' &&
+		compId === transformation.idToDelete
+	) {
+		return [];
+	}
+
+	if (c.type === 'JSXElement') {
+		return [
+			{
+				...c,
+				children: c.children
+					.map((childOfChild) => mapJsxChild(childOfChild, transformation))
+					.flat(1),
+			},
+		];
+	}
+
+	return [c];
 };
 
 const getCompositionIdFromJSXElement = (
