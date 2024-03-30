@@ -139,39 +139,9 @@ export const CompositionSelectorItem: React.FC<{
 		if (item.type === 'composition') {
 			return [
 				{
-					id: '1',
+					id: 'duplicate',
 					keyHint: null,
-					label: `Copy ID`,
-					leftItem: null,
-					onClick: () => {
-						navigator.clipboard
-							.writeText(item.composition.id)
-							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not copy to clipboard: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
-							})
-							.then(() => {
-								notificationCenter.current?.addNotification({
-									content: 'Copied to clipboard',
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
-							});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'remove',
-				},
-				{
-					id: '2',
-					keyHint: null,
-					label: `Duplicate composition`,
+					label: `Duplicate composition...`,
 					leftItem: null,
 					onClick: () => {
 						applyCodemod({
@@ -207,8 +177,9 @@ export const CompositionSelectorItem: React.FC<{
 					type: 'item',
 					value: 'remove',
 				},
+
 				{
-					id: '3',
+					id: 'delete',
 					keyHint: null,
 					label: `Delete composition`,
 					leftItem: null,
@@ -234,6 +205,40 @@ export const CompositionSelectorItem: React.FC<{
 							.catch((err) => {
 								notificationCenter.current?.addNotification({
 									content: `Could not delete composition: ${err.message}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'remove',
+				},
+				{
+					type: 'divider',
+					id: 'copy-id-divider',
+				},
+				{
+					id: 'copy-id',
+					keyHint: null,
+					label: `Copy ID`,
+					leftItem: null,
+					onClick: () => {
+						navigator.clipboard
+							.writeText(item.composition.id)
+							.catch((err) => {
+								notificationCenter.current?.addNotification({
+									content: `Could not copy to clipboard: ${err.message}`,
+									created: Date.now(),
+									duration: 1000,
+									id: String(Math.random()),
+								});
+							})
+							.then(() => {
+								notificationCenter.current?.addNotification({
+									content: 'Copied to clipboard',
 									created: Date.now(),
 									duration: 1000,
 									id: String(Math.random()),
