@@ -1,7 +1,7 @@
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -12,7 +12,7 @@ import {
 } from '../../state/aspect-ratio-locked';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {Row, Spacing} from '../layout';
+import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {
@@ -230,9 +230,8 @@ const DuplicateCompositionLoaded: React.FC<{
 	return (
 		<>
 			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
-			<div style={content}>
-				<Spacing y={3} />
-				<form>
+			<form>
+				<div style={content}>
 					<label>
 						<Row align="center">
 							<div style={leftLabel}>Type</div>
@@ -247,14 +246,15 @@ const DuplicateCompositionLoaded: React.FC<{
 						</Row>
 						<Spacing y={1} />
 						<Row align="center">
-							<div style={leftLabel}>Name</div>
+							<div style={leftLabel}>ID</div>
 							<div style={inputArea}>
 								<RemotionInput
 									value={name}
 									onChange={onNameChange}
 									type="text"
+									autoFocus
 									name="compositionId"
-									placeholder="Composition name"
+									placeholder="Composition ID"
 									status="ok"
 									rightAlign={false}
 								/>
@@ -391,19 +391,28 @@ const DuplicateCompositionLoaded: React.FC<{
 							</label>
 						</div>
 					) : null}
-					<Button
-						autoFocus
-						onClick={() => true}
-						disabled={false}
-						style={{
-							...buttonStyle,
-							backgroundColor: valid ? BLUE : BLUE_DISABLED,
-						}}
-					>
-						Create
-					</Button>
-				</form>
-			</div>
+				</div>
+				<div style={{...content, borderTop: '1px solid black'}}>
+					<Row align="center" style={{}}>
+						<div style={{color: LIGHT_TEXT, fontSize: 13}}>
+							Your root file will be edited.
+							<br />
+							Back up uncommitted changes before.
+						</div>
+						<Flex />
+						<Button
+							onClick={() => true}
+							disabled={false}
+							style={{
+								...buttonStyle,
+								backgroundColor: valid ? BLUE : BLUE_DISABLED,
+							}}
+						>
+							Add to Root.tsx
+						</Button>
+					</Row>
+				</div>
+			</form>
 		</>
 	);
 };
