@@ -25,7 +25,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
@@ -1415,18 +1414,6 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
-
-	useEffect(() => {
-		const {current} = Internals.resolveCompositionsRef;
-		if (!current) {
-			throw new Error('resolveCompositionsRef');
-		}
-
-		current.setCurrentRenderModalComposition(props.compositionId);
-		return () => {
-			current.setCurrentRenderModalComposition(null);
-		};
-	}, [props.compositionId]);
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>

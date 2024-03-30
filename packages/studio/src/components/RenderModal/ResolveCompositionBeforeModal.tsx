@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
@@ -46,12 +46,20 @@ export const ResolveCompositionBeforeModal: React.FC<{
 		(c) => compositionId === c.id,
 	);
 
+	useEffect(() => {
+		const {current} = Internals.resolveCompositionsRef;
+		if (!current) {
+			throw new Error('No ref to trigger composition calc');
+		}
+
+		current.setCurrentRenderModalComposition(compositionId);
+		return () => {
+			current.setCurrentRenderModalComposition(null);
+		};
+	}, [compositionId]);
+
 	if (!unresolved) {
 		throw new Error('Composition not found: ' + compositionId);
-	}
-
-	if (!resolved) {
-		throw new Error('Could not resolve composition ' + compositionId);
 	}
 
 	const value: TResolvedCompositionContext = useMemo(() => {
@@ -64,7 +72,7 @@ export const ResolveCompositionBeforeModal: React.FC<{
 		};
 	}, [resolved, unresolved]);
 
-	if (resolved.type === 'loading') {
+	if (!resolved || resolved.type === 'loading') {
 		return (
 			<div style={loaderContainer}>
 				<Spinner duration={1} size={30} />

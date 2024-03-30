@@ -1,6 +1,7 @@
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -10,8 +11,9 @@ import {
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
 import {ModalsContext} from '../../state/modals';
+import {Button} from '../Button';
 import {Row, Spacing} from '../layout';
-import {getMaxModalWidth, ModalContainer} from '../ModalContainer';
+import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
@@ -26,9 +28,8 @@ import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
 
-const left: React.CSSProperties = {
+const content: React.CSSProperties = {
 	padding: 12,
-	paddingBottom: 80,
 	paddingRight: 12,
 	flex: 1,
 	fontSize: 13,
@@ -38,7 +39,10 @@ const comboBoxStyle: React.CSSProperties = {
 	width: inputArea.width,
 };
 
-const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
+const buttonStyle: React.CSSProperties = {
+	backgroundColor: BLUE,
+	color: 'white',
+};
 
 type CompType = 'composition' | 'still';
 
@@ -53,9 +57,9 @@ const DuplicateCompositionLoaded: React.FC<{
 	const {resolved} = context;
 
 	const initialCompType: CompType =
-		context.resolved.result.durationInFrames === 1 ? 'still' : 'composition';
+		resolved.result.durationInFrames === 1 ? 'still' : 'composition';
 	const [selectedFrameRate, setFrameRate] = useState<string>(
-		String(commonFrameRates[0]),
+		String(resolved.result.fps),
 	);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
@@ -84,15 +88,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		height: String(resolved.result.height),
 	}));
 
-	const panelContent: React.CSSProperties = useMemo(() => {
-		return {
-			flexDirection: 'row',
-			display: 'flex',
-			width: getMaxModalWidth(600),
-			overflow: 'hidden',
-		};
-	}, []);
-
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
 		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
 	);
@@ -107,12 +102,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		},
 		[size.height, size.width],
 	);
-
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
@@ -233,115 +222,84 @@ const DuplicateCompositionLoaded: React.FC<{
 		];
 	}, [onTypeChanged]);
 
+	const valid =
+		compNameErrMessage === null &&
+		compWidthErrMessage === null &&
+		compHeightErrMessage === null;
+
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<NewCompHeader title="Duplicate composition" />
-			<div style={panelContent}>
-				<div style={left}>
-					<Spacing y={3} />
-					<form>
-						<label>
-							<Row align="center">
-								<div style={leftLabel}>Type</div>
-								<div style={inputArea}>
-									<Combobox
-										title="Type of composition"
-										style={comboBoxStyle}
-										values={typeValues}
-										selectedId={type}
-									/>
-								</div>
-							</Row>
-							<Spacing y={1} />
-							<Row align="center">
-								<div style={leftLabel}>Name</div>
-								<div style={inputArea}>
-									<RemotionInput
-										value={name}
-										onChange={onNameChange}
-										type="text"
-										placeholder="Composition name"
-										status="ok"
-										rightAlign={false}
-									/>
-									{compNameErrMessage ? (
-										<>
-											<Spacing y={1} block />
-											<ValidationMessage
-												align="flex-start"
-												message={compNameErrMessage}
-												type="error"
-											/>
-										</>
-									) : null}
-								</div>
-							</Row>
-						</label>
+		<>
+			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
+			<div style={content}>
+				<Spacing y={3} />
+				<form>
+					<label>
+						<Row align="center">
+							<div style={leftLabel}>Type</div>
+							<div style={inputArea}>
+								<Combobox
+									title="Type of composition"
+									style={comboBoxStyle}
+									values={typeValues}
+									selectedId={type}
+								/>
+							</div>
+						</Row>
 						<Spacing y={1} />
 						<Row align="center">
+							<div style={leftLabel}>Name</div>
+							<div style={inputArea}>
+								<RemotionInput
+									value={name}
+									onChange={onNameChange}
+									type="text"
+									name="compositionId"
+									placeholder="Composition name"
+									status="ok"
+									rightAlign={false}
+								/>
+								{compNameErrMessage ? (
+									<>
+										<Spacing y={1} block />
+										<ValidationMessage
+											align="flex-start"
+											message={compNameErrMessage}
+											type="error"
+										/>
+									</>
+								) : null}
+							</div>
+						</Row>
+					</label>
+					<Spacing y={1} />
+					<Row align="center">
+						<div>
 							<div>
-								<div>
-									<label>
-										<Row align="center">
-											<div style={leftLabel}>Width</div>
-											<div style={inputArea}>
-												<InputDragger
-													type="number"
-													value={size.width}
-													placeholder="Width"
-													onTextChange={onWidthChanged}
-													name="width"
-													step={2}
-													min={2}
-													required
-													status="ok"
-													formatter={(w) => `${w}px`}
-													max={100000000}
-													onValueChange={onWidthDirectlyChanged}
-													rightAlign={false}
-												/>
-												{compWidthErrMessage ? (
-													<>
-														<Spacing y={1} block />
-														<ValidationMessage
-															align="flex-start"
-															message={compWidthErrMessage}
-															type="error"
-														/>
-													</>
-												) : null}
-											</div>
-										</Row>
-									</label>
-								</div>
-								<div />
-								<Spacing y={1} />
-								<div />
 								<label>
 									<Row align="center">
-										<div style={leftLabel}>Height</div>
+										<div style={leftLabel}>Width</div>
 										<div style={inputArea}>
 											<InputDragger
 												type="number"
-												value={size.height}
-												onTextChange={onHeightChanged}
-												placeholder="Height"
-												name="height"
+												value={size.width}
+												placeholder="Width"
+												onTextChange={onWidthChanged}
+												name="width"
 												step={2}
-												required
-												formatter={(h) => `${h}px`}
 												min={2}
+												required
 												status="ok"
+												formatter={(w) => `${w}px`}
 												max={100000000}
-												onValueChange={onHeightDirectlyChanged}
+												onValueChange={onWidthDirectlyChanged}
 												rightAlign={false}
 											/>
-											{compHeightErrMessage ? (
+											{compWidthErrMessage ? (
 												<>
 													<Spacing y={1} block />
 													<ValidationMessage
 														align="flex-start"
-														message={compHeightErrMessage}
+														message={compWidthErrMessage}
 														type="error"
 													/>
 												</>
@@ -350,66 +308,120 @@ const DuplicateCompositionLoaded: React.FC<{
 									</Row>
 								</label>
 							</div>
-							<div>
-								<NewCompAspectRatio
-									width={Number(size.width)}
-									height={Number(size.height)}
-									aspectRatioLocked={lockedAspectRatio}
-									setAspectRatioLocked={setAspectRatioLocked}
-								/>
-							</div>
-						</Row>
-						<div />
-						<Spacing y={1} />
-						{type === 'composition' ? (
-							<NewCompDuration
-								durationInFrames={durationInFrames}
-								fps={selectedFrameRate}
-								setDurationInFrames={setDurationInFrames}
+							<div />
+							<Spacing y={1} />
+							<div />
+							<label>
+								<Row align="center">
+									<div style={leftLabel}>Height</div>
+									<div style={inputArea}>
+										<InputDragger
+											type="number"
+											value={size.height}
+											onTextChange={onHeightChanged}
+											placeholder="Height"
+											name="height"
+											step={2}
+											required
+											formatter={(h) => `${h}px`}
+											min={2}
+											status="ok"
+											max={100000000}
+											onValueChange={onHeightDirectlyChanged}
+											rightAlign={false}
+										/>
+										{compHeightErrMessage ? (
+											<>
+												<Spacing y={1} block />
+												<ValidationMessage
+													align="flex-start"
+													message={compHeightErrMessage}
+													type="error"
+												/>
+											</>
+										) : null}
+									</div>
+								</Row>
+							</label>
+						</div>
+						<div>
+							<NewCompAspectRatio
+								width={Number(size.width)}
+								height={Number(size.height)}
+								aspectRatioLocked={lockedAspectRatio}
+								setAspectRatioLocked={setAspectRatioLocked}
 							/>
-						) : null}
-						<div />
-						<br />
-						<div />
-						{type === 'composition' ? (
-							<div>
-								<div />
-								<label>
-									<Row align="center">
-										<div style={leftLabel}>Framerate</div>
-										<div style={inputArea}>
-											<InputDragger
-												type="number"
-												value={selectedFrameRate}
-												onTextChange={onTextFpsChange}
-												placeholder="Frame rate (fps)"
-												name="fps"
-												min={1}
-												required
-												status="ok"
-												max={240}
-												step={0.01}
-												onValueChange={onFpsChange}
-												rightAlign={false}
-											/>
-										</div>
-									</Row>
-								</label>
-							</div>
-						) : null}
-					</form>
-				</div>
+						</div>
+					</Row>
+					<div />
+					<Spacing y={1} />
+					{type === 'composition' ? (
+						<NewCompDuration
+							durationInFrames={durationInFrames}
+							fps={selectedFrameRate}
+							setDurationInFrames={setDurationInFrames}
+						/>
+					) : null}
+					<div />
+					<br />
+					<div />
+					{type === 'composition' ? (
+						<div>
+							<div />
+							<label>
+								<Row align="center">
+									<div style={leftLabel}>Framerate</div>
+									<div style={inputArea}>
+										<InputDragger
+											type="number"
+											value={selectedFrameRate}
+											onTextChange={onTextFpsChange}
+											placeholder="Frame rate (fps)"
+											name="fps"
+											min={1}
+											required
+											status="ok"
+											max={240}
+											step={0.01}
+											onValueChange={onFpsChange}
+											rightAlign={false}
+										/>
+									</div>
+								</Row>
+							</label>
+						</div>
+					) : null}
+					<Button
+						autoFocus
+						onClick={() => true}
+						disabled={false}
+						style={{
+							...buttonStyle,
+							backgroundColor: valid ? BLUE : BLUE_DISABLED,
+						}}
+					>
+						Create
+					</Button>
+				</form>
 			</div>
-		</ModalContainer>
+		</>
 	);
 };
 
 export const DuplicateComposition: React.FC<{
 	compositionId: string;
 }> = ({compositionId}) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const onQuit = useCallback(() => {
+		setSelectedModal(null);
+	}, [setSelectedModal]);
+
 	return (
-		<ResolveCompositionBeforeModal compositionId={compositionId}>
-			<DuplicateCompositionLoaded compositionId={compositionId} />
-		</ResolveCompositionBeforeModal>
+		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+			<ResolveCompositionBeforeModal compositionId={compositionId}>
+				<DuplicateCompositionLoaded compositionId={compositionId} />
+			</ResolveCompositionBeforeModal>
+		</ModalContainer>
 	);
 };
