@@ -12,11 +12,7 @@ import {
 } from '../../state/aspect-ratio-locked';
 import {ModalsContext} from '../../state/modals';
 import {Row, Spacing} from '../layout';
-import {
-	getMaxModalHeight,
-	getMaxModalWidth,
-	ModalContainer,
-} from '../ModalContainer';
+import {getMaxModalWidth, ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
@@ -75,13 +71,9 @@ const DuplicateCompositionLoaded: React.FC<{
 			flexDirection: 'row',
 			display: 'flex',
 			width: getMaxModalWidth(600),
-			height:
-				type === 'composition'
-					? getMaxModalHeight(490)
-					: getMaxModalHeight(340),
 			overflow: 'hidden',
 		};
-	}, [type]);
+	}, []);
 
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
 		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
