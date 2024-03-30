@@ -25,10 +25,9 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
@@ -45,9 +44,7 @@ import {GifIcon} from '../../icons/gif';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {inlineCodeSnippet} from '../Menu/styles';
 import {
 	getMaxModalHeight,
 	getMaxModalWidth,
@@ -66,7 +63,6 @@ import {
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {Spinner} from '../Spinner';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
@@ -80,6 +76,10 @@ import {RenderModalBasic} from './RenderModalBasic';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
+import {
+	ResolveCompositionBeforeModal,
+	ResolvedCompositionContext,
+} from './ResolveCompositionBeforeModal';
 
 type State =
 	| {
@@ -243,8 +243,6 @@ type RenderModalProps = {
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
 		onClose: () => void;
-		resolvedComposition: VideoConfig;
-		unresolvedComposition: AnyComposition;
 		defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
@@ -280,8 +278,6 @@ const RenderModal: React.FC<
 	inFrameMark,
 	outFrameMark,
 	onClose,
-	resolvedComposition,
-	unresolvedComposition,
 	initialColorSpace,
 	initialMultiProcessOnLinux,
 	defaultConfigurationAudioCodec,
@@ -290,6 +286,18 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 }) => {
+	const context = useContext(ResolvedCompositionContext);
+	if (!context) {
+		throw new Error(
+			'Should not be able to render without resolving comp first',
+		);
+	}
+
+	const {
+		resolved: {result: resolvedComposition},
+		unresolved: unresolvedComposition,
+	} = context;
+
 	const isMounted = useRef(true);
 
 	const [isVideo] = useState(() => {
@@ -1420,78 +1428,11 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 		};
 	}, [props.compositionId]);
 
-	const resolved = Internals.useResolvedVideoConfig(props.compositionId);
-	const unresolvedContext = useContext(Internals.CompositionManager);
-	const unresolved = unresolvedContext.compositions.find(
-		(c) => props.compositionId === c.id,
-	);
-
-	if (!unresolved) {
-		throw new Error('Composition not found: ' + props.compositionId);
-	}
-
-	if (!resolved) {
-		return null;
-	}
-
-	if (resolved.type === 'loading') {
-		return (
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<div style={loaderContainer}>
-					<Spinner duration={1} size={30} />
-					<Spacing y={2} />
-					<div style={loaderLabel}>
-						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>
-					</div>
-				</div>
-			</ModalContainer>
-		);
-	}
-
-	if (resolved.type === 'error') {
-		return (
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<div style={loaderContainer}>
-					<Spacing y={2} />
-					<div style={loaderLabel}>
-						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>{' '}
-						yielded an error:
-					</div>
-					<Spacing y={1} />
-					<div style={loaderLabel}>
-						{resolved.error.message || 'Unknown error'}
-					</div>
-				</div>
-			</ModalContainer>
-		);
-	}
-
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<RenderModal
-				unresolvedComposition={unresolved}
-				{...props}
-				onClose={onQuit}
-				resolvedComposition={resolved.result}
-			/>
+			<ResolveCompositionBeforeModal compositionId={props.compositionId}>
+				<RenderModal {...props} onClose={onQuit} />
+			</ResolveCompositionBeforeModal>
 		</ModalContainer>
 	);
-};
-
-const loaderContainer: React.CSSProperties = {
-	paddingTop: 40,
-	paddingBottom: 40,
-	paddingLeft: 100,
-	paddingRight: 100,
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	flexDirection: 'column',
-};
-
-const loaderLabel: React.CSSProperties = {
-	fontSize: 14,
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	lineHeight: 1.5,
 };
