@@ -1123,10 +1123,6 @@ const RenderModal: React.FC<
 	const renderDisabled = state.type === 'load' || !outnameValidation.valid;
 
 	const trigger = useCallback(() => {
-		if (renderDisabled) {
-			return;
-		}
-
 		if (renderMode === 'still') {
 			onClickStill();
 		} else if (renderMode === 'sequence') {
@@ -1134,9 +1130,13 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-	}, [renderDisabled, renderMode, onClickStill, onClickSequence, onClickVideo]);
+	}, [renderMode, onClickStill, onClickSequence, onClickVideo]);
 
 	useEffect(() => {
+		if (renderDisabled) {
+			return;
+		}
+
 		const enter = registerKeybinding({
 			callback() {
 				trigger();
@@ -1151,7 +1151,7 @@ const RenderModal: React.FC<
 		return () => {
 			enter.unregister();
 		};
-	}, [registerKeybinding, trigger]);
+	}, [registerKeybinding, renderDisabled, trigger]);
 
 	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
 		return availablePixelFormats.map((option) => {

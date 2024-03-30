@@ -1,7 +1,15 @@
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
+import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -227,6 +235,31 @@ const DuplicateCompositionLoaded: React.FC<{
 		compWidthErrMessage === null &&
 		compHeightErrMessage === null;
 
+	const {registerKeybinding} = useKeybinding();
+
+	const trigger = useCallback(() => {}, []);
+
+	useEffect(() => {
+		if (!valid) {
+			return;
+		}
+
+		const enter = registerKeybinding({
+			callback() {
+				trigger();
+			},
+			commandCtrlKey: true,
+			key: 'Enter',
+			event: 'keydown',
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		return () => {
+			enter.unregister();
+		};
+	}, [registerKeybinding, trigger, valid]);
+
 	return (
 		<>
 			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
@@ -401,14 +434,15 @@ const DuplicateCompositionLoaded: React.FC<{
 						</div>
 						<Flex />
 						<Button
-							onClick={() => true}
-							disabled={false}
+							onClick={trigger}
+							disabled={!valid}
 							style={{
 								...buttonStyle,
 								backgroundColor: valid ? BLUE : BLUE_DISABLED,
 							}}
 						>
 							Add to Root.tsx
+							<ShortcutHint keyToPress="↵" cmdOrCtrl />
 						</Button>
 					</Row>
 				</div>
