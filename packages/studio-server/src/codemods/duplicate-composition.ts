@@ -2,6 +2,7 @@ import type {File} from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import * as tsParser from 'recast/parsers/babel-ts';
+import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';
 
 const getPrettier = async () => {
@@ -18,15 +19,19 @@ export const parseAndApplyCodemod = async ({
 }: {
 	input: string;
 	codeMod: RecastCodemod;
-}): Promise<string> => {
+}): Promise<{newContents: string; changesMade: Change[]}> => {
 	const ast = recast.parse(input, {
 		parser: tsParser,
 	}) as File;
 
-	const newAst = applyCodemod({
+	const {newAst, changesMade} = applyCodemod({
 		file: ast,
 		codeMod,
 	});
+
+	if (changesMade.length === 0) {
+		throw new Error('No changes were made to the file');
+	}
 
 	const output = recast.print(newAst, {
 		parser: tsParser,
@@ -48,9 +53,10 @@ export const parseAndApplyCodemod = async ({
 		);
 	}
 
-	const prettified = await format(output, {
+	const newContents = await format(output, {
 		...prettierConfig,
 		filepath: 'test.tsx',
 	});
-	return prettified;
+
+	return {changesMade, newContents};
 };

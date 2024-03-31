@@ -9,29 +9,39 @@ import type {
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 
+export type Change = {
+	description: string;
+};
+
 export const applyCodemod = ({
 	file,
 	codeMod,
 }: {
 	file: File;
 	codeMod: RecastCodemod;
-}): File => {
+}): {newAst: File; changesMade: Change[]} => {
+	const changesMade: Change[] = [];
+
 	const body = file.program.body.map((node) => {
-		return mapTopLevlNode(node, codeMod);
+		return mapTopLevlNode(node, codeMod, changesMade);
 	});
 
 	return {
-		...file,
-		program: {
-			...file.program,
-			body,
+		newAst: {
+			...file,
+			program: {
+				...file.program,
+				body,
+			},
 		},
+		changesMade,
 	};
 };
 
 const mapTopLevlNode = (
 	node: Statement,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): Statement => {
 	if (
 		// TODO: could also be a default export
@@ -51,20 +61,21 @@ const mapTopLevlNode = (
 
 	return {
 		...node,
-		declaration: mapDeclaration(node.declaration, transformation),
+		declaration: mapDeclaration(node.declaration, transformation, changesMade),
 	};
 };
 
 const mapDeclaration = (
 	declaration: Declaration,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): Declaration => {
 	if (declaration.type !== 'VariableDeclaration') {
 		return declaration;
 	}
 
 	const declarations = declaration.declarations.map((d) => {
-		return mapVariableDeclarator(d, transformation);
+		return mapVariableDeclarator(d, transformation, changesMade);
 	});
 	return {...declaration, declarations};
 };
@@ -72,11 +83,12 @@ const mapDeclaration = (
 const mapVariableDeclarator = (
 	variableDeclarator: VariableDeclarator,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): VariableDeclarator => {
 	return {
 		...variableDeclarator,
 		init: variableDeclarator.init
-			? mapExpression(variableDeclarator.init, transformation)
+			? mapExpression(variableDeclarator.init, transformation, changesMade)
 			: variableDeclarator.init,
 	};
 };
@@ -84,18 +96,20 @@ const mapVariableDeclarator = (
 const mapExpression = (
 	expression: Expression,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ) => {
 	// TODO: This could definitely be a different type
 	if (expression.type !== 'ArrowFunctionExpression') {
 		return expression;
 	}
 
-	return mapArrowFunctionExpression(expression, transformation);
+	return mapArrowFunctionExpression(expression, transformation, changesMade);
 };
 
 const mapArrowFunctionExpression = (
 	arrowFunctionExpression: ArrowFunctionExpression,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): ArrowFunctionExpression => {
 	const {body} = arrowFunctionExpression;
 
@@ -108,7 +122,7 @@ const mapArrowFunctionExpression = (
 		body: {
 			...body,
 			body: body.body.map((a) => {
-				return mapBodyStatement(a, transformation);
+				return mapBodyStatement(a, transformation, changesMade);
 			}),
 		},
 	};
@@ -117,6 +131,7 @@ const mapArrowFunctionExpression = (
 const mapBodyStatement = (
 	statement: Statement,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): Statement => {
 	if (statement.type !== 'ReturnStatement') {
 		return statement;
@@ -129,18 +144,19 @@ const mapBodyStatement = (
 
 	return {
 		...statement,
-		argument: mapJsxFragment(argument, transformation),
+		argument: mapJsxFragment(argument, transformation, changesMade),
 	};
 };
 
 const mapJsxFragment = (
 	jsxFragment: JSXFragment,
 	transformation: RecastCodemod,
+	changesMade: Change[],
 ): JSXFragment => {
 	return {
 		...jsxFragment,
 		children: jsxFragment.children
-			.map((c) => mapJsxChild(c, transformation))
+			.map((c) => mapJsxChild(c, transformation, changesMade))
 			.flat(1),
 	};
 };
@@ -148,6 +164,7 @@ const mapJsxFragment = (
 const mapJsxChild = (
 	c: JSXFragment['children'][number],
 	transformation: RecastCodemod | null,
+	changesMade: Change[],
 ): JSXFragment['children'][number][] => {
 	const compId = getCompositionIdFromJSXElement(c);
 
@@ -168,6 +185,7 @@ const mapJsxChild = (
 				newCompositionDurationInFrames: transformation.newDurationInFrames,
 				newCompositionHeight: transformation.newHeight,
 				newCompositionWidth: transformation.newWidth,
+				changesMade,
 			}),
 		];
 	}
@@ -184,6 +202,7 @@ const mapJsxChild = (
 				newCompositionDurationInFrames: null,
 				newCompositionHeight: null,
 				newCompositionWidth: null,
+				changesMade,
 			}),
 		];
 	}
@@ -192,6 +211,9 @@ const mapJsxChild = (
 		transformation.type === 'delete-composition' &&
 		compId === transformation.idToDelete
 	) {
+		changesMade.push({
+			description: 'Deleted composition',
+		});
 		return [];
 	}
 
@@ -200,7 +222,9 @@ const mapJsxChild = (
 			{
 				...c,
 				children: c.children
-					.map((childOfChild) => mapJsxChild(childOfChild, transformation))
+					.map((childOfChild) =>
+						mapJsxChild(childOfChild, transformation, changesMade),
+					)
 					.flat(1),
 			},
 		];
@@ -265,6 +289,7 @@ const changeCompositionIdInJSXElement = ({
 	newCompositionDurationInFrames,
 	newCompositionHeight,
 	newCompositionWidth,
+	changesMade,
 }: {
 	jsxElement: JSXFragment['children'][number];
 	newCompositionId: string;
@@ -272,6 +297,7 @@ const changeCompositionIdInJSXElement = ({
 	newCompositionDurationInFrames: number | null;
 	newCompositionHeight: number | null;
 	newCompositionWidth: number | null;
+	changesMade: Change[];
 }): JSXFragment['children'][number] => {
 	if (jsxElement.type !== 'JSXElement') {
 		return jsxElement;
@@ -304,6 +330,10 @@ const changeCompositionIdInJSXElement = ({
 			attribute.value &&
 			attribute.value.type === 'StringLiteral'
 		) {
+			changesMade.push({
+				description: 'Replaced composition id',
+			});
+
 			return {
 				...attribute,
 				value: {...attribute.value, value: newCompositionId},
@@ -317,6 +347,10 @@ const changeCompositionIdInJSXElement = ({
 			attribute.value.expression.type === 'NumericLiteral' &&
 			newCompositionFps !== null
 		) {
+			changesMade.push({
+				description: 'Replaced FPS',
+			});
+
 			return {
 				...attribute,
 				value: {
@@ -333,6 +367,10 @@ const changeCompositionIdInJSXElement = ({
 			attribute.value.expression.type === 'NumericLiteral' &&
 			newCompositionDurationInFrames !== null
 		) {
+			changesMade.push({
+				description: 'Replaced durationInFrames',
+			});
+
 			return {
 				...attribute,
 				value: {
@@ -352,6 +390,10 @@ const changeCompositionIdInJSXElement = ({
 			attribute.value.expression.type === 'NumericLiteral' &&
 			newCompositionWidth !== null
 		) {
+			changesMade.push({
+				description: 'Replaced width',
+			});
+
 			return {
 				...attribute,
 				value: {
@@ -365,12 +407,16 @@ const changeCompositionIdInJSXElement = ({
 		}
 
 		if (
-			attribute.name.name === 'width' &&
+			attribute.name.name === 'height' &&
 			attribute.value &&
 			attribute.value.type === 'JSXExpressionContainer' &&
 			attribute.value.expression.type === 'NumericLiteral' &&
 			newCompositionHeight !== null
 		) {
+			changesMade.push({
+				description: 'Replaced height',
+			});
+
 			return {
 				...attribute,
 				value: {

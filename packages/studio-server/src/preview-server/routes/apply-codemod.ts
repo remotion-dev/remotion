@@ -20,12 +20,12 @@ export const applyCodemodHandler: ApiHandler<
 
 		checkIfTypeScriptFile(projectInfo.rootFile);
 
-		const updated = await parseAndApplyCodemod({
+		const {newContents} = await parseAndApplyCodemod({
 			codeMod: codemod,
 			input: readFileSync(projectInfo.rootFile, 'utf-8'),
 		});
 		if (!dryRun) {
-			writeFileSync(projectInfo.rootFile, updated);
+			writeFileSync(projectInfo.rootFile, newContents);
 		}
 
 		return {
