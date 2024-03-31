@@ -1,4 +1,4 @@
-import type {ProjectInfo} from '@remotion/studio-shared';
+import type {ProjectInfo, SimpleDiff} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
@@ -9,7 +9,12 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {
+	BLUE,
+	BLUE_DISABLED,
+	LIGHT_TEXT,
+	SELECTED_GUIDE,
+} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	validateCompositionDimension,
@@ -222,7 +227,9 @@ const DuplicateCompositionLoaded: React.FC<{
 	const {registerKeybinding} = useKeybinding();
 
 	const {setSelectedModal} = useContext(ModalsContext);
-	const [canApplyCodemod, setCanApplyCodemod] = useState<true | null>(null);
+	const [canApplyCodemod, setCanApplyCodemod] = useState<SimpleDiff | null>(
+		null,
+	);
 	const [submitting, setSubmitting] = useState(false);
 
 	const valid =
@@ -251,7 +258,7 @@ const DuplicateCompositionLoaded: React.FC<{
 			throw new Error(res.reason);
 		}
 
-		setCanApplyCodemod(res.success);
+		setCanApplyCodemod(res.diff);
 	}, [newId, resolved.result.id, type]);
 
 	useEffect(() => {
@@ -469,12 +476,29 @@ const DuplicateCompositionLoaded: React.FC<{
 					) : null}
 				</div>
 				<div style={{...content, borderTop: '1px solid black'}}>
-					<Row align="center" style={{}}>
-						<div style={{color: LIGHT_TEXT, fontSize: 13}}>
-							Your root file will be edited.
-							<br />
-							Back up uncommitted changes before.
-						</div>
+					<Row align="center">
+						{canApplyCodemod ? (
+							<div style={{lineHeight: 1.2}}>
+								<span
+									style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}
+								>
+									This will edit your Root file.
+								</span>
+								<br />
+								<span style={{color: BLUE, fontSize: 13, lineHeight: 1.2}}>
+									{canApplyCodemod.additions} additions,
+								</span>{' '}
+								<span
+									style={{
+										color: SELECTED_GUIDE,
+										fontSize: 13,
+										lineHeight: 1.2,
+									}}
+								>
+									{canApplyCodemod.deletions} deletions
+								</span>
+							</div>
+						) : null}
 						<Flex />
 						<Button
 							onClick={trigger}
