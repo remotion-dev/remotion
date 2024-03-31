@@ -169,6 +169,7 @@ export const CompositionSelectorItem: React.FC<{
 								type: 'delete-composition',
 								idToDelete: item.composition.id,
 							},
+							dryRun: false,
 						})
 							.then((res) => {
 								if (!res.success) {

@@ -133,6 +133,7 @@ export type UpdateDefaultPropsResponse =
 
 export type ApplyCodemodRequest = {
 	codemod: RecastCodemod;
+	dryRun: boolean;
 };
 
 export type ApplyCodemodResponse =

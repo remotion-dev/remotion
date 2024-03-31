@@ -222,6 +222,9 @@ const DuplicateCompositionLoaded: React.FC<{
 	const {registerKeybinding} = useKeybinding();
 
 	const {setSelectedModal} = useContext(ModalsContext);
+	const [canApplyCodemod, setCanApplyCodemod] = useState<true | false | null>(
+		false,
+	);
 	const [submitting, setSubmitting] = useState(false);
 
 	const valid =
@@ -229,7 +232,33 @@ const DuplicateCompositionLoaded: React.FC<{
 		compWidthErrMessage === null &&
 		compHeightErrMessage === null &&
 		projectInfo !== null;
-	const enableSubmit = !submitting && valid;
+	const enableSubmit = !submitting && valid && canApplyCodemod;
+
+	const getCanApplyCodemod = useCallback(async () => {
+		const res = await applyCodemod({
+			codemod: {
+				type: 'duplicate-composition',
+				idToDuplicate: resolved.result.id,
+				newDurationInFrames: null,
+				newFps: null,
+				newHeight: null,
+				newId,
+				newWidth: null,
+			},
+			dryRun: true,
+		});
+
+		setCanApplyCodemod(res.success);
+	}, [newId, resolved.result.id]);
+
+	useEffect(() => {
+		getCanApplyCodemod()
+			.then(() => undefined)
+			.catch((err) => {
+				setSelectedModal(null);
+				showNotification(`Cannot duplicate composition: ${err.message}`, 3000);
+			});
+	}, [canApplyCodemod, getCanApplyCodemod, setSelectedModal]);
 
 	const trigger = useCallback(() => {
 		setSubmitting(true);
@@ -248,6 +277,7 @@ const DuplicateCompositionLoaded: React.FC<{
 				newWidth: hadDimensionsDefined ? Number(size.width) : null,
 				newId,
 			},
+			dryRun: false,
 		})
 			.then(() => {
 				notification.replaceContent(`Created "${newId}" composition`, 2000);
@@ -407,7 +437,7 @@ const DuplicateCompositionLoaded: React.FC<{
 					) : null}
 					{type === 'composition' && hadFpsDefined ? (
 						<div style={optionRow}>
-							<div style={label}>Framerate</div>
+							<div style={label}>FPS</div>
 							<div style={rightRow}>
 								<InputDragger
 									type="number"

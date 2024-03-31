@@ -341,9 +341,16 @@ export const copyToClipboard = ({
 	return callApi('/api/copy-still-to-clipboard', body);
 };
 
-export const applyCodemod = ({codemod}: {codemod: RecastCodemod}) => {
+export const applyCodemod = ({
+	codemod,
+	dryRun,
+}: {
+	codemod: RecastCodemod;
+	dryRun: boolean;
+}) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
+		dryRun,
 	};
 	return callApi('/api/apply-codemod', body);
 };

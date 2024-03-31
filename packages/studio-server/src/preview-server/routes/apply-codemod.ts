@@ -11,7 +11,7 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
-> = async ({input: {codemod}, remotionRoot}) => {
+> = async ({input: {codemod, dryRun}, remotionRoot}) => {
 	try {
 		const projectInfo = await getProjectInfo(remotionRoot);
 		if (!projectInfo.rootFile) {
@@ -24,8 +24,10 @@ export const applyCodemodHandler: ApiHandler<
 			codeMod: codemod,
 			input: readFileSync(projectInfo.rootFile, 'utf-8'),
 		});
+		if (!dryRun) {
+			writeFileSync(projectInfo.rootFile, updated);
+		}
 
-		writeFileSync(projectInfo.rootFile, updated);
 		return {
 			success: true,
 		};
