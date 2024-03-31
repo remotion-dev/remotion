@@ -268,6 +268,9 @@ const DuplicateCompositionLoaded: React.FC<{
 
 	const trigger = useCallback(() => {
 		setSubmitting(true);
+		setSelectedModal(null);
+		const notification = showNotification('Duplicating...', null);
+
 		applyCodemod({
 			codemod: {
 				type: 'duplicate-composition',
@@ -280,11 +283,10 @@ const DuplicateCompositionLoaded: React.FC<{
 			},
 		})
 			.then(() => {
-				showNotification('Duplicated composition', 2000);
-				setSelectedModal(null);
+				notification.replaceContent(`Created "${newId}" composition`, 2000);
 			})
 			.catch((err) => {
-				showNotification(
+				notification.replaceContent(
 					`Could not duplicate composition: ${err.message}`,
 					2000,
 				);
