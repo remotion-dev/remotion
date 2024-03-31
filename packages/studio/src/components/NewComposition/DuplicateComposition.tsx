@@ -364,7 +364,6 @@ const DuplicateCompositionLoaded: React.FC<{
 									onChange={onNameChange}
 									type="text"
 									autoFocus
-									name="compositionId"
 									placeholder="Composition ID"
 									status="ok"
 									rightAlign
@@ -486,7 +485,8 @@ const DuplicateCompositionLoaded: React.FC<{
 								</span>
 								<br />
 								<span style={{color: BLUE, fontSize: 13, lineHeight: 1.2}}>
-									{canApplyCodemod.additions} additions,
+									{canApplyCodemod.additions} addition
+									{canApplyCodemod.additions === 1 ? '' : 's'},
 								</span>{' '}
 								<span
 									style={{
@@ -495,7 +495,8 @@ const DuplicateCompositionLoaded: React.FC<{
 										lineHeight: 1.2,
 									}}
 								>
-									{canApplyCodemod.deletions} deletions
+									{canApplyCodemod.deletions} deletion
+									{canApplyCodemod.deletions === 1 ? '' : 's'}
 								</span>
 							</div>
 						) : null}
