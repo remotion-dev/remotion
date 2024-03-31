@@ -4,6 +4,7 @@ import type {
 } from '@remotion/studio-shared';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {parseAndApplyCodemod} from '../../codemods/duplicate-composition';
+import {simpleDiff} from '../../codemods/simple-diff';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
 import {checkIfTypeScriptFile} from './can-update-default-props';
@@ -20,16 +21,24 @@ export const applyCodemodHandler: ApiHandler<
 
 		checkIfTypeScriptFile(projectInfo.rootFile);
 
+		const input = readFileSync(projectInfo.rootFile, 'utf-8');
+
 		const {newContents} = await parseAndApplyCodemod({
 			codeMod: codemod,
-			input: readFileSync(projectInfo.rootFile, 'utf-8'),
+			input,
 		});
+		const diff = simpleDiff({
+			oldLines: input.split('\n'),
+			newLines: newContents.split('\n'),
+		});
+
 		if (!dryRun) {
 			writeFileSync(projectInfo.rootFile, newContents);
 		}
 
 		return {
 			success: true,
+			diff,
 		};
 	} catch (err) {
 		return {

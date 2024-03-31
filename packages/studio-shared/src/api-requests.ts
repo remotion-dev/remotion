@@ -136,9 +136,15 @@ export type ApplyCodemodRequest = {
 	dryRun: boolean;
 };
 
+export type SimpleDiff = {
+	additions: number;
+	deletions: number;
+};
+
 export type ApplyCodemodResponse =
 	| {
 			success: true;
+			diff: SimpleDiff;
 	  }
 	| {
 			success: false;

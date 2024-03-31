@@ -13,6 +13,7 @@ export {
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RemoveRenderRequest,
+	SimpleDiff,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
