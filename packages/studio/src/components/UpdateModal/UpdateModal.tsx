@@ -7,7 +7,7 @@ import {KnownBugs} from '../KnownBugs';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
@@ -65,7 +65,7 @@ export const UpdateModal: React.FC<{
 
 	const onClick = useCallback(() => {
 		copyText(command).catch((err) => {
-			sendErrorNotification(`Could not copy: ${err.message}`);
+			showNotification(`Could not copy: ${err.message}`, 2000);
 		});
 	}, [command]);
 

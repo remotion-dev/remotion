@@ -24,12 +24,15 @@ import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {notificationCenter} from '../Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	showNotification,
+} from '../Notifications/NotificationCenter';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {getProjectInfo} from '../RenderQueue/actions';
+import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {InputDragger} from './InputDragger';
@@ -75,7 +78,7 @@ const DuplicateCompositionLoaded: React.FC<{
 	const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
-	const [name, setName] = useState(() => {
+	const [newId, setName] = useState(() => {
 		const numberAtEnd = resolved.result.id.match(/([0-9]+)$/)?.[0];
 		let prefix = numberAtEnd ? Number(numberAtEnd) : 1;
 		const initialName = resolved.result.id.replace(/([0-9]+)$/, '');
@@ -222,7 +225,7 @@ const DuplicateCompositionLoaded: React.FC<{
 		setFrameRate(String(newFps));
 	}, []);
 
-	const compNameErrMessage = validateCompositionName(name, compositions);
+	const compNameErrMessage = validateCompositionName(newId, compositions);
 	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
 	const compHeightErrMessage = validateCompositionDimension(
 		'Height',
@@ -256,18 +259,53 @@ const DuplicateCompositionLoaded: React.FC<{
 		];
 	}, [onTypeChanged]);
 
+	const {registerKeybinding} = useKeybinding();
+
+	const {setSelectedModal} = useContext(ModalsContext);
+	const [submitting, setSubmitting] = useState(false);
+
 	const valid =
 		compNameErrMessage === null &&
 		compWidthErrMessage === null &&
 		compHeightErrMessage === null &&
 		projectInfo !== null;
+	const enableSubmit = !submitting && valid;
 
-	const {registerKeybinding} = useKeybinding();
-
-	const trigger = useCallback(() => {}, []);
+	const trigger = useCallback(() => {
+		setSubmitting(true);
+		applyCodemod({
+			codemod: {
+				type: 'duplicate-composition',
+				idToDuplicate: resolved.result.id,
+				newDurationInFrames: Number(durationInFrames),
+				newFps: Number(selectedFrameRate),
+				newHeight: Number(size.height),
+				newWidth: Number(size.width),
+				newId,
+			},
+		})
+			.then(() => {
+				showNotification('Duplicated composition', 2000);
+				setSelectedModal(null);
+			})
+			.catch((err) => {
+				showNotification(
+					`Could not duplicate composition: ${err.message}`,
+					2000,
+				);
+			});
+	}, [
+		durationInFrames,
+		newId,
+		resolved.result.id,
+		selectedFrameRate,
+		setSelectedModal,
+		size.height,
+		size.width,
+	]);
 
 	useEffect(() => {
-		if (!valid) {
+		if (!enableSubmit) {
 			return;
 		}
 
@@ -285,7 +323,7 @@ const DuplicateCompositionLoaded: React.FC<{
 		return () => {
 			enter.unregister();
 		};
-	}, [registerKeybinding, trigger, valid]);
+	}, [enableSubmit, registerKeybinding, trigger, valid]);
 
 	return (
 		<>
@@ -309,7 +347,7 @@ const DuplicateCompositionLoaded: React.FC<{
 							<div style={leftLabel}>ID</div>
 							<div style={inputArea}>
 								<RemotionInput
-									value={name}
+									value={newId}
 									onChange={onNameChange}
 									type="text"
 									autoFocus
@@ -462,10 +500,10 @@ const DuplicateCompositionLoaded: React.FC<{
 						<Flex />
 						<Button
 							onClick={trigger}
-							disabled={!valid}
+							disabled={!enableSubmit}
 							style={{
 								...buttonStyle,
-								backgroundColor: valid ? BLUE : BLUE_DISABLED,
+								backgroundColor: enableSubmit ? BLUE : BLUE_DISABLED,
 							}}
 						>
 							{projectInfo ? `Add to ${projectInfo.relativeRootFile}` : 'Add'}

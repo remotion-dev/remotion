@@ -7,7 +7,7 @@ import type {
 	ComboboxValue,
 	SelectionItem,
 } from '../components/NewComposition/ComboBox';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -60,7 +60,7 @@ const getFileMenu = ({
 					onClick: () => {
 						closeMenu();
 						if (previewServerState !== 'connected') {
-							sendErrorNotification('Restart the studio to render');
+							showNotification('Restart the studio to render', 2000);
 							return;
 						}
 
@@ -98,16 +98,18 @@ const getFileMenu = ({
 							.then((res) => res.json())
 							.then(({success}) => {
 								if (!success) {
-									sendErrorNotification(
+									showNotification(
 										`Could not open ${window.remotion_editorName}`,
+										2000,
 									);
 								}
 							})
 							.catch((err) => {
 								// eslint-disable-next-line no-console
 								console.error(err);
-								sendErrorNotification(
+								showNotification(
 									`Could not open ${window.remotion_editorName}`,
+									2000,
 								);
 							});
 					},

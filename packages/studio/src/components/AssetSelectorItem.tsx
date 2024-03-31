@@ -21,7 +21,7 @@ import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
 import {
 	notificationCenter,
-	sendErrorNotification,
+	showNotification,
 } from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 
@@ -312,7 +312,7 @@ const AssetSelectorItem: React.FC<{
 						'/' +
 						item.name,
 				}).catch((err) => {
-					sendErrorNotification(`Could not open file: ${err.message}`);
+					showNotification(`Could not open file: ${err.message}`, 2000);
 				});
 			},
 			[item.name, parentFolder],
@@ -333,7 +333,7 @@ const AssetSelectorItem: React.FC<{
 						});
 					})
 					.catch((err) => {
-						sendErrorNotification(`Could not copy: ${err.message}`);
+						showNotification(`Could not copy: ${err.message}`, 2000);
 					});
 			},
 			[item.name, parentFolder],

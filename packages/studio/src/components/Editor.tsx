@@ -94,10 +94,10 @@ export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
 							/>
 							<GlobalKeybindings />
 						</Internals.CanUseRemotionHooksProvider>
-						<NotificationCenter />
 					</div>
 				</Internals.CurrentScaleContext.Provider>
 				<Modals readOnlyStudio={readOnlyStudio} />
+				<NotificationCenter />
 			</TimelineZoomContext>
 		</HigherZIndex>
 	);

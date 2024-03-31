@@ -2,7 +2,7 @@ import {Spacing} from '../components/layout';
 import {ColorDot} from '../components/Notifications/ColorDot';
 import {
 	notificationCenter,
-	sendErrorNotification,
+	showNotification,
 } from '../components/Notifications/NotificationCenter';
 import {copyText} from './copy-text';
 
@@ -30,7 +30,7 @@ export const pickColor = () => {
 					});
 				})
 				.catch((err) => {
-					sendErrorNotification(`Could not copy: ${err.message}`);
+					showNotification(`Could not copy: ${err.message}`, 2000);
 				});
 		})
 		.catch((err: Error) => {

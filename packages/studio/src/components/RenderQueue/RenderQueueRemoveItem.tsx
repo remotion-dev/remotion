@@ -4,7 +4,7 @@ import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {
 	notificationCenter,
-	sendErrorNotification,
+	showNotification,
 } from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
@@ -24,7 +24,7 @@ export const RenderQueueRemoveItem: React.FC<{
 					});
 				})
 				.catch((err) => {
-					sendErrorNotification(`Could not remove item: ${err.message}`);
+					showNotification(`Could not remove item: ${err.message}`, 2000);
 				});
 		},
 		[job],

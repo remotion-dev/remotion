@@ -159,14 +159,33 @@ const mapJsxChild = (
 		transformation.type === 'duplicate-composition' &&
 		compId === transformation.idToDuplicate
 	) {
-		return [c, changeCompositionIdInJSXElement(c, transformation.newId)];
+		return [
+			c,
+			changeCompositionIdInJSXElement({
+				jsxElement: c,
+				newCompositionId: transformation.newId,
+				newCompositionFps: transformation.newFps,
+				newCompositionDurationInFrames: transformation.newDurationInFrames,
+				newCompositionHeight: transformation.newHeight,
+				newCompositionWidth: transformation.newWidth,
+			}),
+		];
 	}
 
 	if (
 		transformation.type === 'rename-composition' &&
 		compId === transformation.idToRename
 	) {
-		return [changeCompositionIdInJSXElement(c, transformation.newId)];
+		return [
+			changeCompositionIdInJSXElement({
+				jsxElement: c,
+				newCompositionId: transformation.newId,
+				newCompositionFps: null,
+				newCompositionDurationInFrames: null,
+				newCompositionHeight: null,
+				newCompositionWidth: null,
+			}),
+		];
 	}
 
 	if (
@@ -239,10 +258,21 @@ const getCompositionIdFromJSXElement = (
 	return id[0];
 };
 
-const changeCompositionIdInJSXElement = (
-	jsxElement: JSXFragment['children'][number],
-	newCompositionId: string,
-): JSXFragment['children'][number] => {
+const changeCompositionIdInJSXElement = ({
+	jsxElement,
+	newCompositionId,
+	newCompositionFps,
+	newCompositionDurationInFrames,
+	newCompositionHeight,
+	newCompositionWidth,
+}: {
+	jsxElement: JSXFragment['children'][number];
+	newCompositionId: string;
+	newCompositionFps: number | null;
+	newCompositionDurationInFrames: number | null;
+	newCompositionHeight: number | null;
+	newCompositionWidth: number | null;
+}): JSXFragment['children'][number] => {
 	if (jsxElement.type !== 'JSXElement') {
 		return jsxElement;
 	}
@@ -268,19 +298,88 @@ const changeCompositionIdInJSXElement = (
 			return attribute;
 		}
 
-		if (attribute.name.name !== 'id') {
-			return attribute;
-		}
-
-		if (!attribute.value) {
-			return attribute;
-		}
-
-		// TODO: At least JSX
-		if (attribute.value.type === 'StringLiteral') {
+		// TODO: Support JSX
+		if (
+			attribute.name.name === 'id' &&
+			attribute.value &&
+			attribute.value.type === 'StringLiteral'
+		) {
 			return {
 				...attribute,
 				value: {...attribute.value, value: newCompositionId},
+			};
+		}
+
+		if (
+			attribute.name.name === 'fps' &&
+			attribute.value &&
+			attribute.value.type === 'JSXExpressionContainer' &&
+			attribute.value.expression.type === 'NumericLiteral' &&
+			newCompositionFps !== null
+		) {
+			return {
+				...attribute,
+				value: {
+					...attribute.value,
+					expression: {...attribute.value.expression, value: newCompositionFps},
+				},
+			};
+		}
+
+		if (
+			attribute.name.name === 'durationInFrames' &&
+			attribute.value &&
+			attribute.value.type === 'JSXExpressionContainer' &&
+			attribute.value.expression.type === 'NumericLiteral' &&
+			newCompositionDurationInFrames !== null
+		) {
+			return {
+				...attribute,
+				value: {
+					...attribute.value,
+					expression: {
+						...attribute.value.expression,
+						value: newCompositionDurationInFrames,
+					},
+				},
+			};
+		}
+
+		if (
+			attribute.name.name === 'width' &&
+			attribute.value &&
+			attribute.value.type === 'JSXExpressionContainer' &&
+			attribute.value.expression.type === 'NumericLiteral' &&
+			newCompositionWidth !== null
+		) {
+			return {
+				...attribute,
+				value: {
+					...attribute.value,
+					expression: {
+						...attribute.value.expression,
+						value: newCompositionWidth,
+					},
+				},
+			};
+		}
+
+		if (
+			attribute.name.name === 'width' &&
+			attribute.value &&
+			attribute.value.type === 'JSXExpressionContainer' &&
+			attribute.value.expression.type === 'NumericLiteral' &&
+			newCompositionHeight !== null
+		) {
+			return {
+				...attribute,
+				value: {
+					...attribute.value,
+					expression: {
+						...attribute.value.expression,
+						value: newCompositionHeight,
+					},
+				},
 			};
 		}
 

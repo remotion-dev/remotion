@@ -31,10 +31,13 @@ type TNotificationCenter = {
 
 export const notificationCenter = createRef<TNotificationCenter>();
 
-export const sendErrorNotification = (content: React.ReactNode) => {
+export const showNotification = (
+	content: React.ReactNode,
+	durationInMs: number,
+) => {
 	notificationCenter.current?.addNotification({
 		content,
-		duration: 2000,
+		duration: durationInMs,
 		created: Date.now(),
 		id: String(Math.random()).replace('0.', ''),
 	});
