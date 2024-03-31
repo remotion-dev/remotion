@@ -15,16 +15,13 @@ import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {
-	loadAspectRatioOption,
-	persistAspectRatioOption,
-} from '../../state/aspect-ratio-locked';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -33,8 +30,6 @@ import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {InputDragger} from './InputDragger';
-import {inputArea, leftLabel} from './new-comp-layout';
-import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
@@ -44,10 +39,11 @@ const content: React.CSSProperties = {
 	paddingRight: 12,
 	flex: 1,
 	fontSize: 13,
+	minWidth: 500,
 };
 
 const comboBoxStyle: React.CSSProperties = {
-	width: inputArea.width,
+	width: 190,
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -65,10 +61,15 @@ const DuplicateCompositionLoaded: React.FC<{
 		throw new Error('Resolved composition context');
 	}
 
-	const {resolved} = context;
+	const {resolved, unresolved} = context;
 
 	const initialCompType: CompType =
 		resolved.result.durationInFrames === 1 ? 'still' : 'composition';
+
+	const hadDimensionsDefined = unresolved.width && unresolved.height;
+	const hadFpsDefined = unresolved.fps !== undefined;
+	const hadDurationDefined = unresolved.durationInFrames !== undefined;
+
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(resolved.result.fps),
 	);
@@ -120,92 +121,56 @@ const DuplicateCompositionLoaded: React.FC<{
 		};
 	}, []);
 
-	const [lockedAspectRatio, setLockedAspectRatio] = useState(
-		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null,
-	);
 	const [durationInFrames, setDurationInFrames] = useState('150');
-
-	const setAspectRatioLocked = useCallback(
-		(option: boolean) => {
-			persistAspectRatioOption(option);
-			setLockedAspectRatio(
-				option ? Number(size.width) / Number(size.height) : null,
-			);
-		},
-		[size.height, size.width],
-	);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
 	}, []);
 
-	const onWidthChanged = useCallback(
-		(newValue: string) => {
-			setSize((s) => {
-				const {height} = s;
-				const newWidth = Number(newValue);
-				return {
-					height:
-						lockedAspectRatio === null
-							? height
-							: String(Math.ceil(newWidth / lockedAspectRatio / 2) * 2),
-					width: String(newWidth),
-				};
-			});
-		},
-		[lockedAspectRatio],
-	);
+	const onWidthChanged = useCallback((newValue: string) => {
+		setSize((s) => {
+			const {height} = s;
+			const newWidth = Number(newValue);
+			return {
+				height,
+				width: String(newWidth),
+			};
+		});
+	}, []);
 
-	const onWidthDirectlyChanged = useCallback(
-		(newWidth: number) => {
-			setSize((s) => {
-				const {height} = s;
+	const onWidthDirectlyChanged = useCallback((newWidth: number) => {
+		setSize((s) => {
+			const {height} = s;
 
-				return {
-					height:
-						lockedAspectRatio === null
-							? height
-							: String(Math.ceil(newWidth / lockedAspectRatio / 2) * 2),
-					width: String(newWidth),
-				};
-			});
-		},
-		[lockedAspectRatio],
-	);
+			return {
+				height,
+				width: String(newWidth),
+			};
+		});
+	}, []);
 
-	const onHeightDirectlyChanged = useCallback(
-		(newHeight: number) => {
-			setSize((s) => {
-				const {width} = s;
+	const onHeightDirectlyChanged = useCallback((newHeight: number) => {
+		setSize((s) => {
+			const {width} = s;
 
-				return {
-					width:
-						lockedAspectRatio === null
-							? width
-							: String(Math.ceil((newHeight / 2) * lockedAspectRatio) * 2),
-					height: String(newHeight),
-				};
-			});
-		},
-		[lockedAspectRatio],
-	);
+			return {
+				width,
+				height: String(newHeight),
+			};
+		});
+	}, []);
 
-	const onHeightChanged = useCallback(
-		(newValue: string) => {
-			setSize((s) => {
-				const {width} = s;
-				const newHeight = Number(newValue);
-				return {
-					width:
-						lockedAspectRatio === null
-							? width
-							: String(Math.ceil((newHeight / 2) * lockedAspectRatio) * 2),
-					height: String(newHeight),
-				};
-			});
-		},
-		[lockedAspectRatio],
-	);
+	const onHeightChanged = useCallback((newValue: string) => {
+		setSize((s) => {
+			const {width} = s;
+			const newHeight = Number(newValue);
+			return {
+				width,
+				height: String(newHeight),
+			};
+		});
+	}, []);
+
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setName(e.target.value);
@@ -275,10 +240,12 @@ const DuplicateCompositionLoaded: React.FC<{
 			codemod: {
 				type: 'duplicate-composition',
 				idToDuplicate: resolved.result.id,
-				newDurationInFrames: Number(durationInFrames),
-				newFps: Number(selectedFrameRate),
-				newHeight: Number(size.height),
-				newWidth: Number(size.width),
+				newDurationInFrames: hadDurationDefined
+					? Number(durationInFrames)
+					: null,
+				newFps: hadFpsDefined ? Number(selectedFrameRate) : null,
+				newHeight: hadDimensionsDefined ? Number(size.height) : null,
+				newWidth: hadDimensionsDefined ? Number(size.width) : null,
 				newId,
 			},
 		})
@@ -293,12 +260,14 @@ const DuplicateCompositionLoaded: React.FC<{
 			});
 	}, [
 		durationInFrames,
+		hadDimensionsDefined,
+		hadDurationDefined,
+		hadFpsDefined,
 		newId,
 		resolved.result.id,
 		selectedFrameRate,
 		setSelectedModal,
-		size.height,
-		size.width,
+		size,
 	]);
 
 	useEffect(() => {
@@ -327,22 +296,21 @@ const DuplicateCompositionLoaded: React.FC<{
 			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
 			<form>
 				<div style={content}>
-					<label>
-						<Row align="center">
-							<div style={leftLabel}>Type</div>
-							<div style={inputArea}>
-								<Combobox
-									title="Type of composition"
-									style={comboBoxStyle}
-									values={typeValues}
-									selectedId={type}
-								/>
-							</div>
-						</Row>
-						<Spacing y={1} />
-						<Row align="center">
-							<div style={leftLabel}>ID</div>
-							<div style={inputArea}>
+					<div style={optionRow}>
+						<div style={label}>Type</div>
+						<div style={rightRow}>
+							<Combobox
+								title="Type of composition"
+								style={comboBoxStyle}
+								values={typeValues}
+								selectedId={type}
+							/>
+						</div>
+					</div>
+					<div style={optionRow}>
+						<div style={label}>ID</div>
+						<div style={rightRow}>
+							<div>
 								<RemotionInput
 									value={newId}
 									onChange={onNameChange}
@@ -351,7 +319,7 @@ const DuplicateCompositionLoaded: React.FC<{
 									name="compositionId"
 									placeholder="Composition ID"
 									status="ok"
-									rightAlign={false}
+									rightAlign
 								/>
 								{compNameErrMessage ? (
 									<>
@@ -364,126 +332,98 @@ const DuplicateCompositionLoaded: React.FC<{
 									</>
 								) : null}
 							</div>
-						</Row>
-					</label>
-					<Spacing y={1} />
-					<Row align="center">
-						<div>
-							<div>
-								<label>
-									<Row align="center">
-										<div style={leftLabel}>Width</div>
-										<div style={inputArea}>
-											<InputDragger
-												type="number"
-												value={size.width}
-												placeholder="Width"
-												onTextChange={onWidthChanged}
-												name="width"
-												step={2}
-												min={2}
-												required
-												status="ok"
-												formatter={(w) => `${w}px`}
-												max={100000000}
-												onValueChange={onWidthDirectlyChanged}
-												rightAlign={false}
+						</div>
+					</div>
+
+					{hadDimensionsDefined ? (
+						<>
+							<div style={optionRow}>
+								<div style={label}>Width</div>
+								<div style={rightRow}>
+									<InputDragger
+										type="number"
+										value={size.width}
+										placeholder="Width"
+										onTextChange={onWidthChanged}
+										name="width"
+										step={2}
+										min={2}
+										required
+										status="ok"
+										formatter={(w) => `${w}px`}
+										max={100000000}
+										onValueChange={onWidthDirectlyChanged}
+										rightAlign={false}
+									/>
+									{compWidthErrMessage ? (
+										<>
+											<Spacing y={1} block />
+											<ValidationMessage
+												align="flex-start"
+												message={compWidthErrMessage}
+												type="error"
 											/>
-											{compWidthErrMessage ? (
-												<>
-													<Spacing y={1} block />
-													<ValidationMessage
-														align="flex-start"
-														message={compWidthErrMessage}
-														type="error"
-													/>
-												</>
-											) : null}
-										</div>
-									</Row>
-								</label>
+										</>
+									) : null}
+								</div>
 							</div>
-							<div />
-							<Spacing y={1} />
-							<div />
-							<label>
-								<Row align="center">
-									<div style={leftLabel}>Height</div>
-									<div style={inputArea}>
-										<InputDragger
-											type="number"
-											value={size.height}
-											onTextChange={onHeightChanged}
-											placeholder="Height"
-											name="height"
-											step={2}
-											required
-											formatter={(h) => `${h}px`}
-											min={2}
-											status="ok"
-											max={100000000}
-											onValueChange={onHeightDirectlyChanged}
-											rightAlign={false}
-										/>
-										{compHeightErrMessage ? (
-											<>
-												<Spacing y={1} block />
-												<ValidationMessage
-													align="flex-start"
-													message={compHeightErrMessage}
-													type="error"
-												/>
-											</>
-										) : null}
-									</div>
-								</Row>
-							</label>
-						</div>
-						<div>
-							<NewCompAspectRatio
-								width={Number(size.width)}
-								height={Number(size.height)}
-								aspectRatioLocked={lockedAspectRatio}
-								setAspectRatioLocked={setAspectRatioLocked}
-							/>
-						</div>
-					</Row>
-					<div />
-					<Spacing y={1} />
-					{type === 'composition' ? (
+							<div style={optionRow}>
+								<div style={label}>Height</div>
+								<div style={rightRow}>
+									<InputDragger
+										type="number"
+										value={size.height}
+										onTextChange={onHeightChanged}
+										placeholder="Height"
+										name="height"
+										step={2}
+										required
+										formatter={(h) => `${h}px`}
+										min={2}
+										status="ok"
+										max={100000000}
+										onValueChange={onHeightDirectlyChanged}
+										rightAlign={false}
+									/>
+									{compHeightErrMessage ? (
+										<>
+											<Spacing y={1} block />
+											<ValidationMessage
+												align="flex-start"
+												message={compHeightErrMessage}
+												type="error"
+											/>
+										</>
+									) : null}
+								</div>
+							</div>
+						</>
+					) : null}
+					{type === 'composition' && hadDurationDefined ? (
 						<NewCompDuration
 							durationInFrames={durationInFrames}
-							fps={selectedFrameRate}
 							setDurationInFrames={setDurationInFrames}
 						/>
 					) : null}
-					<div />
-					<br />
-					<div />
-					{type === 'composition' ? (
-						<div>
-							<div />
-							<label>
-								<Row align="center">
-									<div style={leftLabel}>Framerate</div>
-									<div style={inputArea}>
-										<InputDragger
-											type="number"
-											value={selectedFrameRate}
-											onTextChange={onTextFpsChange}
-											placeholder="Frame rate (fps)"
-											name="fps"
-											min={1}
-											required
-											status="ok"
-											max={240}
-											step={0.01}
-											onValueChange={onFpsChange}
-											rightAlign={false}
-										/>
-									</div>
-								</Row>
-							</label>
+					{type === 'composition' && hadFpsDefined ? (
+						<div style={optionRow}>
+							<div style={label}>Framerate</div>
+							<div style={rightRow}>
+								<InputDragger
+									type="number"
+									value={selectedFrameRate}
+									onTextChange={onTextFpsChange}
+									placeholder="Frame rate (fps)"
+									name="fps"
+									min={1}
+									required
+									status="ok"
+									max={240}
+									step={0.01}
+									onValueChange={onFpsChange}
+									rightAlign={false}
+								/>
+							</div>
 						</div>
 					) : null}
 				</div>

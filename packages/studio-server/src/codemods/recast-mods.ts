@@ -224,7 +224,7 @@ const getCompositionIdFromJSXElement = (
 		return null;
 	}
 
-	if (name.name !== 'Composition') {
+	if (name.name !== 'Composition' && name.name !== 'Still') {
 		return null;
 	}
 
