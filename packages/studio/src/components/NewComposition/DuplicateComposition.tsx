@@ -242,6 +242,7 @@ const DuplicateCompositionLoaded: React.FC<{
 				newHeight: null,
 				newId,
 				newWidth: null,
+				tag: type === 'still' ? 'Still' : 'Composition',
 			},
 			dryRun: true,
 		});
@@ -251,7 +252,7 @@ const DuplicateCompositionLoaded: React.FC<{
 		}
 
 		setCanApplyCodemod(res.success);
-	}, [newId, resolved.result.id]);
+	}, [newId, resolved.result.id, type]);
 
 	useEffect(() => {
 		getCanApplyCodemod()
@@ -278,6 +279,7 @@ const DuplicateCompositionLoaded: React.FC<{
 				newHeight: hadDimensionsDefined ? Number(size.height) : null,
 				newWidth: hadDimensionsDefined ? Number(size.width) : null,
 				newId,
+				tag: type === 'still' ? 'Still' : 'Composition',
 			},
 			dryRun: false,
 		})
@@ -299,7 +301,9 @@ const DuplicateCompositionLoaded: React.FC<{
 		resolved.result.id,
 		selectedFrameRate,
 		setSelectedModal,
-		size,
+		size.height,
+		size.width,
+		type,
 	]);
 
 	useEffect(() => {
@@ -328,17 +332,22 @@ const DuplicateCompositionLoaded: React.FC<{
 			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
 			<form>
 				<div style={content}>
-					<div style={optionRow}>
-						<div style={label}>Type</div>
-						<div style={rightRow}>
-							<Combobox
-								title="Type of composition"
-								style={comboBoxStyle}
-								values={typeValues}
-								selectedId={type}
-							/>
+					{initialCompType === 'composition' ? (
+						// We allow converting from a composition to a still, but
+						// not the other way around
+						<div style={optionRow}>
+							<div style={label}>Type</div>
+							<div style={rightRow}>
+								<Combobox
+									title="Type of composition"
+									style={comboBoxStyle}
+									values={typeValues}
+									selectedId={type}
+								/>
+							</div>
 						</div>
-					</div>
+					) : null}
+
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>

@@ -30,7 +30,7 @@ export const parseAndApplyCodemod = async ({
 	});
 
 	if (changesMade.length === 0) {
-		throw new Error('No changes were made to the file');
+		throw new Error('Could not find changes to made to the file');
 	}
 
 	const output = recast.print(newAst, {

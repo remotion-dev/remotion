@@ -7,6 +7,7 @@ export type RecastCodemod =
 			newWidth: number | null;
 			newFps: number | null;
 			newDurationInFrames: number | null;
+			tag: 'Still' | 'Composition';
 	  }
 	| {
 			type: 'rename-composition';

@@ -181,7 +181,7 @@ export const CompositionSelectorItem: React.FC<{
 							.catch((err) => {
 								showNotification(
 									`Could not delete composition: ${err.message}`,
-									1000,
+									2000,
 								);
 							});
 					},
