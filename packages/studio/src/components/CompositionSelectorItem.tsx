@@ -14,7 +14,7 @@ import {ModalsContext} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {notificationCenter} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 
@@ -175,20 +175,13 @@ export const CompositionSelectorItem: React.FC<{
 									throw new Error(res.reason);
 								}
 
-								notificationCenter.current?.addNotification({
-									content: `Deleted ${item.composition.id}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification(`Deleted ${item.composition.id}`, 1000);
 							})
 							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not delete composition: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification(
+									`Could not delete composition: ${err.message}`,
+									1000,
+								);
 							});
 					},
 					quickSwitcherLabel: null,
@@ -209,20 +202,13 @@ export const CompositionSelectorItem: React.FC<{
 						navigator.clipboard
 							.writeText(item.composition.id)
 							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not copy to clipboard: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification(
+									`Could not copy to clipboard: ${err.message}`,
+									1000,
+								);
 							})
 							.then(() => {
-								notificationCenter.current?.addNotification({
-									content: 'Copied to clipboard',
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification('Copied to clipboard', 1000);
 							});
 					},
 					quickSwitcherLabel: null,

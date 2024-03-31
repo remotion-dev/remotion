@@ -2,10 +2,7 @@ import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {
-	notificationCenter,
-	showNotification,
-} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{
@@ -16,12 +13,7 @@ export const RenderQueueRemoveItem: React.FC<{
 			e.stopPropagation();
 			removeRenderJob(job)
 				.then(() => {
-					notificationCenter.current?.addNotification({
-						content: 'Removed job',
-						duration: 2000,
-						created: Date.now(),
-						id: String(Math.random()).replace('0.', ''),
-					});
+					showNotification('Removed job', 2000);
 				})
 				.catch((err) => {
 					showNotification(`Could not remove item: ${err.message}`, 2000);

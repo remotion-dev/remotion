@@ -24,10 +24,7 @@ import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {
-	notificationCenter,
-	showNotification,
-} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -112,12 +109,10 @@ const DuplicateCompositionLoaded: React.FC<{
 				setProjectInfo(info.projectInfo);
 			})
 			.catch((err) => {
-				notificationCenter.current?.addNotification({
-					content: `Could not get project info: ${err.message}. Unable to duplicate composition`,
-					created: Date.now(),
-					duration: 3000,
-					id: String(Math.random()),
-				});
+				showNotification(
+					`Could not get project info: ${err.message}. Unable to duplicate composition`,
+					3000,
+				);
 			});
 
 		return () => {

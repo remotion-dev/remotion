@@ -29,7 +29,7 @@ type TNotificationCenter = {
 	addNotification: (notification: TNotification) => void;
 };
 
-export const notificationCenter = createRef<TNotificationCenter>();
+const notificationCenter = createRef<TNotificationCenter>();
 
 export const showNotification = (
 	content: React.ReactNode,

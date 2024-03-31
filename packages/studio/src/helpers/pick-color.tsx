@@ -1,9 +1,6 @@
 import {Spacing} from '../components/layout';
 import {ColorDot} from '../components/Notifications/ColorDot';
-import {
-	notificationCenter,
-	showNotification,
-} from '../components/Notifications/NotificationCenter';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import {copyText} from './copy-text';
 
 export const pickColor = () => {
@@ -17,17 +14,13 @@ export const pickColor = () => {
 		.then((color) => {
 			copyText(color.sRGBHex)
 				.then(() => {
-					notificationCenter.current?.addNotification({
-						content: (
-							<>
-								<ColorDot color={color.sRGBHex} /> <Spacing x={1} /> Copied{' '}
-								{color.sRGBHex}
-							</>
-						),
-						created: Date.now(),
-						duration: 2000,
-						id: String(Math.random()),
-					});
+					showNotification(
+						<>
+							<ColorDot color={color.sRGBHex} /> <Spacing x={1} /> Copied{' '}
+							{color.sRGBHex}
+						</>,
+						2000,
+					);
 				})
 				.catch((err) => {
 					showNotification(`Could not copy: ${err.message}`, 2000);
@@ -38,11 +31,6 @@ export const pickColor = () => {
 				return;
 			}
 
-			notificationCenter.current?.addNotification({
-				content: `Could not pick color.`,
-				duration: 2000,
-				created: Date.now(),
-				id: String(Math.random()),
-			});
+			showNotification(`Could not pick color.`, 2000);
 		});
 };

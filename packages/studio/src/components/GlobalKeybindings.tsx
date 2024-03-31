@@ -3,7 +3,7 @@ import {useContext, useEffect} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
-import {notificationCenter} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
@@ -15,12 +15,10 @@ export const GlobalKeybindings: React.FC = () => {
 			event: 'keypress',
 			key: 'n',
 			callback: () => {
-				notificationCenter.current?.addNotification({
-					content: `To make a new composition, right-click an existing one and select "Duplicate"`,
-					created: Date.now(),
-					duration: 5000,
-					id: String(Math.random()),
-				});
+				showNotification(
+					`To make a new composition, right-click an existing one and select "Duplicate"`,
+					5000,
+				);
 			},
 			commandCtrlKey: false,
 			preventDefault: true,

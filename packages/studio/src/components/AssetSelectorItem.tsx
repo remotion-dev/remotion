@@ -19,10 +19,7 @@ import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
-import {
-	notificationCenter,
-	showNotification,
-} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const ASSET_ITEM_HEIGHT = 32;
@@ -325,12 +322,7 @@ const AssetSelectorItem: React.FC<{
 				const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
 				copyText(content)
 					.then(() => {
-						notificationCenter.current?.addNotification({
-							content: `Copied '${content}' to clipboard`,
-							created: Date.now(),
-							duration: 1000,
-							id: String(Math.random()),
-						});
+						showNotification(`Copied '${content}' to clipboard`, 1000);
 					})
 					.catch((err) => {
 						showNotification(`Could not copy: ${err.message}`, 2000);
