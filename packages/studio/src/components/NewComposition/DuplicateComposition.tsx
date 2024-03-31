@@ -222,9 +222,7 @@ const DuplicateCompositionLoaded: React.FC<{
 	const {registerKeybinding} = useKeybinding();
 
 	const {setSelectedModal} = useContext(ModalsContext);
-	const [canApplyCodemod, setCanApplyCodemod] = useState<true | false | null>(
-		false,
-	);
+	const [canApplyCodemod, setCanApplyCodemod] = useState<true | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 
 	const valid =
@@ -247,6 +245,10 @@ const DuplicateCompositionLoaded: React.FC<{
 			},
 			dryRun: true,
 		});
+
+		if (!res.success) {
+			throw new Error(res.reason);
+		}
 
 		setCanApplyCodemod(res.success);
 	}, [newId, resolved.result.id]);
