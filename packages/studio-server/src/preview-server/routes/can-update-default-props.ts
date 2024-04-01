@@ -14,7 +14,7 @@ export const checkIfTypeScriptFile = (file: string) => {
 		!file.endsWith('.mtsx') &&
 		!file.endsWith('.mts')
 	) {
-		throw new Error('Cannot update default props for non-TypeScript files');
+		throw new Error('Cannot update Root file if not using TypeScript');
 	}
 };
 

@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
@@ -15,8 +16,9 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
-> = async ({input: {codemod, dryRun}, remotionRoot}) => {
+> = async ({input: {codemod, dryRun}, logLevel, remotionRoot}) => {
 	try {
+		const time = Date.now();
 		const projectInfo = await getProjectInfo(remotionRoot);
 		if (!projectInfo.rootFile) {
 			throw new Error('Cannot find root file in project');
@@ -26,18 +28,24 @@ export const applyCodemodHandler: ApiHandler<
 
 		const input = readFileSync(projectInfo.rootFile, 'utf-8');
 
-		const {newContents} = await parseAndApplyCodemod({
+		const {newContents} = parseAndApplyCodemod({
 			codeMod: codemod,
 			input,
 		});
+		const formatted = await formatOutput(newContents);
+
 		const diff = simpleDiff({
 			oldLines: input.split('\n'),
-			newLines: newContents.split('\n'),
+			newLines: formatted.split('\n'),
 		});
 
 		if (!dryRun) {
-			const formatted = await formatOutput(newContents);
 			writeFileSync(projectInfo.rootFile, formatted);
+			const end = Date.now() - time;
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				RenderInternals.chalk.blue(`Edited root file in ${end}ms`),
+			);
 		}
 
 		return {
