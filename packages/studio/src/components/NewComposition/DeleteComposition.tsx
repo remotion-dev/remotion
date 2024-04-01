@@ -1,14 +1,13 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
-import {ModalsContext} from '../../state/modals';
+import React, {useContext, useMemo} from 'react';
 import {inlineCodeSnippet} from '../Menu/styles';
-import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
 import {CodemodFooter} from './CodemodFooter';
+import {DismissableModal} from './DismissableModal';
 
 const content: React.CSSProperties = {
 	padding: 16,
@@ -19,20 +18,20 @@ const content: React.CSSProperties = {
 
 const DeleteCompositionLoaded: React.FC<{
 	compositionId: string;
-}> = () => {
+}> = ({compositionId}) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
 		throw new Error('Resolved composition context');
 	}
 
-	const {resolved, unresolved} = context;
+	const {unresolved} = context;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'delete-composition',
-			idToDelete: resolved.result.id,
+			idToDelete: compositionId,
 		};
-	}, [resolved.result.id]);
+	}, [compositionId]);
 
 	return (
 		<>
@@ -61,17 +60,11 @@ const DeleteCompositionLoaded: React.FC<{
 export const DeleteComposition: React.FC<{
 	compositionId: string;
 }> = ({compositionId}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+		<DismissableModal>
 			<ResolveCompositionBeforeModal compositionId={compositionId}>
 				<DeleteCompositionLoaded compositionId={compositionId} />
 			</ResolveCompositionBeforeModal>
-		</ModalContainer>
+		</DismissableModal>
 	);
 };

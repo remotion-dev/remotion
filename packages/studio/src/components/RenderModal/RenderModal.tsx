@@ -44,13 +44,10 @@ import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {
-	getMaxModalHeight,
-	getMaxModalWidth,
-	ModalContainer,
-} from '../ModalContainer';
+import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {DismissableModal} from '../NewComposition/DismissableModal';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -241,7 +238,6 @@ type RenderModalProps = {
 
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
-		onClose: () => void;
 		defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
@@ -276,7 +272,6 @@ const RenderModal: React.FC<
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
-	onClose,
 	initialColorSpace,
 	initialMultiProcessOnLinux,
 	defaultConfigurationAudioCodec,
@@ -285,6 +280,8 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 }) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
 		throw new Error(
@@ -740,7 +737,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -762,7 +759,7 @@ const RenderModal: React.FC<
 		offthreadVideoCacheSizeInBytes,
 		multiProcessOnLinux,
 		beepOnFinish,
-		onClose,
+		setSelectedModal,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -835,7 +832,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -880,7 +877,7 @@ const RenderModal: React.FC<
 		repro,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
-		onClose,
+		setSelectedModal,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -910,7 +907,7 @@ const RenderModal: React.FC<
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				onClose();
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -936,7 +933,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		beepOnFinish,
 		repro,
-		onClose,
+		setSelectedModal,
 	]);
 
 	useEffect(() => {
@@ -1409,17 +1406,11 @@ const RenderModal: React.FC<
 };
 
 export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+		<DismissableModal>
 			<ResolveCompositionBeforeModal compositionId={props.compositionId}>
-				<RenderModal {...props} onClose={onQuit} />
+				<RenderModal {...props} />
 			</ResolveCompositionBeforeModal>
-		</ModalContainer>
+		</DismissableModal>
 	);
 };

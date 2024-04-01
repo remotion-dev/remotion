@@ -18,7 +18,6 @@ import {
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
-import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
@@ -30,6 +29,7 @@ import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {CodemodDiffPreview} from './DiffPreview';
+import {DismissableModal} from './DismissableModal';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
@@ -497,17 +497,11 @@ const DuplicateCompositionLoaded: React.FC<{
 export const DuplicateComposition: React.FC<{
 	compositionId: string;
 }> = ({compositionId}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+		<DismissableModal>
 			<ResolveCompositionBeforeModal compositionId={compositionId}>
 				<DuplicateCompositionLoaded compositionId={compositionId} />
 			</ResolveCompositionBeforeModal>
-		</ModalContainer>
+		</DismissableModal>
 	);
 };

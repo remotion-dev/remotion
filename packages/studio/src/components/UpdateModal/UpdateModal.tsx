@@ -1,12 +1,11 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
-import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {KnownBugs} from '../KnownBugs';
 import {Flex, Row, Spacing} from '../layout';
-import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {DismissableModal} from '../NewComposition/DismissableModal';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
 
@@ -52,11 +51,6 @@ export const UpdateModal: React.FC<{
 	info: UpdateInfo;
 	knownBugs: Bug[];
 }> = ({info, knownBugs}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	const hasKnownBugs = useMemo(() => {
 		return knownBugs && knownBugs?.length > 0;
 	}, [knownBugs]);
@@ -70,7 +64,7 @@ export const UpdateModal: React.FC<{
 	}, [command]);
 
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+		<DismissableModal>
 			<NewCompHeader title="Update available" />
 			<div style={container}>
 				{hasKnownBugs ? (
@@ -117,6 +111,6 @@ export const UpdateModal: React.FC<{
 					to know what{"'s"} new in Remotion.
 				</div>
 			</div>
-		</ModalContainer>
+		</DismissableModal>
 	);
 };
