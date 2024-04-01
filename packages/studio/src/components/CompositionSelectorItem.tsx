@@ -154,7 +154,7 @@ export const CompositionSelectorItem: React.FC<{
 					quickSwitcherLabel: null,
 					subMenu: null,
 					type: 'item',
-					value: 'remove',
+					value: 'duplicate',
 				},
 				{
 					id: 'rename',
@@ -170,7 +170,7 @@ export const CompositionSelectorItem: React.FC<{
 					quickSwitcherLabel: null,
 					subMenu: null,
 					type: 'item',
-					value: 'remove',
+					value: 'rename',
 				},
 				{
 					id: 'delete',
@@ -186,7 +186,7 @@ export const CompositionSelectorItem: React.FC<{
 					quickSwitcherLabel: null,
 					subMenu: null,
 					type: 'item',
-					value: 'remove',
+					value: 'delete',
 				},
 				{
 					type: 'divider',
