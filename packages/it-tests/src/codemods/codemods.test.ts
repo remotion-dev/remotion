@@ -120,3 +120,19 @@ test("Should be able to recognize non-arrow function", () => {
 });
 
 test.todo("should work if there is no fragment");
+
+test("in non-return statement", () => {
+  const { changesMade, newContents } =
+    StudioServerInternals.parseAndApplyCodemod({
+      input: contents,
+      codeMod: {
+        type: "rename-composition",
+        idToRename: "six",
+        newId: "jkl",
+      },
+    });
+  expect(changesMade.length).toBe(1);
+  expect(getCompositionCount(newContents)).toBe(compCount);
+  expect(newContents).not.toContain('"six"');
+  expect(newContents).toContain('"jkl"');
+});

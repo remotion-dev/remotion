@@ -18,7 +18,6 @@ function AltCodemodRootNoFragment() {
 		/>
 	);
 }
-// TODO: This does not yet work because it would require a fragment
 function AltCodemodRootFragment() {
 	return (
 		<>
@@ -57,6 +56,22 @@ export const CodemodRoot: React.FC = () => {
 		};
 	}, []);
 
+	const somewhere = (
+		<>
+			<Composition
+				id="six"
+				component={DynamicDuration}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				calculateMetadata={calculateMetadata}
+				schema={dynamicDurationSchema}
+				defaultProps={{duration: 50}}
+			/>
+		</>
+	);
+
 	return (
 		<>
 			<Composition
@@ -82,6 +97,7 @@ export const CodemodRoot: React.FC = () => {
 			/>
 			<AltCodemodRootNoFragment />
 			<AltCodemodRootFragment />
+			{somewhere}
 		</>
 	);
 };

@@ -1,12 +1,18 @@
 import type {
+	ArrowFunctionExpression,
 	BlockStatement,
-	Declaration,
+	ExportDefaultDeclaration,
+	ExportNamedDeclaration,
 	Expression,
 	File,
+	FunctionDeclaration,
+	FunctionExpression,
 	JSXAttribute,
 	JSXElement,
 	JSXFragment,
+	ReturnStatement,
 	Statement,
+	VariableDeclaration,
 	VariableDeclarator,
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
@@ -25,7 +31,7 @@ export const applyCodemod = ({
 	const changesMade: Change[] = [];
 
 	const body = file.program.body.map((node) => {
-		return mapTopLevlNode(node, codeMod, changesMade);
+		return mapAll(node, codeMod, changesMade);
 	});
 
 	return {
@@ -40,19 +46,91 @@ export const applyCodemod = ({
 	};
 };
 
-const mapTopLevlNode = (
-	node: Statement,
+const mapAll = <T extends Statement | Expression>(
+	node: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
-): Statement => {
-	if (node.type.endsWith('Declaration') || node.type.endsWith('Expression')) {
-		return mapDeclaration(node as Declaration, transformation, changesMade);
+): T => {
+	if (isDeclaration(node)) {
+		return mapDeclaration(node, transformation, changesMade);
+	}
+
+	if (isExpression(node)) {
+		return mapExpression(node, transformation, changesMade);
+	}
+
+	if (isStatement(node)) {
+		return mapStatement(node, transformation, changesMade);
 	}
 
 	return node;
 };
 
-const mapDeclaration = <T extends Declaration | Expression>(
+type RDeclaration =
+	| VariableDeclaration
+	| FunctionDeclaration
+	| ExportNamedDeclaration
+	| ExportDefaultDeclaration;
+type RExpression =
+	| ArrowFunctionExpression
+	| FunctionExpression
+	| JSXFragment
+	| JSXElement;
+type RStatement = BlockStatement | ReturnStatement;
+
+const isDeclaration = (t: Statement | Expression): t is RDeclaration => {
+	if (t.type === 'VariableDeclaration') {
+		return true;
+	}
+
+	if (t.type === 'FunctionDeclaration') {
+		return true;
+	}
+
+	if (t.type === 'ExportNamedDeclaration') {
+		return true;
+	}
+
+	if (t.type === 'ExportDefaultDeclaration') {
+		return true;
+	}
+
+	return false;
+};
+
+const isExpression = (t: Statement | Expression): t is RExpression => {
+	if (t.type === 'ArrowFunctionExpression') {
+		return true;
+	}
+
+	if (t.type === 'FunctionExpression') {
+		return true;
+	}
+
+	if (t.type === 'JSXElement') {
+		return true;
+	}
+
+	if (t.type === 'JSXFragment') {
+		return true;
+	}
+
+	return false;
+};
+
+const isStatement = (t: Statement | Expression): t is RStatement => {
+	if (t.type === 'ReturnStatement') {
+		return true;
+	}
+
+	if (t.type === 'BlockStatement') {
+		return true;
+	}
+
+	return false;
+};
+
+const mapDeclaration = <T extends RDeclaration>(
 	declaration: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
@@ -62,10 +140,6 @@ const mapDeclaration = <T extends Declaration | Expression>(
 			return mapVariableDeclarator(d, transformation, changesMade);
 		});
 		return {...declaration, declarations};
-	}
-
-	if (declaration.type === 'TSDeclareFunction') {
-		return declaration;
 	}
 
 	if (declaration.type === 'FunctionDeclaration') {
@@ -85,17 +159,8 @@ const mapDeclaration = <T extends Declaration | Expression>(
 
 		return {
 			...declaration,
-			declaration: mapDeclaration(
-				declaration.declaration,
-				transformation,
-				changesMade,
-			),
+			declaration: mapAll(declaration.declaration, transformation, changesMade),
 		};
-	}
-
-	if (declaration.type.endsWith('Expression')) {
-		const exp = declaration as Expression;
-		return mapExpression(exp, transformation, changesMade) as T;
 	}
 
 	return declaration;
@@ -109,7 +174,7 @@ const mapVariableDeclarator = (
 	return {
 		...variableDeclarator,
 		init: variableDeclarator.init
-			? mapExpression(variableDeclarator.init, transformation, changesMade)
+			? mapAll(variableDeclarator.init, transformation, changesMade)
 			: variableDeclarator.init,
 	};
 };
@@ -122,9 +187,25 @@ const mapBlockStatement = (
 	return {
 		...blockStatement,
 		body: blockStatement.body.map((a) => {
-			return mapBodyStatement(a, transformation, changesMade);
+			return mapAll(a, transformation, changesMade);
 		}),
 	};
+};
+
+const mapStatement = <T extends Statement>(
+	statement: T,
+	transformation: RecastCodemod,
+	changesMade: Change[],
+): T => {
+	if (statement.type === 'ReturnStatement') {
+		return mapReturnStatement(statement, transformation, changesMade) as T;
+	}
+
+	if (statement.type === 'BlockStatement') {
+		return mapBlockStatement(statement, transformation, changesMade) as T;
+	}
+
+	return statement;
 };
 
 const mapExpression = <T extends Expression>(
@@ -147,36 +228,24 @@ const mapExpression = <T extends Expression>(
 		return expression;
 	}
 
-	const {body} = expression;
-
-	if (body.type !== 'BlockStatement') {
-		return expression;
-	}
-
 	return {
 		...expression,
-		body: mapBlockStatement(body, transformation, changesMade),
+		body: mapAll(expression.body, transformation, changesMade),
 	};
 };
 
-const mapBodyStatement = (
-	statement: Statement,
+const mapReturnStatement = (
+	statement: ReturnStatement,
 	transformation: RecastCodemod,
 	changesMade: Change[],
-): Statement => {
-	if (statement.type !== 'ReturnStatement') {
-		return statement;
-	}
-
-	// TODO: Should be able to do anonymous without return
-
+): ReturnStatement => {
 	if (!statement.argument) {
 		return statement;
 	}
 
 	return {
 		...statement,
-		argument: mapExpression(statement.argument, transformation, changesMade),
+		argument: mapAll(statement.argument, transformation, changesMade),
 	};
 };
 
