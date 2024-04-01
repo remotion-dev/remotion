@@ -1,12 +1,10 @@
 import type {
-	ArrowFunctionExpression,
 	BlockStatement,
 	Declaration,
 	Expression,
 	File,
-	FunctionDeclaration,
-	FunctionExpression,
 	JSXAttribute,
+	JSXElement,
 	JSXFragment,
 	Statement,
 	VariableDeclarator,
@@ -47,52 +45,14 @@ const mapTopLevlNode = (
 	transformation: RecastCodemod,
 	changesMade: Change[],
 ): Statement => {
-	if (node.type === 'ExportNamedDeclaration') {
-		if (!node.declaration) {
-			return node;
-		}
-
-		return {
-			...node,
-			declaration: mapDeclaration(
-				node.declaration,
-				transformation,
-				changesMade,
-			),
-		};
-	}
-
-	if (node.type === 'ExportDefaultDeclaration') {
-		if (node.declaration.type === 'FunctionDeclaration') {
-			return {
-				...node,
-				declaration: mapDeclaration(
-					node.declaration,
-					transformation,
-					changesMade,
-				),
-			};
-		}
-
-		if (
-			node.declaration.type === 'ArrowFunctionExpression' ||
-			node.declaration.type === 'FunctionExpression'
-		) {
-			return {
-				...node,
-				declaration: mapFunctionExpression(
-					node.declaration,
-					transformation,
-					changesMade,
-				),
-			};
-		}
+	if (node.type.endsWith('Declaration') || node.type.endsWith('Expression')) {
+		return mapDeclaration(node as Declaration, transformation, changesMade);
 	}
 
 	return node;
 };
 
-const mapDeclaration = <T extends Declaration | FunctionDeclaration>(
+const mapDeclaration = <T extends Declaration | Expression>(
 	declaration: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
@@ -104,11 +64,38 @@ const mapDeclaration = <T extends Declaration | FunctionDeclaration>(
 		return {...declaration, declarations};
 	}
 
+	if (declaration.type === 'TSDeclareFunction') {
+		return declaration;
+	}
+
 	if (declaration.type === 'FunctionDeclaration') {
 		return {
 			...declaration,
 			body: mapBlockStatement(declaration.body, transformation, changesMade),
 		};
+	}
+
+	if (
+		declaration.type === 'ExportNamedDeclaration' ||
+		declaration.type === 'ExportDefaultDeclaration'
+	) {
+		if (!declaration.declaration) {
+			return declaration;
+		}
+
+		return {
+			...declaration,
+			declaration: mapDeclaration(
+				declaration.declaration,
+				transformation,
+				changesMade,
+			),
+		};
+	}
+
+	if (declaration.type.endsWith('Expression')) {
+		const exp = declaration as Expression;
+		return mapExpression(exp, transformation, changesMade) as T;
 	}
 
 	return declaration;
@@ -127,21 +114,6 @@ const mapVariableDeclarator = (
 	};
 };
 
-const mapExpression = (
-	expression: Expression,
-	transformation: RecastCodemod,
-	changesMade: Change[],
-) => {
-	if (
-		expression.type !== 'ArrowFunctionExpression' &&
-		expression.type !== 'FunctionExpression'
-	) {
-		return expression;
-	}
-
-	return mapFunctionExpression(expression, transformation, changesMade);
-};
-
 const mapBlockStatement = (
 	blockStatement: BlockStatement,
 	transformation: RecastCodemod,
@@ -155,21 +127,34 @@ const mapBlockStatement = (
 	};
 };
 
-const mapFunctionExpression = <
-	T extends ArrowFunctionExpression | FunctionExpression,
->(
-	arrowFunctionExpression: T,
+const mapExpression = <T extends Expression>(
+	expression: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
 ): T => {
-	const {body} = arrowFunctionExpression;
+	if (expression.type === 'JSXFragment' || expression.type === 'JSXElement') {
+		return mapJsxElementOrFragment(
+			expression,
+			transformation,
+			changesMade,
+		) as T;
+	}
+
+	if (
+		expression.type !== 'ArrowFunctionExpression' &&
+		expression.type !== 'FunctionExpression'
+	) {
+		return expression;
+	}
+
+	const {body} = expression;
 
 	if (body.type !== 'BlockStatement') {
-		return arrowFunctionExpression;
+		return expression;
 	}
 
 	return {
-		...arrowFunctionExpression,
+		...expression,
 		body: mapBlockStatement(body, transformation, changesMade),
 	};
 };
@@ -183,22 +168,23 @@ const mapBodyStatement = (
 		return statement;
 	}
 
-	const argument = statement.argument as Expression;
-	if (argument.type !== 'JSXFragment') {
+	// TODO: Should be able to do anonymous without return
+
+	if (!statement.argument) {
 		return statement;
 	}
 
 	return {
 		...statement,
-		argument: mapJsxFragment(argument, transformation, changesMade),
+		argument: mapExpression(statement.argument, transformation, changesMade),
 	};
 };
 
-const mapJsxFragment = (
-	jsxFragment: JSXFragment,
+const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
+	jsxFragment: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
-): JSXFragment => {
+): T => {
 	return {
 		...jsxFragment,
 		children: jsxFragment.children
@@ -265,20 +251,19 @@ const mapJsxChild = (
 		return [];
 	}
 
-	if (c.type === 'JSXElement') {
-		return [
-			{
-				...c,
-				children: c.children
-					.map((childOfChild) =>
-						mapJsxChild(childOfChild, transformation, changesMade),
-					)
-					.flat(1),
-			},
-		];
+	if (c.type === 'JSXText') {
+		return [c];
 	}
 
-	return [c];
+	if (c.type === 'JSXExpressionContainer') {
+		return [c];
+	}
+
+	if (c.type === 'JSXSpreadChild') {
+		return [c];
+	}
+
+	return [mapExpression(c, transformation, changesMade)];
 };
 
 const getCompositionIdFromJSXElement = (

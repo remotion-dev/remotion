@@ -109,12 +109,14 @@ test("Should be able to recognize non-arrow function", () => {
       input: contents,
       codeMod: {
         type: "rename-composition",
-        idToRename: "three",
+        idToRename: "four",
         newId: "ghi",
       },
     });
   expect(changesMade.length).toBe(1);
   expect(getCompositionCount(newContents)).toBe(compCount);
-  expect(newContents).not.toContain('"one"');
-  expect(newContents).toContain('"abc"');
+  expect(newContents).not.toContain('"four"');
+  expect(newContents).toContain('"ghi"');
 });
+
+test.todo("should work if there is no fragment");

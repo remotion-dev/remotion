@@ -1,17 +1,14 @@
-import type {
-	ProjectInfo,
-	RecastCodemod,
-	SimpleDiff,
-} from '@remotion/studio-shared';
+import type {ProjectInfo, RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {Flex, Row} from '../layout';
+import {Flex, Row, Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
+import type {CodemodStatus} from './DiffPreview';
 import {CodemodDiffPreview} from './DiffPreview';
 
 const buttonStyle: React.CSSProperties = {
@@ -38,9 +35,9 @@ export const CodemodFooter: React.FC<{
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(ModalsContext);
-	const [canApplyCodemod, setCanApplyCodemod] = useState<SimpleDiff | null>(
-		null,
-	);
+	const [codemodStatus, setCanApplyCodemod] = useState<CodemodStatus>({
+		type: 'loading',
+	});
 
 	const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
 
@@ -98,16 +95,18 @@ export const CodemodFooter: React.FC<{
 				signal,
 			});
 
-			if (!res.success) {
-				throw new Error(res.reason);
+			if (res.success) {
+				setCanApplyCodemod({type: 'success', diff: res.diff});
+			} else {
+				setCanApplyCodemod({
+					type: 'fail',
+					error: res.reason,
+				});
 			}
-
-			setCanApplyCodemod(res.diff);
 		},
 		[codemod],
 	);
 
-	// TODO: Don't hide modal
 	useEffect(() => {
 		const abortController = new AbortController();
 		let aborted = false;
@@ -118,7 +117,6 @@ export const CodemodFooter: React.FC<{
 					return;
 				}
 
-				setSelectedModal(null);
 				showNotification(`Cannot duplicate composition: ${err.message}`, 3000);
 			});
 
@@ -126,10 +124,13 @@ export const CodemodFooter: React.FC<{
 			aborted = true;
 			abortController.abort();
 		};
-	}, [canApplyCodemod, getCanApplyCodemod, setSelectedModal]);
+	}, [codemodStatus, getCanApplyCodemod, setSelectedModal]);
 
 	const disabled =
-		!valid || submitting || projectInfo === null || canApplyCodemod === null;
+		!valid ||
+		submitting ||
+		projectInfo === null ||
+		codemodStatus.type !== 'success';
 
 	const {registerKeybinding} = useKeybinding();
 
@@ -156,8 +157,9 @@ export const CodemodFooter: React.FC<{
 
 	return (
 		<Row align="center">
-			{canApplyCodemod ? <CodemodDiffPreview diff={canApplyCodemod} /> : null}
+			<CodemodDiffPreview status={codemodStatus} />
 			<Flex />
+			<Spacing block x={2} />
 			<Button
 				onClick={trigger}
 				disabled={disabled}

@@ -3,7 +3,8 @@ import {CalculateMetadataFunction, Composition} from 'remotion';
 import {z} from 'zod';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 
-function AltCodemodRoot() {
+// TODO: This does not yet work because it would require a fragment
+function AltCodemodRootNoFragment() {
 	return (
 		<Composition
 			id="three"
@@ -15,6 +16,33 @@ function AltCodemodRoot() {
 			schema={dynamicDurationSchema}
 			defaultProps={{duration: 50}}
 		/>
+	);
+}
+// TODO: This does not yet work because it would require a fragment
+function AltCodemodRootFragment() {
+	return (
+		<>
+			<Composition
+				id="four"
+				component={DynamicDuration}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				schema={dynamicDurationSchema}
+				defaultProps={{duration: 50}}
+			/>
+			<Composition
+				id="five"
+				component={DynamicDuration}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				schema={dynamicDurationSchema}
+				defaultProps={{duration: 50}}
+			/>
+		</>
 	);
 }
 
@@ -52,7 +80,8 @@ export const CodemodRoot: React.FC = () => {
 				schema={dynamicDurationSchema}
 				defaultProps={{duration: 50}}
 			/>
-			<AltCodemodRoot />
+			<AltCodemodRootNoFragment />
+			<AltCodemodRootFragment />
 		</>
 	);
 };

@@ -55,7 +55,9 @@ export const parseAndApplyCodemod = ({
 	});
 
 	if (changesMade.length === 0) {
-		throw new Error('Could not find any changes to make to the file');
+		throw new Error(
+			'Unable to calculate the changes needed for this file. Edit the root file manually.',
+		);
 	}
 
 	const output = recast.print(newAst, {
