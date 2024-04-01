@@ -6,19 +6,19 @@ import {InputDragger} from './InputDragger';
 import {ValidationMessage} from './ValidationMessage';
 
 export const NewCompDuration: React.FC<{
-	durationInFrames: string;
-	setDurationInFrames: React.Dispatch<React.SetStateAction<string>>;
+	durationInFrames: number;
+	setDurationInFrames: React.Dispatch<React.SetStateAction<number>>;
 }> = ({durationInFrames, setDurationInFrames}) => {
 	const onDurationInFramesChanged = useCallback(
 		(newValue: string) => {
-			setDurationInFrames(String(Number(newValue)));
+			setDurationInFrames(Number(newValue));
 		},
 		[setDurationInFrames],
 	);
 
 	const onDurationChangedDirectly = useCallback(
 		(newVal: number) => {
-			setDurationInFrames(String(newVal));
+			setDurationInFrames(newVal);
 		},
 		[setDurationInFrames],
 	);

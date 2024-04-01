@@ -51,9 +51,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 	const hadFpsDefined = unresolved.fps !== undefined;
 	const hadDurationDefined = unresolved.durationInFrames !== undefined;
 
-	const [selectedFrameRate, setFrameRate] = useState<string>(
-		String(resolved.result.fps),
-	);
+	const [selectedFrameRate, setFrameRate] = useState(resolved.result.fps);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
 	const [newId, setName] = useState(() => {
@@ -78,11 +76,13 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 	});
 
 	const [size, setSize] = useState(() => ({
-		width: String(resolved.result.width),
-		height: String(resolved.result.height),
+		width: resolved.result.width,
+		height: resolved.result.height,
 	}));
 
-	const [durationInFrames, setDurationInFrames] = useState('150');
+	const [durationInFrames, setDurationInFrames] = useState(
+		resolved.result.durationInFrames,
+	);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
@@ -94,7 +94,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 			const newWidth = Number(newValue);
 			return {
 				height,
-				width: String(newWidth),
+				width: newWidth,
 			};
 		});
 	}, []);
@@ -105,7 +105,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 
 			return {
 				height,
-				width: String(newWidth),
+				width: newWidth,
 			};
 		});
 	}, []);
@@ -116,7 +116,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 
 			return {
 				width,
-				height: String(newHeight),
+				height: newHeight,
 			};
 		});
 	}, []);
@@ -127,7 +127,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 			const newHeight = Number(newValue);
 			return {
 				width,
-				height: String(newHeight),
+				height: newHeight,
 			};
 		});
 	}, []);
@@ -139,11 +139,11 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 		[],
 	);
 	const onTextFpsChange = useCallback((newFps: string) => {
-		setFrameRate(String(newFps));
+		setFrameRate(Number(newFps));
 	}, []);
 
 	const onFpsChange = useCallback((newFps: number) => {
-		setFrameRate(String(newFps));
+		setFrameRate(newFps);
 	}, []);
 
 	const compNameErrMessage = validateCompositionName(newId, compositions);
