@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
+import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderModalWithLoader} from './RenderModal/RenderModal';
@@ -19,6 +20,9 @@ export const Modals: React.FC<{
 		<>
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
 				<DuplicateComposition compositionId={modalContextType.compositionId} />
+			)}
+			{modalContextType && modalContextType.type === 'delete-comp' && (
+				<DeleteComposition compositionId={modalContextType.compositionId} />
 			)}
 
 			{modalContextType && canRender && modalContextType.type === 'render' && (

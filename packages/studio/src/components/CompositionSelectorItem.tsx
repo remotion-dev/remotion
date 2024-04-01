@@ -15,7 +15,6 @@ import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
@@ -161,29 +160,13 @@ export const CompositionSelectorItem: React.FC<{
 				{
 					id: 'delete',
 					keyHint: null,
-					label: `Delete composition`,
+					label: `Delete composition...`,
 					leftItem: null,
 					onClick: () => {
-						applyCodemod({
-							codemod: {
-								type: 'delete-composition',
-								idToDelete: item.composition.id,
-							},
-							dryRun: false,
-						})
-							.then((res) => {
-								if (!res.success) {
-									throw new Error(res.reason);
-								}
-
-								showNotification(`Deleted ${item.composition.id}`, 1000);
-							})
-							.catch((err) => {
-								showNotification(
-									`Could not delete composition: ${err.message}`,
-									2000,
-								);
-							});
+						setSelectedModal({
+							type: 'delete-comp',
+							compositionId: item.composition.id,
+						});
 					},
 					quickSwitcherLabel: null,
 					subMenu: null,

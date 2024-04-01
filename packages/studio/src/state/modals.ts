@@ -63,6 +63,10 @@ export type ModalState =
 			type: 'duplicate-comp';
 			compositionId: string;
 	  }
+	| {
+			type: 'delete-comp';
+			compositionId: string;
+	  }
 	| RenderModalState
 	| {
 			type: 'render-progress';
