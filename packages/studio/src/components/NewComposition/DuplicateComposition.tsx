@@ -9,12 +9,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {
-	BLUE,
-	BLUE_DISABLED,
-	LIGHT_TEXT,
-	SELECTED_GUIDE,
-} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	validateCompositionDimension,
@@ -34,6 +29,7 @@ import {
 import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
+import {CodemodDiffPreview} from './DiffPreview';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
@@ -477,28 +473,7 @@ const DuplicateCompositionLoaded: React.FC<{
 				<div style={{...content, borderTop: '1px solid black'}}>
 					<Row align="center">
 						{canApplyCodemod ? (
-							<div style={{lineHeight: 1.2}}>
-								<span
-									style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}
-								>
-									This will edit your Root file.
-								</span>
-								<br />
-								<span style={{color: BLUE, fontSize: 13, lineHeight: 1.2}}>
-									{canApplyCodemod.additions} addition
-									{canApplyCodemod.additions === 1 ? '' : 's'},
-								</span>{' '}
-								<span
-									style={{
-										color: SELECTED_GUIDE,
-										fontSize: 13,
-										lineHeight: 1.2,
-									}}
-								>
-									{canApplyCodemod.deletions} deletion
-									{canApplyCodemod.deletions === 1 ? '' : 's'}
-								</span>
-							</div>
+							<CodemodDiffPreview diff={canApplyCodemod} />
 						) : null}
 						<Flex />
 						<Button
