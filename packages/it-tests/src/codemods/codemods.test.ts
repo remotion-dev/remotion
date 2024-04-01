@@ -25,11 +25,11 @@ const getCompositionCount = (comp: string) => {
 const contents = readFileSync(rootFile, "utf-8");
 const compCount = getCompositionCount(contents);
 
-test("Should be able to delete composition", async () => {
+test("Should be able to delete composition", () => {
   expect(contents).toContain('"one"');
 
   const { changesMade, newContents } =
-    await StudioServerInternals.parseAndApplyCodemod({
+    StudioServerInternals.parseAndApplyCodemod({
       input: contents,
       codeMod: {
         type: "delete-composition",
@@ -41,9 +41,9 @@ test("Should be able to delete composition", async () => {
   expect(newContents).not.toContain('"one"');
 });
 
-test("Should be able to rename composition", async () => {
+test("Should be able to rename composition", () => {
   const { changesMade, newContents } =
-    await StudioServerInternals.parseAndApplyCodemod({
+    StudioServerInternals.parseAndApplyCodemod({
       input: contents,
       codeMod: {
         type: "rename-composition",
@@ -57,8 +57,8 @@ test("Should be able to rename composition", async () => {
   expect(newContents).toContain('"abc"');
 });
 
-test("Should be able to duplicate composition", async () => {
-  const { newContents } = await StudioServerInternals.parseAndApplyCodemod({
+test("Should be able to duplicate composition", () => {
+  const { newContents } = StudioServerInternals.parseAndApplyCodemod({
     input: contents,
     codeMod: {
       type: "duplicate-composition",
@@ -80,8 +80,8 @@ test("Should be able to duplicate composition", async () => {
   expect(newContents).toContain("durationInFrames={200}");
 });
 
-test("Should be able to duplicate composition into a still", async () => {
-  const { newContents } = await StudioServerInternals.parseAndApplyCodemod({
+test("Should be able to duplicate composition into a still", () => {
+  const { newContents } = StudioServerInternals.parseAndApplyCodemod({
     input: contents,
     codeMod: {
       type: "duplicate-composition",
@@ -101,4 +101,20 @@ test("Should be able to duplicate composition into a still", async () => {
   expect(newContents).toContain("height={999}");
   expect(newContents).not.toContain("fps={24}");
   expect(newContents).not.toContain("durationInFrames={200}");
+});
+
+test("Should be able to recognize non-arrow function", () => {
+  const { changesMade, newContents } =
+    StudioServerInternals.parseAndApplyCodemod({
+      input: contents,
+      codeMod: {
+        type: "rename-composition",
+        idToRename: "three",
+        newId: "ghi",
+      },
+    });
+  expect(changesMade.length).toBe(1);
+  expect(getCompositionCount(newContents)).toBe(compCount);
+  expect(newContents).not.toContain('"one"');
+  expect(newContents).toContain('"abc"');
 });

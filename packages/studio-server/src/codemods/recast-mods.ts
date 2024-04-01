@@ -1,8 +1,11 @@
 import type {
 	ArrowFunctionExpression,
+	BlockStatement,
 	Declaration,
 	Expression,
 	File,
+	FunctionDeclaration,
+	FunctionExpression,
 	JSXAttribute,
 	JSXFragment,
 	Statement,
@@ -44,41 +47,71 @@ const mapTopLevlNode = (
 	transformation: RecastCodemod,
 	changesMade: Change[],
 ): Statement => {
-	if (
-		// TODO: could also be a default export
-		node.type !== 'ExportNamedDeclaration'
-	) {
-		return node;
+	if (node.type === 'ExportNamedDeclaration') {
+		if (!node.declaration) {
+			return node;
+		}
+
+		return {
+			...node,
+			declaration: mapDeclaration(
+				node.declaration,
+				transformation,
+				changesMade,
+			),
+		};
 	}
 
-	if (!node.declaration) {
-		return node;
+	if (node.type === 'ExportDefaultDeclaration') {
+		if (node.declaration.type === 'FunctionDeclaration') {
+			return {
+				...node,
+				declaration: mapDeclaration(
+					node.declaration,
+					transformation,
+					changesMade,
+				),
+			};
+		}
+
+		if (
+			node.declaration.type === 'ArrowFunctionExpression' ||
+			node.declaration.type === 'FunctionExpression'
+		) {
+			return {
+				...node,
+				declaration: mapFunctionExpression(
+					node.declaration,
+					transformation,
+					changesMade,
+				),
+			};
+		}
 	}
 
-	// TODO: Could also be an anonymous function etc?
-	if (node.declaration.type !== 'VariableDeclaration') {
-		return node;
-	}
-
-	return {
-		...node,
-		declaration: mapDeclaration(node.declaration, transformation, changesMade),
-	};
+	return node;
 };
 
-const mapDeclaration = (
-	declaration: Declaration,
+const mapDeclaration = <T extends Declaration | FunctionDeclaration>(
+	declaration: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
-): Declaration => {
-	if (declaration.type !== 'VariableDeclaration') {
-		return declaration;
+): T => {
+	if (declaration.type === 'VariableDeclaration') {
+		const declarations = declaration.declarations.map((d) => {
+			return mapVariableDeclarator(d, transformation, changesMade);
+		});
+		return {...declaration, declarations};
 	}
 
-	const declarations = declaration.declarations.map((d) => {
-		return mapVariableDeclarator(d, transformation, changesMade);
-	});
-	return {...declaration, declarations};
+	if (declaration.type === 'FunctionDeclaration') {
+		return {
+			...declaration,
+			body: mapBlockStatement(declaration.body, transformation, changesMade),
+		};
+	}
+
+	return declaration;
 };
 
 const mapVariableDeclarator = (
@@ -99,19 +132,36 @@ const mapExpression = (
 	transformation: RecastCodemod,
 	changesMade: Change[],
 ) => {
-	// TODO: This could definitely be a different type
-	if (expression.type !== 'ArrowFunctionExpression') {
+	if (
+		expression.type !== 'ArrowFunctionExpression' &&
+		expression.type !== 'FunctionExpression'
+	) {
 		return expression;
 	}
 
-	return mapArrowFunctionExpression(expression, transformation, changesMade);
+	return mapFunctionExpression(expression, transformation, changesMade);
 };
 
-const mapArrowFunctionExpression = (
-	arrowFunctionExpression: ArrowFunctionExpression,
+const mapBlockStatement = (
+	blockStatement: BlockStatement,
 	transformation: RecastCodemod,
 	changesMade: Change[],
-): ArrowFunctionExpression => {
+): BlockStatement => {
+	return {
+		...blockStatement,
+		body: blockStatement.body.map((a) => {
+			return mapBodyStatement(a, transformation, changesMade);
+		}),
+	};
+};
+
+const mapFunctionExpression = <
+	T extends ArrowFunctionExpression | FunctionExpression,
+>(
+	arrowFunctionExpression: T,
+	transformation: RecastCodemod,
+	changesMade: Change[],
+): T => {
 	const {body} = arrowFunctionExpression;
 
 	if (body.type !== 'BlockStatement') {
@@ -120,12 +170,7 @@ const mapArrowFunctionExpression = (
 
 	return {
 		...arrowFunctionExpression,
-		body: {
-			...body,
-			body: body.body.map((a) => {
-				return mapBodyStatement(a, transformation, changesMade);
-			}),
-		},
+		body: mapBlockStatement(body, transformation, changesMade),
 	};
 };
 

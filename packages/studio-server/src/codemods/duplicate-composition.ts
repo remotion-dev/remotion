@@ -38,13 +38,13 @@ export const formatOutput = async (tsContent: string) => {
 	return newContents;
 };
 
-export const parseAndApplyCodemod = async ({
+export const parseAndApplyCodemod = ({
 	input,
 	codeMod,
 }: {
 	input: string;
 	codeMod: RecastCodemod;
-}): Promise<{newContents: string; changesMade: Change[]}> => {
+}): {newContents: string; changesMade: Change[]} => {
 	const ast = recast.parse(input, {
 		parser: tsParser,
 	}) as File;
@@ -55,7 +55,7 @@ export const parseAndApplyCodemod = async ({
 	});
 
 	if (changesMade.length === 0) {
-		throw new Error('Could not find changes to made to the file');
+		throw new Error('Could not find any changes to make to the file');
 	}
 
 	const output = recast.print(newAst, {
