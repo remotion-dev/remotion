@@ -36,9 +36,7 @@ const comboBoxStyle: React.CSSProperties = {
 
 type CompType = 'composition' | 'still';
 
-const DuplicateCompositionLoaded: React.FC<{
-	compositionId: string;
-}> = () => {
+const DuplicateCompositionLoaded: React.FC<{}> = () => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
 		throw new Error('Resolved composition context');
@@ -373,7 +371,7 @@ export const DuplicateComposition: React.FC<{
 	return (
 		<DismissableModal>
 			<ResolveCompositionBeforeModal compositionId={compositionId}>
-				<DuplicateCompositionLoaded compositionId={compositionId} />
+				<DuplicateCompositionLoaded />
 			</ResolveCompositionBeforeModal>
 		</DismissableModal>
 	);

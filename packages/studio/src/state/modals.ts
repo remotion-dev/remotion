@@ -67,6 +67,10 @@ export type ModalState =
 			type: 'delete-comp';
 			compositionId: string;
 	  }
+	| {
+			type: 'rename-comp';
+			compositionId: string;
+	  }
 	| RenderModalState
 	| {
 			type: 'render-progress';

@@ -143,7 +143,7 @@ export const CompositionSelectorItem: React.FC<{
 				{
 					id: 'duplicate',
 					keyHint: null,
-					label: `Duplicate composition...`,
+					label: `Duplicate...`,
 					leftItem: null,
 					onClick: () => {
 						setSelectedModal({
@@ -156,11 +156,26 @@ export const CompositionSelectorItem: React.FC<{
 					type: 'item',
 					value: 'remove',
 				},
-
+				{
+					id: 'rename',
+					keyHint: null,
+					label: `Rename...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'rename-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'remove',
+				},
 				{
 					id: 'delete',
 					keyHint: null,
-					label: `Delete composition...`,
+					label: `Delete...`,
 					leftItem: null,
 					onClick: () => {
 						setSelectedModal({
