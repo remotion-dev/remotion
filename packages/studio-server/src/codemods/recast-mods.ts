@@ -52,7 +52,7 @@ const mapAll = <T extends Statement | Expression>(
 	changesMade: Change[],
 ): T => {
 	if (isRecognizedType(node)) {
-		return mapExpression(node, transformation, changesMade);
+		return mapRecognizedType(node, transformation, changesMade);
 	}
 
 	return node;
@@ -111,7 +111,102 @@ const mapBlockStatement = (
 	};
 };
 
-const mapExpression = <T extends RecognizedType>(
+const mapReturnStatement = (
+	statement: ReturnStatement,
+	transformation: RecastCodemod,
+	changesMade: Change[],
+): ReturnStatement => {
+	if (!statement.argument) {
+		return statement;
+	}
+
+	return {
+		...statement,
+		argument: mapAll(statement.argument, transformation, changesMade),
+	};
+};
+
+const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
+	jsxFragment: T,
+	transformation: RecastCodemod,
+	changesMade: Change[],
+): T => {
+	return {
+		...jsxFragment,
+		children: jsxFragment.children
+			.map((c) => {
+				if (c.type !== 'JSXElement') {
+					return c;
+				}
+
+				return mapJsxChild(c, transformation, changesMade);
+			})
+			.flat(1),
+	};
+};
+
+const mapJsxChild = (
+	c: JSXElement,
+	transformation: RecastCodemod | null,
+	changesMade: Change[],
+): JSXElement[] => {
+	const compId = getCompositionIdFromJSXElement(c);
+
+	if (transformation === null) {
+		return [c];
+	}
+
+	if (
+		transformation.type === 'duplicate-composition' &&
+		compId === transformation.idToDuplicate
+	) {
+		return [
+			c,
+			changeComposition({
+				jsxElement: c,
+				newCompositionId: transformation.newId,
+				newCompositionFps: transformation.newFps,
+				newCompositionDurationInFrames: transformation.newDurationInFrames,
+				newCompositionHeight: transformation.newHeight,
+				newCompositionWidth: transformation.newWidth,
+				newTagToUse: transformation.tag,
+				changesMade,
+			}),
+		];
+	}
+
+	if (
+		transformation.type === 'rename-composition' &&
+		compId === transformation.idToRename
+	) {
+		return [
+			changeComposition({
+				jsxElement: c,
+				newCompositionId: transformation.newId,
+				newCompositionFps: null,
+				newCompositionDurationInFrames: null,
+				newCompositionHeight: null,
+				newCompositionWidth: null,
+				changesMade,
+				newTagToUse: null,
+			}),
+		];
+	}
+
+	if (
+		transformation.type === 'delete-composition' &&
+		compId === transformation.idToDelete
+	) {
+		changesMade.push({
+			description: 'Deleted composition',
+		});
+		return [];
+	}
+
+	return [mapAll(c, transformation, changesMade)];
+};
+
+const mapRecognizedType = <T extends RecognizedType>(
 	expression: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
@@ -171,107 +266,6 @@ const mapExpression = <T extends RecognizedType>(
 	}
 
 	return expression;
-};
-
-const mapReturnStatement = (
-	statement: ReturnStatement,
-	transformation: RecastCodemod,
-	changesMade: Change[],
-): ReturnStatement => {
-	if (!statement.argument) {
-		return statement;
-	}
-
-	return {
-		...statement,
-		argument: mapAll(statement.argument, transformation, changesMade),
-	};
-};
-
-const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
-	jsxFragment: T,
-	transformation: RecastCodemod,
-	changesMade: Change[],
-): T => {
-	return {
-		...jsxFragment,
-		children: jsxFragment.children
-			.map((c) => mapJsxChild(c, transformation, changesMade))
-			.flat(1),
-	};
-};
-
-const mapJsxChild = (
-	c: JSXFragment['children'][number],
-	transformation: RecastCodemod | null,
-	changesMade: Change[],
-): JSXFragment['children'][number][] => {
-	const compId = getCompositionIdFromJSXElement(c);
-
-	if (transformation === null) {
-		return [c];
-	}
-
-	if (
-		transformation.type === 'duplicate-composition' &&
-		compId === transformation.idToDuplicate
-	) {
-		return [
-			c,
-			changeComposition({
-				jsxElement: c,
-				newCompositionId: transformation.newId,
-				newCompositionFps: transformation.newFps,
-				newCompositionDurationInFrames: transformation.newDurationInFrames,
-				newCompositionHeight: transformation.newHeight,
-				newCompositionWidth: transformation.newWidth,
-				newTagToUse: transformation.tag,
-				changesMade,
-			}),
-		];
-	}
-
-	if (
-		transformation.type === 'rename-composition' &&
-		compId === transformation.idToRename
-	) {
-		return [
-			changeComposition({
-				jsxElement: c,
-				newCompositionId: transformation.newId,
-				newCompositionFps: null,
-				newCompositionDurationInFrames: null,
-				newCompositionHeight: null,
-				newCompositionWidth: null,
-				changesMade,
-				newTagToUse: null,
-			}),
-		];
-	}
-
-	if (
-		transformation.type === 'delete-composition' &&
-		compId === transformation.idToDelete
-	) {
-		changesMade.push({
-			description: 'Deleted composition',
-		});
-		return [];
-	}
-
-	if (c.type === 'JSXText') {
-		return [c];
-	}
-
-	if (c.type === 'JSXExpressionContainer') {
-		return [c];
-	}
-
-	if (c.type === 'JSXSpreadChild') {
-		return [c];
-	}
-
-	return [mapExpression(c, transformation, changesMade)];
 };
 
 const getCompositionIdFromJSXElement = (
@@ -337,7 +331,7 @@ const changeComposition = ({
 	changesMade,
 	newTagToUse,
 }: {
-	jsxElement: JSXFragment['children'][number];
+	jsxElement: JSXElement;
 	newCompositionId: string;
 	newCompositionFps: number | null;
 	newCompositionDurationInFrames: number | null;
@@ -345,11 +339,7 @@ const changeComposition = ({
 	newCompositionWidth: number | null;
 	newTagToUse: 'Composition' | 'Still' | null;
 	changesMade: Change[];
-}): JSXFragment['children'][number] => {
-	if (jsxElement.type !== 'JSXElement') {
-		return jsxElement;
-	}
-
+}): JSXElement => {
 	const {openingElement} = jsxElement;
 	const {name} = openingElement;
 	if (name.type !== 'JSXIdentifier') {
@@ -400,7 +390,6 @@ const changeComposition = ({
 			}
 
 			// id={"one"}
-
 			if (
 				attribute.name.name === 'id' &&
 				attribute.value &&

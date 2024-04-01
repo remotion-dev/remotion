@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {CalculateMetadataFunction, Composition} from 'remotion';
+import {CalculateMetadataFunction, Composition, Folder} from 'remotion';
 import {z} from 'zod';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 
@@ -41,17 +41,19 @@ function AltCodemodRootFragment() {
 				schema={dynamicDurationSchema}
 				defaultProps={{duration: 50}}
 			/>
-			<Composition
-				// eslint-disable-next-line react/jsx-curly-brace-presence
-				id={'seven'}
-				component={DynamicDuration}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={100}
-				schema={dynamicDurationSchema}
-				defaultProps={{duration: 50}}
-			/>
+			<Folder name="infolder">
+				<Composition
+					// eslint-disable-next-line react/jsx-curly-brace-presence
+					id={'seven'}
+					component={DynamicDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
+				/>
+			</Folder>
 		</>
 	);
 }
