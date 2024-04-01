@@ -1204,6 +1204,9 @@ importers:
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
+      '@remotion/studio-server':
+        specifier: workspace:*
+        version: link:../studio-server
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions

@@ -13,6 +13,31 @@ const getPrettier = async () => {
 	}
 };
 
+export const formatOutput = async (tsContent: string) => {
+	const prettier = await getPrettier();
+
+	const {format, resolveConfig, resolveConfigFile} = prettier;
+
+	const configFilePath = await resolveConfigFile();
+	if (!configFilePath) {
+		throw new Error('The Prettier config file was not found');
+	}
+
+	const prettierConfig = await resolveConfig(configFilePath);
+	if (!prettierConfig) {
+		throw new Error(
+			`The Prettier config at ${configFilePath} could not be read`,
+		);
+	}
+
+	const newContents = await format(tsContent, {
+		...prettierConfig,
+		filepath: 'test.tsx',
+	});
+
+	return newContents;
+};
+
 export const parseAndApplyCodemod = async ({
 	input,
 	codeMod,
@@ -37,26 +62,5 @@ export const parseAndApplyCodemod = async ({
 		parser: tsParser,
 	}).code;
 
-	const prettier = await getPrettier();
-
-	const {format, resolveConfig, resolveConfigFile} = prettier;
-
-	const configFilePath = await resolveConfigFile();
-	if (!configFilePath) {
-		throw new Error('The Prettier config file was not found');
-	}
-
-	const prettierConfig = await resolveConfig(configFilePath);
-	if (!prettierConfig) {
-		throw new Error(
-			`The Prettier config at ${configFilePath} could not be read`,
-		);
-	}
-
-	const newContents = await format(output, {
-		...prettierConfig,
-		filepath: 'test.tsx',
-	});
-
-	return {changesMade, newContents};
+	return {changesMade, newContents: output};
 };

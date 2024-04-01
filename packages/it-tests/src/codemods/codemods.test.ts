@@ -1,0 +1,104 @@
+import { test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import { StudioServerInternals } from "@remotion/studio-server";
+import { expect } from "vitest";
+
+const rootFile = resolve(
+  __dirname,
+  "..",
+  "..",
+  "..",
+  "example",
+  "src",
+  "CodemodTestbed.tsx"
+);
+
+const getCompositionCount = (comp: string) => {
+  const lines = comp.split("\n");
+  const compositions = lines.filter(
+    (l) => l.includes("<Composition") || l.includes("<Still")
+  );
+  return compositions.length;
+};
+
+const contents = readFileSync(rootFile, "utf-8");
+const compCount = getCompositionCount(contents);
+
+test("Should be able to delete composition", async () => {
+  expect(contents).toContain('"one"');
+
+  const { changesMade, newContents } =
+    await StudioServerInternals.parseAndApplyCodemod({
+      input: contents,
+      codeMod: {
+        type: "delete-composition",
+        idToDelete: "one",
+      },
+    });
+  expect(changesMade.length).toBe(1);
+  expect(getCompositionCount(newContents)).toBe(compCount - 1);
+  expect(newContents).not.toContain('"one"');
+});
+
+test("Should be able to rename composition", async () => {
+  const { changesMade, newContents } =
+    await StudioServerInternals.parseAndApplyCodemod({
+      input: contents,
+      codeMod: {
+        type: "rename-composition",
+        idToRename: "one",
+        newId: "abc",
+      },
+    });
+  expect(changesMade.length).toBe(1);
+  expect(getCompositionCount(newContents)).toBe(compCount);
+  expect(newContents).not.toContain('"one"');
+  expect(newContents).toContain('"abc"');
+});
+
+test("Should be able to duplicate composition", async () => {
+  const { newContents } = await StudioServerInternals.parseAndApplyCodemod({
+    input: contents,
+    codeMod: {
+      type: "duplicate-composition",
+      idToDuplicate: "one",
+      newDurationInFrames: 200,
+      newFps: 24,
+      newHeight: 999,
+      newWidth: 998,
+      newId: "def",
+      tag: "Composition",
+    },
+  });
+
+  expect(getCompositionCount(newContents)).toBe(compCount + 1);
+  expect(newContents).toContain('"def"');
+  expect(newContents).toContain("width={998}");
+  expect(newContents).toContain("height={999}");
+  expect(newContents).toContain("fps={24}");
+  expect(newContents).toContain("durationInFrames={200}");
+});
+
+test("Should be able to duplicate composition into a still", async () => {
+  const { newContents } = await StudioServerInternals.parseAndApplyCodemod({
+    input: contents,
+    codeMod: {
+      type: "duplicate-composition",
+      idToDuplicate: "one",
+      newDurationInFrames: 200,
+      newFps: 24,
+      newHeight: 999,
+      newWidth: 998,
+      newId: "def",
+      tag: "Still",
+    },
+  });
+
+  expect(getCompositionCount(newContents)).toBe(compCount + 1);
+  expect(newContents).toContain('"def"');
+  expect(newContents).toContain("width={998}");
+  expect(newContents).toContain("height={999}");
+  expect(newContents).not.toContain("fps={24}");
+  expect(newContents).not.toContain("durationInFrames={200}");
+});

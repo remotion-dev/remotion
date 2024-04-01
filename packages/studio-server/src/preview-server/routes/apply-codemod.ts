@@ -3,7 +3,10 @@ import type {
 	ApplyCodemodResponse,
 } from '@remotion/studio-shared';
 import {readFileSync, writeFileSync} from 'node:fs';
-import {parseAndApplyCodemod} from '../../codemods/duplicate-composition';
+import {
+	formatOutput,
+	parseAndApplyCodemod,
+} from '../../codemods/duplicate-composition';
 import {simpleDiff} from '../../codemods/simple-diff';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
@@ -33,7 +36,8 @@ export const applyCodemodHandler: ApiHandler<
 		});
 
 		if (!dryRun) {
-			writeFileSync(projectInfo.rootFile, newContents);
+			const formatted = await formatOutput(newContents);
+			writeFileSync(projectInfo.rootFile, formatted);
 		}
 
 		return {
