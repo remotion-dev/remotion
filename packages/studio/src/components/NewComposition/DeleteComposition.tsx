@@ -50,7 +50,17 @@ const DeleteCompositionLoaded: React.FC<{
 					remain in your code.
 				</div>
 				<div style={{...content, borderTop: '1px solid black'}}>
-					<CodemodFooter codemod={codemod} valid />
+					<CodemodFooter
+						errorNotification={`Could not delete composition`}
+						loadingNotification={'Deleting'}
+						succeessNotifcation={`Deleted ${unresolved.id}`}
+						genericSubmitLabel={`Delete`}
+						submitLabel={({relativeRootPath}) =>
+							`Delete from ${relativeRootPath}`
+						}
+						codemod={codemod}
+						valid
+					/>
 				</div>
 			</form>
 		</>

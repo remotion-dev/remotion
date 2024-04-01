@@ -1,34 +1,21 @@
-import type {ProjectInfo, SimpleDiff} from '@remotion/studio-shared';
+import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
-import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {ModalsContext} from '../../state/modals';
-import {Button} from '../Button';
-import {Flex, Row, Spacing} from '../layout';
+import {Spacing} from '../layout';
 import {NewCompHeader} from '../ModalHeader';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
+import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
-import {CodemodDiffPreview} from './DiffPreview';
 import {DismissableModal} from './DismissableModal';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
@@ -45,11 +32,6 @@ const content: React.CSSProperties = {
 
 const comboBoxStyle: React.CSSProperties = {
 	width: 190,
-};
-
-const buttonStyle: React.CSSProperties = {
-	backgroundColor: BLUE,
-	color: 'white',
 };
 
 type CompType = 'composition' | 'still';
@@ -74,7 +56,6 @@ const DuplicateCompositionLoaded: React.FC<{
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(resolved.result.fps),
 	);
-	const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
 	const [newId, setName] = useState(() => {
@@ -102,25 +83,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		width: String(resolved.result.width),
 		height: String(resolved.result.height),
 	}));
-
-	useEffect(() => {
-		const controller = new AbortController();
-
-		getProjectInfo(controller.signal)
-			.then((info) => {
-				setProjectInfo(info.projectInfo);
-			})
-			.catch((err) => {
-				showNotification(
-					`Could not get project info: ${err.message}. Unable to duplicate composition`,
-					3000,
-				);
-			});
-
-		return () => {
-			controller.abort();
-		};
-	}, []);
 
 	const [durationInFrames, setDurationInFrames] = useState('150');
 
@@ -220,81 +182,22 @@ const DuplicateCompositionLoaded: React.FC<{
 		];
 	}, [onTypeChanged]);
 
-	const {registerKeybinding} = useKeybinding();
-
-	const {setSelectedModal} = useContext(ModalsContext);
-	const [canApplyCodemod, setCanApplyCodemod] = useState<SimpleDiff | null>(
-		null,
-	);
-	const [submitting, setSubmitting] = useState(false);
-
 	const valid =
 		compNameErrMessage === null &&
 		compWidthErrMessage === null &&
-		compHeightErrMessage === null &&
-		projectInfo !== null;
-	const enableSubmit = !submitting && valid && canApplyCodemod;
+		compHeightErrMessage === null;
 
-	const getCanApplyCodemod = useCallback(async () => {
-		const res = await applyCodemod({
-			codemod: {
-				type: 'duplicate-composition',
-				idToDuplicate: resolved.result.id,
-				newDurationInFrames: null,
-				newFps: null,
-				newHeight: null,
-				newId,
-				newWidth: null,
-				tag: type === 'still' ? 'Still' : 'Composition',
-			},
-			dryRun: true,
-		});
-
-		if (!res.success) {
-			throw new Error(res.reason);
-		}
-
-		setCanApplyCodemod(res.diff);
-	}, [newId, resolved.result.id, type]);
-
-	useEffect(() => {
-		getCanApplyCodemod()
-			.then(() => undefined)
-			.catch((err) => {
-				setSelectedModal(null);
-				showNotification(`Cannot duplicate composition: ${err.message}`, 3000);
-			});
-	}, [canApplyCodemod, getCanApplyCodemod, setSelectedModal]);
-
-	const trigger = useCallback(() => {
-		setSubmitting(true);
-		setSelectedModal(null);
-		const notification = showNotification('Duplicating...', null);
-
-		applyCodemod({
-			codemod: {
-				type: 'duplicate-composition',
-				idToDuplicate: resolved.result.id,
-				newDurationInFrames: hadDurationDefined
-					? Number(durationInFrames)
-					: null,
-				newFps: hadFpsDefined ? Number(selectedFrameRate) : null,
-				newHeight: hadDimensionsDefined ? Number(size.height) : null,
-				newWidth: hadDimensionsDefined ? Number(size.width) : null,
-				newId,
-				tag: type === 'still' ? 'Still' : 'Composition',
-			},
-			dryRun: false,
-		})
-			.then(() => {
-				notification.replaceContent(`Created "${newId}" composition`, 2000);
-			})
-			.catch((err) => {
-				notification.replaceContent(
-					`Could not duplicate composition: ${err.message}`,
-					2000,
-				);
-			});
+	const codemod: RecastCodemod = useMemo(() => {
+		return {
+			type: 'duplicate-composition',
+			idToDuplicate: resolved.result.id,
+			newDurationInFrames: hadDurationDefined ? Number(durationInFrames) : null,
+			newFps: hadFpsDefined ? Number(selectedFrameRate) : null,
+			newHeight: hadDimensionsDefined ? Number(size.height) : null,
+			newWidth: hadDimensionsDefined ? Number(size.width) : null,
+			newId,
+			tag: type === 'still' ? 'Still' : 'Composition',
+		};
 	}, [
 		durationInFrames,
 		hadDimensionsDefined,
@@ -303,36 +206,14 @@ const DuplicateCompositionLoaded: React.FC<{
 		newId,
 		resolved.result.id,
 		selectedFrameRate,
-		setSelectedModal,
 		size.height,
 		size.width,
 		type,
 	]);
 
-	useEffect(() => {
-		if (!enableSubmit) {
-			return;
-		}
-
-		const enter = registerKeybinding({
-			callback() {
-				trigger();
-			},
-			commandCtrlKey: true,
-			key: 'Enter',
-			event: 'keydown',
-			preventDefault: true,
-			triggerIfInputFieldFocused: true,
-			keepRegisteredWhenNotHighestContext: false,
-		});
-		return () => {
-			enter.unregister();
-		};
-	}, [enableSubmit, registerKeybinding, trigger, valid]);
-
 	return (
 		<>
-			<NewCompHeader title={'Duplicate ' + resolved.result.id} />
+			<NewCompHeader title={`Duplicate ${resolved.result.id}`} />
 			<form>
 				<div style={content}>
 					{initialCompType === 'composition' ? (
@@ -471,23 +352,15 @@ const DuplicateCompositionLoaded: React.FC<{
 					) : null}
 				</div>
 				<div style={{...content, borderTop: '1px solid black'}}>
-					<Row align="center">
-						{canApplyCodemod ? (
-							<CodemodDiffPreview diff={canApplyCodemod} />
-						) : null}
-						<Flex />
-						<Button
-							onClick={trigger}
-							disabled={!enableSubmit}
-							style={{
-								...buttonStyle,
-								backgroundColor: enableSubmit ? BLUE : BLUE_DISABLED,
-							}}
-						>
-							{projectInfo ? `Add to ${projectInfo.relativeRootFile}` : 'Add'}
-							<ShortcutHint keyToPress="↵" cmdOrCtrl />
-						</Button>
-					</Row>
+					<CodemodFooter
+						loadingNotification={'Duplicating...'}
+						errorNotification={'Could not duplicate composition'}
+						succeessNotifcation={`Duplicated ${unresolved.id}`}
+						genericSubmitLabel={'Duplicate'}
+						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
+						codemod={codemod}
+						valid={valid}
+					/>
 				</div>
 			</form>
 		</>

@@ -344,15 +344,17 @@ export const copyToClipboard = ({
 export const applyCodemod = ({
 	codemod,
 	dryRun,
+	signal,
 }: {
 	codemod: RecastCodemod;
 	dryRun: boolean;
+	signal: AbortController['signal'];
 }) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
 		dryRun,
 	};
-	return callApi('/api/apply-codemod', body);
+	return callApi('/api/apply-codemod', body, signal);
 };
 
 export const removeRenderJob = (job: RenderJob) => {

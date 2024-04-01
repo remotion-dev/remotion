@@ -22,7 +22,20 @@ const buttonStyle: React.CSSProperties = {
 export const CodemodFooter: React.FC<{
 	valid: boolean;
 	codemod: RecastCodemod;
-}> = ({codemod, valid}) => {
+	loadingNotification: React.ReactNode;
+	succeessNotifcation: React.ReactNode;
+	errorNotification: string;
+	genericSubmitLabel: string;
+	submitLabel: (options: {relativeRootPath: string}) => string;
+}> = ({
+	codemod,
+	valid,
+	loadingNotification,
+	succeessNotifcation,
+	errorNotification,
+	genericSubmitLabel,
+	submitLabel,
+}) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [canApplyCodemod, setCanApplyCodemod] = useState<SimpleDiff | null>(
@@ -53,44 +66,66 @@ export const CodemodFooter: React.FC<{
 	const trigger = useCallback(() => {
 		setSubmitting(true);
 		setSelectedModal(null);
-		const notification = showNotification('Duplicating...', null);
+		const notification = showNotification(loadingNotification, null);
 
 		applyCodemod({
 			codemod,
 			dryRun: false,
+			signal: new AbortController().signal,
 		})
 			.then(() => {
-				notification.replaceContent(`Deleted composition`, 2000);
+				notification.replaceContent(succeessNotifcation, 2000);
 			})
 			.catch((err) => {
 				notification.replaceContent(
-					`Could not duplicate composition: ${err.message}`,
+					`${errorNotification}: ${err.message}`,
 					2000,
 				);
 			});
-	}, [codemod, setSelectedModal]);
+	}, [
+		codemod,
+		errorNotification,
+		loadingNotification,
+		setSelectedModal,
+		succeessNotifcation,
+	]);
 
-	const getCanApplyCodemod = useCallback(async () => {
-		const res = await applyCodemod({
-			codemod,
-			dryRun: true,
-		});
+	const getCanApplyCodemod = useCallback(
+		async (signal: AbortSignal) => {
+			const res = await applyCodemod({
+				codemod,
+				dryRun: true,
+				signal,
+			});
 
-		if (!res.success) {
-			throw new Error(res.reason);
-		}
+			if (!res.success) {
+				throw new Error(res.reason);
+			}
 
-		setCanApplyCodemod(res.diff);
-	}, [codemod]);
+			setCanApplyCodemod(res.diff);
+		},
+		[codemod],
+	);
 
 	// TODO: Don't hide modal
 	useEffect(() => {
-		getCanApplyCodemod()
+		const abortController = new AbortController();
+		let aborted = false;
+		getCanApplyCodemod(abortController.signal)
 			.then(() => undefined)
 			.catch((err) => {
+				if (aborted) {
+					return;
+				}
+
 				setSelectedModal(null);
 				showNotification(`Cannot duplicate composition: ${err.message}`, 3000);
 			});
+
+		return () => {
+			aborted = true;
+			abortController.abort();
+		};
 	}, [canApplyCodemod, getCanApplyCodemod, setSelectedModal]);
 
 	const disabled =
@@ -131,7 +166,9 @@ export const CodemodFooter: React.FC<{
 					backgroundColor: disabled ? BLUE_DISABLED : BLUE,
 				}}
 			>
-				{projectInfo ? `Remove from ${projectInfo.relativeRootFile}` : 'Remove'}
+				{projectInfo && projectInfo.relativeRootFile
+					? submitLabel({relativeRootPath: projectInfo.relativeRootFile})
+					: genericSubmitLabel}
 				<ShortcutHint keyToPress="↵" cmdOrCtrl />
 			</Button>
 		</Row>
