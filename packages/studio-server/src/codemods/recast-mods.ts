@@ -51,119 +51,38 @@ const mapAll = <T extends Statement | Expression>(
 	transformation: RecastCodemod,
 	changesMade: Change[],
 ): T => {
-	if (isDeclaration(node)) {
-		return mapDeclaration(node, transformation, changesMade);
-	}
-
-	if (isExpression(node)) {
+	if (isRecognizedType(node)) {
 		return mapExpression(node, transformation, changesMade);
-	}
-
-	if (isStatement(node)) {
-		return mapStatement(node, transformation, changesMade);
 	}
 
 	return node;
 };
 
-type RDeclaration =
+type RecognizedType =
+	| ArrowFunctionExpression
+	| FunctionExpression
+	| JSXFragment
+	| JSXElement
+	| BlockStatement
+	| ReturnStatement
 	| VariableDeclaration
 	| FunctionDeclaration
 	| ExportNamedDeclaration
 	| ExportDefaultDeclaration;
-type RExpression =
-	| ArrowFunctionExpression
-	| FunctionExpression
-	| JSXFragment
-	| JSXElement;
-type RStatement = BlockStatement | ReturnStatement;
 
-const isDeclaration = (t: Statement | Expression): t is RDeclaration => {
-	if (t.type === 'VariableDeclaration') {
-		return true;
-	}
-
-	if (t.type === 'FunctionDeclaration') {
-		return true;
-	}
-
-	if (t.type === 'ExportNamedDeclaration') {
-		return true;
-	}
-
-	if (t.type === 'ExportDefaultDeclaration') {
-		return true;
-	}
-
-	return false;
-};
-
-const isExpression = (t: Statement | Expression): t is RExpression => {
-	if (t.type === 'ArrowFunctionExpression') {
-		return true;
-	}
-
-	if (t.type === 'FunctionExpression') {
-		return true;
-	}
-
-	if (t.type === 'JSXElement') {
-		return true;
-	}
-
-	if (t.type === 'JSXFragment') {
-		return true;
-	}
-
-	return false;
-};
-
-const isStatement = (t: Statement | Expression): t is RStatement => {
-	if (t.type === 'ReturnStatement') {
-		return true;
-	}
-
-	if (t.type === 'BlockStatement') {
-		return true;
-	}
-
-	return false;
-};
-
-const mapDeclaration = <T extends RDeclaration>(
-	declaration: T,
-	transformation: RecastCodemod,
-	changesMade: Change[],
-): T => {
-	if (declaration.type === 'VariableDeclaration') {
-		const declarations = declaration.declarations.map((d) => {
-			return mapVariableDeclarator(d, transformation, changesMade);
-		});
-		return {...declaration, declarations};
-	}
-
-	if (declaration.type === 'FunctionDeclaration') {
-		return {
-			...declaration,
-			body: mapBlockStatement(declaration.body, transformation, changesMade),
-		};
-	}
-
-	if (
-		declaration.type === 'ExportNamedDeclaration' ||
-		declaration.type === 'ExportDefaultDeclaration'
-	) {
-		if (!declaration.declaration) {
-			return declaration;
-		}
-
-		return {
-			...declaration,
-			declaration: mapAll(declaration.declaration, transformation, changesMade),
-		};
-	}
-
-	return declaration;
+const isRecognizedType = (t: Statement | Expression): t is RecognizedType => {
+	return (
+		t.type === 'ArrowFunctionExpression' ||
+		t.type === 'FunctionExpression' ||
+		t.type === 'JSXFragment' ||
+		t.type === 'JSXElement' ||
+		t.type === 'BlockStatement' ||
+		t.type === 'ReturnStatement' ||
+		t.type === 'VariableDeclaration' ||
+		t.type === 'FunctionDeclaration' ||
+		t.type === 'ExportNamedDeclaration' ||
+		t.type === 'ExportDefaultDeclaration'
+	);
 };
 
 const mapVariableDeclarator = (
@@ -192,23 +111,7 @@ const mapBlockStatement = (
 	};
 };
 
-const mapStatement = <T extends Statement>(
-	statement: T,
-	transformation: RecastCodemod,
-	changesMade: Change[],
-): T => {
-	if (statement.type === 'ReturnStatement') {
-		return mapReturnStatement(statement, transformation, changesMade) as T;
-	}
-
-	if (statement.type === 'BlockStatement') {
-		return mapBlockStatement(statement, transformation, changesMade) as T;
-	}
-
-	return statement;
-};
-
-const mapExpression = <T extends Expression>(
+const mapExpression = <T extends RecognizedType>(
 	expression: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
@@ -222,16 +125,52 @@ const mapExpression = <T extends Expression>(
 	}
 
 	if (
-		expression.type !== 'ArrowFunctionExpression' &&
-		expression.type !== 'FunctionExpression'
+		expression.type === 'ArrowFunctionExpression' ||
+		expression.type === 'FunctionExpression'
 	) {
-		return expression;
+		return {
+			...expression,
+			body: mapAll(expression.body, transformation, changesMade),
+		};
 	}
 
-	return {
-		...expression,
-		body: mapAll(expression.body, transformation, changesMade),
-	};
+	if (expression.type === 'VariableDeclaration') {
+		const declarations = expression.declarations.map((d) => {
+			return mapVariableDeclarator(d, transformation, changesMade);
+		});
+		return {...expression, declarations};
+	}
+
+	if (expression.type === 'FunctionDeclaration') {
+		return {
+			...expression,
+			body: mapBlockStatement(expression.body, transformation, changesMade),
+		};
+	}
+
+	if (
+		expression.type === 'ExportNamedDeclaration' ||
+		expression.type === 'ExportDefaultDeclaration'
+	) {
+		if (!expression.declaration) {
+			return expression;
+		}
+
+		return {
+			...expression,
+			declaration: mapAll(expression.declaration, transformation, changesMade),
+		};
+	}
+
+	if (expression.type === 'ReturnStatement') {
+		return mapReturnStatement(expression, transformation, changesMade) as T;
+	}
+
+	if (expression.type === 'BlockStatement') {
+		return mapBlockStatement(expression, transformation, changesMade) as T;
+	}
+
+	return expression;
 };
 
 const mapReturnStatement = (
