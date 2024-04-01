@@ -347,6 +347,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
+
 				<Composition
 					id="framer"
 					component={Framer}
@@ -584,6 +585,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={2 * 60 * 60 * 30}
 				/>
+
 				<Composition
 					id="video-speed"
 					component={VideoSpeed}
@@ -989,6 +991,7 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+
 			<Folder name="shapes">
 				<Composition
 					id="circle-test"
@@ -1115,7 +1118,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-         // @ts-expect-error */}
+				 // @ts-expect-error */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1153,24 +1156,6 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				durationInFrames={200}
-				fps={30}
-				defaultProps={{}}
-			/>
-			<Composition
-				id="Layers2"
-				component={Layers}
-				width={1080}
-				height={1080}
-				durationInFrames={150}
-				fps={30}
-				defaultProps={{}}
-			/>
-			<Composition
-				id="Layers1"
-				component={Layers}
-				width={1080}
-				height={1080}
-				durationInFrames={150}
 				fps={30}
 				defaultProps={{}}
 			/>
