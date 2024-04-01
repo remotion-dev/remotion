@@ -283,8 +283,6 @@ const getCompositionIdFromJSXElement = (
 
 	const {openingElement} = jsxElement;
 	const {name} = openingElement;
-	// TODO: There is also JSXMemberExpression | JSXNamespacedName,
-	// could these be in a composition as well
 	if (name.type !== 'JSXIdentifier') {
 		return null;
 	}
@@ -311,9 +309,15 @@ const getCompositionIdFromJSXElement = (
 				return null;
 			}
 
-			// TODO: At least JSX
 			if (attribute.value.type === 'StringLiteral') {
 				return attribute.value.value;
+			}
+
+			if (
+				attribute.value.type === 'JSXExpressionContainer' &&
+				attribute.value.expression.type === 'StringLiteral'
+			) {
+				return attribute.value.expression.value;
 			}
 
 			return null;
@@ -348,8 +352,6 @@ const changeComposition = ({
 
 	const {openingElement} = jsxElement;
 	const {name} = openingElement;
-	// TODO: There is also JSXMemberExpression | JSXNamespacedName,
-	// could these be in a composition as well
 	if (name.type !== 'JSXIdentifier') {
 		return jsxElement;
 	}
@@ -381,7 +383,7 @@ const changeComposition = ({
 				return null;
 			}
 
-			// TODO: Support JSX
+			// id="one"
 			if (
 				attribute.name.name === 'id' &&
 				attribute.value &&
@@ -394,6 +396,30 @@ const changeComposition = ({
 				return {
 					...attribute,
 					value: {...attribute.value, value: newCompositionId},
+				};
+			}
+
+			// id={"one"}
+
+			if (
+				attribute.name.name === 'id' &&
+				attribute.value &&
+				attribute.value.type === 'JSXExpressionContainer' &&
+				attribute.value.expression.type === 'StringLiteral'
+			) {
+				changesMade.push({
+					description: 'Replaced composition id',
+				});
+
+				return {
+					...attribute,
+					value: {
+						...attribute.value,
+						expression: {
+							...attribute.value.expression,
+							value: newCompositionId,
+						},
+					},
 				};
 			}
 

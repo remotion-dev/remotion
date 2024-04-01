@@ -136,3 +136,19 @@ test("in non-return statement", () => {
   expect(newContents).not.toContain('"six"');
   expect(newContents).toContain('"jkl"');
 });
+
+test("curly braces id={'seven'}", () => {
+  const { changesMade, newContents } =
+    StudioServerInternals.parseAndApplyCodemod({
+      input: contents,
+      codeMod: {
+        type: "rename-composition",
+        idToRename: "seven",
+        newId: "mno",
+      },
+    });
+  expect(changesMade.length).toBe(1);
+  expect(getCompositionCount(newContents)).toBe(compCount);
+  expect(newContents).not.toContain('"seven"');
+  expect(newContents).toContain('"mno"');
+});
