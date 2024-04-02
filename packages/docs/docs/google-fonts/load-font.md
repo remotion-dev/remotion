@@ -129,7 +129,7 @@ Unicode range information about the font.
 }
 ```
 
-### `waitUntilDone`<AvailableFrom v="4.0.83"/>
+### `waitUntilDone`<AvailableFrom v="4.0.135"/>
 
 A function that returns a promise that resolves when the font is loaded.
 

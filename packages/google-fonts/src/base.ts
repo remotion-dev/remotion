@@ -50,7 +50,7 @@ export const loadFonts = (
     for (const weight of weights) {
       if (!meta.fonts[style][weight]) {
         throw new Error(
-          `The font ${meta.fontFamily} does not have a weight ${weight} in style ${style}`
+          `The font ${meta.fontFamily} does not  have a weight ${weight} in style ${style}`
         );
       }
       const subsets =
