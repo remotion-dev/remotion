@@ -43,12 +43,18 @@ A large font file paired with a limited bandwith can potentially lead to a rende
 
 If you want to load multiple styles, use multiple `loadFont()` statements.
 
-```tsx title="Load a specific style, weight and subset"
+```tsx twoslash title="Load a specific style, weight and subset"
+import { AbsoluteFill } from "remotion";
 import { fontFamily, loadFont } from "@remotion/google-fonts/Lobster";
 
-loadFont("normal", {
+const { waitUntilDone } = loadFont("normal", {
   weights: ["400"],
   subsets: ["latin"],
+});
+
+// Optional: Act once the font has been loaded
+waitUntilDone().then(() => {
+  console.log("Font is loaded");
 });
 
 export const GoogleFontsExample: React.FC = () => {
@@ -57,6 +63,7 @@ export const GoogleFontsExample: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
+        // Pass the `fontFamily` you imported as a style
         fontFamily: fontFamily,
         fontSize: 280,
       }}

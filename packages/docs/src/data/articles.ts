@@ -1456,6 +1456,13 @@ export const articles = [
     crumb: "Designing videos",
   },
   {
+    id: "layout-utils/best-practices",
+    title: "Best practices for using @remotion/layout-utils",
+    relativePath: "docs/layout-utils/best-practices.md",
+    compId: "articles-docs-layout-utils-best-practices",
+    crumb: "@remotion/layout-utils",
+  },
+  {
     id: "layout-utils/fill-text-box",
     title: "fillTextBox()",
     relativePath: "docs/layout-utils/fill-text-box.md",
@@ -2201,10 +2208,10 @@ export const articles = [
   },
   {
     id: "recorder/index",
-    title: "Introduction",
+    title: "Remotion Recorder",
     relativePath: "docs/recorder/index.mdx",
     compId: "articles-docs-recorder-index",
-    crumb: "Recorder",
+    crumb: "Templates",
   },
   {
     id: "recorder/record",

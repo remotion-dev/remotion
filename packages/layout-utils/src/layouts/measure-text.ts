@@ -1,4 +1,4 @@
-type Dimensions = {
+export type Dimensions = {
 	width: number;
 	height: number;
 };
@@ -10,6 +10,7 @@ export type Word = {
 	fontWeight?: number | string;
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
+	validateFontIsLoaded?: boolean;
 };
 
 const wordCache = new Map<string, Dimensions>();
@@ -70,6 +71,7 @@ export const measureText = ({
 	fontWeight,
 	letterSpacing,
 	fontVariantNumeric,
+	validateFontIsLoaded,
 }: Word): Dimensions => {
 	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
 
@@ -86,32 +88,32 @@ export const measureText = ({
 		letterSpacing,
 	});
 
-	const {
-		boundingBox: boundingBoxOfFallbackFont,
-		computedFontFamily: computedFallback,
-	} = takeMeasurement({
-		fontFamily: null,
-		fontSize,
-		text,
-		fontVariantNumeric,
-		fontWeight,
-		letterSpacing,
-	});
+	if (validateFontIsLoaded) {
+		const {
+			boundingBox: boundingBoxOfFallbackFont,
+			computedFontFamily: computedFallback,
+		} = takeMeasurement({
+			fontFamily: null,
+			fontSize,
+			text,
+			fontVariantNumeric,
+			fontWeight,
+			letterSpacing,
+		});
 
-	const sameAsFallbackFont =
-		boundingBox.height === boundingBoxOfFallbackFont.height &&
-		boundingBox.width === boundingBoxOfFallbackFont.width;
+		const sameAsFallbackFont =
+			boundingBox.height === boundingBoxOfFallbackFont.height &&
+			boundingBox.width === boundingBoxOfFallbackFont.width;
 
-	console.log({sameAsFallbackFont, computedFallback, computedFontFamily});
-
-	if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
-		const err = [
-			`Called measureText() with "fontFamily" ${JSON.stringify(
-				fontFamily,
-			)} but it looks like the font is not loaded at the time of calling.`,
-			`A measurement with the fallback font ${computedFallback} was taken and had the same dimensions, indicating that the browser used the fallback font.`,
-		];
-		throw new Error(err.join('\n'));
+		if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
+			const err = [
+				`Called measureText() with "fontFamily" ${JSON.stringify(
+					fontFamily,
+				)} but it looks like the font is not loaded at the time of calling.`,
+				`A measurement with the fallback font ${computedFallback} was taken and had the same dimensions, indicating that the browser used the fallback font.`,
+			];
+			throw new Error(err.join('\n'));
+		}
 	}
 
 	const result = {height: boundingBox.height, width: boundingBox.width};

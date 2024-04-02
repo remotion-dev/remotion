@@ -474,6 +474,7 @@ module.exports = {
         id: "layout-utils/index",
       },
       items: [
+        "layout-utils/best-practices",
         "layout-utils/measure-text",
         "layout-utils/fill-text-box",
         "layout-utils/fit-text",
