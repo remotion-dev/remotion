@@ -92,3 +92,8 @@ When measuring, the Layout utils will wrap the text in a `<span>` with `display:
 This will also measure the width of the whitespace characters.
 
 Add those two CSS properties to your markup as well to match it with the measurements.
+
+## Server-side rendering
+
+The layout utilities need to be run in a browser.  
+If you are using them in a component that will be server-side rendered, then we recommend you call the functions in a `useEffect`, like on the first example on this page.
