@@ -174,12 +174,29 @@ impl OpenedStream {
 
         if should_seek {
             _print_verbose(&format!(
-                "Seeking to {} from dts = {:?}, duration = {}",
-                position, self.last_position, self.duration_or_zero
+                "Seeking to {} from dts = {:?}, duration = {}, last seek = {}",
+                position, self.last_position, self.duration_or_zero, last_seek_position
             ))?;
             self.video.flush();
-            self.input
-                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
+            match self
+                .input
+                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)
+            {
+                Ok(_) => Ok(()),
+                Err(err) => {
+                    if err.to_string().contains("Operation not permitted") {
+                        _print_verbose(&format!(
+                            "Seeking into a part of the file that contains executable code."
+                        ))?;
+                        _print_verbose(&format!("FFmpeg is unwilling to execute it."))?;
+
+                        Ok(())
+                    } else {
+                        Err(err)
+                    }
+                }
+            }?;
+
             freshly_seeked = true;
             self.last_position = None
         }
