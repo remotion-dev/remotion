@@ -53,11 +53,13 @@ const takeMeasurement = ({
 	node.innerText = text;
 
 	document.body.appendChild(node);
+	const computedFontFamily = window.getComputedStyle(node).fontFamily;
 	const boundingBox = node.getBoundingClientRect();
 	document.body.removeChild(node);
+
 	return {
 		boundingBox,
-		computedFontFamily: window.getComputedStyle(node).fontFamily,
+		computedFontFamily,
 	};
 };
 
@@ -88,7 +90,7 @@ export const measureText = ({
 		boundingBox: boundingBoxOfFallbackFont,
 		computedFontFamily: computedFallback,
 	} = takeMeasurement({
-		fontFamily,
+		fontFamily: null,
 		fontSize,
 		text,
 		fontVariantNumeric,
@@ -100,9 +102,13 @@ export const measureText = ({
 		boundingBox.height === boundingBoxOfFallbackFont.height &&
 		boundingBox.width === boundingBoxOfFallbackFont.width;
 
+	console.log({sameAsFallbackFont, computedFallback, computedFontFamily});
+
 	if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
 		const err = [
-			`Called measureText() with "fontFamily" ${fontFamily} but it looks like the font is not loaded at the time of calling.`,
+			`Called measureText() with "fontFamily" ${JSON.stringify(
+				fontFamily,
+			)} but it looks like the font is not loaded at the time of calling.`,
 			`A measurement with the fallback font ${computedFallback} was taken and had the same dimensions, indicating that the browser used the fallback font.`,
 		];
 		throw new Error(err.join('\n'));
