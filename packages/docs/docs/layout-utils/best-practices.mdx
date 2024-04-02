@@ -43,11 +43,15 @@ const MyComp: React.FC = () => {
 };
 ```
 
-### Use the `validateFontIsLoaded` property<AvailableFrom v="4.0.136"/>
+### Use the `validateFontIsLoaded` option<AvailableFrom v="4.0.136"/>
 
 Pass `validateFontIsLoaded: true` to any of [`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), and [`fillTextBox()`](/docs/layout-utils/fill-text-box) to validate that the font family you passed is actually loaded.
 
 This will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
+:::note
+In Remotion v5, this will become the default.
+:::
 
 ## Match all font properties
 

@@ -111,10 +111,11 @@ export const measureText = ({
 
 		if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
 			const err = [
-				`Called measureText() with "fontFamily" ${JSON.stringify(
+				`Called measureText() with "fontFamily": ${JSON.stringify(
 					fontFamily,
 				)} but it looks like the font is not loaded at the time of calling.`,
 				`A measurement with the fallback font ${computedFallback} was taken and had the same dimensions, indicating that the browser used the fallback font.`,
+				'See https://remotion.dev/docs/layout-utils/best-practices for best practices.',
 			];
 			throw new Error(err.join('\n'));
 		}
