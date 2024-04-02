@@ -3,6 +3,7 @@ import {
 	AbsoluteFill,
 	Freeze,
 	Sequence,
+	Series,
 	staticFile,
 	useCurrentFrame,
 	Video,
@@ -35,9 +36,11 @@ const ShouldNotUnmount: React.FC = () => {
 export const PremountedExample: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			<Premount premountFor={10}>
-				<ShouldNotUnmount />
-			</Premount>
+			<Series.Sequence durationInFrames={20} offset={-10}>
+				<Premount premountFor={10}>
+					<ShouldNotUnmount />
+				</Premount>
+			</Series.Sequence>
 		</AbsoluteFill>
 	);
 };
