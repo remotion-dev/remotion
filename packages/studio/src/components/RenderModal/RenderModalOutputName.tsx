@@ -26,7 +26,6 @@ export const RenderModalOutputName = ({
 			<Column>
 				<div style={label}>{labelText}</div>
 			</Column>
-
 			<div style={rightRow}>
 				<div>
 					<RemotionInput

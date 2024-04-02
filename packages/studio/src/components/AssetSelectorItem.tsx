@@ -19,10 +19,7 @@ import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
-import {
-	notificationCenter,
-	sendErrorNotification,
-} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const ASSET_ITEM_HEIGHT = 32;
@@ -312,7 +309,7 @@ const AssetSelectorItem: React.FC<{
 						'/' +
 						item.name,
 				}).catch((err) => {
-					sendErrorNotification(`Could not open file: ${err.message}`);
+					showNotification(`Could not open file: ${err.message}`, 2000);
 				});
 			},
 			[item.name, parentFolder],
@@ -325,15 +322,10 @@ const AssetSelectorItem: React.FC<{
 				const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
 				copyText(content)
 					.then(() => {
-						notificationCenter.current?.addNotification({
-							content: `Copied '${content}' to clipboard`,
-							created: Date.now(),
-							duration: 1000,
-							id: String(Math.random()),
-						});
+						showNotification(`Copied '${content}' to clipboard`, 1000);
 					})
 					.catch((err) => {
-						sendErrorNotification(`Could not copy: ${err.message}`);
+						showNotification(`Could not copy: ${err.message}`, 2000);
 					});
 			},
 			[item.name, parentFolder],
