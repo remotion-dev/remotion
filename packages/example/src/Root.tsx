@@ -36,6 +36,7 @@ import {
 	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import {PremountedExample} from './Premount';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
@@ -1067,6 +1068,16 @@ export const Index: React.FC = () => {
 						],
 					}}
 					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="Premount">
+				<Composition
+					id="premounted"
+					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
 				/>
 			</Folder>
 			<Folder name="Transitions">
