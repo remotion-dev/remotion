@@ -10,6 +10,24 @@ _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
 
 Calculate whether the text exceeds the box and wraps within the container. Only works in the browser, not in Node.js or Bun.
 
+## Example
+
+```tsx twoslash
+import { fillTextBox } from "@remotion/layout-utils";
+
+const fontFamily = "Arial";
+const fontSize = 12;
+
+const box = fillTextBox({ maxLines: 4, maxBoxWidth: 100 });
+box.add({ text: "Hello", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
+box.add({ text: "World!", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
+// Doesn't fit on the previous line anymore
+box.add({ text: "How", fontFamily, fontSize }); // {exceedsBox: false, newLine: true}
+// ...
+// Doesn't fix in the box anymore
+box.add({ text: "the end", fontFamily, fontSize }); // {exceedsBox: true, newLine: false}
+```
+
 ## API
 
 The function takes the following options:
@@ -62,6 +80,12 @@ _string_
 
 Same as CSS style `font-variant-numeric`.
 
+#### `validateFontIsLoaded?`<AvailableFrom v="4.0.136"/>
+
+_boolean_
+
+If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
 ### Return value
 
 The add method returns an object with two properties:
@@ -71,29 +95,9 @@ The add method returns an object with two properties:
 - `newLine`:
   _Boolean_, whether adding the word would require starting a new line in the text box.
 
-## Example
-
-```tsx twoslash
-import { fillTextBox } from "@remotion/layout-utils";
-
-const fontFamily = "Arial";
-const fontSize = 12;
-
-const box = fillTextBox({ maxLines: 4, maxBoxWidth: 100 });
-box.add({ text: "Hello", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
-box.add({ text: "World!", fontFamily, fontSize }); // {exceedsBox: false, newLine: false}
-// Doesn't fit on the previous line anymore
-box.add({ text: "How", fontFamily, fontSize }); // {exceedsBox: false, newLine: true}
-// ...
-// Doesn't fix in the box anymore
-box.add({ text: "the end", fontFamily, fontSize }); // {exceedsBox: true, newLine: false}
-```
-
 ## Important considerations
 
-- The font needs to be loaded before calling `fillTextBox()`.
-- Rendered words should have a `white-space: pre` style to ensure that whitespace is rendered.
-- Consider that `border` and `padding` of the will affect the size of the word. Consider using `outline` instead.
+See [Best practices](/docs/layout-utils/best-practices) to ensure you get correct measurements.
 
 ## See also
 
