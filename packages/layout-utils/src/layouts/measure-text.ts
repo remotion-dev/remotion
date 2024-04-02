@@ -26,6 +26,10 @@ const takeMeasurement = ({
 	boundingBox: DOMRect;
 	computedFontFamily: string;
 } => {
+	if (typeof document === 'undefined') {
+		throw new Error('measureText() can only be called in a browser.');
+	}
+
 	const node = document.createElement('span');
 
 	if (fontFamily) {
