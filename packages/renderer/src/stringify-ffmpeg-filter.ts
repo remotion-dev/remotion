@@ -25,6 +25,16 @@ const stringifyTrim = (trim: number) => {
 	return asString;
 };
 
+export const getActualTrimLeft = ({
+	asset,
+	fps,
+	trimLeftOffset,
+}: {
+	asset: MediaAsset;
+	fps: number;
+	trimLeftOffset: number;
+}) => asset.trimLeft / fps + trimLeftOffset;
+
 const trimAndSetTempo = ({
 	forSeamlessAacConcatenation,
 	assetDuration,
@@ -49,7 +59,7 @@ const trimAndSetTempo = ({
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
-		const trimLeft = asset.trimLeft / fps + trimLeftOffset;
+		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
 		const trimRight = trimLeft + (asset.duration / fps + trimRightOffset);
 
 		const trimRightOrAssetDuration = assetDuration
@@ -81,7 +91,7 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
-		const trimLeft = asset.trimLeft / fps;
+		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
 		const trimRight = (trimLeft + asset.duration / fps) * asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
@@ -131,11 +141,15 @@ export const stringifyFfmpegFilter = ({
 		return null;
 	}
 
-	const {toneFrequency, startInVideo, trimLeft, playbackRate} = asset;
+	const {toneFrequency, startInVideo, playbackRate} = asset;
 
 	const startInVideoSeconds = startInVideo / fps;
 
-	if (assetDuration && trimLeft / fps >= assetDuration / playbackRate) {
+	if (
+		assetDuration &&
+		getActualTrimLeft({asset, fps, trimLeftOffset}) >=
+			assetDuration / playbackRate
+	) {
 		return null;
 	}
 
