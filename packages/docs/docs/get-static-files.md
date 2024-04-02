@@ -10,7 +10,7 @@ _Available from v3.3.26._
 Gets an array containing all files in the `public/` folder. You can reference them by using [`staticFile()`](/docs/staticfile).
 
 :::warning
-This feature does only work in the Remotion Studio and during rendering, otherwise it returns an empty array.  
+This feature _only_ works in Remotion Studio and during rendering, otherwise it returns an empty array.  
 :::
 
 :::note
