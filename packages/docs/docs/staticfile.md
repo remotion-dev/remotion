@@ -65,7 +65,7 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 
 ## Getting all files in the public folder
 
-Use the `getStaticFiles()` API to get a list of available options.
+Use the [`getStaticFiles()`](/docs/getstaticfiles) API to get a list of available options.
 
 ## Handling URI-unsafe characters<AvailableFrom v="4.0.0"/>
 
