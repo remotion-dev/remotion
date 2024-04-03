@@ -7,6 +7,10 @@ import type {ReadableStream} from 'node:stream/web';
 import os from 'os';
 import path from 'path';
 
+const getIsSemVer = (str: string) => {
+	return /^[\d]{1}\.[\d]{1,2}\.+/.test(str);
+};
+
 const installForWindows = async ({
 	version,
 	to,
@@ -16,10 +20,8 @@ const installForWindows = async ({
 	to: string;
 	printOutput: boolean;
 }) => {
-	const isSemVer = /^[\d]{1}\.[\d]{1,2}\.+/;
-
-	if (!isSemVer) {
-		throw new Error(`Non-semantic version provided. Only releases of Whisper.cpp are supportet (E.g., 1.5.4). Provided version:
+	if (!getIsSemVer(version)) {
+		throw new Error(`Non-semantic version provided. Only releases of Whisper.cpp are supported on Windows (e.g., 1.5.4). Provided version:
 		${version}. See https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp#version for more information.`);
 	}
 
@@ -57,9 +59,7 @@ const installWhisperForUnix = ({
 		stdio,
 	});
 
-	const isSemVer = /^[\d]{1}\.[\d]{1,2}\.+/;
-
-	const ref = isSemVer.test(version) ? `v${version}` : version;
+	const ref = getIsSemVer(version) ? `v${version}` : version;
 
 	execSync(`git checkout ${ref}`, {
 		stdio,
