@@ -3,7 +3,7 @@ import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
-import {ensureLocalBrowser} from './ensure-browser';
+import {internalEnsureBrowser} from './ensure-browser';
 import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
@@ -97,7 +97,7 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser({
+	await internalEnsureBrowser({
 		browserExecutable,
 		logLevel,
 		indent,

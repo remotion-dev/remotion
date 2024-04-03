@@ -1,9 +1,10 @@
 import fs from 'fs';
 import type {BrowserExecutable} from './browser-executable';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import type {BrowserSafeApis} from './client';
 import {getLocalBrowser} from './get-local-browser';
-import type {LogLevel} from './log-level';
-import type {OnBrowserDownload} from './options/on-browser-download';
+import type {ToOptions} from './options/option';
 
 export type BrowserStatus =
 	| {
@@ -22,17 +23,23 @@ export type BrowserStatus =
 			type: 'no-browser';
 	  };
 
-export const ensureLocalBrowser = async ({
+type InternalEnsureBrowserOptions = {
+	browserExecutable: BrowserExecutable;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>;
+
+export type EnsureBrowserOptions = Partial<
+	{
+		browserExecutable: BrowserExecutable;
+	} & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>
+>;
+
+export const internalEnsureBrowser = async ({
 	indent,
 	logLevel,
 	browserExecutable,
 	onBrowserDownload,
-}: {
-	browserExecutable: BrowserExecutable;
-	logLevel: LogLevel;
-	indent: boolean;
-	onBrowserDownload: OnBrowserDownload;
-}) => {
+}: InternalEnsureBrowserOptions) => {
 	const status = getBrowserStatus(browserExecutable);
 	if (status.type === 'no-browser') {
 		const {onProgress, version} = onBrowserDownload();
@@ -65,4 +72,22 @@ const getBrowserStatus = (
 	}
 
 	return {type: 'no-browser'};
+};
+
+export const ensureBrowser = (options: EnsureBrowserOptions) => {
+	const indent = false;
+	const logLevel = options.logLevel ?? 'info';
+
+	return internalEnsureBrowser({
+		browserExecutable: options.browserExecutable ?? null,
+		indent,
+		logLevel: options.logLevel ?? 'info',
+		onBrowserDownload:
+			options.onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				api: 'ensureBrowser()',
+				indent: false,
+				logLevel,
+			}),
+	});
 };

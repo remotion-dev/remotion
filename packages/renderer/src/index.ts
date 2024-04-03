@@ -75,6 +75,7 @@ export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
+export {ensureBrowser, EnsureBrowserOptions} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -133,6 +134,7 @@ export type {AudioCodec};
 import {makeDownloadMap} from './assets/download-map';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {internalEnsureBrowser} from './ensure-browser';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -235,6 +237,7 @@ export const RenderInternals = {
 	getShouldRenderAudio,
 	codecSupportsMedia,
 	toMegabytes,
+	internalEnsureBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

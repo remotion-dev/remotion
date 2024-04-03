@@ -308,6 +308,11 @@
       "permanent": false
     },
     {
+      "source": "chrome-headless-shell",
+      "destination": "/docs/miscellaneous/chrome-headless-shell",
+      "permanent": false
+    },
+    {
       "source": "/recorder",
       "destination": "/docs/recorder",
       "permanent": false

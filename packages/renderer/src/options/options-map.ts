@@ -131,4 +131,8 @@ export const optionsMap = {
 		jpegQuality: jpegQualityOption,
 		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 	},
+	ensureBrowser: {
+		logLevel: logLevelOption,
+		onBrowserDownload: onBrowserDownloadOption,
+	},
 } as const;
