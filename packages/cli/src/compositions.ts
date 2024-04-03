@@ -2,6 +2,7 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
@@ -141,6 +142,7 @@ export const listCompositionsCommand = async (
 		server: undefined,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload: defaultBrowserDownloadProgress(false, logLevel),
 	});
 
 	printCompositions(compositions, logLevel);

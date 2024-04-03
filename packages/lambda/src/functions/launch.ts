@@ -158,6 +158,9 @@ const innerLaunchHandler = async ({
 		logLevel: params.logLevel,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		onBrowserDownload: () => {
+			throw new Error('Should not download a browser in Lambda');
+		},
 	});
 	RenderInternals.Log.info(
 		logOptions,

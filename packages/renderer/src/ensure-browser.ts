@@ -3,7 +3,7 @@ import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
 import {getLocalBrowser} from './get-local-browser';
 import type {LogLevel} from './log-level';
-import {Log} from './logger';
+import type {OnBrowserDownload} from './options/on-browser-download';
 
 export type BrowserStatus =
 	| {
@@ -25,39 +25,33 @@ export type BrowserStatus =
 export const ensureLocalBrowser = async ({
 	indent,
 	logLevel,
-	preferredBrowserExecutable,
+	browserExecutable,
+	onBrowserDownload,
 }: {
-	preferredBrowserExecutable: BrowserExecutable;
+	browserExecutable: BrowserExecutable;
 	logLevel: LogLevel;
 	indent: boolean;
+	onBrowserDownload: OnBrowserDownload;
 }) => {
-	const status = getBrowserStatus(preferredBrowserExecutable, logLevel, indent);
+	const status = getBrowserStatus(browserExecutable);
 	if (status.type === 'no-browser') {
-		Log.info(
-			{indent, logLevel},
-			'No local browser could be found. Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
-		);
-		await downloadBrowser({indent, logLevel});
+		const onProgress = onBrowserDownload();
+
+		await downloadBrowser({indent, logLevel, onProgress});
 	}
 };
 
 const getBrowserStatus = (
-	browserExecutablePath: BrowserExecutable,
-	logLevel: LogLevel,
-	indent: boolean,
+	browserExecutable: BrowserExecutable,
 ): BrowserStatus => {
-	if (browserExecutablePath) {
-		if (!fs.existsSync(browserExecutablePath)) {
-			Log.warn(
-				{
-					indent,
-					logLevel,
-				},
-				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`,
+	if (browserExecutable) {
+		if (!fs.existsSync(browserExecutable)) {
+			throw new Error(
+				`"browserExecutable" was specified as '${browserExecutable}' but the path doesn't exist. Pass "null" for "browserExecutable" to download a browser automatically.`,
 			);
 		}
 
-		return {path: browserExecutablePath, type: 'user-defined-path'};
+		return {path: browserExecutable, type: 'user-defined-path'};
 	}
 
 	const localBrowser = getLocalBrowser();

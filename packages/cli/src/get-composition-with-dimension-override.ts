@@ -3,6 +3,7 @@ import type {
 	ChromiumOptions,
 	HeadlessBrowser,
 	LogLevel,
+	OnBrowserDownload,
 	RemotionServer,
 } from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
@@ -26,6 +27,7 @@ export const getCompositionWithDimensionOverride = async ({
 	server,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	onBrowserDownload,
 }: {
 	height: number | null;
 	width: number | null;
@@ -44,6 +46,7 @@ export const getCompositionWithDimensionOverride = async ({
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
+	onBrowserDownload: OnBrowserDownload;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -66,6 +69,7 @@ export const getCompositionWithDimensionOverride = async ({
 		server,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	});
 
 	return {

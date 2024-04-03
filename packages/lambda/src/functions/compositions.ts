@@ -82,6 +82,9 @@ export const compositionsHandler = async (
 			offthreadVideoCacheSizeInBytes:
 				lambdaParams.offthreadVideoCacheSizeInBytes,
 			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
 		});
 
 		return Promise.resolve({

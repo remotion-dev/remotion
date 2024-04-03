@@ -6,6 +6,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -232,6 +233,8 @@ export const benchmarkCommand = async (
 		userAgent,
 	};
 
+	const onBrowserDownload = defaultBrowserDownloadProgress(false, logLevel);
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
 		browserExecutable,
@@ -240,6 +243,7 @@ export const benchmarkCommand = async (
 		indent: false,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -299,6 +303,7 @@ export const benchmarkCommand = async (
 		binariesDirectory: binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		onBrowserDownload,
 	});
 
 	const ids = (
@@ -472,6 +477,7 @@ export const benchmarkCommand = async (
 							commandLine: parsedCli,
 						}).value,
 					compositionStart: 0,
+					onBrowserDownload,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

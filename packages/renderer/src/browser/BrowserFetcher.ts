@@ -26,6 +26,7 @@ import {downloadFile} from '../assets/download-file';
 import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
+import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
 const downloadURLs: Record<Platform, string> = {
@@ -86,6 +87,7 @@ const getDownloadsFolder = () => {
 export const downloadBrowser = async (options: {
 	logLevel: LogLevel;
 	indent: boolean;
+	onProgress: DownloadBrowserProgressFn;
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
 	const downloadURL = getChromeDownloadUrl(platform);
@@ -121,21 +123,19 @@ export const downloadBrowser = async (options: {
 	}
 
 	try {
-		let lastProgress = 0;
 		await downloadFile({
 			url: downloadURL,
 			to: () => archivePath,
 			onProgress: (progress) => {
-				if (progress.downloaded > lastProgress + 10_000_000) {
-					lastProgress = progress.downloaded;
-
-					Log.info(
-						{indent: options.indent, logLevel: options.logLevel},
-						`Downloading Chrome Headless Shell - ${toMegabytes(
-							progress.downloaded,
-						)}/${toMegabytes(progress.totalSize as number)}`,
-					);
+				if (progress.totalSize === null || progress.percent === null) {
+					throw new Error('Expected totalSize and percent to be defined');
 				}
+
+				options.onProgress({
+					downloaded: progress.downloaded,
+					totalSize: progress.totalSize,
+					percent: progress.percent,
+				});
 			},
 			indent: options.indent,
 			logLevel: options.logLevel,
@@ -187,8 +187,3 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 		url,
 	};
 };
-
-function toMegabytes(bytes: number) {
-	const mb = bytes / 1024 / 1024;
-	return `${Math.round(mb * 10) / 10} Mb`;
-}

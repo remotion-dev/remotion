@@ -81,7 +81,6 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
-export {ensureLocalBrowser} from './get-local-browser-executable';
 export {getSilentParts} from './get-silent-parts';
 export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
@@ -99,6 +98,10 @@ export {ColorSpace} from './options/color-space';
 export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';
+export {
+	DownloadBrowserProgressFn,
+	OnBrowserDownload,
+} from './options/on-browser-download';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
@@ -139,6 +142,7 @@ import {
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {getShouldRenderAudio} from './render-has-audio';
+import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -230,6 +234,7 @@ export const RenderInternals = {
 	resolveAudioCodec,
 	getShouldRenderAudio,
 	codecSupportsMedia,
+	toMegabytes,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

@@ -8,6 +8,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
@@ -128,6 +129,7 @@ const innerRenderStill = async ({
 	logLevel,
 	indent,
 	serializedResolvedPropsWithCustomSchema,
+	onBrowserDownload,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -204,6 +206,7 @@ const innerRenderStill = async ({
 			indent,
 			viewport: null,
 			logLevel,
+			onBrowserDownload,
 		}));
 	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
 	await page.setViewport({
@@ -434,8 +437,9 @@ export const renderStill = (
 		verbose,
 		quality,
 		offthreadVideoCacheSizeInBytes,
-		logLevel,
+		logLevel: passedLogLevel,
 		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -450,6 +454,10 @@ export const renderStill = (
 		);
 	}
 
+	const logLevel =
+		passedLogLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info');
+	const indent = false;
+
 	return internalRenderStill({
 		composition,
 		browserExecutable: browserExecutable ?? null,
@@ -458,7 +466,7 @@ export const renderStill = (
 		envVariables: envVariables ?? {},
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
-		indent: false,
+		indent,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				staticBase: null,
@@ -476,7 +484,7 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info'),
+		logLevel,
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,
@@ -485,5 +493,7 @@ export const renderStill = (
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
 	});
 };

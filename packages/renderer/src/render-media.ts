@@ -8,6 +8,7 @@ import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
@@ -239,6 +240,7 @@ const internalRenderMediaRaw = ({
 	separateAudioTo,
 	forSeamlessAacConcatenation,
 	compositionStart,
+	onBrowserDownload,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -629,6 +631,7 @@ const internalRenderMediaRaw = ({
 					binariesDirectory,
 					compositionStart,
 					forSeamlessAacConcatenation,
+					onBrowserDownload,
 				});
 
 				return renderFramesProc;
@@ -838,19 +841,24 @@ export const renderMedia = ({
 	preferLossless,
 	verbose,
 	quality,
-	logLevel,
+	logLevel: passedLogLevel,
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
+	onBrowserDownload,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
 			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
+
+	const indent = false;
+	const logLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -895,9 +903,9 @@ export const renderMedia = ({
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		logLevel,
 		preferLossless: preferLossless ?? false,
-		indent: false,
+		indent,
 		onCtrlCExit: () => undefined,
 		server: undefined,
 		serializedResolvedPropsWithCustomSchema:
@@ -913,6 +921,8 @@ export const renderMedia = ({
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
+		onBrowserDownload:
+			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

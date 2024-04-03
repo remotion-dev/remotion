@@ -99,6 +99,9 @@ export const getBrowserInstance = async (
 			indent: false,
 			viewport: null,
 			logLevel,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
 		});
 		instance.on('disconnected', () => {
 			RenderInternals.Log.info(

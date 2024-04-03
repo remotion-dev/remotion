@@ -132,6 +132,7 @@ export const cli = async () => {
 };
 
 import {StudioServerInternals} from '@remotion/studio-server';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 
 export const CliInternals = {
 	createOverwriteableCliOutput,
@@ -155,4 +156,5 @@ export const CliInternals = {
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,
 	getCompositionWithDimensionOverride,
+	defaultBrowserDownloadProgress,
 };

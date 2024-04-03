@@ -13,6 +13,7 @@ import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {onBrowserDownloadOption} from './on-browser-download';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
@@ -42,6 +43,7 @@ export const optionsMap = {
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		separateAudioTo: separateAudioOption,
 		audioCodec: audioCodecOption,
+		onBrowserDownload: onBrowserDownloadOption,
 	},
 	stitchFramesToVideo: {
 		separateAudioTo: separateAudioOption,
@@ -52,18 +54,21 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		onBrowserDownload: onBrowserDownloadOption,
 	},
 	getCompositions: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		onBrowserDownload: onBrowserDownloadOption,
 	},
 	selectComposition: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		onBrowserDownload: onBrowserDownloadOption,
 	},
 	renderFrames: {
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,

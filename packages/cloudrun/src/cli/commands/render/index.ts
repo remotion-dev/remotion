@@ -141,6 +141,8 @@ export const renderCommand = async (
 			forceIPv4: false,
 		});
 
+		const indent = false;
+
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
@@ -149,7 +151,7 @@ export const renderCommand = async (
 				chromiumOptions,
 				envVariables,
 				height,
-				indent: false,
+				indent,
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
@@ -165,6 +167,10 @@ export const renderCommand = async (
 					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress(
+					indent,
+					logLevel,
+				),
 			});
 		composition = compositionId;
 	}

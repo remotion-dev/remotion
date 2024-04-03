@@ -143,6 +143,9 @@ const innerStillHandler = async ({
 		logLevel: lambdaParams.logLevel,
 		server,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		onBrowserDownload: () => {
+			throw new Error('Should not download a browser in Lambda');
+		},
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -181,6 +184,11 @@ const innerStillHandler = async ({
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+
+	const onBrowserDownload = () => {
+		throw new Error('Should not download a browser in Lambda');
+	};
+
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -215,6 +223,7 @@ const innerStillHandler = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
+		onBrowserDownload,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

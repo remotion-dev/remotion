@@ -3,6 +3,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -160,6 +161,7 @@ const internalGetCompositionsRaw = async ({
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	onBrowserDownload,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -168,6 +170,7 @@ const internalGetCompositionsRaw = async ({
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -220,6 +223,7 @@ const internalGetCompositionsRaw = async ({
 					logLevel,
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
+					onBrowserDownload,
 				});
 			})
 
@@ -264,8 +268,15 @@ export const getCompositions = (
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,
-		logLevel,
+		logLevel: passedLogLevel,
+		onBrowserDownload,
+		binariesDirectory,
+		offthreadVideoCacheSizeInBytes,
 	} = config ?? {};
+
+	const indent = false;
+	const logLevel = passedLogLevel ?? 'info';
+
 	return internalGetCompositions({
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
@@ -276,16 +287,17 @@ export const getCompositions = (
 				indent: undefined,
 				staticBase: null,
 			}).serializedString,
-		indent: false,
+		indent,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? 'info',
-		offthreadVideoCacheSizeInBytes:
-			config?.offthreadVideoCacheSizeInBytes ?? null,
-		binariesDirectory: config?.binariesDirectory ?? null,
+		logLevel,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
 	});
 };

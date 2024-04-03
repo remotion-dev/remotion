@@ -12,6 +12,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
@@ -35,11 +36,13 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import type {OnBrowserDownload} from './options/on-browser-download';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -98,6 +101,7 @@ export type InternalRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
+	onBrowserDownload: OnBrowserDownload;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -182,6 +186,7 @@ export type RenderFramesOptions = {
 	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
+	onBrowserDownload?: OnBrowserDownload;
 	serveUrl: string;
 } & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
@@ -702,6 +707,7 @@ const internalRenderFramesRaw = ({
 	binariesDirectory,
 	forSeamlessAacConcatenation,
 	compositionStart,
+	onBrowserDownload,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -735,6 +741,7 @@ const internalRenderFramesRaw = ({
 			indent,
 			viewport: null,
 			logLevel,
+			onBrowserDownload,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -909,9 +916,10 @@ export const renderFrames = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
-		logLevel,
+		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	if (!composition) {
@@ -932,6 +940,10 @@ export const renderFrames = (
 		);
 	}
 
+	const logLevel: LogLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+	const indent = false;
+
 	return internalRenderFrames({
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
@@ -942,7 +954,7 @@ export const renderFrames = (
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? 'jpeg',
-		indent: false,
+		indent,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
 		serializedInputPropsWithCustomSchema:
@@ -966,7 +978,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		logLevel,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
@@ -975,5 +987,7 @@ export const renderFrames = (
 		binariesDirectory: binariesDirectory ?? null,
 		compositionStart: 0,
 		forSeamlessAacConcatenation: false,
+		onBrowserDownload:
+			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
 	});
 };

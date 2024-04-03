@@ -124,6 +124,9 @@ export const renderMediaSingleThread = async (
 			separateAudioTo: null,
 			forSeamlessAacConcatenation: false,
 			compositionStart: 0,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		});
 
 		const storage = new Storage();
