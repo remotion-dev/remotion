@@ -17,7 +17,7 @@ import { installWhisperCpp } from "@remotion/install-whisper-cpp";
 
 const { alreadyExisted } = await installWhisperCpp({
   to: path.join(process.cwd(), "whisper.cpp"),
-  version: "48a145",
+  version: "48a145", //Whisper.cpp commit hash
 });
 ```
 
@@ -39,6 +39,10 @@ The folder to install Whisper.cpp into.
 ### `version`
 
 The version of Whisper.cpp to install. Don't include the `v` prefix.
+This can be either a hash of a Whisper.cpp commit or a semantic version of an official release.
+:::info
+On Windows, currently only official releases of Whisper.cpp are supported (E.g., 1.5.4).
+:::
 
 ### `printOutput?`
 

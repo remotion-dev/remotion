@@ -16,6 +16,13 @@ const installForWindows = async ({
 	to: string;
 	printOutput: boolean;
 }) => {
+	const isSemVer = /^[\d]{1}\.[\d]{1,2}\.+/;
+
+	if (!isSemVer) {
+		throw new Error(`Non-semantic version provided. Only releases of Whisper.cpp are supportet (E.g., 1.5.4). Provided version:
+		${version}. See https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp#version for more information.`);
+	}
+
 	const url = `https://github.com/ggerganov/whisper.cpp/releases/download/v${version}/whisper-bin-x64.zip`;
 
 	const filePath = path.join(process.cwd(), 'whisper-bin-x64.zip');
