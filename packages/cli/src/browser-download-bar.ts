@@ -21,7 +21,7 @@ const makeDownloadProgress = ({
 	return [
 		`    +`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Downloaded' : 'Downloading'} Chrome Headless Shell`,
+		`${doneIn ? 'Got' : 'Getting'} Headless Shell`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
@@ -58,10 +58,14 @@ export const defaultBrowserDownloadProgress = ({
 
 						Log.info(
 							{indent, logLevel},
-							`Downloading Chrome Headless Shell - ${RenderInternals.toMegabytes(
+							`Getting Headless Shell - ${RenderInternals.toMegabytes(
 								progress.downloaded,
 							)}/${RenderInternals.toMegabytes(progress.totalSize as number)}`,
 						);
+					}
+
+					if (progress.percent === 1) {
+						Log.info({indent, logLevel}, `Got Headless Shell`);
 					}
 				},
 			};

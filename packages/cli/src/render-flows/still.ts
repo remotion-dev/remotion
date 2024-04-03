@@ -146,6 +146,13 @@ export const renderStillFlow = async ({
 		logLevel,
 	});
 
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,

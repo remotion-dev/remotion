@@ -239,12 +239,21 @@ export const benchmarkCommand = async (
 		quiet: quietFlagProvided(),
 	});
 
+	const indent = false;
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indent: false,
+		indent,
 		viewport: null,
 		logLevel,
 		onBrowserDownload,

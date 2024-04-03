@@ -166,6 +166,13 @@ export const renderVideoFlow = async ({
 		quiet: quietFlagProvided(),
 	});
 
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
