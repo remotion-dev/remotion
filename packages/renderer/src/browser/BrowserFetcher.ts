@@ -77,7 +77,7 @@ const getPlatform = (): Platform => {
 	}
 };
 
-const destination = '.chrome_headless_shell';
+const destination = 'chrome-headless-shell';
 
 const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
