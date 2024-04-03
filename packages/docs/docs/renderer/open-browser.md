@@ -16,7 +16,7 @@ const openBrowser: (
     shouldDumpIo?: boolean;
     browserExecutable?: string | null;
     chromiumOptions?: ChromiumOptions;
-  }
+  },
 ) => Promise<puppeteer.Browser>;
 ```
 
@@ -57,6 +57,10 @@ Chromium flags need to be set at browser launch. If you pass an instance to SSR 
 #### `forceDeviceScaleFactor?`
 
 Set a [scale](/docs/scaling). If you plan to use scaling, you already need to set it when opening the browser.
+
+#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+
+<Options id="on-browser-download" />
 
 ## See also
 

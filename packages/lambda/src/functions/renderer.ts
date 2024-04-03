@@ -277,6 +277,9 @@ const renderHandler = async (
 			separateAudioTo: audioOutputLocation,
 			forSeamlessAacConcatenation: seamlessAudio,
 			compositionStart: params.compositionStart,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

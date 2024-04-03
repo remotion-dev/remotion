@@ -3,6 +3,7 @@ import type {
 	ChromiumOptions,
 	HeadlessBrowser,
 	LogLevel,
+	OnBrowserDownload,
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -51,6 +52,7 @@ export const getCompositionId = async ({
 	server,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	onBrowserDownload,
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
@@ -67,6 +69,7 @@ export const getCompositionId = async ({
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
+	onBrowserDownload: OnBrowserDownload;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -99,6 +102,7 @@ export const getCompositionId = async ({
 				onBrowserLog: null,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				onBrowserDownload,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -141,6 +145,7 @@ export const getCompositionId = async ({
 			serializedInputPropsWithCustomSchema,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			onBrowserDownload,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(
 			comps,

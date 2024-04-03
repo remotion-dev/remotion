@@ -33,6 +33,7 @@ import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
@@ -159,6 +160,18 @@ export const renderVideoFlow = async ({
 	publicPath: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		indent,
+		logLevel,
+		quiet: quietFlagProvided(),
+	});
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -168,6 +181,7 @@ export const renderVideoFlow = async ({
 		indent,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	let isUsingParallelEncoding = false;
@@ -302,6 +316,7 @@ export const renderVideoFlow = async ({
 			server,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			onBrowserDownload,
 		});
 
 	const {value: codec, source: codecReason} =
@@ -448,6 +463,7 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
+			onBrowserDownload,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -537,6 +553,7 @@ export const renderVideoFlow = async ({
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
+		onBrowserDownload,
 	});
 
 	Log.info(

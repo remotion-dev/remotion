@@ -19,6 +19,7 @@ import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {preferLosslessAudioOption} from './prefer-lossless';
@@ -67,6 +68,7 @@ export const allOptions = {
 	separateAudioOption,
 	publicPathOption,
 	publicDirOption,
+	onBrowserDownloadOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

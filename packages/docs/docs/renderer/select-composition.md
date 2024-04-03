@@ -89,6 +89,10 @@ See: [Environment variables](/docs/env-variables/)
 
 <Options id="binaries-directory" />
 
+#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+
+<Options id="on-browser-download" />
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/select-composition.ts)

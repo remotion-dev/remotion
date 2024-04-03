@@ -94,6 +94,9 @@ export const renderStillSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

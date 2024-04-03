@@ -31,7 +31,6 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -76,6 +75,7 @@ export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
+export {ensureBrowser, EnsureBrowserOptions} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -99,6 +99,10 @@ export {ColorSpace} from './options/color-space';
 export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';
+export {
+	DownloadBrowserProgressFn,
+	OnBrowserDownload,
+} from './options/on-browser-download';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
@@ -130,6 +134,7 @@ export type {AudioCodec};
 import {makeDownloadMap} from './assets/download-map';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {internalEnsureBrowser} from './ensure-browser';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -139,6 +144,7 @@ import {
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {getShouldRenderAudio} from './render-has-audio';
+import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -147,7 +153,6 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
-	ensureLocalBrowser,
 	getActualConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
@@ -231,6 +236,8 @@ export const RenderInternals = {
 	resolveAudioCodec,
 	getShouldRenderAudio,
 	codecSupportsMedia,
+	toMegabytes,
+	internalEnsureBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

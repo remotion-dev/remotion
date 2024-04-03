@@ -1,16 +1,16 @@
 import type {Browser} from './browser';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
-import {
-	ensureLocalBrowser,
-	getLocalBrowserExecutable,
-} from './get-local-browser-executable';
+import {internalEnsureBrowser} from './ensure-browser';
+import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
+import type {OnBrowserDownload} from './options/on-browser-download';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
@@ -70,6 +70,7 @@ type InternalOpenBrowserOptions = {
 	indent: boolean;
 	browser: Browser;
 	logLevel: LogLevel;
+	onBrowserDownload: OnBrowserDownload;
 };
 
 export type OpenBrowserOptions = {
@@ -87,6 +88,7 @@ export const internalOpenBrowser = async ({
 	indent,
 	viewport,
 	logLevel,
+	onBrowserDownload,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
@@ -95,10 +97,11 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser({
-		preferredBrowserExecutable: browserExecutable,
+	await internalEnsureBrowser({
+		browserExecutable,
 		logLevel,
 		indent,
+		onBrowserDownload,
 	});
 
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
@@ -219,13 +222,22 @@ export const openBrowser = (
 		forceDeviceScaleFactor,
 		shouldDumpIo,
 	} = options ?? {};
+
+	const indent = false;
+	const logLevel = shouldDumpIo ? 'verbose' : 'info';
+
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
-		indent: false,
+		indent,
 		viewport: null,
-		logLevel: shouldDumpIo ? 'verbose' : 'info',
+		logLevel,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent,
+			logLevel,
+			api: 'openBrowser()',
+		}),
 	});
 };
