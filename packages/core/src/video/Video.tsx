@@ -12,7 +12,7 @@ import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {DurationsContext} from './duration-state.js';
 import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
-import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
@@ -29,8 +29,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		startFrom,
 		endAt,
 		name,
+		pauseWhenBuffering,
 		stack,
 		_remotionInternalNativeLoopPassed,
+		showInTimeline,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -60,8 +62,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
-	if (loop && durations[getAbsoluteSrc(preloadedSrc)] !== undefined) {
-		const mediaDuration = durations[getAbsoluteSrc(preloadedSrc)] * fps;
+	const durationFetched =
+		durations[getAbsoluteSrc(preloadedSrc)] ??
+		durations[getAbsoluteSrc(props.src)];
+
+	if (loop && durationFetched !== undefined) {
+		const mediaDuration = durationFetched * fps;
 
 		return (
 			<Loop
@@ -96,7 +102,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={endAtFrameNo}
 				name={name}
 			>
-				<Video {...otherProps} ref={ref} />
+				<Video
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					{...otherProps}
+					ref={ref}
+				/>
 			</Sequence>
 		);
 	}
@@ -110,15 +120,18 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	return (
-		<VideoForDevelopment
+		<VideoForPreview
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
+			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };

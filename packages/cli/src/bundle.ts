@@ -1,23 +1,31 @@
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
-import {existsSync, readFileSync, rmSync, writeFileSync} from 'fs';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {StudioServerInternals} from '@remotion/studio-server';
+import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions} from './get-cli-options';
+import {getGitSource} from './get-github-repository';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
 
+const {publicPathOption, publicDirOption} = BrowserSafeApis.options;
+
 export const bundleCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	const explicitlyPassed = args[0];
 	if (
 		explicitlyPassed &&
@@ -26,6 +34,7 @@ export const bundleCommand = async (
 		reason !== 'argument passed - found in root'
 	) {
 		Log.error(
+			{indent: false, logLevel},
 			`Entry point was specified as ${chalk.bold(
 				explicitlyPassed,
 			)}, but it was not found.`,
@@ -36,44 +45,53 @@ export const bundleCommand = async (
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
 	if (!file) {
-		Log.error('No entry point found.');
+		Log.error({indent: false, logLevel}, 'No entry point found.');
 		Log.error(
+			{indent: false, logLevel},
 			'Pass another argument to the command specifying the entry point.',
 		);
-		Log.error('See: https://www.remotion.dev/docs/terminology#entry-point');
+		Log.error(
+			{indent: false, logLevel},
+			'See: https://www.remotion.dev/docs/terminology/entry-point',
+		);
 		process.exit(1);
 	}
 
-	const {publicDir} = await getCliOptions({
-		isLambda: false,
-		type: 'get-compositions',
-		remotionRoot,
-		logLevel,
-	});
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 
 	const outputPath = parsedCli['out-dir']
 		? path.resolve(process.cwd(), parsedCli['out-dir'])
 		: path.join(remotionRoot, 'build');
 
-	const gitignoreFolder = BundlerInternals.findClosestFolderWithFile(
+	const gitignoreFolder = BundlerInternals.findClosestFolderWithItem(
 		outputPath,
 		'.gitignore',
 	);
 	const existed = existsSync(outputPath);
 	if (existed) {
-		if (!existsSync(path.join(outputPath, 'index.html'))) {
+		const existsIndexHtml = existsSync(path.join(outputPath, 'index.html'));
+		const isEmpty = readdirSync(outputPath).length === 0;
+		if (!existsIndexHtml && !isEmpty) {
 			Log.error(
+				{indent: false, logLevel},
 				`The folder at ${outputPath} already exists, and needs to be deleted before a new bundle can be created.`,
 			);
 			Log.error(
+				{indent: false, logLevel},
 				'However, it does not look like the folder was created by `npx remotion bundle` (no index.html).',
 			);
-			Log.error('Aborting to prevent accidental data loss.');
+			Log.error(
+				{indent: false, logLevel},
+				'Aborting to prevent accidental data loss.',
+			);
 			process.exit(1);
 		}
 
 		rmSync(outputPath, {recursive: true});
 	}
+
+	const gitSource = getGitSource(remotionRoot);
 
 	const output = await bundleOnCli({
 		fullPath: file,
@@ -89,13 +107,16 @@ export const bundleCommand = async (
 			// Handle floating point inaccuracies
 			if (bundling.progress < 0.99999) {
 				if (updatesDontOverwrite) {
-					Log.info(`Bundling ${Math.round(bundling.progress * 100)}%`);
+					Log.info(
+						{indent: false, logLevel},
+						`Bundling ${Math.round(bundling.progress * 100)}%`,
+					);
 				}
 			}
 
 			if (copying.doneIn === null) {
 				if (updatesDontOverwrite) {
-					return `Copying public dir ${StudioInternals.formatBytes(
+					return `Copying public dir ${StudioServerInternals.formatBytes(
 						copying.bytes,
 					)}`;
 				}
@@ -103,9 +124,13 @@ export const bundleCommand = async (
 		},
 		quietFlag: quietFlagProvided(),
 		outDir: outputPath,
+		gitSource,
+		bufferStateDelayInMilliseconds: null,
+		maxTimelineTracks: null,
+		publicPath,
 	});
 
-	Log.infoAdvanced(
+	Log.info(
 		{indent: false, logLevel},
 		chalk.blue(`${existed ? '○' : '+'} ${output}`),
 	);
@@ -144,8 +169,5 @@ export const bundleCommand = async (
 	const newGitIgnoreContents =
 		gitIgnoreContents + '\n' + relativePathToGitIgnore;
 	writeFileSync(gitignorePath, newGitIgnoreContents);
-	Log.infoAdvanced(
-		{indent: false, logLevel},
-		chalk.blue(`Added to .gitignore!`),
-	);
+	Log.info({indent: false, logLevel}, chalk.blue(`Added to .gitignore!`));
 };

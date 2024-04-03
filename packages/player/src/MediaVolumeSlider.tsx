@@ -15,7 +15,7 @@ export const MediaVolumeSlider: React.FC<{
 	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const hover = useHoverState(parentDivRef);
+	const hover = useHoverState(parentDivRef, false);
 
 	// Need to import it from React to fix React 17 ESM support.
 	const randomId =

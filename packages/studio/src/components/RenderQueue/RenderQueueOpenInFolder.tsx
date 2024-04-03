@@ -1,9 +1,9 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
-import type {RenderJob} from '../../preview-server/job';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 
 export const RenderQueueOpenInFinderItem: React.FC<{
@@ -13,7 +13,7 @@ export const RenderQueueOpenInFinderItem: React.FC<{
 		(e) => {
 			e.stopPropagation();
 			openInFileExplorer({directory: job.outName}).catch((err) => {
-				sendErrorNotification(`Could not open file: ${err.message}`);
+				showNotification(`Could not open file: ${err.message}`, 2000);
 			});
 		},
 		[job.outName],

@@ -69,8 +69,8 @@ const Inner: React.FC<{
 				s.type === 'audio'
 					? AUDIO_GRADIENT
 					: s.type === 'video'
-					? VIDEO_GRADIENT
-					: BLUE,
+						? VIDEO_GRADIENT
+						: BLUE,
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 2,
 			position: 'absolute',

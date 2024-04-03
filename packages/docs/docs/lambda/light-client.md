@@ -35,7 +35,9 @@ import {
 `getServiceClient()` was included from v4.0.60 to v4.0.81 by mistake. Use [`getAwsClient()`](/docs/lambda/getawsclient) instead.
 :::
 
-These functions don't have any Node.JS or Bun dependencies and can be bundled with a bundler such as Webpack or ESBuild.
+These functions don't have any dependencies on our renderer and can be bundled for example with ESBuild or Webpack (like is the case for example in Next.js).
+
+Importing the light client on edge frameworks (Vercel Edge, Cloudflare Workers) is currently not supported.
 
 **We don't recommend calling these functions from the browser directly, as you will leak your AWS credentials.**
 

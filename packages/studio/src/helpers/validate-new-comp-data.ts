@@ -18,7 +18,7 @@ export const validateCompositionName = (
 
 export const validateCompositionDimension = (
 	dimension: 'Width' | 'Height',
-	value: string,
+	value: number,
 ): string | null => {
 	if (Number(value) % 2 !== 0) {
 		return `${dimension} should be divisible by 2, since H264 codec doesn't support odd dimensions.`;
@@ -35,16 +35,16 @@ export const validateCompositionDimension = (
 	return null;
 };
 
-export const validateCompositionDuration = (value: string): string | null => {
-	if (Number(value) % 1 !== 0) {
+export const validateCompositionDuration = (value: number): string | null => {
+	if (value % 1 !== 0) {
 		return `Duration must be an integer.`;
 	}
 
-	if (Number.isNaN(Number(value))) {
+	if (Number.isNaN(value)) {
 		return 'Invalid number.';
 	}
 
-	if (Number(value) === 0) {
+	if (value === 0) {
 		return 'Duration cannot be zero.';
 	}
 

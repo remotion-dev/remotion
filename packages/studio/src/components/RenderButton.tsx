@@ -11,12 +11,12 @@ import type {
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {Button} from '../error-overlay/remotion-overlay/Button';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
+import {Button} from './Button';
 import {Row, Spacing} from './layout';
 
 const button: React.CSSProperties = {
@@ -108,6 +108,7 @@ export const RenderButton: React.FC = () => {
 			initialUserAgent: defaults.userAgent,
 			initialBeep: defaults.beepOnFinish,
 			initialRepro: defaults.repro,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 		});
 	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 

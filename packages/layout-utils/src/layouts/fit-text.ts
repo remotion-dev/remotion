@@ -9,6 +9,7 @@ export const fitText = ({
 	fontVariantNumeric,
 	fontWeight,
 	letterSpacing,
+	validateFontIsLoaded,
 }: {
 	text: string;
 	withinWidth: number;
@@ -16,6 +17,7 @@ export const fitText = ({
 	fontWeight?: number | string;
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
+	validateFontIsLoaded?: boolean;
 }) => {
 	const estimate = measureText({
 		text,
@@ -24,6 +26,7 @@ export const fitText = ({
 		fontWeight,
 		fontVariantNumeric,
 		letterSpacing,
+		validateFontIsLoaded,
 	});
 	return {fontSize: (withinWidth / estimate.width) * sampleSize};
 };

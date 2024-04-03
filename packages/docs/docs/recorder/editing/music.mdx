@@ -1,0 +1,36 @@
+# Add background music
+
+To add background music, you first have to add songs to the `public/sounds` folder.  
+Then register the track in `remotion/layout/music.ts`.
+
+```tsx filename="remotion/layout/music.ts"
+export const music = z.enum([
+  "previous",
+  "none",
+  "somesong",
+  // You can give your song any label. This is the name you will see in the editor.
+  "<your-song-label>",
+]);
+
+export const getAudioSource = (track: Music) => {
+  if (track === "somesong") {
+    return staticFile("sounds/soundtrack1.mp3");
+  }
+
+  // Add your track here. The label has to match the one you added above.
+  if (track === "<your-song-label>") {
+    return staticFile("sounds/<actual-asset-name>");
+  }
+};
+```
+
+You can now apply the newly added music to a scene by selecting the track in the right sidebar.
+
+## Changing music
+
+Music will automatically carry over to the next scene.  
+If you want to change the music, select a different track for a scene and it will crossfade.
+
+## Stopping music
+
+If you want to stop the music, select `none` as track.

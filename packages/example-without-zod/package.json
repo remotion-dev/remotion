@@ -1,7 +1,7 @@
 {
   "name": "@remotion/example-without-zod",
   "private": true,
-  "version": "4.0.89",
+  "version": "4.0.136",
   "description": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Jonny Burger",
@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "@types/react": "18.2.48",
-    "@types/react-dom": "^18.2.18"
+    "@types/react-dom": "18.2.18"
   }
 }

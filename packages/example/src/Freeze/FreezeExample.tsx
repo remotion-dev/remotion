@@ -16,7 +16,7 @@ export const FreezeExample: React.FC = () => {
 				<Video src={video} />
 			</Series.Sequence>
 			<Series.Sequence durationInFrames={50}>
-				<Freeze frame={126}>
+				<Freeze active={(f) => f >= 30} frame={30}>
 					<Video src={video} />
 				</Freeze>
 			</Series.Sequence>

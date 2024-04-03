@@ -86,7 +86,7 @@ Mirrors the `renderId` that has been passed as an input
 
 Contains the following information about the render:
 
-- `totalFrames`: The duration of the video
+- `frameRange`: The first and last frame that is being rendered (Use `frameRange[1] - frameRange[0] + 1` to get number of total frames rendered).
 - `startedDate`: Timestamp of when the rendering process started.
 - `totalChunks`: Into how many pieces the rendering is divided.
 - `estimatedTotalLambdaInvokations`: The estimated amount of total Lambda function calls in total, excluding calls to `getRenderProgress()`.

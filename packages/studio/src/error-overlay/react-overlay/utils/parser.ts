@@ -9,10 +9,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
+import type {SomeStackFrame, StackFrame} from '@remotion/studio-shared';
+import {getLocationFromBuildError} from '@remotion/studio-shared';
 import {resolveFileSource} from '../effects/resolve-file-source';
-import type {SomeStackFrame, StackFrame} from './stack-frame';
-import {makeStackFrame} from './stack-frame';
+import {makeStackFrame} from './make-stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 

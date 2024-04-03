@@ -3,6 +3,7 @@ import {
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -19,7 +20,10 @@ import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	enableSequenceStackTraces,
+} from './enable-sequence-stack-traces.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -60,6 +64,11 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {truthy} from './truthy.js';
+import {
+	calculateScale,
+	CurrentScaleContext,
+	PreviewSizeContext,
+} from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -143,7 +152,13 @@ export const Internals = {
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
 	useMediaStartsAt,
+	BufferingProvider,
+	BufferingContextReact,
+	enableSequenceStackTraces,
 	colorNames,
+	CurrentScaleContext,
+	PreviewSizeContext,
+	calculateScale,
 } as const;
 
 export type {

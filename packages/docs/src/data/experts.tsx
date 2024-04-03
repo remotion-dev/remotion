@@ -389,11 +389,15 @@ export const experts: Expert[] = [
     since: new Date("2023-07-03").getTime(),
     description: (
       <div>
-        I&apos;ve built{" "}
+        Launched apps that combine Remotion & AI for generative video -{" "}
+        <a target={"_blank"} href="https://maxroom.co/">
+          MaxRoom
+        </a>{" "}
+        and{" "}
         <a target={"_blank"} href="https://swiftube.vercel.app/">
           Swiftube
-        </a>{" "}
-        - an AI-based Video Making tool.
+        </a>
+        .
         <br />
         Looking at leveraging the power of Remotion for your projects?
         Let&apos;s join forces!
@@ -421,6 +425,65 @@ export const experts: Expert[] = [
         an AI video editor for short talking head videos. I have worked in
         companies like Microsoft and early-stage startups like Directi. I can
         build products super fast from scratch. Looking forward to helping you.
+      </div>
+    ),
+  },
+  {
+    slug: "pramod-kumar",
+    name: "Pramod Kumar",
+    image: "/img/freelancers/pramod.jpg",
+    website: "https://www.pramod73.in/",
+    x: "pramodk73",
+    github: "pskd73",
+    linkedin: "in/pramod-kumar-1a135b74/",
+    email: "pramodkumar.damam73@gmail.com",
+    videocall: "remotion-expert-pramod-kumar",
+    since: new Date("2024-03-10").getTime(),
+    description: (
+      <div>
+        I have been building software for the last 10 years across multiple
+        technologies with strong software architecture skills. I have built two
+        products that are based on Remotion.{" "}
+        <a target={"_blank"} href="https://slickwid.com">
+          SlickWid
+        </a>{" "}
+        a quick way to make videos for your social media, and{" "}
+        <a target={"_blank"} href="https://motionshot.app">
+          MotionShot
+        </a>{" "}
+        through which you can make informative walkthrough guides for your
+        products, tutorials, and how-tos. <br />I made{" "}
+        <a
+          target={"_blank"}
+          href="https://github.com/pskd73/remotion-animate-text"
+        >
+          remotion-animate-text
+        </a>{" "}
+        for Remotion to animate text. I build products in public on X. I love
+        helping the community. Feel free to reach out. Looking forward!
+      </div>
+    ),
+  },
+  {
+    slug: "ayush-soni",
+    name: "Ayush Soni",
+    image: "/img/freelancers/ayush.png",
+    website: "https://ayushsoni.com/",
+    x: "ayysoni",
+    github: null,
+    linkedin: "in/ayushsoni1001/",
+    email: "hi@ayushsoni.com",
+    videocall: "remotion-expert-ayush-soni",
+    since: new Date("2024-03-17").getTime(),
+    description: (
+      <div>
+        I’ve been coding and building cool projects since 5th grade (software
+        and hardware both) across multiple technologies. Currently I’m building{" "}
+        <a target={"_blank"} href="https://www.typeframes.com/">
+          Typeframes
+        </a>{" "}
+        using Remotion, it is a tool to create videos. I build products in
+        public on X. I’d love to hear your story.
       </div>
     ),
   },

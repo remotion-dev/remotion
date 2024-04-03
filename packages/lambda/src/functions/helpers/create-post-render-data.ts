@@ -16,6 +16,7 @@ import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = ({
@@ -86,6 +87,8 @@ export const createPostRenderData = ({
 		renderId,
 	});
 
+	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(renderMetadata);
+
 	return {
 		cost: {
 			currency: 'USD',
@@ -108,6 +111,8 @@ export const createPostRenderData = ({
 		filesCleanedUp: getFilesToDelete({
 			chunkCount: renderMetadata.totalChunks,
 			renderId,
+			hasAudio,
+			hasVideo,
 		}).length,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,
@@ -117,12 +122,15 @@ export const createPostRenderData = ({
 			type: 'absolute-time',
 		}),
 		retriesInfo,
-		mostExpensiveFrameRanges: getMostExpensiveChunks(
-			parsedTimings,
-			renderMetadata.framesPerLambda,
-			renderMetadata.frameRange[0],
-			renderMetadata.frameRange[1],
-		),
+		mostExpensiveFrameRanges:
+			renderMetadata.type === 'still'
+				? []
+				: getMostExpensiveChunks(
+						parsedTimings,
+						renderMetadata.framesPerLambda,
+						renderMetadata.frameRange[0],
+						renderMetadata.frameRange[1],
+					),
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,
 	};

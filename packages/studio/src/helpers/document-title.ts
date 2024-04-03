@@ -1,5 +1,5 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-import type {RenderJob} from '../preview-server/job';
 
 let currentItemName: string | null = null;
 let unsavedProps = false;

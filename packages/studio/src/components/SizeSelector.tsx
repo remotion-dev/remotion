@@ -1,8 +1,7 @@
-import type {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
+import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
 import {Checkmark} from '../icons/Checkmark';
-import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
@@ -78,7 +77,7 @@ export const getUniqueSizes = (size: PreviewSize) => {
 const zoomableFileTypes: AssetFileType[] = ['video', 'image'];
 
 export const SizeSelector: React.FC = () => {
-	const {size, setSize} = useContext(PreviewSizeContext);
+	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const style = useMemo(() => {
 		return {

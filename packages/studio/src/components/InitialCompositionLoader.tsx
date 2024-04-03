@@ -2,8 +2,11 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
 import {getStaticFiles, Internals} from 'remotion';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {getRoute, pushUrl} from '../helpers/url-state';
 import {FolderContext} from '../state/folders';
+import {SidebarContext} from '../state/sidebar';
 import {getKeysToExpand} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanel';
 import {deriveCanvasContentFromUrl} from './ZoomPersistor';
@@ -36,10 +39,12 @@ export const useSelectAsset = () => {
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionManager);
+	const isMobileLayout = useMobileLayout();
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	return (c: AnyComposition, push: boolean) => {
 		if (push) {
-			window.history.pushState({}, 'Studio', `/${c.id}`);
+			pushUrl(`/${c.id}`);
 		}
 
 		explorerSidebarTabs.current?.selectCompositionPanel();
@@ -60,6 +65,9 @@ export const useSelectComposition = () => {
 
 				return newState;
 			});
+			if (isMobileLayout) {
+				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+			}
 		}
 	};
 };
@@ -113,7 +121,7 @@ export const InitialCompositionLoader: React.FC = () => {
 		const onchange = () => {
 			const newCanvas = deriveCanvasContentFromUrl();
 			if (newCanvas && newCanvas.type === 'composition') {
-				const newComp = window.location.pathname.substring(1);
+				const newComp = getRoute().substring(1);
 				const exists = compositions.find((c) => c.id === newComp);
 				if (exists) {
 					selectComposition(exists, false);

@@ -48,6 +48,7 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 		defaultProps: T;
 		props: T;
 		abortSignal: AbortSignal;
+		compositionId: string;
 	}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
 type OptionalDimensions<

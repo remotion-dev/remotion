@@ -1,11 +1,11 @@
-import React, {useCallback, useMemo} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import type {
 	DownloadProgress,
 	RenderingProgressInput,
 	RenderJob,
 	StitchingProgressInput,
-} from '../../preview-server/job';
+} from '@remotion/studio-shared';
+import React, {useCallback, useMemo} from 'react';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {CircularProgress} from '../RenderQueue/CircularProgress';

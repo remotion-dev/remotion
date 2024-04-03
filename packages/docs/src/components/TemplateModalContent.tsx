@@ -193,6 +193,7 @@ export const TemplateModalContent: React.FC<{
                 aspectRatio: `${template.promoVideo.width} / ${template.promoVideo.height}`,
                 width: "100%",
                 height: "auto",
+                maxHeight: 450,
                 opacity: Number(loaded),
                 display: loaded ? "inline-flex" : "none",
                 borderRadius: 5,

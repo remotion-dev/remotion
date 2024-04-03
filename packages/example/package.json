@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.89",
+	"version": "4.0.136",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -17,7 +17,7 @@
 		"comps": "remotion compositions",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "vitest --run",
-		"build": "tsc -d",
+		"build": "tsc -d && remotion bundle",
 		"render": "remotion render react-svg",
 		"render-js": "remotion render src/entry.jsx framer",
 		"render-gif": "remotion render framer out/video.gif --codec=gif --every-nth-frame=2",
@@ -41,7 +41,10 @@
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/motion-blur": "workspace:*",
+		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
@@ -82,7 +85,8 @@
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"sharp": "0.32.6"
+		"sharp": "0.32.6",
+		"@types/bun": "^1.0.5"
 	},
 	"publishConfig": {
 		"access": "public"

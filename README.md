@@ -44,7 +44,7 @@ Remotion is a framework for **creating videos programmatically using React.**
 If you already have Node.JS installed, type
 
 ```console
-npm init video
+npx create-video@latest
 ```
 
 to get started. Otherwise, read the [installation page](https://www.remotion.dev/docs/) in the documentation.

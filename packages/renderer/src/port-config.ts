@@ -9,14 +9,14 @@ type PortConfig = {
 
 let cached: PortConfig | null = null;
 
-export const getPortConfig = (): PortConfig => {
+export const getPortConfig = (preferIpv4: boolean): PortConfig => {
 	if (cached) {
 		return cached;
 	}
 
 	const networkInterfaces = os.networkInterfaces();
 	const flattened = flattenNetworkInterfaces(networkInterfaces);
-	const host = getHostToBind(flattened);
+	const host = getHostToBind(flattened, preferIpv4);
 	const hostsToTry = getHostsToTry(flattened);
 
 	const response: PortConfig = {host, hostsToTry};
@@ -24,8 +24,15 @@ export const getPortConfig = (): PortConfig => {
 	return response;
 };
 
-export const getHostToBind = (flattened: os.NetworkInterfaceInfo[]) => {
-	return isIpV6Supported(flattened) ? '::' : '0.0.0.0';
+export const getHostToBind = (
+	flattened: os.NetworkInterfaceInfo[],
+	preferIpv4: boolean,
+) => {
+	if (preferIpv4 || !isIpV6Supported(flattened)) {
+		return '0.0.0.0';
+	}
+
+	return '::';
 };
 
 export const getHostsToTry = (flattened: os.NetworkInterfaceInfo[]) => {

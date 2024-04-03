@@ -120,6 +120,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
+	preferLossless,
 }: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -186,6 +187,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? 'default',
+		preferLossless: preferLossless ?? false,
 	};
 };
 
@@ -193,6 +195,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
+	logLevel,
 }: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
@@ -200,6 +203,7 @@ export const getRenderProgressPayload = ({
 		renderId,
 		version: VERSION,
 		s3OutputProvider,
+		logLevel: logLevel ?? 'info',
 	};
 };
 

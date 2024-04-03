@@ -2,9 +2,9 @@ import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
 import type {ColorSpace} from './options/color-space';
+import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
-import type {X264Preset} from './x264-preset';
 
 const firstEncodingStepOnly = ({
 	hasPreencoded,
@@ -85,7 +85,11 @@ export const generateFfmpegArgs = ({
 					['-color_primaries:v', 'bt709'],
 					['-color_trc:v', 'bt709'],
 					['-color_range', 'tv'],
-					hasPreencoded ? [] : ['-vf', 'zscale=m=709:min=709:r=limited'],
+					hasPreencoded
+						? []
+						: // https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
+							// "Color range" section
+							['-vf', 'zscale=matrix=709:matrixin=709:range=limited'],
 				]
 			: colorSpace === 'bt2020-ncl'
 				? [
@@ -95,12 +99,17 @@ export const generateFfmpegArgs = ({
 						['-color_range', 'tv'],
 						hasPreencoded
 							? []
-							: ['-vf', 'zscale=m=2020_ncl:min=2020_ncl:r=limited'],
+							: [
+									'-vf',
+									// ChatGPT: Therefore, just like BT.709, BT.2020 also uses the limited range where the digital code value for black is at 16,16,16 and not 0,0,0 in an 8-bit video system.
+									'zscale=matrix=2020_ncl:matrixin=2020_ncl:range=limited',
+								],
 					]
 				: [];
 
 	return [
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
+		codec === 'h264-ts' ? ['-f', 'mpegts'] : null,
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		...colorSpaceOptions,

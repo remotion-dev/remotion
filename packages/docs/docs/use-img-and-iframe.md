@@ -12,7 +12,7 @@ crumb: "Best practices"
 
 <br/>
 
-By using the components by Remotion, it will be ensured that:
+By using the components from Remotion, you ensure that:
 
 <Step>1</Step> The assets are fully loaded before the the frame is rendered<br/>
 <Step>2</Step> The images and videos are synchronized with Remotion's timeline.

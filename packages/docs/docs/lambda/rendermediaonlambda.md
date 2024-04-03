@@ -10,7 +10,7 @@ import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-p
 Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
 
 Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
-A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
@@ -169,7 +169,7 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 _optional_
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `jpegQuality`
 
@@ -225,8 +225,8 @@ The file name of the media output.
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
-- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination)
+- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
+- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination).
 
 ### `timeoutInMilliseconds?`
 
@@ -338,9 +338,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
@@ -355,6 +353,10 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 ### `deleteAfter?`<AvailableFrom v="4.0.32"/>
 
 <Options id="delete-after"/>
+
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
+
+<Options  id="prefer-lossless" />
 
 ### ~~`dumpBrowserLogs?`~~
 

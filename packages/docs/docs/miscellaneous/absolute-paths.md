@@ -48,7 +48,7 @@ By using `staticFile()`, you can import assets from the public folder, and it wi
 
 Before rendering a video, code is bundled to reduce the size of the assets that need to be sent to the browser. Your project with it's `node_modules` folder would be hundreds of megabytes large, but by bundling, the size is reduced drastically.
 
-A bundle can also be uploaded and hosted on the internet, which is what [Remotion Lambda](/docs/lambda) and [Remotion Cloud Run](/docs/cloudrun) do and what is also possible using [regular rendering](/docs/terminology#serve-url).
+A bundle can also be uploaded and hosted on the internet, which is what [Remotion Lambda](/docs/lambda) and [Remotion Cloud Run](/docs/cloudrun) do and what is also possible using [regular rendering](/docs/terminology/serve-url).
 
 Because the goal is to reduce the size of the bundle, only the `public` gets copied into the bundle.  
 Files with an absolute path would not be copied into the bundle, and therefore not be available when rendering on another device.

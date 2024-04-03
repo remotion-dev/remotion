@@ -8,22 +8,22 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Templates
 
-- [Hello World (TypeScript)](https://github.com/remotion-dev/template-helloworld)
-- [Hello World (JavaScript)](https://github.com/remotion-dev/template-helloworld-javascript)
-- [Blank](https://github.com/remotion-dev/template-empty)
-- [React Three Fiber](https://github.com/remotion-dev/template-three)
-- [Stills](https://github.com/remotion-dev/template-still)
-- [Text-to-Speech Template (Azure)](https://github.com/FelippeChemello/Remotion-TTS-Example)
-- [Text-to-Speech Template (Google)](https://github.com/thecmdrunner/remotion-gtts-template)
-- [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
-- [Skia](https://github.com/remotion-dev/template-skia)
-- [Tailwind](https://github.com/remotion-dev/template-tailwind)
+- Hello World (TypeScript) ([Source code](https://github.com/remotion-dev/template-helloworld), [Preview](https://remotion-helloworld.vercel.app/))
+- Hello World (JavaScript) ([Source code](https://github.com/remotion-dev/template-helloworld-javascript), [Preview](https://template-helloworld-javascript.vercel.app/))
+- Blank ([Source code](https://github.com/remotion-dev/template-empty), [Preview](https://template-empty.vercel.app/))
+- React Three Fiber ([Source code](https://github.com/remotion-dev/template-three), [Preview](https://template-three-remotion.vercel.app/))
+- Stills ([Source code](https://github.com/remotion-dev/template-still), [Preview](https://template-still.vercel.app/))
+- Text-to-Speech Template (Azure) ([Source code](https://github.com/FelippeChemello/Remotion-TTS-Example))
+- Text-to-Speech Template (Google) ([Source code](https://github.com/thecmdrunner/remotion-gtts-template))
+- Audiogram ([Source code](https://github.com/marcusstenbeck/remotion-template-audiogram))
+- Skia ([Source code](https://github.com/remotion-dev/template-skia))
+- Tailwind ([Source code](https://github.com/remotion-dev/template-tailwind), [Preview](https://template-tailwind-remotion.vercel.app/))
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 - [Library starter template with best practices](https://github.com/remotion-dev/library-starter)
 
 ## SaaS starter Kits
 
-- [Remix template](https://github.com/remotion-dev/remotion-remix-template)
+- [Remix template](https://github.com/remotion-dev/template-remix)
 - [Next.js template](https://github.com/remotion-dev/template-next)
 
 ## Integrations
@@ -54,6 +54,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
 - [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
+- [Spring Editor](https://springs.remotion.dev)
 - [remotion-animate-text](https://github.com/pskd73/remotion-animate-text)
 
 ## Full projects
@@ -70,35 +71,36 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 - [Motionly.video](https://github.com/karelnagel/motionly)
+- [DataVids](https://github.com/apsquared/datavids_public)
 
 ## Examples
 
-- [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)
-- [Animate a .glb model](https://github.com/remotion-dev/glb-example)
-- [Typewriter effect](https://github.com/remotion-dev/typewriter)
-- [D3.js](https://github.com/remotion-dev/d3-example)
-- [Greenscreen Effect](/docs/video-manipulation)
-- [Noise visualization](/docs/noise-visualization)
-- [Audio visualization](/docs/audio-visualization)
-- [3D Text](https://github.com/JonnyBurger/3d-text)
-- [Wavy TikTok Effect](https://github.com/JonnyBurger/wavy-meme)
-- [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
-- [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
-- [Text Morphing](https://github.com/JonnyBurger/morph-text)
-- [Text warping](https://github.com/remotion-dev/text-warping)
-- [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
-- [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
-- [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
-- [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
-- [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
-- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
-- [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
-- [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
-- [Mapbox example](https://github.com/remotion-dev/mapbox-example)
-- [Shader example](https://github.com/onion2k/a-roll)
-- [Jump cuts without re-mounting](https://github.com/remotion-dev/video-with-jump-cuts)
-- [CSS animations](https://stackblitz.com/~/github.com/remotion-dev/css-animation-play-state)
-- [Globe.gl example](https://github.com/alexfernandez803/remotion-globegl)
+- Music with Tone.JS ([Source code](https://github.com/remotion-dev/tone-js-example), [Preview](https://tone-js-example.vercel.app/))
+- Animate .glb models ([Source code](https://github.com/remotion-dev/glb-example), [Preview](https://glb-example.vercel.app/))
+- Typewriter effect ([Source code](https://github.com/remotion-dev/typewriter), [Preview](https://typewriter-remotion.vercel.app/))
+- D3.js example ([Source code](https://github.com/remotion-dev/d3-example), [Preview](https://d3-example-remotion.vercel.app/))
+- Greenscreen Effect ([Docs](/docs/video-manipulation))
+- Noise visualization ([Docs](/docs/noise-visualization))
+- Audio visualization ([Docs](/docs/audio-visualization))
+- 3D Text ([Source code](https://github.com/remotion-dev/3d-text), [Preview](https://3d-text-remotion.vercel.app/))
+- Wavy TikTok Effect ([Source code](https://github.com/JonnyBurger/wavy-meme))
+- Apple "Spring loaded" animation ([Source code](https://github.com/JonnyBurger/spring-loaded))
+- Three.js particles animation ([Source code](https://github.com/JonnyBurger/three-particles), [Preview](https://three-particles-remotion.vercel.app/))
+- Text morphing ([Source code](https://github.com/remotion-dev/morph-text), [Preview](https://morph-text-remotion.vercel.app/))
+- Text warping ([Source code](https://github.com/remotion-dev/text-warping), [Preview](https://text-warping.vercel.app/?/Promo))
+- Animate GLTF models ([Source code](https://github.com/remotion-dev/remotion-three-gltf-example), [Preview](https://remotion-three-gltf-example.vercel.app/))
+- OpenGL transitions ([Source code](https://github.com/remotion-dev/remotion-gl-transitions), [Preview](https://remotion-gl-transitions.vercel.app/))
+- Conference talk in React ([Source code](https://github.com/pomber/record-talk-with-remotion))
+- Conference talk in React #2 ([Source code](https://github.com/JonnyBurger/react-summit-talk))
+- Twitch stinger example ([Source code](https://github.com/JonnyBurger/ledevevent-stinger))
+- DevContainer Template ([Source code](https://github.com/openscript/remotion-devcontainer-template))
+- Anime.js example ([Source code](https://github.com/remotion-dev/anime-example), [Preview](https://anime-example-remotion.vercel.app/))
+- Mapbox example ([Source code](https://github.com/remotion-dev/mapbox-example))
+- Shader example ([Source code](https://github.com/onion2k/a-roll))
+- Jump cuts without re-mounting ([Source code](https://github.com/remotion-dev/video-with-jump-cuts), [Preview](https://video-with-jump-cuts.vercel.app/))
+- CSS animations ([Source code](https://github.com/remotion-dev/css-animation-play-state), [Preview](https://css-animation-play-state.vercel.app/))
+- Globe.gl example ([Source code](https://github.com/alexfernandez803/remotion-globegl))
+- Measuring the size of a DOM node ([Source code](https://github.com/remotion-dev/measure-item), [Preview](https://measure-item.vercel.app/))
 
 ## Videos
 

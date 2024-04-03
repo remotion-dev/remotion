@@ -1,4 +1,4 @@
-import {findClosestFolderWithFile, getConfig} from './bundle';
+import {findClosestFolderWithItem, getConfig, internalBundle} from './bundle';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
 import {cacheExists, clearCache} from './webpack-cache';
@@ -14,10 +14,16 @@ export const BundlerInternals = {
 	clearCache,
 	getConfig,
 	readRecursively,
-	findClosestFolderWithFile,
+	findClosestFolderWithItem,
+	internalBundle,
 };
 
-export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
-export type {RenderDefaults} from './index-html';
+export type {GitSource} from '@remotion/studio';
+export {
+	bundle,
+	BundleOptions,
+	LegacyBundleOptions,
+	MandatoryLegacyBundleOptions,
+} from './bundle';
 export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
 export {webpack};

@@ -45,7 +45,7 @@ const zipFolder = ({
 }) => {
 	const platform = os.platform();
 	try {
-		Log.infoAdvanced({indent, logLevel}, '+ Creating reproduction ZIP');
+		Log.info({indent, logLevel}, '+ Creating reproduction ZIP');
 		if (platform === 'win32') {
 			execSync(
 				`powershell.exe Compress-Archive -Path "${sourceFolder}" -DestinationPath "${targetZip}"`,
@@ -56,16 +56,13 @@ const zipFolder = ({
 
 		rmSync(sourceFolder, {recursive: true});
 
-		Log.infoAdvanced(
-			{indent, logLevel},
-			`${chalk.blue(`+ Repro: ${targetZip}`)}`,
-		);
+		Log.info({indent, logLevel}, `${chalk.blue(`+ Repro: ${targetZip}`)}`);
 	} catch (error) {
-		Log.errorAdvanced(
+		Log.error(
 			{indent, logLevel},
 			`Failed to zip repro folder, The repro folder is ${sourceFolder}. You can try manually zip it.`,
 		);
-		Log.errorAdvanced({indent, logLevel}, error);
+		Log.error({indent, logLevel}, error);
 	}
 };
 
@@ -179,8 +176,8 @@ const reproWriter = (name: string): ReproWriter => {
 					});
 				});
 			} catch (error) {
-				Log.error(`repro render success error:`);
-				Log.error(error);
+				Log.error({indent: false, logLevel}, `repro render success error:`);
+				Log.error({indent: false, logLevel}, error);
 				reject(error);
 			}
 		});

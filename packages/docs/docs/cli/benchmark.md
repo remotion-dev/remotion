@@ -29,7 +29,7 @@ Specify how many times video must be rendered. Default value is 3.
 
 _optional_
 
-You can specify which concurrency value should be used while rendering the video. Multiple concurrency values can be passed separated by comma. Learn more about [concurrency](/docs/terminology#concurrency)
+You can specify which concurrency value should be used while rendering the video. Multiple concurrency values can be passed separated by comma. Learn more about [concurrency](/docs/terminology/concurrency)
 
 ### `--codec`
 
@@ -37,11 +37,11 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--codec)
 
-### `--audio-codec`
+### `--audio-codec`<AvailableFrom v="3.3.42" />
 
 _optional_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--audio-codec)
+<Options id="audio-codec" />
 
 ### `--crf`
 
@@ -109,11 +109,11 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
-### `--disable-headless`
+### `--disable-headless?`
 
 _optional_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--disable-headless)
+<Options id="disable-headless"  />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 
@@ -216,6 +216,10 @@ Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 
 <Options cli id="color-space" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
 
 ### ~~`--ffmpeg-executable`~~
 

@@ -1,5 +1,5 @@
 
-from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
+from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats, Webhook
 from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv

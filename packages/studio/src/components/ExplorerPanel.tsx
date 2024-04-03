@@ -39,7 +39,9 @@ export const explorerSidebarTabs = createRef<{
 	selectCompositionPanel: () => void;
 }>();
 
-export const ExplorerPanel: React.FC<{}> = () => {
+export const ExplorerPanel: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
 		getSelectedPanel(),
 	);
@@ -85,7 +87,11 @@ export const ExplorerPanel: React.FC<{}> = () => {
 					</Tab>
 				</Tabs>
 			</div>
-			{panel === 'compositions' ? <CompositionSelector /> : <AssetSelector />}
+			{panel === 'compositions' ? (
+				<CompositionSelector />
+			) : (
+				<AssetSelector readOnlyStudio={readOnlyStudio} />
+			)}
 		</div>
 	);
 };

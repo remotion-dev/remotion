@@ -3,12 +3,12 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -27,15 +27,13 @@ type InternalSelectCompositionsConfig = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	browserExecutable: BrowserExecutable | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
-} & ToOptions<typeof optionsMap.renderStill>;
+} & ToOptions<typeof optionsMap.selectComposition>;
 
 export type SelectCompositionOptions = {
 	inputProps?: Record<string, unknown> | null;
@@ -43,20 +41,17 @@ export type SelectCompositionOptions = {
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	/**
 	 * @deprecated Use `logLevel` instead.
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
-	offthreadVideoCacheSizeInBytes?: number | null;
 	serveUrl: string;
 	id: string;
-};
+} & Partial<ToOptions<typeof optionsMap.selectComposition>>;
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
@@ -200,6 +195,8 @@ export const internalSelectCompositionRaw = async (
 		server,
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -209,6 +206,7 @@ export const internalSelectCompositionRaw = async (
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
+		onBrowserDownload,
 	});
 	cleanup.push(() => cleanupPage());
 
@@ -233,6 +231,8 @@ export const internalSelectCompositionRaw = async (
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: () => undefined,
@@ -259,6 +259,8 @@ export const internalSelectCompositionRaw = async (
 					puppeteerInstance,
 					server,
 					offthreadVideoCacheSizeInBytes,
+					binariesDirectory,
+					onBrowserDownload,
 				});
 			})
 
@@ -270,7 +272,11 @@ export const internalSelectCompositionRaw = async (
 			})
 			.finally(() => {
 				cleanup.forEach((c) => {
-					c();
+					// Must prevent unhandled exception in cleanup function.
+					// Promise has already been resolved, so we can't reject it.
+					c().catch((err) => {
+						console.log('Cleanup error:', err);
+					});
 				});
 			});
 	});
@@ -299,9 +305,14 @@ export const selectComposition = async (
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		verbose,
-		logLevel,
+		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
+		onBrowserDownload,
 	} = options;
+
+	const indent = false;
+	const logLevel = passedLogLevel ?? verbose ? 'verbose' : 'info';
 
 	const data = await internalSelectComposition({
 		id,
@@ -319,10 +330,18 @@ export const selectComposition = async (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? verbose ? 'verbose' : 'info',
-		indent: false,
+		logLevel,
+		indent,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'selectComposition()',
+			}),
 	});
 	return data.metadata;
 };

@@ -78,7 +78,7 @@ export const renderMediaSingleThread = async (
 				}).serializedString,
 			jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			audioCodec: body.audioCodec,
-			audioBitrate: body.audioBitrate,
+			audioBitrate: body.audioBitrate ?? null,
 			videoBitrate: body.videoBitrate,
 			encodingMaxRate: body.encodingMaxRate,
 			encodingBufferSize: body.encodingBufferSize,
@@ -88,7 +88,7 @@ export const renderMediaSingleThread = async (
 				body.imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 			scale: body.scale,
 			proResProfile: body.proResProfile ?? undefined,
-			x264Preset: body.x264Preset ?? undefined,
+			x264Preset: body.x264Preset,
 			everyNthFrame: body.everyNthFrame,
 			numberOfGifLoops: body.numberOfGifLoops,
 			onProgress,
@@ -120,6 +120,13 @@ export const renderMediaSingleThread = async (
 			colorSpace: body.colorSpace,
 			repro: false,
 			finishRenderProgress: () => undefined,
+			binariesDirectory: null,
+			separateAudioTo: null,
+			forSeamlessAacConcatenation: false,
+			compositionStart: 0,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		});
 
 		const storage = new Storage();
@@ -145,7 +152,11 @@ export const renderMediaSingleThread = async (
 			privacy: publicUpload ? 'public-read' : 'project-private',
 		};
 
-		RenderInternals.Log.info('Render Completed:', responseData);
+		RenderInternals.Log.info(
+			{indent: false, logLevel: body.logLevel},
+			'Render Completed:',
+			responseData,
+		);
 		res.end(JSON.stringify({response: responseData}));
 	} catch (err) {
 		await writeCloudrunError({

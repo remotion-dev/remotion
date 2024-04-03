@@ -1,8 +1,8 @@
 const DISCORD_LINK = 'https://remotion.dev/discord';
 
 import React, {useCallback, useEffect} from 'react';
+import {Button} from '../../components/Button';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {Button} from './Button';
 import {ShortcutHint} from './ShortcutHint';
 
 export const AskOnDiscord: React.FC<{

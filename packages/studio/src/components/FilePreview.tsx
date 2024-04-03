@@ -1,5 +1,5 @@
+import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
-import {formatBytes} from '../helpers/format-bytes';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';

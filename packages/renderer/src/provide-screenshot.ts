@@ -12,6 +12,7 @@ export const provideScreenshot = ({
 	width,
 	clipRegion,
 	timeoutInMilliseconds,
+	scale,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
@@ -24,6 +25,7 @@ export const provideScreenshot = ({
 	width: number;
 	clipRegion: ClipRegion | null;
 	timeoutInMilliseconds: number;
+	scale: number;
 }): Promise<Buffer> => {
 	return screenshotDOMElement({
 		page,
@@ -36,5 +38,6 @@ export const provideScreenshot = ({
 		width,
 		clipRegion,
 		timeoutInMilliseconds,
+		scale,
 	});
 };

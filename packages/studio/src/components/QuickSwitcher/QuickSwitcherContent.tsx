@@ -92,8 +92,8 @@ const mapQueryToMode = (query: string): QuickSwitcherMode => {
 	return query.startsWith('>')
 		? 'commands'
 		: query.startsWith('?')
-		? 'docs'
-		: 'compositions';
+			? 'docs'
+			: 'compositions';
 };
 
 const mapModeToQuery = (mode: QuickSwitcherMode): string => {
@@ -131,7 +131,8 @@ type AlgoliaState =
 export const QuickSwitcherContent: React.FC<{
 	initialMode: QuickSwitcherMode;
 	invocationTimestamp: number;
-}> = ({initialMode, invocationTimestamp}) => {
+	readOnlyStudio: boolean;
+}> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [state, setState] = useState(() => {
 		return {
@@ -151,7 +152,7 @@ export const QuickSwitcherContent: React.FC<{
 	const selectComposition = useSelectComposition();
 
 	const closeMenu = useCallback(() => undefined, []);
-	const actions = useMenuStructure(closeMenu);
+	const actions = useMenuStructure(closeMenu, readOnlyStudio);
 	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
 	const {setSelectedModal} = useContext(ModalsContext);

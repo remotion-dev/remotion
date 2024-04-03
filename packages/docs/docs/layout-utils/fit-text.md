@@ -77,6 +77,12 @@ _string, optional_
 
 Pass this option if you are going to assign a `font-variant-numeric` CSS property to the text.
 
+### `validateFontIsLoaded?`<AvailableFrom v="4.0.136"/>
+
+_boolean_
+
+If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
 ## Return value
 
 An object with `fontSize` in pixels. Assign this to the `style` prop of your text element.
@@ -138,8 +144,12 @@ Notes:
 - The `outline` CSS property was used instead of `border`.  
   This is because in Remotion, the border is inside by default and shrinks the container, due to `box-sizing: border-box` being in the default stylesheet.
 
+## Important considerations
+
+See [Best practices](/docs/layout-utils/best-practices) to ensure you get correct measurements.
+
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/layout-utils/src/layouts/fit-text.md)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/layout-utils/src/layouts/fit-text.ts)
 - [`@remotion/layout-utils`](/docs/layout-utils)
 - [`@remotion/google-fonts`](/docs/google-fonts)

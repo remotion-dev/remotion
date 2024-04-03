@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteSite} from '../../../api/delete-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
@@ -10,7 +10,7 @@ import {Log} from '../../log';
 
 export const SITES_RMALL_COMMAND = 'rmall';
 
-export const sitesRmallSubcommand = async () => {
+export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,
@@ -21,9 +21,7 @@ export const sitesRmallSubcommand = async () => {
 		(
 			await internalGetOrCreateBucket({
 				region,
-				enableFolderExpiry:
-					parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag] ??
-					null,
+				enableFolderExpiry: false,
 				customCredentials: null,
 			})
 		).bucketName;
@@ -45,11 +43,15 @@ export const sitesRmallSubcommand = async () => {
 			siteName: site.id,
 			region,
 			onAfterItemDeleted: ({itemName}) => {
-				Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.gray(`Deleted ${itemName}`),
+				);
 			},
 		});
 
 		Log.info(
+			{indent: false, logLevel},
 			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
 				totalSize,
 			)}.`,

@@ -1,12 +1,13 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.89",
+	"version": "4.0.136",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
+		"test": "vitest --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",

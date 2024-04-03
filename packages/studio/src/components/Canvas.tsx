@@ -1,4 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
+import type {Size} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
@@ -25,7 +25,6 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
-import {PreviewSizeContext} from '../state/preview-size';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
@@ -51,8 +50,9 @@ const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC<{
 	canvasContent: CanvasContent;
-}> = ({canvasContent}) => {
-	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
+	size: Size;
+}> = ({canvasContent, size}) => {
+	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 	const config = Internals.useUnsafeVideoConfig();
@@ -79,11 +79,6 @@ export const Canvas: React.FC<{
 		return null;
 	}, [assetResolution, config, canvasContent]);
 
-	const size = PlayerInternals.useElementSize(ref, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
-
 	const isFit = previewSize.size === 'auto';
 
 	const onWheel = useCallback(
@@ -109,7 +104,7 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = PlayerInternals.calculateScale({
+				const scale = Internals.calculateScale({
 					canvasSize: size,
 					compositionHeight: contentDimensions.height,
 					compositionWidth: contentDimensions.width,
@@ -224,7 +219,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -250,7 +245,7 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = PlayerInternals.calculateScale({
+			const scale = Internals.calculateScale({
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,

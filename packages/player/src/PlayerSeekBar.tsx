@@ -58,7 +58,7 @@ export const PlayerSeekBar: React.FC<{
 	outFrame: number | null;
 }> = ({durationInFrames, onSeekEnd, onSeekStart, inFrame, outFrame}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const barHovered = useHoverState(containerRef);
+	const barHovered = useHoverState(containerRef, false);
 	const size = useElementSize(containerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -78,20 +78,22 @@ export const PlayerSeekBar: React.FC<{
 		dragging: false,
 	});
 
-	const left = size ? size.left : null;
 	const width = size?.width ?? 0;
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (left === null) {
-				throw new Error('Player has no size');
-			}
-
 			if (e.button !== 0) {
 				return;
 			}
 
-			const _frame = getFrameFromX(e.clientX - left, durationInFrames, width);
+			const posLeft = containerRef.current?.getBoundingClientRect()
+				.left as number;
+
+			const _frame = getFrameFromX(
+				e.clientX - posLeft,
+				durationInFrames,
+				width,
+			);
 			pause();
 			seek(_frame);
 			setDragging({
@@ -100,7 +102,7 @@ export const PlayerSeekBar: React.FC<{
 			});
 			onSeekStart();
 		},
-		[left, durationInFrames, width, pause, seek, playing, onSeekStart],
+		[durationInFrames, width, pause, seek, playing, onSeekStart],
 	);
 
 	const onPointerMove = useCallback(
@@ -113,8 +115,11 @@ export const PlayerSeekBar: React.FC<{
 				return;
 			}
 
+			const posLeft = containerRef.current?.getBoundingClientRect()
+				.left as number;
+
 			const _frame = getFrameFromX(
-				e.clientX - (size?.left ?? 0),
+				e.clientX - posLeft,
 				durationInFrames,
 				size.width,
 			);

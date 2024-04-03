@@ -1,5 +1,6 @@
 import {callFf} from '../call-ffmpeg';
 import type {LogLevel} from '../log-level';
+import type {CancelSignal} from '../make-cancel-signal';
 import {pLimit} from '../p-limit';
 import type {
 	AudioChannelsAndDurationResultCache,
@@ -8,11 +9,19 @@ import type {
 
 const limit = pLimit(1);
 
-export const getAudioChannelsAndDurationWithoutCache = async (
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-) => {
+export const getAudioChannelsAndDurationWithoutCache = async ({
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+	cancelSignal,
+}: {
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+}) => {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels:format=duration'],
@@ -22,7 +31,14 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await callFf('ffprobe', args, indent, logLevel);
+	const task = await callFf({
+		bin: 'ffprobe',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
@@ -34,34 +50,61 @@ export const getAudioChannelsAndDurationWithoutCache = async (
 	return result;
 };
 
-async function getAudioChannelsAndDurationUnlimited(
-	downloadMap: DownloadMap,
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-): Promise<AudioChannelsAndDurationResultCache> {
+async function getAudioChannelsAndDurationUnlimited({
+	downloadMap,
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+	cancelSignal,
+}: {
+	downloadMap: DownloadMap;
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+}): Promise<AudioChannelsAndDurationResultCache> {
 	if (downloadMap.durationOfAssetCache[src]) {
 		return downloadMap.durationOfAssetCache[src];
 	}
 
-	const result = await getAudioChannelsAndDurationWithoutCache(
+	const result = await getAudioChannelsAndDurationWithoutCache({
 		src,
 		indent,
 		logLevel,
-	);
+		binariesDirectory,
+		cancelSignal,
+	});
 
 	downloadMap.durationOfAssetCache[src] = result;
 
 	return result;
 }
 
-export const getAudioChannelsAndDuration = (
-	downloadMap: DownloadMap,
-	src: string,
-	indent: boolean,
-	logLevel: LogLevel,
-): Promise<AudioChannelsAndDurationResultCache> => {
+export const getAudioChannelsAndDuration = ({
+	downloadMap,
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+	cancelSignal,
+}: {
+	downloadMap: DownloadMap;
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+}): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() =>
-		getAudioChannelsAndDurationUnlimited(downloadMap, src, indent, logLevel),
+		getAudioChannelsAndDurationUnlimited({
+			downloadMap,
+			src,
+			indent,
+			logLevel,
+			binariesDirectory,
+			cancelSignal,
+		}),
 	);
 };

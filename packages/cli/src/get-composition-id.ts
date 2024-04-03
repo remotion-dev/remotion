@@ -3,10 +3,11 @@ import type {
 	ChromiumOptions,
 	HeadlessBrowser,
 	LogLevel,
+	OnBrowserDownload,
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {StudioServerInternals} from '@remotion/studio-server';
 import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
@@ -50,6 +51,8 @@ export const getCompositionId = async ({
 	indent,
 	server,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
+	onBrowserDownload,
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
@@ -65,6 +68,8 @@ export const getCompositionId = async ({
 	indent: boolean;
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
+	binariesDirectory: string | null;
+	onBrowserDownload: OnBrowserDownload;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -96,6 +101,8 @@ export const getCompositionId = async ({
 				indent,
 				onBrowserLog: null,
 				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
+				onBrowserDownload,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -104,7 +111,7 @@ export const getCompositionId = async ({
 					indent,
 					logLevel,
 				},
-				`The props of your composition are large (${StudioInternals.formatBytes(
+				`The props of your composition are large (${StudioServerInternals.formatBytes(
 					propsSize,
 				)}). This may cause slowdown.`,
 			);
@@ -137,8 +144,13 @@ export const getCompositionId = async ({
 			onBrowserLog: null,
 			serializedInputPropsWithCustomSchema,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			onBrowserDownload,
 		});
-		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
+		const {compositionId, reason} = await showSingleCompositionsPicker(
+			comps,
+			logLevel,
+		);
 		if (compositionId && typeof compositionId === 'string') {
 			return {
 				compositionId,
@@ -149,7 +161,10 @@ export const getCompositionId = async ({
 		}
 	}
 
-	Log.error('Composition ID not passed.');
-	Log.error('Pass an extra argument <composition-id>.');
+	Log.error({indent: false, logLevel}, 'Composition ID not passed.');
+	Log.error(
+		{indent: false, logLevel},
+		'Pass an extra argument <composition-id>.',
+	);
 	process.exit(1);
 };

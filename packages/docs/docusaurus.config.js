@@ -6,10 +6,7 @@
 const config = (mode) => ({
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
-  url:
-    process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://www.remotion.dev",
+  url: "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -144,6 +141,10 @@ const config = (mode) => ({
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
             },
+            {
+              label: "Remotion Pro",
+              href: "https://remotion.pro",
+            },
           ],
         },
         {
@@ -210,12 +211,12 @@ const config = (mode) => ({
               to: "/docs/support",
             },
             {
-              label: "License",
-              href: "https://remotion.dev/license",
+              label: "Acknowledgements",
+              href: "https://remotion.dev/acknowledgements",
             },
             {
-              label: "Remotion Pro",
-              href: "https://remotion.pro",
+              label: "License",
+              href: "https://remotion.dev/license",
             },
             {
               label: "Brand",
@@ -233,6 +234,9 @@ const config = (mode) => ({
     [
       "@docusaurus/preset-classic",
       {
+        gtag: {
+          trackingID: "G-Z6B254S5Q4",
+        },
         docs: {
           path: mode === "complete" ? "docs" : "new-docs",
           sidebarPath:

@@ -13,6 +13,7 @@ use crate::{
     global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
+    tone_map::FilterGraph,
 };
 
 pub struct OpenedStream {
@@ -30,6 +31,7 @@ pub struct OpenedStream {
     pub reached_eof: bool,
     pub transparent: bool,
     pub rotation: Rotate,
+    pub filter_graph: FilterGraph,
 }
 
 #[derive(Clone, Copy)]
@@ -77,6 +79,7 @@ impl OpenedStream {
         position: i64,
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
+        tone_mapped: bool,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -88,27 +91,27 @@ impl OpenedStream {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(video)) => unsafe {
-                    let linesize = (*video.as_ptr()).linesize;
-
+                Ok(Some(video)) => {
                     let frame_cache_id = get_frame_cache_id();
 
+                    let mut size: u128 = 0;
+
                     let amount_of_planes = video.planes();
-                    let mut planes = Vec::with_capacity(amount_of_planes);
                     for i in 0..amount_of_planes {
-                        planes.push(video.data(i).to_vec());
+                        size += video.data(i).len() as u128;
                     }
 
                     let frame = NotRgbFrame {
-                        linesizes: linesize,
-                        planes,
-                        format: video.format(),
                         original_width: self.original_width,
                         original_height: self.original_height,
                         scaled_height: self.scaled_height,
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
+                        size,
+                        unscaled_frame: video.clone(),
+                        tone_mapped,
+                        filter_graph: self.filter_graph,
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -124,14 +127,19 @@ impl OpenedStream {
 
                     looped_pts = video.pts();
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                        )
                         .lock()?
                         .add_item(item);
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
-                },
+                }
                 Ok(None) => {
                     if self.reached_eof {
                         break;
@@ -153,6 +161,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         threshold: i64,
         maximum_frame_cache_size_in_bytes: Option<u128>,
+        tone_mapped: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -165,12 +174,31 @@ impl OpenedStream {
 
         if should_seek {
             _print_verbose(&format!(
-                "Seeking to {} from dts = {:?}, duration = {}",
-                position, self.last_position, self.duration_or_zero
+                "Seeking to {} from dts = {:?}, duration = {}, last seek = {}",
+                position, self.last_position, self.duration_or_zero, last_seek_position
             ))?;
-            self.input
-                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
-            freshly_seeked = true
+            self.video.flush();
+            match self
+                .input
+                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)
+            {
+                Ok(_) => Ok(()),
+                Err(err) => {
+                    if err.to_string().contains("Operation not permitted") {
+                        _print_verbose(&format!(
+                            "Seeking into a part of the file that contains executable code."
+                        ))?;
+                        _print_verbose(&format!("FFmpeg is unwilling to execute it."))?;
+
+                        Ok(())
+                    } else {
+                        Err(err)
+                    }
+                }
+            }?;
+
+            freshly_seeked = true;
+            self.last_position = None
         }
 
         let mut last_frame_received: Option<LastFrameInfo> = None;
@@ -200,16 +228,27 @@ impl OpenedStream {
                             true => None,
                             false => Some(self.last_position.unwrap()),
                         },
+                        tone_mapped,
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                            )
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
                         FrameCacheManager::get_instance()
-                            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                            )
                             .lock()?
                             .set_biggest_frame_as_last_frame();
                     }
@@ -261,53 +300,57 @@ impl OpenedStream {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(video)) => unsafe {
-                    let linesize = (*video.as_ptr()).linesize;
+                Ok(Some(unfiltered)) => {
+                    _print_verbose(&format!("received frame {}", tone_mapped))?;
+
                     let frame_cache_id = get_frame_cache_id();
 
-                    let amount_of_planes = video.planes();
-                    let mut planes = Vec::with_capacity(amount_of_planes);
+                    let mut size: u128 = 0;
+
+                    let amount_of_planes = unfiltered.planes();
                     for i in 0..amount_of_planes {
-                        planes.push(video.data(i).to_vec());
+                        size += unfiltered.data(i).len() as u128;
                     }
 
                     let frame = NotRgbFrame {
-                        linesizes: linesize,
-                        planes,
-                        format: video.format(),
                         original_height: self.original_height,
                         original_width: self.original_width,
                         scaled_height: self.scaled_height,
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
                         original_src: self.original_src.clone(),
+                        size,
+                        unscaled_frame: unfiltered.clone(),
+                        tone_mapped,
+                        filter_graph: self.filter_graph,
                     };
 
+                    let previous_pts = match freshly_seeked || self.last_position.is_none() {
+                        true => None,
+                        false => Some(self.last_position.unwrap()),
+                    };
                     let item = FrameCacheItem {
-                        resolved_pts: video.pts().expect("expected pts"),
+                        resolved_pts: unfiltered.pts().expect("expected pts"),
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
                         last_used: get_time(),
-                        previous_pts: match freshly_seeked || self.last_position.is_none() {
-                            true => None,
-                            false => Some(self.last_position.unwrap()),
-                        },
+                        previous_pts,
                     };
 
-                    self.last_position = Some(video.pts().expect("expected pts"));
+                    self.last_position = Some(unfiltered.pts().expect("expected pts"));
                     freshly_seeked = false;
                     FrameCacheManager::get_instance()
-                        .get_frame_cache(&self.src, &self.original_src, self.transparent)
+                        .get_frame_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                        )
                         .lock()?
                         .add_item(item);
 
                     items_in_loop += 1;
-                    _print_verbose(&format!(
-                        "received frame {} ({})",
-                        video.pts().expect("pts"),
-                        items_in_loop
-                    ))?;
 
                     if items_in_loop % 10 == 0 {
                         match maximum_frame_cache_size_in_bytes {
@@ -322,7 +365,8 @@ impl OpenedStream {
                         Some(stop) => match last_frame_received {
                             Some(last_frame) => {
                                 let prev_difference = (last_frame.pts - position).abs();
-                                let new_difference = (video.pts().expect("pts") - position).abs();
+                                let new_difference =
+                                    (unfiltered.pts().expect("pts") - position).abs();
 
                                 if new_difference > prev_difference {
                                     stop_after_n_diverging_pts = Some(stop - 1);
@@ -339,9 +383,9 @@ impl OpenedStream {
 
                     last_frame_received = Some(LastFrameInfo {
                         index: frame_cache_id,
-                        pts: video.pts().expect("pts"),
+                        pts: unfiltered.pts().expect("pts"),
                     });
-                },
+                }
                 Ok(None) => {}
                 Err(err) => {
                     return Err(err);
@@ -350,7 +394,7 @@ impl OpenedStream {
         }
 
         let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(&self.src, &self.original_src, self.transparent)
+            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
             .lock()?
             .get_item_id(position, threshold)?;
 
@@ -403,9 +447,10 @@ pub fn open_stream(
     {
         Some(stream) => stream,
         None => {
-            return Err(ErrorWithBacktrace::from(
-                "No video stream found in input file",
-            ));
+            return Err(ErrorWithBacktrace::from(format!(
+                "No video stream found in input file {}. Is this a video file?",
+                original_src
+            )));
         }
     };
 
@@ -478,6 +523,18 @@ pub fn open_stream(
         original_height,
     );
 
+    let filter_graph = FilterGraph {
+        original_width,
+        original_height,
+        format: decoder.format(),
+        time_base,
+        video_primaries: decoder.color_primaries(),
+        transfer_characteristic: decoder.color_transfer_characteristic(),
+        color_space: decoder.color_space(),
+        color_range: decoder.color_range(),
+        aspect_ratio: decoder.aspect_ratio(),
+    };
+
     let opened_stream = OpenedStream {
         stream_index,
         original_height,
@@ -493,6 +550,7 @@ pub fn open_stream(
         transparent,
         rotation: rotate,
         original_src: original_src.to_string(),
+        filter_graph,
     };
 
     Ok((opened_stream, fps, time_base))

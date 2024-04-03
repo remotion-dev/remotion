@@ -3,8 +3,11 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
-import type {SelectionItem} from '../components/NewComposition/ComboBox';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import type {
+	ComboboxValue,
+	SelectionItem,
+} from '../components/NewComposition/ComboBox';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -18,10 +21,11 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
-import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {StudioServerConnectionCtx} from './client-id';
+import {getGitMenuItem} from './get-git-menu-item';
+import {useMobileLayout} from './mobile-layout';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -37,7 +41,105 @@ const rotate: React.CSSProperties = {
 };
 const ICON_SIZE = 16;
 
-export const useMenuStructure = (closeMenu: () => void) => {
+const getFileMenu = ({
+	readOnlyStudio,
+	closeMenu,
+	previewServerState,
+}: {
+	readOnlyStudio: boolean;
+	closeMenu: () => void;
+	previewServerState: 'connected' | 'init' | 'disconnected';
+}) => {
+	const items: ComboboxValue[] = [
+		readOnlyStudio
+			? null
+			: {
+					id: 'render',
+					value: 'render',
+					label: 'Render...',
+					onClick: () => {
+						closeMenu();
+						if (previewServerState !== 'connected') {
+							showNotification('Restart the studio to render', 2000);
+							return;
+						}
+
+						const renderButton = document.getElementById(
+							'render-modal-button',
+						) as HTMLDivElement;
+
+						renderButton.click();
+					},
+					type: 'item' as const,
+					keyHint: 'R',
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Render...',
+				},
+		window.remotion_editorName && !readOnlyStudio
+			? {
+					type: 'divider' as const,
+					id: 'open-in-editor-divider',
+				}
+			: null,
+		window.remotion_editorName && !readOnlyStudio
+			? {
+					id: 'open-in-editor',
+					value: 'open-in-editor',
+					label: `Open in ${window.remotion_editorName}`,
+					onClick: async () => {
+						await openInEditor({
+							originalFileName: `${window.remotion_cwd}`,
+							originalLineNumber: 1,
+							originalColumnNumber: 1,
+							originalFunctionName: null,
+							originalScriptCode: null,
+						})
+							.then((res) => res.json())
+							.then(({success}) => {
+								if (!success) {
+									showNotification(
+										`Could not open ${window.remotion_editorName}`,
+										2000,
+									);
+								}
+							})
+							.catch((err) => {
+								// eslint-disable-next-line no-console
+								console.error(err);
+								showNotification(
+									`Could not open ${window.remotion_editorName}`,
+									2000,
+								);
+							});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Open in editor...',
+				}
+			: null,
+
+		getGitMenuItem(),
+	].filter(NoReactInternals.truthy);
+	if (items.length === 0) {
+		return null;
+	}
+
+	return {
+		id: 'file' as const,
+		label: 'File',
+		leaveLeftPadding: false,
+		items,
+		quickSwitcherLabel: null,
+	};
+};
+
+export const useMenuStructure = (
+	closeMenu: () => void,
+	readOnlyStudio: boolean,
+) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
@@ -49,7 +151,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
-	const {size, setSize} = useContext(PreviewSizeContext);
+	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const {
@@ -62,8 +164,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const isFullscreenSupported =
 		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
+	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
-		const struct: Structure = [
+		let struct: Structure = [
 			{
 				id: 'remotion' as const,
 				label: (
@@ -130,120 +233,28 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'Help: License',
 					},
-				],
-				quickSwitcherLabel: null,
-			},
-			{
-				id: 'file' as const,
-				label: 'File',
-				leaveLeftPadding: false,
-				items: [
 					{
-						id: 'new-sequence',
-						value: 'new-sequence',
-						label: 'New composition...',
+						id: 'acknowledgements',
+						value: 'acknowledgements',
+						label: 'Acknowledgements',
 						onClick: () => {
 							closeMenu();
-							setSelectedModal({
-								compType: 'composition',
-								type: 'new-comp',
-							});
-						},
-						type: 'item' as const,
-						keyHint: 'N',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'New composition...',
-					},
-					{
-						id: 'new-still',
-						value: 'new-still',
-						label: 'New still...',
-						onClick: () => {
-							closeMenu();
-							setSelectedModal({
-								compType: 'still',
-								type: 'new-comp',
-							});
+							openExternal('https://remotion.dev/acknowledgements');
 						},
 						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'New still...',
+						quickSwitcherLabel: 'Help: Acknowledgements',
 					},
-					{
-						type: 'divider' as const,
-						id: 'new-divider',
-					},
-					{
-						id: 'render',
-						value: 'render',
-						label: 'Render...',
-						onClick: () => {
-							closeMenu();
-							if (type !== 'connected') {
-								sendErrorNotification('Restart the studio to render');
-								return;
-							}
-
-							const renderButton = document.getElementById(
-								'render-modal-button',
-							) as HTMLDivElement;
-
-							renderButton.click();
-						},
-						type: 'item' as const,
-						keyHint: 'R',
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Render...',
-					},
-					window.remotion_editorName
-						? {
-								type: 'divider' as const,
-								id: 'open-in-editor-divider',
-							}
-						: null,
-					window.remotion_editorName
-						? {
-								id: 'open-in-editor',
-								value: 'open-in-editor',
-								label: `Open in ${window.remotion_editorName}`,
-								onClick: async () => {
-									await openInEditor({
-										originalFileName: `${window.remotion_cwd}`,
-										originalLineNumber: 1,
-										originalColumnNumber: 1,
-										originalFunctionName: null,
-										originalScriptCode: null,
-									})
-										.then((res) => res.json())
-										.then(({success}) => {
-											if (!success) {
-												sendErrorNotification(
-													`Could not open ${window.remotion_editorName}`,
-												);
-											}
-										})
-										.catch((err) => {
-											// eslint-disable-next-line no-console
-											console.error(err);
-											sendErrorNotification(
-												`Could not open ${window.remotion_editorName}`,
-											);
-										});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Open in editor...',
-							}
-						: null,
-				].filter(NoReactInternals.truthy),
+				],
 				quickSwitcherLabel: null,
 			},
+			getFileMenu({
+				readOnlyStudio,
+				closeMenu,
+				previewServerState: type,
+			}),
 			{
 				id: 'view' as const,
 				label: 'View',
@@ -486,10 +497,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						type: 'divider' as const,
 					},
 					{
-						id: 'in-out-divider-4',
-						type: 'divider' as const,
-					},
-					{
 						id: 'quick-switcher',
 						keyHint: `${cmdOrCtrlCharacter}+K`,
 						label: 'Quick Switcher',
@@ -609,6 +616,20 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								type: 'item' as const,
 								quickSwitcherLabel: 'Show Color Picker',
 							},
+							{
+								id: 'spring-editor',
+								value: 'spring-editor',
+								label: 'spring() Editor',
+								onClick: () => {
+									closeMenu();
+									window.open('https://springs.remotion.dev', '_blank');
+								},
+								leftItem: null,
+								keyHint: null,
+								subMenu: null,
+								type: 'item' as const,
+								quickSwitcherLabel: 'Open spring() Editor',
+							},
 						],
 						quickSwitcherLabel: null,
 					}
@@ -704,18 +725,32 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Follow Remotion on Instagram',
 					},
 					{
-						id: 'twitter',
-						value: 'twitter',
-						label: 'Twitter',
+						id: 'x',
+						value: 'x',
+						label: 'X',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://twitter.com/remotion');
+							openExternal('https://x.com/remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Follow Remotion on Twitter',
+						quickSwitcherLabel: 'Follow Remotion on X',
+					},
+					{
+						id: 'youtube',
+						value: 'youtube',
+						label: 'YouTube',
+						onClick: () => {
+							closeMenu();
+							openExternal('https://www.youtube/@remotion_dev');
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Watch Remotion on YouTube',
 					},
 					{
 						id: 'linkedin',
@@ -748,11 +783,41 @@ export const useMenuStructure = (closeMenu: () => void) => {
 				],
 			},
 		].filter(Internals.truthy);
+		if (mobileLayout) {
+			struct = [
+				{
+					...struct[0],
+					items: [
+						...struct.slice(1).map((s) => {
+							return {
+								...s,
+								keyHint: null,
+								onClick: () => undefined,
+								type: 'item' as const,
+								value: s.id,
+								leftItem: null,
+								subMenu: {
+									items: s.items,
+									leaveLeftSpace: true,
+									preselectIndex: 0,
+								},
+								quickSwitcherLabel: null,
+							} as SelectionItem;
+						}),
+						...struct[0].items,
+					],
+				},
+			];
+		}
 
 		return struct;
 	}, [
+		readOnlyStudio,
+		mobileLayout,
 		sizes,
 		editorZoomGestures,
+		editorShowRulers,
+		editorShowGuides,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -763,12 +828,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		size.size,
 		setSize,
 		setEditorZoomGestures,
+		setEditorShowRulers,
+		setEditorShowGuides,
 		setSidebarCollapsedState,
 		setCheckerboard,
-		editorShowRulers,
-		setEditorShowRulers,
-		editorShowGuides,
-		setEditorShowGuides,
 	]);
 
 	return structure;

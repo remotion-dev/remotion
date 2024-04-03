@@ -18,11 +18,15 @@ const notification: React.CSSProperties = {
 export const Notification: React.FC<{
 	children: React.ReactNode;
 	created: number;
-	duration: number;
+	duration: number | null;
 	id: string;
 	onRemove: (id: string) => void;
 }> = ({children, id, duration, created, onRemove}) => {
 	useEffect(() => {
+		if (duration === null) {
+			return;
+		}
+
 		const timeout = setTimeout(
 			() => {
 				onRemove(id);

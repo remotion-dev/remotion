@@ -9,16 +9,18 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/no-react';
-import type {ApiRoutes} from '../../preview-server/api-types';
 import type {
+	ApiRoutes,
+	ApplyCodemodRequest,
+	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
+	EnumPath,
 	OpenInFileExplorerRequest,
+	RecastCodemod,
 	RenderJob,
-} from '../../preview-server/job';
-import type {RequiredChromiumOptions} from '../../required-chromium-options';
-
-import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
+	RequiredChromiumOptions,
+} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -26,7 +28,7 @@ const callApi = <Endpoint extends keyof ApiRoutes>(
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
-		fetch(endpoint, {
+		fetch(endpoint as string, {
 			method: 'post',
 			headers: {
 				'content-type': 'application/json',
@@ -210,6 +212,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize,
 	beepOnFinish,
 	repro,
+	forSeamlessAacConcatenation,
+	separateAudioTo,
 }: {
 	compositionId: string;
 	outName: string;
@@ -244,6 +248,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize: string | null;
 	beepOnFinish: boolean;
 	repro: boolean;
+	forSeamlessAacConcatenation: boolean;
+	separateAudioTo: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -285,6 +291,8 @@ export const addVideoRenderJob = ({
 		encodingMaxRate,
 		beepOnFinish,
 		repro,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
 	});
 };
 
@@ -319,11 +327,34 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	return callApi('/api/open-in-file-explorer', body);
 };
 
-export const copyToClipboard = ({outName}: {outName: string}) => {
+export const copyToClipboard = ({
+	outName,
+	binariesDirectory,
+}: {
+	outName: string;
+	binariesDirectory: string | null;
+}) => {
 	const body: CopyStillToClipboardRequest = {
 		outName,
+		binariesDirectory,
 	};
 	return callApi('/api/copy-still-to-clipboard', body);
+};
+
+export const applyCodemod = ({
+	codemod,
+	dryRun,
+	signal,
+}: {
+	codemod: RecastCodemod;
+	dryRun: boolean;
+	signal: AbortController['signal'];
+}) => {
+	const body: ApplyCodemodRequest = {
+		codemod,
+		dryRun,
+	};
+	return callApi('/api/apply-codemod', body, signal);
 };
 
 export const removeRenderJob = (job: RenderJob) => {
@@ -342,6 +373,10 @@ export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
 };
 
+export const getProjectInfo = (signal: AbortSignal) => {
+	return callApi('/api/project-info', {}, signal);
+};
+
 export const updateDefaultProps = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
@@ -358,7 +393,17 @@ export const updateDefaultProps = (
 	});
 };
 
-export const canUpdateDefaultProps = (compositionId: string) => {
+export const canUpdateDefaultProps = (
+	compositionId: string,
+	readOnlyStudio: boolean,
+): Promise<CanUpdateDefaultPropsResponse> => {
+	if (readOnlyStudio) {
+		return Promise.resolve({
+			canUpdate: false,
+			reason: 'Read-only studio',
+		});
+	}
+
 	return callApi('/api/can-update-default-props', {
 		compositionId,
 	});

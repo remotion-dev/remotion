@@ -22,17 +22,18 @@ import {
   getSites,
   renderMediaOnCloudrun,
   renderStillOnCloudrun,
-  speculateServiceName
+  speculateServiceName,
 } from "@remotion/cloudrun/client";
 
 import type {
   RenderMediaOnCloudrunInput,
-  RenderStillOnCloudrunInput
-} from "@remotion/cloudrun/client"
+  RenderStillOnCloudrunInput,
+} from "@remotion/cloudrun/client";
 ```
 
+These functions don't have any dependencies on our renderer and can be bundled for example with ESBuild or Webpack (like is the case for example in Next.js).
 
-These functions don't have any Node.JS or Bun dependencies and can be bundled with a bundler such as Webpack or ESBuild.
+Importing the light client on edge frameworks (Vercel Edge, Cloudflare Workers) is currently not supported.
 
 **We don't recommend calling these functions from the browser directly, as you will leak your Google Cloud Platform credentials.**
 

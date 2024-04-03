@@ -130,8 +130,8 @@ export const QuickSwitcherResult: React.FC<{
 				result.type === 'search-result'
 					? LIGHT_TEXT
 					: selected || hovered
-					? 'white'
-					: LIGHT_TEXT,
+						? 'white'
+						: LIGHT_TEXT,
 			fontSize: 15,
 		};
 	}, [hovered, result.type, selected]);

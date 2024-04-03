@@ -51,6 +51,7 @@ declare global {
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
+		remotion_isStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '10';
@@ -131,7 +132,15 @@ export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
+export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
+export {
+	CurrentScaleContextType,
+	PreviewSize,
+	PreviewSizeCtx,
+	Translation,
+	useCurrentScale,
+} from './use-current-scale';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';

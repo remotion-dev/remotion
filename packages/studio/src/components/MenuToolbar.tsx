@@ -1,6 +1,7 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
@@ -21,26 +22,42 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const fixedWidthRight: React.CSSProperties = {
-	width: '330px',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'flex-end',
-};
-
-const fixedWidthLeft: React.CSSProperties = {
-	minWidth: '330px',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'flex-start',
-};
-
 const flex: React.CSSProperties = {
 	flex: 1,
 };
 
-export const MenuToolbar: React.FC = () => {
+export const MenuToolbar: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
+
+	const mobileLayout = useMobileLayout();
+
+	const fixedWidthRight: React.CSSProperties = useMemo(() => {
+		return {
+			...(mobileLayout
+				? {width: 'fit-content'}
+				: {
+						width: '330px',
+					}),
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'flex-end',
+		};
+	}, [mobileLayout]);
+
+	const fixedWidthLeft: React.CSSProperties = useMemo(() => {
+		return {
+			...(mobileLayout
+				? {minWidth: '0px'}
+				: {
+						minWidth: '330px',
+					}),
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'flex-start',
+		};
+	}, [mobileLayout]);
 
 	const itemClicked = useCallback(
 		(itemId: SetStateAction<string | null>) => {
@@ -62,7 +79,7 @@ export const MenuToolbar: React.FC = () => {
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu);
+	const structure = useMenuStructure(closeMenu, readOnlyStudio);
 
 	const menus = useMemo(() => {
 		return structure.map((s) => s.id);
@@ -116,7 +133,7 @@ export const MenuToolbar: React.FC = () => {
 						/>
 					);
 				})}
-				<UpdateCheck />
+				{readOnlyStudio ? null : <UpdateCheck />}
 			</div>
 			<div style={flex} />
 			<MenuBuildIndicator />

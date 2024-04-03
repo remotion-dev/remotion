@@ -103,11 +103,11 @@ export const InfoBubble: React.FC<{
 				? {
 						position: 'fixed',
 						top: size.top + size.height,
-				  }
+					}
 				: {
 						position: 'fixed',
 						bottom: size.windowSize.height - size.top,
-				  }),
+					}),
 			left: size.left,
 		};
 	}, [layout, opened, size]);
@@ -155,7 +155,7 @@ export const InfoBubble: React.FC<{
 							</HigherZIndex>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

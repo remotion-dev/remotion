@@ -1,8 +1,8 @@
 import type {AnyRemotionOption} from '@remotion/renderer';
 import React from 'react';
 import {INPUT_BACKGROUND} from '../../helpers/colors';
-import {MenuDivider} from '../Menu/MenuDivider';
 import {Spacing} from '../layout';
+import {MenuDivider} from '../Menu/MenuDivider';
 import {CliCopyButton} from './CliCopyButton';
 
 const container: React.CSSProperties = {
@@ -59,7 +59,7 @@ const copyWrapper: React.CSSProperties = {
 };
 
 export const OptionExplainer: React.FC<{
-	option: AnyRemotionOption;
+	option: AnyRemotionOption<unknown>;
 }> = ({option}) => {
 	return (
 		<div style={container} className="__remotion-info-button-container">

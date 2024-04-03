@@ -7,33 +7,31 @@ crumb: "@remotion/bundler"
 
 _Part of the `@remotion/bundler` package._
 
-Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media).
+Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media). [See a full server-side rendering example.](/docs/ssr-node)
 
 You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
 
 Calling `bundle()` for every video that you render is an anti-pattern.  
 `bundle()` cannot be called in a serverless function, see: [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle).
 
-```ts title="Function signature"
-const bundle: (options?: {
-  entryPoint: string;
-  onProgress?: (progress: number) => void;
-  webpackOverride?: WebpackOverrideFn;
-  outDir?: string;
-  enableCaching?: boolean;
-  publicPath?: string;
-  rootDir?: string;
-  publicDir?: string | null;
-  onPublicDirCopyProgress?: (bytes: number) => void;
-  onSymlinkDetected?: (path: string) => void;
-}) => Promise<string>;
+## Example
+
+```tsx twoslash title="render.mjs"
+import path from "path";
+// @module: ESNext
+// @target: ESNext
+import { bundle } from "@remotion/bundler";
+
+const serveUrl = await bundle({
+  entryPoint: path.join(process.cwd(), "./src/index.ts"),
+});
 ```
 
 ## Arguments
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology#entry-point).
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology/entry-point).
 
 ### `onProgress?`
 
@@ -78,7 +76,7 @@ A `boolean` specifying whether Webpack caching should be enabled. Default `true`
 
 _optional_
 
-The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
+<Options id="public-path"/>
 
 ### `rootDir?`<AvailableFrom v="3.1.6" />
 
@@ -92,7 +90,7 @@ The current working directory is the directory from which your program gets exec
 
 ### `publicDir?`<AvailableFrom v="3.2.13" />
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
 ### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
 

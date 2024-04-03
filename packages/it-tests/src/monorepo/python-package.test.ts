@@ -57,7 +57,10 @@ test("Python package should create the same renderMedia payload as normal Lambda
     concurrencyPerLambda: 1,
     crf: undefined,
     deleteAfter: null,
-    downloadBehavior: { type: "play-in-browser" },
+    downloadBehavior: {
+      fileName: "hi",
+      type: "download",
+    },
     envVariables: {},
     everyNthFrame: 1,
     forceBucketName: null,
@@ -83,8 +86,15 @@ test("Python package should create the same renderMedia payload as normal Lambda
     videoBitrate: null,
     encodingMaxRate: null,
     encodingBufferSize: null,
-    webhook: null,
+    webhook: {
+      secret: "abc",
+      url: "https://example.com",
+      customData: {
+        hi: "there",
+      },
+    },
     x264Preset: null,
+    preferLossless: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
@@ -113,6 +123,7 @@ test("Python package should create the same progress payload as normal Lambda pa
     functionName: "remotion-render",
     bucketName: "remotion-render",
     renderId: "abcdef",
+    logLevel: "info",
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
@@ -154,7 +165,6 @@ test("Python package should create the same renderStill payload as normal Lambda
     privacy: "public",
     scale: 1,
     timeoutInMilliseconds: 30000,
-    videoBitrate: null,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

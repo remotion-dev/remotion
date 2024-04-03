@@ -142,7 +142,7 @@ const generate = async (font: Font) => {
 
 export const getInfo = () => (${JSON.stringify(info, null, 3)})
 
-export const fontFamily = getInfo().fontFamily;
+export const fontFamily = "${fontFamily}" as const;
 
 type Variants = {\n`;
 

@@ -8,6 +8,7 @@ export const validCodecs = [
 	'wav',
 	'prores',
 	'h264-mkv',
+	'h264-ts',
 	'gif',
 ] as const;
 

@@ -15,6 +15,8 @@ import {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import {reloadUrl} from '../../helpers/url-state';
 import {
 	register as registerError,
 	unregister as unregisterError,
@@ -24,7 +26,6 @@ import {
 	unregister as unregisterPromise,
 } from './effects/unhandled-rejection';
 import {getStackFrames} from './utils/get-stack-frames';
-import type {SymbolicatedStackFrame} from './utils/stack-frame';
 
 export type ErrorRecord = {
 	error: Error;
@@ -74,7 +75,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		console.log('Hook order changed. Reloading app...');
 
 		window.remotion_unsavedProps = false;
-		window.location.reload();
+		reloadUrl();
 	} else {
 		setErrorsRef.current?.addError(error);
 

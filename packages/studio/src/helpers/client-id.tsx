@@ -1,10 +1,11 @@
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
-import type {EventSourceEvent} from '../event-source-events';
+import {reloadUrl} from './url-state';
 
 type PreviewServerState =
 	| {
@@ -42,7 +43,8 @@ type Listeners = {
 
 export const PreviewServerConnection: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	readOnlyStudio: boolean;
+}> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
 
 	const subscribeToEvent = useCallback(
@@ -70,7 +72,7 @@ export const PreviewServerConnection: React.FC<{
 				newEvent.type === 'new-input-props' ||
 				newEvent.type === 'new-env-variables'
 			) {
-				window.location.reload();
+				reloadUrl();
 			}
 
 			if (newEvent.type === 'init') {
@@ -90,7 +92,7 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'render-job-failed') {
-				sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
+				showNotification(`Rendering "${newEvent.compositionId}" failed`, 2000);
 			}
 
 			if (newEvent.type === 'new-public-folder') {
@@ -141,12 +143,16 @@ export const PreviewServerConnection: React.FC<{
 	}, []);
 
 	useEffect(() => {
+		if (readOnlyStudio) {
+			return;
+		}
+
 		const {close} = openEventSource();
 
 		return () => {
 			close();
 		};
-	}, [openEventSource]);
+	}, [openEventSource, readOnlyStudio]);
 
 	const [state, setState] = React.useState<PreviewServerState>({
 		type: 'init',

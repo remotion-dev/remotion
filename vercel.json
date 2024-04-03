@@ -48,6 +48,11 @@
       "permanent": false
     },
     {
+      "source": "/acknowledgements",
+      "destination": "/docs/acknowledgements",
+      "permanent": false
+    },
+    {
       "source": "/issue",
       "destination": "https://github.com/remotion-dev/remotion/issues/new/choose",
       "permanent": false
@@ -285,6 +290,31 @@
     {
       "source": "/standalone",
       "destination": "/docs/standalone",
+      "permanent": false
+    },
+    {
+      "source": "/docs/deploy-studio",
+      "destination": "/docs/studio/deploy-server",
+      "permanent": false
+    },
+    {
+      "source": "/blog/faster-lambda-renders",
+      "destination": "/blog/faster-lambda",
+      "permanent": false
+    },
+    {
+      "source": "/docs/miscellaneous/thorium-browser",
+      "destination": "/docs/miscellaneous/chrome-headless-shell",
+      "permanent": false
+    },
+    {
+      "source": "chrome-headless-shell",
+      "destination": "/docs/miscellaneous/chrome-headless-shell",
+      "permanent": false
+    },
+    {
+      "source": "/recorder",
+      "destination": "/docs/recorder",
       "permanent": false
     }
   ]

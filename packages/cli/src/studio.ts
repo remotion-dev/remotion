@@ -1,10 +1,12 @@
 import type {LogLevel} from '@remotion/renderer';
-import {StudioInternals} from '@remotion/studio';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
+import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
@@ -29,12 +31,19 @@ const getPort = () => {
 	return null;
 };
 
+const {binariesDirectoryOption, publicDirOption} = BrowserSafeApis.options;
+
 export const studioCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = findEntryPoint(args, remotionRoot, logLevel);
+	const {file, reason} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -46,10 +55,12 @@ export const studioCommand = async (
 
 	if (!file) {
 		Log.error(
+			{indent: false, logLevel},
 			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
-		Log.error('  npx remotion studio src/index.ts');
+		Log.error({indent: false, logLevel}, '  npx remotion studio src/index.ts');
 		Log.error(
+			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
@@ -60,7 +71,7 @@ export const studioCommand = async (
 	const fullEntryPath = convertEntryPointToServeUrl(file);
 
 	let inputProps = getInputProps((newProps) => {
-		StudioInternals.waitForLiveEventsListener().then((listener) => {
+		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
 			listener.sendEventToClient({
 				type: 'new-input-props',
@@ -68,21 +79,35 @@ export const studioCommand = async (
 			});
 		});
 	}, logLevel);
-	let envVariables = getEnvironmentVariables((newEnvVariables) => {
-		StudioInternals.waitForLiveEventsListener().then((listener) => {
-			envVariables = newEnvVariables;
-			listener.sendEventToClient({
-				type: 'new-env-variables',
-				newEnvVariables,
+	let envVariables = getEnvironmentVariables(
+		(newEnvVariables) => {
+			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+				envVariables = newEnvVariables;
+				listener.sendEventToClient({
+					type: 'new-env-variables',
+					newEnvVariables,
+				});
 			});
-		});
-	}, logLevel);
+		},
+		logLevel,
+		false,
+	);
 
-	const maxTimelineTracks = ConfigInternals.getMaxTimelineTracks();
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
-	await StudioInternals.startStudio({
+	const gitSource = getGitSource(remotionRoot);
+
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const relativePublicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	await StudioServerInternals.startStudio({
+		previewEntry: require.resolve('@remotion/studio/entry'),
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,
 		logLevel,
@@ -92,9 +117,9 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
-		maxTimelineTracks,
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
-		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
 		getRenderDefaults,
@@ -109,5 +134,10 @@ export const studioCommand = async (
 		// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
 		// @ts-expect-error
 		parsedCliOpen: parsedCli.open,
+		gitSource,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		binariesDirectory,
+		forceIPv4: parsedCli.ipv4,
 	});
 };

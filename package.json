@@ -7,11 +7,12 @@
     "test": "turbo run lint test",
     "stylecheck": "turbo run lint formatting",
     "build": "turbo run build",
+    "build-docs": "turbo run build-docs",
     "ci": "turbo run build test --concurrency=50%",
     "watch": "tsc -b --verbose -w",
     "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
     "release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
-    "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/tsconfig-cjs.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf packages/**/.rollup.cache"
+    "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/tsconfig-cjs.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo && rm -rf packages/**/.rollup.cache"
   },
   "engines": {
     "node": ">=16",
@@ -26,7 +27,7 @@
     "@types/node": "18.14.6"
   },
   "dependencies": {
-    "turbo": "1.10.16",
+    "turbo": "1.12.5",
     "typescript": "4.9.5"
   },
   "workspaces": [

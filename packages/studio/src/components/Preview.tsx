@@ -13,7 +13,6 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
-import {PreviewSizeContext} from '../state/preview-size';
 import {RenderPreview} from './RenderPreview';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
@@ -142,7 +141,7 @@ const CompWhenItHasDimensions: React.FC<{
 	canvasContent: CanvasContent;
 	assetMetadata: AssetMetadata | null;
 }> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
-	const {size: previewSize} = useContext(PreviewSizeContext);
+	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
 		if (contentDimensions === 'none') {

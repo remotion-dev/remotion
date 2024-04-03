@@ -1,9 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {JobProgressCallback, RenderJob} from '@remotion/studio';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
+import {parsedCli} from '../parse-command-line';
 import {renderVideoFlow} from '../render-flows/render';
+
+const {publicDirOption} = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
 	job,
@@ -24,17 +28,18 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	const {publicDir, browserExecutable, browser, ffmpegOverride} =
-		await getCliOptions({
-			isLambda: false,
-			type: 'still',
-			remotionRoot,
-			logLevel,
-		});
+	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const {browserExecutable, ffmpegOverride} = getCliOptions({
+		isStill: true,
+		logLevel,
+	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({
 		remotionRoot,
-		browser,
+		browser: 'chrome',
 		browserExecutable,
 		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as Studio',
@@ -72,7 +77,7 @@ export const processVideoJob = async ({
 		enforceAudioTrack: job.type === 'video' ? job.enforceAudioTrack : false,
 		proResProfile:
 			job.type === 'video' ? job.proResProfile ?? undefined : undefined,
-		x264Preset: job.type === 'video' ? job.x264Preset ?? undefined : undefined,
+		x264Preset: job.type === 'video' ? job.x264Preset ?? null : null,
 		pixelFormat: job.type === 'video' ? job.pixelFormat : 'yuv420p',
 		videoBitrate: job.type === 'video' ? job.videoBitrate : null,
 		encodingBufferSize: job.type === 'video' ? job.encodingBufferSize : null,
@@ -84,5 +89,10 @@ export const processVideoJob = async ({
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		colorSpace: job.type === 'video' ? job.colorSpace : 'default',
 		repro: job.repro,
+		binariesDirectory: job.binariesDirectory,
+		forSeamlessAacConcatenation:
+			job.type === 'video' ? job.forSeamlessAacConcatenation : false,
+		separateAudioTo: job.type === 'video' ? job.separateAudioTo : null,
+		publicPath: null,
 	});
 };

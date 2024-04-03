@@ -3,5 +3,5 @@ export const getAbsoluteSrc = (relativeSrc: string) => {
 		return relativeSrc;
 	}
 
-	return new URL(relativeSrc, window.location.origin).href;
+	return new URL(relativeSrc, window.origin).href;
 };

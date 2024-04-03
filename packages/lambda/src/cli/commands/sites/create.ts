@@ -31,18 +31,23 @@ export const sitesCreateSubcommand = async (
 	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
-	const {file, reason} = CliInternals.findEntryPoint(
+	const {file, reason} = CliInternals.findEntryPoint({
 		args,
 		remotionRoot,
 		logLevel,
-	);
+		allowDirectory: false,
+	});
 	if (!file) {
-		Log.error('No entry file passed.');
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} deploy <entry-file.ts>`,
+		);
 		quit(1);
 		return;
 	}
@@ -102,14 +107,16 @@ export const sitesCreateSubcommand = async (
 	const bucketStart = Date.now();
 
 	const enableFolderExpiry =
-		parsedLambdaCli[BrowserSafeApis.options.folderExpiryOption.cliFlag];
+		BrowserSafeApis.options.folderExpiryOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
 		(
 			await internalGetOrCreateBucket({
 				region: getAwsRegion(),
-				enableFolderExpiry: enableFolderExpiry ?? null,
+				enableFolderExpiry,
 				customCredentials: null,
 			})
 		).bucketName;
@@ -151,6 +158,7 @@ export const sitesCreateSubcommand = async (
 		},
 		region: getAwsRegion(),
 		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
+		gitSource: null,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
@@ -165,20 +173,22 @@ export const sitesCreateSubcommand = async (
 	};
 	updateProgress();
 
-	Log.info();
-	Log.info();
-	Log.info('Deployed to S3!');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Deployed to S3!');
 
-	Log.info(`Serve URL: ${serveUrl}`);
-	Log.info(`Site Name: ${siteName}`);
+	Log.info({indent: false, logLevel}, `Serve URL: ${serveUrl}`);
+	Log.info({indent: false, logLevel}, `Site Name: ${siteName}`);
 
-	Log.info();
+	Log.info({indent: false, logLevel});
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
 				.filter(NoReactInternals.truthy)

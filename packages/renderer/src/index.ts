@@ -1,20 +1,15 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
-import {
-	getDefaultAudioCodec,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
+import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
-import {combineVideos} from './combine-videos';
+import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {copyImageToClipboard} from './copy-to-clipboard';
@@ -36,7 +31,6 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -44,11 +38,10 @@ import {
 	validStillImageFormats,
 	validVideoImageFormats,
 } from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
+import {INDENT_TOKEN, Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
@@ -76,13 +69,13 @@ import {
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
+export {ensureBrowser, EnsureBrowserOptions} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -103,8 +96,15 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
+export {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
+export {NumberOfGifLoops} from './options/number-of-gif-loops';
+export {
+	DownloadBrowserProgressFn,
+	OnBrowserDownload,
+} from './options/on-browser-download';
 export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
+export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
@@ -129,8 +129,22 @@ export {
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
-export {X264Preset} from './x264-preset';
+export type {AudioCodec};
 
+import {makeDownloadMap} from './assets/download-map';
+import {codecSupportsMedia} from './codec-supports-media';
+import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {internalEnsureBrowser} from './ensure-browser';
+import type {AudioCodec} from './options/audio-codec';
+import {
+	getDefaultAudioCodec,
+	getExtensionFromAudioCodec,
+	isAudioCodec,
+	resolveAudioCodec,
+	supportedAudioCodecs,
+} from './options/audio-codec';
+import {getShouldRenderAudio} from './render-has-audio';
+import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -139,7 +153,6 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
-	ensureLocalBrowser,
 	getActualConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
@@ -184,18 +197,16 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
-	combineVideos,
+	combineChunks,
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,
-	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
 	makeFileExtensionMap,
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -203,8 +214,6 @@ export const RenderInternals = {
 	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
-	getLogLevel,
-	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
 	HeadlessBrowser,
@@ -221,6 +230,14 @@ export const RenderInternals = {
 	isIpV6Supported,
 	getChromiumGpuInformation,
 	getPortConfig,
+	makeDownloadMap,
+	getExtensionFromAudioCodec,
+	makeFileExecutableIfItIsNot,
+	resolveAudioCodec,
+	getShouldRenderAudio,
+	codecSupportsMedia,
+	toMegabytes,
+	internalEnsureBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

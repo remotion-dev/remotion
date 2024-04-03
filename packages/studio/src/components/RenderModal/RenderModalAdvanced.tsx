@@ -1,11 +1,10 @@
 import type {Codec, LogLevel, X264Preset} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {UiOpenGlOptions} from '@remotion/studio-shared';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {labelx264Preset} from '../../helpers/presets-labels';
-
 import {Checkmark} from '../../icons/Checkmark';
-import type {UiOpenGlOptions} from '../../required-chromium-options';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -250,7 +249,10 @@ export const RenderModalAdvanced: React.FC<{
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={optionRow}>
-				<div style={label}>Verbose logging</div>
+				<div style={label}>
+					Verbose logging <Spacing x={0.5} />
+					<OptionExplainerBubble id="logLevelOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={logLevel === 'verbose'}
@@ -272,7 +274,11 @@ export const RenderModalAdvanced: React.FC<{
 			)}
 			{renderMode === 'video' && codec === 'h264' ? (
 				<div style={optionRow}>
-					<div style={label}>x264 Preset</div>
+					<div style={label}>
+						x264 Preset
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="x264Option" />
+					</div>
 					<div style={rightRow}>
 						<Combobox
 							title={x264Preset as string}
@@ -291,6 +297,7 @@ export const RenderModalAdvanced: React.FC<{
 				onValueChanged={setDelayRenderTimeout}
 				formatter={(w) => `${w}ms`}
 				step={1000}
+				hint="delayRenderTimeoutInMillisecondsOption"
 				value={delayRenderTimeout}
 			/>
 			<div style={optionRow}>
@@ -307,7 +314,7 @@ export const RenderModalAdvanced: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>Custom OffthreadVideo cache</div>
 					<Spacing x={0.5} />
-					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytes" />
+					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
@@ -351,7 +358,11 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Headless mode</div>
+				<div style={label}>
+					Headless mode
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="headlessOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox checked={headless} onChange={onHeadless} name="headless" />
 				</div>

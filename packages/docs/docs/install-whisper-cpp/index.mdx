@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-install-whisper-cpp-index.png
+title: "@remotion/install-whisper-cpp"
+crumb: "Transcribe audio locally"
+---
+
+_Available from v4.0.115_
+
+With [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), you can transcribe audio locally on your machine.  
+This package provides easy to use cross-platform functions to install Whisper.cpp and a model.
+
+import { TableOfContents } from "../../components/TableOfContents/install-whisper-cpp";
+
+<Installation pkg="@remotion/install-whisper-cpp" />
+
+## Example usage
+
+Install Whisper at commit `48a145` (a ref that we find works well and supports token-level timestamps) and the `base.en` model to the `whisper.cpp` folder.
+
+```tsx twoslash title="install-whisper.cpp"
+// @module: esnext
+// @target: es2022
+import path from "path";
+import {
+  downloadWhisperModel,
+  installWhisperCpp,
+  transcribe,
+  convertToCaptions,
+} from "@remotion/install-whisper-cpp";
+
+const to = path.join(process.cwd(), "whisper.cpp");
+
+await installWhisperCpp({
+  to,
+  version: "48a145", // Commit after 1.5.4 that supports token-level timestamps
+});
+
+await downloadWhisperModel({
+  model: "medium.en",
+  folder: to,
+});
+
+const { transcription } = await transcribe({
+  model: "medium.en",
+  whisperPath: to,
+  inputPath: "/path/to/audio.wav",
+  tokenLevelTimestamps: true,
+});
+
+for (const token of transcription) {
+  console.log(token.timestamps.from, token.timestamps.to, token.text);
+}
+
+// Optional: Apply our recommended postprocessing
+const { captions } = convertToCaptions({
+  transcription,
+  combineTokensWithinMilliseconds: 200,
+});
+
+for (const line of captions) {
+  console.log(line.text, line.startInSeconds);
+}
+```
+
+## Functions
+
+<TableOfContents />
+
+## License
+
+MIT

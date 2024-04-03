@@ -1,5 +1,12 @@
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 
+// https://github.com/remotion-dev/remotion/issues/3412#issuecomment-1910120552
+// eslint-disable-next-line no-useless-concat
+function getEnvVar() {
+	const parts = ['proc', 'ess', '.', 'en', 'v', '.', 'NOD', 'E_EN', 'V'];
+	return parts.join('');
+}
+
 const getEnvVariables = (): Record<string, string> => {
 	if (getRemotionEnvironment().isRendering) {
 		const param = window.remotion_envVariables;
@@ -10,17 +17,15 @@ const getEnvVariables = (): Record<string, string> => {
 		return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
 	}
 
-	if (getRemotionEnvironment().isStudio) {
-		// For the Studio, we already set the environment variables in index-html.ts.
-		// We just add NODE_ENV here.
-		return {
-			NODE_ENV: 'development',
-		};
+	// For the Studio, we already set the environment variables in index-html.ts.
+	// We just add NODE_ENV here.
+	if (!process.env.NODE_ENV) {
+		throw new Error(`${getEnvVar()} is not set`);
 	}
 
-	throw new Error(
-		'Can only call getEnvVariables() if environment is `rendering` or `preview`',
-	);
+	return {
+		NODE_ENV: process.env.NODE_ENV,
+	};
 };
 
 export const setupEnvVariables = () => {

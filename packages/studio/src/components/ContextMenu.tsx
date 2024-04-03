@@ -1,12 +1,14 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {getPortal} from './Menu/portals';
 import {
 	fullScreenOverlay,
 	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
 	menuContainerTowardsTop,
 	outerPortal,
 } from './Menu/styles';
@@ -39,6 +41,7 @@ export const ContextMenu: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const isMobileLayout = useMobileLayout();
 
 	useEffect(() => {
 		const {current} = ref;
@@ -86,31 +89,36 @@ export const ContextMenu: React.FC<{
 			return;
 		}
 
-		const spaceToRight = size.windowSize.width - (opened.left + size.width);
-		const minSpaceToRightRequired = MAX_MENU_WIDTH;
+		const spaceToRight = size.windowSize.width - size.left;
+		const spaceToLeft = size.left + size.width;
+
+		const minSpaceRequired = isMobileLayout
+			? MAX_MOBILE_MENU_WIDTH
+			: MAX_MENU_WIDTH;
 
 		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
-		const horizontalLayout =
-			spaceToRight >= minSpaceToRightRequired ? 'left' : 'right';
+		const canOpenOnLeft = spaceToLeft >= minSpaceRequired;
+		const canOpenOnRight = spaceToRight >= minSpaceRequired;
+		const horizontalLayout = canOpenOnRight ? 'left' : 'right';
 
 		return {
 			...menuContainerTowardsTop,
 			...(verticalLayout === 'top'
 				? {
 						top: opened.top,
-				  }
+					}
 				: {
 						bottom: size.windowSize.height - opened.top,
-				  }),
+					}),
 			...(horizontalLayout === 'left'
 				? {
 						left: opened.left,
-				  }
+					}
 				: {
-						right: size.windowSize.width - opened.left,
-				  }),
+						right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
+					}),
 		};
-	}, [opened, spaceToBottom, spaceToTop, size]);
+	}, [opened.type, size, isMobileLayout, spaceToTop, spaceToBottom]);
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
@@ -142,7 +150,7 @@ export const ContextMenu: React.FC<{
 							</div>
 						</div>,
 						getPortal(currentZIndex),
-				  )
+					)
 				: null}
 		</>
 	);

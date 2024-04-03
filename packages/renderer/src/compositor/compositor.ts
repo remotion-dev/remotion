@@ -1,12 +1,12 @@
 import {spawn} from 'node:child_process';
-import {chmodSync} from 'node:fs';
-import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import path from 'node:path';
 import {getActualConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
+import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
@@ -15,7 +15,7 @@ import type {
 } from './payloads';
 
 export type Compositor = {
-	finishCommands: () => void;
+	finishCommands: () => Promise<void>;
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
 		payload: CompositorCommand[T],
@@ -33,21 +33,24 @@ export const startLongRunningCompositor = ({
 	maximumFrameCacheItemsInBytes,
 	logLevel,
 	indent,
+	binariesDirectory,
 }: {
 	maximumFrameCacheItemsInBytes: number | null;
 	logLevel: LogLevel;
 	indent: boolean;
+	binariesDirectory: string | null;
 }) => {
-	return startCompositor(
-		'StartLongRunningProcess',
-		{
+	return startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency: getActualConcurrency(null),
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
 		indent,
-	);
+		binariesDirectory,
+	});
 };
 
 type RunningStatus =
@@ -64,27 +67,35 @@ type RunningStatus =
 			signal: NodeJS.Signals | null;
 	  };
 
-export const startCompositor = <T extends keyof CompositorCommand>(
-	type: T,
-	payload: CompositorCommand[T],
-	logLevel: LogLevel,
-	indent: boolean,
-): Compositor => {
-	const bin = getExecutablePath('compositor', indent, logLevel);
-	if (!process.env.READ_ONLY_FS) {
-		chmodSync(bin, 0o755);
-	}
+export const startCompositor = <T extends keyof CompositorCommand>({
+	type,
+	payload,
+	logLevel,
+	indent,
+	binariesDirectory = null,
+}: {
+	type: T;
+	payload: CompositorCommand[T];
+	logLevel: LogLevel;
+	indent: boolean;
+	binariesDirectory: string | null;
+}): Compositor => {
+	const bin = getExecutablePath({
+		type: 'compositor',
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
+	makeFileExecutableIfItIsNot(bin);
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,
 		payload,
 	);
 
-	const child = spawn(
-		bin,
-		[JSON.stringify(fullCommand)],
-		dynamicLibraryPathOptions(indent, logLevel),
-	);
+	const child = spawn(bin, [JSON.stringify(fullCommand)], {
+		cwd: path.dirname(bin),
+	});
 
 	const stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
@@ -301,47 +312,70 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				reject = rej;
 			});
 		},
-		finishCommands: () => {
+		finishCommands: (): Promise<void> => {
 			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}: ${runningStatus.error}`,
+				return Promise.reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}: ${runningStatus.error}`,
+					),
 				);
 			}
 
 			if (runningStatus.type === 'quit-without-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`,
+				return Promise.reject(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}`,
+					),
 				);
 			}
 
-			child.stdin.write('EOF\n');
+			return new Promise<void>((res, rej) => {
+				child.stdin.write('EOF\n', (e) => {
+					if (e) {
+						rej(e);
+						return;
+					}
+
+					res();
+				});
+			});
 		},
 
 		executeCommand: <Type extends keyof CompositorCommand>(
 			command: Type,
 			params: CompositorCommand[Type],
 		) => {
-			if (runningStatus.type === 'quit-without-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}`,
-				);
-			}
-
-			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(
-					`Compositor quit${
-						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-					}: ${runningStatus.error}`,
-				);
-			}
-
 			return new Promise<Buffer>((_resolve, _reject) => {
+				if (runningStatus.type === 'quit-without-error') {
+					_reject(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}`,
+						),
+					);
+					return;
+				}
+
+				if (runningStatus.type === 'quit-with-error') {
+					_reject(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}: ${runningStatus.error}`,
+						),
+					);
+					return;
+				}
+
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
 					nonce,
@@ -350,7 +384,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 						params,
 					},
 				};
-				child.stdin.write(JSON.stringify(composed) + '\n');
+				child.stdin.write(JSON.stringify(composed) + '\n', (e) => {
+					if (e) {
+						_reject(e);
+					}
+				});
 				waiters.set(nonce, {
 					resolve: _resolve,
 					reject: _reject,

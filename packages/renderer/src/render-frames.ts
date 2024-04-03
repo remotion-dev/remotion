@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TRenderAsset, VideoConfig} from 'remotion/no-react';
+// eslint-disable-next-line no-restricted-imports
+import type {TAsset} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -10,6 +12,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
@@ -24,6 +27,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
+import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
 import {
 	getFilePadLength,
@@ -32,8 +36,8 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {type LogLevel} from './log-level';
-import {getLogLevel, Log} from './logger';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -82,7 +86,6 @@ export type InternalRenderFramesOptions = {
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
 	onDownload: RenderMediaOnDownload | null;
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	port: number | null;
@@ -93,10 +96,10 @@ export type InternalRenderFramesOptions = {
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
+	compositionStart: number;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -111,7 +114,6 @@ type InnerRenderFramesOptions = {
 	outputDir: string | null;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
-	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -132,11 +134,16 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
-	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
+	compositionStart: number;
+} & ToOptions<typeof optionsMap.renderFrames>;
+
+export type FrameAndAssets = {
+	frame: number;
+	assets: TAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -154,7 +161,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Renamed to "jpegQuality"
 	 */
 	quality?: never;
-	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	/**
@@ -165,7 +171,6 @@ export type RenderFramesOptions = {
 	 * @deprecated Use "logLevel" instead
 	 */
 	verbose?: boolean;
-	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -180,8 +185,7 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
 const innerRenderFrames = async ({
 	onFrameUpdate,
@@ -215,7 +219,12 @@ const innerRenderFrames = async ({
 	logLevel,
 	indent,
 	parallelEncodingEnabled,
-}: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
+	compositionStart,
+	forSeamlessAacConcatenation,
+}: Omit<
+	InnerRenderFramesOptions,
+	'offthreadVideoCacheSizeInBytes'
+>): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -230,6 +239,19 @@ const innerRenderFrames = async ({
 		composition.durationInFrames,
 		frameRange,
 	);
+
+	const {
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
+		chunkLengthInSeconds,
+		trimLeftOffset,
+		trimRightOffset,
+	} = getExtraFramesToCapture({
+		fps: composition.fps,
+		compositionStart,
+		realFrameRange,
+		forSeamlessAacConcatenation,
+	});
 
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
@@ -343,13 +365,13 @@ const innerRenderFrames = async ({
 		parallelEncoding: parallelEncodingEnabled,
 	});
 
-	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
-		undefined,
-	);
+	const assets: FrameAndAssets[] = [];
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
 	});
+
+	const frameDir = outputDir ?? downloadMap.compositingDir;
 
 	const renderFrameWithOptionToReject = async ({
 		frame,
@@ -358,13 +380,15 @@ const innerRenderFrames = async ({
 		width,
 		height,
 		compId,
+		assetsOnly,
 	}: {
 		frame: number;
-		index: number;
+		index: number | null;
 		reject: (err: Error) => void;
 		width: number;
 		height: number;
 		compId: string;
+		assetsOnly: boolean;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -419,24 +443,25 @@ const innerRenderFrames = async ({
 
 		const id = startPerfMeasure('save');
 
-		const frameDir = outputDir ?? downloadMap.compositingDir;
-
 		const {buffer, collectedAssets} = await takeFrameAndCompose({
 			frame,
 			freePage,
 			height,
-			imageFormat,
-			output: path.join(
-				frameDir,
-				getFrameOutputFileName({
-					frame,
-					imageFormat,
-					index,
-					countType,
-					lastFrame,
-					totalFrames: framesToRender.length,
-				}),
-			),
+			imageFormat: assetsOnly ? 'none' : imageFormat,
+			output:
+				index === null
+					? null
+					: path.join(
+							frameDir,
+							getFrameOutputFileName({
+								frame,
+								imageFormat,
+								index,
+								countType,
+								lastFrame,
+								totalFrames: framesToRender.length,
+							}),
+						),
 			jpegQuality,
 			width,
 			scale,
@@ -445,7 +470,7 @@ const innerRenderFrames = async ({
 			compositor,
 			timeoutInMilliseconds,
 		});
-		if (onFrameBuffer) {
+		if (onFrameBuffer && !assetsOnly) {
 			if (!buffer) {
 				throw new Error('unexpected null buffer');
 			}
@@ -456,9 +481,18 @@ const innerRenderFrames = async ({
 		stopPerfMeasure(id);
 
 		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(assets.filter(truthy).flat(1), asset),
+			compressAsset(
+				assets
+					.filter(truthy)
+					.map((a) => a.assets)
+					.flat(2),
+				asset,
+			),
 		);
-		assets[index] = compressedAssets;
+		assets.push({
+			assets: compressedAssets,
+			frame,
+		});
 		compressedAssets.forEach((renderAsset) => {
 			downloadAndMapAssetsToFileUrl({
 				renderAsset,
@@ -472,14 +506,21 @@ const innerRenderFrames = async ({
 				);
 			});
 		});
-		framesRendered++;
-		onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
+		if (!assetsOnly) {
+			framesRendered++;
+			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
+		}
+
 		cleanupPageError();
 		freePage.off('error', errorCallbackOnFrame);
 		pool.release(freePage);
 	};
 
-	const renderFrame = (frame: number, index: number) => {
+	const renderFrame = (
+		frame: number,
+		index: number | null,
+		assetsOnly: boolean,
+	) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
 				frame,
@@ -488,6 +529,7 @@ const innerRenderFrames = async ({
 				width: composition.width,
 				height: composition.height,
 				compId: composition.id,
+				assetsOnly,
 			})
 				.then(() => {
 					resolve();
@@ -503,15 +545,17 @@ const innerRenderFrames = async ({
 		index,
 		retriesLeft,
 		attempt,
+		assetsOnly,
 	}: {
 		frame: number;
-		index: number;
+		index: number | null;
 		retriesLeft: number;
 		attempt: number;
+		assetsOnly: boolean;
 	}) => {
 		try {
 			await Promise.race([
-				renderFrame(frame, index),
+				renderFrame(frame, index, assetsOnly),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -556,41 +600,76 @@ const innerRenderFrames = async ({
 				index,
 				retriesLeft: retriesLeft - 1,
 				attempt: attempt + 1,
+				assetsOnly,
 			});
 		}
 	};
 
-	const progress = Promise.all(
-		framesToRender.map((frame, index) =>
-			renderFrameAndRetryTargetClose({
+	// Render the extra frames at the beginning of the video first,
+	// then the regular frames, then the extra frames at the end of the video.
+	// While the order technically doesn't matter, components such as <Video> are
+	// not always frame perfect and give a flicker.
+	// We reduce the chance of flicker by rendering the frames in order.
+
+	await Promise.all(
+		extraFramesToCaptureAssetsFrontend.map((frame) => {
+			return renderFrameAndRetryTargetClose({
+				frame,
+				index: null,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assetsOnly: true,
+			});
+		}),
+	);
+	await Promise.all(
+		framesToRender.map((frame, index) => {
+			return renderFrameAndRetryTargetClose({
 				frame,
 				index,
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
-			}),
-		),
+				assetsOnly: false,
+			});
+		}),
 	);
 
-	const happyPath = progress.then(() => {
-		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
-		const returnValue: RenderFramesOutput = {
-			assetsInfo: {
-				assets,
-				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-				firstFrameIndex,
-				downloadMap,
-			},
-			frameCount: framesToRender.length,
-		};
-		return returnValue;
-	});
+	await Promise.all(
+		extraFramesToCaptureAssetsBackend.map((frame) => {
+			return renderFrameAndRetryTargetClose({
+				frame,
+				index: null,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assetsOnly: true,
+			});
+		}),
+	);
 
-	const result = await happyPath;
+	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
+
 	await Promise.all(downloadPromises);
-	return result;
+	return {
+		assetsInfo: {
+			assets: assets.sort((a, b) => {
+				return a.frame - b.frame;
+			}),
+			imageSequenceName: path.join(
+				frameDir,
+				`element-%0${filePadLength}d.${imageFormat}`,
+			),
+			firstFrameIndex,
+			downloadMap,
+			trimLeftOffset,
+			trimRightOffset,
+			chunkLengthInSeconds,
+			forSeamlessAacConcatenation,
+		},
+		frameCount: framesToRender.length,
+	};
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
 const internalRenderFramesRaw = ({
 	browserExecutable,
@@ -622,6 +701,10 @@ const internalRenderFramesRaw = ({
 	serializedResolvedPropsWithCustomSchema,
 	offthreadVideoCacheSizeInBytes,
 	parallelEncodingEnabled,
+	binariesDirectory,
+	forSeamlessAacConcatenation,
+	compositionStart,
+	onBrowserDownload,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -655,6 +738,7 @@ const internalRenderFramesRaw = ({
 			indent,
 			viewport: null,
 			logLevel,
+			onBrowserDownload,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -687,6 +771,8 @@ const internalRenderFramesRaw = ({
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
+						binariesDirectory,
+						forceIPv4: false,
 					},
 					{
 						onDownload,
@@ -700,10 +786,16 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-				cleanup.push(
-					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
-						.stopCycling,
+				const cycle = cycleBrowserTabs(
+					browserReplacer,
+					actualConcurrency,
+					logLevel,
+					indent,
 				);
+				cleanup.push(() => {
+					cycle.stopCycling();
+					return Promise.resolve();
+				});
 				cleanup.push(() => cleanupServer(false));
 
 				return innerRenderFrames({
@@ -738,6 +830,10 @@ const internalRenderFramesRaw = ({
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
 					parallelEncodingEnabled,
+					binariesDirectory,
+					forSeamlessAacConcatenation,
+					compositionStart,
+					onBrowserDownload,
 				});
 			}),
 		])
@@ -818,8 +914,10 @@ export const renderFrames = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
-		logLevel,
+		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	if (!composition) {
@@ -840,6 +938,10 @@ export const renderFrames = (
 		);
 	}
 
+	const logLevel: LogLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+	const indent = false;
+
 	return internalRenderFrames({
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
@@ -850,7 +952,7 @@ export const renderFrames = (
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? 'jpeg',
-		indent: false,
+		indent,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
 		serializedInputPropsWithCustomSchema:
@@ -874,12 +976,17 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel:
-			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
+		logLevel,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		parallelEncodingEnabled: false,
+		binariesDirectory: binariesDirectory ?? null,
+		compositionStart: 0,
+		forSeamlessAacConcatenation: false,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
 	});
 };

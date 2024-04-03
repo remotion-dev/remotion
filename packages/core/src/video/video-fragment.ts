@@ -5,10 +5,14 @@ const toSeconds = (time: number, fps: number) => {
 };
 
 export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+
+	return isIpadIPodIPhone && isAppleWebKit;
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655

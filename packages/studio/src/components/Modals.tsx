@@ -1,13 +1,17 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
-import NewComposition from './NewComposition/NewComposition';
+import {DeleteComposition} from './NewComposition/DeleteComposition';
+import {DuplicateComposition} from './NewComposition/DuplicateComposition';
+import {RenameComposition} from './NewComposition/RenameComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderModalWithLoader} from './RenderModal/RenderModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
-export const Modals: React.FC = () => {
+export const Modals: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
 	const canRender =
 		useContext(StudioServerConnectionCtx).previewServerState.type ===
@@ -15,8 +19,14 @@ export const Modals: React.FC = () => {
 
 	return (
 		<>
-			{modalContextType && modalContextType.type === 'new-comp' && (
-				<NewComposition initialCompType={modalContextType.compType} />
+			{modalContextType && modalContextType.type === 'duplicate-comp' && (
+				<DuplicateComposition compositionId={modalContextType.compositionId} />
+			)}
+			{modalContextType && modalContextType.type === 'delete-comp' && (
+				<DeleteComposition compositionId={modalContextType.compositionId} />
+			)}
+			{modalContextType && modalContextType.type === 'rename-comp' && (
+				<RenameComposition compositionId={modalContextType.compositionId} />
 			)}
 
 			{modalContextType && canRender && modalContextType.type === 'render' && (
@@ -60,6 +70,9 @@ export const Modals: React.FC = () => {
 					}
 					initialRepro={modalContextType.initialRepro}
 					initialBeep={modalContextType.initialBeep}
+					initialForSeamlessAacConcatenation={
+						modalContextType.initialForSeamlessAacConcatenation
+					}
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
@@ -87,6 +100,7 @@ export const Modals: React.FC = () => {
 
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
+					readOnlyStudio={readOnlyStudio}
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 				/>

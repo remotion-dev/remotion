@@ -1,3 +1,7 @@
+const roundTo6Commas = (num: number) => {
+	return Math.round(num * 100_000) / 100_000;
+};
+
 export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	element.currentTime = desiredTime;
 
@@ -50,6 +54,17 @@ export const seekToTimeMultipleUntilRight = (
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
 
+	if (
+		Number.isFinite(element.duration) &&
+		element.currentTime >= element.duration &&
+		desiredTime >= element.duration
+	) {
+		return {
+			prom: Promise.resolve(),
+			cancel: () => {},
+		};
+	}
+
 	const prom = new Promise<void>((resolve, reject) => {
 		const firstSeek = seekToTime(element, desiredTime + threshold);
 		firstSeek.wait.then((seekedTo) => {
@@ -67,15 +82,19 @@ export const seekToTimeMultipleUntilRight = (
 				.then((newTime) => {
 					const newDifference = Math.abs(desiredTime - newTime);
 
-					if (newDifference <= threshold) {
+					if (roundTo6Commas(newDifference) <= roundTo6Commas(threshold)) {
 						return resolve();
 					}
 
-					const thirdSeek = seekToTime(element, desiredTime);
+					const thirdSeek = seekToTime(element, desiredTime + threshold);
 					currentCancel = thirdSeek.cancel;
-					return thirdSeek.wait.then(() => {
-						resolve();
-					});
+					return thirdSeek.wait
+						.then(() => {
+							resolve();
+						})
+						.catch((err) => {
+							reject(err);
+						});
 				})
 				.catch((err) => {
 					reject(err);

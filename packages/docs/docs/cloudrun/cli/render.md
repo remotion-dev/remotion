@@ -20,7 +20,7 @@ npx remotion cloudrun render <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a Remotion project to a GCP Storage Bucket using the [`sites create`](/docs/cloudrun/cli/sites#create) command or calling [`deployService()`](/docs/cloudrun/deployservice).
-- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
+- The [composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your Cloud Storage bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -106,23 +106,15 @@ Specify the name of the service which should be used to perform the render. This
 
 ### `--audio-codec`
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ### `--video-bitrate`
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ### `--prores-profile`
 
@@ -130,10 +122,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--x264-preset`
 
-[Set the Preset profile](/docs/config#setx264preset).
-Sets a Preset profile. Only applies to videos rendered with `h264` codec.
-Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
-Default: `medium`
+<Options id="x264-preset" />
 
 ### `--crf`
 

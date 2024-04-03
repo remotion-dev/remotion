@@ -45,7 +45,10 @@ const padding: React.CSSProperties = {
 	width: TIMELINE_PADDING,
 };
 
-export const PreviewToolbar: React.FC = () => {
+export const PreviewToolbar: React.FC<{
+	readOnlyStudio: boolean;
+	bufferStateDelayInMilliseconds: number;
+}> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
 	);
@@ -77,7 +80,11 @@ export const PreviewToolbar: React.FC = () => {
 			{isVideoComposition ? (
 				<>
 					<Spacing x={2} />
-					<PlayPause loop={loop} playbackRate={playbackRate} />
+					<PlayPause
+						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+						loop={loop}
+						playbackRate={playbackRate}
+					/>
 					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
@@ -94,7 +101,7 @@ export const PreviewToolbar: React.FC = () => {
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
-				<RenderButton />
+				{readOnlyStudio ? null : <RenderButton />}
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />

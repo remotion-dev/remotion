@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -8,51 +9,66 @@ import {validateSubcommand, VALIDATE_SUBCOMMAND} from './validate';
 
 export const POLICIES_COMMAND = 'policies';
 
-const printPoliciesHelp = () => {
-	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} <subcommand>`);
-	Log.info();
-	Log.info('Available subcommands:');
-	Log.info('');
-	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${USER_SUBCOMMAND}`);
+const printPoliciesHelp = (logLevel: LogLevel) => {
 	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${POLICIES_COMMAND} <subcommand>`,
+	);
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available subcommands:');
+	Log.info({indent: false, logLevel}, '');
+	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${POLICIES_COMMAND} ${USER_SUBCOMMAND}`,
+	);
+	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'Print the suggested policy to be applied to the user that is attached to the access token.',
 		),
 	);
-	Log.info();
-	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}`);
+	Log.info({indent: false, logLevel});
 	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}`,
+	);
+	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'Print the suggested policy to be applied to the role that is attached to the lambda function.',
 		),
 	);
-	Log.info();
-	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${VALIDATE_SUBCOMMAND}`);
+	Log.info({indent: false, logLevel});
 	Log.info(
+		{indent: false, logLevel},
+		`${BINARY_NAME} ${POLICIES_COMMAND} ${VALIDATE_SUBCOMMAND}`,
+	);
+	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'Validate the current policies setup is correct by running tests using the AWS policy simulator.',
 		),
 	);
 };
 
-export const policiesCommand = (args: string[]) => {
+export const policiesCommand = (args: string[], logLevel: LogLevel) => {
 	if (args[0] === USER_SUBCOMMAND) {
-		return userSubcommand();
+		return userSubcommand(logLevel);
 	}
 
 	if (args[0] === ROLE_SUBCOMMAND) {
-		return roleSubcommand();
+		return roleSubcommand(logLevel);
 	}
 
 	if (args[0] === VALIDATE_SUBCOMMAND) {
-		return validateSubcommand();
+		return validateSubcommand(logLevel);
 	}
 
 	if (args[0]) {
-		Log.error(`Subcommand ${args[0]} not found.`);
-		printPoliciesHelp();
+		Log.error({indent: false, logLevel}, `Subcommand ${args[0]} not found.`);
+		printPoliciesHelp(logLevel);
 		quit(1);
 	}
 
-	printPoliciesHelp();
+	printPoliciesHelp(logLevel);
 };

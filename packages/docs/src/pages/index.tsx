@@ -2,12 +2,16 @@ import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import React from "react";
 import { VideoApps } from "../../components/LambdaSplash/VideoApps";
-import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
+import {
+  PricingTitle,
+  VideoAppsTitle,
+} from "../../components/LambdaSplash/VideoAppsTitle";
 import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
-import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
+import { NewsletterButton } from "../../components/LandingPage/NewsletterButton";
 import { Parametrize } from "../../components/LandingPage/parametrize";
+import { Pricing } from "../../components/LandingPage/Pricing";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
@@ -57,7 +61,13 @@ const NewLanding: React.FC = () => {
           <VideoApps active="remotion" />
           <br />
           <br />
-          <FreePricing />
+          <PricingTitle />
+          <Pricing />
+
+          <NewsletterButton />
+          <br />
+          <br />
+          <br />
         </div>
       </div>
     </Layout>

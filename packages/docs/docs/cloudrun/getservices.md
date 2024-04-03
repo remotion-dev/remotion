@@ -28,7 +28,7 @@ If you are sure that a service exists, you can also guess the name of it using [
 // @module: esnext
 // @target: es2017
 
-import { getServices } from "@remotion/cloudrun";
+import { getServices } from "@remotion/cloudrun/client";
 
 const info = await getServices({
   region: "us-east1",
@@ -46,6 +46,10 @@ for (const service of info) {
   console.log(service.consoleUrl); // "https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/logs"
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Argument
 

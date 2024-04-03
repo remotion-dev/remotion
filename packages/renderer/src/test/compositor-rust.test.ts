@@ -6,8 +6,9 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
-			logLevel: 'verbose',
+			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const matching = await Promise.all(
@@ -24,7 +25,7 @@ test(
 			}),
 		);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 		expect(matching.every((m) => m)).toBe(true);
 	},

@@ -10,19 +10,12 @@ import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-
-const container: React.CSSProperties = {
-	height: '100%',
-	width: '100%',
-	position: 'absolute',
-	display: 'flex',
-	flexDirection: 'column',
-};
 
 const circle: React.CSSProperties = {
 	width: 8,
@@ -34,7 +27,11 @@ type OptionsSidebarPanel = 'input-props' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
 
-const getSelectedPanel = (): OptionsSidebarPanel => {
+const getSelectedPanel = (readOnlyStudio: boolean): OptionsSidebarPanel => {
+	if (readOnlyStudio) {
+		return 'input-props';
+	}
+
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'renders') {
 		return 'renders';
@@ -57,11 +54,28 @@ export const optionsSidebarTabs = createRef<{
 	selectRendersPanel: () => void;
 }>();
 
-export const OptionsPanel: React.FC<{}> = () => {
+export const OptionsPanel: React.FC<{
+	readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 	const [saving, setSaving] = useState(false);
+
+	const isMobileLayout = useMobileLayout();
+
+	const container: React.CSSProperties = useMemo(
+		() => ({
+			height: '100%',
+			width: '100%',
+			display: 'flex',
+			position: isMobileLayout ? 'relative' : 'absolute',
+			flexDirection: 'column',
+			flex: 1,
+		}),
+		[isMobileLayout],
+	);
+
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
-		getSelectedPanel(),
+		getSelectedPanel(readOnlyStudio),
 	);
 	const onPropsSelected = useCallback(() => {
 		setPanel('input-props');
@@ -170,10 +184,12 @@ export const OptionsPanel: React.FC<{}> = () => {
 							) : null}
 						</Tab>
 					) : null}
-					<RendersTab
-						onClick={onRendersSelected}
-						selected={panel === 'renders'}
-					/>
+					{readOnlyStudio ? null : (
+						<RendersTab
+							onClick={onRendersSelected}
+							selected={panel === 'renders'}
+						/>
+					)}
 				</Tabs>
 			</div>
 			{panel === `input-props` && composition ? (
@@ -186,8 +202,9 @@ export const OptionsPanel: React.FC<{}> = () => {
 					propsEditType="default-props"
 					saving={saving}
 					setSaving={setSaving}
+					readOnlyStudio={readOnlyStudio}
 				/>
-			) : (
+			) : readOnlyStudio ? null : (
 				<RenderQueue />
 			)}
 		</div>

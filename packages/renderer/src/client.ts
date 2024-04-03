@@ -1,8 +1,3 @@
-import {
-	defaultAudioCodecs,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
@@ -16,12 +11,20 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {validStillImageFormats, validVideoImageFormats} from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {logLevels} from './log-level';
 import {allOptions} from './options';
+import {
+	defaultAudioCodecs,
+	getExtensionFromAudioCodec,
+	isAudioCodec,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './options/audio-codec';
 import {validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
+import {getOutputCodecOrUndefined} from './options/video-codec';
+import {x264PresetOptions} from './options/x264-preset';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	validPixelFormats,
@@ -29,9 +32,8 @@ import {
 } from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-import {x264PresetOptions} from './x264-preset';
 
-export {AvailableOptions} from './options';
+export {AvailableOptions, TypeOfOption} from './options';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -60,4 +62,6 @@ export const BrowserSafeApis = {
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
 	logLevels,
+	getOutputCodecOrUndefined,
+	getExtensionFromAudioCodec,
 };

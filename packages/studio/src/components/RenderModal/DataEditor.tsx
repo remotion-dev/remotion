@@ -14,7 +14,7 @@ import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -119,6 +119,7 @@ export const DataEditor: React.FC<{
 	propsEditType: PropsEditType;
 	saving: boolean;
 	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
 	inputProps,
@@ -127,6 +128,7 @@ export const DataEditor: React.FC<{
 	propsEditType,
 	saving,
 	setSaving,
+	readOnlyStudio,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
@@ -210,7 +212,10 @@ export const DataEditor: React.FC<{
 
 	const checkIfCanSaveDefaultProps = useCallback(async () => {
 		try {
-			const can = await canUpdateDefaultProps(unresolvedComposition.id);
+			const can = await canUpdateDefaultProps(
+				unresolvedComposition.id,
+				readOnlyStudio,
+			);
 
 			if (can.canUpdate) {
 				setCanSaveDefaultProps((prevState) => ({
@@ -239,7 +244,7 @@ export const DataEditor: React.FC<{
 				},
 			}));
 		}
-	}, [unresolvedComposition.id]);
+	}, [readOnlyStudio, unresolvedComposition.id]);
 
 	useEffect(() => {
 		checkIfCanSaveDefaultProps();
@@ -283,7 +288,7 @@ export const DataEditor: React.FC<{
 
 	const onUpdate = useCallback(() => {
 		if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
-			sendErrorNotification('Cannot update default props: No Zod schema');
+			showNotification('Cannot update default props: No Zod schema', 2000);
 			return;
 		}
 
@@ -293,8 +298,9 @@ export const DataEditor: React.FC<{
 			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
-				sendErrorNotification(
-					'Cannot update default props: ' + response.reason,
+				showNotification(
+					`Cannot update default props: ${response.reason}`,
+					2000,
 				);
 			}
 		});
@@ -309,7 +315,7 @@ export const DataEditor: React.FC<{
 			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
 		) => {
 			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
-				sendErrorNotification('Cannot update default props: No Zod schema');
+				showNotification('Cannot update default props: No Zod schema', 2000);
 				return;
 			}
 
@@ -323,13 +329,14 @@ export const DataEditor: React.FC<{
 					if (!response.success) {
 						// eslint-disable-next-line no-console
 						console.log(response.stack);
-						sendErrorNotification(
+						showNotification(
 							`Cannot update default props: ${response.reason}. See console for more information.`,
+							2000,
 						);
 					}
 				})
 				.catch((err) => {
-					sendErrorNotification(`Cannot update default props: ${err.message}`);
+					showNotification(`Cannot update default props: ${err.message}`, 2000);
 					setSaving(false);
 				});
 		},

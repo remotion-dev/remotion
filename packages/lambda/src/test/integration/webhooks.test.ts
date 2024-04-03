@@ -1,19 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-	vi,
-} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import {disableLogs, enableLogs} from '../disable-logs';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -33,20 +23,15 @@ beforeEach(() => {
 			};
 		},
 	);
-});
-
-afterEach(() => {
-	mockableHttpClients.http = originalFetch;
+	return () => {
+		mockableHttpClients.http = originalFetch;
+	};
 });
 
 beforeAll(() => {
-	disableLogs();
-});
-
-afterAll(async () => {
-	enableLogs();
-
-	await RenderInternals.killAllBrowsers();
+	return async () => {
+		await RenderInternals.killAllBrowsers();
+	};
 });
 
 const TEST_URL = 'http://localhost:8000';
@@ -54,6 +39,7 @@ const TEST_URL = 'http://localhost:8000';
 describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
+		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
 
 		const res = await callLambda({
 			type: LambdaRoutines.start,
@@ -110,6 +96,7 @@ describe('Webhooks', () => {
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				preferLossless: false,
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
@@ -125,6 +112,7 @@ describe('Webhooks', () => {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
+				logLevel: 'info',
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
@@ -210,6 +198,7 @@ describe('Webhooks', () => {
 				audioCodec: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				preferLossless: false,
 			},
 			timeoutInTest: 1000,
 			retriesRemaining: 0,

@@ -1,16 +1,22 @@
 {
-  "baseBranch": "origin/main",
+  "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache"],
+      "outputs": ["dist/**", ".rollup.cache/**"],
       "outputMode": "new-only"
     },
-    "docs": {
+    "@remotion/example#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".rollup.cache/**", "build/**"],
+      "outputMode": "new-only"
+    },
+    "build-docs": {
+      "dependsOn": ["^build", "build"],
       "outputs": [
-        "build/**",
-        ".docusaurus",
-        "../../node_modules/.cache/twoslash"
+        ".docusaurus/**",
+        "../../node_modules/.cache/twoslash/**",
+        "build/**"
       ]
     },
     "test": {
@@ -27,12 +33,12 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src", ".cache-css", "dist/**", ".rollup.cache"],
+      "outputs": ["src/**", ".cache-css/**", "dist/**", ".rollup.cache/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["dist/**", "target/**"],
+      "outputs": ["dist/**", "target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
@@ -46,6 +52,5 @@
         "@remotion/example#build"
       ]
     }
-  },
-  "npmClient": "pnpm"
+  }
 }

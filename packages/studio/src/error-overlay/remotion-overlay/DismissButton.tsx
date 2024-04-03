@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import {clearUrl} from '../../helpers/url-state';
 
 const size: React.CSSProperties = {
 	height: 20,
@@ -15,7 +16,7 @@ const style: React.CSSProperties = {
 
 export const DismissButton: React.FC = () => {
 	const dismiss = useCallback(() => {
-		window.location.href = '/';
+		clearUrl();
 	}, []);
 
 	return (

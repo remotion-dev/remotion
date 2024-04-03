@@ -1,16 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {callLambda} from '../../../shared/call-lambda';
-import {disableLogs, enableLogs} from '../../disable-logs';
-
-beforeAll(() => {
-	disableLogs();
-});
 
 afterAll(async () => {
-	enableLogs();
-
 	await RenderInternals.killAllBrowsers();
 });
 
@@ -66,6 +59,7 @@ test('Should fail when using an incompatible version', async () => {
 				offthreadVideoCacheSizeInBytes: null,
 				deleteAfter: null,
 				colorSpace: 'default',
+				preferLossless: false,
 			},
 			functionName: 'remotion-dev-render',
 			receivedStreamingPayload: () => undefined,

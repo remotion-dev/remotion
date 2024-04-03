@@ -2,9 +2,10 @@ import React from 'react';
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
-import '../styles/styles.css';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
-import {Studio} from './components/Studio';
+import {startErrorOverlay} from './error-overlay/entry-basic';
+import {enableHotMiddleware} from './hot-middleware-client/client';
+import {Studio} from './Studio';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
@@ -36,5 +37,8 @@ const renderToDOM = (content: React.ReactElement) => {
 renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
-	renderToDOM(<Studio rootComponent={NewRoot} />);
+	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
+	startErrorOverlay();
 });
+
+enableHotMiddleware();

@@ -99,6 +99,14 @@ _optional_
 
 A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
+### `showInTimeline`<AvailableFrom v="4.0.110" />
+
+_optional_
+
+If set to `false`, the track will not be shown in the Studio's timeline.  
+Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
+This behavior is stable as of v4.0.110, previously the behavior was different, but this prop not documented.
+
 ## Cascading
 
 You can nest sequences within each other and they will cascade.  

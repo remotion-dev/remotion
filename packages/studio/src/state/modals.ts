@@ -15,8 +15,6 @@ import {createContext} from 'react';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
-export type CompType = 'composition' | 'still';
-
 export type RenderModalState = {
 	type: 'render';
 	compositionId: string;
@@ -48,6 +46,7 @@ export type RenderModalState = {
 	initialUserAgent: string | null;
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
+	initialForSeamlessAacConcatenation: boolean;
 	initialBeep: boolean;
 	initialRepro: boolean;
 	minConcurrency: number;
@@ -61,8 +60,16 @@ export type RenderModalState = {
 
 export type ModalState =
 	| {
-			type: 'new-comp';
-			compType: CompType;
+			type: 'duplicate-comp';
+			compositionId: string;
+	  }
+	| {
+			type: 'delete-comp';
+			compositionId: string;
+	  }
+	| {
+			type: 'rename-comp';
+			compositionId: string;
 	  }
 	| RenderModalState
 	| {

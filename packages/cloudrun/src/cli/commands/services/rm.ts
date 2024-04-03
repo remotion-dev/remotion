@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {deleteService} from '../../../api/delete-service';
 import {getServiceInfo} from '../../../api/get-service-info';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -11,20 +12,22 @@ import {SERVICES_LS_SUBCOMMAND} from './ls';
 
 export const SERVICES_RM_SUBCOMMAND = 'rm';
 
-export const servicesRmCommand = async (args: string[]) => {
+export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
-		Log.error('No service name passed.');
+		Log.error({indent: false, logLevel}, 'No service name passed.');
 		Log.error(
+			{indent: false, logLevel},
 			'Pass another argument which is the name of the service you would like to remove.',
 		);
 		Log.info(
+			{indent: false, logLevel},
 			`You can run \`${BINARY_NAME} ${SERVICES_COMMAND} ${SERVICES_LS_SUBCOMMAND}\` to see a list of deployed Cloud Run services.`,
 		);
 		quit(1);
 	}
 
 	if (args[0] === '()') {
-		Log.info('No services to remove.');
+		Log.info({indent: false, logLevel}, 'No services to remove.');
 		return;
 	}
 
@@ -44,7 +47,7 @@ export const servicesRmCommand = async (args: string[]) => {
 		});
 
 		infoOutput.update(displayServiceInfo(info), false);
-		Log.info();
+		Log.info({indent: false, logLevel});
 
 		const confirmDelete = await confirmCli({
 			delMessage: 'Delete? (Y/n)',
@@ -52,7 +55,10 @@ export const servicesRmCommand = async (args: string[]) => {
 		});
 
 		if (!confirmDelete) {
-			Log.info(`Skipping service - ${info.serviceName}.`);
+			Log.info(
+				{indent: false, logLevel},
+				`Skipping service - ${info.serviceName}.`,
+			);
 			continue;
 		}
 

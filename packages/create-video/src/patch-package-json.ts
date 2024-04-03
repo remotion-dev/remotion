@@ -26,7 +26,7 @@ export const patchPackageJson = (
 	const contents = getPackageJson(fileName);
 	const packageJson = JSON.parse(contents);
 
-	const {name, dependencies, devDependencies, ...others} = packageJson;
+	const {name, dependencies, devDependencies, scripts, ...others} = packageJson;
 
 	const [newDependencies, newDevDependencies] = [
 		dependencies,
@@ -45,12 +45,27 @@ export const patchPackageJson = (
 			}, {});
 	});
 
+	const updateScripts = (scriptsToUpdate: Record<string, string>) => {
+		for (const [key, value] of Object.entries(scriptsToUpdate)) {
+			scriptsToUpdate[key] = value.replace(/remotion\b/g, 'remotionb');
+		}
+
+		return scriptsToUpdate;
+	};
+
+	// update scripts to use "remotionb" instead of "remotion" if Bun is used
+	// matching '@' as well to prevent conflicts with similarly named packages.
+	const newScripts = packageManager?.startsWith('bun@')
+		? updateScripts(scripts)
+		: scripts;
+
 	const newPackageJson = JSON.stringify(
 		{
 			name: projectName,
 			...others,
 			dependencies: newDependencies,
 			devDependencies: newDevDependencies,
+			scripts: newScripts,
 			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,

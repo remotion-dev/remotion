@@ -1,5 +1,5 @@
 import type {KeyboardEvent, MouseEvent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
@@ -10,10 +10,11 @@ import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
+import {ModalsContext} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {notificationCenter} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
@@ -134,11 +135,65 @@ export const CompositionSelectorItem: React.FC<{
 		[onClick],
 	);
 
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
 			return [
 				{
-					id: '1',
+					id: 'duplicate',
+					keyHint: null,
+					label: `Duplicate...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'duplicate-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'duplicate',
+				},
+				{
+					id: 'rename',
+					keyHint: null,
+					label: `Rename...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'rename-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'rename',
+				},
+				{
+					id: 'delete',
+					keyHint: null,
+					label: `Delete...`,
+					leftItem: null,
+					onClick: () => {
+						setSelectedModal({
+							type: 'delete-comp',
+							compositionId: item.composition.id,
+						});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'delete',
+				},
+				{
+					type: 'divider',
+					id: 'copy-id-divider',
+				},
+				{
+					id: 'copy-id',
 					keyHint: null,
 					label: `Copy ID`,
 					leftItem: null,
@@ -146,20 +201,13 @@ export const CompositionSelectorItem: React.FC<{
 						navigator.clipboard
 							.writeText(item.composition.id)
 							.catch((err) => {
-								notificationCenter.current?.addNotification({
-									content: `Could not copy to clipboard: ${err.message}`,
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification(
+									`Could not copy to clipboard: ${err.message}`,
+									1000,
+								);
 							})
 							.then(() => {
-								notificationCenter.current?.addNotification({
-									content: 'Copied to clipboard',
-									created: Date.now(),
-									duration: 1000,
-									id: String(Math.random()),
-								});
+								showNotification('Copied to clipboard', 1000);
 							});
 					},
 					quickSwitcherLabel: null,
@@ -171,7 +219,7 @@ export const CompositionSelectorItem: React.FC<{
 		}
 
 		return [];
-	}, [item]);
+	}, [item, setSelectedModal]);
 
 	if (item.type === 'folder') {
 		return (
@@ -212,7 +260,7 @@ export const CompositionSelectorItem: React.FC<{
 									toggleFolder={toggleFolder}
 								/>
 							);
-					  })
+						})
 					: null}
 			</>
 		);

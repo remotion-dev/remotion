@@ -23,6 +23,8 @@ export type RemotionVideoProps = Omit<
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
+	pauseWhenBuffering?: boolean;
+	showInTimeline?: boolean;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -46,9 +48,12 @@ export type OffthreadVideoProps = {
 	allowAmplificationDuringRender?: boolean;
 	toneFrequency?: number;
 	transparent?: boolean;
+	toneMapped?: boolean;
+	pauseWhenBuffering?: boolean;
 	/**
 	 * @deprecated For internal use only
 	 */
 	stack?: string;
+	showInTimeline?: boolean;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
