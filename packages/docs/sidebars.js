@@ -843,7 +843,7 @@ module.exports = {
         "security",
         "chromium-flags",
         "miscellaneous/changing-temp-dir",
-        "miscellaneous/thorium-browser",
+        "miscellaneous/chrome-headless-shell",
         "gl-options",
         "bun",
         "standalone",

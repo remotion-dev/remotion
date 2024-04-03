@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/zod-types",
-	"version": "4.0.135",
+	"version": "4.0.136",
 	"description": "A color validator for Zod",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
