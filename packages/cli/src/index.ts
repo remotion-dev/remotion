@@ -1,6 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
+import {StudioServerInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
+import {browserCommand, BROWSER_COMMAND} from './browser';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
@@ -132,10 +135,6 @@ export const cli = async () => {
 		cleanupBeforeQuit({indent: false, logLevel});
 	}
 };
-
-import {StudioServerInternals} from '@remotion/studio-server';
-import {browserCommand, BROWSER_COMMAND} from './browser';
-import {defaultBrowserDownloadProgress} from './browser-download-bar';
 
 export const CliInternals = {
 	createOverwriteableCliOutput,

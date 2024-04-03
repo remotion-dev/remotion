@@ -23,9 +23,8 @@ The following platforms are supported:
 
 ## Ensure a local browser is found
 
-// TODO: Add CLI variant
-
-Use [`ensureBrowser()`](/docs/renderer/ensure-browser) to ensure a local browser is found. This function will download Chrome Headless Shell if no local browser is found.
+Use [`ensureBrowser()`](/docs/renderer/ensure-browser) or [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure a local browser is found.  
+This function will download Chrome Headless Shell if no local browser is found.
 
 ## Bring your own binary
 
@@ -37,7 +36,7 @@ If you don't want Chrome Headless Shell to get installed or your platform is not
 In [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), a version of Chrome is already installed, so you don't need to do anything.
 
 :::note
-In a future version, Chrome will stop shipping the headless mode in their desktop browser and you will need to use the Chrome Headless Shell
+In a future version of Chrome, headless mode in the desktop browser will stop being supported and you will need to use the Chrome Headless Shell.
 :::
 
 ## Download location
