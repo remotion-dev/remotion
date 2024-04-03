@@ -236,6 +236,10 @@ export const openBrowser = (
 		indent,
 		viewport: null,
 		logLevel,
-		onBrowserDownload: defaultBrowserDownloadProgress(indent, logLevel),
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent,
+			logLevel,
+			api: 'openBrowser()',
+		}),
 	});
 };

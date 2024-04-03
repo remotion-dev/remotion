@@ -988,6 +988,7 @@ export const renderFrames = (
 		compositionStart: 0,
 		forSeamlessAacConcatenation: false,
 		onBrowserDownload:
-			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
 	});
 };

@@ -298,6 +298,11 @@ export const getCompositions = (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
 		onBrowserDownload:
-			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'getCompositions()',
+			}),
 	});
 };

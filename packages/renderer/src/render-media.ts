@@ -922,7 +922,8 @@ export const renderMedia = ({
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 		onBrowserDownload:
-			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 	});

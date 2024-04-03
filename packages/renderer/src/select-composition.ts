@@ -336,7 +336,12 @@ export const selectComposition = async (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
 		onBrowserDownload:
-			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'selectComposition()',
+			}),
 	});
 	return data.metadata;
 };

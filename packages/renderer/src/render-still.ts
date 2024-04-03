@@ -494,6 +494,7 @@ export const renderStill = (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
 		onBrowserDownload:
-			onBrowserDownload ?? defaultBrowserDownloadProgress(indent, logLevel),
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderStill()'}),
 	});
 };
