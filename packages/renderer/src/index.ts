@@ -31,7 +31,6 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -82,6 +81,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {ensureLocalBrowser} from './get-local-browser-executable';
 export {getSilentParts} from './get-silent-parts';
 export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
 export {
@@ -147,7 +147,6 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
-	ensureLocalBrowser,
 	getActualConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
