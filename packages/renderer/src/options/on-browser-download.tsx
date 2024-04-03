@@ -17,16 +17,17 @@ export const onBrowserDownloadOption = {
 	name: 'Browser download callback function',
 	cliFlag,
 	description: () => (
-		// TODO: Add a documentation function
 		<>
 			Gets called when no compatible local browser is detected on the system and
-			this API needs to download a browser. Return another function to receive
-			download progress.
+			this API needs to download a browser. Return a callback to observe
+			progress.{' '}
+			<a href="/docs/renderer/ensure-browser#onbrowserdownload">
+				See here for how to use this option.
+			</a>
 		</>
 	),
 	ssrName: 'onBrowserDownload' as const,
-	// TODO: Make sure the URL is correct
-	docLink: 'https://www.remotion.dev/docs/renderer/ensure-local-browser',
+	docLink: 'https://www.remotion.dev/docs/renderer/ensure-browser',
 	type: undefined as unknown as OnBrowserDownload,
 	getValue: () => {
 		throw new Error('does not support config file');

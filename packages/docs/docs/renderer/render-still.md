@@ -200,7 +200,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="binaries-directory" />
 
-#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
 
