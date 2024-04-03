@@ -303,6 +303,11 @@
       "permanent": false
     },
     {
+      "source": "/docs/miscellaneous/thorium-browser",
+      "destination": "/docs/miscellaneous/chrome-headless-shell",
+      "permanent": false
+    },
+    {
       "source": "/recorder",
       "destination": "/docs/recorder",
       "permanent": false
