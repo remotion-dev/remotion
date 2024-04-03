@@ -8,7 +8,7 @@ export type DownloadBrowserProgressFn = (progress: {
 
 export type OnBrowserDownload = () => DownloadBrowserProgressFn;
 
-const cliFlag = 'no-browser-flag-available' as const;
+const cliFlag = 'on-browser-download' as const;
 
 export const onBrowserDownloadOption = {
 	name: 'Browser download callback function',
@@ -16,8 +16,9 @@ export const onBrowserDownloadOption = {
 	description: () => (
 		// TODO: Add a documentation function
 		<>
-			Gets called when this API needs to download a browser. Return another
-			function to receive download progress.
+			Gets called when no compatible local browser is detected on the system and
+			this API needs to download a browser. Return another function to receive
+			download progress.
 		</>
 	),
 	ssrName: 'onBrowserDownload' as const,
