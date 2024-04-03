@@ -31,7 +31,7 @@ import {getDownloadsCacheDir} from './get-download-destination';
 
 const TESTED_VERSION = '123.0.6312.86';
 
-type Platform = 'linux' | 'mac-x64' | 'mac-arm64' | 'win64';
+type Platform = 'linux64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
 function getChromeDownloadUrl({
 	platform,
@@ -69,7 +69,7 @@ const getPlatform = (): Platform => {
 		case 'darwin':
 			return os.arch() === 'arm64' ? 'mac-arm64' : 'mac-x64';
 		case 'linux':
-			return 'linux';
+			return 'linux64';
 		case 'win32':
 			return 'win64';
 		default:

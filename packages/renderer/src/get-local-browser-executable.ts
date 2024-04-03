@@ -37,7 +37,7 @@ export const getLocalBrowserExecutable = (
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
-				'how you reached this error: https://github.com/remotion-dev/remotion/issues',
+				'how you reached this error: https://remotion.dev/issue',
 		);
 	}
 
