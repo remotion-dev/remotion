@@ -175,6 +175,20 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
+    id: "cli/browser/ensure",
+    title: "npx remotion browser ensure",
+    relativePath: "docs/cli/browser/ensure.mdx",
+    compId: "articles-docs-cli-browser-ensure",
+    crumb: "@remotion/cli",
+  },
+  {
+    id: "cli/browser/index",
+    title: "npx remotion browser",
+    relativePath: "docs/cli/browser/index.mdx",
+    compId: "articles-docs-cli-browser-index",
+    crumb: "@remotion/cli",
+  },
+  {
     id: "cli/bundle",
     title: "npx remotion bundle",
     relativePath: "docs/cli/bundle.md",
@@ -1605,7 +1619,7 @@ export const articles = [
   {
     id: "miscellaneous/chrome-headless-shell",
     title: "Chrome Headless Shell",
-    relativePath: "docs/miscellaneous/chrome-headless-shell.md",
+    relativePath: "docs/miscellaneous/chrome-headless-shell.mdx",
     compId: "articles-docs-miscellaneous-chrome-headless-shell",
     crumb: "FAQ",
   },
@@ -2277,6 +2291,13 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "ensure-browser",
+    title: "ensureBrowser()",
+    relativePath: "docs/renderer/ensure-browser.mdx",
+    compId: "articles-docs-renderer-ensure-browser",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "ensure-ffmpeg",
     title: "ensureFfmpeg()",
     relativePath: "docs/renderer/ensure-ffmpeg.md",
@@ -2349,7 +2370,7 @@ export const articles = [
   {
     id: "render-media",
     title: "renderMedia()",
-    relativePath: "docs/renderer/render-media.md",
+    relativePath: "docs/renderer/render-media.mdx",
     compId: "articles-docs-renderer-render-media",
     crumb: "@remotion/renderer",
   },

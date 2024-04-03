@@ -107,6 +107,8 @@ export const cli = async () => {
 			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
+		} else if (command === BROWSER_COMMAND) {
+			await browserCommand(args, logLevel);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else if (command === 'help') {
@@ -132,6 +134,7 @@ export const cli = async () => {
 };
 
 import {StudioServerInternals} from '@remotion/studio-server';
+import {browserCommand, BROWSER_COMMAND} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 
 export const CliInternals = {

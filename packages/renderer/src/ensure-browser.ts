@@ -39,13 +39,16 @@ export const internalEnsureBrowser = async ({
 	logLevel,
 	browserExecutable,
 	onBrowserDownload,
-}: InternalEnsureBrowserOptions) => {
+}: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
 	const status = getBrowserStatus(browserExecutable);
 	if (status.type === 'no-browser') {
 		const {onProgress, version} = onBrowserDownload();
 
 		await downloadBrowser({indent, logLevel, onProgress, version});
 	}
+
+	const newStatus = getBrowserStatus(browserExecutable);
+	return newStatus;
 };
 
 const getBrowserStatus = (

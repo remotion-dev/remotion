@@ -50,6 +50,8 @@ module.exports = {
           ],
         },
         "cli/benchmark",
+        "cli/browser/index",
+        "cli/browser/ensure",
         "cli/versions",
         "cli/upgrade",
         "cli/ffmpeg",
