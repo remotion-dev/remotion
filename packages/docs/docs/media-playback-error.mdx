@@ -29,7 +29,7 @@ Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. 
 **Workaround 2**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
 
 :::note
-Until `v4.0.17`, Remotion would download Chromium if no local browser was found. Starting from `v4.0.18`, Remotion will download [Thorium](https://thorium.rocks/) instead, which includes the codecs needed to render videos.
+Since `v4.0.18`, [downloads a browser](/docs/miscellaneous/chrome-headless-shell) that includes codecs automatically if you don't have a local browser.  
 :::
 
 ## Invalid source

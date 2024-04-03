@@ -1457,8 +1457,8 @@ export const articles = [
   },
   {
     id: "layout-utils/best-practices",
-    title: "Best practices for using @remotion/layout-utils",
-    relativePath: "docs/layout-utils/best-practices.md",
+    title: "Best practices for @remotion/layout-utils",
+    relativePath: "docs/layout-utils/best-practices.mdx",
     compId: "articles-docs-layout-utils-best-practices",
     crumb: "@remotion/layout-utils",
   },
@@ -1570,7 +1570,7 @@ export const articles = [
   {
     id: "media-playback-error",
     title: "Could not play video/audio with src",
-    relativePath: "docs/media-playback-error.md",
+    relativePath: "docs/media-playback-error.mdx",
     compId: "articles-docs-media-playback-error",
     crumb: "Troubleshooting",
   },
@@ -1601,6 +1601,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/changing-temp-dir.md",
     compId: "articles-docs-miscellaneous-changing-temp-dir",
     crumb: "Advanced configuration",
+  },
+  {
+    id: "miscellaneous/chrome-headless-shell",
+    title: "Chrome Headless Shell",
+    relativePath: "docs/miscellaneous/chrome-headless-shell.md",
+    compId: "articles-docs-miscellaneous-chrome-headless-shell",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/cloud-gpu-docker",
@@ -1701,13 +1708,6 @@ export const articles = [
     relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
     compId: "articles-docs-miscellaneous-snippets-use-delay-render",
     crumb: "Snippets",
-  },
-  {
-    id: "miscellaneous/thorium-browser",
-    title: "Thorium browser",
-    relativePath: "docs/miscellaneous/thorium-browser.md",
-    compId: "articles-docs-miscellaneous-thorium-browser",
-    crumb: "FAQ",
   },
   {
     id: "typescript-aliases",

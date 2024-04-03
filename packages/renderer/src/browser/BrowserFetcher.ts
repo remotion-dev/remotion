@@ -31,17 +31,18 @@ import {getDownloadsCacheDir} from './get-download-destination';
 
 const downloadURLs: Record<Platform, string> = {
 	linux:
-		'https://github.com/Alex313031/thorium/releases/download/M117.0.5938.157/thorium-browser_117.0.5938.157_amd64.zip',
-	mac: 'https://github.com/Alex313031/Thorium-MacOS/releases/download/M116.0.5845.169/Thorium_MacOS_X64.dmg',
-	mac_arm:
-		'https://github.com/Alex313031/Thorium-MacOS/releases/download/M116.0.5845.169/Thorium_MacOS_ARM.dmg',
+		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/linux64/chrome-headless-shell-linux64.zip',
+	'mac-x64':
+		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/mac-x64/chrome-headless-shell-mac-x64.zip',
+	'mac-arm64':
+		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/mac-arm64/chrome-headless-shell-mac-arm64.zip',
 	win64:
-		'https://github.com/Alex313031/Thorium-Win/releases/download/M117.0.5938.157/Thorium_117.0.5938.157.zip',
+		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/win64/chrome-headless-shell-win64.zip',
 };
 
-type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
+type Platform = 'linux' | 'mac-x64' | 'mac-arm64' | 'win64';
 
-function getThoriumDownloadUrl(platform: Platform): string {
+function getChromeDownloadUrl(platform: Platform): string {
 	return downloadURLs[platform];
 }
 
@@ -69,7 +70,7 @@ const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
-			return os.arch() === 'arm64' ? 'mac_arm' : 'mac';
+			return os.arch() === 'arm64' ? 'mac-arm64' : 'mac-x64';
 		case 'linux':
 			return 'linux';
 		case 'win32':
@@ -79,7 +80,7 @@ const getPlatform = (): Platform => {
 	}
 };
 
-const destination = '.thorium';
+const destination = '.chrome_headless_shell';
 
 const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
@@ -90,7 +91,7 @@ export const downloadBrowser = async (options: {
 	indent: boolean;
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
-	const downloadURL = getThoriumDownloadUrl(platform);
+	const downloadURL = getChromeDownloadUrl(platform);
 	const fileName = downloadURL.split('/').pop();
 	assert(fileName, `A malformed download URL was found: ${downloadURL}.`);
 	const downloadsFolder = getDownloadsFolder();
@@ -127,7 +128,7 @@ export const downloadBrowser = async (options: {
 
 					Log.info(
 						{indent: options.indent, logLevel: options.logLevel},
-						`Downloading Thorium - ${toMegabytes(
+						`Downloading Chrome Headless Shell - ${toMegabytes(
 							progress.downloaded,
 						)}/${toMegabytes(progress.totalSize as number)}`,
 					);
@@ -158,16 +159,24 @@ const getExecutablePath = () => {
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	if (platform === 'mac' || platform === 'mac_arm') {
-		return path.join(folderPath, 'Thorium.app', 'Contents', 'MacOS', 'Thorium');
-	}
-
-	if (platform === 'linux') {
-		return path.join(folderPath, 'thorium');
+	if (
+		platform === 'mac-x64' ||
+		platform === 'mac-arm64' ||
+		platform === 'linux'
+	) {
+		return path.join(
+			folderPath,
+			`chrome-headless-shell-${platform}`,
+			'chrome-headless-shell',
+		);
 	}
 
 	if (platform === 'win64') {
-		return path.join(folderPath, 'BIN', 'thorium.exe');
+		return path.join(
+			folderPath,
+			`chrome-headless-shell-${platform}`,
+			'chrome-headless-shell.exe',
+		);
 	}
 
 	throw new Error('Can not download browser for platform: ' + platform);
@@ -179,7 +188,7 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	const url = getThoriumDownloadUrl(platform);
+	const url = getChromeDownloadUrl(platform);
 	const local = fs.existsSync(folderPath);
 	return {
 		executablePath,
