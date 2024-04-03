@@ -77,6 +77,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		onBrowserDownload: onBrowserDownloadOption,
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,

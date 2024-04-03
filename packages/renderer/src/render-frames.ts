@@ -42,7 +42,6 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
-import type {OnBrowserDownload} from './options/on-browser-download';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -101,7 +100,6 @@ export type InternalRenderFramesOptions = {
 	serializedResolvedPropsWithCustomSchema: string;
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
-	onBrowserDownload: OnBrowserDownload;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -186,7 +184,6 @@ export type RenderFramesOptions = {
 	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
-	onBrowserDownload?: OnBrowserDownload;
 	serveUrl: string;
 } & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
@@ -836,6 +833,7 @@ const internalRenderFramesRaw = ({
 					binariesDirectory,
 					forSeamlessAacConcatenation,
 					compositionStart,
+					onBrowserDownload,
 				});
 			}),
 		])
