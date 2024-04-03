@@ -233,7 +233,11 @@ export const benchmarkCommand = async (
 		userAgent,
 	};
 
-	const onBrowserDownload = defaultBrowserDownloadProgress(false, logLevel);
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		indent: false,
+		logLevel,
+		quiet: quietFlagProvided(),
+	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser: 'chrome',

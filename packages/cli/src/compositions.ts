@@ -142,7 +142,11 @@ export const listCompositionsCommand = async (
 		server: undefined,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
-		onBrowserDownload: defaultBrowserDownloadProgress(false, logLevel),
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent: false,
+			logLevel,
+			quiet: quietFlagProvided(),
+		}),
 	});
 
 	printCompositions(compositions, logLevel);

@@ -232,10 +232,11 @@ export const renderCommand = async (
 				server,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
-				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress(
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,
 					logLevel,
-				),
+					quiet: CliInternals.quietFlagProvided(),
+				}),
 			});
 		composition = compositionId;
 	}

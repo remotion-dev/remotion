@@ -140,7 +140,11 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
-	const onBrowserDownload = defaultBrowserDownloadProgress(indent, logLevel);
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		quiet: quietFlagProvided(),
+		indent,
+		logLevel,
+	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,

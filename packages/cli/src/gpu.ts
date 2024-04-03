@@ -5,7 +5,7 @@ import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 
 export const GPU_COMMAND = 'gpu';
 
@@ -53,7 +53,11 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		logLevel,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		onBrowserDownload: defaultBrowserDownloadProgress(false, logLevel),
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent: false,
+			logLevel,
+			quiet: quietFlagProvided(),
+		}),
 	});
 	for (const {feature, status} of statuses) {
 		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);

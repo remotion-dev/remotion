@@ -160,7 +160,11 @@ export const renderVideoFlow = async ({
 	publicPath: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
-	const onBrowserDownload = defaultBrowserDownloadProgress(indent, logLevel);
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		indent,
+		logLevel,
+		quiet: quietFlagProvided(),
+	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
