@@ -136,6 +136,7 @@ module.exports = {
         "renderer/render-still",
         "renderer/stitch-frames-to-video",
         "renderer/open-browser",
+        "renderer/ensure-browser",
         "renderer/make-cancel-signal",
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",

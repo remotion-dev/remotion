@@ -74,16 +74,16 @@ const getBrowserStatus = (
 	return {type: 'no-browser'};
 };
 
-export const ensureBrowser = (options: EnsureBrowserOptions) => {
+export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 	const indent = false;
-	const logLevel = options.logLevel ?? 'info';
+	const logLevel = options?.logLevel ?? 'info';
 
 	return internalEnsureBrowser({
-		browserExecutable: options.browserExecutable ?? null,
+		browserExecutable: options?.browserExecutable ?? null,
 		indent,
-		logLevel: options.logLevel ?? 'info',
+		logLevel: options?.logLevel ?? 'info',
 		onBrowserDownload:
-			options.onBrowserDownload ??
+			options?.onBrowserDownload ??
 			defaultBrowserDownloadProgress({
 				api: 'ensureBrowser()',
 				indent: false,

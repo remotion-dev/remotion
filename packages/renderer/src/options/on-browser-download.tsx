@@ -2,8 +2,8 @@ import type {AnyRemotionOption} from './option';
 
 export type DownloadBrowserProgressFn = (progress: {
 	percent: number;
-	downloaded: number;
-	totalSize: number;
+	downloadedBytes: number;
+	totalSizeInBytes: number;
 }) => void;
 
 export type OnBrowserDownload = () => {

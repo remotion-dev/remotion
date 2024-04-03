@@ -137,8 +137,8 @@ export const downloadBrowser = async ({
 				}
 
 				onProgress({
-					downloaded: progress.downloaded,
-					totalSize: progress.totalSize,
+					downloadedBytes: progress.downloaded,
+					totalSizeInBytes: progress.totalSize,
 					percent: progress.percent,
 				});
 			},

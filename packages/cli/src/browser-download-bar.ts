@@ -53,14 +53,16 @@ export const defaultBrowserDownloadProgress = ({
 			return {
 				version: null,
 				onProgress: (progress) => {
-					if (progress.downloaded > lastProgress + 10_000_000) {
-						lastProgress = progress.downloaded;
+					if (progress.downloadedBytes > lastProgress + 10_000_000) {
+						lastProgress = progress.downloadedBytes;
 
 						Log.info(
 							{indent, logLevel},
 							`Getting Headless Shell - ${RenderInternals.toMegabytes(
-								progress.downloaded,
-							)}/${RenderInternals.toMegabytes(progress.totalSize as number)}`,
+								progress.downloadedBytes,
+							)}/${RenderInternals.toMegabytes(
+								progress.totalSizeInBytes as number,
+							)}`,
 						);
 					}
 
@@ -78,14 +80,21 @@ export const defaultBrowserDownloadProgress = ({
 			updatesDontOverwrite,
 		});
 
+		const startedAt = Date.now();
+		let doneIn: number | null = null;
+
 		return {
 			version: null,
 			onProgress: (progress) => {
+				if (progress.percent === 1) {
+					doneIn = Date.now() - startedAt;
+				}
+
 				cliOutput.update(
 					makeDownloadProgress({
-						doneIn: null,
-						bytesDownloaded: progress.downloaded,
-						totalBytes: progress.totalSize,
+						doneIn,
+						bytesDownloaded: progress.downloadedBytes,
+						totalBytes: progress.totalSizeInBytes,
 					}),
 					false,
 				);

@@ -27,14 +27,14 @@ export const defaultBrowserDownloadProgress =
 		return {
 			onProgress: (progress) => {
 				let lastProgress = 0;
-				if (progress.downloaded > lastProgress + 10_000_000) {
-					lastProgress = progress.downloaded;
+				if (progress.downloadedBytes > lastProgress + 10_000_000) {
+					lastProgress = progress.downloadedBytes;
 
 					Log.info(
 						{indent, logLevel},
 						`Downloading Chrome Headless Shell - ${toMegabytes(
-							progress.downloaded,
-						)}/${toMegabytes(progress.totalSize as number)}`,
+							progress.downloadedBytes,
+						)}/${toMegabytes(progress.totalSizeInBytes as number)}`,
 					);
 				}
 			},
