@@ -24,17 +24,20 @@ export const defaultBrowserDownloadProgress =
 			`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
 		);
 
-		return (progress) => {
-			let lastProgress = 0;
-			if (progress.downloaded > lastProgress + 10_000_000) {
-				lastProgress = progress.downloaded;
+		return {
+			onProgress: (progress) => {
+				let lastProgress = 0;
+				if (progress.downloaded > lastProgress + 10_000_000) {
+					lastProgress = progress.downloaded;
 
-				Log.info(
-					{indent, logLevel},
-					`Downloading Chrome Headless Shell - ${toMegabytes(
-						progress.downloaded,
-					)}/${toMegabytes(progress.totalSize as number)}`,
-				);
-			}
+					Log.info(
+						{indent, logLevel},
+						`Downloading Chrome Headless Shell - ${toMegabytes(
+							progress.downloaded,
+						)}/${toMegabytes(progress.totalSize as number)}`,
+					);
+				}
+			},
+			version: null,
 		};
 	};

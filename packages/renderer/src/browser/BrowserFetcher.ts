@@ -29,21 +29,20 @@ import {Log} from '../logger';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const downloadURLs: Record<Platform, string> = {
-	linux:
-		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/linux64/chrome-headless-shell-linux64.zip',
-	'mac-x64':
-		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/mac-x64/chrome-headless-shell-mac-x64.zip',
-	'mac-arm64':
-		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/mac-arm64/chrome-headless-shell-mac-arm64.zip',
-	win64:
-		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/win64/chrome-headless-shell-win64.zip',
-};
+const TESTED_VERSION = '123.0.6312.86';
 
 type Platform = 'linux' | 'mac-x64' | 'mac-arm64' | 'win64';
 
-function getChromeDownloadUrl(platform: Platform): string {
-	return downloadURLs[platform];
+function getChromeDownloadUrl({
+	platform,
+	version,
+}: {
+	platform: Platform;
+	version: string | null;
+}): string {
+	return `https://storage.googleapis.com/chrome-for-testing-public/${
+		version ?? TESTED_VERSION
+	}/${platform}/chrome-headless-shell-${platform}.zip`;
 }
 
 const mkdirAsync = fs.promises.mkdir;
@@ -84,13 +83,19 @@ const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
-export const downloadBrowser = async (options: {
+export const downloadBrowser = async ({
+	logLevel,
+	indent,
+	onProgress,
+	version,
+}: {
 	logLevel: LogLevel;
 	indent: boolean;
 	onProgress: DownloadBrowserProgressFn;
+	version: string | null;
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
-	const downloadURL = getChromeDownloadUrl(platform);
+	const downloadURL = getChromeDownloadUrl({platform, version});
 	const fileName = downloadURL.split('/').pop();
 	if (!fileName) {
 		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
@@ -131,16 +136,16 @@ export const downloadBrowser = async (options: {
 					throw new Error('Expected totalSize and percent to be defined');
 				}
 
-				options.onProgress({
+				onProgress({
 					downloaded: progress.downloaded,
 					totalSize: progress.totalSize,
 					percent: progress.percent,
 				});
 			},
-			indent: options.indent,
-			logLevel: options.logLevel,
+			indent,
+			logLevel,
 		});
-		Log.info({indent: options.indent, logLevel: options.logLevel});
+		Log.info({indent, logLevel});
 		await extractZip(archivePath, {dir: outputPath});
 	} finally {
 		if (await existsAsync(archivePath)) {
@@ -178,7 +183,7 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	const url = getChromeDownloadUrl(platform);
+	const url = getChromeDownloadUrl({platform, version: null});
 	const local = fs.existsSync(folderPath);
 	return {
 		executablePath,

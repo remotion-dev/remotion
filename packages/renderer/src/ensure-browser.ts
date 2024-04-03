@@ -35,9 +35,9 @@ export const ensureLocalBrowser = async ({
 }) => {
 	const status = getBrowserStatus(browserExecutable);
 	if (status.type === 'no-browser') {
-		const onProgress = onBrowserDownload();
+		const {onProgress, version} = onBrowserDownload();
 
-		await downloadBrowser({indent, logLevel, onProgress});
+		await downloadBrowser({indent, logLevel, onProgress, version});
 	}
 };
 

@@ -6,7 +6,10 @@ export type DownloadBrowserProgressFn = (progress: {
 	totalSize: number;
 }) => void;
 
-export type OnBrowserDownload = () => DownloadBrowserProgressFn;
+export type OnBrowserDownload = () => {
+	onProgress: DownloadBrowserProgressFn;
+	version: string | null;
+};
 
 const cliFlag = 'on-browser-download' as const;
 
