@@ -55,14 +55,15 @@ An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Window
 
 ## Chrome vs. Chrome Headless Shell
 
-Chrome used to ship with a `--headless` flag, which we would use.
+Chrome used to ship with a `--headless` flag, which Remotion would use.
 
-As of Chrome 123, the headless mode is being split up into:
+As of Chrome 123, the headless mode is split up into:
 
-- `--headless=old`, which is ideal for screenshotting (Remotion needs this)
-- `--headless=new`, which is for browser testing
+- `--headless=old`, which is ideal for screenshotting (and therefore Remotion)
+- `--headless=new`, which is ideal for browser testing
 
-`--headless=old` will stop working in a future version of Chrome.
+`--headless=old` will stop working in a future version of Chrome.  
+The old headless mode is being extracted into "Chrome Headless Shell".
 
 Hence we encourage you to use Chrome Headless Shell to future-proof your Remotion application.
 
@@ -71,6 +72,11 @@ Hence we encourage you to use Chrome Headless Shell to future-proof your Remotio
 Chromium is the open-source project that Chrome is based on. Some versions of Chromium don't the necessary codecs for the [`<Video >`](/docs/video) tag as well as for functions in [`@remotion/media-utils`](/docs/media-utils).
 
 This is why we recommend Chrome over Chromium.
+
+## Changes in Remotion v5.0
+
+Remotion 5.0 will not recognize your regular Chrome browser anymore.  
+You will need to use Chrome Headless Shell, because Chrome is [discontinuing the `--headless=old`](#chrome-vs-chrome-headless-shell) mode.
 
 ## Thorium (v4.0.18 - v4.0.135)
 
