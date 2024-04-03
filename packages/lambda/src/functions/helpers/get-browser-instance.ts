@@ -61,6 +61,7 @@ export const getBrowserInstance = async (
 		...chromiumOptions,
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
+		enableMultiProcessOnLinux: false,
 	};
 	const configurationString = makeConfigurationString(
 		actualChromiumOptions,

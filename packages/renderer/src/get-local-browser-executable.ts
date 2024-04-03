@@ -106,7 +106,7 @@ export const ensureLocalBrowser = async ({
 	if (status.type === 'no-browser') {
 		Log.info(
 			{indent, logLevel},
-			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/miscellaneous/thorium-browser',
+			'No local browser could be found. Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
 		);
 		await downloadBrowser({indent, logLevel});
 	}

@@ -1,6 +1,6 @@
 import type {AnyRemotionOption} from './option';
 
-let multiProcessOnLinux = false;
+let multiProcessOnLinux = true;
 
 const cliFlag = 'enable-multiprocess-on-linux' as const;
 
