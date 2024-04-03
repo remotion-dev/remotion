@@ -30,7 +30,7 @@ import {Log} from '../logger';
 import {getDownloadsCacheDir} from './get-download-destination';
 
 const downloadURLs: Record<Platform, string> = {
-	linux:
+	linux64:
 		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/linux64/chrome-headless-shell-linux64.zip',
 	'mac-x64':
 		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/mac-x64/chrome-headless-shell-mac-x64.zip',
@@ -40,7 +40,7 @@ const downloadURLs: Record<Platform, string> = {
 		'https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.86/win64/chrome-headless-shell-win64.zip',
 };
 
-type Platform = 'linux' | 'mac-x64' | 'mac-arm64' | 'win64';
+type Platform = 'linux64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
 function getChromeDownloadUrl(platform: Platform): string {
 	return downloadURLs[platform];
@@ -72,7 +72,7 @@ const getPlatform = (): Platform => {
 		case 'darwin':
 			return os.arch() === 'arm64' ? 'mac-arm64' : 'mac-x64';
 		case 'linux':
-			return 'linux';
+			return 'linux64';
 		case 'win32':
 			return 'win64';
 		default:
@@ -162,7 +162,7 @@ const getExecutablePath = () => {
 	if (
 		platform === 'mac-x64' ||
 		platform === 'mac-arm64' ||
-		platform === 'linux'
+		platform === 'linux64'
 	) {
 		return path.join(
 			folderPath,

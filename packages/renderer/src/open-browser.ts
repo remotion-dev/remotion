@@ -104,14 +104,12 @@ export const internalOpenBrowser = async ({
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+	const enableMultiProcessOnLinux =
+		chromiumOptions.enableMultiProcessOnLinux ?? true;
 
 	Log.verbose(
 		{indent, logLevel, tag: 'openBrowser()'},
-		`Opening browser: gl = ${
-			chromiumOptions.gl
-		}, executable = ${executablePath}, enableMultiProcessOnLinux = ${
-			chromiumOptions.enableMultiProcessOnLinux ?? false
-		}`,
+		`Opening browser: gl = ${chromiumOptions.gl}, executable = ${executablePath}, enableMultiProcessOnLinux = ${enableMultiProcessOnLinux}`,
 	);
 
 	if (chromiumOptions.userAgent) {
@@ -165,7 +163,7 @@ export const internalOpenBrowser = async ({
 			'--disable-background-media-suspend',
 			process.platform === 'linux' &&
 			chromiumOptions.gl !== 'vulkan' &&
-			!chromiumOptions.enableMultiProcessOnLinux
+			!enableMultiProcessOnLinux
 				? '--single-process'
 				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
