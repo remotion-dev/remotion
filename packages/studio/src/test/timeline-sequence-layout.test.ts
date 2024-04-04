@@ -27,6 +27,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 		}),
 	).toEqual({
 		marginLeft: 1154,
+		premountWidth: null,
 		width: 226,
 	});
 });
@@ -56,6 +57,7 @@ test('Should test timeline sequence layout with max media duration', () => {
 		}),
 	).toEqual({
 		marginLeft: 1154,
+		premountWidth: null,
 		width: 221,
 	});
 });
