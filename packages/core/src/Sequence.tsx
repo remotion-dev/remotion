@@ -46,6 +46,7 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated For internal use only.
 	 */
 	stack?: string;
+	premountFor?: number;
 } & LayoutAndStyle;
 
 export type SequenceProps = {

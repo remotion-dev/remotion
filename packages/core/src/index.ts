@@ -120,6 +120,7 @@ export {
 	RandomSeed,
 } from './no-react';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
+export {PremountedSequence} from './premounted-sequence';
 export {registerRoot} from './register-root.js';
 export {
 	LayoutAndStyle,
