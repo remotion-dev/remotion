@@ -1,15 +1,19 @@
-import React, {useMemo} from 'react';
+import React, {forwardRef, useMemo} from 'react';
 import {Freeze} from './freeze';
 import type {SequenceProps} from './Sequence';
 import {Sequence} from './Sequence';
 import {useCurrentFrame} from './use-current-frame';
 
-export const PremountedSequence: React.FC<
+export type PremountedSequenceProps = SequenceProps & {
+	premountFor: number;
+};
+
+const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
 	{
-		children: React.ReactNode;
 		premountFor: number;
 	} & SequenceProps
-> = ({premountFor, ...props}) => {
+> = ({premountFor, ...props}, ref) => {
 	const frame = useCurrentFrame();
 
 	if (props.layout === 'none') {
@@ -17,7 +21,7 @@ export const PremountedSequence: React.FC<
 	}
 
 	const {style: passedStyle, from = 0, ...otherProps} = props;
-	const active = frame < premountFor + from;
+	const active = frame < from;
 
 	const style = useMemo(() => {
 		return {
@@ -28,13 +32,18 @@ export const PremountedSequence: React.FC<
 	}, [active, passedStyle]);
 
 	return (
-		<Freeze frame={frame >= from ? from : -1} active={active}>
+		<Freeze frame={from} active={active}>
 			<Sequence
+				ref={ref}
 				name={`<Premount premountFor={${premountFor}}>`}
-				from={from + (active ? 0 : premountFor)}
+				from={from + (active ? -premountFor : 0)}
 				style={style}
 				{...otherProps}
 			/>
 		</Freeze>
 	);
 };
+
+export const PremountedSequence = forwardRef(
+	PremountedSequenceRefForwardingFunction,
+);
