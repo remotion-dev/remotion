@@ -144,22 +144,14 @@ const Series: FC<{
 					children: _children,
 					from,
 					name,
-					premountFor,
 					...passedProps
 				} = castedChild.props as SeriesPremountedSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
-
-				if (passedProps.layout === 'none') {
-					throw new Error(
-						'`<Series.PremountedSequence>` does not support layout="none"',
-					);
-				}
 
 				return (
 					<PremountedSequence
 						name={name || '<Series.PremountedSeriesSequence>'}
 						from={currentStartFrame}
 						durationInFrames={durationInFramesProp}
-						premountFor={premountFor}
 						{...passedProps}
 						ref={castedChild.ref}
 					>
