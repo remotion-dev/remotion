@@ -286,17 +286,10 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [active, passedStyle]);
 
-	const finalName = useMemo(() => {
-		const tagName = name ?? `<Premount premountFor={${premountFor}}>`;
-
-		return active ? `${tagName} (premounted)` : tagName;
-	}, [active, name, premountFor]);
-
 	return (
 		<Freeze frame={from - premountFor} active={active}>
 			<Sequence
 				ref={ref}
-				name={finalName}
 				from={from + (active ? -premountFor : 0)}
 				style={style}
 				premountDisplay={active ? premountFor : undefined}
