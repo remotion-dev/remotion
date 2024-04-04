@@ -1,18 +1,7 @@
-/* eslint-disable no-else-return */
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
-import type {
-	LayoutAndStyle,
-	PremountedSequenceProps,
-	SequencePropsWithoutDuration,
-} from 'remotion';
-import {
-	Internals,
-	PremountedSequence,
-	Sequence,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
+import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -28,7 +17,7 @@ const TransitionSeriesTransition = function <
 	return null;
 };
 
-type TransitionSeriesSequenceProps = PropsWithChildren<
+type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
@@ -41,27 +30,7 @@ type TransitionSeriesSequenceProps = PropsWithChildren<
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
 
-type TransitionSeriesPremountedSequenceProps = PropsWithChildren<
-	{
-		durationInFrames: number;
-		offset?: number;
-		className?: string;
-		/**
-		 * @deprecated For internal use only
-		 */
-		stack?: string;
-	} & LayoutAndStyle &
-		Pick<PremountedSequenceProps, 'name' | 'premountFor'>
->;
-
-const SeriesSequence = ({children}: TransitionSeriesSequenceProps) => {
-	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
-};
-
-const PremountedSeriesSequence = ({
-	children,
-}: TransitionSeriesPremountedSequenceProps) => {
+const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
@@ -73,12 +42,8 @@ type TransitionType<PresentationProps extends Record<string, unknown>> = {
 
 type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| {
-			props: TransitionSeriesSequenceProps;
+			props: SeriesSequenceProps;
 			type: typeof SeriesSequence;
-	  }
-	| {
-			props: TransitionSeriesPremountedSequenceProps;
-			type: typeof PremountedSeriesSequence;
 	  }
 	| TransitionType<PresentationProps>
 	| string;
@@ -102,7 +67,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				}
 
 				throw new TypeError(
-					// TODO
 					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence /> components as its children, but you passed a string "${current}"`,
 				);
 			}
@@ -145,24 +109,16 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				return null;
 			}
 
-			if (
-				current.type !== SeriesSequence &&
-				current.type !== PremountedSeriesSequence
-			) {
+			if (current.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence />, <TransitionSeries.PremountedSequence /> and <TransitionSeries.Transition /> components as its children, but got ${current} instead`,
+					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence /> and <TransitionSeries.Transition /> components as its children, but got ${current} instead`,
 				);
 			}
 
-			const castedChildAgain = current as
-				| {
-						props: TransitionSeriesSequenceProps;
-						type: typeof SeriesSequence;
-				  }
-				| {
-						props: TransitionSeriesPremountedSequenceProps;
-						type: typeof PremountedSeriesSequence;
-				  };
+			const castedChildAgain = current as {
+				props: SeriesSequenceProps;
+				type: typeof SeriesSequence;
+			};
 
 			const debugInfo = `index = ${i}, duration = ${castedChildAgain.props.durationInFrames}`;
 
@@ -173,7 +129,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			const durationInFramesProp = castedChildAgain.props.durationInFrames;
-
+			const {
+				durationInFrames,
+				children: _children,
+				...passedProps
+			} = castedChildAgain.props;
 			validateDurationInFrames(durationInFramesProp, {
 				component: `of a <TransitionSeries.Sequence /> component`,
 				allowFloats: true,
@@ -223,7 +183,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 						frame:
 							frame -
 							actualStartFrame -
-							durationInFramesProp +
+							durationInFrames +
 							next.props.timing.getDurationInFrames({fps}),
 						fps,
 					})
@@ -258,46 +218,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				);
 			}
 
-			const {markup, name, stack} = (() => {
-				if (castedChildAgain.type === PremountedSeriesSequence) {
-					const {
-						durationInFrames: _d,
-						children: __children,
-						stack: _stack,
-						name: _name,
-						...passedProps
-					} = castedChildAgain.props as TransitionSeriesPremountedSequenceProps;
-
-					return {
-						name: _name ?? '<TS.PremountedSequence>',
-						markup: (
-							<PremountedSequence showInTimeline={false} {...passedProps}>
-								{child}
-							</PremountedSequence>
-						),
-						stack: _stack,
-					};
-				} else {
-					const {
-						durationInFrames: _d,
-						children: __children,
-						stack: _stack,
-						name: _name,
-						...passedProps
-					} = castedChildAgain.props as TransitionSeriesSequenceProps;
-
-					return {
-						name: _name ?? '<TS.Sequence>',
-						markup: (
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
-						),
-						stack: _stack,
-					};
-				}
-			})();
-
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
 				const nextPresentation = next.props.presentation ?? slide();
 				const prevPresentation = prev.props.presentation ?? slide();
@@ -307,10 +227,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={name}
+						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
 						layout="none"
-						stack={stack}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -326,7 +247,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								{markup}
+								<Sequence showInTimeline={false} {...passedProps}>
+									{child}
+								</Sequence>
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -340,11 +263,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={name}
+						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						stack={stack}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -353,7 +276,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							{markup}
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -366,11 +291,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={name}
+						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						layout="none"
-						stack={stack}
+						stack={passedProps.stack}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -379,45 +304,24 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							{markup}
+							<Sequence showInTimeline={false} {...passedProps}>
+								{child}
+							</Sequence>
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
 			}
 
-			if (castedChildAgain.type === PremountedSeriesSequence) {
-				const {
-					durationInFrames,
-					name: _name,
-					...props
-				} = castedChildAgain.props as TransitionSeriesPremountedSequenceProps;
-				return (
-					<PremountedSequence
-						name={_name ?? '<TS.PremountedSequence>'}
-						from={Math.floor(actualStartFrame)}
-						{...props}
-					>
-						{child}
-					</PremountedSequence>
-				);
-			} else {
-				const {
-					durationInFrames,
-					name: _name,
-					...props
-				} = castedChildAgain.props as TransitionSeriesPremountedSequenceProps;
-
-				return (
-					<Sequence
-						name={_name ?? '<TS.Sequence>'}
-						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						{...props}
-					>
-						{child}
-					</Sequence>
-				);
-			}
+			return (
+				<Sequence
+					name={passedProps.name || '<TS.Sequence>'}
+					from={Math.floor(actualStartFrame)}
+					durationInFrames={durationInFramesProp}
+					{...passedProps}
+				>
+					{child}
+				</Sequence>
+			);
 		});
 	}, [children, fps, frame]);
 
@@ -427,12 +331,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
-	PremountedSequence: typeof PremountedSeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 } = ({children, name, ...otherProps}) => {
 	const displayName = name ?? '<TransitionSeries>';
 	return (
-		// TODO: Does it make sense to support layout="none"?
 		<Sequence name={displayName} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
@@ -440,7 +342,6 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 };
 
 TransitionSeries.Sequence = SeriesSequence;
-TransitionSeries.PremountedSequence = PremountedSeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
