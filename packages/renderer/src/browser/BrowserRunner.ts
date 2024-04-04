@@ -112,7 +112,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verbose(
+					Log.error(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);
