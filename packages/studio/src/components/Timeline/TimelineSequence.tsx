@@ -50,7 +50,7 @@ const Inner: React.FC<{
 
 	const isInRange = relativeFrame >= 0 && relativeFrame < s.duration;
 
-	const {marginLeft, width} = useMemo(() => {
+	const {marginLeft, width, premountWidth} = useMemo(() => {
 		return getTimelineSequenceLayout({
 			durationInFrames: s.loopDisplay
 				? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
@@ -60,6 +60,7 @@ const Inner: React.FC<{
 			maxMediaDuration,
 			video,
 			windowWidth,
+			premountDisplay: s.premountDisplay,
 		});
 	}, [maxMediaDuration, s, video, windowWidth]);
 
@@ -85,6 +86,23 @@ const Inner: React.FC<{
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
+			{premountWidth ? (
+				<div
+					style={{
+						width: premountWidth,
+						height: '100%',
+						background: `repeating-linear-gradient(
+							-45deg,
+							transparent,
+							transparent 2px,
+							rgba(255, 255, 255, 0.2) 2px,
+							rgba(255, 255, 255, 0.2) 4px
+						)`,
+						position: 'absolute',
+					}}
+				/>
+			) : null}
+
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}
@@ -101,6 +119,7 @@ const Inner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
+
 			{s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.loopDisplay === undefined &&
@@ -113,7 +132,10 @@ const Inner: React.FC<{
 						alignItems: 'center',
 					}}
 				>
-					<TimelineSequenceFrame roundedFrame={roundedFrame} />
+					<TimelineSequenceFrame
+						premountDisplay={premountWidth}
+						roundedFrame={roundedFrame}
+					/>
 				</div>
 			) : null}
 		</div>

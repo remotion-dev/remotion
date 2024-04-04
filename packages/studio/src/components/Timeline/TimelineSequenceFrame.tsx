@@ -9,6 +9,11 @@ const relativeFrameStyle: React.CSSProperties = {
 
 export const TimelineSequenceFrame: React.FC<{
 	roundedFrame: number;
-}> = ({roundedFrame}) => {
-	return <div style={relativeFrameStyle}>{roundedFrame}</div>;
+	premountDisplay: number | null;
+}> = ({roundedFrame, premountDisplay}) => {
+	return (
+		<div style={relativeFrameStyle}>
+			{premountDisplay ? '0 (Premounted)' : roundedFrame}
+		</div>
+	);
 };

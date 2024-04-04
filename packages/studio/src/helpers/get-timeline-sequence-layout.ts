@@ -32,6 +32,7 @@ export const getTimelineSequenceLayout = ({
 	startFromMedia,
 	video,
 	windowWidth,
+	premountDisplay,
 }: {
 	durationInFrames: number;
 	startFrom: number;
@@ -39,10 +40,12 @@ export const getTimelineSequenceLayout = ({
 	maxMediaDuration: number | null;
 	video: VideoConfig;
 	windowWidth: number;
+	premountDisplay: number | null;
 }) => {
 	const maxMediaSequenceDuration =
 		(maxMediaDuration ?? Infinity) - startFromMedia;
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
+
 	let spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1,
@@ -71,16 +74,31 @@ export const getTimelineSequenceLayout = ({
 
 	const nonNegativeMarginLeft = Math.min(marginLeft, 0);
 
+	const width = Math.floor(
+		getWidthOfTrack({
+			durationInFrames,
+			lastFrame,
+			nonNegativeMarginLeft,
+			spatialDuration,
+			windowWidth,
+		}),
+	);
+
+	const premountWidth = premountDisplay
+		? Math.floor(
+				getWidthOfTrack({
+					durationInFrames: premountDisplay,
+					lastFrame,
+					nonNegativeMarginLeft,
+					spatialDuration: premountDisplay,
+					windowWidth,
+				}),
+			)
+		: null;
+
 	return {
 		marginLeft: Math.round(Math.max(marginLeft, 0)),
-		width: Math.floor(
-			getWidthOfTrack({
-				durationInFrames,
-				lastFrame,
-				nonNegativeMarginLeft,
-				spatialDuration,
-				windowWidth,
-			}),
-		),
+		width,
+		premountWidth,
 	};
 };

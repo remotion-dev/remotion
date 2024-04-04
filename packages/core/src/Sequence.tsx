@@ -275,7 +275,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const active =
 		frame < from &&
-		frame > from - premountFor &&
+		frame >= from - premountFor &&
 		!getRemotionEnvironment().isRendering;
 
 	const style = useMemo(() => {
@@ -299,7 +299,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				name={finalName}
 				from={from + (active ? -premountFor : 0)}
 				style={style}
-				premountDisplay={premountFor}
+				premountDisplay={active ? premountFor : undefined}
 				{...otherProps}
 			/>
 		</Freeze>
