@@ -206,6 +206,8 @@ export const renderCommand = async (
 			forceIPv4: false,
 		});
 
+		const indent = false;
+
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
@@ -214,7 +216,7 @@ export const renderCommand = async (
 				chromiumOptions,
 				envVariables,
 				height,
-				indent: false,
+				indent,
 				serializedInputPropsWithCustomSchema:
 					NoReactInternals.serializeJSONWithDate({
 						indent: undefined,
@@ -230,6 +232,11 @@ export const renderCommand = async (
 				server,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+					indent,
+					logLevel,
+					quiet: CliInternals.quietFlagProvided(),
+				}),
 			});
 		composition = compositionId;
 	}

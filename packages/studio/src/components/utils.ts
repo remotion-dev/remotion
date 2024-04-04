@@ -1,13 +1,8 @@
-import {notificationCenter} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 
 export const handleUploadFile = async (file: File, assetPath: string) => {
 	if (!file) {
-		notificationCenter.current?.addNotification({
-			content: `Please select a file first!`,
-			created: Date.now(),
-			duration: 3000,
-			id: String(Math.random()),
-		});
+		showNotification('Please select a file first!', 3000);
 		return;
 	}
 
@@ -24,27 +19,12 @@ export const handleUploadFile = async (file: File, assetPath: string) => {
 		});
 
 		if (response.ok) {
-			notificationCenter.current?.addNotification({
-				content: `Added ${file.name} to ${assetPath}`,
-				created: Date.now(),
-				duration: 3000,
-				id: String(Math.random()),
-			});
+			showNotification(`Added ${file.name} to ${assetPath}`, 3000);
 		} else {
 			const jsonResponse = await response.json();
-			notificationCenter.current?.addNotification({
-				content: `Upload failed: ${jsonResponse.error}`,
-				created: Date.now(),
-				duration: 3000,
-				id: String(Math.random()),
-			});
+			showNotification(`Upload failed: ${jsonResponse.error}`, 3000);
 		}
 	} catch (error) {
-		notificationCenter.current?.addNotification({
-			content: `Error during upload: ${error}`,
-			created: Date.now(),
-			duration: 3000,
-			id: String(Math.random()),
-		});
+		showNotification(`Error during upload: ${error}`, 3000);
 	}
 };

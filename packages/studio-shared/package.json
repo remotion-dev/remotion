@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-shared",
-	"version": "4.0.133",
+	"version": "4.0.137",
 	"description": "Shared items between Remotion Studio frontend and backend",
 	"main": "dist",
 	"sideEffects": false,

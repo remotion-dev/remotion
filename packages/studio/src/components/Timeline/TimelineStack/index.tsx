@@ -21,7 +21,7 @@ import {openInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
 import {Spacing} from '../../layout';
-import {sendErrorNotification} from '../../Notifications/NotificationCenter';
+import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
 import {getOriginalLocationFromStack} from './get-stack';
 import {getOriginalSourceAttribution} from './source-attribution';
@@ -86,7 +86,7 @@ export const TimelineStack: React.FC<{
 				originalScriptCode: null,
 			});
 		} catch (err) {
-			sendErrorNotification((err as Error).message);
+			showNotification((err as Error).message, 2000);
 		} finally {
 			setOpening(false);
 		}

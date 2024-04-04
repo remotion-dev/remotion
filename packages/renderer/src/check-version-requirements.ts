@@ -48,8 +48,17 @@ export const gLibCErrorMessage = (libCString: string) => {
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
 	const {report} = process;
 	if (report) {
+		const rep = report.getReport();
+		if (typeof rep === 'string') {
+			Log.warn(
+				{logLevel, indent},
+				'Bun limitation: process.report.getReport() ' + rep,
+			);
+			return;
+		}
+
 		// @ts-expect-error no types
-		const {glibcVersionRuntime} = report.getReport().header;
+		const {glibcVersionRuntime} = rep.header;
 		if (!glibcVersionRuntime) {
 			return;
 		}

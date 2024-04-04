@@ -18,6 +18,7 @@ import type {
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
+import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
@@ -139,6 +140,19 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		quiet: quietFlagProvided(),
+		indent,
+		logLevel,
+	});
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent,
+		logLevel,
+		onBrowserDownload,
+	});
+
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
@@ -147,6 +161,7 @@ export const renderStillFlow = async ({
 		indent,
 		viewport: null,
 		logLevel,
+		onBrowserDownload,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -221,6 +236,7 @@ export const renderStillFlow = async ({
 			server,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			onBrowserDownload,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -321,6 +337,7 @@ export const renderStillFlow = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	});
 
 	aggregate.rendering = {

@@ -9,6 +9,7 @@ import esbuild = require('esbuild');
 
 import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
@@ -117,6 +118,7 @@ export const webpackConfig = async ({
 			environment === 'development'
 				? [
 						new ReactFreshWebpackPlugin(),
+						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						define,
 						new AllowOptionalDependenciesPlugin(),

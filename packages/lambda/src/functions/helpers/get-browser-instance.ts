@@ -61,6 +61,7 @@ export const getBrowserInstance = async (
 		...chromiumOptions,
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
+		enableMultiProcessOnLinux: false,
 	};
 	const configurationString = makeConfigurationString(
 		actualChromiumOptions,
@@ -99,6 +100,9 @@ export const getBrowserInstance = async (
 			indent: false,
 			viewport: null,
 			logLevel,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
 		});
 		instance.on('disconnected', () => {
 			RenderInternals.Log.info(

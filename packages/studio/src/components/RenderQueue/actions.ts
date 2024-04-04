@@ -11,10 +11,12 @@ import type {
 } from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
 	EnumPath,
 	OpenInFileExplorerRequest,
+	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
 } from '@remotion/studio-shared';
@@ -339,6 +341,22 @@ export const copyToClipboard = ({
 	return callApi('/api/copy-still-to-clipboard', body);
 };
 
+export const applyCodemod = ({
+	codemod,
+	dryRun,
+	signal,
+}: {
+	codemod: RecastCodemod;
+	dryRun: boolean;
+	signal: AbortController['signal'];
+}) => {
+	const body: ApplyCodemodRequest = {
+		codemod,
+		dryRun,
+	};
+	return callApi('/api/apply-codemod', body, signal);
+};
+
 export const removeRenderJob = (job: RenderJob) => {
 	return callApi('/api/remove-render', {
 		jobId: job.id,
@@ -353,6 +371,10 @@ export const cancelRenderJob = (job: RenderJob) => {
 
 export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
+};
+
+export const getProjectInfo = (signal: AbortSignal) => {
+	return callApi('/api/project-info', {}, signal);
 };
 
 export const updateDefaultProps = (

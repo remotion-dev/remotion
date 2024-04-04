@@ -25,6 +25,7 @@ export type {
 } from '@remotion/studio-shared';
 
 import {AnsiDiff} from './ansi-diff';
+import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {
@@ -51,4 +52,5 @@ export const StudioServerInternals = {
 	installFileWatcher,
 	AnsiDiff,
 	formatBytes,
+	parseAndApplyCodemod,
 };

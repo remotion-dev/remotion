@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {copyText} from '../helpers/copy-text';
 import {Button} from './Button';
 import {Spacing} from './layout';
-import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 
 const iconStyle: React.CSSProperties = {
 	width: 16,
@@ -51,7 +51,7 @@ export const CopyButton: React.FC<{
 				setCopied(Date.now());
 			})
 			.catch((err) => {
-				sendErrorNotification(`Could not copy: ${err.message}`);
+				showNotification(`Could not copy: ${err.message}`, 2000);
 			});
 	}, [textToCopy]);
 

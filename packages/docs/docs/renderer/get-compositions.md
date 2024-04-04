@@ -147,6 +147,10 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 
 <Options id="binaries-directory" />
 
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+
+<Options id="on-browser-download" />
+
 ### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, optional_

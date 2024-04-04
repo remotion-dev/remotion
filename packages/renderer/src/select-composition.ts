@@ -3,6 +3,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -195,6 +196,7 @@ export const internalSelectCompositionRaw = async (
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -204,6 +206,7 @@ export const internalSelectCompositionRaw = async (
 		forceDeviceScaleFactor: undefined,
 		indent,
 		logLevel,
+		onBrowserDownload,
 	});
 	cleanup.push(() => cleanupPage());
 
@@ -257,6 +260,7 @@ export const internalSelectCompositionRaw = async (
 					server,
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
+					onBrowserDownload,
 				});
 			})
 
@@ -301,10 +305,14 @@ export const selectComposition = async (
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		verbose,
-		logLevel,
+		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		onBrowserDownload,
 	} = options;
+
+	const indent = false;
+	const logLevel = passedLogLevel ?? verbose ? 'verbose' : 'info';
 
 	const data = await internalSelectComposition({
 		id,
@@ -322,11 +330,18 @@ export const selectComposition = async (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: logLevel ?? verbose ? 'verbose' : 'info',
-		indent: false,
+		logLevel,
+		indent,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'selectComposition()',
+			}),
 	});
 	return data.metadata;
 };

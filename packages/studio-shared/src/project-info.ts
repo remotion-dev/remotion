@@ -1,4 +1,4 @@
 export type ProjectInfo = {
-	videoFile: string | null;
-	relativeVideoFile: string | null;
+	rootFile: string | null;
+	relativeRootFile: string | null;
 };

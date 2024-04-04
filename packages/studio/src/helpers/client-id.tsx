@@ -2,7 +2,7 @@ import type {EventSourceEvent} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
-import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
+import {showNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
 import {reloadUrl} from './url-state';
@@ -92,7 +92,7 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'render-job-failed') {
-				sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
+				showNotification(`Rendering "${newEvent.compositionId}" failed`, 2000);
 			}
 
 			if (newEvent.type === 'new-public-folder') {

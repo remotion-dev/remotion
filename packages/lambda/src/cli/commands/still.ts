@@ -137,10 +137,12 @@ export const stillCommand = async (
 			forceIPv4: false,
 		});
 
+		const indent = false;
+
 		const {compositionId} = await getCompositionWithDimensionOverride({
 			args: args.slice(1),
 			compositionIdFromUi: null,
-			indent: false,
+			indent,
 			serveUrlOrWebpackUrl: serveUrl,
 			logLevel,
 			browserExecutable,
@@ -160,6 +162,11 @@ export const stillCommand = async (
 			server,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				quiet: CliInternals.quietFlagProvided(),
+			}),
 		});
 		composition = compositionId;
 	}

@@ -1,25 +1,24 @@
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
-import {Row, Spacing} from '../layout';
+import {Spacing} from '../layout';
+import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {InputDragger} from './InputDragger';
-import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 import {ValidationMessage} from './ValidationMessage';
 
 export const NewCompDuration: React.FC<{
-	durationInFrames: string;
-	fps: string;
-	setDurationInFrames: React.Dispatch<React.SetStateAction<string>>;
-}> = ({durationInFrames, setDurationInFrames, fps}) => {
+	durationInFrames: number;
+	setDurationInFrames: React.Dispatch<React.SetStateAction<number>>;
+}> = ({durationInFrames, setDurationInFrames}) => {
 	const onDurationInFramesChanged = useCallback(
 		(newValue: string) => {
-			setDurationInFrames(String(Number(newValue)));
+			setDurationInFrames(Number(newValue));
 		},
 		[setDurationInFrames],
 	);
 
 	const onDurationChangedDirectly = useCallback(
 		(newVal: number) => {
-			setDurationInFrames(String(newVal));
+			setDurationInFrames(newVal);
 		},
 		[setDurationInFrames],
 	);
@@ -27,42 +26,35 @@ export const NewCompDuration: React.FC<{
 	const compDurationErrMessage = validateCompositionDuration(durationInFrames);
 
 	return (
-		<div>
-			<label>
-				<Row align="center">
-					<div style={leftLabel}> Duration in frames</div>
-					<div style={inputArea}>
-						<InputDragger
-							type="number"
-							value={durationInFrames}
-							onTextChange={onDurationInFramesChanged}
-							placeholder="Duration (frames)"
-							name="durationInFrames"
-							min={1}
-							step={1}
-							required
-							status="ok"
-							// Hitting Promise.all() limit in Chrome
-							max={300_000}
-							onValueChange={onDurationChangedDirectly}
-							rightAlign={false}
+		<div style={optionRow}>
+			<div style={label}>Duration in frames</div>
+			<div style={rightRow}>
+				<InputDragger
+					type="number"
+					value={durationInFrames}
+					onTextChange={onDurationInFramesChanged}
+					placeholder="Duration (frames)"
+					name="durationInFrames"
+					min={1}
+					step={1}
+					required
+					status="ok"
+					// Hitting Promise.all() limit in Chrome
+					max={300_000}
+					onValueChange={onDurationChangedDirectly}
+					rightAlign={false}
+				/>
+				{compDurationErrMessage ? (
+					<>
+						<Spacing y={1} block />
+						<ValidationMessage
+							align="flex-start"
+							message={compDurationErrMessage}
+							type="error"
 						/>
-						{compDurationErrMessage ? (
-							<>
-								<Spacing y={1} block />
-								<ValidationMessage
-									align="flex-start"
-									message={compDurationErrMessage}
-									type="error"
-								/>
-							</>
-						) : null}
-					</div>
-					<span style={rightLabel}>
-						{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
-					</span>
-				</Row>
-			</label>
+					</>
+				) : null}
+			</div>
 		</div>
 	);
 };

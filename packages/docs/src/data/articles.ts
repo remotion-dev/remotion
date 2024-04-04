@@ -175,6 +175,20 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
+    id: "cli/browser/ensure",
+    title: "npx remotion browser ensure",
+    relativePath: "docs/cli/browser/ensure.mdx",
+    compId: "articles-docs-cli-browser-ensure",
+    crumb: "@remotion/cli",
+  },
+  {
+    id: "cli/browser/index",
+    title: "npx remotion browser",
+    relativePath: "docs/cli/browser/index.mdx",
+    compId: "articles-docs-cli-browser-index",
+    crumb: "@remotion/cli",
+  },
+  {
     id: "cli/bundle",
     title: "npx remotion bundle",
     relativePath: "docs/cli/bundle.md",
@@ -1456,6 +1470,13 @@ export const articles = [
     crumb: "Designing videos",
   },
   {
+    id: "layout-utils/best-practices",
+    title: "Best practices for @remotion/layout-utils",
+    relativePath: "docs/layout-utils/best-practices.mdx",
+    compId: "articles-docs-layout-utils-best-practices",
+    crumb: "@remotion/layout-utils",
+  },
+  {
     id: "layout-utils/fill-text-box",
     title: "fillTextBox()",
     relativePath: "docs/layout-utils/fill-text-box.md",
@@ -1563,7 +1584,7 @@ export const articles = [
   {
     id: "media-playback-error",
     title: "Could not play video/audio with src",
-    relativePath: "docs/media-playback-error.md",
+    relativePath: "docs/media-playback-error.mdx",
     compId: "articles-docs-media-playback-error",
     crumb: "Troubleshooting",
   },
@@ -1594,6 +1615,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/changing-temp-dir.md",
     compId: "articles-docs-miscellaneous-changing-temp-dir",
     crumb: "Advanced configuration",
+  },
+  {
+    id: "miscellaneous/chrome-headless-shell",
+    title: "Chrome Headless Shell",
+    relativePath: "docs/miscellaneous/chrome-headless-shell.mdx",
+    compId: "articles-docs-miscellaneous-chrome-headless-shell",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/cloud-gpu-docker",
@@ -1694,13 +1722,6 @@ export const articles = [
     relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
     compId: "articles-docs-miscellaneous-snippets-use-delay-render",
     crumb: "Snippets",
-  },
-  {
-    id: "miscellaneous/thorium-browser",
-    title: "Thorium browser",
-    relativePath: "docs/miscellaneous/thorium-browser.md",
-    compId: "articles-docs-miscellaneous-thorium-browser",
-    crumb: "FAQ",
   },
   {
     id: "typescript-aliases",
@@ -2201,10 +2222,10 @@ export const articles = [
   },
   {
     id: "recorder/index",
-    title: "Introduction",
+    title: "Remotion Recorder",
     relativePath: "docs/recorder/index.mdx",
     compId: "articles-docs-recorder-index",
-    crumb: "Recorder",
+    crumb: "Templates",
   },
   {
     id: "recorder/record",
@@ -2268,6 +2289,13 @@ export const articles = [
     relativePath: "docs/render.md",
     compId: "articles-docs-render",
     crumb: "How To",
+  },
+  {
+    id: "ensure-browser",
+    title: "ensureBrowser()",
+    relativePath: "docs/renderer/ensure-browser.mdx",
+    compId: "articles-docs-renderer-ensure-browser",
+    crumb: "@remotion/renderer",
   },
   {
     id: "ensure-ffmpeg",
@@ -2342,7 +2370,7 @@ export const articles = [
   {
     id: "render-media",
     title: "renderMedia()",
-    relativePath: "docs/renderer/render-media.md",
+    relativePath: "docs/renderer/render-media.mdx",
     compId: "articles-docs-renderer-render-media",
     crumb: "@remotion/renderer",
   },

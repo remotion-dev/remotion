@@ -81,8 +81,15 @@ _object - optional_
 
 An object of arbitrary shape that:
 
-<Step>1</Step> will be passed as <a href="/docs/parameterized-rendering">props to your component</a><br/>
-<Step>2</Step> can be retrieved using <a href="/docs/get-input-props"><code>getInputProps()</code></a>.<br/><br/>
+<Step>1</Step> will be passed as <a href="/docs/parameterized-rendering">
+  props to your component
+</a>
+<br />
+<Step>2</Step> can be retrieved using <a href="/docs/get-input-props">
+  <code>getInputProps()</code>
+</a>
+.<br />
+<br />
 
 Make sure to also pass the same `inputProps` to [`selectComposition()`](/docs/renderer/select-composition) for this to work correctly.
 
@@ -100,7 +107,7 @@ A `number` specifying how many render processes should be started in parallel, a
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `audioCodec?`
 
@@ -117,11 +124,11 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="audio-bitrate"/>
+<Options id="audio-bitrate" />
 
 ### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="video-bitrate"/>
+<Options id="video-bitrate" />
 
 ### `crf?`
 
@@ -131,11 +138,11 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `maxRate?`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `imageFormat?`
 
@@ -379,11 +386,11 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `headless?`
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 #### `gl?`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 #### `userAgent?`<AvailableFrom v="3.3.83"/>
 
@@ -446,6 +453,10 @@ _boolean - default `false`_
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+
+<Options id="on-browser-download" />
 
 ### ~~`parallelism?`~~
 

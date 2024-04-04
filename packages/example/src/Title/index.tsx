@@ -43,7 +43,7 @@ export const Title: React.FC<{
 	};
 	const {width, height} = measureText({
 		text: `${line1} ${line2}`,
-		fontFamily: fontStyle.fontFamily,
+		fontFamily: 'does not compute',
 		fontSize: fontStyle.fontSize,
 	});
 	const box = fillTextBox({maxBoxWidth: 270, maxLines: 1});
