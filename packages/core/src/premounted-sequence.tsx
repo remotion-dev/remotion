@@ -1,5 +1,6 @@
 import React, {forwardRef, useMemo} from 'react';
 import {Freeze} from './freeze';
+import {getRemotionEnvironment} from './get-remotion-environment';
 import type {SequenceProps} from './Sequence';
 import {Sequence} from './Sequence';
 import {useCurrentFrame} from './use-current-frame';
@@ -21,7 +22,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const {style: passedStyle, from = 0, ...otherProps} = props;
-	const active = frame < from;
+	const active = frame < from && !getRemotionEnvironment().isRendering;
 
 	const style = useMemo(() => {
 		return {
