@@ -13,9 +13,9 @@ export const Layers: React.FC = () => {
 		<Series>
 			<Series.Sequence durationInFrames={40}>hi there</Series.Sequence>
 			<Series.Sequence durationInFrames={40}>hi there</Series.Sequence>
-			<Series.PremountedSequence premountFor={10} durationInFrames={40}>
+			<Series.Sequence premountFor={10} durationInFrames={40}>
 				<Premounted />
-			</Series.PremountedSequence>
+			</Series.Sequence>
 		</Series>
 	);
 };

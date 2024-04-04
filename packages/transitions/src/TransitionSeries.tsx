@@ -302,10 +302,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
-					name={passedProps.name || '<TS.Sequence>'}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					name={passedProps.name || '<TS.Sequence>'}
 				>
 					{child}
 				</Sequence>

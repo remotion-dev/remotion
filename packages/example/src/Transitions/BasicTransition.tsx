@@ -38,9 +38,9 @@ export const BasicTransition: React.FC = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={fade({})}
-				timing={springTiming()}
+				timing={springTiming({durationInFrames: 10})}
 			/>
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.Sequence premountFor={10} durationInFrames={60}>
 				<B />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
