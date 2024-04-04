@@ -265,6 +265,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		...otherProps
 	} = props;
+
 	const active =
 		frame < from &&
 		frame > from - premountFor &&
@@ -274,7 +275,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return {
 			...passedStyle,
 			opacity: active ? 0 : 1,
-			pointerEvents: active ? 'none' : passedStyle?.pointerEvents ?? 'auto',
+			pointerEvents: active ? 'none' : passedStyle?.pointerEvents ?? undefined,
 		};
 	}, [active, passedStyle]);
 
