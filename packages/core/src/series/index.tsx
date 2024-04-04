@@ -1,8 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import type {PremountedSequenceProps} from '../index.js';
-import {PremountedSequence} from '../index.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -17,15 +15,6 @@ type SeriesSequenceProps = PropsWithChildren<
 		LayoutAndStyle
 >;
 
-type SeriesPremountedSequenceProps = PropsWithChildren<
-	{
-		durationInFrames: number;
-		offset?: number;
-		className?: string;
-	} & Pick<PremountedSequenceProps, 'name' | 'premountFor'> &
-		LayoutAndStyle
->;
-
 const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SeriesSequenceProps
@@ -36,20 +25,7 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	return <>{children}</>;
 };
 
-const SeriesPremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	PremountedSequenceProps
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-> = ({children}, _ref) => {
-	// Discard ref
-	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
-};
-
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
-const SeriesPremountedSequence = forwardRef(
-	SeriesPremountedSequenceRefForwardingFunction,
-);
 
 /**
  * @description with this component, you can easily stitch together scenes that should play sequentially after another.
@@ -59,7 +35,6 @@ const Series: FC<{
 	children: React.ReactNode;
 }> & {
 	Sequence: typeof SeriesSequence;
-	PremountedSequence: typeof SeriesPremountedSequence;
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
@@ -69,11 +44,6 @@ const Series: FC<{
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;
-						ref: React.MutableRefObject<HTMLDivElement>;
-				  }
-				| {
-						props: SeriesPremountedSequenceProps;
-						type: typeof PremountedSequence;
 						ref: React.MutableRefObject<HTMLDivElement>;
 				  }
 				| string;
@@ -88,10 +58,7 @@ const Series: FC<{
 				);
 			}
 
-			if (
-				castedChild.type !== SeriesSequence &&
-				castedChild.type !== SeriesPremountedSequence
-			) {
+			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
 					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but got ${castedChild} instead`,
 				);
@@ -106,6 +73,13 @@ const Series: FC<{
 			}
 
 			const durationInFramesProp = castedChild.props.durationInFrames;
+			const {
+				durationInFrames,
+				children: _children,
+				from,
+				name,
+				...passedProps
+			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
 			if (
 				i !== flattenedChildren.length - 1 ||
@@ -138,49 +112,17 @@ const Series: FC<{
 
 			const currentStartFrame = startFrame + offset;
 			startFrame += durationInFramesProp + offset;
-			if (castedChild.type === SeriesPremountedSequence) {
-				const {
-					durationInFrames,
-					children: _children,
-					from,
-					name,
-					...passedProps
-				} = castedChild.props as SeriesPremountedSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
-
-				return (
-					<PremountedSequence
-						name={name || '<Series.PremountedSeriesSequence>'}
-						from={currentStartFrame}
-						durationInFrames={durationInFramesProp}
-						{...passedProps}
-						ref={castedChild.ref}
-					>
-						{child}
-					</PremountedSequence>
-				);
-			}
-
-			if (castedChild.type === SeriesSequence) {
-				const {
-					durationInFrames,
-					children: _children,
-					from,
-					name,
-					...passedProps
-				} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
-
-				return (
-					<Sequence
-						name={name || '<Series.Sequence>'}
-						from={currentStartFrame}
-						durationInFrames={durationInFramesProp}
-						{...passedProps}
-						ref={castedChild.ref}
-					>
-						{child}
-					</Sequence>
-				);
-			}
+			return (
+				<Sequence
+					name={name || '<Series.Sequence>'}
+					from={currentStartFrame}
+					durationInFrames={durationInFramesProp}
+					{...passedProps}
+					ref={castedChild.ref}
+				>
+					{child}
+				</Sequence>
+			);
 		});
 	}, [children]);
 
@@ -189,7 +131,6 @@ const Series: FC<{
 };
 
 Series.Sequence = SeriesSequence;
-Series.PremountedSequence = SeriesPremountedSequence;
 
 export {Series};
 
