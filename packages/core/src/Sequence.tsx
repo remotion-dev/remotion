@@ -50,6 +50,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	premountDisplay?: number | null;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	stack?: string;
 } & LayoutAndStyle;
 
@@ -71,6 +75,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline = true,
 		loopDisplay,
 		stack,
+		premountDisplay,
 		...other
 	},
 	ref,
@@ -173,6 +178,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			nonce,
 			loopDisplay,
 			stack: stack ?? null,
+			premountDisplay: premountDisplay ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -192,6 +198,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		nonce,
 		loopDisplay,
 		stack,
+		premountDisplay,
 	]);
 
 	// Ceil to support floats
@@ -292,6 +299,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				name={finalName}
 				from={from + (active ? -premountFor : 0)}
 				style={style}
+				premountDisplay={premountFor}
 				{...otherProps}
 			/>
 		</Freeze>

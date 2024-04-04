@@ -36,6 +36,7 @@ export const calculateTimeline = ({
 					nonce: 0,
 					loopDisplay: undefined,
 					stack: null,
+					premountDisplay: null,
 				},
 				depth: 0,
 				hash: '-',

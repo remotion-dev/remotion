@@ -123,6 +123,7 @@ export type TSequence = {
 	nonce: number;
 	loopDisplay: LoopDisplay | undefined;
 	stack: string | null;
+	premountDisplay: number | null;
 } & EnhancedTSequenceData;
 
 export type TRenderAsset = {

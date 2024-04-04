@@ -91,6 +91,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
+		premountDisplay: null,
 	});
 
 	useSyncVolumeWithMediaTag({

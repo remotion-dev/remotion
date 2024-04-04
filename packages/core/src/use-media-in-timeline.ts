@@ -35,6 +35,7 @@ export const useMediaInTimeline = ({
 	id,
 	stack,
 	showInTimeline,
+	premountDisplay,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -46,6 +47,7 @@ export const useMediaInTimeline = ({
 	id: string;
 	stack: string | null;
 	showInTimeline: boolean;
+	premountDisplay: number | null;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -125,6 +127,7 @@ export const useMediaInTimeline = ({
 			loopDisplay: undefined,
 			playbackRate,
 			stack,
+			premountDisplay,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -149,6 +152,7 @@ export const useMediaInTimeline = ({
 		displayName,
 		stack,
 		showInTimeline,
+		premountDisplay,
 	]);
 
 	useEffect(() => {
