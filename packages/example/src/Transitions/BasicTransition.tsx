@@ -1,6 +1,6 @@
 import {springTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
-import React, {useState} from 'react';
+import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 
 export const Letter: React.FC<{
@@ -23,26 +23,26 @@ export const Letter: React.FC<{
 };
 
 const B: React.FC = () => {
-	const [id] = useState(() => Math.random());
-	console.log(id);
 	return <Letter color="pink">B</Letter>;
 };
 
 export const BasicTransition: React.FC = () => {
 	return (
-		<TransitionSeries from={30}>
-			<TransitionSeries.Sequence durationInFrames={40}>
-				<Sequence>
-					<Letter color="orange"> A</Letter>
-				</Sequence>
-			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				presentation={fade({})}
-				timing={springTiming({durationInFrames: 10})}
-			/>
-			<TransitionSeries.Sequence premountFor={10} durationInFrames={60}>
-				<B />
-			</TransitionSeries.Sequence>
-		</TransitionSeries>
+		<Sequence durationInFrames={200} from={30} premountFor={100}>
+			<TransitionSeries from={30}>
+				<TransitionSeries.Sequence durationInFrames={40}>
+					<Sequence>
+						<Letter color="orange"> A</Letter>
+					</Sequence>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Transition
+					presentation={fade({})}
+					timing={springTiming({durationInFrames: 10})}
+				/>
+				<TransitionSeries.Sequence premountFor={10} durationInFrames={40}>
+					<B />
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
+		</Sequence>
 	);
 };
