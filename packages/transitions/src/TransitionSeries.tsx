@@ -1,7 +1,13 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
 import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
-import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Internals,
+	PremountedSequence,
+	Sequence,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -226,12 +232,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
+					<PremountedSequence
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						premountFor={30}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -247,12 +252,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								<Sequence showInTimeline={false} {...passedProps}>
-									{child}
-								</Sequence>
+								{child}
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
-					</Sequence>
+					</PremountedSequence>
 				);
 			}
 
@@ -262,12 +265,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
+					<PremountedSequence
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						premountFor={30}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -276,11 +278,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercasePrevPresentation>
-					</Sequence>
+					</PremountedSequence>
 				);
 			}
 
@@ -290,12 +290,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				const UppercaseNextPresentation = nextPresentation.component;
 
 				return (
-					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
+					<PremountedSequence
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						premountFor={30}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						{/**
 						// @ts-expect-error	*/}
@@ -304,23 +303,22 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercaseNextPresentation>
-					</Sequence>
+					</PremountedSequence>
 				);
 			}
 
 			return (
-				<Sequence
+				<PremountedSequence
 					name={passedProps.name || '<TS.Sequence>'}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
+					premountFor={30}
 					{...passedProps}
 				>
 					{child}
-				</Sequence>
+				</PremountedSequence>
 			);
 		});
 	}, [children, fps, frame]);
