@@ -1,30 +1,44 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
 	Freeze,
 	Sequence,
-	Series,
+	SequenceProps,
 	staticFile,
 	useCurrentFrame,
 	Video,
 } from 'remotion';
 
-const Premount: React.FC<{
-	children: React.ReactNode;
-	premountFor: number;
-}> = ({children, premountFor}) => {
+const Premount: React.FC<
+	{
+		children: React.ReactNode;
+		premountFor: number;
+	} & SequenceProps
+> = ({premountFor, ...props}) => {
 	const frame = useCurrentFrame();
-	const active = frame < premountFor;
+
+	if (props.layout === 'none') {
+		throw new Error('`<Premount>` does not support layout="none"');
+	}
+
+	const {style: passedStyle, from = 0, ...otherProps} = props;
+	const active = frame < premountFor + from;
+
+	const style = useMemo(() => {
+		return {
+			...passedStyle,
+			opacity: active ? 0.5 : 1,
+		};
+	}, [active, passedStyle]);
 
 	return (
-		<Freeze frame={0} active={active}>
+		<Freeze frame={frame >= from ? from : -1} active={active}>
 			<Sequence
-				layout="none"
 				name={`<Premount premountFor={${premountFor}}>`}
-				from={active ? 0 : premountFor}
-			>
-				{children}
-			</Sequence>
+				from={from + (active ? 0 : premountFor)}
+				style={style}
+				{...otherProps}
+			/>
 		</Freeze>
 	);
 };
@@ -36,11 +50,9 @@ const ShouldNotUnmount: React.FC = () => {
 export const PremountedExample: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			<Series.Sequence durationInFrames={20} offset={-10}>
-				<Premount premountFor={10}>
-					<ShouldNotUnmount />
-				</Premount>
-			</Series.Sequence>
+			<Premount premountFor={10} from={30} durationInFrames={200}>
+				<ShouldNotUnmount />
+			</Premount>
 		</AbsoluteFill>
 	);
 };
