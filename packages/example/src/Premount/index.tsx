@@ -27,7 +27,8 @@ const Premount: React.FC<
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: active ? 0.5 : 1,
+			opacity: active ? 0 : 1,
+			pointerEvents: active ? 'none' : passedStyle?.pointerEvents ?? 'auto',
 		};
 	}, [active, passedStyle]);
 
