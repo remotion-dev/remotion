@@ -37,18 +37,24 @@ export const Letter: React.FC<{
 export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
-			<TransitionSeries.Sequence durationInFrames={40}>
+			<TransitionSeries.PremountedSequence
+				premountFor={20}
+				durationInFrames={40}
+			>
 				<Sequence>
 					<Letter color="orange"> A</Letter>
 				</Sequence>
-			</TransitionSeries.Sequence>
+			</TransitionSeries.PremountedSequence>
 			<TransitionSeries.Transition
 				presentation={slide({direction: 'from-bottom'})}
 				timing={springTiming()}
 			/>
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.PremountedSequence
+				premountFor={30}
+				durationInFrames={60}
+			>
 				<Letter color="pink">B</Letter>
-			</TransitionSeries.Sequence>
+			</TransitionSeries.PremountedSequence>
 			<TransitionSeries.Transition
 				presentation={wipe({direction: 'from-bottom-left'})}
 				timing={linearTiming({

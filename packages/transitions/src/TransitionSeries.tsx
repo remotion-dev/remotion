@@ -427,10 +427,12 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
+	PremountedSequence: typeof PremountedSeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 } = ({children, name, ...otherProps}) => {
 	const displayName = name ?? '<TransitionSeries>';
 	return (
+		// TODO: Does it make sense to support layout="none"?
 		<Sequence name={displayName} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
@@ -438,6 +440,7 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 };
 
 TransitionSeries.Sequence = SeriesSequence;
+TransitionSeries.PremountedSequence = PremountedSeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
