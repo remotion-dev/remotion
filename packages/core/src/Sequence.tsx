@@ -265,7 +265,10 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		...otherProps
 	} = props;
-	const active = frame < from && !getRemotionEnvironment().isRendering;
+	const active =
+		frame < from &&
+		frame > from - premountFor &&
+		!getRemotionEnvironment().isRendering;
 
 	const style = useMemo(() => {
 		return {
