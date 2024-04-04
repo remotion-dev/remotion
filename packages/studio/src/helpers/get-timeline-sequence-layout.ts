@@ -97,8 +97,8 @@ export const getTimelineSequenceLayout = ({
 		: null;
 
 	return {
-		marginLeft: Math.round(Math.max(marginLeft, 0)),
-		width,
+		marginLeft: Math.round(Math.max(marginLeft, 0)) - (premountWidth ?? 0),
+		width: width + (premountWidth ?? 0),
 		premountWidth,
 	};
 };

@@ -45,10 +45,15 @@ const Inner: React.FC<{
 
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
+	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 
 	const roundedFrame = Math.round(relativeFrame * 100) / 100;
 
 	const isInRange = relativeFrame >= 0 && relativeFrame < s.duration;
+	const isPremounting =
+		relativeFrameWithPremount >= 0 &&
+		relativeFrameWithPremount < s.duration &&
+		!isInRange;
 
 	const {marginLeft, width, premountWidth} = useMemo(() => {
 		return getTimelineSequenceLayout({
@@ -95,8 +100,8 @@ const Inner: React.FC<{
 							-45deg,
 							transparent,
 							transparent 2px,
-							rgba(255, 255, 255, 0.2) 2px,
-							rgba(255, 255, 255, 0.2) 4px
+							rgba(255, 255, 255, ${isPremounting ? 0.5 : 0.2}) 2px,
+							rgba(255, 255, 255, ${isPremounting ? 0.5 : 0.2}) 4px
 						)`,
 						position: 'absolute',
 					}}
@@ -123,17 +128,17 @@ const Inner: React.FC<{
 			{s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.loopDisplay === undefined &&
-			isInRange ? (
+			(isInRange || isPremounting) ? (
 				<div
 					style={{
-						paddingLeft: 5,
+						paddingLeft: 5 + (premountWidth ?? 0),
 						height: '100%',
 						display: 'flex',
 						alignItems: 'center',
 					}}
 				>
 					<TimelineSequenceFrame
-						premountDisplay={premountWidth}
+						premounted={isPremounting}
 						roundedFrame={roundedFrame}
 					/>
 				</div>

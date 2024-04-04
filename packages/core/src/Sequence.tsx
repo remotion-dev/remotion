@@ -287,12 +287,12 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [active, passedStyle]);
 
 	return (
-		<Freeze frame={from - premountFor} active={active}>
+		<Freeze frame={from} active={active}>
 			<Sequence
 				ref={ref}
-				from={from + (active ? -premountFor : 0)}
+				from={from}
 				style={style}
-				premountDisplay={active ? premountFor : undefined}
+				premountDisplay={premountFor}
 				{...otherProps}
 			/>
 		</Freeze>
