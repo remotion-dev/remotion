@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	forwardRef,
 	useContext,
@@ -21,9 +22,13 @@ import {
 } from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 
+import {Freeze} from './freeze.js';
+import {useCurrentFrame} from './use-current-frame';
+
 export type LayoutAndStyle =
 	| {
 			layout?: 'absolute-fill';
+			premountFor?: number;
 			style?: React.CSSProperties;
 			className?: string;
 	  }
@@ -52,7 +57,7 @@ export type SequenceProps = {
 	durationInFrames?: number;
 } & SequencePropsWithoutDuration;
 
-const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (
@@ -237,6 +242,62 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			)}
 		</SequenceContext.Provider>
 	);
+};
+
+const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
+
+const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (props, ref) => {
+	const frame = useCurrentFrame();
+
+	if (props.layout === 'none') {
+		throw new Error(
+			'`<Sequence>` with `premountFor` prop does not support layout="none"',
+		);
+	}
+
+	const {
+		style: passedStyle,
+		from = 0,
+		premountFor = 0,
+		name,
+		...otherProps
+	} = props;
+	const active = frame < from && !getRemotionEnvironment().isRendering;
+
+	const style = useMemo(() => {
+		return {
+			...passedStyle,
+			opacity: active ? 0 : 1,
+			pointerEvents: active ? 'none' : passedStyle?.pointerEvents ?? 'auto',
+		};
+	}, [active, passedStyle]);
+
+	return (
+		<Freeze frame={from} active={active}>
+			<Sequence
+				ref={ref}
+				name={name ?? `<Premount premountFor={${premountFor}}>`}
+				from={from + (active ? -premountFor : 0)}
+				style={style}
+				{...otherProps}
+			/>
+		</Freeze>
+	);
+};
+
+const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
+const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (props, ref) => {
+	if (props.layout !== 'none' && props.premountFor) {
+		return <PremountedSequence {...props} ref={ref} />;
+	}
+
+	return <RegularSequence {...props} ref={ref} />;
 };
 
 /**
