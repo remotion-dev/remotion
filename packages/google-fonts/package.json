@@ -23,7 +23,7 @@
     "postcss": "^8.4.31",
     "prettier": "3.1.1",
     "rollup": "^2.70.1",
-    "ts-node": "^10.8.0"
+    "ts-node": "10.9.2"
   },
   "files": [
     "dist"

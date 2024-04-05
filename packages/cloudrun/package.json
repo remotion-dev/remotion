@@ -34,7 +34,7 @@
 		"eslint": "8.42.0",
 		"prettier": "3.1.1",
 		"prettier-plugin-organize-imports": "^3.2.4",
-		"ts-node": "^10.8.0",
+		"ts-node": "10.9.2",
 		"vitest": "0.31.1"
 	},
 	"exports": {
