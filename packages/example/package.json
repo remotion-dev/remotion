@@ -86,7 +86,7 @@
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"sharp": "0.32.6",
-		"@types/bun": "^1.0.5"
+		"@types/bun": "1.0.12"
 	},
 	"publishConfig": {
 		"access": "public"

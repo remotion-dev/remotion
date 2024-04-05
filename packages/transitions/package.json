@@ -38,7 +38,7 @@
 		"vitest": "0.31.1",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
-		"@types/bun": "^1.0.12",
+		"@types/bun": "1.0.12",
 		"@remotion/test-utils": "workspace:*",
 		"@vitejs/plugin-react": "^2.0.0"
 	},
@@ -46,7 +46,10 @@
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
-	"keywords": ["remotion", "transitions"],
+	"keywords": [
+		"remotion",
+		"transitions"
+	],
 	"publishConfig": {
 		"access": "public"
 	},
@@ -91,11 +94,21 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"wipe": ["dist/presentations/wipe.d.ts"],
-			"slide": ["dist/presentations/slide.d.ts"],
-			"flip": ["dist/presentations/flip.d.ts"],
-			"fade": ["dist/presentations/fade.d.ts"],
-			"clock-wipe": ["dist/presentations/clock-wipe.d.ts"]
+			"wipe": [
+				"dist/presentations/wipe.d.ts"
+			],
+			"slide": [
+				"dist/presentations/slide.d.ts"
+			],
+			"flip": [
+				"dist/presentations/flip.d.ts"
+			],
+			"fade": [
+				"dist/presentations/fade.d.ts"
+			],
+			"clock-wipe": [
+				"dist/presentations/clock-wipe.d.ts"
+			]
 		}
 	}
 }

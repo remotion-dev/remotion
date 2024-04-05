@@ -2,7 +2,7 @@ import {validateFrame} from '../validate-frame.js';
 import {validateFps} from '../validation/validate-fps.js';
 import {validateSpringDuration} from '../validation/validation-spring-duration.js';
 import {measureSpring} from './measure-spring.js';
-import type {SpringConfig} from './spring-utils.js';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils.js';
 
 /**
@@ -111,4 +111,4 @@ export function spring({
 }
 
 export {measureSpring} from './measure-spring.js';
-export {SpringConfig} from './spring-utils.js';
+export type {SpringConfig} from './spring-utils';

@@ -439,6 +439,9 @@ importers:
 
   packages/core:
     devDependencies:
+      '@happy-dom/global-registrator':
+        specifier: ^14.5.1
+        version: 14.5.1
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
@@ -448,6 +451,9 @@ importers:
       '@testing-library/react':
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
+      '@types/bun':
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -997,8 +1003,8 @@ importers:
         version: 3.22.3
     devDependencies:
       '@types/bun':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: 1.0.12
+        version: 1.0.12
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -1214,8 +1220,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@types/bun':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/sharp':
         specifier: ^0.28.5
         version: 0.28.6
@@ -2222,7 +2228,7 @@ importers:
         specifier: workspace:*
         version: link:../test-utils
       '@types/bun':
-        specifier: ^1.0.12
+        specifier: 1.0.12
         version: 1.0.12
       '@types/react':
         specifier: 18.2.48
@@ -8214,6 +8220,13 @@ packages:
       '@hapi/hoek': 9.2.1
     dev: false
 
+  /@happy-dom/global-registrator@14.5.1:
+    resolution: {integrity: sha512-QjCEmZwTRpmHHRXvh58+gGW1R3C6Qpiy9dgEbCcPs3XedWEwpuJyr3y05IBauNLNE8KevHBGIvkZzxeTbBcCTg==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      happy-dom: 14.5.1
+    dev: true
+
   /@humanwhocodes/config-array@0.11.14:
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
@@ -9660,18 +9673,6 @@ packages:
     resolution: {integrity: sha512-qPb5FcygbpSS1NDBjWyQCWeI9kKXwSYSR1Enu7yb+gMXgFwGMhlyOvgV/7FGrdvAjlSXWRY6IDepos7k8WzAtQ==}
     dependencies:
       bun-types: 1.0.36
-    dev: true
-
-  /@types/bun@1.0.3:
-    resolution: {integrity: sha512-sHp0vCkml/FTnJ2aY9wjMxbpsuB5WGg5hAtxfTjIHE5B8mXXWrnTChVl8HxCuvjG0ORP6vQ7XHYHBf1kPehEjw==}
-    dependencies:
-      bun-types: 1.0.24
-    dev: true
-
-  /@types/bun@1.0.5:
-    resolution: {integrity: sha512-c14fs5QLLanldcZpX/GjIEKeo++NDzOlixUZ7IUWzN7AoBTisYyWxaxdXNhpAP5I1mPcd92Zagq8sdgTnUXWjg==}
-    dependencies:
-      bun-types: 1.0.26
     dev: true
 
   /@types/cacheable-request@6.0.2:
@@ -11787,21 +11788,6 @@ packages:
     resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
     dev: true
 
-  /bun-types@1.0.24:
-    resolution: {integrity: sha512-nocKV7PwMtxDqUibC12H9hjKMuJjwz5CZLBq8qz/CP+BJGm+9XZeHNAuc3KTtUKkHTurV5vVrJnthuYooW0cAQ==}
-    dependencies:
-      '@types/node': 18.14.6
-      '@types/ws': 8.5.10
-      undici-types: 5.28.2
-    dev: true
-
-  /bun-types@1.0.26:
-    resolution: {integrity: sha512-VcSj+SCaWIcMb0uSGIAtr8P92zq9q+unavcQmx27fk6HulCthXHBVrdGuXxAZbFtv7bHVjizRzR2mk9r/U8Nkg==}
-    dependencies:
-      '@types/node': 20.11.17
-      '@types/ws': 8.5.10
-    dev: true
-
   /bun-types@1.0.36:
     resolution: {integrity: sha512-gaIb1SyhB0JZfIEg73/kSFhqolUqJXC68peguhXGwqr27HuvI8nkD0LTIHp/1DY4cNadfXHYgYrZIWX7oEoXlg==}
     dependencies:
@@ -13322,6 +13308,11 @@ packages:
   /entities@4.4.0:
     resolution: {integrity: sha512-oYp7156SP8LkeGD0GF85ad1X9Ai79WtRsZ2gxJqtBuzH+98YUV6jkHEKlZkMbcrjJjIVJNIDP/3WL9wQkoPbWA==}
     engines: {node: '>=0.12'}
+
+  /entities@4.5.0:
+    resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
+    engines: {node: '>=0.12'}
+    dev: true
 
   /error-ex@1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
@@ -15048,6 +15039,15 @@ packages:
   /handle-thing@2.0.1:
     resolution: {integrity: sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==}
     dev: false
+
+  /happy-dom@14.5.1:
+    resolution: {integrity: sha512-nCmCszZnhHHvcY3gDqLNZrU71QzCT1sI2OUQy2YSn3omMYWe+QHSTO1PfS/1r6fds6zt6GI7L1tRIxo7RgC8lg==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      entities: 4.5.0
+      webidl-conversions: 7.0.0
+      whatwg-mimetype: 3.0.0
+    dev: true
 
   /has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -22206,10 +22206,6 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-    dev: true
-
-  /undici-types@5.28.2:
-    resolution: {integrity: sha512-W71OLwDqzIO0d3k07qg1xc7d4cX8SsSwuCO4bQ4V7ITwduXXie/lcImofabP5VV+NvuvSe8ovKvHVJcizVc1JA==}
     dev: true
 
   /undici@5.18.0:

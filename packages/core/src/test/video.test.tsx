@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import {render} from '@testing-library/react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';

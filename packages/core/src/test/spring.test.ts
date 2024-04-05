@@ -1,7 +1,7 @@
-import {describe, expect, test} from 'vitest';
-import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
-import {spring} from '../spring/index.js';
-import {measureSpring} from '../spring/measure-spring.js';
+import {describe, expect, test} from 'bun:test';
+import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {spring} from '../spring/index';
+import {measureSpring} from '../spring/measure-spring';
 
 test('Basic spring to equal 0', () => {
 	expect(

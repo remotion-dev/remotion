@@ -24,16 +24,16 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
-import type {RemotionVideoProps} from './props.js';
+import type {RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
-	onlyWarnForMediaSeekingError: boolean;
-	onDuration: (src: string, durationInSeconds: number) => void;
-	pauseWhenBuffering: boolean;
-	_remotionInternalNativeLoopPassed: boolean;
-	_remotionInternalStack: string | null;
-	showInTimeline: boolean;
+	readonly onlyWarnForMediaSeekingError: boolean;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly pauseWhenBuffering: boolean;
+	readonly _remotionInternalNativeLoopPassed: boolean;
+	readonly _remotionInternalStack: string | null;
+	readonly showInTimeline: boolean;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
