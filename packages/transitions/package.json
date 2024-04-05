@@ -11,7 +11,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",
-		"build": "tsc -d && rollup --config rollup.config.js"
+		"build": "tsc -d && bun build.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -38,10 +38,9 @@
 		"vitest": "0.31.1",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
+		"@types/bun": "^1.0.12",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0",
-		"rollup": "^2.70.1",
-		"@rollup/plugin-typescript": "^8.2.0"
+		"@vitejs/plugin-react": "^2.0.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
