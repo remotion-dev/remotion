@@ -1,9 +1,10 @@
-import {expect, vitest} from 'vitest';
+import {spyOn} from 'bun:test';
+import {expect} from 'vitest';
 
 export const expectToThrow = (func: Function, err: RegExp) => {
 	// Even though the error is caught, it still gets printed to the console
 	// so we mock that out to avoid the wall of red text.
-	vitest.spyOn(console, 'error');
+	spyOn(console, 'error');
 	// @ts-expect-error
 	// eslint-disable-next-line no-console
 	console.error.mockImplementation(() => undefined);
