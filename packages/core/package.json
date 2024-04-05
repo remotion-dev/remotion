@@ -9,7 +9,7 @@
 		"formatting": "prettier src --check",
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src",
+		"test": "bun test src/",
 		"build": "tsc -d && rollup --failAfterWarnings --config rollup-version.config.js && rollup --failAfterWarnings --config rollup-no-react.config.js && rollup --failAfterWarnings --config rollup.config.js",
 		"watch": "tsc -w"
 	},
