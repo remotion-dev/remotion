@@ -41,6 +41,7 @@ const generate = async (font: Font) => {
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
 
   if (!fs.existsSync(cssFile)) {
+    console.log(`- Fetching ${font.family} from ${url}`);
     //  Get from url with user agent that support woff2
     const res = await fetch(url, {
       headers: {
