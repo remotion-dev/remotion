@@ -1,17 +1,17 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useMemo} from 'react';
-import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
+import {Spacing} from '../../components/layout';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
 import {ErrorTitle} from './ErrorTitle';
-import {getHelpLink} from './get-help-link';
 import {HelpLink} from './HelpLink';
 import {OpenInEditor} from './OpenInEditor';
 import {RetryButton} from './Retry';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
+import {getHelpLink} from './get-help-link';
 
 const stack: React.CSSProperties = {
 	marginTop: 17,

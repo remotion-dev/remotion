@@ -1,8 +1,8 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
-import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {flattenChildren} from './flatten-children.js';
 

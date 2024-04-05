@@ -1,11 +1,11 @@
 import React, {useCallback} from 'react';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Sequence} from '../Sequence.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
-import type {OffthreadVideoProps} from './props.js';
 import {VideoForPreview} from './VideoForPreview.js';
+import type {OffthreadVideoProps} from './props.js';
 
 /**
  * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag

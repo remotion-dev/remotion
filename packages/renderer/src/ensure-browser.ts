@@ -1,7 +1,7 @@
 import fs from 'fs';
 import type {BrowserExecutable} from './browser-executable';
-import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {BrowserSafeApis} from './client';
 import {getLocalBrowser} from './get-local-browser';
 import type {ToOptions} from './options/option';

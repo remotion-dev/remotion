@@ -7,7 +7,7 @@ import type {
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {SOURCE_MAP_ENDPOINT, getProjectName} from '@remotion/studio-shared';
 import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';

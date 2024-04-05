@@ -8,9 +8,9 @@ import {
 import {renderToString} from 'react-dom/server';
 import {AbsoluteFill, Internals} from 'remotion';
 import {expect, test} from 'vitest';
+import {TransitionSeries} from '../TransitionSeries.js';
 import {fade} from '../presentations/fade.js';
 import {linearTiming} from '../timings/linear-timing.js';
-import {TransitionSeries} from '../TransitionSeries.js';
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	return renderToString(

@@ -2,8 +2,8 @@ import React, {useCallback, useEffect} from 'react';
 import {Button} from '../../components/Button';
 import {BLUE} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import type {THelpLink} from './get-help-link';
 import {ShortcutHint} from './ShortcutHint';
+import type {THelpLink} from './get-help-link';
 
 const buttonStyle: React.CSSProperties = {
 	backgroundColor: BLUE,

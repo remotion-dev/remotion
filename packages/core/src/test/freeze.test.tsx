@@ -4,8 +4,8 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {Freeze} from '../freeze.js';
 import {Sequence} from '../Sequence.js';
+import {Freeze} from '../freeze.js';
 import type {TimelineContextValue} from '../timeline-position-state.js';
 import {TimelineContext} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';

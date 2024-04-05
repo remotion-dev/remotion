@@ -2,16 +2,16 @@ import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {DefaultPlayPauseButton} from './DefaultPlayPauseButton.js';
-import {formatTime} from './format-time.js';
-import {FullscreenIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
+import {formatTime} from './format-time.js';
+import {FullscreenIcon} from './icons.js';
 import {useHoverState} from './use-hover-state.js';
 import type {usePlayer} from './use-player.js';
 import {
-	useVideoControlsResize,
 	X_PADDING,
+	useVideoControlsResize,
 } from './use-video-controls-resize.js';
 import type {Size} from './utils/use-element-size.js';
 
@@ -100,30 +100,30 @@ declare global {
 }
 
 export const Controls: React.FC<{
-	fps: number;
-	durationInFrames: number;
-	showVolumeControls: boolean;
-	player: ReturnType<typeof usePlayer>;
-	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
-	isFullscreen: boolean;
-	allowFullscreen: boolean;
-	onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
-	spaceKeyToPlayOrPause: boolean;
-	onSeekEnd: () => void;
-	onSeekStart: () => void;
-	inFrame: number | null;
-	outFrame: number | null;
-	initiallyShowControls: number | boolean;
-	canvasSize: Size | null;
-	renderPlayPauseButton: RenderPlayPauseButton | null;
-	renderFullscreenButton: RenderFullscreenButton | null;
-	alwaysShowControls: boolean;
-	showPlaybackRateControl: boolean | number[];
-	containerRef: React.RefObject<HTMLDivElement>;
-	buffering: boolean;
-	hideControlsWhenPointerDoesntMove: boolean | number;
-	onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
-	onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
+	readonly fps: number;
+	readonly durationInFrames: number;
+	readonly showVolumeControls: boolean;
+	readonly player: ReturnType<typeof usePlayer>;
+	readonly onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+	readonly isFullscreen: boolean;
+	readonly allowFullscreen: boolean;
+	readonly onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+	readonly spaceKeyToPlayOrPause: boolean;
+	readonly onSeekEnd: () => void;
+	readonly onSeekStart: () => void;
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+	readonly initiallyShowControls: number | boolean;
+	readonly canvasSize: Size | null;
+	readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+	readonly renderFullscreenButton: RenderFullscreenButton | null;
+	readonly alwaysShowControls: boolean;
+	readonly showPlaybackRateControl: boolean | number[];
+	readonly containerRef: React.RefObject<HTMLDivElement>;
+	readonly buffering: boolean;
+	readonly hideControlsWhenPointerDoesntMove: boolean | number;
+	readonly onPointerUp: React.PointerEventHandler<HTMLDivElement> | undefined;
+	readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
 }> = ({
 	durationInFrames,
 	isFullscreen,

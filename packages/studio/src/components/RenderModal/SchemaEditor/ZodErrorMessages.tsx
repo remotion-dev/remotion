@@ -1,8 +1,8 @@
 import React, {useMemo} from 'react';
 import type {z} from 'zod';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing} from '../../layout';
 import {WarningTriangle} from '../../NewComposition/ValidationMessage';
+import {Spacing} from '../../layout';
 
 const schemaLabel: React.CSSProperties = {
 	fontSize: 14,

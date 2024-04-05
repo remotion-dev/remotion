@@ -162,18 +162,18 @@ export const Internals = {
 } as const;
 
 export type {
-	TComposition,
-	TimelinePosition as Timeline,
-	TCompMetadata,
-	TSequence,
-	TRenderAsset as TAsset,
-	TimelineContextValue,
-	SetTimelineContextValue,
-	CompProps,
 	CompositionManagerContext,
+	CompProps,
 	MediaVolumeContextValue,
-	SetMediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
+	SetMediaVolumeContextValue,
+	SetTimelineContextValue,
+	TRenderAsset as TAsset,
+	TCompMetadata,
+	TComposition,
+	TimelinePosition as Timeline,
+	TimelineContextValue,
+	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

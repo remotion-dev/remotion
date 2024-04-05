@@ -17,8 +17,6 @@ import type {
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
-import type {PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
@@ -26,6 +24,8 @@ import type {
 import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {PlayerRef} from './player-methods.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -40,43 +40,43 @@ import {
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
 export type PlayerProps<Schema extends AnyZodObject, Props> = {
-	durationInFrames: number;
-	compositionWidth: number;
-	compositionHeight: number;
-	fps: number;
-	showVolumeControls?: boolean;
-	controls?: boolean;
-	errorFallback?: ErrorFallback;
-	style?: React.CSSProperties;
-	loop?: boolean;
-	autoPlay?: boolean;
-	allowFullscreen?: boolean;
-	clickToPlay?: boolean;
-	doubleClickToFullscreen?: boolean;
-	spaceKeyToPlayOrPause?: boolean;
-	numberOfSharedAudioTags?: number;
-	playbackRate?: number;
-	renderLoading?: RenderLoading;
-	moveToBeginningWhenEnded?: boolean;
-	className?: string;
-	initialFrame?: number;
-	renderPoster?: RenderPoster;
-	showPosterWhenPaused?: boolean;
-	showPosterWhenEnded?: boolean;
-	showPosterWhenUnplayed?: boolean;
-	showPosterWhenBuffering?: boolean;
-	inFrame?: number | null;
-	outFrame?: number | null;
-	initiallyShowControls?: number | boolean;
-	renderPlayPauseButton?: RenderPlayPauseButton;
-	renderFullscreenButton?: RenderFullscreenButton;
-	alwaysShowControls?: boolean;
-	schema?: Schema;
-	initiallyMuted?: boolean;
-	showPlaybackRateControl?: boolean | number[];
-	posterFillMode?: PosterFillMode;
-	bufferStateDelayInMilliseconds?: number;
-	hideControlsWhenPointerDoesntMove?: boolean | number;
+	readonly durationInFrames: number;
+	readonly compositionWidth: number;
+	readonly compositionHeight: number;
+	readonly fps: number;
+	readonly showVolumeControls?: boolean;
+	readonly controls?: boolean;
+	readonly errorFallback?: ErrorFallback;
+	readonly style?: React.CSSProperties;
+	readonly loop?: boolean;
+	readonly autoPlay?: boolean;
+	readonly allowFullscreen?: boolean;
+	readonly clickToPlay?: boolean;
+	readonly doubleClickToFullscreen?: boolean;
+	readonly spaceKeyToPlayOrPause?: boolean;
+	readonly numberOfSharedAudioTags?: number;
+	readonly playbackRate?: number;
+	readonly renderLoading?: RenderLoading;
+	readonly moveToBeginningWhenEnded?: boolean;
+	readonly className?: string;
+	readonly initialFrame?: number;
+	readonly renderPoster?: RenderPoster;
+	readonly showPosterWhenPaused?: boolean;
+	readonly showPosterWhenEnded?: boolean;
+	readonly showPosterWhenUnplayed?: boolean;
+	readonly showPosterWhenBuffering?: boolean;
+	readonly inFrame?: number | null;
+	readonly outFrame?: number | null;
+	readonly initiallyShowControls?: number | boolean;
+	readonly renderPlayPauseButton?: RenderPlayPauseButton;
+	readonly renderFullscreenButton?: RenderFullscreenButton;
+	readonly alwaysShowControls?: boolean;
+	readonly schema?: Schema;
+	readonly initiallyMuted?: boolean;
+	readonly showPlaybackRateControl?: boolean | number[];
+	readonly posterFillMode?: PosterFillMode;
+	readonly bufferStateDelayInMilliseconds?: number;
+	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 

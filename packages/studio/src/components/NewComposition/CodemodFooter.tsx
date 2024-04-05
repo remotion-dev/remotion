@@ -5,9 +5,9 @@ import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {Flex, Row, Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod, getProjectInfo} from '../RenderQueue/actions';
+import {Flex, Row, Spacing} from '../layout';
 import type {CodemodStatus} from './DiffPreview';
 import {CodemodDiffPreview} from './DiffPreview';
 

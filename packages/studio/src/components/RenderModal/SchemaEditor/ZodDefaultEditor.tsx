@@ -1,8 +1,8 @@
 import React from 'react';
 import type {z} from 'zod';
-import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import type {JSONPath} from './zod-types';
 
 export const ZodDefaultEditor: React.FC<{
 	showSaveButton: boolean;

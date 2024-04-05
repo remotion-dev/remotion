@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef} from 'react';
-import {AbsoluteFill, useVideoConfig, Video} from 'remotion';
+import {AbsoluteFill, Video, useVideoConfig} from 'remotion';
 
 export const VideoOnCanvas: React.FC = () => {
 	const video = useRef<HTMLVideoElement>(null);

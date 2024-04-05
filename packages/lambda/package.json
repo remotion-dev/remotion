@@ -43,7 +43,7 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.277",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
@@ -51,7 +51,7 @@
 		"@types/node": "18.14.6",
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"prettier": "3.2.5",
 		"pureimage": "0.4.13",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"ts-node": "10.9.2",

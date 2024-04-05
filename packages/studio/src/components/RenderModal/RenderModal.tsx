@@ -33,8 +33,8 @@ import {
 } from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {AudioIcon} from '../../icons/audio';
 import {Checkmark} from '../../icons/Checkmark';
+import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -62,9 +62,6 @@ import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
-import {getDefaultCodecs} from './get-default-codecs';
-import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
@@ -76,6 +73,9 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import {getDefaultCodecs} from './get-default-codecs';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {validateOutnameGui} from './out-name-checker';
 
 type State =
 	| {

@@ -3,12 +3,12 @@ import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {
-	lambdaTimingsPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
+	lambdaTimingsPrefix,
 } from '../../shared/constants';
 import {
-	getMostExpensiveChunks,
 	OVERHEAD_TIME_PER_LAMBDA,
+	getMostExpensiveChunks,
 } from '../../shared/get-most-expensive-chunks';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
@@ -41,8 +41,8 @@ export const createPostRenderData = ({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 }): PostRenderData => {
-	const initializedKeys = contents.filter(
-		(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
+	const initializedKeys = contents.filter((c) =>
+		c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
 	);
 
 	const parsedTimings = initializedKeys.map(({Key}) =>

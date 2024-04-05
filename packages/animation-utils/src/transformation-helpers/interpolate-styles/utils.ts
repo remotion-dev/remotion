@@ -178,4 +178,4 @@ const breakDownValueIntoUnitNumberAndFunctions = (
 	return classifyParts(valueParts);
 };
 
-export {getColorMatchers, breakDownValueIntoUnitNumberAndFunctions};
+export {breakDownValueIntoUnitNumberAndFunctions, getColorMatchers};

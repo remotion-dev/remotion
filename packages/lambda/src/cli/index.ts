@@ -7,18 +7,18 @@ import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
 import {
-	compositionsCommand,
 	COMPOSITIONS_COMMAND,
+	compositionsCommand,
 } from './commands/compositions';
-import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
-import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
+import {FUNCTIONS_COMMAND, functionsCommand} from './commands/functions';
+import {POLICIES_COMMAND, policiesCommand} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
-import {quotasCommand, QUOTAS_COMMAND} from './commands/quotas';
-import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
-import {renderCommand, RENDER_COMMAND} from './commands/render/render';
-import {sitesCommand, SITES_COMMAND} from './commands/sites';
-import {stillCommand, STILL_COMMAND} from './commands/still';
+import {QUOTAS_COMMAND, quotasCommand} from './commands/quotas';
+import {REGIONS_COMMAND, regionsCommand} from './commands/regions';
+import {RENDER_COMMAND, renderCommand} from './commands/render/render';
+import {SITES_COMMAND, sitesCommand} from './commands/sites';
+import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {setIsCli} from './is-cli';

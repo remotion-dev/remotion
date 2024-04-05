@@ -5,10 +5,10 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
+import {isTrackHidden} from './is-collapsed';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,

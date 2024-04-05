@@ -1,8 +1,8 @@
 export {Caption, convertToCaptions} from './convert-to-captions';
 export {
-	downloadWhisperModel,
 	OnProgress,
 	WhisperModel,
+	downloadWhisperModel,
 } from './download-whisper-model';
 export {installWhisperCpp} from './install-whisper-cpp';
-export {transcribe, TranscriptionJson} from './transcribe';
+export {TranscriptionJson, transcribe} from './transcribe';

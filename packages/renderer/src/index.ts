@@ -46,8 +46,8 @@ import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {
 	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
 	validOpenGlRenderers,
+	validateOpenGlRenderer,
 } from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
@@ -75,20 +75,20 @@ export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
-export {ensureBrowser, EnsureBrowserOptions} from './ensure-browser';
+export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {GetCompositionsOptions, getCompositions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata, VideoMetadata} from './get-video-metadata';
+export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,
-	validateSelectedPixelFormatAndImageFormatCombination,
 	VideoImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
 } from './image-format';
 export type {LogLevel} from './log-level';
 export {LogOptions} from './logger';
@@ -108,23 +108,23 @@ export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {renderFrames, RenderFramesOptions} from './render-frames';
+export {RenderFramesOptions, renderFrames} from './render-frames';
 export {
 	InternalRenderMediaOptions,
-	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
 	SlowFrame,
 	StitchingState,
+	renderMedia,
 } from './render-media';
-export {renderStill, RenderStillOptions} from './render-still';
+export {RenderStillOptions, renderStill} from './render-still';
 export {
-	selectComposition,
 	SelectCompositionOptions,
+	selectComposition,
 } from './select-composition';
 export {
-	stitchFramesToVideo,
 	StitchFramesToVideoOptions,
+	stitchFramesToVideo,
 } from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';

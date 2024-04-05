@@ -72,6 +72,5 @@ export const allOptions = {
 };
 
 export type AvailableOptions = keyof typeof allOptions;
-export type TypeOfOption<Type> = Type extends AnyRemotionOption<infer X>
-	? X
-	: never;
+export type TypeOfOption<Type> =
+	Type extends AnyRemotionOption<infer X> ? X : never;

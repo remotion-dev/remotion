@@ -27,12 +27,12 @@
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.277",
 		"@types/node": "^18.11.2",
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "^3.2.4",
 		"ts-node": "10.9.2",
 		"vitest": "0.31.1"

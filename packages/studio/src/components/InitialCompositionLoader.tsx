@@ -1,7 +1,7 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
-import {getStaticFiles, Internals} from 'remotion';
+import {Internals, getStaticFiles} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {getRoute, pushUrl} from '../helpers/url-state';

@@ -18,16 +18,16 @@ import {ModalsContext} from '../../state/modals';
 import {compositionSelectorRef} from '../CompositionSelector';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RemotionInput} from '../NewComposition/RemInput';
-import {algoliaSearch} from './algolia-search';
+import {Spacing} from '../layout';
 import {AlgoliaCredit} from './AlgoliaCredit';
-import {fuzzySearch} from './fuzzy-search';
 import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
+import {algoliaSearch} from './algolia-search';
+import {fuzzySearch} from './fuzzy-search';
 
 const input: React.CSSProperties = {
 	width: '100%',

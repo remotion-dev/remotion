@@ -1,7 +1,7 @@
 import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
-	forwardRef,
 	Suspense,
+	forwardRef,
 	useCallback,
 	useContext,
 	useEffect,
@@ -12,6 +12,11 @@ import React, {
 } from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls.js';
+import {Controls} from './PlayerControls.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -21,11 +26,6 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
-import type {
-	RenderFullscreenButton,
-	RenderPlayPauseButton,
-} from './PlayerControls.js';
-import {Controls} from './PlayerControls.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -52,36 +52,36 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
-		controls: boolean;
-		loop: boolean;
-		autoPlay: boolean;
-		allowFullscreen: boolean;
-		inputProps: Record<string, unknown>;
-		showVolumeControls: boolean;
-		style?: React.CSSProperties;
-		clickToPlay: boolean;
-		doubleClickToFullscreen: boolean;
-		spaceKeyToPlayOrPause: boolean;
-		errorFallback: ErrorFallback;
-		playbackRate: number;
-		renderLoading: RenderLoading | undefined;
-		renderPoster: RenderPoster | undefined;
-		className: string | undefined;
-		moveToBeginningWhenEnded: boolean;
-		showPosterWhenPaused: boolean;
-		showPosterWhenEnded: boolean;
-		showPosterWhenUnplayed: boolean;
-		showPosterWhenBuffering: boolean;
-		inFrame: number | null;
-		outFrame: number | null;
-		initiallyShowControls: number | boolean;
-		renderPlayPauseButton: RenderPlayPauseButton | null;
-		renderFullscreen: RenderFullscreenButton | null;
-		alwaysShowControls: boolean;
-		showPlaybackRateControl: boolean | number[];
-		posterFillMode: PosterFillMode;
-		bufferStateDelayInMilliseconds: number;
-		hideControlsWhenPointerDoesntMove: boolean | number;
+		readonly controls: boolean;
+		readonly loop: boolean;
+		readonly autoPlay: boolean;
+		readonly allowFullscreen: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly showVolumeControls: boolean;
+		readonly style?: React.CSSProperties;
+		readonly clickToPlay: boolean;
+		readonly doubleClickToFullscreen: boolean;
+		readonly spaceKeyToPlayOrPause: boolean;
+		readonly errorFallback: ErrorFallback;
+		readonly playbackRate: number;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly renderPoster: RenderPoster | undefined;
+		readonly className: string | undefined;
+		readonly moveToBeginningWhenEnded: boolean;
+		readonly showPosterWhenPaused: boolean;
+		readonly showPosterWhenEnded: boolean;
+		readonly showPosterWhenUnplayed: boolean;
+		readonly showPosterWhenBuffering: boolean;
+		readonly inFrame: number | null;
+		readonly outFrame: number | null;
+		readonly initiallyShowControls: number | boolean;
+		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+		readonly renderFullscreen: RenderFullscreenButton | null;
+		readonly alwaysShowControls: boolean;
+		readonly showPlaybackRateControl: boolean | number[];
+		readonly posterFillMode: PosterFillMode;
+		readonly bufferStateDelayInMilliseconds: number;
+		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 	}
 > = (
 	{

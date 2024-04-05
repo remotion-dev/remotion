@@ -4,7 +4,6 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
@@ -22,6 +21,7 @@ import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodTextareaEditor} from './ZodTextareaEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
+import type {JSONPath} from './zod-types';
 
 export type UpdaterFunction<T> = (
 	updater: (oldValue: T) => T,

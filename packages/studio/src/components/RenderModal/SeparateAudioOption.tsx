@@ -5,10 +5,10 @@ import React, {useCallback, useMemo} from 'react';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
-import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {input, label, optionRow, rightRow} from './layout';
 
 export const SeparateAudioOptionInput: React.FC<{
 	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;

@@ -2,10 +2,10 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
-import {label, optionRow, rightRow} from './layout';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {label, optionRow, rightRow} from './layout';
 
 const container: React.CSSProperties = {
 	flex: 1,

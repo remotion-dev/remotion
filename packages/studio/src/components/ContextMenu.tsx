@@ -6,9 +6,9 @@ import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {getPortal} from './Menu/portals';
 import {
-	fullScreenOverlay,
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
+	fullScreenOverlay,
 	menuContainerTowardsTop,
 	outerPortal,
 } from './Menu/styles';

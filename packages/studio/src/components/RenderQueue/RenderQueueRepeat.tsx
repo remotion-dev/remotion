@@ -8,7 +8,7 @@ import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 
 export const RenderQueueRepeatItem: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const isMobileLayout = useMobileLayout();

@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
-import {Spacing} from '../layout';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
+import {Spacing} from '../layout';
 import {InputDragger} from './InputDragger';
 import {ValidationMessage} from './ValidationMessage';
 
