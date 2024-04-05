@@ -583,7 +583,7 @@ export const articles = [
   {
     id: "contributing/index",
     title: "Contributing to Remotion",
-    relativePath: "docs/contributing/index.md",
+    relativePath: "docs/contributing/index.mdx",
     compId: "articles-docs-contributing-index",
     crumb: "How to be awesome",
   },

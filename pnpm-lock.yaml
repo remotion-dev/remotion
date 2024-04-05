@@ -2221,9 +2221,9 @@ importers:
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.4.4)
+      '@types/bun':
+        specifier: ^1.0.12
+        version: 1.0.12
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
@@ -2248,9 +2248,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -9664,6 +9661,12 @@ packages:
       '@types/node': 18.14.6
     dev: false
 
+  /@types/bun@1.0.12:
+    resolution: {integrity: sha512-qPb5FcygbpSS1NDBjWyQCWeI9kKXwSYSR1Enu7yb+gMXgFwGMhlyOvgV/7FGrdvAjlSXWRY6IDepos7k8WzAtQ==}
+    dependencies:
+      bun-types: 1.0.36
+    dev: true
+
   /@types/bun@1.0.3:
     resolution: {integrity: sha512-sHp0vCkml/FTnJ2aY9wjMxbpsuB5WGg5hAtxfTjIHE5B8mXXWrnTChVl8HxCuvjG0ORP6vQ7XHYHBf1kPehEjw==}
     dependencies:
@@ -11775,6 +11778,13 @@ packages:
 
   /bun-types@1.0.26:
     resolution: {integrity: sha512-VcSj+SCaWIcMb0uSGIAtr8P92zq9q+unavcQmx27fk6HulCthXHBVrdGuXxAZbFtv7bHVjizRzR2mk9r/U8Nkg==}
+    dependencies:
+      '@types/node': 20.11.17
+      '@types/ws': 8.5.10
+    dev: true
+
+  /bun-types@1.0.36:
+    resolution: {integrity: sha512-gaIb1SyhB0JZfIEg73/kSFhqolUqJXC68peguhXGwqr27HuvI8nkD0LTIHp/1DY4cNadfXHYgYrZIWX7oEoXlg==}
     dependencies:
       '@types/node': 20.11.17
       '@types/ws': 8.5.10
