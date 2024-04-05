@@ -1,16 +1,16 @@
 import {Lottie, LottieAnimationData} from '@remotion/lottie';
 import React, {useEffect, useState} from 'react';
 import {
+	Sequence,
 	continueRender,
 	delayRender,
 	interpolate,
-	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import './common.css';
 import HeaderAndCredits from './HeaderAndCredits';
+import './common.css';
 
 const Balloons = () => {
 	const frame = useCurrentFrame();

@@ -6,13 +6,11 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
-import {getInputProps, Internals} from 'remotion';
+import {Internals, getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {useZodIfPossible} from '../get-zod-if-possible';
-import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
@@ -21,20 +19,22 @@ import {
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import type {TypeCanSaveState} from './get-render-modal-warnings';
-import {
-	defaultTypeCanSaveState,
-	getRenderModalWarnings,
-} from './get-render-modal-warnings';
+import {useZodIfPossible} from '../get-zod-if-possible';
+import {Flex, Spacing} from '../layout';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
-import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
 	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
+import type {TypeCanSaveState} from './get-render-modal-warnings';
+import {
+	defaultTypeCanSaveState,
+	getRenderModalWarnings,
+} from './get-render-modal-warnings';
 
 type Mode = 'json' | 'schema';
 

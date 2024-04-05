@@ -7,13 +7,13 @@ import {
   VideoAppsTitle,
 } from "../../components/LambdaSplash/VideoAppsTitle";
 import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
+import { NewsletterButton } from "../../components/LandingPage/NewsletterButton";
+import { Pricing } from "../../components/LandingPage/Pricing";
+import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
-import { NewsletterButton } from "../../components/LandingPage/NewsletterButton";
 import { Parametrize } from "../../components/LandingPage/parametrize";
-import { Pricing } from "../../components/LandingPage/Pricing";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
-import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
 
 const NewLanding: React.FC = () => {

@@ -11,8 +11,8 @@ import {
 } from 'react';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
-import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {validateDimension} from './validation/validate-dimensions.js';

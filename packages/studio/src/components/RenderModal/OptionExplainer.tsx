@@ -1,8 +1,8 @@
 import type {AnyRemotionOption} from '@remotion/renderer';
 import React from 'react';
 import {INPUT_BACKGROUND} from '../../helpers/colors';
-import {Spacing} from '../layout';
 import {MenuDivider} from '../Menu/MenuDivider';
+import {Spacing} from '../layout';
 import {CliCopyButton} from './CliCopyButton';
 
 const container: React.CSSProperties = {

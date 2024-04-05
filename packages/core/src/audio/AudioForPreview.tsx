@@ -7,10 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {usePreload} from '../prefetch.js';
-import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {usePreload} from '../prefetch.js';
+import {random} from '../random.js';
 import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {

@@ -3,8 +3,8 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {type AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
-	getBackgroundFromHoverState,
 	LIGHT_TEXT,
+	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -12,10 +12,10 @@ import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
-import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
+import {Row, Spacing} from './layout';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 

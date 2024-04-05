@@ -8,7 +8,7 @@ import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 
 export const RenderQueueRepeatItem: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const isMobileLayout = useMobileLayout();
@@ -23,7 +23,7 @@ export const RenderQueueRepeatItem: React.FC<{
 				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
 			}
 		},
-		[job, setSelectedModal],
+		[isMobileLayout, job, setSelectedModal, setSidebarCollapsedState],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

@@ -1,7 +1,7 @@
 import type {z} from 'zod';
-import type {JSONPath} from './zod-types';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
 import type {UpdaterFunction} from './ZodSwitch';
+import type {JSONPath} from './zod-types';
 
 export const ZodNullableEditor: React.FC<{
 	showSaveButton: boolean;

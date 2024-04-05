@@ -76,7 +76,7 @@ type SidebarState = {
 };
 
 export const SidebarContextProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const isMobileLayout = useMobileLayout();
 	const [sidebarCollapsedState, setSidebarCollapsedState] =

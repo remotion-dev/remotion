@@ -28,8 +28,8 @@ export const estimatePriceFromBucket = ({
 	}
 
 	const parsedTimings = contents
-		.filter(
-			(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderMetadata.renderId)),
+		.filter((c) =>
+			c.Key?.startsWith(lambdaTimingsPrefix(renderMetadata.renderId)),
 		)
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 

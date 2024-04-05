@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {chalk} from '../chalk';
 import {Log} from '../log';
-import {ensureCommand, ENSURE_COMMAND} from './ensure';
+import {ENSURE_COMMAND, ensureCommand} from './ensure';
 
 export const BROWSER_COMMAND = 'browser';
 

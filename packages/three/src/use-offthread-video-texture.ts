@@ -1,10 +1,10 @@
 import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
+	Internals,
 	cancelRender,
 	continueRender,
 	delayRender,
 	getRemotionEnvironment,
-	Internals,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';

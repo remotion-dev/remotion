@@ -7,7 +7,6 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyZodObject} from 'zod';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
 	BaseMetadata,
@@ -16,10 +15,11 @@ import type {
 } from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
-import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,

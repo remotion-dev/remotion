@@ -16,8 +16,8 @@ import type {
 } from '../../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
-	encodingProgressKey,
 	ENCODING_PROGRESS_STEP_SIZE,
+	encodingProgressKey,
 	initalizedMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';

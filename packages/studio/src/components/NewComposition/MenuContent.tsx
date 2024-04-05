@@ -3,11 +3,11 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,

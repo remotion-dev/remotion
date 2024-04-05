@@ -2,8 +2,8 @@ import type {NetworkInterfaceInfo} from 'os';
 import {expect, test} from 'vitest';
 import {
 	flattenNetworkInterfaces,
-	getHostsToTry,
 	getHostToBind,
+	getHostsToTry,
 } from '../port-config';
 
 const dockerInterfaces: NodeJS.Dict<NetworkInterfaceInfo[]> = {

@@ -4,19 +4,19 @@ import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {Spacing} from '../layout';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
-import {humanReadableAudioCodec} from './human-readable-audio-codecs';
-import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 import {SeparateAudioOption} from './SeparateAudioOption';
+import {humanReadableAudioCodec} from './human-readable-audio-codecs';
+import {input, label, optionRow, rightRow} from './layout';
 
 const container: React.CSSProperties = {
 	flex: 1,

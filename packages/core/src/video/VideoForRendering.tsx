@@ -8,6 +8,8 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
@@ -17,8 +19,6 @@ import {continueRender, delayRender} from '../delay-render.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
-import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';

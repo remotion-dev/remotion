@@ -6,13 +6,13 @@ import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {Spacing} from '../layout';
 import {NewCompHeader} from '../ModalHeader';
-import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
+import {label, optionRow, rightRow} from '../RenderModal/layout';
+import {Spacing} from '../layout';
 import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';

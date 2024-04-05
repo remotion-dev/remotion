@@ -1,7 +1,7 @@
 import React from "react";
-import type { ThreeDElement } from "./element";
 import type { FaceSVGProps } from "./Face";
 import { Face } from "./Face";
+import type { ThreeDElement } from "./element";
 import type { FaceType } from "./map-face";
 
 const sortFacesZIndex = (face: FaceType[]): FaceType[] => {

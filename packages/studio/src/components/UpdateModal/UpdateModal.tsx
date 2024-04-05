@@ -3,11 +3,11 @@ import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {CopyButton} from '../CopyButton';
 import {KnownBugs} from '../KnownBugs';
-import {Flex, Row, Spacing} from '../layout';
 import {NewCompHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
+import {Flex, Row, Spacing} from '../layout';
 
 const container: React.CSSProperties = {
 	padding: 20,

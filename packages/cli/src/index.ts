@@ -2,7 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
-import {browserCommand, BROWSER_COMMAND} from './browser';
+import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
@@ -34,9 +34,9 @@ import {still} from './still';
 import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
+	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
 	versionsCommand,
-	VERSIONS_COMMAND,
 } from './versions';
 
 export const cli = async () => {

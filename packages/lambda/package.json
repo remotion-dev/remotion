@@ -43,18 +43,18 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
 		"@types/node": "18.14.6",
 		"@types/prompt": "^1.1.0",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"pureimage": "0.4.13",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"ts-node": "^10.8.0",
+		"ts-node": "10.9.2",
 		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2"
 	},
@@ -75,18 +75,10 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"defaults": [
-				"dist/defaults.d.ts"
-			],
-			"regions": [
-				"dist/regions.d.ts"
-			],
-			"policies": [
-				"dist/api/iam-validation/suggested-policy.d.ts"
-			],
-			"client": [
-				"dist/client.d.ts"
-			]
+			"defaults": ["dist/defaults.d.ts"],
+			"regions": ["dist/regions.d.ts"],
+			"policies": ["dist/api/iam-validation/suggested-policy.d.ts"],
+			"client": ["dist/client.d.ts"]
 		}
 	}
 }

@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {copyText} from '../helpers/copy-text';
 import {Button} from './Button';
-import {Spacing} from './layout';
 import {showNotification} from './Notifications/NotificationCenter';
+import {Spacing} from './layout';
 
 const iconStyle: React.CSSProperties = {
 	width: 16,

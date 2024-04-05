@@ -21,17 +21,12 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"@jonny/eslint-config": "3.0.281",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
-	"keywords": [
-		"remotion",
-		"preload",
-		"html5",
-		"video"
-	],
+	"keywords": ["remotion", "preload", "html5", "video"],
 	"publishConfig": {
 		"access": "public"
 	}

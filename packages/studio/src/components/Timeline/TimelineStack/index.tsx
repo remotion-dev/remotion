@@ -20,9 +20,9 @@ import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
 import {openInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
-import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
+import {Spacing} from '../../layout';
 import {getOriginalLocationFromStack} from './get-stack';
 import {getOriginalSourceAttribution} from './source-attribution';
 

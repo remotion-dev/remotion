@@ -42,8 +42,8 @@ export const getRenderedFramesProgress = ({
 		chunkProgress[key.chunk] = getProgressOfChunk(chunk.ETag as string);
 	}
 
-	for (const chunk of contents.filter(
-		(c) => c.Key?.startsWith(chunkKey(renderId)),
+	for (const chunk of contents.filter((c) =>
+		c.Key?.startsWith(chunkKey(renderId)),
 	)) {
 		const parsed = parseLambdaChunkKey(chunk.Key as string);
 		const frameRangeInChunk = chunks[parsed.chunk];

@@ -7,8 +7,8 @@ import React, {
 	useState,
 } from 'react';
 import type {z} from 'zod';
-import {deepEqual} from './deep-equal';
 import type {UpdaterFunction} from './ZodSwitch';
+import {deepEqual} from './deep-equal';
 
 export type LocalState<T> = {
 	value: T;

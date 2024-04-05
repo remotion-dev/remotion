@@ -1,7 +1,7 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {TimelineZoomCtx, TIMELINE_MIN_ZOOM} from '../../state/timeline-zoom';
+import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,

@@ -14,15 +14,15 @@ import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 export const PLAYER_COMP_ID = 'player-comp';
 
 export const SharedPlayerContexts: React.FC<{
-	children: React.ReactNode;
-	timelineContext: TimelineContextValue;
-	fps: number;
-	compositionWidth: number;
-	compositionHeight: number;
-	durationInFrames: number;
-	component: LazyExoticComponent<ComponentType<unknown>>;
-	numberOfSharedAudioTags: number;
-	initiallyMuted: boolean;
+	readonly children: React.ReactNode;
+	readonly timelineContext: TimelineContextValue;
+	readonly fps: number;
+	readonly compositionWidth: number;
+	readonly compositionHeight: number;
+	readonly durationInFrames: number;
+	readonly component: LazyExoticComponent<ComponentType<unknown>>;
+	readonly numberOfSharedAudioTags: number;
+	readonly initiallyMuted: boolean;
 }> = ({
 	children,
 	timelineContext,

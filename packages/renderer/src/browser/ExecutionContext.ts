@@ -26,7 +26,7 @@ import type {DOMWorld} from './DOMWorld';
 import type {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
 import type {Frame} from './FrameManager';
 import type {ElementHandle} from './JSHandle';
-import {JSHandle, _createJSHandle} from './JSHandle';
+import {_createJSHandle, JSHandle} from './JSHandle';
 import {getExceptionMessage, isString, valueFromRemoteObject} from './util';
 
 export const EVALUATION_SCRIPT_URL = 'pptr://__puppeteer_evaluation_script__';

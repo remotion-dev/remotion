@@ -4,10 +4,10 @@ import fs, {createWriteStream, promises} from 'node:fs';
 import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
-	chunkKey,
-	getErrorKeyPrefix,
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
+	chunkKey,
+	getErrorKeyPrefix,
 	rendersPrefix,
 } from '../../shared/constants';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
@@ -97,8 +97,8 @@ export const getAllFilesS3 = ({
 			filesInBucket: contents
 				.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
 				.map((_) => _.Key as string),
-			errorContents: contents.filter(
-				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)),
+			errorContents: contents.filter((c) =>
+				c.Key?.startsWith(getErrorKeyPrefix(renderId)),
 			),
 		};
 	};

@@ -2,10 +2,10 @@ import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {RenderQueueContext} from './context';
+import {Spacing} from '../layout';
 import {RenderQueueItem} from './RenderQueueItem';
+import {RenderQueueContext} from './context';
 
 const separatorStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${BORDER_COLOR}`,

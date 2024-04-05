@@ -33,13 +33,13 @@
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"autoprefixer": "^10.4.14",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"rollup": "^2.70.1",
 		"rollup-plugin-banner2": "^1.2.2"

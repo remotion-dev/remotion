@@ -6,9 +6,9 @@ import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {getPortal} from './Menu/portals';
 import {
-	fullScreenOverlay,
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
+	fullScreenOverlay,
 	menuContainerTowardsTop,
 	outerPortal,
 } from './Menu/styles';
@@ -118,7 +118,7 @@ export const ContextMenu: React.FC<{
 						right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
 					}),
 		};
-	}, [opened.type, size, isMobileLayout, spaceToTop, spaceToBottom]);
+	}, [opened, size, isMobileLayout, spaceToTop, spaceToBottom]);
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
