@@ -7,7 +7,7 @@ import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 import {renderStillFlow} from './render-flows/still';
 
 const {

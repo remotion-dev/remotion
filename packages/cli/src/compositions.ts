@@ -8,7 +8,7 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 

@@ -7,7 +7,7 @@ import path from 'node:path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 function getProcessEnv(): Record<string, string> {
 	const env: Record<string, string> = {};

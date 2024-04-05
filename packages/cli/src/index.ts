@@ -23,7 +23,7 @@ import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
+import {BooleanFlags, parsedCli, quietFlagProvided} from './parsed-cli';
 import {printCompositions} from './print-compositions';
 import {printError} from './print-error';
 import {printHelp} from './print-help';

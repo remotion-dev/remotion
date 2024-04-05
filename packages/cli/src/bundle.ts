@@ -8,7 +8,7 @@ import {chalk} from './chalk';
 import {findEntryPoint} from './entry-point';
 import {getGitSource} from './get-github-repository';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
