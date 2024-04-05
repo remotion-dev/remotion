@@ -1,5 +1,5 @@
 import {stringifyDefaultProps} from '@remotion/studio-shared';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
 import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod-values';

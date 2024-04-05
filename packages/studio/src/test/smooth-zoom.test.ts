@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {smoothenZoom, unsmoothenZoom} from '../helpers/smooth-zoom';
 
 test('Smoothen zoom', () => {

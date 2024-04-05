@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getTimelineSequenceLayout} from '../helpers/get-timeline-sequence-layout';
 
 test('Should test timeline sequence layout without max media duration', () => {

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {createZodValues} from '../components/RenderModal/SchemaEditor/create-zod-values';
 import {
 	getZTypesIfPossible,
