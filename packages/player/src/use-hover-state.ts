@@ -12,7 +12,7 @@ export const useHoverState = (
 			return;
 		}
 
-		let hoverTimeout: NodeJS.Timeout;
+		let hoverTimeout: Timer;
 		const addHoverTimeout = () => {
 			if (hideControlsWhenPointerDoesntMove) {
 				clearTimeout(hoverTimeout);

@@ -26,7 +26,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
 		let resolved = false;
-		let timeout: NodeJS.Timeout | undefined;
+		let timeout: Timer | undefined;
 
 		const resolveAndFlag = (val: Response) => {
 			resolved = true;

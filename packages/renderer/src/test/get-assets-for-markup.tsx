@@ -22,7 +22,7 @@ let collectAssets = (): TRenderAsset[] => [];
 
 const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
-		let interval: null | number | NodeJS.Timeout = null;
+		let interval: null | number | Timer = null;
 		const check = () => {
 			if (window.remotion_renderReady) {
 				clearInterval(interval as number);

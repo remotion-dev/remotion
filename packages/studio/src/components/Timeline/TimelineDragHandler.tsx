@@ -148,7 +148,7 @@ const Inner: React.FC = () => {
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 
-	const scroller = useRef<NodeJS.Timeout | null>(null);
+	const scroller = useRef<Timer | null>(null);
 
 	const stopInterval = () => {
 		if (scroller.current) {

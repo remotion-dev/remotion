@@ -22,7 +22,7 @@ const serializeMessage = (message: EventSourceEvent) => {
 	return `data: ${JSON.stringify(message)}\n\n`;
 };
 
-let printPortMessageTimeout: NodeJS.Timeout | null = null;
+let printPortMessageTimeout: Timer | null = null;
 
 export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 	let clients: Client[] = [];

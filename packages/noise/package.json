@@ -11,7 +11,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "rollup --config rollup.config.js && tsc -d",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -46,10 +46,12 @@
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"rollup": "^2.70.1",
-		"vitest": "0.31.1"
+		"rollup": "^2.70.1"
 	},
-	"keywords": ["remotion", "noise"],
+	"keywords": [
+		"remotion",
+		"noise"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

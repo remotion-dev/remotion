@@ -1,5 +1,5 @@
+import {describe, expect, test} from 'bun:test';
 import path from 'node:path';
-import {describe, expect, test} from 'vitest';
 import {validatePublicDir} from '../validate-public-dir';
 
 describe('validatePublicDir()', () => {

@@ -25,7 +25,7 @@ declare global {
 		remotion_delayRenderTimeouts: {
 			[key: string]: {
 				label: string | null;
-				timeout: number | NodeJS.Timeout | Timer;
+				timeout: number | Timer;
 			};
 		};
 		remotion_cancelledError: string | undefined;

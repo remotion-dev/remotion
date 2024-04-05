@@ -93,7 +93,7 @@ const separator: React.CSSProperties = {
 let copyTimeout: NodeJS.Timeout | null = null;
 
 export const TemplateModalContent: React.FC<{
-  template: Template;
+  readonly template: Template;
 }> = ({ template }) => {
   const [copied, setCopied] = useState<string | false>(false);
   const [showPkgManagers, setShowPackageManagers] = useState(false);

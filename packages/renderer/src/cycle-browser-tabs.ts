@@ -15,7 +15,7 @@ export const cycleBrowserTabs = (
 		};
 	}
 
-	let interval: NodeJS.Timeout | null = null;
+	let interval: Timer | null = null;
 	let i = 0;
 	let stopped = false;
 	const set = () => {

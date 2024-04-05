@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
 test('Does React support transform-origin', () => {

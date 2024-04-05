@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getBoundingBox} from '../get-bounding-box';
 import {resetPath} from '../reset-path';
 
@@ -20,8 +20,8 @@ test('reset path should have 0 bounding box', () => {
 	const newPath = resetPath('M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0');
 	const {x1, x2, y1, y2} = getBoundingBox(newPath);
 
-	expect(x1).approximately(0, 0.000001);
-	expect(x2).approximately(50, 0.00001);
-	expect(y1).approximately(0, 0.000001);
-	expect(y2).approximately(50, 0.00001);
+	expect(x1).toBe(0);
+	expect(x2).toBe(50);
+	expect(y1).toBe(7.105427357601002e-15);
+	expect(y2).toBe(50.000000000000014);
 });
