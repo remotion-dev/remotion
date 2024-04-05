@@ -1690,6 +1690,9 @@ importers:
         specifier: workspace:*
         version: link:../compositor-win32-x64-msvc
     devDependencies:
+      '@happy-dom/global-registrator':
+        specifier: ^14.5.1
+        version: 14.5.1
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
@@ -1729,9 +1732,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1
 
   packages/rive:
     dependencies:

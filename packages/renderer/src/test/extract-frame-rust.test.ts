@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {interpolate} from 'remotion';
-import {expect, test} from 'vitest';
 import {startLongRunningCompositor} from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
 
@@ -252,9 +252,9 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(height).toBe(1280);
 	expect(width).toBe(720);
 
-	expect(data[0x00169915]).approximately(144, 2);
-	expect(data[0x0012dd58]).approximately(159, 2);
-	expect(data[0x00019108]).approximately(209, 2);
+	expect(data[0x00169915]).toBeWithin(142, 146);
+	expect(data[0x0012dd58]).toBeWithin(157, 159);
+	expect(data[0x00019108]).toBeWithin(207, 211);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();

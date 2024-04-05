@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import fs from 'node:fs';
 import {tmpdir} from 'node:os';
-import {expect, test} from 'vitest';
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 import {downloadFile} from '../assets/download-file';
 
@@ -25,9 +25,9 @@ test('Should be able to download file', async () => {
 	expect(data).toMatch(/<!doctype/);
 });
 
-test('Should fail to download invalid files', async () => {
+test('Should fail to download invalid files', () => {
 	const downloadDir = tmpdir();
-	await expect(() =>
+	expect(() =>
 		downloadFile({
 			to: (contentDisposition, contentType) => {
 				return getSanitizedFilenameForAssetUrl({
@@ -42,5 +42,5 @@ test('Should fail to download invalid files', async () => {
 			indent: false,
 			logLevel: 'info',
 		}),
-	).rejects.toThrow(/ENOTFOUND/);
+	).toThrow(/ENOTFOUND/);
 });
