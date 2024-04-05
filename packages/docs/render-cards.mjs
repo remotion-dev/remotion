@@ -68,7 +68,7 @@ fs.writeFileSync(
   `export const articles = ` + JSON.stringify(data, null, 2),
 );
 
-execSync("pnpm exec prettier src/data/articles.ts --write");
+execSync("bunx prettier src/data/articles.ts --write");
 
 // render cards
 const serveUrl = await bundle({
@@ -98,7 +98,6 @@ for (const entry of data) {
   const composition = compositions.find((c) => c.id === entry.compId);
   const output = `static/generated/${composition.id}.png`;
   if (fs.existsSync(output)) {
-    console.log("Existed", composition.id);
     continue;
   }
 

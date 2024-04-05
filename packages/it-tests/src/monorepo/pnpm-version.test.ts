@@ -11,7 +11,7 @@ test("Docs should refer to right pnpm version", () => {
 
   expect(
     readFileSync(
-      path.join(root, "packages/docs/docs/contributing/index.md"),
+      path.join(root, "packages/docs/docs/contributing/index.mdx"),
       "utf-8"
     )
   ).toContain(version);
