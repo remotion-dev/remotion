@@ -20,7 +20,7 @@ import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
-	onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -62,6 +62,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		name,
 		onError,
+		pauseWhenBuffering,
 		...nativeProps
 	} = props;
 

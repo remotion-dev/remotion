@@ -1,6 +1,5 @@
 import {render} from '@testing-library/react';
-import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {describe, expect, test} from 'bun:test';
 import {Video} from '../video/index.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -44,12 +43,7 @@ describe('Render correctly with props', () => {
 	});
 	test('It should throw if videoConfig/Wrapper is missing', () => {
 		expectToThrow(
-			() =>
-				render(
-					<CanUseRemotionHooksProvider>
-						<Video startFrom={10} endAt={15} />
-					</CanUseRemotionHooksProvider>,
-				),
+			() => render(<Video startFrom={10} endAt={15} />),
 			/No video config found/,
 		);
 	});

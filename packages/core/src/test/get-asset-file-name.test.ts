@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {getAssetDisplayName} from '../get-asset-file-name.js';
 
 describe('get asset file name test', () => {

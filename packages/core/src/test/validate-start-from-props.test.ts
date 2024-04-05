@@ -1,4 +1,4 @@
-import {describe, test} from 'vitest';
+import {describe, test} from 'bun:test';
 import {validateStartFromProps} from '../validate-start-from-props.js';
 import {expectToThrow} from './expect-to-throw.js';
 

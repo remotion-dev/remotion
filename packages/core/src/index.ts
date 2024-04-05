@@ -23,7 +23,10 @@ declare global {
 	interface Window {
 		remotion_renderReady: boolean;
 		remotion_delayRenderTimeouts: {
-			[key: string]: {label: string | null; timeout: number | NodeJS.Timeout};
+			[key: string]: {
+				label: string | null;
+				timeout: number | NodeJS.Timeout | Timer;
+			};
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];

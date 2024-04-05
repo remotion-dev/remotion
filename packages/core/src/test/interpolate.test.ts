@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {Easing} from '../easing.js';
 import {interpolate} from '../interpolate.js';
 import {expectToThrow} from './expect-to-throw.js';

@@ -1,11 +1,7 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {staticFile} from '../static-file.js';
 
 test('duplicate staticFile() should throw a warning', () => {
-	// @ts-expect-error
-	global.window = {
-		remotion_staticBase: '/static-abcdef',
-	};
 	expect(() => staticFile(staticFile('file.mp3'))).toThrow(
 		'The value "/static-abcdef/file.mp3" is already prefixed with the static base /static-abcdef. You don\'t need to call staticFile() on it.',
 	);

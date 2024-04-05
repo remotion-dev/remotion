@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import type {HexInfo} from '../static-file.js';
 import {includesHexOfUnsafeChar} from '../static-file.js';
 
