@@ -24,7 +24,7 @@ for (const file of output.outputs) {
 	const str = await file.text();
 	const newStr = str
 		.replace(/jsxDEV/g, 'jsx')
-		.replace(/react\/jsx-dev-runtime/g, 'react-jsx-runtime');
+		.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
 
 	Bun.write(path.join('dist', 'esm', file.path), newStr);
 }
