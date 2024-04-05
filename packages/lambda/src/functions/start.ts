@@ -109,13 +109,19 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
-	await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
 		}),
 	);
+	if (result.FunctionError) {
+		throw new Error(
+			`Lambda function returned error: ${result.FunctionError} ${result.LogResult}`,
+		);
+	}
+
 	await initialFile;
 
 	return {
