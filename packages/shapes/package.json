@@ -9,7 +9,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"author": "Alex Fernandez, Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
