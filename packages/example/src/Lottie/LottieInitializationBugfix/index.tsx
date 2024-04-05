@@ -1,5 +1,5 @@
 import {Lottie} from '@remotion/lottie';
-import {AbsoluteFill, useVideoConfig} from 'remotion';
+import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
 
 const lottie = {
 	v: '5.9.0',
@@ -1017,6 +1017,7 @@ const LottieInitializationBugfix = () => {
 		<AbsoluteFill style={{height, width}}>
 			<Lottie
 				loop
+				assetsPath={staticFile('lottie/')}
 				animationData={lottie}
 				playbackRate={1}
 				style={{height: 500}}

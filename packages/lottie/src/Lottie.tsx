@@ -21,6 +21,7 @@ export const Lottie = ({
 	onAnimationLoaded,
 	renderer,
 	preserveAspectRatio,
+	assetsPath,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
@@ -53,6 +54,7 @@ export const Lottie = ({
 			container: containerRef.current,
 			autoplay: false,
 			animationData,
+			assetsPath: assetsPath ?? undefined,
 			renderer: renderer ?? 'svg',
 			rendererSettings: {
 				preserveAspectRatio: preserveAspectRatio ?? undefined,
@@ -86,7 +88,16 @@ export const Lottie = ({
 			animation.removeEventListener('DOMLoaded', onComplete);
 			animation.destroy();
 		};
-	}, [animationData, direction, handle, loop, playbackRate]);
+	}, [
+		animationData,
+		assetsPath,
+		direction,
+		handle,
+		loop,
+		playbackRate,
+		preserveAspectRatio,
+		renderer,
+	]);
 
 	useEffect(() => {
 		if (animationRef.current && direction) {
