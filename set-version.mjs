@@ -47,7 +47,7 @@ for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   }
 }
 
-execSync("node ensure-correct-version.js", {
+execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 

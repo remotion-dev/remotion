@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun ensure-correct-version.js && rollup --config rollup.config.js && tsc -d",
+		"build": "bun ensure-correct-version.ts && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w",
 		"test": "bun test src",
 		"prerelease": "cp ../../README.md ."
