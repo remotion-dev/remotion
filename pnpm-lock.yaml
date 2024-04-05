@@ -18,6 +18,9 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
     devDependencies:
+      '@types/bun':
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -222,9 +225,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(jsdom@20.0.1)
 
   packages/cli:
     dependencies:
@@ -448,9 +448,6 @@ importers:
       '@testing-library/react':
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
-      '@types/bun':
-        specifier: 1.0.12
-        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -996,9 +993,6 @@ importers:
         specifier: ^3.22.3
         version: 3.22.3
     devDependencies:
-      '@types/bun':
-        specifier: 1.0.12
-        version: 1.0.12
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -1213,9 +1207,6 @@ importers:
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
-      '@types/bun':
-        specifier: 1.0.12
-        version: 1.0.12
       '@types/sharp':
         specifier: ^0.28.5
         version: 0.28.6
@@ -2221,9 +2212,6 @@ importers:
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      '@types/bun':
-        specifier: 1.0.12
-        version: 1.0.12
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48

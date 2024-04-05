@@ -24,7 +24,8 @@
     }
   },
   "devDependencies": {
-    "@types/node": "18.14.6"
+    "@types/node": "18.14.6",
+    "@types/bun": "1.0.12"
   },
   "dependencies": {
     "turbo": "1.13.2",
