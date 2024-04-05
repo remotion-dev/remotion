@@ -29,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.277",
-		"eslint": "8.42.0",
+		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"remotion": "workspace:*",

@@ -88,7 +88,7 @@
     "@types/react": "18.2.48",
     "@types/unist": "^2.0.0",
     "@typescript/twoslash": "3.2.1",
-    "eslint": "8.42.0",
+    "eslint": "8.56.0",
     "fenceparser": "^2.2.0",
     "lodash.sortby": "^4.7.0",
     "prettier": "3.2.5",
