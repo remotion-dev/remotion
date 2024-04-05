@@ -23,7 +23,7 @@ export const RenderQueueRepeatItem: React.FC<{
 				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
 			}
 		},
-		[job, setSelectedModal],
+		[isMobileLayout, job, setSelectedModal, setSidebarCollapsedState],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

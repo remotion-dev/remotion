@@ -32,7 +32,7 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@react-three/fiber": "8.13.5",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
@@ -49,14 +49,7 @@
 		"rollup": "^2.70.1",
 		"three": "0.158.0"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"three",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "three", "player"],
 	"publishConfig": {
 		"access": "public"
 	},

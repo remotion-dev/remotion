@@ -9,9 +9,7 @@
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
@@ -32,7 +30,7 @@
 		"webpack": "5.83.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@types/node": "18.14.6",
 		"eslint": "8.56.0",
@@ -43,13 +41,7 @@
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
 	"publishConfig": {
 		"access": "public"
 	}

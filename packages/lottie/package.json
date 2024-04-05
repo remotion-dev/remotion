@@ -43,7 +43,7 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
@@ -56,14 +56,7 @@
 		"rollup": "^2.70.1",
 		"vitest": "0.31.1"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"lottie",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "lottie", "player"],
 	"publishConfig": {
 		"access": "public"
 	}

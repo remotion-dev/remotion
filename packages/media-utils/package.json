@@ -26,20 +26,14 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
 	"publishConfig": {
 		"access": "public"
 	}

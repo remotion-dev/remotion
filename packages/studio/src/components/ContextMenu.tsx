@@ -118,7 +118,7 @@ export const ContextMenu: React.FC<{
 						right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
 					}),
 		};
-	}, [opened.type, size, isMobileLayout, spaceToTop, spaceToBottom]);
+	}, [opened, size, isMobileLayout, spaceToTop, spaceToBottom]);
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});

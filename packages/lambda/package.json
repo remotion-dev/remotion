@@ -43,7 +43,7 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
@@ -75,18 +75,10 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"defaults": [
-				"dist/defaults.d.ts"
-			],
-			"regions": [
-				"dist/regions.d.ts"
-			],
-			"policies": [
-				"dist/api/iam-validation/suggested-policy.d.ts"
-			],
-			"client": [
-				"dist/client.d.ts"
-			]
+			"defaults": ["dist/defaults.d.ts"],
+			"regions": ["dist/regions.d.ts"],
+			"policies": ["dist/api/iam-validation/suggested-policy.d.ts"],
+			"client": ["dist/client.d.ts"]
 		}
 	}
 }

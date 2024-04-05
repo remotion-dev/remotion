@@ -28,7 +28,7 @@
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",

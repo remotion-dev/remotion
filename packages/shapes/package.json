@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@types/react-dom": "18.2.18",
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/react": "^13.4.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
@@ -32,11 +32,7 @@
 		"react-dom": "18.2.0",
 		"vitest": "0.31.1"
 	},
-	"keywords": [
-		"svg",
-		"path",
-		"utilities"
-	],
+	"keywords": ["svg", "path", "utilities"],
 	"publishConfig": {
 		"access": "public"
 	},

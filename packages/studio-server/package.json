@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"react": "18.2.0",
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"@babel/types": "7.24.0",

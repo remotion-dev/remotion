@@ -42,7 +42,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "13.1.1",
 		"@types/node": "18.14.6",
@@ -62,13 +62,7 @@
 		"webpack": "5.83.1",
 		"zod": "^3.22.3"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
 	"publishConfig": {
 		"access": "public"
 	}

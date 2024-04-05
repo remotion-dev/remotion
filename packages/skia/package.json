@@ -30,7 +30,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@shopify/react-native-skia": "^0.1.191",
@@ -44,10 +44,7 @@
 		"remotion": "workspace:*",
 		"rollup": "^2.70.1"
 	},
-	"keywords": [
-		"remotion",
-		"skia"
-	],
+	"keywords": ["remotion", "skia"],
 	"publishConfig": {
 		"access": "public"
 	},
@@ -68,9 +65,7 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"enable": [
-				"dist/esm/enable.d.ts"
-			]
+			"enable": ["dist/esm/enable.d.ts"]
 		}
 	}
 }

@@ -34,7 +34,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@testing-library/dom": "^8.16.0",
 		"@testing-library/react": "13.3.0",
 		"@types/node": "18.14.6",
@@ -58,13 +58,7 @@
 		"@remotion/compositor-linux-x64-musl": "workspace:*",
 		"@remotion/compositor-win32-x64-msvc": "workspace:*"
 	},
-	"keywords": [
-		"remotion",
-		"ffmpeg",
-		"video",
-		"react",
-		"player"
-	],
+	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
 	"publishConfig": {
 		"access": "public"
 	}

@@ -29,7 +29,7 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.277",
+		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",

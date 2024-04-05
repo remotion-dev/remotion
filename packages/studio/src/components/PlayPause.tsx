@@ -291,7 +291,7 @@ export const PlayPause: React.FC<{
 
 			stopped = true;
 		};
-	}, [emitter]);
+	}, [bufferStateDelayInMilliseconds, emitter]);
 
 	return (
 		<>
