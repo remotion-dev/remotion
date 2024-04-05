@@ -76,7 +76,7 @@ export const downloadWhisperModel = async ({
 	let downloaded = 0;
 	let lastPrinted = 0;
 
-	const readable = Readable.fromWeb(body as ReadableStream);
+	const readable = Readable.fromWeb(body as unknown as ReadableStream<unknown>);
 
 	await new Promise<void>((resolve, reject) => {
 		readable.on('error', (err) => {
