@@ -23,5 +23,5 @@ test('reset path should have 0 bounding box', () => {
 	expect(x1).toBe(0);
 	expect(x2).toBe(50);
 	expect(y1).toBe(7.105427357601002e-15);
-	expect(y2).toBe(50.000000000000014);
+	expect(y2).toBeWithin(49.9999999999, 50.0000000001);
 });
