@@ -1524,9 +1524,6 @@ importers:
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(jsdom@20.0.1)
 
   packages/player:
     dependencies:
@@ -1534,6 +1531,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@happy-dom/global-registrator':
+        specifier: ^14.5.1
+        version: 14.5.1
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)

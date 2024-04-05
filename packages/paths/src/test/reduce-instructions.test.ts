@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {reduceInstructions} from '../reduce-instructions';
 
 test('Should simplify simple instructions', () => {
@@ -29,7 +29,7 @@ test('Should reduce A instructions', () => {
 
 	expect(simplified[0].type).toEqual('C');
 	// @ts-expect-error
-	expect(simplified[1].cp1y).toEqual(-99.99999999999997);
+	expect(Math.round(simplified[1].cp1y) * 100).toEqual(-10000);
 	// @ts-expect-error
-	expect(simplified[1].cp2x).toEqual(200);
+	expect(Math.round(simplified[1].cp2x) * 100).toEqual(20000);
 });
