@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {serializeInstructions} from '../serialize-instructions';
 
 test('Should serialize instructions', () => {
