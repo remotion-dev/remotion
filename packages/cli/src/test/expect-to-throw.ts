@@ -1,5 +1,4 @@
-import {spyOn} from 'bun:test';
-import {expect} from 'vitest';
+import {expect, spyOn} from 'bun:test';
 
 export const expectToThrow = (func: Function, err: RegExp) => {
 	// Even though the error is caught, it still gets printed to the console

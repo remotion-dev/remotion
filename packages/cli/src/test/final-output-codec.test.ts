@@ -1,6 +1,6 @@
 import type {CodecOrUndefined} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 
 const {videoCodecOption} = BrowserSafeApis.options;
 
