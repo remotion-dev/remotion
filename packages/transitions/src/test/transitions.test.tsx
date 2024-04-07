@@ -1,13 +1,10 @@
-/**
- * @vitest-environment jsdom
- */
 import {
 	makeMockCompositionManagerContext,
 	makeTimelineContext,
 } from '@remotion/test-utils';
+import {expect, test} from 'bun:test';
 import {renderToString} from 'react-dom/server';
 import {AbsoluteFill, Internals} from 'remotion';
-import {expect, test} from 'vitest';
 import {TransitionSeries} from '../TransitionSeries.js';
 import {fade} from '../presentations/fade.js';
 import {linearTiming} from '../timings/linear-timing.js';
