@@ -91,6 +91,7 @@ export const SidebarRenderButton: React.FC<{
 				initialRepro: defaults.repro,
 				initialForSeamlessAacConcatenation:
 					defaults.forSeamlessAacConcatenation,
+				renderTypeOfLastRender: null,
 			});
 
 			if (isMobileLayout) {
