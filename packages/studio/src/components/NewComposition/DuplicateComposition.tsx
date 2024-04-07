@@ -209,10 +209,14 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 		type,
 	]);
 
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
+		e.preventDefault();
+	}, []);
+
 	return (
 		<>
 			<NewCompHeader title={`Duplicate ${resolved.result.id}`} />
-			<form>
+			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{initialCompType === 'composition' ? (
 						// We allow converting from a composition to a still, but
@@ -366,7 +370,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 };
 
 export const DuplicateComposition: React.FC<{
-	compositionId: string;
+	readonly compositionId: string;
 }> = ({compositionId}) => {
 	return (
 		<DismissableModal>
