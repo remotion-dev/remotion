@@ -28,7 +28,7 @@ import {getOriginalSourceAttribution} from './source-attribution';
 
 // @ts-expect-error
 SourceMapConsumer.initialize({
-	'lib/mappings.wasm': SOURCE_MAP_ENDPOINT,
+	'lib/mappings.wasm': window.remotion_publicPath + SOURCE_MAP_ENDPOINT,
 });
 
 export const TimelineStack: React.FC<{

@@ -34,6 +34,7 @@ declare global {
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
