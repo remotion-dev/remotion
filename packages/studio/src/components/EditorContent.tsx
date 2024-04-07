@@ -4,7 +4,7 @@ import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
-import {SplitterContainer} from './Splitter/SplitterContainer';
+import {SplitterContainer, containerColumn} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
@@ -20,11 +20,11 @@ const container: React.CSSProperties = {
 };
 
 export const EditorContent: React.FC<{
-	readOnlyStudio: boolean;
-	onMounted: () => void;
-	drawRef: React.RefObject<HTMLDivElement>;
-	size: Size | null;
-	bufferStateDelayInMilliseconds: number;
+	readonly readOnlyStudio: boolean;
+	readonly onMounted: () => void;
+	readonly drawRef: React.RefObject<HTMLDivElement>;
+	readonly size: Size | null;
+	readonly bufferStateDelayInMilliseconds: number;
 }> = ({
 	readOnlyStudio,
 	onMounted,
@@ -44,13 +44,15 @@ export const EditorContent: React.FC<{
 			<InitialCompositionLoader />
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{onlyTopPanel ? (
-				<TopPanel
-					size={size}
-					drawRef={drawRef}
-					bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
-					onMounted={onMounted}
-					readOnlyStudio={readOnlyStudio}
-				/>
+				<div style={containerColumn}>
+					<TopPanel
+						size={size}
+						drawRef={drawRef}
+						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+						onMounted={onMounted}
+						readOnlyStudio={readOnlyStudio}
+					/>
+				</div>
 			) : (
 				<SplitterContainer
 					orientation="horizontal"
