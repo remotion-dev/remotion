@@ -41,6 +41,7 @@
 		"@types/progress": "2.0.5",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
+		"jsdom": "^24.0.0",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
@@ -58,7 +59,13 @@
 		"@remotion/compositor-linux-x64-musl": "workspace:*",
 		"@remotion/compositor-win32-x64-msvc": "workspace:*"
 	},
-	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
