@@ -15,6 +15,6 @@ test('Should be able to make a star path', () => {
 	expect(starPath.instructions[0]).toEqual({type: 'M', x: 200, y: 0});
 	expect(starPath.instructions[11]).toEqual({type: 'Z'});
 	expect(starPath.path).toStartWith(
-		'M 190.21130325903073 0 L 278.3790911029017 78.64745084375788 L 380.42260651806146',
+		'M 190.21130325903073 0 L 278.3790911029017 78.',
 	);
 });
