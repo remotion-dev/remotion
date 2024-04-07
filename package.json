@@ -8,7 +8,7 @@
     "stylecheck": "turbo run lint formatting",
     "build": "turbo run build",
     "build-docs": "turbo run build-docs",
-    "ci": "turbo run build test --concurrency=50% --log-order=stream",
+    "ci": "turbo run build test --concurrency=50%",
     "watch": "tsc -b --verbose -w",
     "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
     "release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
