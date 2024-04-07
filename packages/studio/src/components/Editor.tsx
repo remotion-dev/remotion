@@ -27,10 +27,10 @@ export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
 		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
 		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
 
-export const Editor: React.FC<{Root: React.FC; readOnlyStudio: boolean}> = ({
-	Root,
-	readOnlyStudio,
-}) => {
+export const Editor: React.FC<{
+	readonly Root: React.FC;
+	readonly readOnlyStudio: boolean;
+}> = ({Root, readOnlyStudio}) => {
 	const drawRef = useRef<HTMLDivElement>(null);
 
 	const size = PlayerInternals.useElementSize(drawRef, {
