@@ -58,10 +58,14 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 		};
 	}, [newId, resolved.result.id]);
 
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
+		e.preventDefault();
+	}, []);
+
 	return (
 		<>
 			<NewCompHeader title={`Rename ${resolved.result.id}`} />
-			<form>
+			<form onSubmit={onSubmit}>
 				<div style={content}>
 					<div style={optionRow}>
 						<div style={label}>ID</div>
@@ -107,7 +111,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 };
 
 export const RenameComposition: React.FC<{
-	compositionId: string;
+	readonly compositionId: string;
 }> = ({compositionId}) => {
 	return (
 		<DismissableModal>
