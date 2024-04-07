@@ -484,6 +484,9 @@ importers:
       webpack:
         specifier: 5.83.1
         version: 5.83.1
+      whatwg-mimetype:
+        specifier: ^3.0.0
+        version: 3.0.0
       zod:
         specifier: 3.22.3
         version: 3.22.3
