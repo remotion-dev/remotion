@@ -227,10 +227,10 @@ export const internalBundle = async (
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
-	const baseDir = actualArgs?.publicPath ?? '/';
+	const publicPath = actualArgs?.publicPath ?? '/';
 	const staticHash =
 		'/' +
-		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
+		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
 			.filter(Boolean)
 			.join('/');
 
@@ -270,7 +270,7 @@ export const internalBundle = async (
 
 	const html = indexHtml({
 		staticHash,
-		baseDir,
+		publicPath,
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
@@ -288,10 +288,10 @@ export const internalBundle = async (
 				name: f.name.split(path.sep).join('/'),
 			};
 		}),
-		includeFavicon: false,
+		includeFavicon: true,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
-		publicFolderExists: `${baseDir + (baseDir.endsWith('/') ? '' : '/')}public`,
+		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
