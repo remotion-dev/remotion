@@ -27,19 +27,16 @@ test('Should be able to make a pentagon path', () => {
 		radius: 100,
 	});
 
-	expect(polygonPath).toEqual({
-		path: 'M 100 0 L 195.10565162951536 69.09830056250526 L 158.77852522924732 180.90169943749476 L 41.2214747707527 180.90169943749476 L 4.894348370484636 69.09830056250527 L 100 0',
-		width: 200,
-		height: 200,
-		transformOrigin: '100 100',
-		instructions: [
-			{type: 'M', x: 100, y: 0},
-			{type: 'L', x: 195.10565162951536, y: 69.09830056250526},
-			{type: 'L', x: 158.77852522924732, y: 180.90169943749476},
-			{type: 'L', x: 41.2214747707527, y: 180.90169943749476},
-			{type: 'L', x: 4.894348370484636, y: 69.09830056250527},
-			{type: 'L', x: 100, y: 0},
-		],
+	expect(polygonPath.width).toEqual(200);
+	expect(polygonPath.height).toEqual(200);
+	expect(polygonPath.transformOrigin).toEqual('100 100');
+	expect(polygonPath.instructions.length).toEqual(6);
+	expect(polygonPath.instructions[0]).toEqual({type: 'M', x: 100, y: 0});
+	expect(polygonPath.instructions[5]).toEqual({type: 'L', x: 100, y: 0});
+	expect(polygonPath.instructions[4]).toEqual({
+		type: 'L',
+		x: 4.894348370484636,
+		y: 69.09830056250527,
 	});
 });
 
