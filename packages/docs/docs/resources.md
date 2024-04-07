@@ -53,9 +53,10 @@ This list tries to compile all templates, libraries, building blocks and example
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
-- [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
+- [remotion-time](https://github.com/fwextensions/remotion-time) - use `seconds` as a time unit instead of `frame`
 - [Spring Editor](https://springs.remotion.dev)
 - [remotion-animate-text](https://github.com/pskd73/remotion-animate-text)
+- [remotion-subtitle](https://github.com/ahgsql/remotion-subtitles) - Captioning helpers and styles
 
 ## Full projects
 
