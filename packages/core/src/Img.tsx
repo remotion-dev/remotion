@@ -1,10 +1,12 @@
 import React, {
 	forwardRef,
 	useCallback,
+	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {SequenceContext} from './SequenceContext.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
@@ -33,6 +35,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
+	const sequenceContext = useContext(SequenceContext);
 
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
@@ -119,9 +122,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			}
 
 			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
-			const unblock = pauseWhenLoading
-				? delayPlayback().unblock
-				: () => undefined;
+			const unblock =
+				pauseWhenLoading && !sequenceContext?.premounting
+					? delayPlayback().unblock
+					: () => undefined;
 			const {current} = imageRef;
 
 			const onComplete = () => {
@@ -156,7 +160,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 				continueRender(newHandle);
 			};
-		}, [actualSrc, delayPlayback, pauseWhenLoading]);
+		}, [
+			actualSrc,
+			delayPlayback,
+			pauseWhenLoading,
+			sequenceContext?.premounting,
+		]);
 	}
 
 	return (

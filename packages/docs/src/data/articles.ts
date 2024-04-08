@@ -2081,6 +2081,13 @@ export const articles = [
     crumb: "@remotion/player",
   },
   {
+    id: "player/premounting",
+    title: "Premounting",
+    relativePath: "docs/player/premounting.mdx",
+    compId: "articles-docs-player-premounting",
+    crumb: "@remotion/player",
+  },
+  {
     id: "scaling",
     title: "Sizing",
     relativePath: "docs/player/scaling.md",
@@ -2818,7 +2825,7 @@ export const articles = [
   {
     id: "terminology/sequence",
     title: "Sequence",
-    relativePath: "docs/terminology/sequence.md",
+    relativePath: "docs/terminology/sequence.mdx",
     compId: "articles-docs-terminology-sequence",
     crumb: "Terminology",
   },
@@ -3091,7 +3098,7 @@ export const articles = [
   {
     id: "player-flicker",
     title: "Avoiding flickering in <Player>",
-    relativePath: "docs/troubleshooting/video-flicker.md",
+    relativePath: "docs/troubleshooting/video-flicker.mdx",
     compId: "articles-docs-troubleshooting-video-flicker",
     crumb: "Frame-perfection",
   },
@@ -3182,7 +3189,7 @@ export const articles = [
   {
     id: "version",
     title: "VERSION",
-    relativePath: "docs/version.md",
+    relativePath: "docs/version.mdx",
     compId: "articles-docs-version",
     crumb: "API",
   },

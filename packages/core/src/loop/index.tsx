@@ -72,7 +72,7 @@ export const Loop: React.FC<LoopProps> = ({
 			durationInFrames={durationInFrames}
 			from={from}
 			name={name ?? '<Loop>'}
-			loopDisplay={loopDisplay}
+			_remotionInternalLoopDisplay={loopDisplay}
 			layout={props.layout}
 			style={style}
 		>
