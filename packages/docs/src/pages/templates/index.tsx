@@ -141,7 +141,7 @@ export default () => {
             key={"map"}
             className={styles.item}
             style={outer}
-            to={`https://www.remotion.pro/mapbox-globe`}
+            to={`https://www.remotion.pro/watercolor-map`}
           >
             <Item
               label={"Watercolor Map"}
