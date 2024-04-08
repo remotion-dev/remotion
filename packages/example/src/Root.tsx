@@ -37,6 +37,7 @@ import {
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {PremountedExample} from './Premount';
+import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
@@ -1074,6 +1075,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="premounted"
 					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+				<Composition
+					id="premounted-remote"
+					component={PremountedRemoteVideos}
 					fps={30}
 					height={1080}
 					durationInFrames={300}
