@@ -142,6 +142,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
+		premountDisplay: null,
 	});
 
 	useMediaPlayback({
@@ -154,7 +155,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
-	useMediaBuffering(audioRef, pauseWhenBuffering);
+	useMediaBuffering({
+		element: audioRef,
+		shouldBuffer: pauseWhenBuffering,
+		isPremounting: Boolean(sequenceContext?.premounting),
+	});
 
 	useImperativeHandle(
 		ref,

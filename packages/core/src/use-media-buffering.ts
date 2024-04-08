@@ -2,10 +2,15 @@ import type React from 'react';
 import {useEffect} from 'react';
 import {useBufferState} from './use-buffer-state';
 
-export const useMediaBuffering = (
-	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
-	shouldBuffer: boolean,
-) => {
+export const useMediaBuffering = ({
+	element,
+	shouldBuffer,
+	isPremounting,
+}: {
+	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	shouldBuffer: boolean;
+	isPremounting: boolean;
+}) => {
 	const buffer = useBufferState();
 
 	useEffect(() => {
@@ -17,6 +22,10 @@ export const useMediaBuffering = (
 		}
 
 		if (!shouldBuffer) {
+			return;
+		}
+
+		if (isPremounting) {
 			return;
 		}
 
@@ -46,5 +55,5 @@ export const useMediaBuffering = (
 		return () => {
 			cleanup();
 		};
-	}, [buffer, element, shouldBuffer]);
+	}, [buffer, element, isPremounting, shouldBuffer]);
 };

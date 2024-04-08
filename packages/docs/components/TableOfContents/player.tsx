@@ -59,6 +59,10 @@ export const PlayerGuide: React.FC = () => {
           <strong>Avoiding flickers</strong>
           <div>Troubleshooting for flickers due to unloaded assets</div>
         </TOCItem>
+        <TOCItem link="/docs/troubleshooting/player-flicker">
+          <strong>Premounting</strong>
+          <div>Mount components earlier to allow them to load</div>
+        </TOCItem>
       </Grid>
     </div>
   );
