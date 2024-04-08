@@ -236,3 +236,4 @@ You are responsible yourself for making the video invisible while it is being pr
 - [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch)
 - [`preloadVideo()`](/docs/preload/preload-video)
 - [Flickering (during rendering)](/docs/flickering)
+- [Premounting](/docs/player/premounting)
