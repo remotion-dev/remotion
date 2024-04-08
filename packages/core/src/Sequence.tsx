@@ -8,14 +8,14 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {useNonce} from './nonce.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
@@ -46,15 +46,19 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	loopDisplay?: LoopDisplay;
+	_remotionInternalLoopDisplay?: LoopDisplay;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	premountDisplay?: number | null;
+	_remotionInternalPremountDisplay?: number | null;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	stack?: string;
+	_remotionInternalStack?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	_remotionInternalIsPremounting?: boolean;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -73,9 +77,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
-		loopDisplay,
-		stack,
-		premountDisplay,
+		_remotionInternalLoopDisplay: loopDisplay,
+		_remotionInternalStack: stack,
+		_remotionInternalPremountDisplay: premountDisplay,
 		...other
 	},
 	ref,
@@ -137,6 +141,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
+	const premounting = useMemo(() => {
+		return (
+			parentSequence?.premounting ??
+			Boolean(other._remotionInternalIsPremounting)
+		);
+	}, [other._remotionInternalIsPremounting, parentSequence?.premounting]);
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			cumulatedFrom,
@@ -146,9 +157,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			height: height ?? parentSequence?.height ?? null,
 			width: width ?? parentSequence?.width ?? null,
-			premounting:
-				parentSequence?.premounting ??
-				(other.layout !== 'none' && (other.premountFor ?? 0) > 0),
+			premounting,
 		};
 	}, [
 		cumulatedFrom,
@@ -158,6 +167,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 		height,
 		width,
+		premounting,
 	]);
 
 	const timelineClipName = useMemo(() => {
@@ -276,26 +286,26 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		...otherProps
 	} = props;
 
-	const active =
-		frame < from &&
-		frame >= from - premountFor &&
-		!getRemotionEnvironment().isRendering;
+	const premountingActive = frame < from && frame >= from - premountFor;
 
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: active ? 0 : 1,
-			pointerEvents: active ? 'none' : passedStyle?.pointerEvents ?? undefined,
+			opacity: premountingActive ? 0 : 1,
+			pointerEvents: premountingActive
+				? 'none'
+				: passedStyle?.pointerEvents ?? undefined,
 		};
-	}, [active, passedStyle]);
+	}, [premountingActive, passedStyle]);
 
 	return (
-		<Freeze frame={from} active={active}>
+		<Freeze frame={from} active={premountingActive}>
 			<Sequence
 				ref={ref}
 				from={from}
 				style={style}
-				premountDisplay={premountFor}
+				_remotionInternalPremountDisplay={premountFor}
+				_remotionInternalIsPremounting={premountingActive}
 				{...otherProps}
 			/>
 		</Freeze>
@@ -307,7 +317,11 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	if (props.layout !== 'none' && props.premountFor) {
+	if (
+		props.layout !== 'none' &&
+		props.premountFor &&
+		!getRemotionEnvironment().isRendering
+	) {
 		return <PremountedSequence {...props} ref={ref} />;
 	}
 

@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Sequence, staticFile, Video} from 'remotion';
 
 const ShouldNotUnmount: React.FC = () => {
-	return <Video src={staticFile('framer.webm')} />;
+	return <Video pauseWhenBuffering src={staticFile('framer.webm')} />;
 };
 
 export const PremountedExample: React.FC = () => {
