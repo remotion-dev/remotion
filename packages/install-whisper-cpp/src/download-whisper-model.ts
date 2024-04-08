@@ -1,6 +1,4 @@
 import fs, {existsSync} from 'fs';
-import {Readable} from 'node:stream';
-import type {ReadableStream} from 'node:stream/web';
 import path from 'path';
 
 const models = [
@@ -76,38 +74,51 @@ export const downloadWhisperModel = async ({
 	let downloaded = 0;
 	let lastPrinted = 0;
 
-	const readable = Readable.fromWeb(body as ReadableStream);
+	const reader = body.getReader();
 
-	await new Promise<void>((resolve, reject) => {
-		readable.on('error', (err) => {
-			reject(err);
-		});
+	// eslint-disable-next-line no-async-promise-executor
+	await new Promise<void>(async (resolve, reject) => {
+		try {
+			// eslint-disable-next-line no-constant-condition
+			while (true) {
+				const {done, value} = await reader.read();
 
-		readable.on('data', (chunk) => {
-			downloaded += chunk.length;
-			if (printOutput) {
-				if (
-					downloaded - lastPrinted > 1024 * 1024 * 10 ||
-					downloaded === totalFileSize
-				) {
-					console.log(
-						`Downloaded ${downloaded} of ${contentLength} bytes (${(
-							(downloaded / Number(contentLength)) *
-							100
-						).toFixed(2)}%)`,
-					);
-					lastPrinted = downloaded;
+				if (!value) {
+					throw new Error('Failed to read from stream');
+				}
+
+				downloaded += value.length;
+
+				if (printOutput) {
+					if (
+						downloaded - lastPrinted > 1024 * 1024 * 10 ||
+						downloaded === totalFileSize
+					) {
+						console.log(
+							`Downloaded ${downloaded} of ${contentLength} bytes (${(
+								(downloaded / Number(contentLength)) *
+								100
+							).toFixed(2)}%)`,
+						);
+						lastPrinted = downloaded;
+					}
+				}
+
+				fileStream.write(value, () => {
+					onProgress?.(downloaded, totalFileSize);
+					if (downloaded === totalFileSize) {
+						fileStream.end();
+						resolve();
+					}
+				});
+
+				if (done) {
+					break;
 				}
 			}
-
-			fileStream.write(chunk, () => {
-				onProgress?.(downloaded, totalFileSize);
-				if (downloaded === totalFileSize) {
-					fileStream.end();
-					resolve();
-				}
-			});
-		});
+		} catch (e) {
+			reject(e);
+		}
 	});
 
 	return {alreadyExisted: false};
