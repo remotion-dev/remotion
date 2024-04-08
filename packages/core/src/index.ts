@@ -41,7 +41,11 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number, composition: string) => void;
+		remotion_setFrame: (
+			frame: number,
+			composition: string,
+			retriesLeft: number,
+		) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;

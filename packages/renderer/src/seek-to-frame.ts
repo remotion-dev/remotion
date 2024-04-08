@@ -167,6 +167,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds,
 	logLevel,
 	indent,
+	retriesLeft,
 }: {
 	frame: number;
 	composition: string;
@@ -174,6 +175,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	retriesLeft: number;
 }) => {
 	await waitForReady({
 		page,
@@ -183,10 +185,10 @@ export const seekToFrame = async ({
 		logLevel,
 	});
 	await puppeteerEvaluateWithCatchAndTimeout({
-		pageFunction: (f: number, c: string) => {
-			window.remotion_setFrame(f, c);
+		pageFunction: (f: number, c: string, retries: number) => {
+			window.remotion_setFrame(f, c, retries);
 		},
-		args: [frame, composition],
+		args: [frame, composition, retriesLeft],
 		frame,
 		page,
 		timeoutInMilliseconds,

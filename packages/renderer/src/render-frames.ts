@@ -381,6 +381,7 @@ const innerRenderFrames = async ({
 		height,
 		compId,
 		assetsOnly,
+		retriesLeft,
 	}: {
 		frame: number;
 		index: number | null;
@@ -389,6 +390,7 @@ const innerRenderFrames = async ({
 		height: number;
 		compId: string;
 		assetsOnly: boolean;
+		retriesLeft: number;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -419,6 +421,7 @@ const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 			indent,
 			logLevel,
+			retriesLeft,
 		});
 
 		const timeToSeek = Date.now() - startSeeking;
@@ -520,6 +523,7 @@ const innerRenderFrames = async ({
 		frame: number,
 		index: number | null,
 		assetsOnly: boolean,
+		retriesLeft: number,
 	) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
@@ -530,6 +534,7 @@ const innerRenderFrames = async ({
 				height: composition.height,
 				compId: composition.id,
 				assetsOnly,
+				retriesLeft,
 			})
 				.then(() => {
 					resolve();
@@ -555,7 +560,7 @@ const innerRenderFrames = async ({
 	}) => {
 		try {
 			await Promise.race([
-				renderFrame(frame, index, assetsOnly),
+				renderFrame(frame, index, assetsOnly, retriesLeft),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -567,7 +572,12 @@ const innerRenderFrames = async ({
 				throw err;
 			}
 
-			if (!isTargetClosedErr(err as Error)) {
+			if (
+				!isTargetClosedErr(err as Error) &&
+				!(err as Error).stack?.includes(
+					NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
+				)
+			) {
 				throw err;
 			}
 
@@ -576,12 +586,16 @@ const innerRenderFrames = async ({
 			}
 
 			if (retriesLeft === 0) {
+				// TODO: Could also be a retry
+				// TODO: Use Log.warn
 				console.warn(
 					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 				);
 				throw err;
 			}
 
+			// TODO: Could also be a retry
+			// TODO: Use Log.warn
 			console.warn(
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 			);
