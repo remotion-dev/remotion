@@ -8,7 +8,7 @@ export const PremountedRemoteVideos: React.FC = () => {
 				<Series.Sequence durationInFrames={200} premountFor={20}>
 					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
-				<Series.Sequence durationInFrames={700} premountFor={100}>
+				<Series.Sequence durationInFrames={700} premountFor={30}>
 					<Video
 						pauseWhenBuffering
 						startFrom={1000}

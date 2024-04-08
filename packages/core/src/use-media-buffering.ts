@@ -55,5 +55,5 @@ export const useMediaBuffering = ({
 		return () => {
 			cleanup();
 		};
-	}, [buffer, element, shouldBuffer]);
+	}, [buffer, element, isPremounting, shouldBuffer]);
 };
