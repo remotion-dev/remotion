@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.137",
+	"version": "4.0.139",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -67,7 +67,7 @@
 		"lottie-web": "5.12.2",
 		"opentype.js": "^1.3.4",
 		"polished": "^4.0.5",
-		"prettier": "3.1.1",
+		"prettier": "3.2.5",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-is": "^18.2.0",
@@ -80,7 +80,7 @@
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {
-		"eslint": "8.42.0",
+		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",

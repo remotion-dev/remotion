@@ -8,14 +8,14 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useNonce} from './nonce.js';
 import {
 	TimelineContext,
 	useTimelinePosition,

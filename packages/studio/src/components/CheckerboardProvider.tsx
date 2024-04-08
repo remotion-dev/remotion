@@ -6,7 +6,7 @@ import {
 } from '../state/checkerboard';
 
 export const CheckerboardProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption(),

@@ -1,7 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {ModalsContext} from '../state/modals';
-import {Flex} from './layout';
 import {CancelButton} from './NewComposition/CancelButton';
+import {Flex} from './layout';
 
 const container: React.CSSProperties = {
 	display: 'flex',

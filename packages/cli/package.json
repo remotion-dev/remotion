@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.137",
+	"version": "4.0.139",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -52,7 +52,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/minimist": "^1.2.2",
 		"bun-types": "0.8.0",
 		"@types/node": "18.14.6",
@@ -62,11 +62,11 @@
 		"@types/react-dom": "18.2.18",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
-		"eslint": "8.42.0",
+		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier": "3.1.1",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",

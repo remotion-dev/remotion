@@ -7,7 +7,7 @@ import type {
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {SOURCE_MAP_ENDPOINT, getProjectName} from '@remotion/studio-shared';
 import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
@@ -77,7 +77,7 @@ const handleFallback = async ({
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
-			baseDir: '/',
+			publicPath: '/',
 			editorName: displayName,
 			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
@@ -355,7 +355,7 @@ export const handleRoutes = ({
 		}
 	}
 
-	if (url.pathname === '/remotion.png') {
+	if (url.pathname === '/favicon.ico') {
 		return handleFavicon(request, response);
 	}
 

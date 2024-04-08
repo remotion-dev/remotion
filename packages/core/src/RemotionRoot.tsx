@@ -5,11 +5,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {BufferingProvider} from './buffering.js';
 import {CompositionManagerProvider} from './CompositionManager.js';
-import {continueRender, delayRender} from './delay-render.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {NativeLayersProvider} from './NativeLayers.js';
+import {BufferingProvider} from './buffering.js';
+import {continueRender, delayRender} from './delay-render.js';
 import type {TNonceContext} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -20,9 +20,9 @@ import type {
 	TimelineContextValue,
 } from './timeline-position-state.js';
 import {
-	getInitialFrameState,
 	SetTimelineContext,
 	TimelineContext,
+	getInitialFrameState,
 } from './timeline-position-state.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 

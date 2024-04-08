@@ -1,8 +1,8 @@
 import type {z} from 'zod';
 import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
-import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
+import {Spacing} from '../../layout';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
 const explainer: React.CSSProperties = {

@@ -11,17 +11,17 @@ import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {Spacing} from '../layout';
-import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
+import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
-	fullScreenOverlay,
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
+	fullScreenOverlay,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
 	outerPortal,
 } from '../Menu/styles';
+import {Spacing} from '../layout';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {

@@ -21,8 +21,8 @@ import {
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {
-	CurrentComposition,
 	CURRENT_COMPOSITION_HEIGHT,
+	CurrentComposition,
 } from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 

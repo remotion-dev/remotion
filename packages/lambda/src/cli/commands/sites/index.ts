@@ -2,10 +2,10 @@ import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
-import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
-import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
-import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
-import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
+import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
+import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';
+import {SITES_RM_COMMAND, sitesRmSubcommand} from './rm';
+import {SITES_RMALL_COMMAND, sitesRmallSubcommand} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 

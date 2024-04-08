@@ -3,8 +3,8 @@ import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
 import {
-	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
+	getTimelineSequenceLayout,
 } from '../../helpers/get-timeline-sequence-layout';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';

@@ -27,8 +27,8 @@
     "@types/node": "18.14.6"
   },
   "dependencies": {
-    "turbo": "1.12.5",
-    "typescript": "4.9.5"
+    "turbo": "1.13.2",
+    "typescript": "5.3.3"
   },
   "workspaces": [
     "packages/*"

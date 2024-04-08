@@ -20,11 +20,11 @@ import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
-import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import {assert} from './assert';
 import {
 	formatChromeMessage,
 	shouldLogBrowserMessage,
@@ -112,7 +112,7 @@ export class BrowserRunner {
 					}
 
 					const {output, tag} = formatted;
-					Log.verbose(
+					Log.error(
 						{indent: options.indent, logLevel: options.logLevel, tag},
 						output,
 					);

@@ -18,7 +18,11 @@ This project is released with a [Contributor Code of Conduct](https://remotion.d
 
 ## Setup
 
-<Step>1</Step> Remotion uses <a href="https://pnpm.io/"><code>pnpm</code></a> as the package manager for development in this repository. We recommend using Corepack so you get the same version of pnpm as we have. <br/><br/>
+<Step>1</Step> Remotion uses <a href="https://pnpm.io/">
+  <code>pnpm</code>
+</a> as the package manager for development in this repository. We recommend using
+Corepack so you get the same version of pnpm as we have. <br />
+<br />
 
 ```sh
 corepack enable
@@ -32,7 +36,11 @@ npm i -g pnpm@8.10.2
 
 Prefix with `sudo` if necessary.
 
-<Step>2</Step> Clone the Remotion repository:<br/>
+We use [Bun](https://bun.sh) to speed up some parts of the build.  
+Install at least Bun 1.1.1 on your system - see https://bun.sh/ for instructions.
+
+<Step>2</Step> Clone the Remotion repository:
+<br />
 
 ```sh
 git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
@@ -42,13 +50,15 @@ git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
 The full Git history of Remotion is large. To save time and disk space, we recommend adding `--depth=1` to only clone the most recent `main` branch.
 :::
 
-<Step>3</Step> Install all dependencies:<br/>
+<Step>3</Step> Install all dependencies:
+<br />
 
 ```sh
 pnpm i
 ```
 
-<Step>4</Step> Build the project initially:<br/>
+<Step>4</Step> Build the project initially:
+<br />
 
 ```sh
 pnpm build

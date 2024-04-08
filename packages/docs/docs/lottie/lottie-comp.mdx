@@ -112,6 +112,14 @@ const Comp: React.FC = () => {
 };
 ```
 
+### `assetsPath`<AvailableFrom v="4.0.138" />
+
+_optional_
+
+Set the Lottie [`assetsPath`](https://github.com/airbnb/lottie-web/wiki/loadAnimation-options#assetspath) option. Example: `staticFile('lottie')` will take assets from the `public/lottie` folder.
+
+In a Lottie JSON in the `assets` array, you can reference assets either externally or internally. If `e: 0`, the assets will be prefixed with `assetsPath` (ideal if you put the image into your `public` folder). If `e: 1`, the assets will be loaded from the absolute URL specified in the JSON.
+
 ## See also
 
 - [`@remotion/rive`](/docs/rive)

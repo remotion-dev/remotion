@@ -29,35 +29,35 @@ import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 
 export {
-	getAwsClient,
 	GetAwsClientInput,
 	GetAwsClientOutput,
+	getAwsClient,
 } from './api/get-aws-client';
 export {CustomCredentials} from './shared/aws-clients';
 export {
-	renderVideoOnLambda,
-	renderMediaOnLambda,
-	renderStillOnLambda,
-	getRenderProgress,
-	getFunctions,
-	validateWebhookSignature,
-	getCompositionsOnLambda,
-	presignUrl,
-	getSites,
-	speculateFunctionName,
 	DeleteAfter,
 	deleteRender,
+	getCompositionsOnLambda,
+	getFunctions,
+	getRenderProgress,
+	getSites,
+	presignUrl,
+	renderMediaOnLambda,
+	renderStillOnLambda,
+	renderVideoOnLambda,
+	speculateFunctionName,
+	validateWebhookSignature,
 };
 export type {
 	AwsRegion,
-	RenderProgress,
-	SpeculateFunctionNameInput,
-	WebhookPayload,
+	DeleteRenderInput,
+	GetRenderProgressInput,
 	PresignUrlInput,
-	RenderStillOnLambdaInput,
-	RenderStillOnLambdaOutput,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
-	GetRenderProgressInput,
-	DeleteRenderInput,
+	RenderProgress,
+	RenderStillOnLambdaInput,
+	RenderStillOnLambdaOutput,
+	SpeculateFunctionNameInput,
+	WebhookPayload,
 };

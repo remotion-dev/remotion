@@ -8,10 +8,10 @@ import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
-	chunkKeyForIndex,
 	LambdaRoutines,
-	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
+	chunkKeyForIndex,
+	lambdaTimingsKey,
 } from '../shared/constants';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {truthy} from '../shared/truthy';

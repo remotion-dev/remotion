@@ -4,17 +4,17 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import {createZodValues} from './create-zod-values';
-import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {createZodValues} from './create-zod-values';
+import {deepEqual} from './deep-equal';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;

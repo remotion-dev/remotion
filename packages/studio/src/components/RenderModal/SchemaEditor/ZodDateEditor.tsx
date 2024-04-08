@@ -1,14 +1,14 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
+import {Spacing} from '../../layout';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',

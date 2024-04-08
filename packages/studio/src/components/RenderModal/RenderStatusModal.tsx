@@ -2,13 +2,13 @@ import React, {useCallback, useContext} from 'react';
 import {makeRetryPayload} from '../../helpers/retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {Flex, SPACING_UNIT} from '../layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {Flex, SPACING_UNIT} from '../layout';
 import {GuiRenderStatus} from './GuiRenderStatus';
 
 const container: React.CSSProperties = {

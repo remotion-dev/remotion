@@ -3,11 +3,11 @@ import Layout from "@theme/Layout";
 import React from "react";
 import { VideoApps } from "../../../components/LambdaSplash/VideoApps";
 import { VideoAppsTitle } from "../../../components/LambdaSplash/VideoAppsTitle";
-import { PlayerFeatures } from "../../../components/Player/features";
 import { PlayerPageFooter } from "../../../components/Player/Footer";
 import { LandingHeader } from "../../../components/Player/LandingHeader";
 import { PoweredByRemotion } from "../../../components/Player/PoweredByRemotion";
 import { WrappedBanner } from "../../../components/Player/Wrapped";
+import { PlayerFeatures } from "../../../components/Player/features";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,

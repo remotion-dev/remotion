@@ -18,19 +18,10 @@ import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
-import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
-import type {
-	AttachedToTargetEvent,
-	BindingCalledEvent,
-	ConsoleAPICalledEvent,
-	EntryAddedEvent,
-	SetDeviceMetricsOverrideRequest,
-	StackTrace,
-} from './devtools-types';
 import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -45,10 +36,19 @@ import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
 import type {Viewport} from './PuppeteerViewport';
-import type {SourceMapGetter} from './source-map-getter';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
+import {assert} from './assert';
+import type {
+	AttachedToTargetEvent,
+	BindingCalledEvent,
+	ConsoleAPICalledEvent,
+	EntryAddedEvent,
+	SetDeviceMetricsOverrideRequest,
+	StackTrace,
+} from './devtools-types';
+import type {SourceMapGetter} from './source-map-getter';
 import {
 	evaluationString,
 	isErrorLike,

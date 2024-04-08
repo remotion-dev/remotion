@@ -4,9 +4,9 @@ import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
 import {
-	TimelineZoomCtx,
 	TIMELINE_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
+	TimelineZoomCtx,
 } from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';

@@ -1,5 +1,5 @@
 import {Lottie} from '@remotion/lottie';
-import {AbsoluteFill, useVideoConfig} from 'remotion';
+import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
 
 const lottie = {
 	v: '5.5.2',
@@ -16,8 +16,8 @@ const lottie = {
 			w: 500,
 			h: 500,
 			u: '',
-			p: 'https://www.remotion.dev/img/new-logo.png',
-			e: 1,
+			p: 'new-logo.png',
+			e: 0,
 		},
 	],
 	layers: [
@@ -53,6 +53,7 @@ const ImageInLottie = () => {
 		<AbsoluteFill style={{height, width}}>
 			<Lottie
 				loop
+				assetsPath={staticFile('lottie/')}
 				animationData={lottie}
 				playbackRate={10}
 				style={{height: 200}}

@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
-import {Row, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {Row, Spacing} from '../layout';
 import {InlineEyeButton} from './InlineEyeIcon';
 import {InlineRemoveButton} from './InlineRemoveButton';
 import {optionRow} from './layout';

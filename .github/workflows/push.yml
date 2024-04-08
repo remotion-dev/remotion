@@ -16,6 +16,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.1
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -63,6 +66,8 @@ jobs:
         with:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.1
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -107,6 +112,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.1
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -153,6 +161,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.1
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:

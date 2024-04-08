@@ -6,12 +6,12 @@ import {FAIL_COLOR} from '../../helpers/colors';
 import {setUnsavedProps} from '../../helpers/document-title';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from '../Button';
-import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {Flex, Row, Spacing} from '../layout';
 import type {State} from './DataEditor';
-import {deepEqual} from './SchemaEditor/deep-equal';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
+import {deepEqual} from './SchemaEditor/deep-equal';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',

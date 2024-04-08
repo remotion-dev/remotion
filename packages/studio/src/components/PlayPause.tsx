@@ -34,9 +34,9 @@ const iconButton: React.CSSProperties = {
 };
 
 export const PlayPause: React.FC<{
-	playbackRate: number;
-	loop: boolean;
-	bufferStateDelayInMilliseconds: number;
+	readonly playbackRate: number;
+	readonly loop: boolean;
+	readonly bufferStateDelayInMilliseconds: number;
 }> = ({playbackRate, loop, bufferStateDelayInMilliseconds}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -291,7 +291,7 @@ export const PlayPause: React.FC<{
 
 			stopped = true;
 		};
-	}, [emitter]);
+	}, [bufferStateDelayInMilliseconds, emitter]);
 
 	return (
 		<>

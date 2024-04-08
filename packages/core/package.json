@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "4.0.137",
+	"version": "4.0.139",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -26,16 +26,16 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "14.0.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
-		"eslint": "8.42.0",
+		"eslint": "8.56.0",
 		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "21.1.0",
-		"prettier": "3.1.1",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",

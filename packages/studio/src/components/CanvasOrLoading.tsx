@@ -6,12 +6,12 @@ import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';
-import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {ZoomPersistor} from './ZoomPersistor';
+import {Spacing} from './layout';
 
 const container: React.CSSProperties = {
 	color: 'white',

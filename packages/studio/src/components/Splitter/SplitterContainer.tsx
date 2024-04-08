@@ -14,7 +14,7 @@ const containerRow: React.CSSProperties = {
 	height: '100%',
 };
 
-const containerColumn: React.CSSProperties = {
+export const containerColumn: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
@@ -22,12 +22,12 @@ const containerColumn: React.CSSProperties = {
 };
 
 export const SplitterContainer: React.FC<{
-	orientation: SplitterOrientation;
-	maxFlex: number;
-	minFlex: number;
-	id: string;
-	defaultFlex: number;
-	children: React.ReactNode;
+	readonly orientation: SplitterOrientation;
+	readonly maxFlex: number;
+	readonly minFlex: number;
+	readonly id: string;
+	readonly defaultFlex: number;
+	readonly children: React.ReactNode;
 }> = ({orientation, children, defaultFlex, maxFlex, minFlex, id}) => {
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(

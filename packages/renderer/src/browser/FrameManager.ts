@@ -23,11 +23,11 @@ import type {
 	AttachedToTargetEvent,
 	DetachedFromTargetEvent,
 	ExecutionContextDescription,
-	Frame as TFrame,
 	FrameDetachedEvent,
 	FrameDetachedEventReason,
 	FrameTree,
 	LifecycleEventEvent,
+	Frame as TFrame,
 } from './devtools-types';
 import {DOMWorld} from './DOMWorld';
 import type {

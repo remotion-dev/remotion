@@ -4,10 +4,10 @@ export {
 	ApiRoutes,
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
-	CancelRenderRequest,
-	CancelRenderResponse,
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse,
+	CancelRenderRequest,
+	CancelRenderResponse,
 	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	ProjectInfoRequest,
@@ -36,8 +36,8 @@ export type {GitSource} from './git-source';
 export {
 	HotMiddlewareMessage,
 	HotMiddlewareOptions,
-	hotMiddlewareOptions,
 	ModuleMap,
+	hotMiddlewareOptions,
 } from './hot-middleware';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {PackageManager} from './package-manager';
@@ -49,10 +49,10 @@ export {
 	CopyingState,
 	DownloadProgress,
 	JobProgressCallback,
-	RenderingProgressInput,
 	RenderJob,
 	RenderJobWithCleanup,
 	RenderStep,
+	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,
 	UiOpenGlOptions,

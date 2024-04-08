@@ -42,6 +42,8 @@ export const combineVideoStreams = async ({
 	const fileListTxt = join(filelistDir, 'video-files.txt');
 	writeFileSync(fileListTxt, fileList);
 
+	const encoder = codec === 'gif' ? 'gif' : 'copy';
+
 	const command = [
 		'-hide_banner',
 		'-r',
@@ -58,7 +60,9 @@ export const combineVideoStreams = async ({
 			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
 		'-an',
 		'-c:v',
-		codec === 'gif' ? 'gif' : 'copy',
+		encoder,
+		encoder === 'gif' ? '-filter_complex' : null,
+		encoder === 'gif' ? 'split[v],palettegen,[v]paletteuse' : null,
 		codec === 'h264' ? '-movflags' : null,
 		codec === 'h264' ? 'faststart' : null,
 		addRemotionMetadata ? `-metadata` : null,
@@ -67,10 +71,14 @@ export const combineVideoStreams = async ({
 		output,
 	].filter(truthy);
 
+	const doesReencode = encoder !== 'copy';
+
 	const startTime = Date.now();
 	Log.verbose(
 		{indent, logLevel},
-		`Combining video without re-encoding, command: ${command.join(' ')}`,
+		`Combining video ${
+			doesReencode ? 'with reencoding' : 'without reencoding'
+		}, command: ${command.join(' ')}`,
 	);
 
 	try {

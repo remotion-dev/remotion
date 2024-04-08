@@ -5,8 +5,8 @@ import Layout from "@theme/Layout";
 import { CreateVideoInternals } from "create-video";
 import React from "react";
 import { IconForTemplate } from "../../components/IconForTemplate";
-import { SkiaIcon } from "../../components/icons/skia";
 import { Seo } from "../../components/Seo";
+import { SkiaIcon } from "../../components/icons/skia";
 import styles from "./styles.module.css";
 
 const content: React.CSSProperties = {
@@ -54,9 +54,9 @@ const descriptionStyle: React.CSSProperties = {
 };
 
 const Item: React.FC<{
-  label: string;
-  description: React.ReactNode;
-  children: React.ReactNode;
+  readonly label: string;
+  readonly description: React.ReactNode;
+  readonly children: React.ReactNode;
 }> = ({ children, label, description }) => {
   return (
     <div>

@@ -1,7 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
 	ComboboxValue,
@@ -10,8 +9,9 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
-import {inOutHandles} from '../components/TimelineInOutToggle';
 import {timeValueRef} from '../components/TimeValue';
+import {inOutHandles} from '../components/TimelineInOutToggle';
+import {Row} from '../components/layout';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
 import {canvasRef} from '../state/canvas-ref';

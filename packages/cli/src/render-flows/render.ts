@@ -25,8 +25,8 @@ import type {
 	CopyingState,
 	DownloadProgress,
 	JobProgressCallback,
-	RenderingProgressInput,
 	RenderStep,
+	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
 import fs, {existsSync} from 'node:fs';

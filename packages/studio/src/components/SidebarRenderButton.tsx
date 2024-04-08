@@ -21,8 +21,8 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 export const SidebarRenderButton: React.FC<{
-	composition: AnyCompMetadata;
-	visible: boolean;
+	readonly composition: AnyCompMetadata;
+	readonly visible: boolean;
 }> = ({composition, visible}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
@@ -91,13 +91,21 @@ export const SidebarRenderButton: React.FC<{
 				initialRepro: defaults.repro,
 				initialForSeamlessAacConcatenation:
 					defaults.forSeamlessAacConcatenation,
+				renderTypeOfLastRender: null,
 			});
 
 			if (isMobileLayout) {
 				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
 			}
 		},
-		[composition.defaultProps, composition.id, props, setSelectedModal],
+		[
+			composition.defaultProps,
+			composition.id,
+			isMobileLayout,
+			props,
+			setSelectedModal,
+			setSidebarCollapsedState,
+		],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(

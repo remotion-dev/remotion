@@ -2,15 +2,15 @@ import React, {useCallback, useMemo} from 'react';
 import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
-import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 const container: React.CSSProperties = {
 	width: '100%',

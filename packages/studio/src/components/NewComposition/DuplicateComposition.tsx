@@ -6,13 +6,13 @@ import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {Spacing} from '../layout';
 import {NewCompHeader} from '../ModalHeader';
-import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
+import {label, optionRow, rightRow} from '../RenderModal/layout';
+import {Spacing} from '../layout';
 import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
@@ -209,10 +209,14 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 		type,
 	]);
 
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
+		e.preventDefault();
+	}, []);
+
 	return (
 		<>
 			<NewCompHeader title={`Duplicate ${resolved.result.id}`} />
-			<form>
+			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{initialCompType === 'composition' ? (
 						// We allow converting from a composition to a still, but
@@ -366,7 +370,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 };
 
 export const DuplicateComposition: React.FC<{
-	compositionId: string;
+	readonly compositionId: string;
 }> = ({compositionId}) => {
 	return (
 		<DismissableModal>

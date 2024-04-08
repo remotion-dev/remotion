@@ -231,15 +231,11 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							{/**
-						// @ts-expect-error	*/}
 							<UppercasePrevPresentation
 								passedProps={prevPresentation.props ?? {}}
 								presentationDirection="entering"
@@ -263,8 +259,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercasePrevPresentation
 							passedProps={prevPresentation.props ?? {}}
 							presentationDirection="entering"
@@ -287,8 +281,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
