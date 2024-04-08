@@ -4,7 +4,7 @@
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.137",
+	"version": "4.0.138",
 	"description": "A set of animation utilities for Remotion",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -20,7 +20,11 @@
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
-	"files": ["dist", "!dist/tsconfig-esm.tsbuildinfo", "!dist/test"],
+	"files": [
+		"dist",
+		"!dist/tsconfig-esm.tsbuildinfo",
+		"!dist/test"
+	],
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
@@ -47,5 +51,8 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"keywords": ["remotion", "animation-utils"]
+	"keywords": [
+		"remotion",
+		"animation-utils"
+	]
 }

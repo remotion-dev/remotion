@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/paths",
-	"version": "4.0.137",
+	"version": "4.0.138",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -27,7 +27,11 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"vitest": "0.31.1"
 	},
-	"keywords": ["svg", "path", "utilities"],
+	"keywords": [
+		"svg",
+		"path",
+		"utilities"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

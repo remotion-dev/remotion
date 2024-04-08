@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "4.0.137",
+	"version": "4.0.138",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -75,10 +75,18 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"defaults": ["dist/defaults.d.ts"],
-			"regions": ["dist/regions.d.ts"],
-			"policies": ["dist/api/iam-validation/suggested-policy.d.ts"],
-			"client": ["dist/client.d.ts"]
+			"defaults": [
+				"dist/defaults.d.ts"
+			],
+			"regions": [
+				"dist/regions.d.ts"
+			],
+			"policies": [
+				"dist/api/iam-validation/suggested-policy.d.ts"
+			],
+			"client": [
+				"dist/client.d.ts"
+			]
 		}
 	}
 }

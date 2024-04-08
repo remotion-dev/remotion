@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "4.0.137",
+	"version": "4.0.138",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -58,7 +58,13 @@
 		"@remotion/compositor-linux-x64-musl": "workspace:*",
 		"@remotion/compositor-win32-x64-msvc": "workspace:*"
 	},
-	"keywords": ["remotion", "ffmpeg", "video", "react", "player"],
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

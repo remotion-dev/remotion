@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "4.0.137",
+	"version": "4.0.138",
 	"description": "Noise effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -49,7 +49,10 @@
 		"rollup": "^2.70.1",
 		"vitest": "0.31.1"
 	},
-	"keywords": ["remotion", "noise"],
+	"keywords": [
+		"remotion",
+		"noise"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
