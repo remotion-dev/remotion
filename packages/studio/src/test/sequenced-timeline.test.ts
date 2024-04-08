@@ -156,7 +156,6 @@ const sequences: TSequence[] = [
 		showInTimeline: true,
 		nonce: 11,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -171,7 +170,6 @@ const sequences: TSequence[] = [
 		showInTimeline: true,
 		nonce: 211,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -192,7 +190,6 @@ const sequences: TSequence[] = [
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -207,7 +204,6 @@ const sequences: TSequence[] = [
 		showInTimeline: true,
 		nonce: 213,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -228,7 +224,6 @@ const sequences: TSequence[] = [
 		startMediaFrom: 330,
 		doesVolumeChange: false,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -243,7 +238,6 @@ const sequences: TSequence[] = [
 		showInTimeline: true,
 		nonce: 215,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 	{
@@ -258,7 +252,6 @@ const sequences: TSequence[] = [
 		showInTimeline: true,
 		nonce: 216,
 		stack: null,
-		premountDisplay: null,
 		loopDisplay: undefined,
 	},
 ];
