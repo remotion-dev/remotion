@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-premounting.png
 title: Premounting
 slug: /player/premounting
 crumb: "@remotion/player"
@@ -35,6 +36,12 @@ Premounting is the practice of mounting a component with assets to load earlier 
       The video is mounted earlier to give it some time to load.
       <br />
       It carries the style <code>opacity: 0</code> to make it invisible.
+      <br />
+      It's time defined by{" "}
+      <a href="/docs/use-current-frame">
+        <code>useCurrentFrame()</code>
+      </a>{" "}
+      is frozen at <code>0</code>.
     </em>
   </sub>
 </p>
@@ -42,7 +49,7 @@ Premounting is the practice of mounting a component with assets to load earlier 
 ## Preloading a `<Sequence>`
 
 Use premounting sparingly since having more elements mounted will slow down the page.  
-Add the `premountFor` prop to the `<Sequence>` component to enable premounting.
+Add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/docs/sequence) component to enable premounting.
 
 The number you pass is the number in frames you premount the component for.
 
