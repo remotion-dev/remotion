@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "4.0.137",
+	"version": "4.0.139",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -32,7 +32,11 @@
 		"react-dom": "18.2.0",
 		"vitest": "0.31.1"
 	},
-	"keywords": ["svg", "path", "utilities"],
+	"keywords": [
+		"svg",
+		"path",
+		"utilities"
+	],
 	"publishConfig": {
 		"access": "public"
 	},

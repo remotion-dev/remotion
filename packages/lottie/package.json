@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lottie",
-	"version": "4.0.137",
+	"version": "4.0.139",
 	"description": "Remotion Lottie",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -56,7 +56,14 @@
 		"rollup": "^2.70.1",
 		"vitest": "0.31.1"
 	},
-	"keywords": ["remotion", "ffmpeg", "video", "react", "lottie", "player"],
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"lottie",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
