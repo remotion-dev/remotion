@@ -7,10 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
-import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {usePreload} from '../prefetch.js';
 import {useMediaBuffering} from '../use-media-buffering.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
@@ -112,7 +112,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
-	useMediaBuffering(videoRef, pauseWhenBuffering);
+	useMediaBuffering({
+		element: videoRef,
+		shouldBuffer: pauseWhenBuffering,
+		isPremounting: Boolean(parentSequence?.premounting),
+	});
 
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
