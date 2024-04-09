@@ -11,6 +11,7 @@ export const fitText = ({
 	fontWeight,
 	letterSpacing,
 	validateFontIsLoaded,
+	additionalElementStyles,
 }: {
 	text: string;
 	withinWidth: number;
@@ -19,6 +20,7 @@ export const fitText = ({
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
 	validateFontIsLoaded?: boolean;
+	additionalElementStyles?: ModifyableCSSProperties;
 }) => {
 	const estimate = measureText({
 		text,
