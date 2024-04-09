@@ -86,7 +86,7 @@ If set to `true`, will take a second measurement with the fallback font and if i
 
 _object, optional_
 
-Pass this option if you want to add additional CSS properties to the text element that could affect the resulting size.
+Additional CSS properties that affect the layout of the text.
 
 ## Return value
 

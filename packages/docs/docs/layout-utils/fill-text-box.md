@@ -80,7 +80,7 @@ _string_
 
 Same as CSS style `font-variant-numeric`.
 
-### `textTransform`<AvailableFrom v="4.0.140"/>
+#### `textTransform`<AvailableFrom v="4.0.140"/>
 
 _string_
 
@@ -91,6 +91,12 @@ Same as CSS style `text-transform`.
 _boolean_
 
 If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
+#### `additionalStyles`<AvailableFrom v="4.0.140"/>
+
+_object, optional_
+
+Additional CSS properties that affect the layout of the text.
 
 ### Return value
 
