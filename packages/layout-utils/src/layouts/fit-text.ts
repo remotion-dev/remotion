@@ -1,3 +1,4 @@
+import type {ModifyableCSSProperties} from '../layouts/measure-text';
 import {measureText} from '../layouts/measure-text';
 
 const sampleSize = 100;
