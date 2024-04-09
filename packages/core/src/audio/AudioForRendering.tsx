@@ -20,7 +20,7 @@ import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
-	onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -62,6 +62,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		name,
 		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 		...nativeProps
 	} = props;
 
@@ -142,7 +144,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const newHandle = delayRender('Loading <Audio> duration with src=' + src);
+		const newHandle = delayRender('Loading <Audio> duration with src=' + src, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 		const {current} = audioRef;
 
 		const didLoad = () => {
@@ -165,7 +170,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			current?.removeEventListener('loadedmetadata', didLoad);
 			continueRender(newHandle);
 		};
-	}, [src, onDuration, needsToRenderAudioTag]);
+	}, [
+		src,
+		onDuration,
+		needsToRenderAudioTag,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	]);
 
 	if (!needsToRenderAudioTag) {
 		return null;

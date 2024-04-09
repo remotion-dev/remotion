@@ -1,12 +1,12 @@
 export type {TRenderAsset} from './CompositionManager';
+export type {ClipRegion} from './NativeLayers';
 export {
 	EasingFunction,
 	ExtrapolateType,
-	interpolate,
 	InterpolateOptions,
+	interpolate,
 } from './interpolate';
-export type {ClipRegion} from './NativeLayers';
-export {random, RandomSeed} from './random.js';
+export {RandomSeed, random} from './random.js';
 export type {VideoConfig} from './video-config';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,

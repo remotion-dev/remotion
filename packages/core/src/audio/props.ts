@@ -22,4 +22,6 @@ export type RemotionAudioProps = Omit<
 	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
+	delayRenderTimeoutInMilliseconds?: number;
+	delayRenderRetries?: number;
 };

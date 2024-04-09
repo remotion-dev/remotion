@@ -28,7 +28,7 @@ import type {RemotionVideoProps} from './props.js';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
-	onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -44,6 +44,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		name,
 		acceptableTimeShiftInSeconds,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 		...props
 	},
 	ref,
@@ -155,7 +157,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			startFrom: -mediaStartsAt,
 			fps: videoConfig.fps,
 		});
-		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
@@ -228,6 +233,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		mediaStartsAt,
 		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 	]);
 
 	const {src} = props;
