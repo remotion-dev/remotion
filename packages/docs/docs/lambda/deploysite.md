@@ -66,6 +66,11 @@ _optional_
 
 Specify the subfolder in your S3 bucket that you want the site to deploy to. If you omit this property, a new subfolder with a random name will be created. If a site already exists with the name you passed, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
+### `logLevel?`<AvailableFrom v="4.0.140"/>
+
+_optional_
+<Options id="log "/>
+
 ### `options?`
 
 _optional_

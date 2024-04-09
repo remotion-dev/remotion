@@ -23,6 +23,7 @@ type InternalDeployServiceInput = {
 	projectID: string;
 	region: string;
 	logLevel: LogLevel;
+	indent: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -151,5 +152,6 @@ export const deployService = ({
 		projectID,
 		region,
 		logLevel: logLevel ?? 'info',
+		indent: false,
 	});
 };

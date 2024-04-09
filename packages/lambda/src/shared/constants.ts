@@ -397,7 +397,7 @@ export type LambdaPayloads = {
 		composition: string;
 		inputProps: SerializedInputProps;
 		imageFormat: StillImageFormat;
-		envVariables: Record<string, string> | undefined;
+		envVariables: Record<string, string>;
 		attempt: number;
 		jpegQuality: number | undefined;
 		maxRetries: number;

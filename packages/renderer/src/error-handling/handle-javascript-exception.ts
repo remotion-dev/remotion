@@ -114,6 +114,7 @@ export const handleJavascriptException = ({
 			frame,
 			name: errorType,
 			stack: exception.exceptionDetails.exception?.description,
+			page,
 		});
 		onError(symbolicatedErr);
 	};

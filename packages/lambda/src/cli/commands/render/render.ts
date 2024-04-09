@@ -325,6 +325,7 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
+		indent: false,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
@@ -527,6 +528,7 @@ export const renderCommand = async (
 					name: err.name,
 					stack: err.stack,
 					stackFrame: frames,
+					page: null,
 				});
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}

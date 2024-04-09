@@ -1,15 +1,16 @@
 export type {TRenderAsset} from './CompositionManager';
-export type {ClipRegion} from './NativeLayers';
 export {
 	EasingFunction,
 	ExtrapolateType,
-	InterpolateOptions,
 	interpolate,
+	InterpolateOptions,
 } from './interpolate';
-export {RandomSeed, random} from './random.js';
+export type {ClipRegion} from './NativeLayers';
+export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
 } from './delay-render';
 import {
@@ -40,6 +41,7 @@ export const NoReactInternals = {
 	deserializeJSONWithCustomFields,
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_RETRY_TOKEN,
+	DELAY_RENDER_ATTEMPT_TOKEN: DELAY_RENDER_RETRIES_LEFT,
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,
 };

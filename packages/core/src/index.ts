@@ -44,8 +44,9 @@ declare global {
 		remotion_setFrame: (
 			frame: number,
 			composition: string,
-			retriesLeft: number,
+			attempt: number,
 		) => void;
+		remotion_attempt: number;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;

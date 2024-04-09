@@ -2,12 +2,12 @@ import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
-import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
-import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
-import {renderCommand, RENDER_COMMAND} from './commands/render';
-import {servicesCommand, SERVICES_COMMAND} from './commands/services';
-import {sitesCommand, SITES_COMMAND} from './commands/sites';
-import {stillCommand, STILL_COMMAND} from './commands/still';
+import {PERMISSIONS_COMMAND, permissionsCommand} from './commands/permissions';
+import {REGIONS_COMMAND, regionsCommand} from './commands/regions';
+import {RENDER_COMMAND, renderCommand} from './commands/render';
+import {SERVICES_COMMAND, servicesCommand} from './commands/services';
+import {SITES_COMMAND, sitesCommand} from './commands/sites';
+import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {Log} from './log';
@@ -76,6 +76,7 @@ export const executeCommand = async (
 				name: error.name,
 				stack: error.stack,
 				stackFrame: frames,
+				page: null,
 			});
 			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}

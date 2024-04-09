@@ -165,8 +165,13 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
 		preferLossless: options.preferLossless ?? false,
+		indent: false,
 	};
 };
+
+const wrapped = NoReactAPIs.wrapWithErrorHandling(
+	internalRenderMediaOnLambdaRaw,
+);
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
@@ -190,9 +195,6 @@ export const renderMediaOnLambdaOptionalToRequired = (
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
-	const wrapped = NoReactAPIs.wrapWithErrorHandling(
-		internalRenderMediaOnLambdaRaw,
-	);
 	if (options.quality) {
 		throw new Error(
 			'quality has been renamed to jpegQuality. Please rename the option.',

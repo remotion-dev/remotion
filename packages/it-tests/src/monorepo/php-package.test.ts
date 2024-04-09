@@ -104,6 +104,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     webhook: null,
     x264Preset: null,
     preferLossless: false,
+    indent: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);

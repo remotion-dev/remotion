@@ -1,3 +1,4 @@
+import {cancelRender} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {truthy} from './truthy.js';
 
@@ -11,13 +12,15 @@ if (typeof window !== 'undefined') {
 }
 
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
-export const DELAY_RENDER_RETRY_TOKEN = 'Rendering the frame will be retried.';
+export const DELAY_RENDER_RETRIES_LEFT = 'Retries left: ';
+export const DELAY_RENDER_RETRY_TOKEN =
+	'- Rendering the frame will be retried.';
 
 const defaultTimeout = 30000;
 
 export type DelayRenderOptions = {
 	timeoutInMilliseconds?: number;
-	retry?: boolean;
+	retries?: number;
 };
 
 /**
@@ -43,11 +46,13 @@ export const delayRender = (
 
 	if (getRemotionEnvironment().isRendering) {
 		const timeoutToUse =
-			(options?.timeoutInMilliseconds ?? typeof window === 'undefined'
-				? defaultTimeout
-				: window.remotion_puppeteerTimeout ?? defaultTimeout) - 2000;
-
+			(options?.timeoutInMilliseconds ??
+				(typeof window === 'undefined'
+					? defaultTimeout
+					: window.remotion_puppeteerTimeout ?? defaultTimeout)) - 2000;
 		if (typeof window !== 'undefined') {
+			const retriesLeft =
+				(options?.retries ?? 0) - (window.remotion_attempt - 1);
 			window.remotion_delayRenderTimeouts[handle] = {
 				label: label ?? null,
 				timeout: setTimeout(() => {
@@ -55,14 +60,15 @@ export const delayRender = (
 						`A delayRender()`,
 						label ? `"${label}"` : null,
 						`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
+						retriesLeft > 0 ? DELAY_RENDER_RETRIES_LEFT + retriesLeft : null,
+						retriesLeft > 0 ? DELAY_RENDER_RETRY_TOKEN : null,
 						DELAY_RENDER_CALLSTACK_TOKEN,
-						options?.retry ? DELAY_RENDER_RETRY_TOKEN : null,
 						called,
 					]
 						.filter(truthy)
 						.join(' ');
 
-					throw new Error(message);
+					cancelRender(Error(message));
 				}, timeoutToUse),
 			};
 		}

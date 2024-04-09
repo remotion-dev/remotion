@@ -414,6 +414,7 @@ export const rendererHandler = async (
 		// is a very rare error to occur
 		const isRetryableError = isFlakyError(err as Error);
 
+		// TODO: Conflicts with retryability
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
 		const willRetry =
