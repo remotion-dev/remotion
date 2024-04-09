@@ -30,6 +30,7 @@ export const fitText = ({
 		fontVariantNumeric,
 		letterSpacing,
 		validateFontIsLoaded,
+		additionalElementStyles,
 	});
 	return {fontSize: (withinWidth / estimate.width) * sampleSize};
 };
