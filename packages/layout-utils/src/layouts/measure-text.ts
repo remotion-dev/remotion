@@ -3,8 +3,15 @@ export type Dimensions = {
 	height: number;
 };
 
-export type Word = {
-	text: string;
+export type ModifyableCSSProperties<T = Partial<CSSStyleDeclaration>> = {
+	[P in keyof T as P extends 'length'
+		? never
+		: P extends keyof CSSPropertiesOnWord
+			? never
+			: T[P] extends string | number
+				? P
+				: never]: T[P];
+};
 	fontFamily: string;
 	fontSize: number | string;
 	fontWeight?: number | string;
