@@ -20,8 +20,12 @@ type CSSPropertiesOnWord = {
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
 };
+
+export type Word = {
+	text: string;
 	validateFontIsLoaded?: boolean;
-};
+	additionalElementStyles?: ModifyableCSSProperties;
+} & CSSPropertiesOnWord;
 
 const wordCache = new Map<string, Dimensions>();
 
