@@ -76,6 +76,12 @@ _boolean_
 
 If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
 
+### `additionalElementStyles`
+
+_object, optional_
+
+Pass this option if you want to add additional CSS properties to the text element that could affect the resulting size.
+
 ## Return value
 
 An object with `height` and `width`
