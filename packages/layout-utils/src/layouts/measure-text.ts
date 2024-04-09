@@ -12,11 +12,14 @@ export type ModifyableCSSProperties<T = Partial<CSSStyleDeclaration>> = {
 				? P
 				: never]: T[P];
 };
+
+type CSSPropertiesOnWord = {
 	fontFamily: string;
 	fontSize: number | string;
 	fontWeight?: number | string;
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
+};
 	validateFontIsLoaded?: boolean;
 };
 
