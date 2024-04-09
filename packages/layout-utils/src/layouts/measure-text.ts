@@ -36,6 +36,7 @@ const takeMeasurement = ({
 	fontWeight,
 	letterSpacing,
 	fontVariantNumeric,
+	additionalElementStyles,
 }: Omit<Word, 'fontFamily'> & {fontFamily: string | null}): {
 	boundingBox: DOMRect;
 	computedFontFamily: string;
