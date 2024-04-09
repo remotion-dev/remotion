@@ -1,4 +1,7 @@
-import type {ModifyableCSSProperties} from '../layouts/measure-text';
+import type {
+	ModifyableCSSProperties,
+	TextTransform,
+} from '../layouts/measure-text';
 import {measureText} from '../layouts/measure-text';
 
 const sampleSize = 100;
@@ -11,7 +14,8 @@ export const fitText = ({
 	fontWeight,
 	letterSpacing,
 	validateFontIsLoaded,
-	additionalElementStyles,
+	additionalStyles,
+	textTransform,
 }: {
 	text: string;
 	withinWidth: number;
@@ -20,7 +24,8 @@ export const fitText = ({
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
 	validateFontIsLoaded?: boolean;
-	additionalElementStyles?: ModifyableCSSProperties;
+	textTransform?: TextTransform;
+	additionalStyles?: ModifyableCSSProperties;
 }) => {
 	const estimate = measureText({
 		text,
@@ -30,7 +35,9 @@ export const fitText = ({
 		fontVariantNumeric,
 		letterSpacing,
 		validateFontIsLoaded,
-		additionalElementStyles,
+		textTransform,
+		additionalStyles,
 	});
+
 	return {fontSize: (withinWidth / estimate.width) * sampleSize};
 };

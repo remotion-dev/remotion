@@ -13,18 +13,33 @@ export type ModifyableCSSProperties<T = Partial<CSSStyleDeclaration>> = {
 				: never]: T[P];
 };
 
+export type TextTransform =
+	| '-moz-initial'
+	| 'inherit'
+	| 'initial'
+	| 'revert'
+	| 'revert-layer'
+	| 'unset'
+	| 'none'
+	| 'capitalize'
+	| 'full-size-kana'
+	| 'full-width'
+	| 'lowercase'
+	| 'uppercase';
+
 type CSSPropertiesOnWord = {
 	fontFamily: string;
 	fontSize: number | string;
 	fontWeight?: number | string;
 	letterSpacing?: string;
 	fontVariantNumeric?: string;
+	textTransform?: TextTransform;
 };
 
 export type Word = {
 	text: string;
 	validateFontIsLoaded?: boolean;
-	additionalElementStyles?: ModifyableCSSProperties;
+	additionalStyles?: ModifyableCSSProperties;
 } & CSSPropertiesOnWord;
 
 const wordCache = new Map<string, Dimensions>();
@@ -36,7 +51,8 @@ const takeMeasurement = ({
 	fontWeight,
 	letterSpacing,
 	fontVariantNumeric,
-	additionalElementStyles,
+	additionalStyles,
+	textTransform,
 }: Omit<Word, 'fontFamily'> & {fontFamily: string | null}): {
 	boundingBox: DOMRect;
 	computedFontFamily: string;
@@ -58,11 +74,11 @@ const takeMeasurement = ({
 	node.style.fontSize =
 		typeof fontSize === 'string' ? fontSize : `${fontSize}px`;
 
-	if (additionalElementStyles) {
+	if (additionalStyles) {
 		for (const key of Object.keys(
-			additionalElementStyles,
-		) as (keyof typeof additionalElementStyles)[]) {
-			node.style[key] = additionalElementStyles[key];
+			additionalStyles,
+		) as (keyof typeof additionalStyles)[]) {
+			node.style[key] = additionalStyles[key];
 		}
 	}
 
@@ -76,6 +92,10 @@ const takeMeasurement = ({
 
 	if (fontVariantNumeric) {
 		node.style.fontVariantNumeric = fontVariantNumeric;
+	}
+
+	if (textTransform) {
+		node.style.textTransform = textTransform;
 	}
 
 	node.innerText = text;
@@ -99,7 +119,7 @@ export const measureText = ({
 	letterSpacing,
 	fontVariantNumeric,
 	validateFontIsLoaded,
-	additionalElementStyles,
+	additionalStyles,
 }: Word): Dimensions => {
 	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
 
@@ -114,7 +134,7 @@ export const measureText = ({
 		fontVariantNumeric,
 		fontWeight,
 		letterSpacing,
-		additionalElementStyles,
+		additionalStyles,
 	});
 
 	if (validateFontIsLoaded) {
@@ -128,7 +148,7 @@ export const measureText = ({
 			fontVariantNumeric,
 			fontWeight,
 			letterSpacing,
-			additionalElementStyles,
+			additionalStyles,
 		});
 
 		const sameAsFallbackFont =

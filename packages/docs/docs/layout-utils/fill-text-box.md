@@ -80,6 +80,12 @@ _string_
 
 Same as CSS style `font-variant-numeric`.
 
+### `textTransform`<AvailableFrom v="4.0.140"/>
+
+_string_
+
+Same as CSS style `text-transform`.
+
 #### `validateFontIsLoaded?`<AvailableFrom v="4.0.136"/>
 
 _boolean_
