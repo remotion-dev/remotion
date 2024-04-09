@@ -46,6 +46,7 @@ export const FitText: React.FC<z.infer<typeof fitTextSchema>> = ({line}) => {
 						display: 'flex',
 						alignItems: 'center',
 						color: 'white',
+						textTransform: 'uppercase',
 					}}
 				>
 					{line}
