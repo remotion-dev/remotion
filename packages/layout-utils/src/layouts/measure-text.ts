@@ -99,6 +99,7 @@ export const measureText = ({
 	letterSpacing,
 	fontVariantNumeric,
 	validateFontIsLoaded,
+	additionalElementStyles,
 }: Word): Dimensions => {
 	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}`;
 
@@ -113,6 +114,7 @@ export const measureText = ({
 		fontVariantNumeric,
 		fontWeight,
 		letterSpacing,
+		additionalElementStyles,
 	});
 
 	if (validateFontIsLoaded) {
@@ -126,6 +128,7 @@ export const measureText = ({
 			fontVariantNumeric,
 			fontWeight,
 			letterSpacing,
+			additionalElementStyles,
 		});
 
 		const sameAsFallbackFont =
