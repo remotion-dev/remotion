@@ -247,7 +247,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Video> duration with src=' + src);
+			const newHandle = delayRender(
+				'Loading <Video> duration with src=' + src,
+				{
+					retries: delayRenderRetries ?? undefined,
+					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+				},
+			);
 			const {current} = videoRef;
 
 			const didLoad = () => {
@@ -270,7 +276,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				current?.removeEventListener('loadedmetadata', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src, onDuration]);
+		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
 	return <video ref={videoRef} {...props} onError={onError} />;

@@ -3,7 +3,7 @@ import type {
 	StillImageFormat,
 	ToOptions,
 } from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -170,7 +170,7 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		quality: undefined,
 		region: input.region,
 		serveUrl: input.serveUrl,
-		jpegQuality: input.jpegQuality ?? BrowserSafeApis.DEFAULT_JPEG_QUALITY,
+		jpegQuality: input.jpegQuality ?? 80,
 		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
