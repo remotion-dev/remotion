@@ -1,9 +1,17 @@
-# Add background music
+# Background Music
+
+To overlay your videos with music, you can either add music yourself or use one of the three soundtracks provided by the Remotion Recorder.
+
+## Provided Soundtracks
+
+The Remotion Recorder comes with three songs you can use for free. The songs (provided by [Utope Music](https://utopemusic.com/)) are labeld after their moods `soft`, `euphoric` and `epic`, and can be selected in the right sidebar of the Remotion Studio.
+
+## Add your background music
 
 To add background music, you first have to add songs to the `public/sounds` folder.  
 Then register the track in `remotion/layout/music.ts`.
 
-```tsx filename="remotion/layout/music.ts"
+```tsx filename="remotion/layout/sounds.ts"
 export const music = z.enum([
   "previous",
   "none",
