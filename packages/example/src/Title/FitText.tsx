@@ -20,6 +20,9 @@ export const FitText: React.FC<z.infer<typeof fitTextSchema>> = ({line}) => {
 			text: line,
 			withinWidth: boxWidth,
 			fontWeight,
+			additionalElementStyles: {
+				textTransform: 'uppercase',
+			},
 		}).fontSize,
 	);
 
