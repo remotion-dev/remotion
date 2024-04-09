@@ -121,6 +121,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [DVD Screensaver Tutorial](https://www.youtube.com/watch?v=n69siyttEwM)
 - [Remotion Tutorial by Alfonso Graziano](https://www.youtube.com/watch?v=r4v1J7ozxIg)
 - [Timing animations](https://www.youtube.com/watch?v=WigIALCnEvw)
+- ["Create a video from a podcast with Remotion and AI"](https://www.youtube.com/watch?v=EGxBBL91nRM)
 
 ## Tooling
 
