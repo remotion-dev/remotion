@@ -76,7 +76,7 @@ _boolean_
 
 If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
 
-### `additionalElementStyles`
+### `additionalElementStyles`<AvailableFrom v="4.0.140"/>
 
 _object, optional_
 
