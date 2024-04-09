@@ -53,6 +53,7 @@ export const waitForReady = ({
 							name: 'CancelledError',
 							message: val.split('\n')[0],
 							stackFrame: parseStack(val.split('\n')),
+							page: null,
 						}),
 					);
 				})
@@ -167,7 +168,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds,
 	logLevel,
 	indent,
-	retriesLeft,
+	attempt,
 }: {
 	frame: number;
 	composition: string;
@@ -175,7 +176,7 @@ export const seekToFrame = async ({
 	timeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	indent: boolean;
-	retriesLeft: number;
+	attempt: number;
 }) => {
 	await waitForReady({
 		page,
@@ -185,10 +186,10 @@ export const seekToFrame = async ({
 		logLevel,
 	});
 	await puppeteerEvaluateWithCatchAndTimeout({
-		pageFunction: (f: number, c: string, retries: number) => {
-			window.remotion_setFrame(f, c, retries);
+		pageFunction: (f: number, c: string, a: number) => {
+			window.remotion_setFrame(f, c, a);
 		},
-		args: [frame, composition, retriesLeft],
+		args: [frame, composition, attempt],
 		frame,
 		page,
 		timeoutInMilliseconds,

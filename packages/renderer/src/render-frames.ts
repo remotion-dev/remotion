@@ -23,6 +23,7 @@ import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -35,6 +36,7 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
+import {getRetriesLeftFromError} from './is-delay-render-error-with.retry';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -381,7 +383,7 @@ const innerRenderFrames = async ({
 		height,
 		compId,
 		assetsOnly,
-		retriesLeft,
+		attempt,
 	}: {
 		frame: number;
 		index: number | null;
@@ -390,7 +392,7 @@ const innerRenderFrames = async ({
 		height: number;
 		compId: string;
 		assetsOnly: boolean;
-		retriesLeft: number;
+		attempt: number;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -421,7 +423,7 @@ const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 			indent,
 			logLevel,
-			retriesLeft,
+			attempt,
 		});
 
 		const timeToSeek = Date.now() - startSeeking;
@@ -519,12 +521,17 @@ const innerRenderFrames = async ({
 		pool.release(freePage);
 	};
 
-	const renderFrame = (
-		frame: number,
-		index: number | null,
-		assetsOnly: boolean,
-		retriesLeft: number,
-	) => {
+	const renderFrame = ({
+		frame,
+		index,
+		assetsOnly,
+		attempt,
+	}: {
+		frame: number;
+		index: number | null;
+		assetsOnly: boolean;
+		attempt: number;
+	}) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
 				frame,
@@ -534,7 +541,7 @@ const innerRenderFrames = async ({
 				height: composition.height,
 				compId: composition.id,
 				assetsOnly,
-				retriesLeft,
+				attempt,
 			})
 				.then(() => {
 					resolve();
@@ -557,10 +564,10 @@ const innerRenderFrames = async ({
 		retriesLeft: number;
 		attempt: number;
 		assetsOnly: boolean;
-	}) => {
+	}): Promise<void> => {
 		try {
 			await Promise.race([
-				renderFrame(frame, index, assetsOnly, retriesLeft),
+				renderFrame({frame, index, assetsOnly, attempt}),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -568,16 +575,16 @@ const innerRenderFrames = async ({
 				}),
 			]);
 		} catch (err) {
-			if (isUserCancelledRender(err)) {
+			const isTargetClosedError = isTargetClosedErr(err as Error);
+			const shouldRetryError = (err as Error).stack?.includes(
+				NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
+			);
+
+			if (isUserCancelledRender(err) && !shouldRetryError) {
 				throw err;
 			}
 
-			if (
-				!isTargetClosedErr(err as Error) &&
-				!(err as Error).stack?.includes(
-					NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
-				)
-			) {
+			if (!isTargetClosedError && !shouldRetryError) {
 				throw err;
 			}
 
@@ -586,19 +593,46 @@ const innerRenderFrames = async ({
 			}
 
 			if (retriesLeft === 0) {
-				// TODO: Could also be a retry
-				// TODO: Use Log.warn
-				console.warn(
+				Log.warn(
+					{
+						indent,
+						logLevel,
+					},
 					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 				);
 				throw err;
 			}
 
-			// TODO: Could also be a retry
-			// TODO: Use Log.warn
-			console.warn(
+			if (shouldRetryError) {
+				if (!(err instanceof SymbolicateableError) || !err.page) {
+					throw err;
+				}
+
+				const pool = await poolPromise;
+				// Replace the closed page
+				const newPage = await makePage(sourceMapGetter);
+				err.page.close();
+				pool.release(newPage);
+				Log.warn(
+					{indent, logLevel},
+					`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
+				);
+				const actualRetriesLeft = getRetriesLeftFromError(err);
+
+				return renderFrameAndRetryTargetClose({
+					frame,
+					index,
+					retriesLeft: actualRetriesLeft,
+					attempt: attempt + 1,
+					assetsOnly,
+				});
+			}
+
+			Log.warn(
+				{indent, logLevel},
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 			);
+			// Replace the entire browser
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
@@ -866,7 +900,7 @@ const internalRenderFramesRaw = ({
 							return;
 						}
 
-						console.log('Unable to close browser tab', err);
+						Log.error({indent, logLevel}, 'Unable to close browser tab', err);
 					});
 				} else {
 					Promise.resolve(browserInstance)
@@ -877,7 +911,7 @@ const internalRenderFramesRaw = ({
 							if (
 								!(err as Error | undefined)?.message.includes('Target closed')
 							) {
-								console.log('Unable to close browser', err);
+								Log.error({indent, logLevel}, 'Unable to close browser', err);
 							}
 						});
 				}
@@ -946,15 +980,16 @@ export const renderFrames = (
 		);
 	}
 
-	if (quality) {
-		console.warn(
-			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
-		);
-	}
-
 	const logLevel: LogLevel =
 		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
 	const indent = false;
+
+	if (quality) {
+		Log.warn(
+			{indent, logLevel},
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
+		);
+	}
 
 	return internalRenderFrames({
 		browserExecutable: browserExecutable ?? null,
