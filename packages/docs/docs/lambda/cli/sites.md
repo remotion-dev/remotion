@@ -74,6 +74,10 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
 
+### `--public-dir`<AvailableFrom v="4.0.140" />
+
+<Options id="public-dir" />
+
 ### `--enable-folder-expiry`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry"/>

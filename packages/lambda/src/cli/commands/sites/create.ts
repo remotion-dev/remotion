@@ -26,6 +26,8 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
+const {folderExpiryOption, publicDirOption} = BrowserSafeApis.options;
+
 export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
@@ -106,10 +108,9 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
-	const enableFolderExpiry =
-		BrowserSafeApis.options.folderExpiryOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value;
+	const enableFolderExpiry = folderExpiryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 	const bucketName =
 		cliBucketName ??
@@ -127,11 +128,17 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
 
+	const publicDir = publicDirOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const {serveUrl, siteName, stats} = await deploySite({
 		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
 		options: {
+			publicDir,
+			rootDir: remotionRoot,
 			onBundleProgress: (progress: number) => {
 				multiProgress.bundleProgress = {
 					progress,

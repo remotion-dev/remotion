@@ -6,10 +6,10 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {SequenceContext} from './SequenceContext.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
-import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 
 function exponentialBackoff(errorCount: number): number {
