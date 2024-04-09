@@ -58,6 +58,14 @@ const takeMeasurement = ({
 	node.style.fontSize =
 		typeof fontSize === 'string' ? fontSize : `${fontSize}px`;
 
+	if (additionalElementStyles) {
+		for (const key of Object.keys(
+			additionalElementStyles,
+		) as (keyof typeof additionalElementStyles)[]) {
+			node.style[key] = additionalElementStyles[key];
+		}
+	}
+
 	if (fontWeight) {
 		node.style.fontWeight = fontWeight.toString();
 	}
