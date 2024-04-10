@@ -267,6 +267,10 @@ The S3 bucket in which the video was saved.
 
 An AWS S3 URL where the output is available.
 
+### `outKey`<AvailableFrom v="4.0.141" />
+
+The S3 key where the output is saved.
+
 ### `estimatedPrice`
 
 Object containing roughly estimated information about how expensive this operation was.

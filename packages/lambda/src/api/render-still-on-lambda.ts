@@ -51,6 +51,7 @@ export type RenderStillOnLambdaInput = {
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
 	url: string;
+	outKey: string;
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
@@ -92,6 +93,7 @@ const renderStillOnLambdaRaw = async (
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
+			outKey: res.outKey,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
