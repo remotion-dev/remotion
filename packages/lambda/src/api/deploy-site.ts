@@ -36,6 +36,7 @@ export type DeploySiteInput = {
 	privacy?: 'public' | 'no-acl';
 	gitSource?: GitSource | null;
 	logLevel?: LogLevel;
+	throwIfSiteExists?: boolean;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -56,6 +57,7 @@ const internalDeploySite = async ({
 	region,
 	privacy: passedPrivacy,
 	gitSource,
+	throwIfSiteExists,
 }: DeploySiteInput & {
 	logLevel: LogLevel;
 	indent: boolean;
@@ -103,6 +105,16 @@ const internalDeploySite = async ({
 			gitSource,
 		}),
 	]);
+
+	if (throwIfSiteExists && files.length > 0) {
+		throw new Error(
+			'`throwIfSiteExists` was passed as true, but there are already files in this folder: ' +
+				files
+					.slice(0, 5)
+					.map((f) => f.Key)
+					.join(', '),
+		);
+	}
 
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
