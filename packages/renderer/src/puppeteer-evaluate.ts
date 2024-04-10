@@ -152,8 +152,8 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 				stackFrame: parseStack(
 					(exceptionDetails.exception?.description as string).split('\n'),
 				),
-				page,
 			});
+			page.close();
 			throw err;
 		}
 

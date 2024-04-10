@@ -23,7 +23,6 @@ import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -604,20 +603,15 @@ const innerRenderFrames = async ({
 			}
 
 			if (shouldRetryError) {
-				if (!(err instanceof SymbolicateableError) || !err.page) {
-					throw err;
-				}
-
 				const pool = await poolPromise;
 				// Replace the closed page
 				const newPage = await makePage(sourceMapGetter);
-				err.page.close();
 				pool.release(newPage);
 				Log.warn(
 					{indent, logLevel},
 					`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
 				);
-				const actualRetriesLeft = getRetriesLeftFromError(err);
+				const actualRetriesLeft = getRetriesLeftFromError(err as Error);
 
 				return renderFrameAndRetryTargetClose({
 					frame,

@@ -234,7 +234,6 @@ AWS returned an error message "The security token included in the request is inv
 				name: error.name,
 				stack: error.stack,
 				stackFrame: frames,
-				page: null,
 			});
 			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}

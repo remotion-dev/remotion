@@ -76,7 +76,6 @@ export const executeCommand = async (
 				name: error.name,
 				stack: error.stack,
 				stackFrame: frames,
-				page: null,
 			});
 			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
