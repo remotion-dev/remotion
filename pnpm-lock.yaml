@@ -1310,6 +1310,9 @@ importers:
       '@types/prompt':
         specifier: ^1.1.0
         version: 1.1.2
+      '@types/react':
+        specifier: 18.2.48
+        version: 18.2.48
       eslint:
         specifier: 8.56.0
         version: 8.56.0

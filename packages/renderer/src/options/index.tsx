@@ -28,6 +28,7 @@ import {publicPathOption} from './public-path';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
@@ -69,6 +70,7 @@ export const allOptions = {
 	publicPathOption,
 	publicDirOption,
 	onBrowserDownloadOption,
+	throwIfSiteExistsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

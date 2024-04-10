@@ -1,5 +1,6 @@
 import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
@@ -18,12 +19,15 @@ import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
-export type DeploySiteInput = {
+type MandatoryParameters = {
 	entryPoint: string;
 	bucketName: string;
 	region: AwsRegion;
-	siteName?: string;
-	options?: {
+};
+
+type OptionalParameters = {
+	siteName: string;
+	options: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
@@ -33,10 +37,12 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
-	privacy?: 'public' | 'no-acl';
-	gitSource?: GitSource | null;
-	logLevel?: LogLevel;
-};
+	privacy: 'public' | 'no-acl';
+	gitSource: GitSource | null;
+	indent: boolean;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
+
+export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
@@ -48,26 +54,22 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-const internalDeploySite = async ({
+const mandatoryDeploySite = async ({
 	bucketName,
 	entryPoint,
 	siteName,
 	options,
 	region,
-	privacy: passedPrivacy,
+	privacy,
 	gitSource,
-}: DeploySiteInput & {
-	logLevel: LogLevel;
-	indent: boolean;
-}): DeploySiteOutput => {
+	throwIfSiteExists,
+}: MandatoryParameters & OptionalParameters): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
 	});
 
-	const siteId = siteName ?? randomHash();
-	validateSiteName(siteId);
-	const privacy = passedPrivacy ?? 'public';
+	validateSiteName(siteName);
 	validatePrivacy(privacy, false);
 
 	const accountId = await getAccountId({region});
@@ -81,7 +83,7 @@ const internalDeploySite = async ({
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
 
-	const subFolder = getSitesKey(siteId);
+	const subFolder = getSitesKey(siteName);
 
 	const [files, bundled] = await Promise.all([
 		lambdaLs({
@@ -103,6 +105,16 @@ const internalDeploySite = async ({
 			gitSource,
 		}),
 	]);
+
+	if (throwIfSiteExists && files.length > 0) {
+		throw new Error(
+			'`throwIfSiteExists` was passed as true, but there are already files in this folder: ' +
+				files
+					.slice(0, 5)
+					.map((f) => f.Key)
+					.join(', '),
+		);
+	}
 
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
@@ -140,7 +152,7 @@ const internalDeploySite = async ({
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
-		siteName: siteId,
+		siteName,
 		stats: {
 			uploadedFiles: toUpload.length,
 			deletedFiles: toDelete.length,
@@ -149,19 +161,8 @@ const internalDeploySite = async ({
 	};
 };
 
-const deploySiteRaw = (args: DeploySiteInput) => {
-	return internalDeploySite({
-		bucketName: args.bucketName,
-		entryPoint: args.entryPoint,
-		region: args.region,
-		gitSource: args.gitSource,
-		options: args.options,
-		privacy: args.privacy,
-		siteName: args.siteName,
-		indent: false,
-		logLevel: 'info',
-	});
-};
+export const internalDeploySite =
+	NoReactAPIs.wrapWithErrorHandling(mandatoryDeploySite);
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
@@ -172,6 +173,17 @@ const deploySiteRaw = (args: DeploySiteInput) => {
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deploySite = NoReactAPIs.wrapWithErrorHandling(
-	internalDeploySite,
-) as typeof deploySiteRaw;
+export const deploySite = (args: DeploySiteInput) => {
+	return internalDeploySite({
+		bucketName: args.bucketName,
+		entryPoint: args.entryPoint,
+		region: args.region,
+		gitSource: args.gitSource ?? null,
+		options: args.options ?? {},
+		privacy: args.privacy ?? 'public',
+		siteName: args.siteName ?? randomHash(),
+		indent: false,
+		logLevel: 'info',
+		throwIfSiteExists: args.throwIfSiteExists ?? false,
+	});
+};

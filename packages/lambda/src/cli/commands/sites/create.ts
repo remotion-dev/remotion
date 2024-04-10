@@ -4,10 +4,11 @@ import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import {NoReactInternals} from 'remotion/no-react';
-import {deploySite} from '../../../api/deploy-site';
 import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {LambdaInternals} from '../../../internals';
 import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
+import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -26,7 +27,8 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
-const {folderExpiryOption, publicDirOption} = BrowserSafeApis.options;
+const {folderExpiryOption, publicDirOption, throwIfSiteExistsOption} =
+	BrowserSafeApis.options;
 
 export const sitesCreateSubcommand = async (
 	args: string[],
@@ -132,9 +134,13 @@ export const sitesCreateSubcommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
-	const {serveUrl, siteName, stats} = await deploySite({
+	const throwIfSiteExists = throwIfSiteExistsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName,
+		siteName: desiredSiteName ?? randomHash(),
 		bucketName,
 		options: {
 			publicDir,
@@ -164,9 +170,14 @@ export const sitesCreateSubcommand = async (
 			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 		},
 		region: getAwsRegion(),
-		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
+		privacy:
+			(parsedLambdaCli.privacy as Exclude<Privacy, 'private'>) ?? 'public',
 		gitSource: null,
+		indent: false,
+		logLevel,
+		throwIfSiteExists,
 	});
+
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
 		sizeUploaded: 1,
