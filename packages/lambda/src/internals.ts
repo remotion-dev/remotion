@@ -1,3 +1,4 @@
+import {internalDeploySite} from './api/deploy-site';
 import {
 	getRenderProgressPayload,
 	makeLambdaRenderMediaPayload,
@@ -10,4 +11,5 @@ export const LambdaInternals = {
 	makeLambdaRenderMediaPayload,
 	getRenderProgressPayload,
 	makeLambdaRenderStillPayload,
+	internalDeploySite,
 };
