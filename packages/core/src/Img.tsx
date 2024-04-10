@@ -23,15 +23,28 @@ export type ImgProps = Omit<
 	>,
 	'src'
 > & {
-	maxRetries?: number;
-	pauseWhenLoading?: boolean;
-	src: string;
+	readonly maxRetries?: number;
+	readonly pauseWhenLoading?: boolean;
+	readonly delayRenderRetries?: number;
+	readonly delayRenderTimeoutInMilliseconds?: number;
+	readonly src: string;
 };
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	ImgProps
-> = ({onError, maxRetries = 2, src, pauseWhenLoading, ...props}, ref) => {
+> = (
+	{
+		onError,
+		maxRetries = 2,
+		src,
+		pauseWhenLoading,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		...props
+	},
+	ref,
+) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
@@ -121,7 +134,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
+			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			});
 			const unblock =
 				pauseWhenLoading && !sequenceContext?.premounting
 					? delayPlayback().unblock
@@ -163,6 +179,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		}, [
 			actualSrc,
 			delayPlayback,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
 			pauseWhenLoading,
 			sequenceContext?.premounting,
 		]);

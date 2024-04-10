@@ -1,4 +1,5 @@
 import type {GitSource, WebpackOverrideFn} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
@@ -34,6 +35,7 @@ export type DeploySiteInput = {
 	};
 	privacy?: 'public' | 'no-acl';
 	gitSource?: GitSource | null;
+	logLevel?: LogLevel;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -46,7 +48,7 @@ export type DeploySiteOutput = Promise<{
 	};
 }>;
 
-const deploySiteRaw = async ({
+const internalDeploySite = async ({
 	bucketName,
 	entryPoint,
 	siteName,
@@ -54,7 +56,10 @@ const deploySiteRaw = async ({
 	region,
 	privacy: passedPrivacy,
 	gitSource,
-}: DeploySiteInput): DeploySiteOutput => {
+}: DeploySiteInput & {
+	logLevel: LogLevel;
+	indent: boolean;
+}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
@@ -144,6 +149,20 @@ const deploySiteRaw = async ({
 	};
 };
 
+const deploySiteRaw = (args: DeploySiteInput) => {
+	return internalDeploySite({
+		bucketName: args.bucketName,
+		entryPoint: args.entryPoint,
+		region: args.region,
+		gitSource: args.gitSource,
+		options: args.options,
+		privacy: args.privacy,
+		siteName: args.siteName,
+		indent: false,
+		logLevel: 'info',
+	});
+};
+
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
  * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
@@ -154,5 +173,5 @@ const deploySiteRaw = async ({
  * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deploySite = NoReactAPIs.wrapWithErrorHandling(
-	deploySiteRaw,
+	internalDeploySite,
 ) as typeof deploySiteRaw;

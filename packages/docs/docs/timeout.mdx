@@ -75,6 +75,8 @@ You can increase the default timeout:
 - Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
 - Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds), [`renderStillOnCloudRun()`](/docs/cloudrun/renderstilloncloudrun#delayrendertimeoutinmilliseconds) and [`renderMediaOnCloudRun()`](/docs/cloudrun/rendermediaoncloudrun#delayrendertimeoutinmilliseconds)
 - Using the [`Config.setDelayRenderTimeoutInMilliseconds()`](/docs/config#setdelayrendertimeoutinmilliseconds) option in the config file, if you render on the CLI
+- Individually for a [`delayRender()`](/docs/delay-render) call using the [`timeoutInMilliseconds`](/docs/delay-render#modifying-the-timeout) option<AvailableFrom v="4.0.140"/>
+- The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/audio#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of `timeoutInMilliseconds` for the `delayRender()` call that those components make<AvailableFrom v="4.0.140"/>
 
 ## Adding a label to help debugging<AvailableFrom v="2.6.13"/>
 

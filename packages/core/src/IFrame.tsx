@@ -6,10 +6,25 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	React.DetailedHTMLProps<
 		React.IframeHTMLAttributes<HTMLIFrameElement>,
 		HTMLIFrameElement
-	>
-> = ({onLoad, onError, ...props}, ref) => {
+	> & {
+		readonly delayRenderRetries?: number;
+		readonly delayRenderTimeoutInMilliseconds?: number;
+	}
+> = (
+	{
+		onLoad,
+		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		...props
+	},
+	ref,
+) => {
 	const [handle] = useState(() =>
-		delayRender(`Loading <IFrame> with source ${props.src}`),
+		delayRender(`Loading <IFrame> with source ${props.src}`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		}),
 	);
 
 	const didLoad = useCallback(

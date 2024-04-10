@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
+	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
@@ -53,6 +54,8 @@ type InternalRenderMediaOnCloudrun = {
 	forceHeight?: number | null;
 	concurrency: number | string | null;
 	preferLossless: boolean | undefined;
+	indent: boolean;
+	logLevel: LogLevel;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -381,7 +384,7 @@ export const renderMediaOnCloudrun = ({
 		muted: muted ?? undefined,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
-		logLevel: logLevel ?? undefined,
+		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? undefined,
 		concurrency: concurrency ?? null,
@@ -389,5 +392,6 @@ export const renderMediaOnCloudrun = ({
 		preferLossless: preferLossless ?? undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
 		colorSpace: colorSpace ?? undefined,
+		indent: false,
 	});
 };

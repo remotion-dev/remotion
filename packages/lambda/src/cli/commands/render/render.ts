@@ -325,6 +325,7 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
+		indent: false,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

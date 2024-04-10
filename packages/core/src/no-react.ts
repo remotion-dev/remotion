@@ -8,7 +8,11 @@ export {
 } from './interpolate';
 export {RandomSeed, random} from './random.js';
 export type {VideoConfig} from './video-config';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
+import {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render';
 import {
 	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
@@ -36,6 +40,8 @@ export const NoReactInternals = {
 	bundleMapName: 'bundle.js.map',
 	deserializeJSONWithCustomFields,
 	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_RETRY_TOKEN,
+	DELAY_RENDER_ATTEMPT_TOKEN: DELAY_RENDER_RETRIES_LEFT,
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,
 };

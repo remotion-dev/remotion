@@ -317,6 +317,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		preferLossless: false,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
+		indent: false,
 	});
 
 	if (res.type === 'crash') {

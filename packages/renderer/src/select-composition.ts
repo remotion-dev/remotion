@@ -275,7 +275,7 @@ export const internalSelectCompositionRaw = async (
 					// Must prevent unhandled exception in cleanup function.
 					// Promise has already been resolved, so we can't reject it.
 					c().catch((err) => {
-						console.log('Cleanup error:', err);
+						Log.error({indent, logLevel}, 'Cleanup error:', err);
 					});
 				});
 			});
