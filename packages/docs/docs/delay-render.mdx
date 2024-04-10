@@ -147,7 +147,7 @@ export const MyComp: React.FC = () => {
 
 ## Retrying<AvailableFrom v="4.0.140"/>
 
-If an operation is flaky (for example, if loading an asset from a CDN does sometimes give 5xx errors), you can pass an object with a `timeoutInMilliseconds` value as a second argument.  
+If an operation is flaky (for example, if loading an asset from a CDN does sometimes give 5xx errors), you can pass an object with a `retries` value as a second argument.  
 If a `delayRender()` call is not cleared within the timeout, the whole browser tab will be closed and the frame will be retried from scratch.
 
 ```tsx twoslash title="Retrying a delayRender()"
