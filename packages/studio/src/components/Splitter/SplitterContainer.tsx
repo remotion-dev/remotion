@@ -12,6 +12,7 @@ const containerRow: React.CSSProperties = {
 	flexDirection: 'row',
 	flex: 1,
 	height: '100%',
+	width: '100%',
 };
 
 export const containerColumn: React.CSSProperties = {
