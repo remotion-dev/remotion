@@ -147,8 +147,8 @@ export const MyComp: React.FC = () => {
 
 ## Retrying<AvailableFrom v="4.0.140"/>
 
-If a is shaky (for example, if loading an asset from a CDN does is flaky), you can pass an object with a `timeoutInMilliseconds` value as a second argument.  
-If a delayRender() call is not cleared within the timeout, the whole browser tab will be closed and the frame will be retried from scratch.
+If an operation is flaky (for example, if loading an asset from a CDN does sometimes give 5xx errors), you can pass an object with a `timeoutInMilliseconds` value as a second argument.  
+If a `delayRender()` call is not cleared within the timeout, the whole browser tab will be closed and the frame will be retried from scratch.
 
 ```tsx twoslash title="Retrying a delayRender()"
 import { delayRender } from "remotion";
@@ -158,7 +158,7 @@ delayRender("Loading asset...", {
 });
 ```
 
-The [`<Img>`](/docs/img#delayrenderretries), [`<Audio>`](/docs/audio#delayrenderretries), [`<Video>`](/docs/video#delayrenderretries) and [`<IFrame>`](/docs/iframe#delayrenderretries) tags support a `delayRenderRetries` prop to control the value of the `delayRender()` value that those components make.
+The [`<Img>`](/docs/img#delayrenderretries), [`<Audio>`](/docs/audio#delayrenderretries), [`<Video>`](/docs/video#delayrenderretries) and [`<IFrame>`](/docs/iframe#delayrenderretries) tags support a `delayRenderRetries` prop to control the value of `retries` for the `delayRender()` call that those components make.
 
 ## Modifying the timeout<AvailableFrom v="4.0.140"/>
 
@@ -172,9 +172,7 @@ delayRender("Loading asset...", {
 });
 ```
 
-// TODO: Rephrase
-
-The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/audio#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of the `delayRender()` value that those components make.
+The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/audio#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of `timeoutInMilliseconds` for the `delayRender()` call that those components make.
 
 ## Difference to `useBufferState().delayPlayback()`
 
