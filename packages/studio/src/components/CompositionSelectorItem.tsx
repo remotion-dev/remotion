@@ -149,6 +149,10 @@ export const CompositionSelectorItem: React.FC<{
 						setSelectedModal({
 							type: 'duplicate-comp',
 							compositionId: item.composition.id,
+							compositionType:
+								item.composition.durationInFrames === 1
+									? 'still'
+									: 'composition',
 						});
 					},
 					quickSwitcherLabel: null,

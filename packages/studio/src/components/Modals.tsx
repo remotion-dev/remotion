@@ -20,7 +20,10 @@ export const Modals: React.FC<{
 	return (
 		<>
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
-				<DuplicateComposition compositionId={modalContextType.compositionId} />
+				<DuplicateComposition
+					compositionType={modalContextType.compositionType}
+					compositionId={modalContextType.compositionId}
+				/>
 			)}
 			{modalContextType && modalContextType.type === 'delete-comp' && (
 				<DeleteComposition compositionId={modalContextType.compositionId} />
