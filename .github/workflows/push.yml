@@ -84,6 +84,11 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install pylint boto3 pytest
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
@@ -169,11 +174,6 @@ jobs:
         with:
           php-version: "8.3"
           tools: phpunit:10.1.3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install pylint boto3 pytest
       - run: |
           corepack enable
       - name: Get pnpm store directory
