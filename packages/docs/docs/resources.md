@@ -115,7 +115,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Formula 1 Graphics](https://www.youtube.com/watch?v=sA-X0Bw_7Gg&t=146s)
 - [Remotion Skia Tutorial](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
-- [CRT effect](https://www.youtube.com/watch?v=-7M OoWN2_nk)
+- [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 - [Integrate GreenSock with Remotion](https://archive.ph/dGQ19)
 - [DVD Screensaver Tutorial](https://www.youtube.com/watch?v=n69siyttEwM)
