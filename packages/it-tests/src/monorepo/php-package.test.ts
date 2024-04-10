@@ -106,6 +106,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     preferLossless: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  console.log(toParse);
   const parsedJson = JSON.parse(jsonOutput);
 
   expect(
