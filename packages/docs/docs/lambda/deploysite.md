@@ -69,7 +69,7 @@ Specify the subfolder in your S3 bucket that you want the site to deploy to. If 
 ### `logLevel?`<AvailableFrom v="4.0.140"/>
 
 _optional_
-<Options id="log "/>
+<Options id="log"/>
 
 ### `options?`
 
