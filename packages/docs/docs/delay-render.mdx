@@ -145,6 +145,35 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+## Retrying<AvailableFrom v="4.0.140"/>
+
+If an operation is flaky (for example, if loading an asset from a CDN does sometimes give 5xx errors), you can pass an object with a `retries` value as a second argument.  
+If a `delayRender()` call is not cleared within the timeout, the whole browser tab will be closed and the frame will be retried from scratch.
+
+```tsx twoslash title="Retrying a delayRender()"
+import { delayRender } from "remotion";
+
+delayRender("Loading asset...", {
+  retries: 1, // default: 0
+});
+```
+
+The [`<Img>`](/docs/img#delayrenderretries), [`<Audio>`](/docs/audio#delayrenderretries), [`<Video>`](/docs/video#delayrenderretries) and [`<IFrame>`](/docs/iframe#delayrenderretries) tags support a `delayRenderRetries` prop to control the value of `retries` for the `delayRender()` call that those components make.
+
+## Modifying the timeout<AvailableFrom v="4.0.140"/>
+
+In addition to the [global timeout](/docs/timeout#increase-timeout) that can be set, the timeout can be modified on a per-`delayRender()` level.
+
+```tsx twoslash title="Modifying the timeout of a delayRender()"
+import { delayRender } from "remotion";
+
+delayRender("Loading asset...", {
+  timeoutInMilliseconds: 7000,
+});
+```
+
+The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/audio#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of `timeoutInMilliseconds` for the `delayRender()` call that those components make.
+
 ## Difference to `useBufferState().delayPlayback()`
 
 [`useBufferState()`](/docs/use-buffer-state) is a different API that allows pausing playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).

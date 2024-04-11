@@ -1,5 +1,6 @@
 import type {HeadlessBrowser} from './browser/Browser';
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
 
 export type BrowserReplacer = {
 	getBrowser: () => HeadlessBrowser;
@@ -39,7 +40,10 @@ export const handleBrowserCrash = (
 				await _instance
 					.close(true, logLevel, indent)
 					.then(() => {
-						console.log('Killed previous browser and making new one');
+						Log.info(
+							{indent, logLevel},
+							'Killed previous browser and making new one',
+						);
 					})
 					.catch(() => {
 						// Ignore as browser crashed
@@ -48,7 +52,7 @@ export const handleBrowserCrash = (
 				_instance = browser;
 				await makeNewPages();
 				waiters.forEach((w) => w.resolve(browser));
-				console.log('Made new browser');
+				Log.info({indent, logLevel}, 'Made new browser');
 				return browser;
 			} catch (err) {
 				waiters.forEach((w) => w.reject(err as Error));

@@ -173,7 +173,7 @@ export class Page extends EventEmitter {
 						.send('Target.detachFromTarget', {
 							sessionId: event.sessionId,
 						})
-						.catch((err) => console.log(err));
+						.catch((err) => Log.error({indent, logLevel}, err));
 			}
 		});
 

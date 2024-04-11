@@ -315,6 +315,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		const onResume = () => {
 			requestAnimationFrame(() => {
+				stopped = true;
 				setShowBufferState(false);
 				if (timeout) {
 					clearTimeout(timeout);

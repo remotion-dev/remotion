@@ -130,7 +130,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(currentFrame, ID);
+			window.remotion_setFrame(currentFrame, ID, 1);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

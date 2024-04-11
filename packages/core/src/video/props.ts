@@ -25,6 +25,8 @@ export type RemotionVideoProps = Omit<
 	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
+	delayRenderTimeoutInMilliseconds?: number;
+	delayRenderRetries?: number;
 };
 
 type DeprecatedOffthreadVideoProps = {

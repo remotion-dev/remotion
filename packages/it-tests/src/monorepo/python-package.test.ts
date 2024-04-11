@@ -95,6 +95,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     },
     x264Preset: null,
     preferLossless: false,
+    indent: false,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
@@ -153,7 +154,7 @@ test("Python package should create the same renderStill payload as normal Lambda
     deleteAfter: null,
     downloadBehavior: { type: "play-in-browser" },
     envVariables: {},
-    forceBucketName: undefined,
+    forceBucketName: null,
     forceHeight: null,
     forceWidth: null,
     imageFormat: "jpeg",
@@ -161,10 +162,15 @@ test("Python package should create the same renderStill payload as normal Lambda
     logLevel: "info",
     maxRetries: 1,
     offthreadVideoCacheSizeInBytes: null,
-    outName: undefined,
+    outName: null,
     privacy: "public",
     scale: 1,
     timeoutInMilliseconds: 30000,
+    frame: 0,
+    indent: false,
+    onInit: () => undefined,
+    dumpBrowserLogs: false,
+    quality: undefined,
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
