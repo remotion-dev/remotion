@@ -84,6 +84,17 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Setup PHP with PHPUnit
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: phpunit:10.1.3
+      - run: pip install pylint boto3 pytest
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
@@ -164,16 +175,6 @@ jobs:
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.1.1
-      - name: Setup PHP with PHPUnit
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.3"
-          tools: phpunit:10.1.3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install pylint boto3 pytest
       - run: |
           corepack enable
       - name: Get pnpm store directory

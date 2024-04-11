@@ -65,6 +65,7 @@ export type RenderStillOnLambdaInput = MandatoryParameters &
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
 	url: string;
+	outKey: string;
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
@@ -106,6 +107,7 @@ const internalRenderStillOnLambda = async (
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
+			outKey: res.outKey,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
