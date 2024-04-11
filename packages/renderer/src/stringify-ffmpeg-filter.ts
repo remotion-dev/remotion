@@ -59,12 +59,7 @@ const trimAndSetTempo = ({
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
-		const trimLeft = getActualTrimLeft({
-			asset,
-			fps,
-			trimLeftOffset,
-		});
-
+		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
 		const trimRight = trimLeft + asset.duration / fps + trimRightOffset;
 
 		const trimRightOrAssetDuration = assetDuration
