@@ -69,8 +69,7 @@ const trimAndSetTempo = ({
 			trimLeftOffset,
 			seamless: true,
 		});
-		const trimRight =
-			trimLeft + asset.duration / fps / asset.playbackRate + trimRightOffset;
+		const trimRight = trimLeft + asset.duration / fps + trimRightOffset;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)

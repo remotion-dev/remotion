@@ -44,8 +44,8 @@ const ffmpegIsOneOfFrames = ({
 		.map((f) => {
 			const firstFrame = f[0];
 			const lastFrame = f[f.length - 1];
-			const before = ((firstFrame - 0.5) / fps) * timestampMultiplier;
-			const after = ((lastFrame + 0.5) / fps) * timestampMultiplier;
+			const before = (firstFrame - 0.5) / fps / timestampMultiplier;
+			const after = (lastFrame + 0.5) / fps / timestampMultiplier;
 			return `between(${FFMPEG_TIME_VARIABLE},${(before + trimLeft).toFixed(
 				4,
 			)},${(after + trimLeft).toFixed(4)})`;
