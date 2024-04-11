@@ -34,7 +34,7 @@ test("Set the right version for composer.json", () => {
   );
 });
 
-test("Set the right verison for composer.json in example", () => {
+test("Set the right version for composer.json in example", () => {
   const composerJson = readFileSync(
     path.join(process.cwd(), "..", "lambda-php-example", "composer.json"),
     "utf-8"
@@ -58,7 +58,7 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
   const output = phpOutput.toString().split("\n");
-  const toParse = output[4];
+  const toParse = output[3];
   const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
     region: "us-east-1",
     composition: "react-svg",
@@ -130,7 +130,7 @@ test("PHP package should create the same progress payload as normal Lambda packa
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
   const output = phpOutput.toString().split("\n");
-  const toParse = output[4];
+  const toParse = output[3];
   const nativeVersion = LambdaInternals.getRenderProgressPayload({
     region: "us-east-1",
     functionName: "remotion-render",
