@@ -97,6 +97,7 @@ const transcribeToTempJSON = async ({
 	translate,
 	tokenLevelTimestamps,
 	printOutput,
+	tokensPerItem,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -106,6 +107,7 @@ const transcribeToTempJSON = async ({
 	translate: boolean;
 	tokenLevelTimestamps: boolean;
 	printOutput: boolean;
+	tokensPerItem: number | null;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -127,8 +129,7 @@ const transcribeToTempJSON = async ({
 		'--output-file',
 		tmpJSONPath,
 		'--output-json',
-		'--max-len',
-		'1',
+		tokensPerItem ? ['--max-len', tokensPerItem] : null,
 		'-ojf', // Output full JSON
 		tokenLevelTimestamps ? ['--dtw', model] : null,
 		model ? [`-m`, `${modelPath}`] : null,
@@ -207,6 +208,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	translateToEnglish = false,
 	tokenLevelTimestamps,
 	printOutput = true,
+	tokensPerItem,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -215,6 +217,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	modelFolder?: string;
 	translateToEnglish?: boolean;
 	printOutput?: boolean;
+	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -243,6 +246,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
 		printOutput,
+		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
 	});
 
 	const json = (await readJson(

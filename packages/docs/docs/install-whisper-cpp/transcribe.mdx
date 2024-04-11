@@ -95,6 +95,18 @@ We recommend using at least the `medium` model to get satisfactory results when 
 
 Whether to print the output of the transcription process to the console. Defaults to `true`.
 
+### `tokensPerItem?`<AvailableFrom v="4.0.141" />
+
+_optional - default: `1`_
+
+The maximum amount of tokens included in each transcription item.
+
+Set this flag to `null`, to use `whisper.cpp`'s default token grouping (useful for generating a movie-style transcription).
+
+:::info
+`tokensPerItem` can only be set when `tokenLevelTimestamps` is set to `false`.
+:::
+
 ## Return value
 
 ### `TranscriptionJson`
