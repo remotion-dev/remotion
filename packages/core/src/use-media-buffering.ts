@@ -35,12 +35,21 @@ export const useMediaBuffering = ({
 				unblock();
 			};
 
+			const onError = () => {
+				unblock();
+			};
+
 			current.addEventListener('canplay', onCanPlay, {
+				once: true,
+			});
+
+			current.addEventListener('error', onError, {
 				once: true,
 			});
 
 			cleanup = () => {
 				current.removeEventListener('canplay', onCanPlay);
+				current.removeEventListener('error', onError);
 				unblock();
 				return undefined;
 			};
