@@ -54,7 +54,6 @@ const trimAndSetTempo = ({
 	fps: number;
 }): {
 	actualTrimLeft: number;
-	timestampMultiplier: number;
 	filter: (string | null)[];
 	audibleDuration: number;
 } => {
@@ -93,7 +92,6 @@ const trimAndSetTempo = ({
 				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRight)}`,
 			],
 			actualTrimLeft: trimLeft,
-			timestampMultiplier: 1,
 			audibleDuration: trimRight - trimLeft,
 		};
 	}
@@ -121,7 +119,6 @@ const trimAndSetTempo = ({
 				calculateATempo(asset.playbackRate),
 			],
 			actualTrimLeft: trimLeft,
-			timestampMultiplier: 1,
 			audibleDuration:
 				(trimRightOrAssetDuration - trimLeft) / asset.playbackRate,
 		};
@@ -182,7 +179,6 @@ export const stringifyFfmpegFilter = ({
 		actualTrimLeft,
 		audibleDuration,
 		filter: trimAndTempoFilter,
-		timestampMultiplier,
 	} = trimAndSetTempo({
 		forSeamlessAacConcatenation,
 		assetDuration,
@@ -197,7 +193,7 @@ export const stringifyFfmpegFilter = ({
 		fps,
 		trimLeft: actualTrimLeft,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
-		timestampMultiplier,
+		trimLeftOffset,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
