@@ -29,13 +29,11 @@ export const getActualTrimLeft = ({
 	asset,
 	fps,
 	trimLeftOffset,
-	seamless,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	trimLeftOffset: number;
-	seamless: boolean;
-}) => asset.trimLeft / fps / (seamless ? 1 : 1) + trimLeftOffset;
+}) => asset.trimLeft / fps + trimLeftOffset;
 
 const trimAndSetTempo = ({
 	forSeamlessAacConcatenation,
@@ -65,7 +63,6 @@ const trimAndSetTempo = ({
 			asset,
 			fps,
 			trimLeftOffset,
-			seamless: true,
 		});
 
 		const trimRight = trimLeft + asset.duration / fps + trimRightOffset;
@@ -103,7 +100,6 @@ const trimAndSetTempo = ({
 			asset,
 			fps,
 			trimLeftOffset,
-			seamless: false,
 		});
 		const trimRight =
 			actualTrimLeft + (asset.duration / fps) * asset.playbackRate;
@@ -163,7 +159,6 @@ export const stringifyFfmpegFilter = ({
 			asset,
 			fps,
 			trimLeftOffset,
-			seamless: forSeamlessAacConcatenation,
 		}) >=
 			assetDuration / playbackRate
 	) {
