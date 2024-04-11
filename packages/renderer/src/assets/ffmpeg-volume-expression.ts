@@ -22,10 +22,12 @@ const ffmpegIsOneOfFrames = ({
 	frames,
 	trimLeft,
 	fps,
+	timestampMultiplier,
 }: {
 	frames: number[];
 	trimLeft: number;
 	fps: number;
+	timestampMultiplier: number;
 }) => {
 	const consecutiveArrays: number[][] = [];
 	for (let i = 0; i < frames.length; i++) {
@@ -42,8 +44,8 @@ const ffmpegIsOneOfFrames = ({
 		.map((f) => {
 			const firstFrame = f[0];
 			const lastFrame = f[f.length - 1];
-			const before = (firstFrame - 0.5) / fps;
-			const after = (lastFrame + 0.5) / fps;
+			const before = ((firstFrame - 0.5) / fps) * timestampMultiplier;
+			const after = ((lastFrame + 0.5) / fps) * timestampMultiplier;
 			return `between(${FFMPEG_TIME_VARIABLE},${(before + trimLeft).toFixed(
 				4,
 			)},${(after + trimLeft).toFixed(4)})`;
@@ -55,10 +57,12 @@ const ffmpegBuildVolumeExpression = ({
 	arr,
 	delay,
 	fps,
+	timestampMultiplier,
 }: {
 	arr: VolumeArray;
 	delay: number;
 	fps: number;
+	timestampMultiplier: number;
 }): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
@@ -72,9 +76,9 @@ const ffmpegBuildVolumeExpression = ({
 	const [volume, frames] = first;
 
 	return ffmpegIfOrElse(
-		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps}),
+		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps, timestampMultiplier}),
 		String(volume),
-		ffmpegBuildVolumeExpression({arr: rest, delay, fps}),
+		ffmpegBuildVolumeExpression({arr: rest, delay, fps, timestampMultiplier}),
 	);
 };
 
@@ -88,11 +92,13 @@ export const ffmpegVolumeExpression = ({
 	fps,
 	trimLeft,
 	allowAmplificationDuringRender,
+	timestampMultiplier,
 }: {
 	volume: AssetVolume;
 	trimLeft: number;
 	fps: number;
 	allowAmplificationDuringRender: boolean;
+	timestampMultiplier: number;
 }): FfmpegVolumeExpression => {
 	const maxVolume = allowAmplificationDuringRender ? Infinity : 1;
 	// If it's a static volume, we return it and tell
@@ -110,6 +116,7 @@ export const ffmpegVolumeExpression = ({
 			fps,
 			trimLeft,
 			allowAmplificationDuringRender,
+			timestampMultiplier,
 		});
 	}
 
@@ -147,6 +154,7 @@ export const ffmpegVolumeExpression = ({
 		arr: volumeArray,
 		delay: trimLeft,
 		fps,
+		timestampMultiplier,
 	});
 
 	return {

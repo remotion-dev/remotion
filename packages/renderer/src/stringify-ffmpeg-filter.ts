@@ -29,11 +29,14 @@ export const getActualTrimLeft = ({
 	asset,
 	fps,
 	trimLeftOffset,
+	seamless,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	trimLeftOffset: number;
-}) => asset.trimLeft / fps + trimLeftOffset;
+	seamless: boolean;
+}) =>
+	asset.trimLeft / fps / (seamless ? asset.playbackRate : 1) + trimLeftOffset;
 
 const trimAndSetTempo = ({
 	forSeamlessAacConcatenation,
@@ -51,6 +54,7 @@ const trimAndSetTempo = ({
 	fps: number;
 }): {
 	actualTrimLeft: number;
+	timestampMultiplier: number;
 	filter: (string | null)[];
 	audibleDuration: number;
 } => {
@@ -59,8 +63,14 @@ const trimAndSetTempo = ({
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	if (forSeamlessAacConcatenation) {
-		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
-		const trimRight = trimLeft + (asset.duration / fps + trimRightOffset);
+		const trimLeft = getActualTrimLeft({
+			asset,
+			fps,
+			trimLeftOffset,
+			seamless: true,
+		});
+		const trimRight =
+			trimLeft + asset.duration / fps / asset.playbackRate + trimRightOffset;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)
@@ -84,6 +94,7 @@ const trimAndSetTempo = ({
 				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRight)}`,
 			],
 			actualTrimLeft: trimLeft,
+			timestampMultiplier: 1,
 			audibleDuration: trimRight - trimLeft,
 		};
 	}
@@ -91,25 +102,29 @@ const trimAndSetTempo = ({
 	// Otherwise, we first trim and then apply playback rate, as then the atempo
 	// filter needs to do less work.
 	if (!forSeamlessAacConcatenation) {
-		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
-		const trimRight = (trimLeft + asset.duration / fps) * asset.playbackRate;
+		const trimLeft = getActualTrimLeft({
+			asset,
+			fps,
+			trimLeftOffset,
+			seamless: false,
+		});
+		const trimRight = trimLeft + (asset.duration / fps) * asset.playbackRate;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration)
 			: trimRight;
 
-		const actualTrimLeft = trimLeft * asset.playbackRate;
-
 		return {
 			filter: [
-				`atrim=${stringifyTrim(actualTrimLeft)}:${stringifyTrim(
+				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(
 					trimRightOrAssetDuration,
 				)}`,
 				calculateATempo(asset.playbackRate),
 			],
-			actualTrimLeft,
+			actualTrimLeft: trimLeft,
+			timestampMultiplier: 1,
 			audibleDuration:
-				(trimRightOrAssetDuration - actualTrimLeft) / asset.playbackRate,
+				(trimRightOrAssetDuration - trimLeft) / asset.playbackRate,
 		};
 	}
 
@@ -147,7 +162,12 @@ export const stringifyFfmpegFilter = ({
 
 	if (
 		assetDuration &&
-		getActualTrimLeft({asset, fps, trimLeftOffset}) >=
+		getActualTrimLeft({
+			asset,
+			fps,
+			trimLeftOffset,
+			seamless: forSeamlessAacConcatenation,
+		}) >=
 			assetDuration / playbackRate
 	) {
 		return null;
@@ -163,6 +183,7 @@ export const stringifyFfmpegFilter = ({
 		actualTrimLeft,
 		audibleDuration,
 		filter: trimAndTempoFilter,
+		timestampMultiplier,
 	} = trimAndSetTempo({
 		forSeamlessAacConcatenation,
 		assetDuration,
@@ -177,6 +198,7 @@ export const stringifyFfmpegFilter = ({
 		fps,
 		trimLeft: actualTrimLeft,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+		timestampMultiplier,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
