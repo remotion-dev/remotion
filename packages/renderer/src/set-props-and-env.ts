@@ -212,7 +212,7 @@ const innerSetPropsAndEnv = async ({
 		timeoutInMilliseconds: actualTimeout,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '10';
+	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(

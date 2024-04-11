@@ -33,7 +33,15 @@ export const getActualTrimLeft = ({
 	asset: MediaAsset;
 	fps: number;
 	trimLeftOffset: number;
-}) => asset.trimLeft / fps + trimLeftOffset;
+}) => {
+	const sinceStart = asset.trimLeft - asset.audioStartFrame;
+	console.log(asset);
+	return (
+		asset.audioStartFrame / fps +
+		sinceStart / fps / asset.playbackRate +
+		trimLeftOffset
+	);
+};
 
 const trimAndSetTempo = ({
 	forSeamlessAacConcatenation,
@@ -58,7 +66,7 @@ const trimAndSetTempo = ({
 	// because the atempo filter is not frame-perfect. It creates a small offset
 	// and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
-	if (forSeamlessAacConcatenation) {
+	if (forSeamlessAacConcatenation || !forSeamlessAacConcatenation) {
 		const trimLeft = getActualTrimLeft({asset, fps, trimLeftOffset});
 		const trimRight = trimLeft + asset.duration / fps + trimRightOffset;
 

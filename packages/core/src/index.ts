@@ -60,7 +60,7 @@ declare global {
 		remotion_isStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '10';
+		siteVersion: '11';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 		remotion_unsavedProps: boolean | undefined;
