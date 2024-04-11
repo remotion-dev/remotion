@@ -9,7 +9,6 @@ test('Simple expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'once',
@@ -24,7 +23,6 @@ test('Simple expression with volume multiplier', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'once',
@@ -39,7 +37,6 @@ test('Complex expression with volume multiplier', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -54,7 +51,6 @@ test('Should respect trimLeft multiplier', () => {
 			fps: 30,
 			trimLeft: 0.5,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -72,7 +68,6 @@ test('Really complex volume expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -87,7 +82,6 @@ test('Should use 0 as else statement', () => {
 			fps: 30,
 			allowAmplificationDuringRender: false,
 			trimLeft: 0,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -102,7 +96,6 @@ test('Simple expression - should not be higher than 1', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'once',
@@ -117,7 +110,6 @@ test('Complex expression - should  be higher than 1 if allowed', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: true,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -132,7 +124,6 @@ test('Should simplify an expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-			trimLeftOffset: 0,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -152,7 +143,6 @@ test('Should stay under half 8000 windows character limit', () => {
 		fps: 30,
 		trimLeft: 0,
 		allowAmplificationDuringRender: false,
-		trimLeftOffset: 0,
 	});
 
 	expect(expression.value.length).toBeLessThan(4000);
@@ -168,7 +158,6 @@ test('Last volume should be default case', () => {
 		fps: 30,
 		trimLeft: 0,
 		allowAmplificationDuringRender: false,
-		trimLeftOffset: 0,
 	});
 	expect(expression).toEqual({
 		eval: 'frame',
