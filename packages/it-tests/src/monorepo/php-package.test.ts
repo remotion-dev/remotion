@@ -105,6 +105,7 @@ describe("These should run serially", () => {
       webhook: null,
       x264Preset: null,
       preferLossless: false,
+      indent: false,
     });
     const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
     console.log({ toParse: phpOutput.toString().split("\n") });
