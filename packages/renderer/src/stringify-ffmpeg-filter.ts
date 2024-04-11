@@ -193,7 +193,6 @@ export const stringifyFfmpegFilter = ({
 		fps,
 		trimLeft: actualTrimLeft,
 		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
-		trimLeftOffset,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;

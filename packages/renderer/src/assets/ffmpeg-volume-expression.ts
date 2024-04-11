@@ -88,13 +88,11 @@ export const ffmpegVolumeExpression = ({
 	fps,
 	trimLeft,
 	allowAmplificationDuringRender,
-	trimLeftOffset,
 }: {
 	volume: AssetVolume;
 	trimLeft: number;
 	fps: number;
 	allowAmplificationDuringRender: boolean;
-	trimLeftOffset: number;
 }): FfmpegVolumeExpression => {
 	const maxVolume = allowAmplificationDuringRender ? Infinity : 1;
 	// If it's a static volume, we return it and tell
@@ -112,7 +110,6 @@ export const ffmpegVolumeExpression = ({
 			fps,
 			trimLeft,
 			allowAmplificationDuringRender,
-			trimLeftOffset,
 		});
 	}
 
