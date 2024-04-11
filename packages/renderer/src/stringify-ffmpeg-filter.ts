@@ -35,9 +35,9 @@ export const getActualTrimLeft = ({
 	fps: number;
 	trimLeftOffset: number;
 	seamless: boolean;
-}) =>
-	asset.trimLeft / fps / (seamless ? asset.playbackRate : 1) +
-	trimLeftOffset / asset.playbackRate;
+}) => {
+	return asset.trimLeft / fps / (seamless ? 1 : 1) + trimLeftOffset;
+};
 
 const trimAndSetTempo = ({
 	forSeamlessAacConcatenation,
@@ -70,8 +70,7 @@ const trimAndSetTempo = ({
 			seamless: true,
 		});
 
-		const trimRight =
-			trimLeft + asset.duration / fps + trimRightOffset / asset.playbackRate;
+		const trimRight = trimLeft + asset.duration / fps + trimRightOffset;
 
 		const trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)
