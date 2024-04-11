@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
@@ -42,24 +41,11 @@ describe('Webhooks', () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
 
-		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
-
-		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
-			binariesDirectory: null,
-			concurrency: 1,
-			downloadMap: RenderInternals.makeDownloadMap(),
-			indent: false,
-			logLevel: 'error',
-			offthreadVideoCacheSizeInBytes: null,
-			port: null,
-			remotionRoot: path.dirname(exampleBuild),
-			forceIPv4: false,
-		});
-
 		const res = await callLambda({
 			type: LambdaRoutines.start,
 			payload: {
-				serveUrl: `http://localhost:${port}`,
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -151,26 +137,10 @@ describe('Webhooks', () => {
 			},
 			expect.anything(),
 		);
-		await close();
 	});
 
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
-		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
-
-		// Maybe this can use simulateLambdaRender instead
-		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
-			binariesDirectory: null,
-			concurrency: 1,
-			downloadMap: RenderInternals.makeDownloadMap(),
-			indent: false,
-			logLevel: 'error',
-			offthreadVideoCacheSizeInBytes: null,
-			port: null,
-			remotionRoot: path.dirname(exampleBuild),
-			forceIPv4: false,
-		});
 
 		await callLambda({
 			functionName: 'remotion-dev-lambda',
@@ -179,7 +149,8 @@ describe('Webhooks', () => {
 			type: LambdaRoutines.launch,
 			payload: {
 				offthreadVideoCacheSizeInBytes: null,
-				serveUrl: `http://localhost:${port}`,
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -252,6 +223,5 @@ describe('Webhooks', () => {
 			},
 			expect.anything(),
 		);
-		await close();
 	});
 });
