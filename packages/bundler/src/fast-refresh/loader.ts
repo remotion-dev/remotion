@@ -221,7 +221,13 @@ refreshModuleRuntime = refreshModuleRuntime.slice(
 );
 
 const ReactRefreshLoader: LoaderDefinition = function (source, inputSourceMap) {
-	this.callback(null, `${source}\n\n;${refreshModuleRuntime}`, inputSourceMap);
+	// Importing a module that declares the global variables _a and _b
+	// will conflict with the global variables that React Fast Refresh uses.
+	const renamedSymbols = refreshModuleRuntime
+		.replace(/_a/g, '_remotion_globalVariableA')
+		.replace(/_b/g, '_remotion_globalVariableB');
+
+	this.callback(null, `${source}\n;${renamedSymbols}`, inputSourceMap);
 };
 
 export default ReactRefreshLoader;
