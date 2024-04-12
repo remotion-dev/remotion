@@ -136,6 +136,7 @@ export type TRenderAsset = {
 	playbackRate: number;
 	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
+	audioStartFrame: number;
 };
 
 export const compositionsRef = React.createRef<{
@@ -146,8 +147,8 @@ export const compositionsRef = React.createRef<{
 }>();
 
 export const CompositionManagerProvider: React.FC<{
-	children: React.ReactNode;
-	numberOfAudioTags: number;
+	readonly children: React.ReactNode;
+	readonly numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

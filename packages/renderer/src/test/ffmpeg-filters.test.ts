@@ -18,6 +18,7 @@ const baseAsset: MediaAsset = {
 	playbackRate: 1,
 	allowAmplificationDuringRender: false,
 	toneFrequency: null,
+	audioStartFrame: 0,
 };
 
 const expandAsset = ({
@@ -302,6 +303,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					playbackRate: 16,
 					allowAmplificationDuringRender: false,
 					toneFrequency: null,
+					audioStartFrame: 0,
 				},
 				extraFramesToCaptureAssets: [
 					...extraFramesToCaptureAssetsFrontend,

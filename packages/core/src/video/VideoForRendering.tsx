@@ -116,6 +116,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: -(sequenceContext?.relativeFrom ?? 0),
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -131,6 +132,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	useImperativeHandle(
