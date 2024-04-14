@@ -4,7 +4,7 @@ import path from 'node:path';
 import type {WhisperModel} from './download-whisper-model';
 import {getModelPath} from './download-whisper-model';
 import {getWhisperExecutablePath} from './install-whisper-cpp';
-import {Language} from './languages';
+import type {Language} from './languages';
 
 type Timestamps = {
 	from: string;

@@ -5,5 +5,5 @@ export {
 	downloadWhisperModel,
 } from './download-whisper-model';
 export {installWhisperCpp} from './install-whisper-cpp';
-export {TranscriptionJson, transcribe} from './transcribe';
 export type {Language} from './languages';
+export {TranscriptionJson, transcribe} from './transcribe';
