@@ -34,6 +34,13 @@ Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
 
 The minimum Node version is now 18.0.0. The minimum Bun version is 1.1.3.
 
+## `selectComposition()` and `getCompositions()` now require `inputProps`
+
+`inputProps` is now required in [`selectComposition()`](/docs/renderer/select-composition) and [`getCompositions()`](/docs/renderer/get-compositions).  
+A common footgun was the render was not working as intended because the input props were not passed.
+
+**Required action**: Pass an empty object `{}` if you don't have any input props.
+
 ## `visualizeAudio()` yields different result
 
 [`optimizeFor: "speed"`](/docs/visualize-audio#optimizefor) is now the default. This will yield slightly different results.
