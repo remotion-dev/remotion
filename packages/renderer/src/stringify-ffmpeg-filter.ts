@@ -1,6 +1,8 @@
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import type {AssetVolume, MediaAsset} from './assets/types';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
@@ -63,6 +65,8 @@ const trimAndSetTempo = ({
 	trimLeftOffset,
 	trimRightOffset,
 	fps,
+	indent,
+	logLevel,
 }: {
 	forSeamlessAacConcatenation: boolean;
 	assetDuration: number | null;
@@ -70,6 +74,8 @@ const trimAndSetTempo = ({
 	trimRightOffset: number;
 	asset: MediaAsset;
 	fps: number;
+	indent: boolean;
+	logLevel: LogLevel;
 }): {
 	actualTrimLeft: number;
 	filter: (string | null)[];
@@ -89,12 +95,13 @@ const trimAndSetTempo = ({
 		const trimRight =
 			trimLeft + asset.duration / fps - trimLeftOffset + trimRightOffset;
 
-		const trimRightOrAssetDuration = assetDuration
+		let trimRightOrAssetDuration = assetDuration
 			? Math.min(trimRight, assetDuration / asset.playbackRate)
 			: trimRight;
 
 		if (trimRightOrAssetDuration < trimLeft) {
-			throw new Error(
+			Log.warn(
+				{indent, logLevel},
 				'trimRightOrAssetDuration < trimLeft: ' +
 					JSON.stringify({
 						trimRight,
@@ -103,15 +110,16 @@ const trimAndSetTempo = ({
 						assetTrimLeft: asset.trimLeft,
 					}),
 			);
+			trimRightOrAssetDuration = trimLeft;
 		}
 
 		return {
 			filter: [
 				calculateATempo(asset.playbackRate),
-				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRight)}`,
+				`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRightOrAssetDuration)}`,
 			],
 			actualTrimLeft: trimLeft,
-			audibleDuration: trimRight - trimLeft,
+			audibleDuration: trimRightOrAssetDuration - trimLeft,
 		};
 	}
 
@@ -157,6 +165,8 @@ export const stringifyFfmpegFilter = ({
 	trimLeftOffset,
 	trimRightOffset,
 	asset,
+	indent,
+	logLevel,
 }: {
 	channels: number;
 	volume: AssetVolume;
@@ -167,6 +177,8 @@ export const stringifyFfmpegFilter = ({
 	trimLeftOffset: number;
 	trimRightOffset: number;
 	asset: MediaAsset;
+	indent: boolean;
+	logLevel: LogLevel;
 }): FilterWithoutPaddingApplied | null => {
 	if (channels === 0) {
 		return null;
@@ -206,6 +218,8 @@ export const stringifyFfmpegFilter = ({
 		trimRightOffset,
 		asset,
 		fps,
+		indent,
+		logLevel,
 	});
 
 	const volumeFilter = ffmpegVolumeExpression({

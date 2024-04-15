@@ -49,6 +49,8 @@ test('Should create a basic filter correctly', () => {
 			trimRightOffset: 0,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -94,6 +96,8 @@ test('Trim the end', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -140,6 +144,8 @@ test('Should handle trim correctly', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -173,6 +179,8 @@ test('Should add padding if audio is too short', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -217,6 +225,8 @@ test('Should handle delay correctly', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -261,6 +271,8 @@ test('Should offset multiple channels', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -317,6 +329,8 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
