@@ -46,4 +46,6 @@ export const NoReactInternals = {
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,
 	ENABLE_V5_BREAKING_CHANGES,
+	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 18 : 16,
+	MIN_BUN_VERSION: '1.0.3',
 };
