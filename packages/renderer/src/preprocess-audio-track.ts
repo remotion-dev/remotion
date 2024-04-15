@@ -69,6 +69,8 @@ const preprocessAudioTrackUnlimited = async ({
 		trimRightOffset,
 		forSeamlessAacConcatenation,
 		volume: flattenVolumeArray(asset.volume),
+		indent,
+		logLevel,
 	});
 
 	if (filter === null) {
