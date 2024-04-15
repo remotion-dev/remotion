@@ -230,8 +230,8 @@ test('Should handle delay correctly', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
-		pad_end: null,
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667',
 	});
 });
@@ -276,8 +276,8 @@ test('Should offset multiple channels', () => {
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
-		pad_end: null,
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667|2667|2667',
 	});
 });
