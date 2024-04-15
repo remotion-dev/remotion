@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
 import type {AudioData} from './types';
@@ -38,7 +39,9 @@ const visualizeAudioFrame = ({
 		fps,
 		sampleRate: metadata.sampleRate,
 		maxInt,
-		optimizeFor: optimizeFor ?? 'accuracy',
+		optimizeFor:
+			optimizeFor ??
+			(NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 'speed' : 'accuracy'),
 	});
 };
 
