@@ -1,0 +1,41 @@
+---
+id: 5-0-migration
+title: v5.0 Migration
+crumb: "Version Upgrade"
+---
+
+:::note
+Remotion 5.0 is not yet released. This is an incomplete list of breaking changes that are planned for the release.
+:::
+
+## How to upgrade
+
+See the [changelog](https://remotion.dev/changelog) to find the latest version.
+Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `5.0.0`:
+
+```diff
+- "remotion": "4.0.141"
+- "@remotion/bundler": "4.0.141"
+- "@remotion/eslint-config": "4.0.141"
+- "@remotion/eslint-plugin": "4.0.141"
+- "@remotion/cli": "4.0.141"
+- "@remotion/renderer": "4.0.141"
++ "remotion": "5.0.0"
++ "@remotion/bundler": "5.0.0"
++ "@remotion/eslint-config": "5.0.0"
++ "@remotion/eslint-plugin": "5.0.0"
++ "@remotion/cli": "5.0.0"
++ "@remotion/renderer": "5.0.0"
+```
+
+Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
+
+## System requirements
+
+The minimum Node version is now 18.0.0. The minimum Bun version is 1.1.3.
+
+## `visualizeAudio()` yields different result
+
+[`optimizeFor: "speed"`](/docs/visualize-audio#optimizefor) is now the default. This will yield slightly different results.
+
+**Required action**: Review the visualization of your audio. If unsatisfactory, revert to the old behavior by setting `optimizeFor: "accuracy"`.

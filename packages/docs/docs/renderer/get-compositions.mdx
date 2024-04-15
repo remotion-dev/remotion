@@ -5,7 +5,7 @@ id: get-compositions
 crumb: "@remotion/renderer"
 ---
 
-import {AngleChangelog} from '../../components/AngleChangelog';
+import { AngleChangelog } from "../../components/AngleChangelog";
 
 _Part of the `@remotion/renderer` package._
 
@@ -32,9 +32,9 @@ _optional_
 
 An object containing one or more of the following options:
 
-#### `inputProps?`
+#### `inputProps`
 
-_optional_
+_optional in &lt;5.0, required from 5.0_
 
 Define custom props that can be retrieved using [`getInputProps()`](/docs/get-input-props) at runtime. Useful for [setting a dynamic duration or dimensions](/docs/dynamic-metadata) for your video.
 
@@ -131,7 +131,7 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 #### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-<Options id="log"/>
+<Options id="log" />
 
 #### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
