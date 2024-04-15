@@ -256,7 +256,7 @@ const innerSetPropsAndEnv = async ({
 };
 
 export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
-	let timeout: NodeJS.Timeout | null = null;
+	let timeout: Timer | null = null;
 
 	try {
 		const result = await Promise.race([

@@ -89,7 +89,7 @@ const tryToObtainBody = async (file: http.IncomingMessage) => {
 		file.on('error', () => resolve(data));
 	});
 
-	let timeout: NodeJS.Timeout | null = null;
+	let timeout: Timer | null = null;
 
 	const body = await Promise.race<string | null>([
 		success,

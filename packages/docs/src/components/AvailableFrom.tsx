@@ -1,4 +1,5 @@
 import React from "react";
+import { NoReactInternals } from "remotion/no-react";
 
 const link: React.CSSProperties = {
   textDecoration: "none",
@@ -19,7 +20,7 @@ const label: React.CSSProperties = {
 };
 
 export const AvailableFrom: React.FC<{
-  v: string;
+  readonly v: string;
 }> = ({ v }) => {
   if (!v) {
     throw new Error("v is required");
@@ -40,4 +41,12 @@ export const AvailableFrom: React.FC<{
       </span>
     </a>
   );
+};
+
+export const MinNodeVersion: React.FC = () => {
+  return <span>{NoReactInternals.MIN_NODE_VERSION}</span>;
+};
+
+export const MinBunVersion: React.FC = () => {
+  return <span>{NoReactInternals.MIN_BUN_VERSION}</span>;
 };

@@ -47,5 +47,5 @@ export const NoReactInternals = {
 	getExpectedMediaFrameUncorrected,
 	ENABLE_V5_BREAKING_CHANGES,
 	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 18 : 16,
-	MIN_BUN_VERSION: '1.0.3',
+	MIN_BUN_VERSION: ENABLE_V5_BREAKING_CHANGES ? '1.1.3' : '1.0.3',
 };
