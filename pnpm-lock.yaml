@@ -1726,6 +1726,9 @@ importers:
       '@testing-library/react':
         specifier: 13.3.0
         version: 13.3.0(react-dom@18.2.0)(react@18.2.0)
+      '@types/bun':
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6

@@ -33,7 +33,6 @@ import {
 } from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-
 export {AvailableOptions, TypeOfOption} from './options';
 
 export const BrowserSafeApis = {

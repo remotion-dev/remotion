@@ -19,6 +19,7 @@ import {
 } from './input-props-serialization';
 import {processColor} from './interpolate-colors';
 import {truthy} from './truthy';
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
@@ -44,4 +45,7 @@ export const NoReactInternals = {
 	DELAY_RENDER_ATTEMPT_TOKEN: DELAY_RENDER_RETRIES_LEFT,
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,
+	ENABLE_V5_BREAKING_CHANGES,
+	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 18 : 16,
+	MIN_BUN_VERSION: ENABLE_V5_BREAKING_CHANGES ? '1.1.3' : '1.0.3',
 };
