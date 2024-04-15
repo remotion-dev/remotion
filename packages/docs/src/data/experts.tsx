@@ -174,20 +174,28 @@ export const experts: Expert[] = [
     slug: "karel-nagel",
     name: "Karel Nagel",
     image: "/img/freelancers/karel.jpeg",
-    website: null,
-    x: null,
+    website: "https://asius.ai/",
+    x: "AsiusAI",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
     since: new Date("2022-08-22").getTime(),
-    email: "karel@asius.ee",
+    email: "karel@asius.ai",
     videocall: null,
     description: (
       <div>
-        I made:{" "}
-        <a target={"_blank"} href="https://asius.ee/">
-          TikTok automation, ENS video
+        I have created Remotion videos for many companies and helped them with
+        deployment, some examples are visible{" "}
+        <a target={"_blank"} href="https://asius.ai/#portfolio">
+          here
+        </a>
+        . Additionally, I am the creator of the{" "}
+        <a target={"_blank"} href="https://github.com/karelnagel/remotion-sst">
+          remotion-sst
         </a>{" "}
-        and many more!
+        package, which simplifies the deployment of Remotion Lambda to AWS using
+        SST.
+        <br />I am available for contract opportunities in Remotion projects and
+        web development.
       </div>
     ),
   },
