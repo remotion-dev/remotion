@@ -197,7 +197,7 @@ export type VideoMetadata = {
 		| 'unknown';
 };
 
-type SilentPart = {
+export type SilentPart = {
 	startInSeconds: number;
 	endInSeconds: number;
 };

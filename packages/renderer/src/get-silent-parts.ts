@@ -2,9 +2,12 @@ import {startLongRunningCompositor} from './compositor/compositor';
 import type {
 	GetSilentPartsResponse,
 	GetSilentPartsResponseRust,
+	SilentPart,
 	SilentParts,
 } from './compositor/payloads';
 import type {LogLevel} from './log-level';
+
+export type {SilentPart};
 
 export const getSilentParts = async ({
 	src,
