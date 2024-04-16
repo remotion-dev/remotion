@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, test} from 'vitest';
 
 const {logLevelOption} = BrowserSafeApis.options;
 
