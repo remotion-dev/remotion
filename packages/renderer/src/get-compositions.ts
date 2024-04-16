@@ -17,6 +17,7 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {RequiredInputPropsInV5} from './v5-required-input-props';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
@@ -33,8 +34,7 @@ type InternalGetCompositionsOptions = {
 	serveUrlOrWebpackUrl: string;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type GetCompositionsOptions = {
-	inputProps?: Record<string, unknown> | null;
+export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;

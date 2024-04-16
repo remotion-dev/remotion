@@ -10,7 +10,7 @@ import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
 	const canRender =
@@ -20,7 +20,10 @@ export const Modals: React.FC<{
 	return (
 		<>
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
-				<DuplicateComposition compositionId={modalContextType.compositionId} />
+				<DuplicateComposition
+					compositionType={modalContextType.compositionType}
+					compositionId={modalContextType.compositionId}
+				/>
 			)}
 			{modalContextType && modalContextType.type === 'delete-comp' && (
 				<DeleteComposition compositionId={modalContextType.compositionId} />
@@ -82,6 +85,7 @@ export const Modals: React.FC<{
 					defaultConfigurationVideoCodec={
 						modalContextType.defaultConfigurationVideoCodec
 					}
+					renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
 				/>
 			)}
 

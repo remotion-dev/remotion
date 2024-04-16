@@ -69,13 +69,18 @@ const callFunctionWithRetry = async ({
 	functionName: string;
 }): Promise<unknown> => {
 	try {
-		await getLambdaClient(getCurrentRegionInFunction()).send(
+		const result = await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
 				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
 			}),
 		);
+		if (result.FunctionError) {
+			throw new Error(
+				`Lambda function ${functionName} returned an error: ${result.FunctionError} ${result.LogResult}`,
+			);
+		}
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
 			if (retries > 10) {

@@ -77,7 +77,7 @@ const handleFallback = async ({
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
-			baseDir: '/',
+			publicPath: '/',
 			editorName: displayName,
 			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
@@ -355,7 +355,7 @@ export const handleRoutes = ({
 		}
 	}
 
-	if (url.pathname === '/remotion.png') {
+	if (url.pathname === '/favicon.ico') {
 		return handleFavicon(request, response);
 	}
 

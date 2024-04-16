@@ -44,6 +44,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		name,
 		acceptableTimeShiftInSeconds,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 		...props
 	},
 	ref,
@@ -114,6 +116,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: -(sequenceContext?.relativeFrom ?? 0),
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -129,6 +132,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	useImperativeHandle(
@@ -155,7 +159,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			startFrom: -mediaStartsAt,
 			fps: videoConfig.fps,
 		});
-		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
@@ -228,6 +235,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		mediaStartsAt,
 		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 	]);
 
 	const {src} = props;
@@ -240,7 +249,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Video> duration with src=' + src);
+			const newHandle = delayRender(
+				'Loading <Video> duration with src=' + src,
+				{
+					retries: delayRenderRetries ?? undefined,
+					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+				},
+			);
 			const {current} = videoRef;
 
 			const didLoad = () => {
@@ -263,7 +278,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				current?.removeEventListener('loadedmetadata', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src, onDuration]);
+		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
 	}
 
 	return <video ref={videoRef} {...props} onError={onError} />;

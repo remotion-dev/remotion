@@ -227,11 +227,9 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
@@ -243,9 +241,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								<Sequence showInTimeline={false} {...passedProps}>
-									{child}
-								</Sequence>
+								{child}
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -259,20 +255,16 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						<UppercasePrevPresentation
 							passedProps={prevPresentation.props ?? {}}
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -285,20 +277,16 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name={passedProps.name || '<TS.Sequence>'}
 						from={Math.floor(actualStartFrame)}
-						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
@@ -306,10 +294,10 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
-					name={passedProps.name || '<TS.Sequence>'}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					name={passedProps.name || '<TS.Sequence>'}
 				>
 					{child}
 				</Sequence>

@@ -12,7 +12,9 @@ import type {
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
+import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
+import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type RenderModalState = {
@@ -56,12 +58,14 @@ export type RenderModalState = {
 	outFrameMark: number | null;
 	defaultConfigurationVideoCodec: Codec;
 	defaultConfigurationAudioCodec: AudioCodec | null;
+	renderTypeOfLastRender: RenderType | null;
 };
 
 export type ModalState =
 	| {
 			type: 'duplicate-comp';
 			compositionId: string;
+			compositionType: CompType;
 	  }
 	| {
 			type: 'delete-comp';

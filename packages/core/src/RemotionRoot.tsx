@@ -33,8 +33,8 @@ declare const __webpack_module__: {
 };
 
 export const RemotionRoot: React.FC<{
-	children: React.ReactNode;
-	numberOfAudioTags: number;
+	readonly children: React.ReactNode;
+	readonly numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
@@ -49,7 +49,8 @@ export const RemotionRoot: React.FC<{
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			window.remotion_setFrame = (f: number, composition: string) => {
+			window.remotion_setFrame = (f: number, composition: string, attempt) => {
+				window.remotion_attempt = attempt;
 				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame((s) => ({
 					...s,

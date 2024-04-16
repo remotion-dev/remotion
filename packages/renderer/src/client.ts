@@ -11,6 +11,7 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {validStillImageFormats, validVideoImageFormats} from './image-format';
+import {DEFAULT_JPEG_QUALITY} from './jpeg-quality';
 import {logLevels} from './log-level';
 import {allOptions} from './options';
 import {
@@ -32,7 +33,6 @@ import {
 } from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-
 export {AvailableOptions, TypeOfOption} from './options';
 
 export const BrowserSafeApis = {
@@ -51,6 +51,7 @@ export const BrowserSafeApis = {
 	validStillImageFormats,
 	DEFAULT_PIXEL_FORMAT,
 	DEFAULT_TIMEOUT,
+	DEFAULT_JPEG_QUALITY,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,

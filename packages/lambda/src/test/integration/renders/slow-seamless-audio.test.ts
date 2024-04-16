@@ -16,7 +16,7 @@ test('Should make slowed down seamless audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'aac',
 		composition: 'framer',
-		frameRange: [1750, 1790],
+		frameRange: [1700, 1740],
 		imageFormat: 'none',
 		logLevel: 'error',
 		region: 'eu-central-1',

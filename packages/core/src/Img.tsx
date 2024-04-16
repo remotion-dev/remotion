@@ -1,10 +1,12 @@
 import React, {
 	forwardRef,
 	useCallback,
+	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {SequenceContext} from './SequenceContext.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
@@ -21,18 +23,32 @@ export type ImgProps = Omit<
 	>,
 	'src'
 > & {
-	maxRetries?: number;
-	pauseWhenLoading?: boolean;
-	src: string;
+	readonly maxRetries?: number;
+	readonly pauseWhenLoading?: boolean;
+	readonly delayRenderRetries?: number;
+	readonly delayRenderTimeoutInMilliseconds?: number;
+	readonly src: string;
 };
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	ImgProps
-> = ({onError, maxRetries = 2, src, pauseWhenLoading, ...props}, ref) => {
+> = (
+	{
+		onError,
+		maxRetries = 2,
+		src,
+		pauseWhenLoading,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		...props
+	},
+	ref,
+) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
+	const sequenceContext = useContext(SequenceContext);
 
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
@@ -118,10 +134,14 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
-			const unblock = pauseWhenLoading
-				? delayPlayback().unblock
-				: () => undefined;
+			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			});
+			const unblock =
+				pauseWhenLoading && !sequenceContext?.premounting
+					? delayPlayback().unblock
+					: () => undefined;
 			const {current} = imageRef;
 
 			const onComplete = () => {
@@ -156,7 +176,14 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 				continueRender(newHandle);
 			};
-		}, [actualSrc, delayPlayback, pauseWhenLoading]);
+		}, [
+			actualSrc,
+			delayPlayback,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
+			pauseWhenLoading,
+			sequenceContext?.premounting,
+		]);
 	}
 
 	return (

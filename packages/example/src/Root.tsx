@@ -36,8 +36,11 @@ import {
 	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import {PremountedExample} from './Premount';
+import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
@@ -1069,6 +1072,24 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+			<Folder name="Premount">
+				<Composition
+					id="premounted"
+					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+				<Composition
+					id="premounted-remote"
+					component={PremountedRemoteVideos}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+			</Folder>
 			<Folder name="Transitions">
 				<Composition
 					id="transition"
@@ -1162,6 +1183,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="WidthHeight"
 				component={WidthHeightSequences}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="RetryDelayRender"
+				component={RetryDelayRender}
 				fps={30}
 				height={1080}
 				width={1080}

@@ -91,6 +91,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
+		premountDisplay: null,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -111,7 +112,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
-	useMediaBuffering(videoRef, pauseWhenBuffering);
+	useMediaBuffering({
+		element: videoRef,
+		shouldBuffer: pauseWhenBuffering,
+		isPremounting: Boolean(parentSequence?.premounting),
+	});
 
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom

@@ -1,5 +1,5 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {inlineCodeSnippet} from '../Menu/styles';
 import {NewCompHeader} from '../ModalHeader';
 import {
@@ -17,7 +17,7 @@ const content: React.CSSProperties = {
 };
 
 const DeleteCompositionLoaded: React.FC<{
-	compositionId: string;
+	readonly compositionId: string;
 }> = ({compositionId}) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -33,10 +33,14 @@ const DeleteCompositionLoaded: React.FC<{
 		};
 	}, [compositionId]);
 
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
+		e.preventDefault();
+	}, []);
+
 	return (
 		<>
 			<NewCompHeader title={'Delete composition'} />
-			<form>
+			<form onSubmit={onSubmit}>
 				<div style={content}>
 					Do you want to delete the{' '}
 					<code style={inlineCodeSnippet}>
@@ -68,7 +72,7 @@ const DeleteCompositionLoaded: React.FC<{
 };
 
 export const DeleteComposition: React.FC<{
-	compositionId: string;
+	readonly compositionId: string;
 }> = ({compositionId}) => {
 	return (
 		<DismissableModal>

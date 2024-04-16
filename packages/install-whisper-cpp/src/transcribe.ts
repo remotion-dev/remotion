@@ -4,6 +4,7 @@ import path from 'node:path';
 import type {WhisperModel} from './download-whisper-model';
 import {getModelPath} from './download-whisper-model';
 import {getWhisperExecutablePath} from './install-whisper-cpp';
+import type {Language} from './languages';
 
 type Timestamps = {
 	from: string;
@@ -97,6 +98,8 @@ const transcribeToTempJSON = async ({
 	translate,
 	tokenLevelTimestamps,
 	printOutput,
+	tokensPerItem,
+	language,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -106,6 +109,8 @@ const transcribeToTempJSON = async ({
 	translate: boolean;
 	tokenLevelTimestamps: boolean;
 	printOutput: boolean;
+	tokensPerItem: number | null;
+	language?: Language | null;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -127,12 +132,12 @@ const transcribeToTempJSON = async ({
 		'--output-file',
 		tmpJSONPath,
 		'--output-json',
-		'--max-len',
-		'1',
+		tokensPerItem ? ['--max-len', tokensPerItem] : null,
 		'-ojf', // Output full JSON
 		tokenLevelTimestamps ? ['--dtw', model] : null,
 		model ? [`-m`, `${modelPath}`] : null,
 		translate ? '-tr' : null,
+		language ? ['-l', language.toLowerCase()] : null,
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -207,6 +212,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	translateToEnglish = false,
 	tokenLevelTimestamps,
 	printOutput = true,
+	tokensPerItem,
+	language,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -215,6 +222,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	modelFolder?: string;
 	translateToEnglish?: boolean;
 	printOutput?: boolean;
+	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
+	language?: Language | null;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -243,6 +252,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		translate: translateToEnglish,
 		tokenLevelTimestamps,
 		printOutput,
+		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
+		language,
 	});
 
 	const json = (await readJson(

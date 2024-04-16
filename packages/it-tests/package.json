@@ -1,10 +1,10 @@
 {
   "name": "@remotion/it-tests",
-  "version": "4.0.137",
+  "version": "4.0.141",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "vitest src/rendering --run && vitest src/monorepo --run",
-    "testssr": "bun test src/ssr src/bundle src/templates --timeout 40000",
+    "test": "vitest src/rendering --run",
+    "testssr": "bun test src/ssr src/bundle src/templates src/monorepo --timeout 40000",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,

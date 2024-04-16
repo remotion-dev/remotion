@@ -2,10 +2,15 @@ import type React from 'react';
 import {useEffect} from 'react';
 import {useBufferState} from './use-buffer-state';
 
-export const useMediaBuffering = (
-	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>,
-	shouldBuffer: boolean,
-) => {
+export const useMediaBuffering = ({
+	element,
+	shouldBuffer,
+	isPremounting,
+}: {
+	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	shouldBuffer: boolean;
+	isPremounting: boolean;
+}) => {
 	const buffer = useBufferState();
 
 	useEffect(() => {
@@ -20,9 +25,17 @@ export const useMediaBuffering = (
 			return;
 		}
 
+		if (isPremounting) {
+			return;
+		}
+
 		const onWaiting = () => {
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
+				unblock();
+			};
+
+			const onError = () => {
 				unblock();
 			};
 
@@ -30,8 +43,13 @@ export const useMediaBuffering = (
 				once: true,
 			});
 
+			current.addEventListener('error', onError, {
+				once: true,
+			});
+
 			cleanup = () => {
 				current.removeEventListener('canplay', onCanPlay);
+				current.removeEventListener('error', onError);
 				unblock();
 				return undefined;
 			};
@@ -46,5 +64,5 @@ export const useMediaBuffering = (
 		return () => {
 			cleanup();
 		};
-	}, [buffer, element, shouldBuffer]);
+	}, [buffer, element, isPremounting, shouldBuffer]);
 };

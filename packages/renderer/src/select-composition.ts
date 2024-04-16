@@ -18,6 +18,7 @@ import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {RequiredInputPropsInV5} from './v5-required-input-props';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
@@ -35,8 +36,7 @@ type InternalSelectCompositionsConfig = {
 	id: string;
 } & ToOptions<typeof optionsMap.selectComposition>;
 
-export type SelectCompositionOptions = {
-	inputProps?: Record<string, unknown> | null;
+export type SelectCompositionOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -275,7 +275,7 @@ export const internalSelectCompositionRaw = async (
 					// Must prevent unhandled exception in cleanup function.
 					// Promise has already been resolved, so we can't reject it.
 					c().catch((err) => {
-						console.log('Cleanup error:', err);
+						Log.error({indent, logLevel}, 'Cleanup error:', err);
 					});
 				});
 			});

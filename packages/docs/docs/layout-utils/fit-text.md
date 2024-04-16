@@ -21,10 +21,21 @@ const { fontSize } = fitText({
   withinWidth: width,
   fontFamily: fontFamily,
   fontWeight: fontWeight,
+  textTransform: "uppercase",
 });
 
 // Example markup:
-<div style={{ fontSize, width, fontFamily, fontWeight }}>{text}</div>;
+<div
+  style={{
+    fontSize,
+    width,
+    fontFamily,
+    fontWeight,
+    textTransform: "uppercase",
+  }}
+>
+  {text}
+</div>;
 ```
 
 ## API
@@ -77,11 +88,23 @@ _string, optional_
 
 Pass this option if you are going to assign a `font-variant-numeric` CSS property to the text.
 
+### `textTransform`<AvailableFrom v="4.0.140"/>
+
+_string_
+
+Same as CSS style `text-transform`.
+
 ### `validateFontIsLoaded?`<AvailableFrom v="4.0.136"/>
 
 _boolean_
 
 If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
+### `additionalStyles`<AvailableFrom v="4.0.140"/>
+
+_object, optional_
+
+Additional CSS properties that affect the layout of the text.
 
 ## Return value
 

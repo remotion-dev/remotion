@@ -7,7 +7,7 @@ import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-version-requirements';
+import {checkRuntimeVersion} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
@@ -82,7 +82,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {GetCompositionsOptions, getCompositions} from './get-compositions';
-export {getSilentParts} from './get-silent-parts';
+export {SilentPart, getSilentParts} from './get-silent-parts';
 export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
@@ -241,4 +241,4 @@ export const RenderInternals = {
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-checkNodeVersionAndWarnAboutRosetta('info', false);
+checkRuntimeVersion('info', false);

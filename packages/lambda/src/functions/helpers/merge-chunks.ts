@@ -270,7 +270,7 @@ export const mergeChunksAndFinishRender = async (options: {
 		serialized: options.serializedResolvedProps,
 	});
 
-	const outputUrl = getOutputUrlFromMetadata(
+	const {url: outputUrl} = getOutputUrlFromMetadata(
 		options.renderMetadata,
 		options.bucketName,
 		options.customCredentials,

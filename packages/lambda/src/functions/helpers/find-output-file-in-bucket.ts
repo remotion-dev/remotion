@@ -46,7 +46,7 @@ export const findOutputFileInBucket = async ({
 				renderMetadata,
 				bucketName,
 				customCredentials,
-			),
+			).url,
 		};
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {

@@ -15,12 +15,12 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
+	Internals,
+	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
-	Internals,
-	VERSION,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -420,7 +420,7 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '10';
+	window.siteVersion = '11';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

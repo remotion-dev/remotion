@@ -265,23 +265,27 @@ const innerStillHandler = async ({
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
+	const {key: outKey, url} = getOutputUrlFromMetadata(
+		renderMetadata,
+		bucketName,
+		customCredentials,
+	);
+
 	return {
 		type: 'success' as const,
-		output: getOutputUrlFromMetadata(
-			renderMetadata,
-			bucketName,
-			customCredentials,
-		),
+		output: url,
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
+		outKey,
 	};
 };
 
 type RenderStillLambdaResponsePayload = {
 	type: 'success';
 	output: string;
+	outKey: string;
 	size: number;
 	bucketName: string;
 	estimatedPrice: CostsInfo;

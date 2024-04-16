@@ -195,50 +195,51 @@ const outer: React.CSSProperties = {
 };
 
 type RenderModalProps = {
-	compositionId: string;
-	initialFrame: number;
-	initialVideoImageFormat: VideoImageFormat;
-	initialStillImageFormat: StillImageFormat;
-	initialJpegQuality: number;
-	initialScale: number;
-	initialLogLevel: LogLevel;
-	initialConcurrency: number;
-	minConcurrency: number;
-	maxConcurrency: number;
-	initialMuted: boolean;
-	initialEnforceAudioTrack: boolean;
-	initialProResProfile: ProResProfile;
-	initialx264Preset: X264Preset;
-	initialPixelFormat: PixelFormat;
-	initialVideoBitrate: string | null;
-	initialAudioBitrate: string | null;
-	initialEveryNthFrame: number;
-	initialNumberOfGifLoops: number | null;
-	initialDelayRenderTimeout: number;
-	initialEnvVariables: Record<string, string>;
-	initialDisableWebSecurity: boolean;
-	initialGl: OpenGlRenderer | null;
-	initialIgnoreCertificateErrors: boolean;
-	initialOffthreadVideoCacheSizeInBytes: number | null;
-	initialHeadless: boolean;
-	initialColorSpace: ColorSpace;
-	initialEncodingMaxRate: string | null;
-	initialEncodingBufferSize: string | null;
-	initialUserAgent: string | null;
-	initialBeep: boolean;
-	initialRepro: boolean;
-	defaultProps: Record<string, unknown>;
-	inFrameMark: number | null;
-	outFrameMark: number | null;
-	initialMultiProcessOnLinux: boolean;
-	defaultConfigurationVideoCodec: Codec | null;
-	defaultConfigurationAudioCodec: AudioCodec | null;
-	initialForSeamlessAacConcatenation: boolean;
+	readonly compositionId: string;
+	readonly initialFrame: number;
+	readonly initialVideoImageFormat: VideoImageFormat;
+	readonly initialStillImageFormat: StillImageFormat;
+	readonly initialJpegQuality: number;
+	readonly initialScale: number;
+	readonly initialLogLevel: LogLevel;
+	readonly initialConcurrency: number;
+	readonly minConcurrency: number;
+	readonly maxConcurrency: number;
+	readonly initialMuted: boolean;
+	readonly initialEnforceAudioTrack: boolean;
+	readonly initialProResProfile: ProResProfile;
+	readonly initialx264Preset: X264Preset;
+	readonly initialPixelFormat: PixelFormat;
+	readonly initialVideoBitrate: string | null;
+	readonly initialAudioBitrate: string | null;
+	readonly initialEveryNthFrame: number;
+	readonly initialNumberOfGifLoops: number | null;
+	readonly initialDelayRenderTimeout: number;
+	readonly initialEnvVariables: Record<string, string>;
+	readonly initialDisableWebSecurity: boolean;
+	readonly initialGl: OpenGlRenderer | null;
+	readonly initialIgnoreCertificateErrors: boolean;
+	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
+	readonly initialHeadless: boolean;
+	readonly initialColorSpace: ColorSpace;
+	readonly initialEncodingMaxRate: string | null;
+	readonly initialEncodingBufferSize: string | null;
+	readonly initialUserAgent: string | null;
+	readonly initialBeep: boolean;
+	readonly initialRepro: boolean;
+	readonly defaultProps: Record<string, unknown>;
+	readonly inFrameMark: number | null;
+	readonly outFrameMark: number | null;
+	readonly initialMultiProcessOnLinux: boolean;
+	readonly defaultConfigurationVideoCodec: Codec | null;
+	readonly defaultConfigurationAudioCodec: AudioCodec | null;
+	readonly initialForSeamlessAacConcatenation: boolean;
+	readonly renderTypeOfLastRender: RenderType | null;
 };
 
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
-		defaultConfigurationVideoCodec: Codec | null;
+		readonly defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
 	initialFrame,
@@ -279,6 +280,7 @@ const RenderModal: React.FC<
 	initialBeep,
 	initialRepro,
 	initialForSeamlessAacConcatenation,
+	renderTypeOfLastRender,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -315,7 +317,7 @@ const RenderModal: React.FC<
 			defaultConfigurationVideoCodec,
 			compositionDefaultVideoCodec: resolvedComposition.defaultCodec,
 			defaultConfigurationAudioCodec,
-			renderType: isVideo ? 'video' : 'still',
+			renderType: renderTypeOfLastRender ?? (isVideo ? 'video' : 'still'),
 		});
 	});
 
@@ -349,12 +351,15 @@ const RenderModal: React.FC<
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: isVideo
-				? BrowserSafeApis.getFileExtensionFromCodec(
-						initialVideoCodec,
-						initialAudioCodec,
-					)
-				: initialStillImageFormat,
+			defaultExtension:
+				initialRenderType === 'still'
+					? initialStillImageFormat
+					: isVideo
+						? BrowserSafeApis.getFileExtensionFromCodec(
+								initialVideoCodec,
+								initialAudioCodec,
+							)
+						: initialStillImageFormat,
 			type: 'asset',
 		});
 	});

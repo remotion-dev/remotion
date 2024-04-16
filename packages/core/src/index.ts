@@ -37,13 +37,19 @@ declare global {
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number, composition: string) => void;
+		remotion_setFrame: (
+			frame: number,
+			composition: string,
+			attempt: number,
+		) => void;
+		remotion_attempt: number;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
@@ -57,7 +63,7 @@ declare global {
 		remotion_isStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '10';
+		siteVersion: '11';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 		remotion_unsavedProps: boolean | undefined;

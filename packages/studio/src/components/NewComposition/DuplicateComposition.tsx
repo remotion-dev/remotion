@@ -34,9 +34,11 @@ const comboBoxStyle: React.CSSProperties = {
 	width: 190,
 };
 
-type CompType = 'composition' | 'still';
+export type CompType = 'composition' | 'still';
 
-const DuplicateCompositionLoaded: React.FC<{}> = () => {
+const DuplicateCompositionLoaded: React.FC<{
+	initialType: CompType;
+}> = ({initialType}) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
 		throw new Error('Resolved composition context');
@@ -44,8 +46,7 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 
 	const {resolved, unresolved} = context;
 
-	const initialCompType: CompType =
-		resolved.result.durationInFrames === 1 ? 'still' : 'composition';
+	const [initialCompType] = useState<CompType>(initialType);
 
 	const hadDimensionsDefined = unresolved.width && unresolved.height;
 	const hadFpsDefined = unresolved.fps !== undefined;
@@ -209,10 +210,14 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 		type,
 	]);
 
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
+		e.preventDefault();
+	}, []);
+
 	return (
 		<>
 			<NewCompHeader title={`Duplicate ${resolved.result.id}`} />
-			<form>
+			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{initialCompType === 'composition' ? (
 						// We allow converting from a composition to a still, but
@@ -366,12 +371,13 @@ const DuplicateCompositionLoaded: React.FC<{}> = () => {
 };
 
 export const DuplicateComposition: React.FC<{
-	compositionId: string;
-}> = ({compositionId}) => {
+	readonly compositionId: string;
+	readonly compositionType: CompType;
+}> = ({compositionId, compositionType}) => {
 	return (
 		<DismissableModal>
 			<ResolveCompositionBeforeModal compositionId={compositionId}>
-				<DuplicateCompositionLoaded />
+				<DuplicateCompositionLoaded initialType={compositionType} />
 			</ResolveCompositionBeforeModal>
 		</DismissableModal>
 	);

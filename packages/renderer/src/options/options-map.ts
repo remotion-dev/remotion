@@ -18,6 +18,7 @@ import {preferLosslessAudioOption} from './prefer-lossless';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
 import {videoCodecOption} from './video-codec';
@@ -135,5 +136,9 @@ export const optionsMap = {
 	ensureBrowser: {
 		logLevel: logLevelOption,
 		onBrowserDownload: onBrowserDownloadOption,
+	},
+	deploySiteLambda: {
+		logLevel: logLevelOption,
+		throwIfSiteExists: throwIfSiteExistsOption,
 	},
 } as const;

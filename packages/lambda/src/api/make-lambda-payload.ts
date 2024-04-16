@@ -12,7 +12,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter, RenderStillOnLambdaInput} from '../client';
+import type {AwsRegion, DeleteAfter} from '../client';
 import type {
 	LambdaPayloads,
 	LambdaStartPayload,
@@ -21,7 +21,7 @@ import type {
 	Privacy,
 	WebhookOption,
 } from '../defaults';
-import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../defaults';
+import {LambdaRoutines} from '../defaults';
 import {
 	compressInputProps,
 	getNeedsToUpload,
@@ -35,6 +35,7 @@ import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {validateWebhook} from '../shared/validate-webhook';
 import type {GetRenderProgressInput} from './get-render-progress';
+import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
 
 export type InnerRenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -77,6 +78,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	audioCodec: AudioCodec | null;
 	colorSpace: ColorSpace;
 	deleteAfter: DeleteAfter | null;
+	indent: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -228,10 +230,11 @@ export const makeLambdaRenderStillPayload = async ({
 	forceHeight,
 	forceWidth,
 	forceBucketName,
-	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
-}: RenderStillOnLambdaInput): Promise<LambdaPayloads[LambdaRoutines.still]> => {
+}: RenderStillOnLambdaNonNullInput): Promise<
+	LambdaPayloads[LambdaRoutines.still]
+> => {
 	if (quality) {
 		throw new Error(
 			'The `quality` option is deprecated. Use `jpegQuality` instead.',
@@ -255,22 +258,22 @@ export const makeLambdaRenderStillPayload = async ({
 		imageFormat,
 		envVariables,
 		jpegQuality,
-		maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
-		frame: frame ?? 0,
+		maxRetries,
+		frame,
 		privacy,
 		attempt: 1,
-		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
-		outName: outName ?? null,
-		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-		chromiumOptions: chromiumOptions ?? {},
-		scale: scale ?? 1,
-		downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+		logLevel,
+		outName,
+		timeoutInMilliseconds,
+		chromiumOptions,
+		scale,
+		downloadBehavior,
 		version: VERSION,
-		forceHeight: forceHeight ?? null,
-		forceWidth: forceWidth ?? null,
-		bucketName: forceBucketName ?? null,
-		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		deleteAfter: deleteAfter ?? null,
+		forceHeight,
+		forceWidth,
+		bucketName: forceBucketName,
+		offthreadVideoCacheSizeInBytes,
+		deleteAfter,
 		type: LambdaRoutines.still,
 	};
 };

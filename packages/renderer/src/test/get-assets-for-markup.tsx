@@ -22,10 +22,10 @@ let collectAssets = (): TRenderAsset[] => [];
 
 const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
-		let interval: null | number | Timer = null;
+		let interval: Timer | null = null;
 		const check = () => {
 			if (window.remotion_renderReady) {
-				clearInterval(interval as number);
+				clearInterval(interval as Timer);
 				resolve();
 			}
 		};
@@ -130,7 +130,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(currentFrame, ID);
+			window.remotion_setFrame(currentFrame, ID, 1);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

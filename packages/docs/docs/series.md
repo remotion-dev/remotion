@@ -87,6 +87,12 @@ _optional_
 
 A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
+### `premountFor`<AvailableFrom v="4.0.140"/>
+
+_optional_
+
+[Premount](/docs/player/premounting) the sequence for a set number of frames.
+
 ### `ref`<AvailableFrom v="3.3.4" />
 
 _optional_

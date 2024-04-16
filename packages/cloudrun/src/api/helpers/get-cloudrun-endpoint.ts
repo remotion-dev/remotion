@@ -4,8 +4,8 @@ import {validateServiceName} from '../../shared/validate-service-name';
 import {getServiceInfo} from '../get-service-info';
 
 export type getCloudrunEndpointInput = {
-	cloudRunUrl?: string;
-	serviceName?: string;
+	cloudRunUrl?: string | null;
+	serviceName?: string | null;
 	region?: string;
 };
 

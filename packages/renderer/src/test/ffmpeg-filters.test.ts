@@ -18,6 +18,7 @@ const baseAsset: MediaAsset = {
 	playbackRate: 1,
 	allowAmplificationDuringRender: false,
 	toneFrequency: null,
+	audioStartFrame: 0,
 };
 
 const expandAsset = ({
@@ -48,6 +49,8 @@ test('Should create a basic filter correctly', () => {
 			trimRightOffset: 0,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -93,6 +96,8 @@ test('Trim the end', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -139,6 +144,8 @@ test('Should handle trim correctly', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -172,6 +179,8 @@ test('Should add padding if audio is too short', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
@@ -216,11 +225,13 @@ test('Should handle delay correctly', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
-		pad_end: null,
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667',
 	});
 });
@@ -260,11 +271,13 @@ test('Should offset multiple channels', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: true,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
-		pad_end: null,
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667|2667|2667',
 	});
 });
@@ -302,6 +315,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					playbackRate: 16,
 					allowAmplificationDuringRender: false,
 					toneFrequency: null,
+					audioStartFrame: 0,
 				},
 				extraFramesToCaptureAssets: [
 					...extraFramesToCaptureAssetsFrontend,
@@ -315,6 +329,8 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			trimRightOffset,
 			forSeamlessAacConcatenation: false,
 			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toEqual({
 		filter:

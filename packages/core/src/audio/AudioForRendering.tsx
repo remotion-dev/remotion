@@ -63,6 +63,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		onError,
 		pauseWhenBuffering,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
 		...nativeProps
 	} = props;
 
@@ -108,6 +110,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
+			audioStartFrame: -(sequenceContext?.relativeFrom ?? 0),
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -124,6 +127,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		props.playbackRate,
 		allowAmplificationDuringRender,
 		toneFrequency,
+		sequenceContext?.relativeFrom,
 	]);
 
 	const {src} = props;
@@ -143,7 +147,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const newHandle = delayRender('Loading <Audio> duration with src=' + src);
+		const newHandle = delayRender('Loading <Audio> duration with src=' + src, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 		const {current} = audioRef;
 
 		const didLoad = () => {
@@ -166,7 +173,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			current?.removeEventListener('loadedmetadata', didLoad);
 			continueRender(newHandle);
 		};
-	}, [src, onDuration, needsToRenderAudioTag]);
+	}, [
+		src,
+		onDuration,
+		needsToRenderAudioTag,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	]);
 
 	if (!needsToRenderAudioTag) {
 		return null;
