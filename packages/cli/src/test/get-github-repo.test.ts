@@ -1,5 +1,5 @@
-import {expect, test} from 'bun:test';
 import path from 'node:path';
+import {expect, test} from 'vitest';
 import {
 	getGifRef,
 	getGitConfig,
