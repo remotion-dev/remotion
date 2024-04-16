@@ -7,17 +7,17 @@ crumb: Recorder
 import { RecordingButton } from "../../components/recorder/RecordButton";
 
 The Recorder ships with its own recording interface.  
-From it, you can record a video and add it as a scene to your project.
+From it, you can record a clip and add it as a scene to your video.
 
 ## Setup
 
-To start the recording interface, run:
+To start the recording interface and the Remotion Studio, run:
 
-```tsx
-bun run dev
+```bash
+bun start
 ```
 
-A Vite app will start. Open the URL in the browser.  
+For the recording interface, a Vite app will start. Open the URL in the browser.  
 Give the page access to the webcam and microphone.
 
 Alternatively, you can also use the hosted version at [record.remotion.dev](https://record.remotion.dev).
@@ -34,7 +34,7 @@ They are not being used by default, unless you develop your own workflow that re
 
 Take a deep breath and think of what you are about to say and show.
 
-Prefer making short recordings, because if you mess up a take, you need to discard it entirely.
+Prefer making short recordings, because you can only use a take as a whole, which means that after recording you can either use the whole clip or discard it.
 
 There is no countdown, the recording will start immediately, but the silence at the beginning will be automatically removed later.
 
@@ -69,31 +69,16 @@ There is no countdown, the recording will start immediately, but the silence at 
 </div>
 <br />
 <div>
-  <div>
-    The recordings will automatically be downloaded to your Downloads
-    folder.{" "}
-  </div>
+  <div>You will be asked if you want to use this take or discard it.</div>
 </div>
 
 ## Selecting a take
 
-After you have recorded a scene and you are happy with your take, run
+If you are selecting the take, the clip will be processed and stored to `public/[id]` in your project folder.
 
-```bash
-bun copy.ts
-```
-
-to copy the file from your `Downloads` folder into your project.
-
-The script will do the following:
-
-- Remove the silence from the start and end of the videos.
-- Convert the videos from WebM to MP4
-- Put them into your project under `public/[id]`.
+When processing the clip, the silence parts at the start and end of the recording get removed and the file gets converted from WebM to MP4.
 
 ## Discard a take
 
-If you have taken a recording, you don't want to use, you don't need to do anything.  
-Just give it another try.
-
-You may delete the files from your Downloads folder to save space.
+If you are not happy with the clip you recorded and therefore don't want to use it, click on `discard`.  
+This simply deletes the file from memory.
