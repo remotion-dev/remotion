@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {makeRect} from '../utils/make-rect';
 
 test('Should be able to make a rect path', () => {

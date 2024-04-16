@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {noise2D, noise3D, noise4D} from '../index';
 
 // Make Node.JS 14 pass

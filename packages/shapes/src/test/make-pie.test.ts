@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {makePie} from '../utils/make-pie';
 
 test('Test makePie() function', () => {

@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {makePolygon} from '../utils/make-polygon';
 
 test('Should be able to make a triangle path', () => {

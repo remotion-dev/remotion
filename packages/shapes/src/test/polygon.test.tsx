@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {Polygon} from '../components/polygon';
 import {render} from './test-utils';
 
@@ -11,9 +11,14 @@ test('Should be able to make a triangle', () => {
 
 test('Should be able to make a pentagon', () => {
 	const {container} = render(<Polygon radius={100} points={5} />);
-	expect(container.querySelector('path')?.getAttribute('d')).toStartWith(
-		'M 100 0 L 195.10565162951536 69.09830056250526 L 158.77852522924732',
-	);
+	expect(
+		container
+			.querySelector('path')
+			?.getAttribute('d')
+			?.startsWith(
+				'M 100 0 L 195.10565162951536 69.09830056250526 L 158.77852522924732',
+			),
+	).toBeTruthy();
 });
 
 test('Should be able to make a hexagon', () => {

@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {makeEllipse} from '../utils/make-ellipse';
 
 test('Should be able to make a circle path', () => {

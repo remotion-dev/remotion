@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {Ellipse} from '../components/ellipse';
 import {render} from './test-utils';
 
