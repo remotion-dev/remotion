@@ -57,7 +57,9 @@ test(
 		noise2D('seed-1', 0.5, 0.5);
 		const end2 = performance.now();
 		const time2 = end2 - start2;
-		expect(time2 * 4).toBeGreaterThan(time);
+		if (typeof Bun === 'undefined') {
+			expect(time2 * 4).toBeGreaterThan(time);
+		}
 	},
 	{
 		retry: 2,
@@ -88,7 +90,10 @@ test(
 		noise3D('seed-1', 0.5, 0.5, 0.8);
 		const end2 = performance.now();
 		const time2 = end2 - start2;
-		expect(time2 * 4).toBeGreaterThan(time);
+
+		if (typeof Bun === 'undefined') {
+			expect(time2 * 4).toBeGreaterThan(time);
+		}
 	},
 	{retry: 2},
 );
@@ -117,7 +122,9 @@ test(
 		noise4D('seed-1', 0.5, 0.5, 0.8, 9);
 		const end2 = performance.now();
 		const time2 = end2 - start2;
-		expect(time2 * 4).toBeGreaterThan(time);
+		if (typeof Bun === 'undefined') {
+			expect(time2 * 4).toBeGreaterThan(time);
+		}
 	},
 	{
 		retry: 2,

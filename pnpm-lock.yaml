@@ -1500,6 +1500,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^8.2.0
         version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
+      '@types/bun':
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
