@@ -1,11 +1,14 @@
-import {expect, mock, test} from 'bun:test';
+/**
+ * @vitest-environment jsdom
+ */
 import type {RefObject} from 'react';
+import {expect, test, vitest} from 'vitest';
 import {useMediaTagVolume} from '../use-media-tag-volume.js';
 import {renderHook} from './render-hook.js';
 
 test('Should listen for volume changes', () => {
-	const addEventListener = mock();
-	const removeEventListener = mock();
+	const addEventListener = vitest.fn();
+	const removeEventListener = vitest.fn();
 	const audioRef = {
 		current: {volume: 0.5, addEventListener, removeEventListener},
 	} as unknown as RefObject<HTMLAudioElement>;

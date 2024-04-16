@@ -1,6 +1,10 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import {render} from '@testing-library/react';
-import {describe, expect, test} from 'bun:test';
 import React from 'react';
+import {describe, expect, test} from 'vitest';
 import {Sequence} from '../Sequence.js';
 import {Freeze} from '../freeze.js';
 import {useVideoConfig} from '../use-video-config.js';

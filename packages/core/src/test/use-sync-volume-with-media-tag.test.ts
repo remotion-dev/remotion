@@ -1,13 +1,16 @@
-import {expect, mock, test} from 'bun:test';
+/**
+ * @vitest-environment jsdom
+ */
 import type {RefObject} from 'react';
+import {expect, test, vitest} from 'vitest';
 import type {UseSyncVolumeWithMediaTagOptions} from '../use-sync-volume-with-media-tag.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import type {VolumeProp} from '../volume-prop.js';
 import {renderHook} from './render-hook.js';
 
 test('has the volume been adapted', () => {
-	const addEventListener = mock();
-	const removeEventListener = mock();
+	const addEventListener = vitest.fn();
+	const removeEventListener = vitest.fn();
 	const audioRef = {
 		current: {volume: 0.5, addEventListener, removeEventListener},
 	} as unknown as RefObject<HTMLAudioElement>;
@@ -39,8 +42,8 @@ test('has the volume been adapted', () => {
 });
 
 test('volume should not be adapted', () => {
-	const addEventListener = mock();
-	const removeEventListener = mock();
+	const addEventListener = vitest.fn();
+	const removeEventListener = vitest.fn();
 	const audioRef = {
 		current: {volume: 0.4, addEventListener, removeEventListener},
 	} as unknown as RefObject<HTMLAudioElement>;

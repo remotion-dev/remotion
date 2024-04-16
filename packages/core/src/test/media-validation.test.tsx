@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, test} from 'vitest';
 import {validateMediaProps} from '../validate-media-props.js';
 import {expectToThrow} from './expect-to-throw.js';
 

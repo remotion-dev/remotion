@@ -1,6 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {cleanup, render} from '@testing-library/react';
-import {afterEach, expect, test} from 'bun:test';
+import {afterEach, expect, test} from 'vitest';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {Sequence} from '../Sequence.js';
 import {TimelineContext} from '../timeline-position-state.js';

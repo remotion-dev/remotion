@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, test} from 'vitest';
 import {truthy} from '../truthy.js';
 
 test.each<[unknown, boolean]>([

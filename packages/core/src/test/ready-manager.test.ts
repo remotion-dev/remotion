@@ -1,4 +1,7 @@
-import {describe, expect, test} from 'bun:test';
+/**
+ * @vitest-environment jsdom
+ */
+import {describe, expect, test} from 'vitest';
 import {continueRender, delayRender} from '../delay-render.js';
 
 describe('Ready Manager tests', () => {

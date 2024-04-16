@@ -1,6 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
-import {describe, expect, test} from 'bun:test';
 import React from 'react';
+import {describe, expect, test} from 'vitest';
 import {Composition} from '../Composition.js';
 import {resolveVideoConfig} from '../resolve-video-config.js';
 import {expectToThrow} from './expect-to-throw.js';

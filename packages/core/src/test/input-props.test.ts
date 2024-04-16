@@ -1,10 +1,14 @@
-import {afterAll, beforeEach, describe, expect, test} from 'bun:test';
+/**
+ * @vitest-environment jsdom
+ */
+import {afterAll, beforeEach, describe, expect, test, vitest} from 'vitest';
 import {getInputProps} from '../config/input-props.js';
 
 describe('input props', () => {
 	const OLD_ENV = process.env;
 
 	beforeEach(() => {
+		vitest.resetModules(); // Most important - it clears the cache
 		process.env = {...OLD_ENV}; // Make a copy
 	});
 

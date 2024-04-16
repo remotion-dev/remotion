@@ -1,16 +1,38 @@
-import {expect, mock, test} from 'bun:test';
+/**
+ * @vitest-environment jsdom
+ */
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
+import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import * as useVideoConfigModule from '../use-video-config.js';
 import {renderHook} from './render-hook.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
+beforeAll(() => {
+	vitest
+		.spyOn(useVideoConfigModule, 'useVideoConfig')
+		.mockImplementation(() => ({
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 100,
+			id: 'hithere',
+			defaultProps: {},
+			props: {},
+			defaultCodec: null,
+		}));
+});
+afterAll(() => {
+	vitest.spyOn(useVideoConfigModule, 'useVideoConfig').mockClear();
+});
+
 test('useMediaInTimeline registers and unregisters new sequence', () => {
-	const registerSequence = mock();
-	const unregisterSequence = mock();
+	const registerSequence = vitest.fn();
+	const unregisterSequence = vitest.fn();
 	const wrapper: React.FC<{
 		children: React.ReactNode;
 	}> = ({children}) => {

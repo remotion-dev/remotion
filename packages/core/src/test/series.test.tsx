@@ -1,7 +1,10 @@
+/**
+ * @vitest-environment jsdom
+ */
 /* eslint-disable react/jsx-no-constructed-context-values */
-import {expect, test} from 'bun:test';
 import React from 'react';
 import {renderToString} from 'react-dom/server';
+import {expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Series} from '../series/index.js';
 import {TimelineContext} from '../timeline-position-state.js';

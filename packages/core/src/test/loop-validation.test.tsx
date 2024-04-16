@@ -1,6 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
-import {describe, expect, test} from 'bun:test';
 import {renderToString} from 'react-dom/server';
+import {describe, expect, test} from 'vitest';
 import {Loop} from '../loop/index.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
