@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { Counter } from "./Counter";
-import styles from "./pricing.module.css";
 import { PricingBulletPoint } from "./PricingBulletPoint";
+import styles from "./pricing.module.css";
 
 const SEAT_PRICE = 25;
 const RENDER_UNIT_PRICE = 10;
@@ -44,9 +44,11 @@ export const CompanyPricing: React.FC = () => {
 
   return (
     <div className={styles.pricingcontainer}>
-      <div className={styles.audience}>For companies of 4+ people</div>
-      <h2 className={styles.pricingtitle}>Company license</h2>
-      <PricingBulletPoint text="Everything in free" checked />
+      <div className={styles.audience}>
+        For collaborations and companies of 4+ people
+      </div>
+      <h2 className={styles.pricingtitle}>Company License</h2>
+      <PricingBulletPoint text="Everything in Free License" checked />
       <PricingBulletPoint text="Prioritized Support" checked />
       <div style={{ height: 30 }} />
       <div className={styles.rowcontainer}>
