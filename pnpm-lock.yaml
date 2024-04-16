@@ -58,6 +58,9 @@ importers:
       rollup:
         specifier: ^2.70.1
         version: 2.76.0
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
 
   packages/astro-example:
     dependencies:

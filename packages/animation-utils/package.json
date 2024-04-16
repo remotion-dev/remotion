@@ -14,7 +14,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d && rollup --config rollup.config.js",
-		"test": "bun test src"
+		"test": "vitest --run"
 	},
 	"dependencies": {
 		"remotion": "workspace:*"
@@ -35,6 +35,7 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"eslint": "8.56.0",
 		"@jonny/eslint-config": "3.0.281",
+		"vitest": "0.31.1",
 		"rollup": "^2.70.1"
 	},
 	"exports": {
