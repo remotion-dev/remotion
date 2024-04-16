@@ -14,7 +14,7 @@ test('Get git status', async () => {
 		status.location ===
 			path.posix.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
 			status.location ===
-			path.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
+				path.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
 			status.location === 'D:/a/remotion/remotion',
 	).toEqual(true);
 
