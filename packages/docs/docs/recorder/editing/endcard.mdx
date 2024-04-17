@@ -1,9 +1,14 @@
 # Endcard
 
-In the endcard you can add call to actions, such as links to your social media profiles or other websites.
-This can be setup in the `remotion/configuration.tsx` file by adding your information as `Channel` object.
+The endcard provides the possibility to add calls to action, link your social media accounts for cross-platform promotion adjustable to different paltforms.
+Based on the platform you choose to render a video for, the call to action and social media links will be adjusted accordingly.
+When rendering videos for YouTube, the Endcard design takes into account playlists or videos linked in the YouTube end screen.
 
-```tsx filename="Example configuration.tsx"
+## Setup your endcard
+
+Your social media promotion can be setup in the `config/endcard.ts` file by adding your information as `Channel` object.
+
+```tsx filename="Example endcard.ts"
 export const channels: {
   [key in Channel]: ChannelConfig & {
     isLinkedInBusinessPage: boolean;
@@ -27,3 +32,52 @@ export const channels: {
   },
 };
 ```
+
+## Select the platform
+
+In the Remotion Studio, you can select for which platform the video should be rendered. Based on the selected platform, the call to action as well as the displayed cross-platform links get adjusted accordingly.
+
+For example if you choose to render two videos, one for YouTube and one for Instagram, the call to action displayed in the endcard will be 'Subscribe' for the YouTube video and 'Follow' for the Instagram video.
+Where the YouTube endcard links to your Instagram profile, the Instagram endcard will link to your YouTube channel.
+
+## YouTube endcard boxes
+
+If you render a YouTube video, the endcard contains two boxes where you can then place two videos that should be displayed in the YouTube end screen. In YouTubes end screen editor,
+make the linked videos as small as possible and place them inside the boxes for a clean look.
+
+<div
+  style={{
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    gap: 10,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      flex: 1,
+      gap: 6,
+    }}
+  >
+    <img src="/recorder/YT-endcard.png" />
+    <div>YoutTube Endcard</div>
+  </div>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 6,
+      flex: 1,
+    }}
+  >
+    <img
+      src="/recorder/YT-end-screen-editor.png"
+      style={{ width: "100%", objectFit: "cover", aspectRatio: "16/9" }}
+    />
+    <div>YouTube's end screen editor</div>
+  </div>
+</div>
