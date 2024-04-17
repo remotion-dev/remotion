@@ -1,7 +1,7 @@
 use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary};
+use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -412,14 +412,29 @@ impl OpenedStream {
     }
 }
 
-// https://chat.openai.com/share/9d7d5ebe-555a-46df-a339-691e1a7f83eb
-pub fn calculate_display_video_size(sar_x: i32, sar_y: i32, width: u32, height: u32) -> (u32, u32) {
-    if sar_x == 0 || sar_y == 0 {
-        return (width, height);
+pub fn calculate_display_video_size(
+    dar_x: i32,
+    dar_y: i32,
+    sar_x: i32,
+    sar_y: i32,
+    x: u32,
+    y: u32,
+) -> (u32, u32) {
+    if dar_x == 0 || dar_y == 0 {
+        return (x, y);
     }
 
-    let new_width = (width as f64 * (sar_x as f64 / sar_y as f64) as f64).round() as u32;
-    (new_width, height)
+    let new_width = ((x as f64 * sar_x as f64 / sar_y as f64).round()).max(x as f64);
+    let new_height = (new_width / (dar_x as f64 / dar_y as f64)).ceil();
+
+    (new_width as u32, new_height as u32)
+}
+
+pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
+    unsafe {
+        let asp = mut_stream.get_display_aspect_ratio();
+        return Rational::new(asp.numerator(), asp.denominator());
+    }
 }
 
 pub fn open_stream(
@@ -502,17 +517,23 @@ pub fn open_stream(
 
     let original_width = decoder.width();
     let original_height = decoder.height();
-    let fps = mut_stream.avg_frame_rate();
 
-    let sample_aspect_ratio: Rational;
+    let sar_x;
+    let sar_y;
     unsafe {
-        let ar = (*mut_stream.as_ptr()).sample_aspect_ratio;
-        sample_aspect_ratio = Rational::new(ar.num, ar.den);
+        sar_x = (*mut_stream.as_ptr()).sample_aspect_ratio.num;
+        sar_y = (*mut_stream.as_ptr()).sample_aspect_ratio.den;
     }
 
+    let fps = mut_stream.avg_frame_rate();
+
+    let display_aspect_ratio = get_display_aspect_ratio(&mut_stream);
+
     let (scaled_width, scaled_height) = calculate_display_video_size(
-        sample_aspect_ratio.0,
-        sample_aspect_ratio.1,
+        display_aspect_ratio.0,
+        display_aspect_ratio.1,
+        sar_x,
+        sar_y,
         original_width,
         original_height,
     );

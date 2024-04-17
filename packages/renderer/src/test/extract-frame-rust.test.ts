@@ -246,6 +246,13 @@ test(
 			tone_mapped: true,
 		});
 
+		const header = data.subarray(0, BMP_HEADER_SIZE);
+
+		const width = header.readInt32LE(18);
+		const height = header.readInt32LE(22);
+		expect(width).toBe(683);
+		expect(height).toBe(512);
+
 		// Expected length fixing
 		expect(data.length).toBe(1050678);
 
@@ -266,10 +273,10 @@ test(
 	{timeout: 20000},
 );
 
-test.only('Should be able to extract a frame with abnormal DAR', async () => {
+test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'verbose',
+		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
 	});
@@ -287,12 +294,12 @@ test.only('Should be able to extract a frame with abnormal DAR', async () => {
 	const width = header.readInt32LE(18);
 	const height = header.readInt32LE(22);
 
-	expect(height).toBe(1280);
-	expect(width).toBe(720);
+	expect(width).toBe(1280);
+	expect(height).toBe(2276);
 
-	expect(data[0x00169915]).approximately(144, 2);
-	expect(data[0x0012dd58]).approximately(159, 2);
-	expect(data[0x00019108]).approximately(209, 2);
+	expect(data[0x00169915]).approximately(250, 2);
+	expect(data[0x0012dd58]).approximately(249, 2);
+	expect(data[0x00019108]).approximately(249, 2);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
