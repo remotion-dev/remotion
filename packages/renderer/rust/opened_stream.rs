@@ -1,7 +1,7 @@
 use std::{io::ErrorKind, time::SystemTime};
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -412,24 +412,14 @@ impl OpenedStream {
     }
 }
 
-pub fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
-    if dar_x == 0 || dar_y == 0 {
-        return (x, y);
+// https://chat.openai.com/share/9d7d5ebe-555a-46df-a339-691e1a7f83eb
+pub fn calculate_display_video_size(sar_x: i32, sar_y: i32, width: u32, height: u32) -> (u32, u32) {
+    if sar_x == 0 || sar_y == 0 {
+        return (width, height);
     }
 
-    let dimensions = (x * y) as f64;
-    let new_width = (dimensions * (dar_x as f64 / dar_y as f64) as f64).sqrt();
-    let new_height = dimensions / new_width;
-    let height = new_height.round() as u32;
-    let width = new_width.round() as u32;
-    (width, height)
-}
-
-pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
-    unsafe {
-        let asp = mut_stream.get_display_aspect_ratio();
-        return Rational::new(asp.numerator(), asp.denominator());
-    }
+    let new_width = (width as f64 * (sar_x as f64 / sar_y as f64) as f64).round() as u32;
+    (new_width, height)
 }
 
 pub fn open_stream(
@@ -514,11 +504,15 @@ pub fn open_stream(
     let original_height = decoder.height();
     let fps = mut_stream.avg_frame_rate();
 
-    let aspect_ratio = get_display_aspect_ratio(&mut_stream);
+    let sample_aspect_ratio: Rational;
+    unsafe {
+        let ar = (*mut_stream.as_ptr()).sample_aspect_ratio;
+        sample_aspect_ratio = Rational::new(ar.num, ar.den);
+    }
 
     let (scaled_width, scaled_height) = calculate_display_video_size(
-        aspect_ratio.0,
-        aspect_ratio.1,
+        sample_aspect_ratio.0,
+        sample_aspect_ratio.1,
         original_width,
         original_height,
     );

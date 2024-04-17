@@ -222,38 +222,47 @@ pub fn scale_and_make_bitmap(
         &mut scaled,
     )?;
 
+    let is_transparent_pixel_format = src_format == Pixel::YUVA420P
+        || src_format == Pixel::YUVA444P10LE
+        || src_format == Pixel::YUVA444P12LE;
+
+    let channels = match is_transparent_pixel_format {
+        true => 4,
+        false => 3,
+    } as usize;
+
     let (rotated, rotated_width, rotated_height, stride) = match native_frame.rotate {
         Rotate::Rotate90 => rotate_90(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
             scaled.stride(0),
+            channels,
         ),
         Rotate::Rotate180 => rotate_180(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
             scaled.stride(0),
+            channels,
         ),
         Rotate::Rotate270 => rotate_270(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
             scaled.stride(0),
+            channels,
         ),
-        Rotate::Rotate0 => (
-            scaled.data(0).to_vec(),
+        Rotate::Rotate0 => rotate_0(
+            scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
             scaled.stride(0),
+            channels,
         ),
     };
 
     if transparent {
-        let is_transparent_pixel_format = src_format == Pixel::YUVA420P
-            || src_format == Pixel::YUVA444P10LE
-            || src_format == Pixel::YUVA444P12LE;
-
         if is_transparent_pixel_format {
             return get_png_data(&rotated, rotated_width, rotated_height);
         } else {
@@ -284,21 +293,49 @@ pub fn rotate_270(
     width: u32,
     height: u32,
     stride: usize,
+    channels: usize,
 ) -> (Vec<u8>, u32, u32, usize) {
-    let new_stride = (height as usize * 3 + 3) & !3; // This ensures the new stride is a multiple of 4 for alignment
+    let new_stride = (height as usize * channels + channels) & !channels; // This ensures the new stride is a multiple of channels for alignment
     let mut new_data: Vec<u8> = vec![0; new_stride * width as usize];
 
     for y in 0..height {
         for x in 0..width {
             let new_x = y;
             let new_y = width - x - 1;
-            let new_index = (new_y * height + new_x) as usize * 3;
-            let old_index = y as usize * stride + x as usize * 3;
-            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+            let new_index = (new_y * height + new_x) as usize * channels;
+            let old_index = y as usize * stride + x as usize * channels;
+            new_data[new_index..new_index + channels]
+                .copy_from_slice(&data[old_index..old_index + channels]);
         }
     }
 
     (new_data, height, width, new_stride)
+}
+
+pub fn rotate_0(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    stride: usize,
+    channels: usize,
+) -> (Vec<u8>, u32, u32, usize) {
+    let new_stride = width as usize * channels;
+    if new_stride == stride {
+        return (data.to_vec(), width, height, stride);
+    }
+
+    let mut new_data: Vec<u8> = vec![0; new_stride * height as usize];
+
+    for y in 0..height {
+        for x in 0..width {
+            let new_index = (y as usize) * (new_stride as usize) + x as usize * channels;
+            let old_index = y as usize * stride + x as usize * channels;
+            new_data[new_index..new_index + channels]
+                .copy_from_slice(&data[old_index..old_index + channels]);
+        }
+    }
+
+    (new_data, width, height, new_stride)
 }
 
 pub fn rotate_180(
@@ -306,6 +343,7 @@ pub fn rotate_180(
     width: u32,
     height: u32,
     stride: usize,
+    channels: usize,
 ) -> (Vec<u8>, u32, u32, usize) {
     let mut new_data: Vec<u8> = vec![0; stride * height as usize];
 
@@ -313,9 +351,10 @@ pub fn rotate_180(
         for x in 0..width {
             let new_x = width - x - 1;
             let new_y = height - y - 1;
-            let new_index = (new_y as usize * stride) + (new_x as usize * 3);
-            let old_index = (y as usize * stride) + (x as usize * 3);
-            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+            let new_index = (new_y as usize * stride) + (new_x as usize * channels);
+            let old_index = (y as usize * stride) + (x as usize * channels);
+            new_data[new_index..new_index + channels]
+                .copy_from_slice(&data[old_index..old_index + channels]);
         }
     }
 
@@ -327,17 +366,19 @@ pub fn rotate_90(
     width: u32,
     height: u32,
     stride: usize,
+    channels: usize,
 ) -> (Vec<u8>, u32, u32, usize) {
-    let new_stride = (height as usize * 3 + 3) & !3; // This ensures the new stride is a multiple of 4 for alignment
+    let new_stride = (height as usize * channels + channels) & !channels; // This ensures the new stride is a multiple of 4 for alignment
     let mut new_data: Vec<u8> = vec![0; new_stride * width as usize];
 
     for y in 0..height {
         for x in 0..width {
             let new_x = height - y - 1;
             let new_y = x;
-            let new_index = (new_y as usize * new_stride) + (new_x as usize * 3);
-            let old_index = (y as usize * stride) + (x as usize * 3);
-            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+            let new_index = (new_y as usize * new_stride) + (new_x as usize * channels);
+            let old_index = (y as usize * stride) + (x as usize * channels);
+            new_data[new_index..new_index + channels]
+                .copy_from_slice(&data[old_index..old_index + channels]);
         }
     }
 

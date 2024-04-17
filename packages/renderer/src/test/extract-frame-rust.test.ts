@@ -228,10 +228,48 @@ test(
 	{timeout: 20000},
 );
 
-test('Should be able to extract a frame with abnormal DAR', async () => {
+test(
+	'Should get a frame of a transparent video with a custom DAR',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentwithdar,
+			original_src: exampleVideos.transparentwithdar,
+			time: 0.5,
+			transparent: false,
+			tone_mapped: true,
+		});
+
+		// Expected length fixing
+		expect(data.length).toBe(1050678);
+
+		const transparentdata = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentwithdar,
+			original_src: exampleVideos.transparentwithdar,
+			time: 0.5,
+			transparent: true,
+			tone_mapped: true,
+		});
+
+		// Expected length fixing
+		expect(transparentdata.length).toBe(174887);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 20000},
+);
+
+test.only('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'info',
+		logLevel: 'verbose',
 		indent: false,
 		binariesDirectory: null,
 	});
