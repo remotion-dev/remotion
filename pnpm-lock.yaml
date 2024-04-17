@@ -1570,18 +1570,15 @@ importers:
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
-      entities:
-        specifier: 4.5.0
-        version: 4.5.0
       eslint:
         specifier: 8.56.0
         version: 8.56.0
       eslint-plugin-require-extensions:
         specifier: ^0.1.2
         version: 0.1.2(eslint@8.56.0)
-      happy-dom:
-        specifier: 14.5.1
-        version: 14.5.1
+      jsdom:
+        specifier: 20.0.1
+        version: 20.0.1
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -1600,15 +1597,12 @@ importers:
       rollup-plugin-banner2:
         specifier: ^1.2.2
         version: 1.2.2
-      webidl-conversions:
-        specifier: 7.0.0
-        version: 7.0.0
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
       webpack:
         specifier: 5.83.1
         version: 5.83.1
-      whatwg-mimetype:
-        specifier: ^3.0.0
-        version: 3.0.0
       zod:
         specifier: ^3.22.3
         version: 3.22.3
@@ -11771,7 +11765,7 @@ packages:
       domhandler: 5.0.3
       domutils: 3.0.1
       htmlparser2: 8.0.1
-      parse5: 7.1.1
+      parse5: 7.1.2
       parse5-htmlparser2-tree-adapter: 7.0.0
     dev: false
 
@@ -15783,6 +15777,47 @@ packages:
       underscore: 1.13.6
     dev: false
 
+  /jsdom@20.0.1:
+    resolution: {integrity: sha512-pksjj7Rqoa+wdpkKcLzQRHhJCEE42qQhl/xLMUKHgoSejaKOdaXEAnqs6uDNwMl/fciHTzKeR8Wm8cw7N+g98A==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      canvas: ^2.5.0
+    peerDependenciesMeta:
+      canvas:
+        optional: true
+    dependencies:
+      abab: 2.0.6
+      acorn: 8.11.3
+      acorn-globals: 7.0.1
+      cssom: 0.5.0
+      cssstyle: 2.3.0
+      data-urls: 3.0.2
+      decimal.js: 10.4.3
+      domexception: 4.0.0
+      escodegen: 2.1.0
+      form-data: 4.0.0
+      html-encoding-sniffer: 3.0.0
+      http-proxy-agent: 5.0.0
+      https-proxy-agent: 5.0.1
+      is-potential-custom-element-name: 1.0.1
+      nwsapi: 2.2.7
+      parse5: 7.1.2
+      saxes: 6.0.0
+      symbol-tree: 3.2.4
+      tough-cookie: 4.1.3
+      w3c-xmlserializer: 3.0.0
+      webidl-conversions: 7.0.0
+      whatwg-encoding: 2.0.0
+      whatwg-mimetype: 3.0.0
+      whatwg-url: 11.0.0
+      ws: 8.16.0
+      xml-name-validator: 4.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
   /jsdom@21.1.0:
     resolution: {integrity: sha512-m0lzlP7qOtthD918nenK3hdItSd2I+V3W9IrBcB36sqDwG+KnUs66IF5GY7laGWUnlM9vTsD0W1QwSEBYWWcJg==}
     engines: {node: '>=14'}
@@ -17747,12 +17782,6 @@ packages:
 
   /parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
-    dev: false
-
-  /parse5@7.1.1:
-    resolution: {integrity: sha512-kwpuwzB+px5WUg9pyK0IcK/shltJN5/OVhQagxhCQNtT9Y9QRZqNY2e1cmbu/paRh5LMnz/oVTVLBpjFmMZhSg==}
-    dependencies:
-      entities: 4.5.0
     dev: false
 
   /parse5@7.1.2:
@@ -21406,7 +21435,7 @@ packages:
   /tr46@1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.3.1
     dev: false
 
   /tr46@3.0.0:
@@ -22450,6 +22479,73 @@ packages:
       - supports-color
       - terser
 
+  /vitest@0.31.1(jsdom@20.0.1):
+    resolution: {integrity: sha512-/dOoOgzoFk/5pTvg1E65WVaobknWREN15+HF+0ucudo3dDG/vCZoXTQrjIfEaWvQXmqScwkRodrTbM/ScMpRcQ==}
+    engines: {node: '>=v14.18.0'}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
+      '@vitest/ui': '*'
+      happy-dom: '*'
+      jsdom: '*'
+      playwright: '*'
+      safaridriver: '*'
+      webdriverio: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+      playwright:
+        optional: true
+      safaridriver:
+        optional: true
+      webdriverio:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.11
+      '@types/chai-subset': 1.3.5
+      '@types/node': 18.14.6
+      '@vitest/expect': 0.31.1
+      '@vitest/runner': 0.31.1
+      '@vitest/snapshot': 0.31.1
+      '@vitest/spy': 0.31.1
+      '@vitest/utils': 0.31.1
+      acorn: 8.11.3
+      acorn-walk: 8.3.2
+      cac: 6.7.14
+      chai: 4.4.1
+      concordance: 5.0.4
+      debug: 4.3.4(supports-color@5.5.0)
+      jsdom: 20.0.1
+      local-pkg: 0.4.3
+      magic-string: 0.30.5
+      pathe: 1.1.2
+      picocolors: 1.0.0
+      std-env: 3.7.0
+      strip-literal: 1.3.0
+      tinybench: 2.6.0
+      tinypool: 0.5.0
+      vite: 4.5.3(@types/node@18.14.6)
+      vite-node: 0.31.1(@types/node@18.14.6)
+      why-is-node-running: 2.2.2
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: true
+
   /vitest@0.31.1(jsdom@24.0.0):
     resolution: {integrity: sha512-/dOoOgzoFk/5pTvg1E65WVaobknWREN15+HF+0ucudo3dDG/vCZoXTQrjIfEaWvQXmqScwkRodrTbM/ScMpRcQ==}
     engines: {node: '>=v14.18.0'}
@@ -22587,6 +22683,13 @@ packages:
   /vscode-uri@3.0.7:
     resolution: {integrity: sha512-eOpPHogvorZRobNqJGhapa0JdwaxpjVvyBp0QIUMRMSf8ZAlqOdEquKuRmw9Qwu0qXtJIWqFtMkmvJjUZmMjVA==}
     dev: false
+
+  /w3c-xmlserializer@3.0.0:
+    resolution: {integrity: sha512-3WFqGEgSXIyGhOmAFtlicJNMjEps8b1MG31NCA0/vOF9+nKMUW1ckhi9cnNHmf88Rzw5V+dwIwsm2C7X8k9aQg==}
+    engines: {node: '>=12'}
+    dependencies:
+      xml-name-validator: 4.0.0
+    dev: true
 
   /w3c-xmlserializer@4.0.0:
     resolution: {integrity: sha512-d+BFHzbiCx6zGfz0HyQ6Rg69w9k19nviJspaj4yNscGjrHu94sVP+aRm75yEbCh+r2/yR+7q6hux9LVtbuTGBw==}
