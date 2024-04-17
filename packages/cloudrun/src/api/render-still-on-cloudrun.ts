@@ -7,7 +7,6 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {DEFAULT_TIMEOUT} from '../defaults';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -219,7 +218,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		cloudRunUrl: options.cloudRunUrl ?? null,
 		composition: options.composition,
 		delayRenderTimeoutInMilliseconds:
-			options.delayRenderTimeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		envVariables: options.envVariables ?? {},
 		forceBucketName: options.forceBucketName ?? null,
 		forceHeight: options.forceHeight ?? null,
