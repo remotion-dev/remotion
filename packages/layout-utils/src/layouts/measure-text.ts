@@ -137,7 +137,7 @@ export const measureText = ({
 		additionalStyles,
 	});
 
-	if (validateFontIsLoaded) {
+	if (validateFontIsLoaded && text.trim().length > 0) {
 		const {
 			boundingBox: boundingBoxOfFallbackFont,
 			computedFontFamily: computedFallback,
