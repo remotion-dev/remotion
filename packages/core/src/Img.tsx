@@ -128,6 +128,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	if (typeof window !== 'undefined') {
+		const isPremounting = Boolean(sequenceContext?.premounting);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
@@ -139,7 +140,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 			});
 			const unblock =
-				pauseWhenLoading && !sequenceContext?.premounting
+				pauseWhenLoading && !isPremounting
 					? delayPlayback().unblock
 					: () => undefined;
 			const {current} = imageRef;
@@ -182,7 +183,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
 			pauseWhenLoading,
-			sequenceContext?.premounting,
+			isPremounting,
 		]);
 	}
 
