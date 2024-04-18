@@ -412,17 +412,22 @@ impl OpenedStream {
     }
 }
 
-pub fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
+pub fn calculate_display_video_size(
+    dar_x: i32,
+    dar_y: i32,
+    sar_x: i32,
+    sar_y: i32,
+    x: u32,
+    y: u32,
+) -> (u32, u32) {
     if dar_x == 0 || dar_y == 0 {
         return (x, y);
     }
 
-    let dimensions = (x * y) as f64;
-    let new_width = (dimensions * (dar_x as f64 / dar_y as f64) as f64).sqrt();
-    let new_height = dimensions / new_width;
-    let height = new_height.round() as u32;
-    let width = new_width.round() as u32;
-    (width, height)
+    let new_width = ((x as f64 * sar_x as f64 / sar_y as f64).round()).max(x as f64);
+    let new_height = (new_width / (dar_x as f64 / dar_y as f64)).ceil();
+
+    (new_width as u32, new_height as u32)
 }
 
 pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
@@ -512,13 +517,23 @@ pub fn open_stream(
 
     let original_width = decoder.width();
     let original_height = decoder.height();
+
+    let sar_x;
+    let sar_y;
+    unsafe {
+        sar_x = (*mut_stream.as_ptr()).sample_aspect_ratio.num;
+        sar_y = (*mut_stream.as_ptr()).sample_aspect_ratio.den;
+    }
+
     let fps = mut_stream.avg_frame_rate();
 
-    let aspect_ratio = get_display_aspect_ratio(&mut_stream);
+    let display_aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
     let (scaled_width, scaled_height) = calculate_display_video_size(
-        aspect_ratio.0,
-        aspect_ratio.1,
+        display_aspect_ratio.0,
+        display_aspect_ratio.1,
+        sar_x,
+        sar_y,
         original_width,
         original_height,
     );

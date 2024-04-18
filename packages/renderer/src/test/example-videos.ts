@@ -24,4 +24,9 @@ export const exampleVideos = {
 	music: path.join(examplePackage, 'public', 'music.mp3'),
 	notavideo: path.join(examplePackage, 'public', 'giphy.gif'),
 	notafile: path.join(examplePackage, 'public', 'doesnotexist'),
+	transparentwithdar: path.join(
+		examplePackage,
+		'public',
+		'transparent-with-dar.webm',
+	),
 };
