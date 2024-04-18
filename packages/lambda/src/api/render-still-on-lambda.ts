@@ -8,11 +8,7 @@ import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {
-	DEFAULT_MAX_RETRIES,
-	DEFAULT_TIMEOUT,
-	LambdaRoutines,
-} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {
 	getCloudwatchMethodUrl,
@@ -177,7 +173,7 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,
-		timeoutInMilliseconds: input.timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
 	});
 };
