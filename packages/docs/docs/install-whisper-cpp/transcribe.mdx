@@ -6,13 +6,12 @@ crumb: "@remotion/install-whisper-cpp"
 
 # transcribe()<AvailableFrom v="4.0.131 "/>
 
-:::warning
-This API assumes a newer version of Whisper.cpp than the stable release to support `tokenLevelTimestamps`. As a downside, this version may crash unexpectedly.
-Use an older version of Whisper.cpp (1.0.54 or earlier) if you prefer to use a stable version of Whisper.cpp and forgo `tokenLevelTimeStamps` support.  
-:::
-
 Transcribes a media file by utilizing Whisper.cpp.  
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
+
+:::note
+This function only works with Whisper.cpp 1.5.5 or later, unless `tokenLevelTimestamps` is set to false.
+:::
 
 ```tsx twoslash title="transcribe.mjs"
 // @module: esnext
@@ -59,7 +58,7 @@ If you haven't installed Whisper.cpp, you can do so for example through [`instal
 ### `tokenLevelTimestamps`<AvailableFrom v="4.0.131"/>
 
 Passes the `--dtw` flag to Whisper.cpp to generate more accurate timestamps, which are being returned under the `t_dtw` field.  
-Recommended to get actually accurate timings, but only available from Whisper.cpp versions later than 1.0.54 (commit [`741abb`](https://github.com/ggerganov/whisper.cpp/commit/741abb162ce8207eca2562e59c03efefb21c0122) or later).  
+Recommended to get actually accurate timings, but only available from Whisper.cpp versions later than 1.0.55.  
 Set to `false` if you use an older version of Whisper.cpp.
 
 ### `model?`
