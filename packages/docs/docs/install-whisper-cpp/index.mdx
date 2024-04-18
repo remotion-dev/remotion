@@ -15,7 +15,7 @@ import { TableOfContents } from "../../components/TableOfContents/install-whispe
 
 ## Example usage
 
-Install Whisper at commit `48a145` (a ref that we find works well and supports token-level timestamps) and the `base.en` model to the `whisper.cpp` folder.
+Install Whisper `1.5.5` (the latest version at the time of writing that we find works well and supports token-level timestamps) and the `medium.en` model to the `whisper.cpp` folder.
 
 ```tsx twoslash title="install-whisper.cpp"
 // @module: esnext
@@ -32,7 +32,7 @@ const to = path.join(process.cwd(), "whisper.cpp");
 
 await installWhisperCpp({
   to,
-  version: "48a145", // Commit after 1.5.4 that supports token-level timestamps
+  version: "1.5.5",
 });
 
 await downloadWhisperModel({

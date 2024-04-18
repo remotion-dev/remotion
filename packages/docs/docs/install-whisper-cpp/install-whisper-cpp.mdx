@@ -17,11 +17,11 @@ import { installWhisperCpp } from "@remotion/install-whisper-cpp";
 
 const { alreadyExisted } = await installWhisperCpp({
   to: path.join(process.cwd(), "whisper.cpp"),
-  version: "48a145", // A Whisper.cpp commit hash or release tag
+  version: "1.5.5", // A Whisper.cpp semver or git tag
 });
 ```
 
-On Windows, a binary is downloaded.  
+On Windows, a binary is downloaded if there is a precompiled release for this version, otherwise it will fail.  
 On other platforms, the source is cloned from GitHub and built.
 
 If you install Whisper.cpp into a folder which is in a Git repository, you should add the folder to the `.gitignore` file.
