@@ -122,9 +122,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 	});
 
-	const actualFrom = parentSequence
-		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
-		: 0;
+	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
 	const duration = parentSequence
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
