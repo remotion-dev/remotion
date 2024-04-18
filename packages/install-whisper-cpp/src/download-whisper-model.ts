@@ -83,16 +83,13 @@ export const downloadWhisperModel = async ({
 			while (true) {
 				const {done, value} = await reader.read();
 
-				if (!value) {
-					throw new Error('Failed to read from stream');
-				}
+				if (value) {
+					downloaded += value.length;
 
-				downloaded += value.length;
-
-				if (printOutput) {
 					if (
-						downloaded - lastPrinted > 1024 * 1024 * 10 ||
-						downloaded === totalFileSize
+						printOutput &&
+						(downloaded - lastPrinted > 1024 * 1024 * 10 ||
+							downloaded === totalFileSize)
 					) {
 						console.log(
 							`Downloaded ${downloaded} of ${contentLength} bytes (${(
@@ -102,15 +99,15 @@ export const downloadWhisperModel = async ({
 						);
 						lastPrinted = downloaded;
 					}
-				}
 
-				fileStream.write(value, () => {
-					onProgress?.(downloaded, totalFileSize);
-					if (downloaded === totalFileSize) {
-						fileStream.end();
-						resolve();
-					}
-				});
+					fileStream.write(value, () => {
+						onProgress?.(downloaded, totalFileSize);
+						if (downloaded === totalFileSize) {
+							fileStream.end();
+							resolve();
+						}
+					});
+				}
 
 				if (done) {
 					break;
