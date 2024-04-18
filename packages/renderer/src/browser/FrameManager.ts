@@ -16,7 +16,7 @@
 
 import type {LogLevel} from '../log-level';
 import {assert} from './assert';
-import type {Page} from './BrowserPage';
+import {PageEmittedEvents, type Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
 import type {
@@ -83,7 +83,15 @@ export class FrameManager extends EventEmitter {
 		super();
 		this.#client = client;
 		this.#page = page;
-		this.#networkManager = new NetworkManager(client, this, indent, logLevel);
+		this.#networkManager = new NetworkManager(
+			client,
+			this,
+			indent,
+			logLevel,
+			() => {
+				page.emit(PageEmittedEvents.OffthreadVideoFailure);
+			},
+		);
 		this.setupEventListeners(this.#client);
 	}
 

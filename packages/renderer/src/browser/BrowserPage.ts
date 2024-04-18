@@ -79,12 +79,14 @@ export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
 	Disposed = 'disposed',
+	OffthreadVideoFailure = 'img-fail',
 }
 
 interface PageEventObject {
 	console: ConsoleMessage;
 	error: Error;
 	disposed: undefined;
+	['img-fail']: undefined;
 }
 
 export class Page extends EventEmitter {

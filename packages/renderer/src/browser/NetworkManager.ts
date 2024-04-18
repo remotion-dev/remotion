@@ -55,11 +55,13 @@ export class NetworkManager extends EventEmitter {
 	#networkEventManager = new NetworkEventManager();
 	#indent: boolean;
 	#logLevel: LogLevel;
+	#onOffthreadImageFail: () => void;
 	constructor(
 		client: CDPSession,
 		frameManager: FrameManager,
 		indent: boolean,
 		logLevel: LogLevel,
+		onOffthreadImageFail: () => void,
 	) {
 		super();
 		this.#client = client;
@@ -89,6 +91,7 @@ export class NetworkManager extends EventEmitter {
 			'Network.responseReceivedExtraInfo',
 			this.#onResponseReceivedExtraInfo.bind(this),
 		);
+		this.#onOffthreadImageFail = onOffthreadImageFail;
 	}
 
 	async initialize(): Promise<void> {
@@ -346,6 +349,13 @@ export class NetworkManager extends EventEmitter {
 		}
 
 		if (!event.canceled) {
+			if (
+				request._url?.includes('/proxy') &&
+				event.errorText === 'net::ERR_TIMED_OUT'
+			) {
+				this.#onOffthreadImageFail();
+			}
+
 			Log.warn(
 				{indent: this.#indent, logLevel: this.#logLevel},
 				`Browser failed to load ${request._url}: ${event.errorText}`,

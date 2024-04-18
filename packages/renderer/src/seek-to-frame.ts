@@ -143,13 +143,33 @@ export const waitForReady = ({
 
 	return Promise.race([
 		new Promise((_, reject) => {
-			page.on(PageEmittedEvents.Disposed, () => {
+			const onDispose = () => {
 				reject(new Error('Target closed (page disposed)'));
+			};
+
+			page.on(PageEmittedEvents.Disposed, onDispose);
+			cleanups.push(() => {
+				page.off(PageEmittedEvents.Disposed, onDispose);
 			});
 		}),
 		new Promise((_, reject) => {
-			page.browser.on(BrowserEmittedEvents.ClosedSilent, () => {
+			const onImgFailure = () => {
+				reject(new Error('Offthread timed out'));
+			};
+
+			page.on(PageEmittedEvents.OffthreadVideoFailure, onImgFailure);
+			cleanups.push(() => {
+				page.off(PageEmittedEvents.OffthreadVideoFailure, onImgFailure);
+			});
+		}),
+		new Promise((_, reject) => {
+			const onClosedSilent = () => {
 				reject(new Error('Target closed'));
+			};
+
+			page.browser.on(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
+			cleanups.push(() => {
+				page.browser.off(BrowserEmittedEvents.ClosedSilent, onClosedSilent);
 			});
 		}),
 		waitForReadyProm,

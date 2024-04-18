@@ -575,9 +575,10 @@ const innerRenderFrames = async ({
 			]);
 		} catch (err) {
 			const isTargetClosedError = isTargetClosedErr(err as Error);
-			const shouldRetryError = (err as Error).stack?.includes(
-				NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
-			);
+			const shouldRetryError =
+				(err as Error).stack?.includes(
+					NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
+				) || (err as Error).message.includes('Offthread timed out');
 
 			if (isUserCancelledRender(err) && !shouldRetryError) {
 				throw err;
@@ -611,7 +612,11 @@ const innerRenderFrames = async ({
 					{indent, logLevel},
 					`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
 				);
-				const actualRetriesLeft = getRetriesLeftFromError(err as Error);
+				const actualRetriesLeft = (err as Error).message.includes(
+					'Offthread timed out',
+				)
+					? 1
+					: getRetriesLeftFromError(err as Error);
 
 				return renderFrameAndRetryTargetClose({
 					frame,
