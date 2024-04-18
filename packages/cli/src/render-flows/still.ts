@@ -27,7 +27,7 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
-import {parsedCli, quietFlagProvided} from '../parse-command-line';
+import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,

@@ -68,7 +68,7 @@ test('Throw error on incompatible shorthands', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/The start and end values must have the same structure. Start value: 20px 40px, end value: 80px/,
 	);
 });
@@ -87,7 +87,7 @@ test('Should throw an error on non-animatable properties', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/Non-animatable values cannot be interpolated. Start value: center, end value: left/,
 	);
 });
@@ -245,7 +245,7 @@ test('Should handle `border`', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/Non-animatable values cannot be interpolated. Start value: 1px solid black, end value: 10px dotted red/,
 	);
 });

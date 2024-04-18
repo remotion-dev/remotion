@@ -9,8 +9,9 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "node ensure-correct-version.js && rollup --config rollup.config.js && tsc -d",
+		"build": "bun ensure-correct-version.ts && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w",
+		"test": "vitest src --run",
 		"prerelease": "cp ../../README.md ."
 	},
 	"exports": {
@@ -45,6 +46,7 @@
 		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "13.1.1",
+		"@happy-dom/global-registrator": "14.5.1",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",

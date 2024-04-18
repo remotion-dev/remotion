@@ -1,6 +1,6 @@
+import {expect, test} from 'bun:test';
 import type {ComponentType} from 'react';
 import React from 'react';
-import {expect, test} from 'vitest';
 import {getZodIfPossible} from '../components/get-zod-if-possible';
 import {createFolderTree} from '../helpers/create-folder-tree';
 

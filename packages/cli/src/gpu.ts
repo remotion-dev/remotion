@@ -5,7 +5,7 @@ import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
 
 export const GPU_COMMAND = 'gpu';
 

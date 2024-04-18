@@ -3,7 +3,7 @@ import {ensureBrowser} from '@remotion/renderer';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {getCliOptions} from '../get-cli-options';
 import {Log} from '../log';
-import {quietFlagProvided} from '../parse-command-line';
+import {quietFlagProvided} from '../parsed-cli';
 
 export const ENSURE_COMMAND = 'ensure';
 

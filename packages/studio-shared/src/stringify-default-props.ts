@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
 export type EnumPath = (string | number)[];
 
@@ -35,15 +35,21 @@ export const stringifyDefaultProps = ({
 				return `${item}__ADD_AS_CONST__`;
 			}
 
-			if (typeof item === 'string' && item.startsWith(Internals.FILE_TOKEN)) {
+			if (
+				typeof item === 'string' &&
+				item.startsWith(NoReactInternals.FILE_TOKEN)
+			) {
 				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
-					item.replace(Internals.FILE_TOKEN, ''),
+					item.replace(NoReactInternals.FILE_TOKEN, ''),
 				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 
-			if (typeof item === 'string' && item.startsWith(Internals.DATE_TOKEN)) {
+			if (
+				typeof item === 'string' &&
+				item.startsWith(NoReactInternals.DATE_TOKEN)
+			) {
 				return `__REMOVEQUOTE____WRAP_IN_DATE_START__${decodeURIComponent(
-					item.replace(Internals.DATE_TOKEN, ''),
+					item.replace(NoReactInternals.DATE_TOKEN, ''),
 				)}__WRAP_IN_DATE_END____REMOVEQUOTE__`;
 			}
 

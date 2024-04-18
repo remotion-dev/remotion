@@ -24,7 +24,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			stack?: string;
+			readonly stack?: string;
 		}
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);

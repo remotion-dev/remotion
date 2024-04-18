@@ -296,7 +296,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	useEffect(() => {
-		let timeout: NodeJS.Timeout | null = null;
+		let timeout: NodeJS.Timeout | Timer | null = null;
 		let stopped = false;
 
 		const onBuffer = () => {

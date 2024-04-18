@@ -2,7 +2,7 @@ import type {NodeIntrospection} from '../../shared/why-is-node-running';
 import {whyIsNodeRunning} from '../../shared/why-is-node-running';
 
 type LeakTimeout = {
-	timeout: NodeJS.Timeout;
+	timeout: Timer;
 	awsRequestId: string;
 };
 

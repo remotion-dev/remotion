@@ -5,12 +5,11 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {beforeEach, describe, expect, test, vitest} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {CompositionManager} from '../CompositionManagerContext.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {expectToThrow} from './expect-to-throw.js';
-import {mockCompositionContext} from './wrap-sequence-context.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 interface MockCompositionManagerContext {
 	MockProvider: React.FC<{children: React.ReactNode}>;
@@ -25,23 +24,21 @@ describe('Register and unregister asset', () => {
 		const unregisterRenderAsset = vitest.fn();
 		window.remotion_audioEnabled = true;
 		const MockProvider: React.FC<{
-			children: React.ReactNode;
+			readonly children: React.ReactNode;
 		}> = ({children}) => {
 			return (
-				<CanUseRemotionHooksProvider>
-					<CompositionManager.Provider value={mockCompositionContext}>
-						<RenderAssetManager.Provider
-							// eslint-disable-next-line react/jsx-no-constructed-context-values
-							value={{
-								registerRenderAsset,
-								unregisterRenderAsset,
-								renderAssets: [],
-							}}
-						>
-							<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
-						</RenderAssetManager.Provider>
-					</CompositionManager.Provider>
-				</CanUseRemotionHooksProvider>
+				<WrapSequenceContext>
+					<RenderAssetManager.Provider
+						// eslint-disable-next-line react/jsx-no-constructed-context-values
+						value={{
+							registerRenderAsset,
+							unregisterRenderAsset,
+							renderAssets: [],
+						}}
+					>
+						<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+					</RenderAssetManager.Provider>
+				</WrapSequenceContext>
 			);
 		};
 

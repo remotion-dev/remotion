@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getZTypesIfPossible} from '../components/get-zod-if-possible';
 
 const getZodTypes = async () => {

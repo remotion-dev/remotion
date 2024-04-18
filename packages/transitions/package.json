@@ -7,7 +7,7 @@
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "vitest --run",
+		"test": "vitest src --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",

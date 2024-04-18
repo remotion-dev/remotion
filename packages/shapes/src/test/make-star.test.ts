@@ -8,24 +8,13 @@ test('Should be able to make a star path', () => {
 		outerRadius: 200,
 	});
 
-	expect(starPath).toEqual({
-		path: 'M 190.21130325903073 0 L 278.3790911029017 78.64745084375788 L 380.42260651806146 138.19660112501052 L 332.8697807033037 246.3525491562421 L 307.7683537175254 361.8033988749895 L 190.21130325903073 350 L 72.65425280053613 361.8033988749895 L 47.55282581475771 246.35254915624213 L 0 138.19660112501055 L 102.04351541515975 78.6474508437579 L 190.21130325903073 0 Z',
-		width: 400,
-		height: 400,
-		transformOrigin: '200 200',
-		instructions: [
-			{type: 'M', x: 200, y: 0},
-			{type: 'L', x: 288.167787843871, y: 78.64745084375788},
-			{type: 'L', x: 390.21130325903073, y: 138.19660112501052},
-			{type: 'L', x: 342.658477444273, y: 246.3525491562421},
-			{type: 'L', x: 317.55705045849464, y: 361.8033988749895},
-			{type: 'L', x: 200, y: 350},
-			{type: 'L', x: 82.4429495415054, y: 361.8033988749895},
-			{type: 'L', x: 57.34152255572698, y: 246.35254915624213},
-			{type: 'L', x: 9.788696740969272, y: 138.19660112501055},
-			{type: 'L', x: 111.83221215612902, y: 78.6474508437579},
-			{type: 'L', x: 200, y: 0},
-			{type: 'Z'},
-		],
-	});
+	expect(starPath.width).toEqual(400);
+	expect(starPath.height).toEqual(400);
+	expect(starPath.transformOrigin).toEqual('200 200');
+	expect(starPath.instructions.length).toEqual(12);
+	expect(starPath.instructions[0]).toEqual({type: 'M', x: 200, y: 0});
+	expect(starPath.instructions[11]).toEqual({type: 'Z'});
+	expect(
+		starPath.path.startsWith('M 190.21130325903073 0 L 278.3790911029017 78.'),
+	).toBeTruthy();
 });

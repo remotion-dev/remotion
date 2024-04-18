@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {convertToCaptions} from '../convert-to-captions';
 import {examplePayload} from './example-payload';
 

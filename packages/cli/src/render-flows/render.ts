@@ -42,7 +42,7 @@ import {getOutputFilename} from '../get-filename';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
-import {parsedCli, quietFlagProvided} from '../parse-command-line';
+import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,

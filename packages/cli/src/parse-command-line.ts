@@ -10,9 +10,9 @@ import type {
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
+import {parsedCli} from './parsed-cli';
 
 const {
 	beepOnFinishOption,
@@ -33,7 +33,7 @@ const {
 	publicPathOption,
 } = BrowserSafeApis.options;
 
-type CommandLineOptions = {
+export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
@@ -105,43 +105,6 @@ type CommandLineOptions = {
 		typeof enableMultiprocessOnLinuxOption
 	>;
 	repro: boolean;
-};
-
-export const BooleanFlags = [
-	'overwrite',
-	'force',
-	'sequence',
-	'help',
-	'quiet',
-	'q',
-	'muted',
-	enforceAudioOption.cliFlag,
-	// Lambda flags
-	'force',
-	'disable-chunk-optimization',
-	'save-browser-logs',
-	'disable-cloudwatch',
-	'enable-lambda-insights',
-	'yes',
-	'y',
-	'disable-web-security',
-	'ignore-certificate-errors',
-	'disable-headless',
-	'disable-keyboard-shortcuts',
-	'default-only',
-	'no-open',
-	'ipv4',
-	beepOnFinishOption.cliFlag,
-	'repro',
-];
-
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: BooleanFlags,
-	default: {
-		overwrite: true,
-	},
-}) as CommandLineOptions & {
-	_: string[];
 };
 
 export const parseCommandLine = () => {
@@ -231,5 +194,3 @@ export const parseCommandLine = () => {
 		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 };
-
-export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

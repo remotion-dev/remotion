@@ -7,7 +7,7 @@
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
+		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d && rollup --failAfterWarnings --config rollup-version.config.js && rollup --failAfterWarnings --config rollup-no-react.config.js && rollup --failAfterWarnings --config rollup.config.js",
@@ -29,6 +29,8 @@
 		"@jonny/eslint-config": "3.0.281",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "14.0.0",
+		"@happy-dom/global-registrator": "14.5.1",
+		"happy-dom": "14.5.1",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",

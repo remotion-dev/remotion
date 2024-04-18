@@ -2,7 +2,8 @@ import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parseCommandLine} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 export const initializeCli = async (
 	remotionRoot: string,

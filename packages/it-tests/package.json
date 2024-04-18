@@ -28,7 +28,6 @@
     "@remotion/studio-server": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@types/sharp": "^0.28.5",
-    "@types/bun": "^1.0.3",
     "create-video": "workspace:*",
     "execa": "5.1.1",
     "remotion": "workspace:*",

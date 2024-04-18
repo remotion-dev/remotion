@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
-import {expect, test} from 'vitest';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 
 test('Should calculate sequences correctly', () => {
@@ -22,6 +22,7 @@ test('Should calculate sequences correctly', () => {
 				showInTimeline: true,
 				nonce: 11,
 				stack: null,
+				loopDisplay: undefined,
 			},
 			depth: 0,
 			hash: '-Sequence-486-0-sequence----0',
@@ -39,6 +40,7 @@ test('Should calculate sequences correctly', () => {
 				showInTimeline: true,
 				nonce: 216,
 				stack: null,
+				loopDisplay: undefined,
 			},
 			depth: 1,
 			hash: '-Sequence-486-0-sequence----0-SynchronizedCode-22736--22250-sequence----0',
@@ -56,6 +58,7 @@ test('Should calculate sequences correctly', () => {
 				showInTimeline: true,
 				nonce: 211,
 				stack: null,
+				loopDisplay: undefined,
 			},
 			depth: 2,
 			hash: '-Sequence-486-0-sequence----0-SynchronizedCode-22736--22250-sequence----0-Video-12000-0-sequence----0',
@@ -73,6 +76,7 @@ test('Should calculate sequences correctly', () => {
 				showInTimeline: true,
 				nonce: 213,
 				stack: null,
+				loopDisplay: undefined,
 			},
 			depth: 2,
 			hash: '-Sequence-486-0-sequence----0-SynchronizedCode-22736--22250-sequence----0-Video-10736-12000-sequence----0',
@@ -87,6 +91,7 @@ test('Should calculate sequences correctly', () => {
 				parent: '0.08739205010419449',
 				displayName: 'codep1-2.mp4',
 				rootId: '0.4858689834081513',
+				loopDisplay: undefined,
 				premountDisplay: null,
 				playbackRate: 1,
 				volume:
@@ -102,6 +107,7 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			sequence: {
+				loopDisplay: undefined,
 				from: 0,
 				duration: 486,
 				id: '0.12517304081486258',
@@ -119,6 +125,7 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			sequence: {
+				loopDisplay: undefined,
 				type: 'video',
 				src: 'http://localhost:5000/screen3.mp4',
 				id: '0.5529201074994525',

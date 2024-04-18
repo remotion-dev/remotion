@@ -62,6 +62,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		name,
 		onError,
+		pauseWhenBuffering,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		...nativeProps

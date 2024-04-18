@@ -2,7 +2,7 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli} from './parsed-cli';
 
 const defaultConfigFileJavascript = 'remotion.config.js';
 const defaultConfigFileTypescript = 'remotion.config.ts';

@@ -253,7 +253,7 @@ export const PlayPause: React.FC<{
 	]);
 
 	useEffect(() => {
-		let timeout: NodeJS.Timeout | null = null;
+		let timeout: Timer | null = null;
 		let stopped = false;
 
 		const onBuffer = () => {

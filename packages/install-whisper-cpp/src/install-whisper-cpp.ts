@@ -35,7 +35,9 @@ const installForWindows = async ({
 		throw new Error('Failed to download whisper binary');
 	}
 
-	await finished(Readable.fromWeb(body as ReadableStream).pipe(fileStream));
+	await finished(
+		Readable.fromWeb(body as unknown as ReadableStream).pipe(fileStream),
+	);
 
 	execSync(`Expand-Archive -Force ${filePath} ${to}`, {
 		shell: 'powershell',

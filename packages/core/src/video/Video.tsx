@@ -13,7 +13,7 @@ import {validateStartFromProps} from '../validate-start-from-props.js';
 import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 import {DurationsContext} from './duration-state.js';
-import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -22,7 +22,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			stack?: string;
+			readonly stack?: string;
 		}
 > = (props, ref) => {
 	const {
