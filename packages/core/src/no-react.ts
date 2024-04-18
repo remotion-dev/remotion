@@ -17,6 +17,7 @@ import {
 	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
 } from './input-props-serialization';
+import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
@@ -49,4 +50,6 @@ export const NoReactInternals = {
 	MIN_NODE_VERSION: ENABLE_V5_BREAKING_CHANGES ? 18 : 16,
 	MIN_BUN_VERSION: ENABLE_V5_BREAKING_CHANGES ? '1.1.3' : '1.0.3',
 	colorNames,
+	DATE_TOKEN,
+	FILE_TOKEN,
 };
