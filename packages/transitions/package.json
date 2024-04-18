@@ -7,7 +7,7 @@
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "bun test src",
+		"test": "vitest src --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",
@@ -32,17 +32,15 @@
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"@happy-dom/global-registrator": "14.5.1",
-		"happy-dom": "14.5.1",
-		"whatwg-mimetype": "^3.0.0",
-		"entities": "4.5.0",
-		"webidl-conversions": "7.0.0",
 		"remotion": "workspace:*",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
+		"vitest": "0.31.1",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
-		"@remotion/test-utils": "workspace:*"
+		"@types/bun": "^1.0.12",
+		"@remotion/test-utils": "workspace:*",
+		"@vitejs/plugin-react": "^2.0.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
