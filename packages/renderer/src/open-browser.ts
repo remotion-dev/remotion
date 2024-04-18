@@ -181,6 +181,8 @@ export const internalOpenBrowser = async ({
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			'--ignore-gpu-blocklist',
+			'--enable-unsafe-webgpu',
 			typeof forceDeviceScaleFactor === 'undefined'
 				? null
 				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
