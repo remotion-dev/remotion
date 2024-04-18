@@ -1,4 +1,5 @@
 import type {VolumeProp} from '../volume-prop.js';
+import type {LoopVolumeCurveBehavior} from './use-audio-frame.js';
 
 export type RemotionMainAudioProps = {
 	startFrom?: number;
@@ -24,4 +25,5 @@ export type RemotionAudioProps = Omit<
 	showInTimeline?: boolean;
 	delayRenderTimeoutInMilliseconds?: number;
 	delayRenderRetries?: number;
+	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 };

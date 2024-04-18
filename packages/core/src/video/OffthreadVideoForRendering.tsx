@@ -30,12 +30,15 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	toneMapped = true,
 	toneFrequency,
 	name,
+	loopVolumeCurveBehavior,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp();
+	const volumePropsFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();

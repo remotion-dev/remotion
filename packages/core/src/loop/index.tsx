@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {createContext, useMemo} from 'react';
 import type {LoopDisplay} from '../CompositionManager.js';
 import type {LayoutAndStyle} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
@@ -8,24 +8,31 @@ import {validateDurationInFrames} from '../validation/validate-duration-in-frame
 
 export type LoopProps = {
 	// The duration of the content to be looped
-	durationInFrames: number;
+	readonly durationInFrames: number;
 	// How many times to loop (optional, default Infinity)
-	times?: number;
-	name?: string;
-	children: React.ReactNode;
+	readonly times?: number;
+	readonly name?: string;
+	readonly children: React.ReactNode;
 } & LayoutAndStyle;
+
+type LoopContextType = {
+	iteration: number;
+	durationInFrames: number;
+};
+
+const LoopContext = createContext<LoopContextType | null>(null);
+
+const useLoop = () => {
+	return React.useContext(LoopContext);
+};
 
 /**
  * @description This component allows you to quickly lay out an animation so it repeats itself.
  * @see [Documentation](https://www.remotion.dev/docs/loop)
  */
-export const Loop: React.FC<LoopProps> = ({
-	durationInFrames,
-	times = Infinity,
-	children,
-	name,
-	...props
-}) => {
+export const Loop: React.FC<LoopProps> & {
+	useLoop: typeof useLoop;
+} = ({durationInFrames, times = Infinity, children, name, ...props}) => {
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
 
@@ -56,7 +63,8 @@ export const Loop: React.FC<LoopProps> = ({
 	const actualTimes = Math.min(maxTimes, times);
 	const style = props.layout === 'none' ? undefined : props.style;
 	const maxFrame = durationInFrames * (actualTimes - 1);
-	const start = Math.floor(currentFrame / durationInFrames) * durationInFrames;
+	const iteration = Math.floor(currentFrame / durationInFrames);
+	const start = iteration * durationInFrames;
 	const from = Math.min(start, maxFrame);
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
@@ -67,16 +75,27 @@ export const Loop: React.FC<LoopProps> = ({
 		};
 	}, [actualTimes, durationInFrames, from]);
 
+	const loopContext: LoopContextType = useMemo(() => {
+		return {
+			iteration: Math.floor(currentFrame / durationInFrames),
+			durationInFrames,
+		};
+	}, [currentFrame, durationInFrames]);
+
 	return (
-		<Sequence
-			durationInFrames={durationInFrames}
-			from={from}
-			name={name ?? '<Loop>'}
-			_remotionInternalLoopDisplay={loopDisplay}
-			layout={props.layout}
-			style={style}
-		>
-			{children}
-		</Sequence>
+		<LoopContext.Provider value={loopContext}>
+			<Sequence
+				durationInFrames={durationInFrames}
+				from={from}
+				name={name ?? '<Loop>'}
+				_remotionInternalLoopDisplay={loopDisplay}
+				layout={props.layout}
+				style={style}
+			>
+				{children}
+			</Sequence>
+		</LoopContext.Provider>
 	);
 };
+
+Loop.useLoop = useLoop;

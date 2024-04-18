@@ -29,8 +29,27 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		onDuration,
+		toneFrequency,
+		_remotionInternalNeedsDurationCalculation,
+		_remotionInternalNativeLoopPassed,
+		acceptableTimeShiftInSeconds,
+		name,
+		onError,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		loopVolumeCurveBehavior,
+		...nativeProps
+	} = props;
+
 	const absoluteFrame = useTimelinePosition();
-	const volumePropFrame = useFrameForVolumeProp();
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerRenderAsset, unregisterRenderAsset} =
@@ -50,23 +69,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			sequenceContext?.durationInFrames,
 		],
 	);
-
-	const {
-		volume: volumeProp,
-		playbackRate,
-		allowAmplificationDuringRender,
-		onDuration,
-		toneFrequency,
-		_remotionInternalNeedsDurationCalculation,
-		_remotionInternalNativeLoopPassed,
-		acceptableTimeShiftInSeconds,
-		name,
-		onError,
-		pauseWhenBuffering,
-		delayRenderRetries,
-		delayRenderTimeoutInMilliseconds,
-		...nativeProps
-	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,

@@ -42,14 +42,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
-	const volumePropFrame = useFrameForVolumeProp();
-	const {fps, durationInFrames} = useVideoConfig();
-	const parentSequence = useContext(SequenceContext);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
-
-	const [timelineId] = useState(() => String(Math.random()));
-	const isSequenceHidden = hidden[timelineId] ?? false;
-
 	const {
 		volume,
 		muted,
@@ -67,8 +59,20 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		style,
 		pauseWhenBuffering,
 		showInTimeline,
+		loopVolumeCurveBehavior,
 		...nativeProps
 	} = props;
+
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+	const {fps, durationInFrames} = useVideoConfig();
+	const parentSequence = useContext(SequenceContext);
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
+
+	const [timelineId] = useState(() => String(Math.random()));
+	const isSequenceHidden = hidden[timelineId] ?? false;
+
 	if (typeof acceptableTimeShift !== 'undefined') {
 		throw new Error(
 			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.',

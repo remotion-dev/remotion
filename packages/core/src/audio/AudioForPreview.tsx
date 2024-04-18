@@ -28,12 +28,12 @@ import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
-	shouldPreMountAudioTags: boolean;
-	onDuration: (src: string, durationInSeconds: number) => void;
-	pauseWhenBuffering: boolean;
-	_remotionInternalNativeLoopPassed: boolean;
-	_remotionInternalStack: string | null;
-	showInTimeline: boolean;
+	readonly shouldPreMountAudioTags: boolean;
+	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly pauseWhenBuffering: boolean;
+	readonly _remotionInternalNativeLoopPassed: boolean;
+	readonly _remotionInternalStack: string | null;
+	readonly showInTimeline: boolean;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -48,11 +48,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			'Cannot change the behavior for pre-mounting audio tags dynamically.',
 		);
 	}
-
-	const [mediaVolume] = useMediaVolumeState();
-	const [mediaMuted] = useMediaMutedState();
-
-	const volumePropFrame = useFrameForVolumeProp();
 
 	const {
 		volume,
@@ -69,8 +64,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		name,
 		pauseWhenBuffering,
 		showInTimeline,
+		loopVolumeCurveBehavior,
 		...nativeProps
 	} = props;
+
+	const [mediaVolume] = useMediaVolumeState();
+	const [mediaMuted] = useMediaMutedState();
+
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
