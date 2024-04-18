@@ -228,7 +228,7 @@ test(
 	{timeout: 20000},
 );
 
-test.only(
+test(
 	'Should get a frame of a transparent video with a custom DAR',
 	async () => {
 		const compositor = startLongRunningCompositor({
