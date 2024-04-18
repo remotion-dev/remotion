@@ -66,17 +66,19 @@ export const appendVideoFragment = ({
 	return actualSrc;
 };
 
-const isSubsetOfDuration = (
-	prevStartFrom: number,
-	newStartFrom: number,
-	prevDuration: number,
-	newDuration: number,
-) => {
-	return (
-		prevStartFrom <= newStartFrom &&
-		prevStartFrom + prevDuration >= newStartFrom + newDuration
-	);
-};
+const isSubsetOfDuration = ({
+	prevStartFrom,
+	newStartFrom,
+	prevDuration,
+	newDuration,
+}: {
+	prevStartFrom: number;
+	newStartFrom: number;
+	prevDuration: number;
+	newDuration: number;
+}) =>
+	prevStartFrom <= newStartFrom &&
+	prevStartFrom + prevDuration >= newStartFrom + newDuration;
 
 export const useAppendVideoFragment = ({
 	actualSrc: initialActualSrc,
@@ -93,7 +95,15 @@ export const useAppendVideoFragment = ({
 	const actualDuration = useRef(initialDuration);
 	const actualSrc = useRef(initialActualSrc);
 
-	if (!isSubsetOfDuration || initialActualSrc !== actualSrc.current) {
+	if (
+		!isSubsetOfDuration({
+			prevStartFrom: actualFromRef.current,
+			newStartFrom: initialActualFrom,
+			prevDuration: actualDuration.current,
+			newDuration: initialDuration,
+		}) ||
+		initialActualSrc !== actualSrc.current
+	) {
 		actualFromRef.current = initialActualFrom;
 		actualDuration.current = initialDuration;
 		actualSrc.current = initialActualSrc;
