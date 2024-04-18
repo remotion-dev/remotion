@@ -97,6 +97,12 @@ export const MyComposition = () => {
 };
 ```
 
+### `loopVolumeCurveBehavior`<AvailableFrom v="4.0.142" />
+
+Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
+
+Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+
 ### `style`
 
 You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<OffthreadVideo>` renders an [`<Img>`](/docs/img) tag, but a `<video>` tag is used during preview.

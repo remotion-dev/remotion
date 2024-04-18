@@ -20,10 +20,7 @@ type LoopContextType = {
 	durationInFrames: number;
 };
 
-const LoopContext = createContext<LoopContextType | null>({
-	iteration: 0,
-	durationInFrames: 0,
-});
+const LoopContext = createContext<LoopContextType | null>(null);
 
 const useLoop = () => {
 	return React.useContext(LoopContext);
