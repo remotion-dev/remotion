@@ -1,4 +1,5 @@
 import type React from 'react';
+import type {LoopVolumeCurveBehavior} from '../audio/use-audio-frame.js';
 import type {VolumeProp} from '../volume-prop.js';
 
 export type RemotionMainVideoProps = {
@@ -26,6 +27,7 @@ export type RemotionVideoProps = Omit<
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	delayRenderTimeoutInMilliseconds?: number;
+	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderRetries?: number;
 };
 
@@ -52,6 +54,7 @@ export type OffthreadVideoProps = {
 	transparent?: boolean;
 	toneMapped?: boolean;
 	pauseWhenBuffering?: boolean;
+	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	/**
 	 * @deprecated For internal use only
 	 */

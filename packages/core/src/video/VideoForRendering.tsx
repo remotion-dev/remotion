@@ -46,6 +46,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		acceptableTimeShiftInSeconds,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		loopVolumeCurveBehavior,
 		...props
 	},
 	ref,
@@ -53,7 +54,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp();
+	const volumePropsFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
