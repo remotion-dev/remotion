@@ -19,13 +19,13 @@ const TransitionSeriesTransition = function <
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
-		durationInFrames: number;
-		offset?: number;
-		className?: string;
+		readonly durationInFrames: number;
+		readonly offset?: number;
+		readonly className?: string;
 		/**
 		 * @deprecated For internal use only
 		 */
-		stack?: string;
+		readonly stack?: string;
 	} & LayoutAndStyle &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
@@ -48,7 +48,7 @@ type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| TransitionType<PresentationProps>
 	| string;
 
-const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
+const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	children,
 }) => {
 	const {fps} = useVideoConfig();
@@ -228,6 +228,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				return (
 					<Sequence
 						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
@@ -256,6 +257,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				return (
 					<Sequence
 						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
@@ -278,6 +280,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				return (
 					<Sequence
 						from={Math.floor(actualStartFrame)}
+						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
 					>
