@@ -749,6 +749,13 @@ export const articles = [
     crumb: "@remotion/media-utils",
   },
   {
+    id: "get-image-dimensions",
+    title: "getImageDimensions()",
+    relativePath: "docs/get-image-dimensions.md",
+    compId: "articles-docs-get-image-dimensions",
+    crumb: "@remotion/media-utils",
+  },
+  {
     id: "get-input-props",
     title: "getInputProps()",
     relativePath: "docs/get-input-props.md",
