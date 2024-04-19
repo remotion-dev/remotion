@@ -2,6 +2,7 @@ import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 import { execSync } from "child_process";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { readDir } from "./get-pages.mjs";
 
@@ -46,20 +47,29 @@ const pages = readDir(root);
 
 for (const page of pages) {
   const opened = fs.readFileSync(page, "utf8");
-  const frontmatter = opened.match(/---\n((.|\n)*?)---\n/);
+  const frontmatter =
+    opened.match(/---\n((.|\n)*?)---\n/) ??
+    opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
   if (!frontmatter) {
+    console.log("No frontmatter for", page);
     continue;
   }
 
-  const split = frontmatter[1].split("\n");
-  const id = findId(split, page);
+  const split = frontmatter[1].split(os.EOL);
+  const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
   const title = findTitle(split);
   const crumb = findCrumb(split);
 
-  const relativePath = page.replace(process.cwd() + path.sep, "");
+  const relativePath = page
+    .replace(process.cwd() + path.sep, "")
+    .replaceAll(path.sep, path.posix.sep);
+
   const compId =
     "articles-" +
-    relativePath.replace(/\//g, "-").replace(/.md$/, "").replace(/.mdx$/, "");
+    relativePath
+      .replaceAll(path.posix.sep, "-")
+      .replace(/.md$/, "")
+      .replace(/.mdx$/, "");
   data.push({ id, title, relativePath, compId, crumb });
 }
 
@@ -110,7 +120,7 @@ for (const entry of data) {
 
   const fileContents = fs.readFileSync(out, "utf-8");
   const lines = fileContents
-    .split("\n")
+    .split(os.EOL)
     .filter((l) => !l.startsWith("image: "));
   const frontmatterLine = lines.findIndex((l) => l === "---");
   if (frontmatterLine === -1) {
@@ -121,7 +131,7 @@ for (const entry of data) {
     ...lines.slice(0, frontmatterLine + 1),
     `image: /${output.substring("/static".length)}`,
     ...lines.slice(frontmatterLine + 1),
-  ].join("\n");
+  ].join(os.EOL);
 
   fs.writeFileSync(out, newLines);
   console.log("Rendered", composition.id);
