@@ -6,8 +6,13 @@ import {
 	Skia,
 	useImage,
 } from '@shopify/react-native-skia';
-import React from 'react';
-import {staticFile, useCurrentFrame} from 'remotion';
+import React, {useState} from 'react';
+import {
+	continueRender,
+	delayRender,
+	staticFile,
+	useCurrentFrame,
+} from 'remotion';
 
 import type {Transition} from './Base';
 
@@ -114,6 +119,7 @@ vec4 transition(vec2 uv) {
 
 export const RuntimeShaderZoomBlur = () => {
 	React.useState(0);
+	const [handle] = useState(() => delayRender());
 
 	const image1 = useImage(staticFile('1.jpg'));
 	const image2 = useImage(staticFile('2.jpg'));
@@ -121,6 +127,7 @@ export const RuntimeShaderZoomBlur = () => {
 	if (!image1 || !image2) {
 		return null;
 	}
+	continueRender(handle);
 
 	return (
 		<Canvas style={{width: 1080, height: 1080}}>
