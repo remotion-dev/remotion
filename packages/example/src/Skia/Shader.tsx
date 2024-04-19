@@ -18,7 +18,7 @@ half4 main(float2 xy) {
 }`)!;
 
 export const RuntimeShaderDemo = () => {
-	const s = React.useState(0);
+	React.useState(0);
 
 	const image = useImage(staticFile('nested/mp4.png'));
 	if (!image) {
