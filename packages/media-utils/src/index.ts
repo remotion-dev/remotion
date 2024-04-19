@@ -10,3 +10,4 @@ export * from './types';
 export type {AudioData, VideoMetadata as VideoData} from './types';
 export {useAudioData} from './use-audio-data';
 export {visualizeAudio} from './visualize-audio';
+export {getImageDimensions} from './get-image-dimensions';

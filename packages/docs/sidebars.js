@@ -197,6 +197,7 @@ module.exports = {
         "get-waveform-portion",
         "use-audio-data",
         "visualize-audio",
+        "get-image-dimensions",
       ],
     },
 

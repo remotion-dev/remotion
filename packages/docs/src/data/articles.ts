@@ -385,13 +385,6 @@ export const articles = [
     crumb: "Cloud Run",
   },
   {
-    id: "getserviceinfo",
-    title: "getServiceInfo()",
-    relativePath: "docs/cloudrun/getServiceinfo.md",
-    compId: "articles-docs-cloudrun-getServiceinfo",
-    crumb: "Cloud Run API",
-  },
-  {
     id: "getorcreatebucket",
     title: "getOrCreateBucket()",
     relativePath: "docs/cloudrun/getorcreatebucket.md",
@@ -403,6 +396,13 @@ export const articles = [
     title: "getRegions()",
     relativePath: "docs/cloudrun/getregions.md",
     compId: "articles-docs-cloudrun-getregions",
+    crumb: "Cloud Run API",
+  },
+  {
+    id: "getserviceinfo",
+    title: "getServiceInfo()",
+    relativePath: "docs/cloudrun/getServiceinfo.md",
+    compId: "articles-docs-cloudrun-getServiceinfo",
     crumb: "Cloud Run API",
   },
   {
@@ -632,7 +632,7 @@ export const articles = [
   {
     id: "delay-render",
     title: "delayRender() and continueRender()",
-    relativePath: "docs/delay-render.md",
+    relativePath: "docs/delay-render.mdx",
     compId: "articles-docs-delay-render",
     crumb: "How to",
   },
@@ -742,6 +742,13 @@ export const articles = [
     crumb: "@remotion/media-utils",
   },
   {
+    id: "get-image-dimensions",
+    title: "getImageDimensions()",
+    relativePath: "docs/get-image-dimensions.md",
+    compId: "articles-docs-get-image-dimensions",
+    crumb: "@remotion/media-utils",
+  },
+  {
     id: "get-input-props",
     title: "getInputProps()",
     relativePath: "docs/get-input-props.md",
@@ -779,7 +786,7 @@ export const articles = [
   {
     id: "getting-started",
     title: "Creating a new project",
-    relativePath: "docs/getting-started.md",
+    relativePath: "docs/getting-started.mdx",
     compId: "articles-docs-getting-started",
     crumb: "Let's begin!",
   },
@@ -856,14 +863,14 @@ export const articles = [
   {
     id: "iframe",
     title: "<IFrame>",
-    relativePath: "docs/iframe.md",
+    relativePath: "docs/iframe.mdx",
     compId: "articles-docs-iframe",
     crumb: "API",
   },
   {
     id: "img",
     title: "<Img>",
-    relativePath: "docs/img.md",
+    relativePath: "docs/img.mdx",
     compId: "articles-docs-img",
     crumb: "API",
   },
@@ -1017,7 +1024,7 @@ export const articles = [
   {
     id: "sites",
     title: "npx remotion lambda sites",
-    relativePath: "docs/lambda/cli/sites.md",
+    relativePath: "docs/lambda/cli/sites.mdx",
     compId: "articles-docs-lambda-cli-sites",
     crumb: "Lambda CLI Reference",
   },
@@ -1094,7 +1101,7 @@ export const articles = [
   {
     id: "deploysite",
     title: "deploySite()",
-    relativePath: "docs/lambda/deploysite.md",
+    relativePath: "docs/lambda/deploysite.mdx",
     compId: "articles-docs-lambda-deploysite",
     crumb: "Lambda API",
   },
@@ -1521,7 +1528,7 @@ export const articles = [
   {
     id: "loop",
     title: "<Loop>",
-    relativePath: "docs/loop.md",
+    relativePath: "docs/loop.mdx",
     compId: "articles-docs-loop",
     crumb: "API",
   },
@@ -1542,7 +1549,7 @@ export const articles = [
   {
     id: "lottie-comp",
     title: "<Lottie>",
-    relativePath: "docs/lottie/lottie-comp.md",
+    relativePath: "docs/lottie/lottie-comp.mdx",
     compId: "articles-docs-lottie-lottie-comp",
     crumb: "@remotion/lottie",
   },
@@ -2335,7 +2342,7 @@ export const articles = [
   {
     id: "get-compositions",
     title: "getCompositions()",
-    relativePath: "docs/renderer/get-compositions.md",
+    relativePath: "docs/renderer/get-compositions.mdx",
     compId: "articles-docs-renderer-get-compositions",
     crumb: "@remotion/renderer",
   },
@@ -2391,7 +2398,7 @@ export const articles = [
   {
     id: "select-composition",
     title: "selectComposition()",
-    relativePath: "docs/renderer/select-composition.md",
+    relativePath: "docs/renderer/select-composition.mdx",
     compId: "articles-docs-renderer-select-composition",
     crumb: "@remotion/renderer",
   },
@@ -2888,7 +2895,7 @@ export const articles = [
   {
     id: "timeout",
     title: "Debugging timeouts",
-    relativePath: "docs/timeout.md",
+    relativePath: "docs/timeout.mdx",
     compId: "articles-docs-timeout",
     crumb: "Troubleshooting",
   },
