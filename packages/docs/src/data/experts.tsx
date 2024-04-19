@@ -16,36 +16,6 @@ export type Expert = {
 
 export const experts: Expert[] = [
   {
-    slug: "marcus-stenbeck",
-    name: "Marcus Stenbeck",
-    image: "/img/freelancers/marcus.jpeg",
-    x: "marcusstenbeck",
-    github: "marcusstenbeck",
-    linkedin: "in/mstenbeck/",
-    email: "marcus.stenbeck+remotionexpert@gmail.com",
-    videocall: null,
-    since: new Date("2022-08-15").getTime(),
-    description: (
-      <div>
-        <p>
-          Creator of{" "}
-          <a
-            target={"_blank"}
-            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
-          >
-            Remotion{"'"}s Audiogram template
-          </a>
-          <br />I make templates, libraries and educational content at{" "}
-          <a target={"_blank"} href="https://remotionkit.com">
-            remotionkit.com
-          </a>
-          {"."}
-        </p>
-      </div>
-    ),
-    website: null,
-  },
-  {
     slug: "florent-pergoud",
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
