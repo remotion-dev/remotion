@@ -5,13 +5,9 @@ id: get-image-dimensions
 crumb: "@remotion/media-utils"
 ---
 
-_Part of the `@remotion/media-utils` package of helper functions.Available from v4.0.143._
+_Part of the `@remotion/media-utils` package of helper functions. Available from v4.0.143._
 
 Takes an image `src`, retrieves the dimensions of an image.
-
-:::info
-To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) problems, ensure that you have the proper permissions to access the image and that the image server is configured with appropriate CORS headers to allow requests from your domain.
-:::
 
 ## Arguments
 
@@ -44,12 +40,10 @@ The image height, in pixels (px).
 // @target: ESNext
 import { getImageDimensions } from "@remotion/media-utils";
 
-await getImageDimensions("https://example.com/remote-image.png");
-/* {
-  width: 100,
-  height: 100
-} */
-
+const { width, height } = await getImageDimensions(
+  "https://example.com/remote-image.png",
+);
+console.log(width, height);
 ```
 
 ## Caching behavior
