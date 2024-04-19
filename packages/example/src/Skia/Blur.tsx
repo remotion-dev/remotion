@@ -98,7 +98,7 @@ vec4 transition(vec2 uv) {
     float total = 0.0;
     vec2 toCenter = center - uv;
 
-    float offset = random(vec3(uv, 0), vec3(12.9898, 78.233, 151.7182), 0.0) * 0.5;
+    float offset = random(vec3(uv.xy, 0), vec3(12.9898, 78.233, 151.7182), 0.0) * 0.5;
 
     for (float t = 0.0; t <= 20.0; t++) {
         float percent = (t + offset) / 20.0;
@@ -115,9 +115,10 @@ vec4 transition(vec2 uv) {
 export const RuntimeShaderZoomBlur = () => {
 	React.useState(0);
 
-	const image = useImage(staticFile('nested/mp4.png'));
+	const image1 = useImage(staticFile('1.jpg'));
+	const image2 = useImage(staticFile('2.jpg'));
 	const prog = useCurrentFrame();
-	if (!image) {
+	if (!image1 || !image2) {
 		return null;
 	}
 
@@ -133,12 +134,12 @@ export const RuntimeShaderZoomBlur = () => {
 					}}
 				>
 					<ImageShader
-						image={image}
+						image={image1}
 						fit="cover"
 						rect={{x: 0, y: 0, width: 1080, height: 1080}}
 					/>
 					<ImageShader
-						image={image}
+						image={image2}
 						fit="cover"
 						rect={{x: 0, y: 0, width: 1080, height: 1080}}
 					/>
