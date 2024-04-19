@@ -1,7 +1,9 @@
+import {LoadSkia} from '@shopify/react-native-skia/src/web';
 import {registerRoot} from 'remotion';
-import {Index} from './Root';
 
 // Should be able to defer registerRoot()
-setTimeout(() => {
+(async () => {
+	await LoadSkia();
+	const {Index} = await import('./Root');
 	registerRoot(Index);
-}, 500);
+})();

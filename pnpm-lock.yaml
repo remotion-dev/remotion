@@ -268,6 +268,9 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
+      '@remotion/skia':
+        specifier: workspace:*
+        version: link:../skia
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind
@@ -929,6 +932,9 @@ importers:
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
+      '@shopify/react-native-skia':
+        specifier: 1.2.2
+        version: 1.2.2(react@18.2.0)
       '@types/express':
         specifier: ^4.17.11
         version: 4.17.13
@@ -1862,8 +1868,8 @@ importers:
         specifier: ^8.2.0
         version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@shopify/react-native-skia':
-        specifier: ^0.1.191
-        version: 0.1.191(react@18.2.0)
+        specifier: ^1.2.2
+        version: 1.2.2(react@18.2.0)
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
@@ -8784,6 +8790,24 @@ packages:
       canvaskit-wasm: 0.38.0
       react: 18.2.0
       react-reconciler: 0.27.0(react@18.2.0)
+    dev: false
+
+  /@shopify/react-native-skia@1.2.2(react@18.2.0):
+    resolution: {integrity: sha512-YlDNJXTCstlOmyJxeQjaTaef8ACLuEPMDrSgEichQM3ELlWuU1HTSVbpXW2x4LbbEDPXwu/aF/16MUN8pzzcmA==}
+    hasBin: true
+    peerDependencies:
+      react: '>=18.0'
+      react-native: '>=0.64'
+      react-native-reanimated: '>=2.0.0'
+    peerDependenciesMeta:
+      react-native:
+        optional: true
+      react-native-reanimated:
+        optional: true
+    dependencies:
+      canvaskit-wasm: 0.39.1
+      react: 18.2.0
+      react-reconciler: 0.27.0(react@18.2.0)
 
   /@sideway/address@4.1.4:
     resolution: {integrity: sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==}
@@ -10865,6 +10889,9 @@ packages:
       '@webassemblyjs/ast': 1.11.6
       '@xtuc/long': 4.2.2
 
+  /@webgpu/types@0.1.21:
+    resolution: {integrity: sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==}
+
   /@webhotelier/webpack-fast-refresh@5.1.0(eslint@8.56.0)(react-refresh@0.9.0)(typescript@5.3.3)(webpack@5.83.1):
     resolution: {integrity: sha512-GLe+NjtVaEBeK13RSJrBE4mnlYCxrfg2m1X/UALVpsjSYaIcrabbxBgOp1bGQ4VJoi2FfMN7BfjsLHrwQGaVZA==}
     peerDependencies:
@@ -11947,6 +11974,12 @@ packages:
 
   /canvaskit-wasm@0.38.0:
     resolution: {integrity: sha512-ZEG6lucpbQ4Ld+mY8C1Ng+PMLVP+/AX02jS0Sdl28NyMxuKSa9uKB8oGd1BYp1XWPyO2Jgr7U8pdyjJ/F3xR5Q==}
+    dev: false
+
+  /canvaskit-wasm@0.39.1:
+    resolution: {integrity: sha512-Gy3lCmhUdKq+8bvDrs9t8+qf7RvcjuQn+we7vTVVyqgOVO1UVfHpsnBxkTZw+R4ApEJ3D5fKySl9TU11hmjl/A==}
+    dependencies:
+      '@webgpu/types': 0.1.21
 
   /catharsis@0.9.0:
     resolution: {integrity: sha512-prMTQVpcns/tzFgFVkVp6ak6RykZyWb3gu8ckUpd6YkTlacOd3DXGJjIpD4Q6zJirizvaiAjSSHlOsA+6sNh2A==}
@@ -14343,7 +14376,7 @@ packages:
   /fbemitter@3.0.0:
     resolution: {integrity: sha512-KWKaceCwKQU0+HPoop6gn4eOHk50bBv/VxjJtGMfwmJt3D29JpN4H4eisCtIPA+a8GVBam+ldMMpMjJUvpDyHw==}
     dependencies:
-      fbjs: 3.0.0
+      fbjs: 3.0.5
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -14352,8 +14385,8 @@ packages:
     resolution: {integrity: sha512-b2XGFAFdWZWg0phtAWLHCk836A1Xann+I+Dgd3Gk64MHKZO44FfoD1KxyvbSh0qZsIoXQGGlVztIY+oitJPpRQ==}
     dev: false
 
-  /fbjs@3.0.0:
-    resolution: {integrity: sha512-dJd4PiDOFuhe7vk4F80Mba83Vr2QuK86FoxtgPmzBqEJahncp+13YCmfoa53KHCo6OnlXLG7eeMWPfB5CrpVKg==}
+  /fbjs@3.0.5:
+    resolution: {integrity: sha512-ztsSx77JBtkuMrEypfhgc3cI0+0h+svqeie7xHbh1k/IKdcydnvadp/mUaGgjAOXQmQSxsqgaRhS3q9fy+1kxg==}
     dependencies:
       cross-fetch: 3.1.5
       fbjs-css-vars: 1.0.2
@@ -14361,7 +14394,7 @@ packages:
       object-assign: 4.1.1
       promise: 7.3.1
       setimmediate: 1.0.5
-      ua-parser-js: 0.7.28
+      ua-parser-js: 1.0.37
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -14500,7 +14533,7 @@ packages:
       react: ^15.0.2 || ^16.0.0 || ^17.0.0
     dependencies:
       fbemitter: 3.0.0
-      fbjs: 3.0.0
+      fbjs: 3.0.5
       react: 18.2.0
     transitivePeerDependencies:
       - encoding
@@ -22301,8 +22334,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  /ua-parser-js@0.7.28:
-    resolution: {integrity: sha512-6Gurc1n//gjp9eQNXjD9O3M/sMwVtN5S8Lv9bvOYBfKfDNiIIhqiyi01vMBO45u4zkDE420w/e0se7Vs+sIg+g==}
+  /ua-parser-js@1.0.37:
+    resolution: {integrity: sha512-bhTyI94tZofjo+Dn8SN6Zv8nBDvyXTymAdM3LDI/0IboIUwTu1rEhW7v2TfiVsoYWgkQ4kOVqnI8APUFbIQIFQ==}
     dev: false
 
   /uc.micro@1.0.6:
