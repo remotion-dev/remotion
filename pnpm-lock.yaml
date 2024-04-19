@@ -1046,6 +1046,8 @@ importers:
         specifier: 18.2.18
         version: 18.2.18
 
+  packages/example/build/public: {}
+
   packages/gif:
     dependencies:
       remotion:
