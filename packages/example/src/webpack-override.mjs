@@ -1,4 +1,4 @@
-import {enableSkia} from '@remotion/skia';
+import {enableSkia} from '@remotion/skia/enable';
 import {enableTailwind} from '@remotion/tailwind';
 import path from 'node:path';
 
