@@ -29,6 +29,7 @@ type Api = {
   sourceCodePath: string | null;
   id: string;
   title: string;
+  link: string;
 };
 
 const arr: Api[] = [];
@@ -44,6 +45,7 @@ export const getApis = async () => {
       sourceCodePath: sourceCodeLink,
       id: article.id,
       title: article.title,
+      link: `https://remotion.dev/docs/${article.id}`,
     });
   }
 
