@@ -72,5 +72,12 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	if (
+		message?.includes('Target closed') ||
+		message?.includes('Session closed')
+	) {
+		return true;
+	}
+
 	return false;
 };
