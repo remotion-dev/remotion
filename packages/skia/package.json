@@ -25,7 +25,7 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": "^0.1.191",
+		"@shopify/react-native-skia": ">=0.1.191",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
@@ -33,7 +33,7 @@
 		"@jonny/eslint-config": "3.0.281",
 		"@remotion/bundler": "workspace:*",
 		"@rollup/plugin-typescript": "^8.2.0",
-		"@shopify/react-native-skia": "^0.1.191",
+		"@shopify/react-native-skia": "^1.2.2",
 		"@types/react": "18.2.48",
 		"@types/react-native": "^0.69.2",
 		"eslint": "8.56.0",

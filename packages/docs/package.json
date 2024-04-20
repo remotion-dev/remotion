@@ -55,7 +55,7 @@
     "@remotion/three": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@rive-app/canvas-advanced": "2.3.0",
-    "@shopify/react-native-skia": "^0.1.191",
+    "@shopify/react-native-skia": "^1.2.2",
     "@swc/core": "^1.3.80",
     "@types/uuid": "^8.3.4",
     "chalk": "4.1.2",

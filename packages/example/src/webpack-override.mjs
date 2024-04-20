@@ -1,3 +1,4 @@
+import {enableSkia} from '@remotion/skia/enable';
 import {enableTailwind} from '@remotion/tailwind';
 import path from 'node:path';
 
@@ -48,35 +49,37 @@ export const webpackOverride = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
-	return enableTailwind({
-		...replaced,
-		module: {
-			...replaced.module,
-			rules: [
-				...(replaced.module?.rules ?? []),
-				{
-					test: /\.mdx?$/,
-					use: [
-						{
-							loader: '@mdx-js/loader',
-							options: {},
-						},
-					],
-				},
-			],
-		},
-		resolve: {
-			...replaced.resolve,
-			alias: {
-				...replaced.resolve.alias,
-				// eslint-disable-next-line no-undef
-				lib: path.join(process.cwd(), 'src', 'lib'),
-
-				// ES Modules need to be generated with `pnpm build` in every package
-				// So if you just make a change while you run `pnpm watch`, you don't see the difference
-				// which is confusing for contributors
-				...aliases,
+	return enableSkia(
+		enableTailwind({
+			...replaced,
+			module: {
+				...replaced.module,
+				rules: [
+					...(replaced.module?.rules ?? []),
+					{
+						test: /\.mdx?$/,
+						use: [
+							{
+								loader: '@mdx-js/loader',
+								options: {},
+							},
+						],
+					},
+				],
 			},
-		},
-	});
+			resolve: {
+				...replaced.resolve,
+				alias: {
+					...replaced.resolve.alias,
+					// eslint-disable-next-line no-undef
+					lib: path.join(process.cwd(), 'src', 'lib'),
+
+					// ES Modules need to be generated with `pnpm build` in every package
+					// So if you just make a change while you run `pnpm watch`, you don't see the difference
+					// which is confusing for contributors
+					...aliases,
+				},
+			},
+		}),
+	);
 };

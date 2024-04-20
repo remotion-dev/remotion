@@ -56,6 +56,7 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
+import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -1196,6 +1197,16 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			<Folder name="Skia">
+				<Composition
+					id="skia-shader"
+					component={RuntimeShaderDemo}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={120}
+				/>
+			</Folder>
 		</>
 	);
 };
