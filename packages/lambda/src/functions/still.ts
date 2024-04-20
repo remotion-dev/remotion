@@ -275,6 +275,7 @@ const innerStillHandler = async ({
 		type: 'success' as const,
 		output: url,
 		size,
+		sizeInBytes: size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 		renderId,
@@ -288,6 +289,7 @@ type RenderStillLambdaResponsePayload = {
 	outKey: string;
 	size: number;
 	bucketName: string;
+	sizeInBytes: number;
 	estimatedPrice: CostsInfo;
 	renderId: string;
 };
