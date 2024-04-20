@@ -5,14 +5,30 @@ sidebar_label: GPU in the cloud (Docker)
 crumb: "FAQ"
 ---
 
-Follow these steps to render videos on EC2 in a Docker container.  
+Follow these steps closely to render videos on EC2 in a Docker container.  
 These steps are opinionated, but specify a reference that works.
+
+A word of warning: Deviating from the instructions, like:
+
+- choosing a different AMI
+- choosing a different Docker base
+- choosing something else than EC2
+- choosing a different host machine
+
+may lead to the GPU not working. In this case, it is hard to debug.  
+We recommend to first follow these instructions and make changes once you have a working setup.
 
 ## Setup EC2 for Docker with GPU
 
-<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing Chrome, Node.js and cloning the repo to render a video.<br />
+<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">
+  GPUs on EC2
+</a>
+. You can skip installing Chrome, Node.js and cloning the repo to render a video.
+<br />
 
-<Step>2</Step> Install NVIDIA Container toolkit:<br /><br />
+<Step>2</Step> Install NVIDIA Container toolkit:
+<br />
+<br />
 
 ```bash title="Add keyring"
 curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
@@ -24,7 +40,8 @@ sudo apt-get update
 sudo apt-get install -y nvidia-container-toolkit
 ```
 
-<Step>3</Step>Install Docker: <br /><br />
+<Step>3</Step>Install Docker: <br />
+<br />
 
 ```bash title="Add Docker's official GPG key"
 sudo apt-get update
@@ -43,14 +60,21 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-<Step>4</Step>Configure Docker to use the NVIDIA runtime <br /><br />
+<Step>4</Step>Configure Docker to use the NVIDIA runtime <br />
+<br />
 
 ```bash title="Configure the NVIDIA container runtime"
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-<Step>5</Step> Create two files, <code>Dockerfile</code> and <code>entrypoint.sh</code>. You can for example create them using the <code>nano ./file-to-create</code> command. Use <kbd>Ctrl</kbd><kbd>X</kbd> to save and quit. <br/><br/>
+<Step>5</Step> Create two files, <code>Dockerfile</code> and <code>
+  entrypoint.sh
+</code>
+. You can for example create them using the <code>nano ./file-to-create</code> command.
+Use <kbd>Ctrl</kbd>
+<kbd>X</kbd> to save and quit. <br />
+<br />
 
 ```bash title="Dockerfile"
 FROM node:20-bookworm
@@ -78,25 +102,32 @@ CMD ["sh", "./entrypoint.sh"]
 npx remotion render --gl=angle-egl Scene out/video.mp4
 ```
 
-<Step>6</Step> Build the container and run a sample render: <br/><br/>
+<Step>6</Step> Build the container and run a sample render: <br />
+<br />
 
 ```bash
 sudo docker build . -t remotion-docker-gpu
 sudo docker run --gpus all --runtime=nvidia -e "NVIDIA_DRIVER_CAPABILITIES=all" remotion-docker-gpu
 ```
 
+## Debugging
+
+Use the [`npx remotion gpu`](/docs/cli/gpu) command to get the output of `chrome://gpu` to verify that the GPU is working.
+
 ## See also
 
 - [GPUs on EC2](/docs/miscellaneous/cloud-gpu)
 - [Using the GPU](/docs/gpu)
 
-<Credits contributors={[
-{
-username: "UmungoBungo",
-contribution: "Workflow author"
-},
-{
-username: "kaf-lamed-beyt",
-contribution: "Writeup"
-},
-]} />
+<Credits
+  contributors={[
+    {
+      username: "UmungoBungo",
+      contribution: "Workflow author",
+    },
+    {
+      username: "kaf-lamed-beyt",
+      contribution: "Writeup",
+    },
+  ]}
+/>
