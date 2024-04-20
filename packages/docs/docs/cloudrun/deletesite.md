@@ -54,11 +54,7 @@ The unique ID of the project you want to delete.
 
 ## Return value
 
-A promise resolving to an object with the following property:
-
-### `totalSizeInBytes`
-
-Nothing. If the deletion failed, the service rejects with an error.
+A promise resolving nothing.
 
 ## See also
 

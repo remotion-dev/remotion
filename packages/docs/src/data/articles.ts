@@ -392,6 +392,13 @@ export const articles = [
     crumb: "Cloud Run",
   },
   {
+    id: "getserviceinfo",
+    title: "getServiceInfo()",
+    relativePath: "docs/cloudrun/getServiceinfo.md",
+    compId: "articles-docs-cloudrun-getServiceinfo",
+    crumb: "Cloud Run API",
+  },
+  {
     id: "getorcreatebucket",
     title: "getOrCreateBucket()",
     relativePath: "docs/cloudrun/getorcreatebucket.md",
@@ -403,13 +410,6 @@ export const articles = [
     title: "getRegions()",
     relativePath: "docs/cloudrun/getregions.md",
     compId: "articles-docs-cloudrun-getregions",
-    crumb: "Cloud Run API",
-  },
-  {
-    id: "getserviceinfo",
-    title: "getServiceInfo()",
-    relativePath: "docs/cloudrun/getServiceinfo.md",
-    compId: "articles-docs-cloudrun-getServiceinfo",
     crumb: "Cloud Run API",
   },
   {
@@ -1640,7 +1640,7 @@ export const articles = [
   {
     id: "miscellaneous/cloud-gpu-docker",
     title: "Setup EC2 for Docker with GPU",
-    relativePath: "docs/miscellaneous/cloud-gpu-docker.md",
+    relativePath: "docs/miscellaneous/cloud-gpu-docker.mdx",
     compId: "articles-docs-miscellaneous-cloud-gpu-docker",
     crumb: "FAQ",
   },
