@@ -98,6 +98,12 @@ const SlidePresentation: React.FC<
 	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
 
+/**
+ * Implements a sliding transition for presentation components where the entering slide pushes out the exiting slide based on the specified direction.
+ * @see [Documentation](https://remotion.dev/docs/transitions/presentations/slide)
+ * @param {SlideProps} [props] Configuration options for the slide transition: includes direction, enterStyle, and exitStyle.
+ * @returns {TransitionPresentation<SlideProps>} Returns a transition configuration object including the component and its props.
+ */
 export const slide = (
 	props?: SlideProps,
 ): TransitionPresentation<SlideProps> => {

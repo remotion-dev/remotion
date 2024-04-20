@@ -795,9 +795,11 @@ export const internalRenderMedia = wrapWithErrorHandling(
 );
 
 /**
+ * Render a video from a composition. You can specify various options such as the codec, output location, input properties, and more.
+ * @see [Documentation](https://remotion.dev/docs/renderer/render-media)
+ * @param {RenderMediaOptions} options Configuration options for rendering the media.
+ * @returns {Promise<RenderMediaResult>} A promise that resolves to the rendering result, including a buffer and information about the slowest frames.
  *
- * @description Render a video from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
  */
 export const renderMedia = ({
 	proResProfile,

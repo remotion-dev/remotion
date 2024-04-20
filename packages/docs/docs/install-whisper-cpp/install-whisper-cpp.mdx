@@ -21,7 +21,8 @@ const { alreadyExisted } = await installWhisperCpp({
 });
 ```
 
-On Windows, a binary is downloaded if there is a precompiled release for this version, otherwise it will fail.  
+On Windows, if the provided version is not in semantic version format (e.g., `1.5.4`), the installation will throw an error. The function expects a precompiled semantic versioned release available for download.
+
 On other platforms, the source is cloned from GitHub and built.
 
 If you install Whisper.cpp into a folder which is in a Git repository, you should add the folder to the `.gitignore` file.
@@ -51,9 +52,11 @@ Whether to print the output of the installation process to the console. Defaults
 
 ## Return value
 
+Returns a `Promise` that resolves to an object with the following property:
+
 ### `alreadyExisted`
 
-Whether the folder already existed. If it did, the function did not do anything and returned `true`.
+Whether the folder already existed. If it did, and contains the necessary executable, the function did not perform any installation and returned `true`. If the executable is missing in the existing folder, the function expects manual deletion of the folder before attempting another installation.
 
 ## See also
 

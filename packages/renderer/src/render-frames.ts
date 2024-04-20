@@ -925,6 +925,8 @@ export const internalRenderFrames = wrapWithErrorHandling(
 /**
  * @description Renders a series of images using Puppeteer and computes information for mixing audio.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
+ * @param {RenderFramesOptions} options Configuration options for rendering frames.
+ * @returns {Promise<RenderFramesOutput>} Information about the rendered frames and assets.
  */
 export const renderFrames = (
 	options: RenderFramesOptions,

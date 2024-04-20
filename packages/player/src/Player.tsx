@@ -400,7 +400,10 @@ const forward = forwardRef as <T, P = {}>(
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**
- * @description A component which can be rendered in a regular React App (for example: Vite, Next.js) to display a Remotion video.
- * @see [Documentation](https://www.remotion.dev/docs/player/player)
+ * @description Creates and renders a customizable video player with various interactive controls for a React application.
+ * @see [Documentation](https://remotion.dev/docs/player/api)
+ * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
+ * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
+ * @returns {JSX.Element} The rendered video player component.
  */
 export const Player = forward(PlayerFn);
