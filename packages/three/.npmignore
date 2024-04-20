@@ -8,6 +8,3 @@ vitest.config.mts
 tsconfig.json
 .prettierrc.js
 dist/tsconfig-esm.tsbuildinfo
-.rollup.cache
-tsconfig-esm.json
-rollup.config.js
