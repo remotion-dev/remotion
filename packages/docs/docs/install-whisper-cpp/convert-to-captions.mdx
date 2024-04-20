@@ -54,12 +54,16 @@ Recommendation: `200`.
 
 ## Return value
 
-An array with objects of the following shape:
+An object objects of the following shape:
 
 ```ts twoslash
 type Caption = {
   text: string;
   startInSeconds: number;
+};
+
+type ReturnValue = {
+  captions: Caption[];
 };
 ```
 

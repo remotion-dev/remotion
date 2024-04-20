@@ -48,8 +48,10 @@ for (const article of articles) {
             "respond if you think the API documentation is missing parameters the user can pass or the return value is not right.",
             "Also point out typos.",
             "Do only point out obvious mistakes.",
+            "Sometimes props are documented like ### `delayRenderRetries`<AvailableFrom v='4.0.140' />, which is fine",
             "Consider that the documentation may contain backticks and html tags, which are not mistakes.",
             "Point out if the markdown is not formatted correctly.",
+            "Rewrite paragraphs and sentences that we need to correct.",
             "Otherwise, just say OK.",
           ].join("\n"),
         },
@@ -68,5 +70,6 @@ for (const article of articles) {
       process.stdout.write(chunk.choices[0]?.delta?.content || "");
     }
     await Bun.write(flag, "txt");
+    process.exit(0);
   }
 }

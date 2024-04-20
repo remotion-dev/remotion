@@ -63,7 +63,7 @@ A promise resolving to an object with the following properties:
 
 An array of deployed Remotion projects that you can use for rendering.
 
-Each items contains the following properties:
+Each item contains the following properties:
 
 #### `id`
 

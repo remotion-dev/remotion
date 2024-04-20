@@ -281,7 +281,7 @@ export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
  * @param params.codec The media codec which should be used for encoding.
  * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
- * @param params.outputFile The name of the output file.
+ * @param params.outName The name of the output file.
  * @param params.updateRenderProgress A callback that is called with the progress of the render.
  * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.audioCodec The encoding of the audio of the output video.
