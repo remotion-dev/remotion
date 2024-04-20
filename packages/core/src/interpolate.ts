@@ -3,7 +3,7 @@
 export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 
 /**
- * @description This function allows you to map a range of values to another with a conside syntax
+ * @description This function allows you to map a range of values to another with a concise syntax
  * @see [Documentation](https://www.remotion.dev/docs/interpolate)
  */
 

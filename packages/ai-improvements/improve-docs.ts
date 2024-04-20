@@ -61,7 +61,7 @@ for (const article of articles) {
         },
         {
           role: "user",
-          content: "This is the markdown of the document:\n" + contents,
+          content: "This is the markdown of the documentation:\n" + contents,
         },
       ],
       stream: true,
