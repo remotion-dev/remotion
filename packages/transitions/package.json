@@ -11,7 +11,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
 		"watch": "tsc -w",
-		"build": "tsc -d && bun build.ts"
+		"build": "tsc -d && bun bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],

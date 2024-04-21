@@ -17,7 +17,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "node build.mjs && rollup --failAfterWarnings --config rollup.config.js && tsc -d",
+		"build": "node build.mjs && bun bundle.ts && tsc -d",
 		"watch": "tsc -w"
 	},
 	"exports": {
@@ -34,7 +34,6 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
-		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"@types/react": "18.2.48",
 		"@types/react-dom": "18.2.18",
@@ -44,7 +43,6 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"rollup": "^2.70.1",
 		"webpack": "5.83.1"
 	},
 	"peerDependencies": {
