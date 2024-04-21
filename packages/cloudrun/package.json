@@ -5,8 +5,8 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "bun build.ts",
-		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
-		"tarInstaller": "ts-node src/admin/bundle-installer.ts",
+		"buildContainer": "bun src/admin/bundle-renderLogic.ts",
+		"tarInstaller": "bun src/admin/bundle-installer.ts",
 		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
@@ -34,7 +34,6 @@
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "^3.2.4",
-		"ts-node": "10.9.2",
 		"vitest": "0.31.1"
 	},
 	"exports": {

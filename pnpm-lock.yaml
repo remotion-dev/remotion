@@ -361,9 +361,6 @@ importers:
       prettier:
         specifier: 3.2.5
         version: 3.2.5
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
 
   packages/cloudrun:
     dependencies:
@@ -425,9 +422,6 @@ importers:
       prettier-plugin-organize-imports:
         specifier: ^3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -1334,9 +1328,6 @@ importers:
       pureimage:
         specifier: 0.4.13
         version: 0.4.13
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
