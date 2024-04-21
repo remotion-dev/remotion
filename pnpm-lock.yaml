@@ -425,6 +425,9 @@ importers:
       prettier-plugin-organize-imports:
         specifier: ^3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
+      ts-node:
+        specifier: 10.9.2
+        version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -1104,9 +1107,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@types/css-font-loading-module':
         specifier: ^0.0.7
         version: 0.0.7
@@ -1125,9 +1125,6 @@ importers:
       prettier:
         specifier: 3.2.5
         version: 3.2.5
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
