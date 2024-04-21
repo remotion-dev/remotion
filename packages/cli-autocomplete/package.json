@@ -9,11 +9,10 @@
     "prettier": "3.2.5",
     "@fig/eslint-config-autocomplete": "1.2.1",
     "@withfig/autocomplete-types": "^1.20.0",
-    "ts-node": "10.9.2",
     "@remotion/renderer": "workspace:*"
   },
   "scripts": {
     "formatting": "prettier src --check",
-    "build": "ts-node src/generate.ts"
+    "build": "bun src/generate.ts"
   }
 }
