@@ -172,23 +172,16 @@ export const loadFont = <T extends keyof Variants>(
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
 };
 
-const run = async () => {
-  const date = Date.now();
+const date = Date.now();
 
-  // Prepare css cache dir
-  if (!fs.existsSync(CSS_CACHE_DIR)) {
-    await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
-  }
+// Prepare css cache dir
+if (!fs.existsSync(CSS_CACHE_DIR)) {
+  await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
+}
 
-  // Batch convert
-  for (const font of filteredFonts) {
-    await generate(font);
-  }
+// Batch convert
+for (const font of filteredFonts) {
+  await generate(font);
+}
 
-  console.log("- Generated fonts in " + (Date.now() - date) + "ms");
-};
-
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+console.log("- Generated fonts in " + (Date.now() - date) + "ms");
