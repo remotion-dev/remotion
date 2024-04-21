@@ -1,4 +1,5 @@
-const presentations = ["slide", "flip", "wipe", "fade", "clock-wipe"];
+// TODO: Not yet used, waiting for Windows support
+// https://github.com/oven-sh/bun/issues/9974
 import { build } from "bun";
 import path from "path";
 import { filteredFonts } from "./scripts/filtered-fonts";
