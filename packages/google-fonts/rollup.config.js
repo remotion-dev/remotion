@@ -22,23 +22,4 @@ export default [
       }),
     ],
   },
-  {
-    input: "src/index.ts",
-    output: [
-      {
-        dir: "dist/cjs",
-        format: "cjs",
-        sourcemap: false,
-        chunkFileNames: `[name].cjs`,
-      },
-    ],
-    external: ["remotion"],
-    plugins: [
-      typescript({
-        tsconfig: "tsconfig.json",
-        sourceMap: false,
-        outputToFilesystem: true,
-      }),
-    ],
-  },
 ];
