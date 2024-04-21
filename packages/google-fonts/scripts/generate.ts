@@ -184,4 +184,4 @@ for (const font of filteredFonts) {
   await generate(font);
 }
 
-console.log("- Generated fonts in " + (Date.now() - date) + "ms");
+console.log(`- Generated fonts in ${Date.now() - date}ms`);
