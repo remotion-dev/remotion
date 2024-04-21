@@ -2,6 +2,7 @@ import fs, { mkdirSync } from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
+import { generateIndex } from "./generate-index";
 
 type FontInfo = {
   fontFamily: string;
@@ -172,19 +173,27 @@ export const loadFont = <T extends keyof Variants>(
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
 };
 
-const date = Date.now();
+const run = async () => {
+  const date = Date.now();
 
-// Prepare css cache dir
-if (!fs.existsSync(CSS_CACHE_DIR)) {
-  await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
-}
+  // Prepare css cache dir
+  if (!fs.existsSync(CSS_CACHE_DIR)) {
+    await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
+  }
 
-// Batch convert
-for (const font of filteredFonts) {
-  await generate(font);
-}
+  // Batch convert
+  for (const font of filteredFonts) {
+    await generate(font);
+  }
 
-console.log(`- Generated fonts in ${Date.now() - date}ms`);
+  console.log(`- Generated fonts in ${Date.now() - date}ms`);
+};
 
-import { generateIndex } from "./generate-index";
-await generateIndex();
+run()
+  .then(() => {
+    return generateIndex();
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
