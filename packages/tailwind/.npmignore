@@ -5,6 +5,5 @@ tsconfig.tsbuildinfo
 .turbo
 tsconfig.json
 .prettierrc.js
-.rollup.cache
 dist/tsconfig-esm.tsbuildinfo
 tsconfig-esm.json
