@@ -7,7 +7,7 @@
   "scripts": {
     "build": "pnpm run generate && rollup --config rollup.config.js",
     "watch": "tsc -w",
-    "generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
+    "generate": "bun scripts/generate.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },
   "license": "SEE LICENSE IN LICENSE.md",

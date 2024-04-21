@@ -185,3 +185,6 @@ for (const font of filteredFonts) {
 }
 
 console.log(`- Generated fonts in ${Date.now() - date}ms`);
+
+import { generateIndex } from "./generate-index";
+await generateIndex();

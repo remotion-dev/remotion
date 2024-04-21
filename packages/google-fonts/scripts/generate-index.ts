@@ -44,7 +44,7 @@ export type GoogleFont = {
 };
 `;
 
-const generate = async () => {
+export const generateIndex = async () => {
   // Prepare filename
   const filename = `index.ts`;
 
@@ -92,8 +92,3 @@ const generate = async () => {
     JSON.stringify(read, null, 2) + "\n"
   );
 };
-
-generate().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
