@@ -1469,9 +1469,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
@@ -1490,9 +1487,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
 
   packages/noise:
     dependencies:
@@ -1506,9 +1500,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1521,9 +1512,6 @@ importers:
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
@@ -2154,9 +2142,6 @@ importers:
       '@react-three/fiber':
         specifier: 8.13.5
         version: 8.13.5(react-dom@18.2.0)(react@18.2.0)(three@0.158.0)
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -2187,9 +2172,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
       three:
         specifier: 0.158.0
         version: 0.158.0
