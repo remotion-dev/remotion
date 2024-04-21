@@ -17,7 +17,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "node build.mjs && bun build.ts && tsc -d",
+		"build": "node build.mjs && bun bundle.ts && tsc -d",
 		"watch": "tsc -w"
 	},
 	"exports": {

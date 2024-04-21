@@ -13,7 +13,9 @@ const mainModule = await build({
 });
 
 const [file] = mainModule.outputs;
-const text = await file.text();
+const text = (await file.text())
+	.replace(/jsxDEV/g, 'jsx')
+	.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
 
 await Bun.write('dist/esm/index.mjs', text);
 
