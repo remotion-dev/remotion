@@ -2,8 +2,7 @@
 .cache-css
 /*.js
 /*.d.ts
-!ensure-generation.js
+!ensure-generation.ts
 src
 !src/index.ts
 !src/base.ts
-!rollup.config.js

@@ -16,8 +16,6 @@ const output = await build({
     "react",
     "react/jsx-runtime",
     "react/jsx-dev-runtime",
-    "@remotion/paths",
-    "@remotion/shapes",
     "*",
   ],
   naming: "[name].mjs",
