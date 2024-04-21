@@ -44,7 +44,7 @@ export type GoogleFont = {
 };
 `;
 
-export const generateIndex = async () => {
+const generate = async () => {
   // Prepare filename
   const filename = `index.ts`;
 
@@ -83,7 +83,7 @@ export const generateIndex = async () => {
     if (!read.typesVersions) read.typesVersions = {};
     if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
     read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
-      `dist/cjs/${removeWhitespace(unquote(font.family))}.d.ts`,
+      `dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
   }
 
@@ -92,3 +92,8 @@ export const generateIndex = async () => {
     JSON.stringify(read, null, 2) + "\n"
   );
 };
+
+generate().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -2,7 +2,6 @@ import fs, { mkdirSync } from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
-import { generateIndex } from "./generate-index";
 
 type FontInfo = {
   fontFamily: string;
@@ -186,14 +185,10 @@ const run = async () => {
     await generate(font);
   }
 
-  console.log(`- Generated fonts in ${Date.now() - date}ms`);
+  console.log("- Generated fonts in " + (Date.now() - date) + "ms");
 };
 
-run()
-  .then(() => {
-    return generateIndex();
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
