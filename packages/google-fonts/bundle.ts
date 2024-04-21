@@ -26,7 +26,11 @@ for (const file of output.outputs) {
   const newStr = str
     .replace(/jsxDEV/g, "jsx")
     .replace(/react\/jsx-dev-runtime/g, "react/jsx-runtime")
-    .replace(/import\(\"(.*)\"\)/g, 'import("$1.mjs")');
+    .replace(/import\(\"(.*)\"\)/g, 'import("$1.mjs")')
+    .replace(
+      `import {loadFonts} from "./base";`,
+      `import {loadFonts} from "./base.mjs";`
+    );
 
   if (newStr.includes(`import("./ABeeZee")`)) {
     throw new Error("not compiled correctly");
