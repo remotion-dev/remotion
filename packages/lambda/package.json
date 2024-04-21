@@ -14,9 +14,8 @@
 		"test": "vitest src/test/unit --run",
 		"watch": "tsc -w",
 		"build": "tsc -d && pnpm run buildlambda",
-		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
-		"start": "ts-node src/run.ts",
-		"prepublishOnly": "ts-node src/admin/bundle-lambda.ts && node ensure-version-match.js"
+		"buildlambda": "bun src/admin/bundle-lambda.ts",
+		"prepublishOnly": "bun src/admin/bundle-lambda.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
