@@ -1389,9 +1389,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1416,9 +1413,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
 
   packages/media-utils:
     dependencies:
