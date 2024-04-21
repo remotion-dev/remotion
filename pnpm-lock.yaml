@@ -1867,9 +1867,6 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@shopify/react-native-skia':
         specifier: ^1.2.2
         version: 1.2.2(react@18.2.0)
@@ -1894,9 +1891,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
 
   packages/studio:
     dependencies:
