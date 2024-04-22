@@ -1,7 +1,12 @@
 // Copied from https://stackblitz.com/edit/svg-star-generator?file=index.js
 
 import type {Instruction} from '@remotion/paths';
-import {resetPath, serializeInstructions} from '@remotion/paths';
+import {
+	PathInternals,
+	reduceInstructions,
+	resetPath,
+	serializeInstructions,
+} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -86,10 +91,14 @@ export const makeStar = ({
 		edgeRoundness,
 	});
 
+	const reduced = reduceInstructions(starPathInstructions);
+	const path = resetPath(serializeInstructions(reduced));
+	const boundingBox = PathInternals.getBoundingBoxFromInstructions(reduced);
+
 	return {
-		path: resetPath(serializeInstructions(starPathInstructions)),
-		width,
-		height,
+		path,
+		width: boundingBox.width,
+		height: boundingBox.height,
 		transformOrigin: `${centerX} ${centerY}`,
 		instructions: starPathInstructions,
 	};
