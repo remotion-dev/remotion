@@ -1,10 +1,11 @@
 import {useContext} from 'react';
-import {ResolvedCompositionContext} from './RenderModal/ResolveCompositionBeforeModal';
-import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
-import {updateDefaultProps} from './RenderQueue/actions';
-import {useZodIfPossible} from './get-zod-if-possible';
+import {ResolvedCompositionContext} from '../components/RenderModal/ResolveCompositionBeforeModal';
+import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
+import {updateDefaultProps} from '../components/RenderQueue/actions';
+import {useZodIfPossible} from '../components/get-zod-if-possible';
 
 export const useUpdateDefaultProps = () => {
+	// TODO: Probably doesn't use the same context as @remotion/studio/internals
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
 		throw new Error(
