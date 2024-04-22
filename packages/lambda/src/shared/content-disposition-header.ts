@@ -47,16 +47,6 @@ const includesHexOfUnsafeChar = (path: string): HexInfo => {
 	return {containsHex: false};
 };
 
-const encodeUriComponentBySplitting = (path: string): string => {
-	const splitBySlash = path.split('/');
-
-	const encodedArray = splitBySlash.map((element) => {
-		return encodeURIComponent(element);
-	});
-	const merged = encodedArray.join('/');
-	return merged;
-};
-
 export const getContentDispositionHeader = (
 	behavior: DownloadBehavior | null,
 ): string | undefined => {
@@ -77,5 +67,5 @@ export const getContentDispositionHeader = (
 		return `attachment; filename="${behavior.fileName}"`;
 	}
 
-	return `attachment; filename="${encodeUriComponentBySplitting(behavior.fileName)}"`;
+	return `attachment; filename="${encodeURIComponent(behavior.fileName)}"`;
 };
