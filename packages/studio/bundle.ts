@@ -16,11 +16,30 @@ await Bun.write('dist/esm/index.mjs', text);
 const internalsModule = await build({
 	entrypoints: ['src/internals.ts'],
 	naming: 'internals.mjs',
-	external: ['react', 'remotion', 'remotion/no-react', 'react/jsx-runtime'],
+	external: [
+		'react',
+		'remotion',
+		'scheduler',
+		'react-dom',
+		'react',
+		'@remotion/media-utils',
+		'@remotion/studio-shared',
+		'@remotion/zod-types',
+		'@remotion/renderer',
+		'@remotion/player',
+		'@remotion/renderer/client',
+		'source-map',
+		'zod',
+		'remotion/no-react',
+		'react/jsx-runtime',
+	],
 });
 const [enableFile] = internalsModule.outputs;
-const skiaEnable = await enableFile.text();
+const internalsText = (await enableFile.text())
+	.replace(/jsxDEV/g, 'jsx')
+	.replace(/@remotion\/renderer\/client/g, '@remotion/renderer/client.js')
+	.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
 
-await Bun.write('dist/esm/internals.mjs', skiaEnable);
+await Bun.write('dist/esm/internals.mjs', internalsText);
 
 export {};
