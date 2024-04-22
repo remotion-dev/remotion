@@ -37,7 +37,7 @@ const getBundleMode = () => {
 };
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
 const getCanSerializeDefaultProps = (object: unknown) => {
@@ -260,7 +260,7 @@ const renderContent = (Root: React.FC) => {
 				<DelayedSpinner />
 			</div>,
 		);
-		import('@remotion/studio')
+		import('@remotion/studio/internals')
 			.then(({StudioInternals}) => {
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})

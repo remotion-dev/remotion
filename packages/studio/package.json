@@ -53,18 +53,18 @@
 	},
 	"exports": {
 		".": {
-			"types": "./dist/cjs/index.d.ts",
+			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.js"
+			"require": "./dist/index.js"
 		},
 		"./package.json": "./package.json",
 		"./entry": "./dist/previewEntry.js",
 		"./internals": {
-			"types": "./dist/cjs/internals.d.ts",
+			"types": "./dist/internals.d.ts",
 			"module": "./dist/esm/internals.mjs",
 			"import": "./dist/esm/internals.mjs",
-			"require": "./dist/cjs/internals.js"
+			"require": "./dist/internals.js"
 		}
 	}
 }
