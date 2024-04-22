@@ -1,2 +1,7 @@
+import {Studio} from './Studio';
+
 export type {GitSource, RenderDefaults} from '@remotion/studio-shared';
-export {Studio} from './Studio';
+
+export const StudioInternals = {
+	Studio,
+};
