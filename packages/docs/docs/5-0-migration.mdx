@@ -47,3 +47,10 @@ A common footgun was the render was not working as intended because the input pr
 [`optimizeFor: "speed"`](/docs/visualize-audio#optimizefor) is now the default. This will yield slightly different results.
 
 **Required action**: Review the visualization of your audio. If unsatisfactory, revert to the old behavior by setting `optimizeFor: "accuracy"`.
+
+## TransitionSeries does not support `layout="none"` anymore
+
+Having a [TransitionSeries](/docs/transitions/transitionseries) with `layout="none"` is not supported anymore.  
+It never made sense to have this prop as transitioned elements need to be positioned absolutely.
+
+**Required action**: Remove the `layout` prop.
