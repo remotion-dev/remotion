@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {RenderDefaults} from '@remotion/studio';
+import type {RenderDefaults} from '@remotion/studio-shared';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 

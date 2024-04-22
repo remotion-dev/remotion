@@ -49,6 +49,7 @@
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
+		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",

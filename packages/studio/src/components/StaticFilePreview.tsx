@@ -1,5 +1,6 @@
 import {useContext} from 'react';
-import {getStaticFiles, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';

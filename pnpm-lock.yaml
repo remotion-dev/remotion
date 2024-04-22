@@ -261,6 +261,9 @@ importers:
       '@remotion/studio-server':
         specifier: workspace:*
         version: link:../studio-server
+      '@remotion/studio-shared':
+        specifier: workspace:*
+        version: link:../studio-shared
       dotenv:
         specifier: 9.0.2
         version: 9.0.2
@@ -674,6 +677,9 @@ importers:
       '@remotion/skia':
         specifier: workspace:*
         version: link:../skia
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind
@@ -929,6 +935,9 @@ importers:
       '@remotion/skia':
         specifier: workspace:*
         version: link:../skia
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind

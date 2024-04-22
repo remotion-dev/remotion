@@ -9,7 +9,7 @@ import {startErrorOverlay} from './error-overlay/entry-basic';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
 let root: ReturnType<typeof ReactDOM.createRoot> | null = null;

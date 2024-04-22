@@ -7,7 +7,7 @@
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d",
+		"build": "tsc -d && bun bundle.ts",
 		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},
@@ -52,12 +52,18 @@
 		"access": "public"
 	},
 	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.js",
-			"types": "./dist/index.d.js"
-		},
 		"./package.json": "./package.json",
-		"./entry": "./dist/previewEntry.js"
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./internals": {
+			"types": "./dist/internals.d.ts",
+			"module": "./dist/esm/internals.mjs",
+			"import": "./dist/esm/internals.mjs",
+			"require": "./dist/internals.js"
+		}
 	}
 }

@@ -5,8 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {StaticFile} from 'remotion';
-import {getStaticFiles} from 'remotion';
+import {getStaticFiles, type StaticFile} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';

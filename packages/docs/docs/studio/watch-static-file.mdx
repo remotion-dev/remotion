@@ -1,26 +1,26 @@
 ---
-image: /generated/articles-docs-watch-static-file.png
-id: watchstaticfile
+image: /generated/articles-docs-studio-watch-static-file.png
 title: watchStaticFile()
-crumb: "API"
+crumb: "@remotion/studio"
 ---
 
-# watchStaticFile()<AvailableFrom v="4.0.61"/>
-
-:::note
-This API is being moved to the `@remotion/studio` package. Prefer importing the API from [`@remotion/studio`](/docs/studio/watch-static-file) instead of `remotion`.
-:::
+# watchStaticFile()<AvailableFrom v="4.0.144"/>
 
 Watches for changes in a specific [static file](/docs/staticfile) and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
 
-:::warning
+:::note
+This API is being moved from the <code>remotion</code> package.  
+Prefer this API over the old one.
+:::
+
+:::note
 This feature is only available within the Remotion Studio environment. In the Player, events will never fire.
 :::
 
 ## Example
 
 ```tsx twoslash title="example.tsx"
-import { StaticFile, watchStaticFile } from "remotion";
+import { StaticFile, watchStaticFile } from "@remotion/studio";
 
 // Watch for changes in a specific static file
 const { cancel } = watchStaticFile(
@@ -52,6 +52,6 @@ A callback function that will be called when the file is modified. As an argumen
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/watch-static-file.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/studio/src/api/watch-static-file.ts)
 - [`staticFile()`](/docs/staticfile)
-- [`getStaticFiles()`](/docs/getstaticfiles)
+- [`getStaticFiles()`](/docs/studio/get-static-files)
