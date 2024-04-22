@@ -5,6 +5,11 @@ import {Sequence} from '../Sequence.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {flattenChildren} from './flatten-children.js';
+import {
+	IsInsideSeriesContainer,
+	IsNotInsideSeriesProvider,
+	useRequireToBeInsideSeries,
+} from './is-inside-series.js';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
@@ -20,9 +25,10 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SeriesSequenceProps
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 > = ({children}, _ref) => {
+	useRequireToBeInsideSeries();
 	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
+	return <IsNotInsideSeriesProvider>{children}</IsNotInsideSeriesProvider>;
 };
 
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
@@ -126,8 +132,7 @@ const Series: FC<{
 		});
 	}, [children]);
 
-	/* eslint-disable react/jsx-no-useless-fragment */
-	return <>{childrenValue}</>;
+	return <IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>;
 };
 
 Series.Sequence = SeriesSequence;
