@@ -139,10 +139,10 @@ export const AssetSelector: React.FC<{
 				} else {
 					showNotification(`Added ${files.length} files to ${assetPath}`, 3000);
 				}
-
-				setDropLocation(null);
 			} catch (error) {
 				showNotification(`Error during upload: ${error}`, 3000);
+			} finally {
+				setDropLocation(null);
 			}
 		},
 		[dropLocation],
