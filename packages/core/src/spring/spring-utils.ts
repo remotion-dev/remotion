@@ -101,21 +101,17 @@ function advance({
 const calculationCache: {[key: string]: AnimationNode} = {};
 
 export function springCalculation({
-	from = 0,
-	to = 1,
 	frame,
 	fps,
 	config = {},
 }: {
-	from?: number;
-	to?: number;
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
 }): AnimationNode {
+	const from = 0;
+	const to = 1;
 	const cacheKey = [
-		from,
-		to,
 		frame,
 		fps,
 		config.damping,

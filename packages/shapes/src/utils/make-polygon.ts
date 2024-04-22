@@ -1,5 +1,10 @@
 import type {Instruction} from '@remotion/paths';
-import {serializeInstructions} from '@remotion/paths';
+import {
+	PathInternals,
+	reduceInstructions,
+	resetPath,
+	serializeInstructions,
+} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -68,10 +73,15 @@ export const makePolygon = ({
 		cornerRadius,
 		edgeRoundness,
 	});
+
+	const reduced = reduceInstructions(polygonPathInstructions);
+	const path = resetPath(serializeInstructions(reduced));
+	const boundingBox = PathInternals.getBoundingBoxFromInstructions(reduced);
+
 	return {
-		path: serializeInstructions(polygonPathInstructions),
-		width,
-		height,
+		path,
+		width: boundingBox.width,
+		height: boundingBox.height,
 		transformOrigin: `${centerX} ${centerY}`,
 		instructions: polygonPathInstructions,
 	};
