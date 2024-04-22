@@ -34,6 +34,7 @@ const SlidePresentation: React.FC<
 			presentationProgress === 1
 				? presentationProgress * 100
 				: presentationProgress * 100 - epsilon;
+		console.log(presentationProgressWithEpsilonCorrection);
 
 		if (presentationDirection === 'exiting') {
 			switch (direction) {
@@ -43,7 +44,7 @@ const SlidePresentation: React.FC<
 					};
 				case 'from-right':
 					return {
-						transform: `translateX(-${presentationProgress * 100}%)`,
+						transform: `translateX(${-presentationProgress * 100}%)`,
 					};
 				case 'from-top':
 					return {
@@ -51,7 +52,7 @@ const SlidePresentation: React.FC<
 					};
 				case 'from-bottom':
 					return {
-						transform: `translateY(-${presentationProgress * 100}%)`,
+						transform: `translateY(${-presentationProgress * 100}%)`,
 					};
 				default:
 					throw new Error(`Invalid direction: ${direction}`);

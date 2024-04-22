@@ -66,6 +66,7 @@ import {StillZoom} from './StillZoom';
 import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
+import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
@@ -652,6 +653,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Composition
+					id="text-stroke"
+					component={TextStroke}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
 					id="native-buffer-state"
 					component={NativeBufferState}
 					width={1280}
@@ -1093,7 +1102,7 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="Transitions">
 				<Composition
-					id="transition"
+					id="basic-transition"
 					component={BasicTransition}
 					fps={30}
 					height={1080}
