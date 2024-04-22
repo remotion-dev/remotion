@@ -1,4 +1,4 @@
-import type {GitSource, RenderDefaults} from '@remotion/studio';
+import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
 
