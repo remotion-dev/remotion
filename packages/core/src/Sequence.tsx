@@ -25,44 +25,46 @@ import {useVideoConfig} from './use-video-config.js';
 import {Freeze} from './freeze.js';
 import {useCurrentFrame} from './use-current-frame';
 
+export type AbsoluteFillLayout = {
+	layout?: 'absolute-fill';
+	premountFor?: number;
+	style?: React.CSSProperties;
+	className?: string;
+};
+
 export type LayoutAndStyle =
-	| {
-			layout?: 'absolute-fill';
-			premountFor?: number;
-			style?: React.CSSProperties;
-			className?: string;
-	  }
+	| AbsoluteFillLayout
 	| {
 			layout: 'none';
 	  };
 
 export type SequencePropsWithoutDuration = {
-	children: React.ReactNode;
-	width?: number;
-	height?: number;
-	from?: number;
-	name?: string;
-	showInTimeline?: boolean;
+	readonly children: React.ReactNode;
+	readonly width?: number;
+	readonly height?: number;
+	readonly from?: number;
+	readonly name?: string;
+	readonly showInTimeline?: boolean;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	_remotionInternalLoopDisplay?: LoopDisplay;
+	readonly _remotionInternalLoopDisplay?: LoopDisplay;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	_remotionInternalPremountDisplay?: number | null;
+	readonly _remotionInternalPremountDisplay?: number | null;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	_remotionInternalStack?: string;
+	readonly _remotionInternalStack?: string;
 	/**
 	 * @deprecated For internal use only.
 	 */
-	_remotionInternalIsPremounting?: boolean;
+	readonly _remotionInternalIsPremounting?: boolean;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
-	durationInFrames?: number;
+	readonly durationInFrames?: number;
 } & SequencePropsWithoutDuration;
 
 const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -85,6 +87,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	ref,
 ) => {
 	const {layout = 'absolute-fill'} = other;
+
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useContext(TimelineContext);
