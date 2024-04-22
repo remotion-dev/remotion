@@ -208,15 +208,21 @@ const getRootForElement = () => {
 };
 
 const renderToDOM = (content: React.ReactElement) => {
-	// @ts-expect-error
-	if (ReactDOM.createRoot) {
-		getRootForElement().render(content);
-	} else {
+	if (!ReactDOM.createRoot) {
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(
+				'Remotion 5.0 does only support React 18+. However, ReactDOM.createRoot() is undefined.',
+			);
+		}
+
 		(ReactDOM as unknown as {render: typeof render}).render(
 			content,
 			videoContainer,
 		);
+		return;
 	}
+
+	getRootForElement().render(content);
 };
 
 const renderContent = (Root: React.FC) => {
@@ -255,8 +261,8 @@ const renderContent = (Root: React.FC) => {
 			</div>,
 		);
 		import('@remotion/studio')
-			.then(({Studio}) => {
-				renderToDOM(<Studio readOnly rootComponent={Root} />);
+			.then(({StudioInternals}) => {
+				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
 			.catch((err) => {
 				renderToDOM(<div>Failed to load Remotion Studio: {err.message}</div>);

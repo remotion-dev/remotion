@@ -28,7 +28,9 @@ if (reactDomVersion === '0') {
 	);
 }
 
-const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? true
+	: parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
