@@ -17,6 +17,7 @@ import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
+import {showNotification} from './Notifications/NotificationCenter';
 import {handleUploadFile} from './utils';
 
 const container: React.CSSProperties = {
@@ -54,7 +55,7 @@ type State = {
 };
 
 export const AssetSelector: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {tabIndex} = useZIndex();
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
@@ -123,11 +124,26 @@ export const AssetSelector: React.FC<{
 	);
 
 	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
-		(e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			handleUploadFile(e.dataTransfer.files[0], dropLocation || '/');
-			setDropLocation(null);
+		async (e) => {
+			try {
+				e.preventDefault();
+				e.stopPropagation();
+				const {files} = e.dataTransfer;
+				const assetPath = dropLocation || '/';
+				for (const file of files) {
+					await handleUploadFile(file, assetPath);
+				}
+
+				if (files.length === 1) {
+					showNotification(`Added ${files[0].name} to ${assetPath}`, 3000);
+				} else {
+					showNotification(`Added ${files.length} files to ${assetPath}`, 3000);
+				}
+
+				setDropLocation(null);
+			} catch (error) {
+				showNotification(`Error during upload: ${error}`, 3000);
+			}
 		},
 		[dropLocation],
 	);
