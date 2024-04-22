@@ -45,6 +45,7 @@ export type Template = {
 		| 'tiktok';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
+	previewURL?: string | null;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -72,6 +73,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Hello World',
+		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -145,6 +147,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Blank',
+		previewURL: 'https://template-empty.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -163,6 +166,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'JavaScript',
+		previewURL:
+			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 	},
 	{
 		homePageLabel: 'Remix',
@@ -199,6 +204,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-three-remotion.vercel.app/',
 	},
 	{
 		homePageLabel: 'Stills',
@@ -217,6 +223,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -329,6 +336,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'Stargazer',
