@@ -8,8 +8,8 @@ test('Should be able to make a star path', () => {
 		outerRadius: 200,
 	});
 
-	expect(starPath.width).toEqual(400);
-	expect(starPath.height).toEqual(400);
+	expect(starPath.width).toEqual(380.42260651806146);
+	expect(starPath.height).toEqual(361.8033988749895);
 	expect(starPath.transformOrigin).toEqual('200 200');
 	expect(starPath.instructions.length).toEqual(12);
 	expect(starPath.instructions[0]).toEqual({type: 'M', x: 200, y: 0});
