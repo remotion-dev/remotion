@@ -14,7 +14,7 @@
 		"test": "vitest src/test/unit --run",
 		"watch": "tsc -w",
 		"build": "tsc -d && pnpm run buildlambda",
-		"buildlambda": "bun src/admin/bundle-lambda.ts",
+		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
 		"prepublishOnly": "bun src/admin/bundle-lambda.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -54,6 +54,7 @@
 		"prettier": "3.2.5",
 		"pureimage": "0.4.13",
 		"prettier-plugin-organize-imports": "3.2.4",
+		"ts-node": "10.9.2",
 		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2"
 	},
