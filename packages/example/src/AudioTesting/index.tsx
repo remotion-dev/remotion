@@ -1,4 +1,5 @@
-import {Audio, getStaticFiles, interpolate, Sequence} from 'remotion';
+import {getStaticFiles} from '@remotion/studio';
+import {Audio, interpolate, Sequence} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	const files = getStaticFiles();
