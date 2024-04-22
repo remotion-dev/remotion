@@ -424,6 +424,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/studio",
+      link: {
+        type: "doc",
+        id: "studio/api",
+      },
+      items: ["studio/get-static-files", "studio/watch-static-file"],
+    },
+    {
+      type: "category",
       label: "@remotion/transitions",
       link: {
         type: "doc",

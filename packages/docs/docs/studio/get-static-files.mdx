@@ -1,21 +1,19 @@
 ---
-image: /generated/articles-docs-get-static-files.png
-id: getstaticfiles
 title: getStaticFiles()
-crumb: "API"
+crumb: "@remotion/studio"
 ---
 
-_Available from v3.3.26._
+# getStaticFiles()<AvailableFrom v="4.0.144"/>
+
+Gets an array containing all files in the `public/` folder. You can reference them by using [`staticFile()`](/docs/staticfile).
 
 :::note
-This API is being moved to the `@remotion/studio` package. Prefer importing the API from [`@remotion/studio`](/docs/studio/get-static-files) instead of `remotion`.
+This API is being moved from the <code>remotion</code> package.  
+Prefer this API over the old one.
 :::
 
-Gets an array containing all files in the `public/` folder.  
-You can reference them by using [`staticFile()`](/docs/staticfile).
-
-:::warning
-This feature _only_ works in Remotion Studio and during rendering, otherwise it returns an empty array.  
+:::note
+In environments outside the Remotion Studio, this API returns an empty array.  
 :::
 
 :::note
@@ -23,7 +21,8 @@ On Linux, watching for changes in subdirectories is only supported from Node.js 
 :::
 
 ```tsx twoslash title="example.ts"
-import { getStaticFiles, StaticFile, Video } from "remotion";
+import { getStaticFiles, StaticFile } from "@remotion/studio";
+import { Video } from "remotion";
 
 const files = getStaticFiles();
 /*
@@ -81,6 +80,6 @@ Before v4.0.64, only the first 1000 items were displayed.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-static-files.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/studio/src/api/get-static-files.ts)
 - [`staticFile()`](/docs/staticfile)
-- [`watchStaticFile()`](/docs/watchstaticfile)
+- [`watchStaticFile()`](/docs/studio/watch-static-file)

@@ -677,6 +677,9 @@ importers:
       '@remotion/skia':
         specifier: workspace:*
         version: link:../skia
+      '@remotion/studio':
+        specifier: workspace:*
+        version: link:../studio
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind
