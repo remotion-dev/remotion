@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
-    "discord": "ts-node src/post.ts"
+    "discord": "bun src/post.ts"
   },
   "private": true,
   "devDependencies": {

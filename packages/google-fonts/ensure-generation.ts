@@ -1,4 +1,4 @@
-const fs = require("node:fs");
+import fs from "node:fs";
 
 const filesCjs = fs.readdirSync("./dist/cjs");
 
@@ -8,7 +8,7 @@ if (filesCjs.length < 2200) {
 }
 const filesEsm = fs.readdirSync("./dist/esm");
 
-if (filesEsm.length < 2200) {
+if (filesEsm.length < 1100) {
   console.error("Not publishing, Google fonts have not been generated");
   process.exit(1);
 }
