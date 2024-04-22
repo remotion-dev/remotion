@@ -38,7 +38,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 			);
 			Log.warn(
 				{indent: false, logLevel},
-				'Remotion relies on the naming to determine function information. This may lead to unexpected behavior.',
+				'Remotion relies on the naming to determine function information. This is an unsupported workflow.',
 			);
 
 			if (lambdasWithMatchingVersion.length > 0) {
