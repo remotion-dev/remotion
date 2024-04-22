@@ -321,7 +321,10 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		useLayoutEffect(() => {
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
-				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff'),
+				Internals.CSSUtils.makeDefaultPreviewCSS(
+					`.${PLAYER_CSS_CLASSNAME}`,
+					'#fff',
+				),
 			);
 		}, []);
 	}
