@@ -14,8 +14,8 @@ import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
+	callUpdateDefaultPropsApi,
 	canUpdateDefaultProps,
-	updateDefaultProps,
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -112,14 +112,16 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	unresolvedComposition: AnyComposition;
-	inputProps: Record<string, unknown>;
-	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	mayShowSaveButton: boolean;
-	propsEditType: PropsEditType;
-	saving: boolean;
-	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
-	readOnlyStudio: boolean;
+	readonly unresolvedComposition: AnyComposition;
+	readonly inputProps: Record<string, unknown>;
+	readonly setInputProps: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly mayShowSaveButton: boolean;
+	readonly propsEditType: PropsEditType;
+	readonly saving: boolean;
+	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
 	inputProps,
@@ -292,7 +294,7 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		updateDefaultProps(
+		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
 			inputProps,
 			extractEnumJsonPaths(schema, z, []),
@@ -320,7 +322,7 @@ export const DataEditor: React.FC<{
 			}
 
 			setSaving(true);
-			updateDefaultProps(
+			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
 				updater(unresolvedComposition.defaultProps ?? {}),
 				extractEnumJsonPaths(schema, z, []),

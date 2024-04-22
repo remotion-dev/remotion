@@ -377,7 +377,7 @@ export const getProjectInfo = (signal: AbortSignal) => {
 	return callApi('/api/project-info', {}, signal);
 };
 
-export const updateDefaultProps = (
+export const callUpdateDefaultPropsApi = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],
