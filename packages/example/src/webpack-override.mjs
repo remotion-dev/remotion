@@ -24,6 +24,14 @@ const aliases = {
 	'@remotion/shapes': resolveCwd('@remotion/shapes'),
 	'@remotion/skia': resolveCwd('@remotion/skia'),
 	'@remotion/three': resolveCwd('@remotion/three'),
+	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
+	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),
+	'@remotion/transitions/flip': resolveCwd('@remotion/transitions/flip'),
+	'@remotion/transitions/clock-wipe': resolveCwd(
+		'@remotion/transitions/clock-wipe',
+	),
+	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
+	'@remotion/transitions': resolveCwd('@remotion/transitions'),
 	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
 };
 

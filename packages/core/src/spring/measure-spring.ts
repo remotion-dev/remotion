@@ -71,8 +71,6 @@ export function measureSpring({
 			fps,
 			frame,
 			config,
-			from,
-			to,
 		});
 	};
 
