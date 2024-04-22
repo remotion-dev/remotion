@@ -3104,7 +3104,7 @@ export const articles = [
   },
   {
     id: "visual-editing",
-    title: "Edit props visually",
+    title: "Edit default props visually",
     relativePath: "docs/visual-editing.md",
     compId: "articles-docs-visual-editing",
     crumb: "How To",
