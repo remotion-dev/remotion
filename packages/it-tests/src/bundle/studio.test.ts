@@ -19,6 +19,5 @@ test("Should be able to start the studio", () => {
   }).toString("utf-8");
   // Should not print warnings or errors
   expect(res.length).toBeLessThan(200);
-
   expect(res).toContain("Yes, the server started.");
 });

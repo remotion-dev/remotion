@@ -48,6 +48,13 @@ export function setupHooks(context: DevMiddlewareContext, logLevel: LogLevel) {
 
 			if (lines) {
 				RenderInternals.Log.info({indent: false, logLevel}, lines);
+				if (process.argv.includes('--test-for-server-open')) {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Yes, the server started.',
+					);
+					process.exit(0);
+				}
 			}
 
 			context.callbacks = [];
