@@ -9,4 +9,11 @@ export const setServerReadyComment = (newMessage: string) => {
 
 export const printServerReadyComment = (prefix: string, logLevel: LogLevel) => {
 	RenderInternals.Log.info({indent: false, logLevel}, `${prefix} - ${message}`);
+	if (process.argv.includes('--test-for-server-open')) {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			'Yes, the server started.',
+		);
+		process.exit(0);
+	}
 };
