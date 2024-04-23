@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "4.0.143",
+	"version": "4.0.144",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
