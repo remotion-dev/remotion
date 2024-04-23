@@ -53,14 +53,13 @@ export const RemotionRoot: React.FC<{
 				window.remotion_attempt = attempt;
 				const id = delayRender(`Setting the current frame to ${f}`);
 
-				let avoidUpdate = false;
+				let asyncUpdate = true;
 
 				setFrame((s) => {
 					const currentFrame = s[composition] ?? window.remotion_initialFrame;
 					// Avoid cloning the object
 					if (currentFrame === f) {
-						avoidUpdate = true;
-						continueRender(id);
+						asyncUpdate = false;
 						return s;
 					}
 
@@ -69,8 +68,12 @@ export const RemotionRoot: React.FC<{
 						[composition]: f,
 					};
 				});
-				if (!avoidUpdate) {
+
+				// After setting the state, need to wait until it is applied in the next cycle
+				if (asyncUpdate) {
 					requestAnimationFrame(() => continueRender(id));
+				} else {
+					continueRender(id);
 				}
 			};
 
