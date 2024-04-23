@@ -313,6 +313,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
+		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -336,7 +337,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: 'https://template-tailwind-remotion.vercel.app/?/MyComp',
 	},
 	{
 		homePageLabel: 'Stargazer',
