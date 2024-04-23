@@ -59,6 +59,7 @@
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/index.js"
 		},
+		"./entry": "./dist/previewEntry.js",
 		"./internals": {
 			"types": "./dist/internals.d.ts",
 			"module": "./dist/esm/internals.mjs",
