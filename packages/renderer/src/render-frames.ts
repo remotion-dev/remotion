@@ -257,7 +257,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: SourceMapGetter) => {
+	const makePage = async (context: SourceMapGetter, initialFrame: number) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -279,8 +279,6 @@ const innerRenderFrames = async ({
 		if (onBrowserLog) {
 			page.on('console', logCallback);
 		}
-
-		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
 			serializedInputPropsWithCustomSchema,
@@ -341,7 +339,7 @@ const innerRenderFrames = async ({
 	const getPool = async (context: SourceMapGetter) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
-			.map(() => makePage(context));
+			.map((_, i) => makePage(context, realFrameRange[i]));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -605,7 +603,7 @@ const innerRenderFrames = async ({
 			if (shouldRetryError) {
 				const pool = await poolPromise;
 				// Replace the closed page
-				const newPage = await makePage(sourceMapGetter);
+				const newPage = await makePage(sourceMapGetter, frame);
 				pool.release(newPage);
 				Log.warn(
 					{indent, logLevel},
@@ -630,7 +628,7 @@ const innerRenderFrames = async ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
-					.map(() => makePage(sourceMapGetter));
+					.map(() => makePage(sourceMapGetter, frame));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
