@@ -1,12 +1,9 @@
 <?php
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-require_once __DIR__ . '/PHPClient.php';
-require_once __DIR__ . '/RenderParams.php';
+namespace Remotion\LambdaPhp\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Remotion\LambdaPhp\PHPClient;
-use Remotion\LambdaPhp\RenderParams;
 
 class PHPRenderProgressTest extends TestCase
 {

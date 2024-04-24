@@ -15,7 +15,16 @@ describe("These should run serially", () => {
   test("Set the right version for phpunit", () => {
     expect(typeof version).toBe("string");
 
-    const VERSION = `<?php \nnamespace Remotion\\LambdaPhp;\n\nconst VERSION = "${version}";`;
+    const VERSION = `
+<?php
+
+namespace Remotion\LambdaPhp;
+
+class Semantic
+{
+    public const VERSION = "${version}";
+}  
+  `.trim();
     writeFileSync(
       path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
       VERSION
