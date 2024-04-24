@@ -108,7 +108,6 @@ describe("These should run serially", () => {
       indent: false,
     });
     const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
-    console.log({ toParse: phpOutput.toString().split("\n") });
     const parsedJson = JSON.parse(jsonOutput);
 
     expect(
