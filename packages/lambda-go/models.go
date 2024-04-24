@@ -91,11 +91,8 @@ type renderInternalOptions struct {
 }
 
 type RawInvokeResponse struct {
-	StatusCode int `json:"statusCode"`
-	Headers    struct {
-		ContentType string `json:"content-type"`
-	} `json:"headers"`
 	Body string `json:"body"`
+	Type string `json:"type"`
 }
 
 type RemotionRenderResponse struct {
