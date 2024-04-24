@@ -68,7 +68,7 @@ class Semantic
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
-    const toParse = output[4];
+    const toParse = output[5];
     const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
       region: "us-east-1",
       composition: "react-svg",
@@ -138,7 +138,7 @@ class Semantic
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
-    const toParse = output[4];
+    const toParse = output[5];
     const nativeVersion = LambdaInternals.getRenderProgressPayload({
       region: "us-east-1",
       functionName: "remotion-render",
