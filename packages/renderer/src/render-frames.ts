@@ -207,7 +207,7 @@ const innerRenderFrames = async ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
-	actualConcurrency,
+	actualConcurrency: concurrency,
 	everyNthFrame,
 	proxyPort,
 	cancelSignal,
@@ -338,8 +338,13 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
+	const concurrencyOrFramesToRender = Math.min(
+		framesToRender.length,
+		concurrency,
+	);
+
 	const getPool = async (context: SourceMapGetter) => {
-		const pages = new Array(actualConcurrency)
+		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
 			.map(() => makePage(context));
 		const puppeteerPages = await Promise.all(pages);
@@ -628,7 +633,7 @@ const innerRenderFrames = async ({
 			);
 			// Replace the entire browser
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
-				const pages = new Array(actualConcurrency)
+				const pages = new Array(concurrencyOrFramesToRender)
 					.fill(true)
 					.map(() => makePage(sourceMapGetter));
 				const puppeteerPages = await Promise.all(pages);
