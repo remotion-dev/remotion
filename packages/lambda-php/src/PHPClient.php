@@ -92,12 +92,19 @@ class PHPClient
     {
         $response = json_decode($response, true);
 
+        // AWS response
         if (isset($response->errorMessage)) {
             throw new Exception($response->errorMessage);
         }
 
         $classResponse = new RenderMediaOnLambdaResponse();
+
+        // Remotion response
+        if ($response['type'] === 'error') {
+            throw new Exception($response['message']);
+        }
         $classResponse->type = $response['type'];
+        print_r(json_encode($response));
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
         return $classResponse;

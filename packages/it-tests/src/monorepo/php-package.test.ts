@@ -64,7 +64,7 @@ class Semantic
     execSync("php composer.phar --quiet install", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
-    const phpOutput = execSync("phpunit ./src/PHPClientTest.php", {
+    const phpOutput = execSync("phpunit ./tests/PHPClientTest.php", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
@@ -127,8 +127,6 @@ class Semantic
     ).toEqual(removeUndefined(nativeVersion));
   });
 
-  // Skip PHP tests temporarily
-  // https://github.com/shivammathur/setup-php/issues/823
   test("PHP package should create the same progress payload as normal Lambda package", async () => {
     execSync("php composer.phar --quiet update", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
@@ -136,7 +134,7 @@ class Semantic
     execSync("php composer.phar --quiet install", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
-    const phpOutput = execSync("phpunit ./src/PHPRenderProgressTest.php", {
+    const phpOutput = execSync("phpunit ./tests/PHPRenderProgressTest.php", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
