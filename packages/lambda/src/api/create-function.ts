@@ -81,7 +81,7 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs18.x',
+			Runtime: 'nodejs20.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
@@ -91,6 +91,11 @@ export const createFunction = async ({
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
+			},
+			Environment: {
+				Variables: {
+					NODE_EXTRA_CA_CERTS: '/var/runtime/ca-cert.pem',
+				},
 			},
 		}),
 	);
@@ -141,7 +146,7 @@ export const createFunction = async ({
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
-				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`,
+				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`,
 			}),
 		);
 	} catch (err) {

@@ -1,5 +1,6 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {execSync} from 'child_process';
 import {VERSION} from 'remotion/version';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
@@ -57,6 +58,8 @@ export const getBrowserInstance = async (
 	indent: boolean,
 	chromiumOptions: ChromiumOptions,
 ): Promise<LaunchedBrowser> => {
+	// initNss();
+	console.log(execSync('ls /etc/pki').toString('utf8'));
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
 		// Override the `null` value, which might come from CLI with swANGLE
