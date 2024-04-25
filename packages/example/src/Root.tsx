@@ -63,7 +63,10 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
-import {SaveDefaultProps, saveStudioSchema} from './StudioApis/SaveDefaultProps';
+import {
+	SaveDefaultProps,
+	saveStudioSchema,
+} from './StudioApis/SaveDefaultProps';
 import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
