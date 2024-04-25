@@ -1,13 +1,19 @@
-export const handleUploadFile = async (file: File, assetPath: string) => {
+export const writeStaticFile = async ({
+	contents,
+	filePath,
+}: {
+	contents: Buffer | ArrayBuffer;
+	filePath: string;
+}): Promise<void> => {
 	const url = new URL('/api/add-asset', window.location.origin);
+
 	url.search = new URLSearchParams({
-		folder: assetPath,
-		file: file.name,
+		filePath: [filePath].filter(Boolean).join('/'),
 	}).toString();
 
 	const response = await fetch(url, {
 		method: 'POST',
-		body: file,
+		body: contents,
 	});
 
 	if (!response.ok) {
