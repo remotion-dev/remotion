@@ -12,7 +12,7 @@ export const SaveDefaultProps: React.FC = () => {
 	const onClick = useCallback(async () => {
 		await saveDefaultProps({
 			compositionId: id,
-			defaultProps: ({savedDefaultProps, unsavedDefaultProps, schema}) => {
+			defaultProps: () => {
 				return {
 					color: 'green',
 				};
