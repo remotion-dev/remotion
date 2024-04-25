@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/layout-utils",
-	"version": "4.0.143",
+	"version": "4.0.146",
 	"description": "Layout Utils for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

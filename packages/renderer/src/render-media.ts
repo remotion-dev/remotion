@@ -302,7 +302,6 @@ const internalRenderMediaRaw = ({
 	let encodedFrames = 0;
 	let muxedFrames = 0;
 	let renderedFrames = 0;
-	let totalFramesToRender = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
@@ -417,6 +416,10 @@ const internalRenderMediaRaw = ({
 		composition.durationInFrames,
 		frameRange,
 	);
+	const totalFramesToRender = getFramesToRender(
+		realFrameRange,
+		everyNthFrame,
+	).length;
 
 	Log.verbose(
 		{indent, logLevel, tag: 'renderMedia()'},
@@ -572,7 +575,6 @@ const internalRenderMediaRaw = ({
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
-						totalFramesToRender = data.frameCount;
 						callUpdate();
 						onStart?.(data);
 					},
@@ -703,7 +705,7 @@ const internalRenderMediaRaw = ({
 				]);
 			})
 			.then(([buffer, stitchStart]) => {
-				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
+				encodedFrames = totalFramesToRender;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
 				Log.verbose(

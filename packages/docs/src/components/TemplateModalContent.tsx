@@ -75,6 +75,17 @@ const StackBlitzIcon: React.FC = () => {
   );
 };
 
+const PreviewIcon: React.FC = () => {
+  return (
+    <svg viewBox="0 0 512 512" aria-hidden="true" width="24" height="24">
+      <path
+        fill="currentColor"
+        d="M368 208A160 160 0 1 0 48 208a160 160 0 1 0 320 0zM337.1 371.1C301.7 399.2 256.8 416 208 416C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208c0 48.8-16.8 93.7-44.9 129.1l124 124 17 17L478.1 512l-17-17-124-124zM145.8 116.2l24 14 110.2 64L303.9 208 280 221.8l-110.2 64-24 14V272 144 116.2z"
+      />
+    </svg>
+  );
+};
+
 const spinner: React.CSSProperties = {
   height: 16,
   width: 16,
@@ -307,6 +318,25 @@ export const TemplateModalContent: React.FC<{
               View source
             </a>
           </div>
+          {template.previewURL && (
+            <a target={"_blank"} style={link} href={template.previewURL}>
+              <div style={githubrow}>
+                <div style={iconContainer}>
+                  <PreviewIcon />
+                </div>
+                See Preview{" "}
+                <span
+                  style={{
+                    whiteSpace: "pre",
+                    color: "var(--light-text-color)",
+                  }}
+                >
+                  {" "}
+                  via Remotion Studio
+                </span>
+              </div>
+            </a>
+          )}
           <a
             target={"_blank"}
             style={link}

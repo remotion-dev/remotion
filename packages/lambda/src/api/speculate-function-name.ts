@@ -20,6 +20,8 @@ export const speculateFunctionName = ({
 	diskSizeInMb,
 	timeoutInSeconds,
 }: SpeculateFunctionNameInput) => {
+	// find-function-name.ts uses this for templating
+	// consider this before adding any validation here
 	return [
 		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
 		`mem${memorySizeInMb}mb`,

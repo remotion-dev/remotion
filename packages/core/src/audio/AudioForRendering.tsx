@@ -112,7 +112,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
-			audioStartFrame: -(sequenceContext?.relativeFrom ?? 0),
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
