@@ -2809,6 +2809,13 @@ export const articles = [
     crumb: "Remotion Studio",
   },
   {
+    id: "studio/save-default-props",
+    title: "saveDefaultProps()",
+    relativePath: "docs/studio/save-default-props.mdx",
+    compId: "articles-docs-studio-save-default-props",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/shortcuts",
     title: "Keyboard navigation",
     relativePath: "docs/studio/shortcuts.mdx",
@@ -2932,6 +2939,13 @@ export const articles = [
     title: "Remotion Root",
     relativePath: "docs/terminology/remotion-root.md",
     compId: "articles-docs-terminology-remotion-root",
+    crumb: "Terminology",
+  },
+  {
+    id: "terminology/root-file",
+    title: "Root file",
+    relativePath: "docs/terminology/root-file.mdx",
+    compId: "articles-docs-terminology-root-file",
     crumb: "Terminology",
   },
   {
