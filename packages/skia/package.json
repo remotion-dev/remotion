@@ -67,7 +67,7 @@
 	"typesVersions": {
 		">=1.0": {
 			"enable": [
-				"dist/esm/enable.d.ts"
+				"dist/cjs/enable.d.ts"
 			]
 		}
 	}
