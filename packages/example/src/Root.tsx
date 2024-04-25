@@ -67,6 +67,7 @@ import {
 	SaveDefaultProps,
 	saveStudioSchema,
 } from './StudioApis/SaveDefaultProps';
+import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -1226,8 +1227,18 @@ export const Index: React.FC = () => {
 					component={SaveDefaultProps}
 					fps={30}
 					durationInFrames={100}
-					height={1080}
-					width={1080}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="write-static-file"
+					component={WriteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
 					schema={saveStudioSchema}
 					defaultProps={{color: 'green'}}
 				/>

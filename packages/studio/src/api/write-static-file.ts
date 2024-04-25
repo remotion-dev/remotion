@@ -1,13 +1,23 @@
-export const handleUploadFile = async (file: File, assetPath: string) => {
+export const writeStaticFile = async ({
+	contents,
+	filePath,
+}: {
+	contents: string | ArrayBuffer;
+	filePath: string;
+}): Promise<void> => {
 	const url = new URL('/api/add-asset', window.location.origin);
+
+	if (filePath.includes('\\')) {
+		return Promise.reject(new Error('File path cannot contain backslashes'));
+	}
+
 	url.search = new URLSearchParams({
-		folder: assetPath,
-		file: file.name,
+		filePath,
 	}).toString();
 
 	const response = await fetch(url, {
 		method: 'POST',
-		body: file,
+		body: contents,
 	});
 
 	if (!response.ok) {

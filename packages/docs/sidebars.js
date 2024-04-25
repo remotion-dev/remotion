@@ -363,7 +363,6 @@ module.exports = {
         "paths/parse-path",
         "paths/serialize-instructions",
         "paths/reduce-instructions",
-
         "paths/get-parts",
       ],
     },
@@ -432,6 +431,7 @@ module.exports = {
       items: [
         "studio/get-static-files",
         "studio/watch-static-file",
+        "studio/write-static-file",
         "studio/save-default-props",
       ],
     },

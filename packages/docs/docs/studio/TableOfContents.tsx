@@ -16,6 +16,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"watchStaticFile()"}</strong>
           <div>Listen to changes of a static file</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/write-static-file">
+          <strong>{"writeStaticFile()"}</strong>
+          <div>Save content to a file in the public directory</div>
+        </TOCItem>
         <TOCItem link="/docs/studio/save-default-props">
           <strong>{"saveDefaultProps()"}</strong>
           <div>Save default props to the root file</div>

@@ -2837,6 +2837,13 @@ export const articles = [
     crumb: "@remotion/studio",
   },
   {
+    id: "studio/write-static-file",
+    title: "writeStaticFile()",
+    relativePath: "docs/studio/write-static-file.mdx",
+    compId: "articles-docs-studio-write-static-file",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "support",
     title: "Support Policy",
     relativePath: "docs/support.md",
