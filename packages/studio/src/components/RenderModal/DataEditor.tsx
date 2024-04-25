@@ -113,8 +113,8 @@ const setPersistedShowWarningState = (val: boolean) => {
 
 export const DataEditor: React.FC<{
 	readonly unresolvedComposition: AnyComposition;
-	readonly inputProps: Record<string, unknown>;
-	readonly setInputProps: React.Dispatch<
+	readonly defaultProps: Record<string, unknown>;
+	readonly setDefaultProps: React.Dispatch<
 		React.SetStateAction<Record<string, unknown>>
 	>;
 	readonly mayShowSaveButton: boolean;
@@ -124,8 +124,8 @@ export const DataEditor: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
-	inputProps,
-	setInputProps,
+	defaultProps,
+	setDefaultProps,
 	mayShowSaveButton,
 	propsEditType,
 	saving,
@@ -143,13 +143,13 @@ export const DataEditor: React.FC<{
 			return null;
 		}
 
-		const value = inputProps;
+		const value = defaultProps;
 		return NoReactInternals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
 		});
-	}, [inJSONEditor, inputProps]);
+	}, [inJSONEditor, defaultProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -186,8 +186,8 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		return schema.safeParse(inputProps);
-	}, [inputProps, schema]);
+		return schema.safeParse(defaultProps);
+	}, [defaultProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -296,7 +296,7 @@ export const DataEditor: React.FC<{
 
 		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
-			inputProps,
+			defaultProps,
 			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
@@ -306,7 +306,7 @@ export const DataEditor: React.FC<{
 				);
 			}
 		});
-	}, [unresolvedComposition.id, inputProps, schema, z]);
+	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -446,8 +446,8 @@ export const DataEditor: React.FC<{
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					value={inputProps}
-					setValue={setInputProps}
+					value={defaultProps}
+					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
 					defaultProps={unresolvedComposition.defaultProps}
@@ -458,8 +458,8 @@ export const DataEditor: React.FC<{
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
-					value={inputProps ?? {}}
-					setValue={setInputProps}
+					value={defaultProps ?? {}}
+					setValue={setDefaultProps}
 					onSave={onUpdate}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}

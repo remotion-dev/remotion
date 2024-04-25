@@ -9,15 +9,17 @@ export const saveStudioSchema = z.object({
 
 export const SaveDefaultProps: React.FC = () => {
 	const {id} = useVideoConfig();
-	const onClick = useCallback(() => {
-		saveDefaultProps({
+	const onClick = useCallback(async () => {
+		await saveDefaultProps({
 			compositionId: id,
-			defaultProps: () => {
+			defaultProps: ({savedDefaultProps, unsavedDefaultProps, schema}) => {
 				return {
-					color: 'blue',
+					color: 'green',
 				};
 			},
 		});
+
+		console.log('Saved!');
 	}, [id]);
 
 	return (
