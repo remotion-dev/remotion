@@ -1,11 +1,6 @@
 import {writeStaticFile} from '@remotion/studio';
 import React, {useCallback} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {z} from 'zod';
-
-export const saveStudioSchema = z.object({
-	color: z.string(),
-});
 
 export const WriteStaticFile: React.FC = () => {
 	const saveFileRegular = useCallback(async () => {
