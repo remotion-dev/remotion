@@ -65,7 +65,7 @@ export const RemotionRoot = () => {
 
 ## Defer registerRoot()
 
-In some cases, such as dynamically importing roots or loading WebAssembly, you might want to defer the loading of registerRoot(). If you are doing that, you need to tell Remotion to wait by using the [`delayRender()` / `continueRender()`](/docs/delay-render) pattern.
+In some cases, such as dynamically importing roots or loading WebAssembly, you might want to defer the loading of registerRoot(). In newer versions of Remotion, you may do so, without having to invoke `delayRender()`.
 
 ```tsx twoslash
 // @filename: ./Root.tsx
@@ -78,11 +78,8 @@ const loadWebAssembly = () => Promise.resolve();
 import { continueRender, delayRender, registerRoot } from "remotion";
 import { RemotionRoot } from "./Root";
 
-const wait = delayRender();
-
 loadWebAssembly().then(() => {
   registerRoot(RemotionRoot);
-  continueRender(wait);
 });
 ```
 

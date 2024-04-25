@@ -429,7 +429,11 @@ module.exports = {
         type: "doc",
         id: "studio/api",
       },
-      items: ["studio/get-static-files", "studio/watch-static-file"],
+      items: [
+        "studio/get-static-files",
+        "studio/watch-static-file",
+        "studio/save-default-props",
+      ],
     },
     {
       type: "category",
@@ -817,6 +821,7 @@ module.exports = {
         "terminology/cloud-run-url",
         "terminology/service-name",
         "terminology/entry-point",
+        "terminology/root-file",
         "terminology/remotion-root",
         "terminology/public-dir",
         "terminology/serve-url",
