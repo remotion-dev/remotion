@@ -63,6 +63,7 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
+import {SaveDefaultProps, saveStudioSchema} from './StudioApis/SaveDefaultProps';
 import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -1214,6 +1215,20 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="studio-apis">
+				<Composition
+					id="save-default-props"
+					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={1080}
+					width={1080}
+					schema={saveStudioSchema}
+					defaultProps={{
+						color: 'hi there'
+					}}
 				/>
 			</Folder>
 		</>

@@ -2,7 +2,7 @@ import {Internals} from 'remotion';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 
-export const updateDefaultProps = async ({
+export const saveDefaultProps = async ({
 	id,
 	defaultProps,
 }: {
