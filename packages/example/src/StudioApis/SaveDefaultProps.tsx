@@ -1,6 +1,6 @@
 import {saveDefaultProps} from '@remotion/studio';
 import React, {useCallback} from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 
 export const saveStudioSchema = z.object({
@@ -8,18 +8,23 @@ export const saveStudioSchema = z.object({
 });
 
 export const SaveDefaultProps: React.FC = () => {
-	useCallback(() => {
+	const {id} = useVideoConfig();
+	const onClick = useCallback(() => {
 		saveDefaultProps({
-			id: 'some-id',
-			defaultProps: {
-				color: 'blue',
+			compositionId: id,
+			defaultProps: () => {
+				return {
+					color: 'blue',
+				};
 			},
 		});
-	}, []);
+	}, [id]);
 
 	return (
 		<AbsoluteFill>
-			<button type="button">save some props</button>
+			<button type="button" onClick={onClick}>
+				save some props
+			</button>
 		</AbsoluteFill>
 	);
 };

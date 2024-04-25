@@ -3,25 +3,29 @@ import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extra
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 
 export const saveDefaultProps = async ({
-	id,
+	compositionId,
 	defaultProps,
 }: {
-	id: string;
-	defaultProps: Record<string, unknown>;
+	compositionId: string;
+	defaultProps: () => Record<string, unknown>;
 }) => {
 	const compositions =
 		Internals.compositionsRef.current?.getCompositions() ?? [];
 
-	const entry = compositions.find((c) => c.id === id);
+	const entry = compositions.find((c) => c.id === compositionId);
 	if (!entry) {
-		throw new Error('Composition not found');
+		throw new Error(
+			`No composition with the ID ${compositionId} found. Available compositions: ${compositions.map((c) => c.id).join(', ')}`,
+		);
 	}
 
 	const z = await import('zod');
 
+	const generatedDefaultProps = defaultProps();
+
 	const res = await callUpdateDefaultPropsApi(
-		id,
-		defaultProps,
+		compositionId,
+		generatedDefaultProps,
 		entry.schema ? extractEnumJsonPaths(entry.schema, z, []) : [],
 	);
 

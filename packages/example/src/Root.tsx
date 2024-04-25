@@ -1226,9 +1226,7 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 					schema={saveStudioSchema}
-					defaultProps={{
-						color: 'hi there'
-					}}
+					defaultProps={{color: 'blue'}}
 				/>
 			</Folder>
 		</>
