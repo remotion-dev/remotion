@@ -2,13 +2,17 @@ export const writeStaticFile = async ({
 	contents,
 	filePath,
 }: {
-	contents: Buffer | ArrayBuffer;
+	contents: string | ArrayBuffer;
 	filePath: string;
 }): Promise<void> => {
 	const url = new URL('/api/add-asset', window.location.origin);
 
+	if (filePath.includes('\\')) {
+		return Promise.reject(new Error('File path cannot contain backslashes'));
+	}
+
 	url.search = new URLSearchParams({
-		filePath: [filePath].filter(Boolean).join('/'),
+		filePath,
 	}).toString();
 
 	const response = await fetch(url, {
