@@ -281,7 +281,7 @@ export type LambdaStartPayload = {
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
 };
 
@@ -341,7 +341,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
-		colorSpace: ColorSpace;
+		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
 	};
 	status: LambdaStatusPayload;
@@ -387,7 +387,7 @@ export type LambdaPayloads = {
 		preferLossless: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
-		colorSpace: ColorSpace;
+		colorSpace: ColorSpace | null;
 		compositionStart: number;
 		framesPerLambda: number;
 	};

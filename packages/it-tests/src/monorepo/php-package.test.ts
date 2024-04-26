@@ -81,7 +81,7 @@ class Semantic
       audioBitrate: null,
       audioCodec: null,
       chromiumOptions: {},
-      colorSpace: "default",
+      colorSpace: null,
       concurrencyPerLambda: 1,
       crf: undefined,
       deleteAfter: null,
