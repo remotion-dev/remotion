@@ -18,7 +18,7 @@ describe("These should run serially", () => {
     const VERSION = `
 <?php
 
-namespace Remotion\LambdaPhp;
+namespace Remotion\\LambdaPhp;
 
 class Semantic
 {
@@ -26,7 +26,7 @@ class Semantic
 }  
   `.trim();
     writeFileSync(
-      path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
+      path.join(process.cwd(), "..", "lambda-php", "src", "Semantic.php"),
       VERSION
     );
   });
