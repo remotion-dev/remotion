@@ -6,14 +6,14 @@ slug: /lambda/runtime
 crumb: "Lambda"
 ---
 
-import {DefaultMemorySize} from '../../components/lambda/default-memory-size';
-import {DefaultTimeout} from '../../components/lambda/default-timeout';
+import { DefaultMemorySize } from "../../components/lambda/default-memory-size";
+import { DefaultTimeout } from "../../components/lambda/default-timeout";
 
 This page describes the environment that the Lambda function is running in.
 
 ## Node.JS Version
 
-The lambda function will use a NodeJS version from the `18.x` release line.  
+The Lambda uses a NodeJS version from the `18.x` release line.  
 The Lambda runtime will get locked to
 
 ```
@@ -24,10 +24,8 @@ if your user policy includes `lambda:PutRuntimeManagementConfig`, which is recom
 Otherwise, future updates to the runtime by AWS have the potential to break the function. If you don't have this permission in your policy, a warning will be printed.
 
 <details>
-<summary>
-Changelog
-</summary>
-Before Remotion v4.0.0, the Node.JS version was <code>14.x</code>.
+  <summary>Changelog</summary>
+  Before Remotion v4.0.0, the Node.JS version was <code>14.x</code>.
 </details>
 
 ## Memory size
@@ -63,12 +61,13 @@ You can render multiple frames at once inside a Lambda function by using the [`c
 The function already includes a running version of Chrome.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-| Remotion version | Chrome version |
-| ---------------- | -------------- |
-| From 4.0.0       | 114.0.5731.1   |
-| From 3.2.0       | 104.0.5112.64  |
-| From 3.0.8       | 101.0.4951.68  |
-| From 3.0.0       | 98.0.4758.139  |
+| Remotion version      | Chrome version |
+| --------------------- | -------------- |
+| From 5.0.0 (upcoming) | 123.0.6312.86  |
+| From 4.0.0            | 114.0.5731.1   |
+| From 3.2.0            | 104.0.5112.64  |
+| From 3.0.8            | 101.0.4951.68  |
+| From 3.0.0            | 98.0.4758.139  |
 
 ## FFMPEG
 
@@ -82,8 +81,14 @@ Version built from source: <code>N-104627-g40cf317d09</code> (corresponds to v4.
 Configuration:
 
 <pre>
---prefix=/home/ec2-user/ffmpeg_build --pkg-config-flags=--static --extra-cflags=-I/home/ec2-user/ffmpeg_build/include --extra-ldflags=-L/home/ec2-user/ffmpeg_build/lib --extra-libs=-lpthread --extra-libs=-lm --bindir=/home/ec2-user/bin --enable-gpl --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
+  --prefix=/home/ec2-user/ffmpeg_build --pkg-config-flags=--static
+  --extra-cflags=-I/home/ec2-user/ffmpeg_build/include
+  --extra-ldflags=-L/home/ec2-user/ffmpeg_build/lib --extra-libs=-lpthread
+  --extra-libs=-lm --bindir=/home/ec2-user/bin --enable-gpl --enable-libfdk-aac
+  --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvpx
+  --enable-libx264 --enable-libx265 --enable-nonfree
 </pre>
+
 </details>
 
 ## Fonts
@@ -120,6 +125,17 @@ While the set of default fonts that we can include must be kept small in order t
 ## Customize layers
 
 See: [Customize Lambda layers](/docs/lambda/custom-layers) to learn about how you can customize this stack.
+
+## Runtime changes in Remotion 5.0
+
+Remotion 5.0 will use the following runtime:
+
+- Node.js 20.x instead of 18.x
+- Chrome 123.0.6312.86 instead of 114.0.5731.1.
+- AWS Lambda runtime locked to `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`
+
+Available from v4.0.148: You may opt to use the new runtime by setting `enableV5Runtime: true` in the [`deployFunction()`](/docs/lambda/deployfunction) function.  
+If you use the CLI, pass `enable-v5-runtime` to the CLI.
 
 ## See also
 

@@ -1,5 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -33,6 +34,7 @@ type OptionalParameters = {
 	enableLambdaInsights: boolean;
 	indent: boolean;
 	logLevel: LogLevel;
+	enableV5Runtime: boolean;
 };
 
 export type DeployFunctionInput = MandatoryParameters &
@@ -43,7 +45,7 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-const internalDeployFunction = async (
+export const internalDeployFunction = async (
 	params: MandatoryParameters & OptionalParameters,
 ): Promise<DeployFunctionOutput> => {
 	validateMemorySize(params.memorySizeInMb);
@@ -89,6 +91,7 @@ const internalDeployFunction = async (
 		ephemerealStorageInMb: params.diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
 		enableLambdaInsights: params.enableLambdaInsights ?? false,
+		enableV5Runtime: params.enableV5Runtime,
 	});
 
 	if (!created.FunctionName) {
@@ -127,6 +130,7 @@ export const deployFunction = ({
 	enableLambdaInsights,
 	indent,
 	logLevel,
+	enableV5Runtime,
 	...options
 }: DeployFunctionInput) => {
 	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
@@ -142,5 +146,7 @@ export const deployFunction = ({
 		region,
 		timeoutInSeconds,
 		cloudWatchLogRetentionPeriodInDays,
+		enableV5Runtime:
+			enableV5Runtime ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 	});
 };
