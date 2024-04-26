@@ -29,7 +29,7 @@ func main() {
 	// Load the environment variables from the .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("No .env file")
 	}
 
 	// Specify the URL to your Webpack bundle
@@ -57,19 +57,26 @@ func main() {
 
 	// Check if there are validation errors
 	if renderError != nil {
+		// Try to assert the error as validator.ValidationErrors
+		if validationErrs, ok := renderError.(validator.ValidationErrors); ok {
+			validationOut := make([]ValidationError, len(validationErrs))
 
-		validationOut := make([]ValidationError, len(renderError.(validator.ValidationErrors)))
+			for i, fieldError := range validationErrs {
+				validationOut[i] = ValidationError{
+					Field:   fieldError.Field(),
+					Message: msgForTag(fieldError),
+				}
+			}
 
-		for i, fieldError := range renderError.(validator.ValidationErrors) {
-
-			validationOut[i] = ValidationError{fieldError.Field(), msgForTag(fieldError)}
-		}
-
-		for _, apiError := range validationOut {
-			fmt.Printf("%s: %s\n", apiError.Field, apiError.Message)
+			// Print each formatted validation error
+			for _, apiError := range validationOut {
+				fmt.Printf("%s: %s\n", apiError.Field, apiError.Message)
+			}
+		} else {
+			// If the type is not ValidationErrors, rethrow the error or handle it differently
+			fmt.Printf("An error occurred: %s\n", renderError)
 		}
 		return
-
 	}
 
 	fmt.Print(renderResponse.RenderId)

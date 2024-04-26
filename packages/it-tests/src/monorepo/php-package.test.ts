@@ -15,9 +15,18 @@ describe("These should run serially", () => {
   test("Set the right version for phpunit", () => {
     expect(typeof version).toBe("string");
 
-    const VERSION = `<?php \nnamespace Remotion\\LambdaPhp;\n\nconst VERSION = "${version}";`;
+    const VERSION = `
+<?php
+
+namespace Remotion\\LambdaPhp;
+
+class Semantic
+{
+    public const VERSION = "${version}";
+}  
+  `.trim();
     writeFileSync(
-      path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
+      path.join(process.cwd(), "..", "lambda-php", "src", "Semantic.php"),
       VERSION
     );
   });
@@ -55,11 +64,11 @@ describe("These should run serially", () => {
     execSync("php composer.phar --quiet install", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
-    const phpOutput = execSync("phpunit ./src/PHPClientTest.php", {
+    const phpOutput = execSync("phpunit ./tests/PHPClientTest.php", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
-    const toParse = output[4];
+    const toParse = output[5];
     const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
       region: "us-east-1",
       composition: "react-svg",
@@ -108,7 +117,6 @@ describe("These should run serially", () => {
       indent: false,
     });
     const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
-    console.log({ toParse: phpOutput.toString().split("\n") });
     const parsedJson = JSON.parse(jsonOutput);
 
     expect(
@@ -119,8 +127,6 @@ describe("These should run serially", () => {
     ).toEqual(removeUndefined(nativeVersion));
   });
 
-  // Skip PHP tests temporarily
-  // https://github.com/shivammathur/setup-php/issues/823
   test("PHP package should create the same progress payload as normal Lambda package", async () => {
     execSync("php composer.phar --quiet update", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
@@ -128,11 +134,11 @@ describe("These should run serially", () => {
     execSync("php composer.phar --quiet install", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
-    const phpOutput = execSync("phpunit ./src/PHPRenderProgressTest.php", {
+    const phpOutput = execSync("phpunit ./tests/PHPRenderProgressTest.php", {
       cwd: path.join(process.cwd(), "..", "lambda-php"),
     });
     const output = phpOutput.toString().split("\n");
-    const toParse = output[4];
+    const toParse = output[5];
     const nativeVersion = LambdaInternals.getRenderProgressPayload({
       region: "us-east-1",
       functionName: "remotion-render",

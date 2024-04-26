@@ -14,8 +14,8 @@ import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
+	callUpdateDefaultPropsApi,
 	canUpdateDefaultProps,
-	updateDefaultProps,
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -112,18 +112,20 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	unresolvedComposition: AnyComposition;
-	inputProps: Record<string, unknown>;
-	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	mayShowSaveButton: boolean;
-	propsEditType: PropsEditType;
-	saving: boolean;
-	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
-	readOnlyStudio: boolean;
+	readonly unresolvedComposition: AnyComposition;
+	readonly defaultProps: Record<string, unknown>;
+	readonly setDefaultProps: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly mayShowSaveButton: boolean;
+	readonly propsEditType: PropsEditType;
+	readonly saving: boolean;
+	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly readOnlyStudio: boolean;
 }> = ({
 	unresolvedComposition,
-	inputProps,
-	setInputProps,
+	defaultProps,
+	setDefaultProps,
 	mayShowSaveButton,
 	propsEditType,
 	saving,
@@ -141,13 +143,13 @@ export const DataEditor: React.FC<{
 			return null;
 		}
 
-		const value = inputProps;
+		const value = defaultProps;
 		return NoReactInternals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
 		});
-	}, [inJSONEditor, inputProps]);
+	}, [inJSONEditor, defaultProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -184,8 +186,8 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		return schema.safeParse(inputProps);
-	}, [inputProps, schema]);
+		return schema.safeParse(defaultProps);
+	}, [defaultProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -292,9 +294,9 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		updateDefaultProps(
+		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
-			inputProps,
+			defaultProps,
 			extractEnumJsonPaths(schema, z, []),
 		).then((response) => {
 			if (!response.success) {
@@ -304,7 +306,7 @@ export const DataEditor: React.FC<{
 				);
 			}
 		});
-	}, [unresolvedComposition.id, inputProps, schema, z]);
+	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -320,7 +322,7 @@ export const DataEditor: React.FC<{
 			}
 
 			setSaving(true);
-			updateDefaultProps(
+			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
 				updater(unresolvedComposition.defaultProps ?? {}),
 				extractEnumJsonPaths(schema, z, []),
@@ -444,8 +446,8 @@ export const DataEditor: React.FC<{
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					value={inputProps}
-					setValue={setInputProps}
+					value={defaultProps}
+					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
 					defaultProps={unresolvedComposition.defaultProps}
@@ -456,8 +458,8 @@ export const DataEditor: React.FC<{
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
-					value={inputProps ?? {}}
-					setValue={setInputProps}
+					value={defaultProps ?? {}}
+					setValue={setDefaultProps}
 					onSave={onUpdate}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}

@@ -1,4 +1,9 @@
-import React, {createContext, useCallback, useMemo} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useImperativeHandle,
+	useMemo,
+} from 'react';
 
 // Key: Composition ID, Value: initialized defaultProps
 type Props = Record<string, Record<string, unknown>>;
@@ -21,8 +26,12 @@ export const EditorPropsContext = createContext<EditorPropsContextType>({
 	},
 });
 
+export const editorPropsProviderRef = React.createRef<{
+	getProps: () => Props;
+}>();
+
 export const EditorPropsProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [props, setProps] = React.useState<Props>({});
 
@@ -47,6 +56,16 @@ export const EditorPropsProvider: React.FC<{
 			});
 		},
 		[],
+	);
+
+	useImperativeHandle(
+		editorPropsProviderRef,
+		() => {
+			return {
+				getProps: () => props,
+			};
+		},
+		[props],
 	);
 
 	const ctx = useMemo((): EditorPropsContextType => {

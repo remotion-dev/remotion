@@ -1355,8 +1355,8 @@ const RenderModal: React.FC<
 						/>
 					) : tab === 'data' ? (
 						<DataEditor
-							inputProps={inputProps}
-							setInputProps={setInputProps}
+							defaultProps={inputProps}
+							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
 							mayShowSaveButton={false}
 							propsEditType="input-props"

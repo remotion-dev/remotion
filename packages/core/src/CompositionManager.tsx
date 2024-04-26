@@ -140,10 +140,7 @@ export type TRenderAsset = {
 };
 
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>[];
+	getCompositions: () => AnyComposition[];
 }>();
 
 export const CompositionManagerProvider: React.FC<{

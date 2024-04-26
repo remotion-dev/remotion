@@ -1,12 +1,13 @@
 {
   "name": "remotion/lambda",
   "type": "library",
-  "version": "4.0.145",
+  "version": "4.0.147",
   "description": "A PHP library for working with Remotion Lambda",
   "license": "proprietary",
   "autoload": {
     "psr-4": {
-      "Remotion\\LambdaPhp\\": "src/"
+      "Remotion\\LambdaPhp\\": "src/",
+      "Remotion\\LambdaPhp\\Tests\\": "tests/"
     }
   },
   "require": {
@@ -14,5 +15,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.1"
+  },
+  "scripts": {
+    "test": "phpunit tests"
   }
 }

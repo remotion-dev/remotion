@@ -1,6 +1,7 @@
 import {useContext} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {SequenceContext} from './SequenceContext.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useTimelinePosition} from './timeline-position-state.js';
 
 /**
@@ -10,7 +11,7 @@ import {useTimelinePosition} from './timeline-position-state.js';
 export const useCurrentFrame = (): number => {
 	const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 	if (!canUseRemotionHooks) {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		if (getRemotionEnvironment().isPlayer) {
 			throw new Error(
 				`useCurrentFrame can only be called inside a component that was passed to <Player>. See: https://www.remotion.dev/docs/player/examples`,
 			);

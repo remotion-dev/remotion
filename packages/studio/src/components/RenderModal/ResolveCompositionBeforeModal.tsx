@@ -36,8 +36,8 @@ export const ResolvedCompositionContext =
 	React.createContext<TResolvedCompositionContext>(null);
 
 export const ResolveCompositionBeforeModal: React.FC<{
-	compositionId: string;
-	children: React.ReactNode;
+	readonly compositionId: string;
+	readonly children: React.ReactNode;
 }> = ({compositionId, children}) => {
 	const resolved = Internals.useResolvedVideoConfig(compositionId);
 	const unresolvedContext = useContext(Internals.CompositionManager);
@@ -100,7 +100,6 @@ export const ResolveCompositionBeforeModal: React.FC<{
 		);
 	}
 
-	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return (
 		<ResolvedCompositionContext.Provider value={value}>
 			{children}
