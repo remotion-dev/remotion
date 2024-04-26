@@ -144,7 +144,7 @@ export const createFunction = async ({
 
 	const RuntimeVersionArn = enableV5Runtime
 		? `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`
-		: `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
+		: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`;
 
 	try {
 		await getLambdaClient(region).send(

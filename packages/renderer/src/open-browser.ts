@@ -122,7 +122,6 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	console.log('look mom, no single process!');
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
@@ -163,9 +162,14 @@ export const internalOpenBrowser = async ({
 			'--intensive-wake-up-throttling-policy=0',
 			chromiumOptions.headless ?? true ? '--headless=old' : null,
 			'--disable-setuid-sandbox',
-			'--disable-gpu',
+			'--no-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
+			process.platform === 'linux' &&
+			chromiumOptions.gl !== 'vulkan' &&
+			!enableMultiProcessOnLinux
+				? '--single-process'
+				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
@@ -177,7 +181,9 @@ export const internalOpenBrowser = async ({
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
-			'--no-sandbox',
+			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			'--ignore-gpu-blocklist',
+			'--enable-unsafe-webgpu',
 			'--network-service-in-process',
 			'--in-process-gpu',
 			typeof forceDeviceScaleFactor === 'undefined'

@@ -4,6 +4,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
 import {VERSION} from 'remotion/version';
+import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
@@ -36,7 +37,7 @@ const layerInfo: HostedLayers = {
 
 const makeLayerPublic = async () => {
 	const layers = ['fonts', 'chromium'] as const;
-	for (const region of ['eu-central-1' as const]) {
+	for (const region of getRegions()) {
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await getLambdaClient(region).send(
