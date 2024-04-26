@@ -161,8 +161,8 @@ export const internalOpenBrowser = async ({
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
 			chromiumOptions.headless ?? true ? '--headless=old' : null,
-			'--disable-setuid-sandbox',
 			'--no-sandbox',
+			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' &&
@@ -184,8 +184,6 @@ export const internalOpenBrowser = async ({
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
 			'--ignore-gpu-blocklist',
 			'--enable-unsafe-webgpu',
-			'--network-service-in-process',
-			'--in-process-gpu',
 			typeof forceDeviceScaleFactor === 'undefined'
 				? null
 				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
