@@ -92,6 +92,7 @@ export const internalDeployFunction = async (
 		customRoleArn: params.customRoleArn as string,
 		enableLambdaInsights: params.enableLambdaInsights ?? false,
 		enableV5Runtime: params.enableV5Runtime,
+		logLevel: params.logLevel,
 	});
 
 	if (!created.FunctionName) {

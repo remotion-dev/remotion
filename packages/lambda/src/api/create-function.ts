@@ -9,6 +9,8 @@ import {
 	PutRuntimeManagementConfigCommand,
 	TagResourceCommand,
 } from '@aws-sdk/client-lambda';
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {readFileSync} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
@@ -32,6 +34,7 @@ export const createFunction = async ({
 	customRoleArn,
 	enableLambdaInsights,
 	enableV5Runtime,
+	logLevel,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -46,30 +49,56 @@ export const createFunction = async ({
 	customRoleArn: string;
 	enableLambdaInsights: boolean;
 	enableV5Runtime: boolean;
+	logLevel: LogLevel;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			'Creating CloudWatch group',
+		);
 		try {
 			await getCloudWatchLogsClient(region).send(
 				new CreateLogGroupCommand({
 					logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				}),
 			);
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				'CloudWatch group successfully created',
+			);
 		} catch (_err) {
 			const err = _err as Error;
-			if (!err.message.includes('log group already exists')) {
+			if (err.message.includes('log group already exists')) {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel},
+					'CloudWatch group already existed.',
+				);
+			} else {
 				throw err;
 			}
 		}
 
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			'Adding retention policy to the CloudWatch group',
+		);
 		await getCloudWatchLogsClient(region).send(
 			new PutRetentionPolicyCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				retentionInDays,
 			}),
 		);
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			`Set retention to ${retentionInDays} days`,
+		);
 	}
 
 	if (alreadyCreated) {
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			`Function ${functionName} already existed`,
+		);
 		return {FunctionName: functionName};
 	}
 
@@ -78,6 +107,18 @@ export const createFunction = async ({
 	const layers = enableV5Runtime
 		? v5HostedLayers[region]
 		: hostedLayers[region];
+
+	if (enableV5Runtime) {
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			'New V5 runtime enabled https://remotion.dev/docs/lambda/runtime#runtime-changes-in-remotion-50',
+		);
+	}
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Deploying new Lambda function',
+	);
 
 	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
@@ -101,6 +142,11 @@ export const createFunction = async ({
 		}),
 	);
 
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Function deployed. Adding tags...',
+	);
+
 	try {
 		await getLambdaClient(region).send(
 			new TagResourceCommand({
@@ -116,16 +162,33 @@ export const createFunction = async ({
 		);
 	} catch (err) {
 		// Previous Lambda versions had no permission to tag the function
-		if (!(err as Error).name.includes('AccessDenied')) {
+		if ((err as Error).name.includes('AccessDenied')) {
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				'Did not have permission to tag the function. Skipping.',
+			);
+		} else {
 			throw err;
 		}
 	}
 
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Disabling function retries (Remotion handles retries itself)...',
+	);
 	await getLambdaClient(region).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,
 			FunctionName,
 		}),
+	);
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Set function retries to 0.',
+	);
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Waiting for the function to be ready...',
 	);
 
 	let state = 'Pending';
@@ -141,6 +204,16 @@ export const createFunction = async ({
 		});
 		state = getFn.Configuration?.State as string;
 	}
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Function is now ready.',
+	);
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		'Locking the runtime version of the function...',
+	);
 
 	const RuntimeVersionArn = enableV5Runtime
 		? `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`
@@ -159,6 +232,11 @@ export const createFunction = async ({
 			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
 		);
 	}
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		`Function runtime is locked to ${RuntimeVersionArn}`,
+	);
 
 	return {FunctionName: FunctionName as string};
 };
