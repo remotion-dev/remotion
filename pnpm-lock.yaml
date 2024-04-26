@@ -515,8 +515,8 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.0
+        version: 3.23.0
 
   packages/create-video:
     dependencies:
@@ -1026,8 +1026,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
       zod:
-        specifier: 3.23.0
-        version: 3.23.0
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       eslint:
         specifier: 8.56.0
@@ -1601,8 +1601,8 @@ importers:
         specifier: 5.83.1
         version: 5.83.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.0
+        version: 3.23.0
 
   packages/player-example:
     dependencies:
@@ -2241,8 +2241,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.0
+        version: 3.23.0
 
 packages:
 
@@ -23950,7 +23950,6 @@ packages:
 
   /zod@3.23.0:
     resolution: {integrity: sha512-OFLT+LTocvabn6q76BTwVB0hExEBS0IduTr3cqZyMqEDbOnYmcU+y0tUAYbND4uwclpBGi4I4UUBGzylWpjLGA==}
-    dev: false
 
   /zustand@3.7.2(react@18.3.0):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
