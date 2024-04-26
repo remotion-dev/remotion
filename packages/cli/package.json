@@ -73,7 +73,7 @@
 		"react": "18.3.0",
 		"react-dom": "18.3.0",
 		"vitest": "0.31.1",
-		"zod": "^3.22.3"
+		"zod": "3.22.3"
 	},
 	"keywords": [
 		"remotion",
