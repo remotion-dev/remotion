@@ -33,7 +33,7 @@ const layerInfo: HostedLayers = {
 	'us-west-1': [],
 };
 
-const V5_RUNTIME = false;
+const V5_RUNTIME = true;
 
 const makeLayerPublic = async () => {
 	const runtimes: string[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
