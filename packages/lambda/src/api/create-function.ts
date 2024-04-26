@@ -14,7 +14,7 @@ import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
-import {hostedLayers} from '../shared/hosted-layers';
+import {hostedLayers, v5HostedLayers} from '../shared/hosted-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
@@ -31,6 +31,7 @@ export const createFunction = async ({
 	ephemerealStorageInMb,
 	customRoleArn,
 	enableLambdaInsights,
+	enableV5Runtime,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -44,6 +45,7 @@ export const createFunction = async ({
 	ephemerealStorageInMb: number;
 	customRoleArn: string;
 	enableLambdaInsights: boolean;
+	enableV5Runtime: boolean;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -73,6 +75,10 @@ export const createFunction = async ({
 
 	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
 
+	const layers = enableV5Runtime
+		? v5HostedLayers[region]
+		: hostedLayers[region];
+
 	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
@@ -81,21 +87,16 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs20.x',
+			Runtime: enableV5Runtime ? 'nodejs20.x' : 'nodejs18.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region]
+			Layers: layers
 				.map(({layerArn, version}) => `${layerArn}:${version}`)
 				.concat(enableLambdaInsights ? lambdaInsightsExtensions[region] : []),
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
-			},
-			Environment: {
-				Variables: {
-					NODE_EXTRA_CA_CERTS: '/var/runtime/ca-cert.pem',
-				},
 			},
 		}),
 	);
@@ -141,12 +142,16 @@ export const createFunction = async ({
 		state = getFn.Configuration?.State as string;
 	}
 
+	const RuntimeVersionArn = enableV5Runtime
+		? `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`
+		: `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
+
 	try {
 		await getLambdaClient(region).send(
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
-				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`,
+				RuntimeVersionArn,
 			}),
 		);
 	} catch (err) {

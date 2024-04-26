@@ -15,12 +15,12 @@ export const hostedLayers: HostedLayers = {
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 31,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 27,
+			version: 32,
 		},
 	],
 	'eu-west-1': [],
@@ -40,3 +40,5 @@ export const hostedLayers: HostedLayers = {
 	'sa-east-1': [],
 	'us-west-1': [],
 };
+
+export const v5HostedLayers = hostedLayers;
