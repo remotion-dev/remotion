@@ -9,8 +9,6 @@ import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
 
-const runtimes: string[] = ['nodejs20.x'];
-
 const layerInfo: HostedLayers = {
 	'ap-northeast-1': [],
 	'ap-south-1': [],
@@ -35,7 +33,11 @@ const layerInfo: HostedLayers = {
 	'us-west-1': [],
 };
 
+const V5_RUNTIME = false;
+
 const makeLayerPublic = async () => {
+	const runtimes: string[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
+
 	const layers = ['fonts', 'chromium'] as const;
 	for (const region of getRegions()) {
 		for (const layer of layers) {
@@ -44,12 +46,16 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key: `remotion-layer-${layer}-v11-arm64.zip`,
+						S3Key: V5_RUNTIME
+							? `remotion-layer-${layer}-v11-arm64.zip`
+							: `remotion-layer-${layer}-v10-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? V5_RUNTIME
+								? 'Chromium 123.0.6312.86, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+								: 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					Description: VERSION,
