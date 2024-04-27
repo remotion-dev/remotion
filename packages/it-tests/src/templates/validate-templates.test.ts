@@ -46,11 +46,18 @@ describe("Templates should be valid", () => {
       expect(body.dependencies.react).toMatch(/^\^?18/);
       expect(body.dependencies["react-dom"]).toMatch(/^\^?18/);
 
-      expect(body.devDependencies.prettier).toMatch(/^\^?((2|3).\d.\d)/);
+      if (body.dependencies["zod"]) {
+        expect(body.dependencies["zod"]).toBe("3.22.3");
+      }
+      if (body.dependencies["@types/web"]) {
+        expect(body.dependencies["@types/web"]).toInclude("0.0.143");
+      }
+
+      expect(body.devDependencies.prettier).toMatch(/^\^?((3).\d.\d)/);
 
       if (!template.shortName.includes("JavaScript")) {
         expect(body.devDependencies.eslint).toMatch(/^\^?(8|9).\d+/);
-        expect(body.devDependencies.typescript).toMatch(/^\^?((4|5).\d.\d)/);
+        expect(body.devDependencies.typescript).toMatch(/^\^?((5).\d.\d)/);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const eitherPluginOrConfig =
           body.devDependencies["@remotion/eslint-config"]?.match(/^\^?4/) ||
