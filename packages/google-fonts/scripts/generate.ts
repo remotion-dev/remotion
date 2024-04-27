@@ -1,15 +1,5 @@
 import fs, { mkdirSync } from "node:fs";
 import path from "path";
-import postcss from "postcss";
-
-type FontInfo = {
-  fontFamily: string;
-  importName: string;
-  version: string;
-  url: string;
-  unicodeRanges: Record<string, string>;
-  fonts: Record<string, Record<string, Record<string, string>>>;
-};
 
 import {
   getCssLink,
@@ -20,6 +10,7 @@ import {
 } from "./utils";
 import { Font } from "./google-fonts";
 import { filteredFonts } from "./filtered-fonts";
+import { FontInfo, extractInfoFromCss } from "./extract-info-from-css";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
@@ -35,7 +26,6 @@ const generate = async (font: Font) => {
   const cssname = `${font.family.toLowerCase().replace(/\s/g, "_")}_${
     font.version
   }.css`;
-
 
   // Get css link
   const url = getCssLink(font);
@@ -54,9 +44,9 @@ const generate = async (font: Font) => {
     });
 
     // Save to cache
-    const body = await res.text()
+    const body = await res.text();
     await fs.promises.writeFile(cssFile, body);
-    console.log("Generated", cssFile)
+    console.log("Generated", cssFile);
 
     css = body;
   } else {
@@ -64,86 +54,18 @@ const generate = async (font: Font) => {
     css = await fs.promises.readFile(cssFile, "utf-8");
   }
 
-
-
   if (!css) {
     throw new Error("no css");
   }
-  // Parse CSS
-  let ast = postcss.parse(css);
-  let unicodeRanges: Record<string, string> = {};
-  let fonts: Record<string, Record<string, Record<string, string>>> = {};
-  for (const node of ast.nodes) {
-    //  Only process @font-face
-    if (node.type !== "atrule" || node.name !== "font-face") continue;
-
-    //  Check subset info before @font-face block
-    let prev = node.prev();
-    if (!prev || prev.type != "comment") continue;
-
-    let style: null | string = null;
-    let weight: null | string = null;
-    let src: null | string = null;
-    let unicodeRange: null | string = null;
-    let subset: null | string = prev.text;
-
-    //  Parse fontFamily
-    node.walkDecls("font-fontFamily", (decl, _) => {
-      if (font.family != unquote(decl.value)) {
-        throw new Error(
-          `Font fontFamily value mismatch: ${font.family} with ${unquote(
-            decl.value
-          )}`
-        );
-      }
-
-      fontFamily = decl.value;
-    });
-
-    //  Parse style
-    node.walkDecls("font-style", (decl, _) => {
-      style = decl.value;
-    });
-
-    //  Parse weight
-    node.walkDecls("font-weight", (decl, _) => {
-      weight = decl.value;
-    });
-
-    //  Parse url to font file
-    node.walkDecls("src", (decl, _) => {
-      src = decl.value.match(/url\((.+?)\)/)?.[1] as string;
-    });
-
-    //  Parse unicode-range
-    node.walkDecls("unicode-range", (decl, _) => {
-      unicodeRange = decl.value;
-    });
-
-    if (!style) throw Error("no style");
-    if (!weight) throw Error("no weight");
-    if (!subset) throw Error("no subset");
-    if (!unicodeRange) throw Error("no unicodeRange" + font.family);
-    if (!src) throw Error("no src");
-
-    //  Set unicode range data
-    unicodeRanges[subset] = unicodeRange;
-
-    //  Set font url
-    fonts[style] ??= {};
-    fonts[style][weight] ??= {};
-    fonts[style][weight][subset] = src;
-  }
 
   // Prepare info data
-  const info: FontInfo = {
-    fontFamily,
-    importName,
+  const info: FontInfo = extractInfoFromCss({
+    contents: css,
+    fontFamily: fontFamily,
+    importName: importName,
+    url: url,
     version: font.version,
-    url,
-    unicodeRanges,
-    fonts,
-  };
+  });
 
   let output = `import { loadFonts } from "./base";
 
@@ -153,7 +75,7 @@ export const fontFamily = "${fontFamily}" as const;
 
 type Variants = {\n`;
 
-  for (const [style, val] of Object.entries(fonts)) {
+  for (const [style, val] of Object.entries(info.fonts)) {
     output += `  ${style}: {\n`;
     output += `    weights: ${Object.keys(val).map(quote).join(" | ")},\n`;
     output += `    subsets: ${font.subsets.map(quote).join(" | ")},\n`;
@@ -178,7 +100,7 @@ export const loadFont = <T extends keyof Variants>(
   mkdirSync(OUTDIR, { recursive: true });
   //  Save
   await fs.promises.writeFile(tsFile, output);
-  console.log('Wrote', tsFile)
+  console.log("Wrote", tsFile);
 };
 
 const run = async () => {
