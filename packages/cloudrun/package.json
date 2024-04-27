@@ -24,7 +24,7 @@
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "^8.7.0",
 		"remotion": "workspace:*",
-		"zod": "3.23.0"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
