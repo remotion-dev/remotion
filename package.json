@@ -5,7 +5,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "turbo run lint test",
-    "stylecheck": "turbo run lint formatting",
+    "stylecheck": "tsc -b --verbose && turbo run lint formatting",
     "build": "tsc -b --verbose && turbo run build",
     "build-docs": "turbo run build-docs",
     "ci": "tsc -b --verbose && turbo run build test --concurrency=50%",
