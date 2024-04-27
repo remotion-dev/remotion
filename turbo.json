@@ -3,18 +3,13 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".rollup.cache/**", "dist/esm/**"],
+      "outputs": ["dist/esm/**"],
       "outputMode": "new-only"
     },
 
     "@remotion/example#build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".rollup.cache/**",
-        "build/**",
-        "dist/esm/**",
-        "./node_modules/.cache/**"
-      ],
+      "outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],
       "outputMode": "new-only"
     },
     "build-docs": {
@@ -40,7 +35,7 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src/**", ".cache-css/**", ".rollup.cache/**", "dist/esm/**"],
+      "outputs": ["src/**", ".cache-css/**", "dist/esm/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },

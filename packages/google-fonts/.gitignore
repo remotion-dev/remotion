@@ -5,4 +5,3 @@
 !ensure-generation.js
 !src/index.ts
 !src/base.ts
-!rollup.config.js
