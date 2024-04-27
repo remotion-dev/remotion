@@ -7,7 +7,7 @@
     "test": "turbo run lint test",
     "stylecheck": "tsc -b --verbose && turbo run lint formatting",
     "build": "tsc -b --verbose && turbo run build",
-    "build-docs": "turbo run build-docs",
+    "build-docs": "tsc -b --verbose && turbo run build-docs",
     "ci": "tsc -b --verbose && turbo run build test --concurrency=50%",
     "watch": "tsc -b --verbose -w",
     "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
