@@ -46,7 +46,18 @@ const start = contents.substring(startMark);
 
 const withoutTypes = start.replace(/\sas\sPromise\<GoogleFont\>/g, "");
 
-writeFileSync(path.join("dist", "esm", "index.mjs"), withoutTypes);
+const withExtension = withoutTypes
+  .split("\n")
+  .map((t) => {
+    if (!t.includes("import(")) {
+      return t;
+    }
+
+    return t.replace(/import\(\'(.*)\'\)/g, "import('$1.mjs')");
+  })
+  .join("\n");
+
+writeFileSync(path.join("dist", "esm", "index.mjs"), withExtension);
 
 // We manually transpiled the script by removing TypeScript types
 
