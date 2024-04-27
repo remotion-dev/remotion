@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.1.4
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.1.4
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.1.4
@@ -155,15 +155,15 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            node_version: 16
+            node_version: 18
           - os: windows-latest
-            node_version: 16
+            node_version: 18
           - os: macos-latest
-            node_version: 16
+            node_version: 18
           - os: macos-14
-            node_version: 16
+            node_version: 18
           - os: ubuntu-latest
-            node_version: 20.5
+            node_version: 22
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-go@v5
