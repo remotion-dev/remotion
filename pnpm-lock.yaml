@@ -1116,9 +1116,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.79.1)(typescript@5.3.3)
       '@types/css-font-loading-module':
         specifier: ^0.0.7
         version: 0.0.7
@@ -1137,12 +1134,6 @@ importers:
       prettier:
         specifier: 3.2.5
         version: 3.2.5
-      rollup:
-        specifier: ^2.70.1
-        version: 2.79.1
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@types/node@18.14.6)(typescript@5.3.3)
 
   packages/install-whisper-cpp:
     dependencies:
@@ -8724,23 +8715,6 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /@rollup/plugin-typescript@8.5.0(rollup@2.79.1)(typescript@5.3.3):
-    resolution: {integrity: sha512-wMv1/scv0m/rXx21wD2IsBbJFba8wGF3ErJIr6IKRfRj49S85Lszbxb4DCo8iILpluTjk2GAAu9CoZt4G3ppgQ==}
-    engines: {node: '>=8.0.0'}
-    peerDependencies:
-      rollup: ^2.14.0
-      tslib: '*'
-      typescript: '>=3.7.0'
-    peerDependenciesMeta:
-      tslib:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@2.79.1)
-      resolve: 1.22.1
-      rollup: 2.79.1
-      typescript: 5.3.3
-    dev: true
-
   /@rollup/pluginutils@3.1.0(rollup@2.76.0):
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
@@ -8751,18 +8725,6 @@ packages:
       estree-walker: 1.0.1
       picomatch: 2.3.1
       rollup: 2.76.0
-    dev: true
-
-  /@rollup/pluginutils@3.1.0(rollup@2.79.1):
-    resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
-    engines: {node: '>= 8.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0
-    dependencies:
-      '@types/estree': 0.0.39
-      estree-walker: 1.0.1
-      picomatch: 2.3.1
-      rollup: 2.79.1
     dev: true
 
   /@shopify/react-native-skia@1.2.2(react@18.3.1):

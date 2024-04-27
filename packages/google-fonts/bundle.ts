@@ -1,23 +1,19 @@
-// TODO: Not yet used, waiting for Windows support
-// https://github.com/oven-sh/bun/issues/9974
 import { build } from "bun";
 import path from "path";
 import { filteredFonts } from "./scripts/filtered-fonts";
 import { removeWhitespace } from "./scripts/utils";
+import { readFileSync, writeFileSync } from "fs";
+import { $ } from "bun";
+import { equal } from "assert";
 
 const output = await build({
-  entrypoints: [
-    "src/index.ts",
-    "src/base.ts",
-    ...filteredFonts.map((p) => `src/${removeWhitespace(p.family)}.ts`),
-  ],
+  entrypoints: filteredFonts.map((p) => `src/${removeWhitespace(p.family)}.ts`),
   external: [
     "remotion",
     "remotion/no-react",
     "react",
     "react/jsx-runtime",
     "react/jsx-dev-runtime",
-    "*",
   ],
   naming: "[name].mjs",
 });
@@ -27,11 +23,7 @@ for (const file of output.outputs) {
   const newStr = str
     .replace(/jsxDEV/g, "jsx")
     .replace(/react\/jsx-dev-runtime/g, "react/jsx-runtime")
-    .replace(/import\(\"(.*)\"\)/g, 'import("$1.mjs")')
-    .replace(
-      `import {loadFonts} from "./base";`,
-      `import {loadFonts} from "./base.mjs";`
-    );
+    .replace(/import\(\"(.*)\"\)/g, 'import("$1.mjs")');
 
   if (newStr.includes(`import("./ABeeZee")`)) {
     throw new Error("not compiled correctly");
@@ -39,3 +31,28 @@ for (const file of output.outputs) {
 
   Bun.write(path.join("dist", "esm", file.path), newStr);
 }
+
+// Bun does not yet support * external on Windows,
+// so manually making a transpilation
+
+const entry = path.join("src", "index.ts");
+const contents = readFileSync(entry, "utf-8");
+const startMark = contents.indexOf("export const getAvailable");
+if (startMark === -1) {
+  throw new Error("Could not find start mark");
+}
+
+const start = contents.substring(startMark);
+
+const withoutTypes = start.replace(/\sas\sPromise\<GoogleFont\>/g, "");
+
+writeFileSync(path.join("dist", "esm", "index.mjs"), withoutTypes);
+
+// We manually transpiled the script by removing TypeScript types
+
+// Use Node.js because it does not support TypeScript
+// and the goal of this script is to get rid of the TypeScript types
+const length =
+  await $`node --input-type=module -e "import {getAvailableFonts} from './dist/esm/index.mjs'; console.log(getAvailableFonts().length)"`.text();
+
+equal(length.trim(), "1575");
