@@ -1540,9 +1540,6 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
-      '@rollup/plugin-typescript':
-        specifier: ^8.2.0
-        version: 8.5.0(rollup@2.76.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 13.1.1
         version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
@@ -1579,12 +1576,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      rollup:
-        specifier: ^2.70.1
-        version: 2.76.0
-      rollup-plugin-banner2:
-        specifier: ^1.2.2
-        version: 1.2.2
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -16755,12 +16746,6 @@ packages:
       three: 0.158.0
     dev: false
 
-  /magic-string@0.25.9:
-    resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
-    dependencies:
-      sourcemap-codec: 1.4.8
-    dev: true
-
   /magic-string@0.26.7:
     resolution: {integrity: sha512-hX9XH3ziStPoPhJxLq1syWuZMxbDvGNbVchfrdCtanC7D13888bMFow61x8axrx+GfHLtVeAx2kxL7tTGRl+Ow==}
     engines: {node: '>=12'}
@@ -20496,13 +20481,6 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.0
-
-  /rollup-plugin-banner2@1.2.2:
-    resolution: {integrity: sha512-ShlyRFlJfh7fxHT0rkmIxBv+lIWfdvaWcZmra7xAQFGAHHnd7f93zoa0wdDWHrguR9vR+BxWKToabR6DJQHC9g==}
-    engines: {node: '>=12.13.0'}
-    dependencies:
-      magic-string: 0.25.9
-    dev: true
 
   /rollup@2.76.0:
     resolution: {integrity: sha512-9jwRIEY1jOzKLj3nsY/yot41r19ITdQrhs+q3ggNWhr9TQgduHqANvPpS32RNpzGklJu3G1AJfvlZLi/6wFgWA==}
