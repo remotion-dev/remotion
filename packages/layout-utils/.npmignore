@@ -7,5 +7,3 @@ tsconfig.tsbuildinfo
 vitest.config.mts
 tsconfig.json
 .prettierrc.js
-tsconfig-esm.json
-dist/tsconfig-esm.tsbuildinfo

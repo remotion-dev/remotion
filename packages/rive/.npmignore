@@ -1,5 +1,3 @@
-dist/tsconfig-esm.tsbuildinfo
-tsconfig-esm.json
 src
 tsconfig.json
 .eslintrc
