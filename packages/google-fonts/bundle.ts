@@ -2,7 +2,7 @@ import { build } from "bun";
 import path from "path";
 import { filteredFonts } from "./scripts/filtered-fonts";
 import { removeWhitespace } from "./scripts/utils";
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { $ } from "bun";
 import { equal } from "assert";
 
@@ -57,7 +57,12 @@ const withExtension = withoutTypes
   })
   .join("\n");
 
-writeFileSync(path.join("dist", "esm", "index.mjs"), withExtension);
+const folder = path.join(process.cwd(), "dist", "esm");
+if (!existsSync(folder)) {
+  mkdirSync(folder, { recursive: true });
+}
+
+writeFileSync(path.join(folder, "index.mjs"), withExtension);
 
 // We manually transpiled the script by removing TypeScript types
 
