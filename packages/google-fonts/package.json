@@ -6,7 +6,7 @@
   "module": "dist/esm/index.mjs",
   "scripts": {
     "build": "pnpm run generate && rollup --config rollup.config.js",
-    "generate": "ts-node scripts/generate.ts && bun scripts/generate-index.ts",
+    "generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },
   "license": "SEE LICENSE IN LICENSE.md",
