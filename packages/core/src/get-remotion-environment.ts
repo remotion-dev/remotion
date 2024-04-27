@@ -12,6 +12,8 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 	const isPlayer = typeof window !== 'undefined' && window.remotion_isPlayer;
 	const isRendering =
 		typeof window !== 'undefined' &&
+		typeof window.process !== 'undefined' &&
+		typeof window.process.env !== 'undefined' &&
 		(window.process.env.NODE_ENV === 'test' ||
 			(window.process.env.NODE_ENV === 'production' &&
 				typeof window !== 'undefined' &&
