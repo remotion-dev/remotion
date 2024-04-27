@@ -1,9 +1,14 @@
 import React, {forwardRef, useMemo} from 'react';
 
-const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
-> = (props, ref) => {
+type ElementByTagName<T extends keyof HTMLElementTagNameMap> =
+	HTMLElementTagNameMap[T];
+
+const AbsoluteFillRefForwarding = <TagName extends keyof HTMLElementTagNameMap>(
+	props: React.ComponentPropsWithoutRef<TagName> & {
+		readonly as?: TagName;
+	},
+	ref: ElementByTagName<TagName>,
+) => {
 	const {style, ...other} = props;
 	const actualStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -20,7 +25,9 @@ const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
 		};
 	}, [style]);
 
-	return <div ref={ref} style={actualStyle} {...other} />;
+	const Name = props.as || 'div';
+
+	return <Name ref={ref} style={actualStyle} {...other} />;
 };
 
 /**
