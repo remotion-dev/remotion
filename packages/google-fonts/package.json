@@ -5,8 +5,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
   "scripts": {
-    "build": "pnpm run generate && rollup --config rollup.config.js && tsc -d",
-    "watch": "tsc -w",
+    "build": "pnpm run generate && rollup --config rollup.config.js",
     "generate": "ts-node scripts/generate.ts && bun scripts/generate-index.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },

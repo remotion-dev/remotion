@@ -6,8 +6,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d && bun bundle.ts",
+		"build": "bun bundle.ts",
 		"test": "bun test src",
 		"formatting": "prettier src --check"
 	},

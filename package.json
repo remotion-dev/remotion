@@ -6,7 +6,7 @@
   "scripts": {
     "test": "turbo run lint test",
     "stylecheck": "turbo run lint formatting",
-    "build": "turbo run build",
+    "build": "tsc -b --verbose && turbo run build",
     "build-docs": "turbo run build-docs",
     "ci": "turbo run build test --concurrency=50%",
     "watch": "tsc -b --verbose -w",

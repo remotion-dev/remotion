@@ -10,8 +10,7 @@
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d && rollup --failAfterWarnings --config rollup-version.config.js && rollup --failAfterWarnings --config rollup-no-react.config.js && rollup --failAfterWarnings --config rollup.config.js",
-		"watch": "tsc -w"
+		"build": "rollup --failAfterWarnings --config rollup-version.config.js && rollup --failAfterWarnings --config rollup-no-react.config.js && rollup --failAfterWarnings --config rollup.config.js"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

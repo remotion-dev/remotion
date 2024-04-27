@@ -3,12 +3,13 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache/**"],
+      "outputs": [".rollup.cache/**"],
       "outputMode": "new-only"
     },
+
     "@remotion/example#build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache/**", "build/**"],
+      "outputs": [".rollup.cache/**", "build/**"],
       "outputMode": "new-only"
     },
     "build-docs": {
@@ -33,17 +34,14 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src/**", ".cache-css/**", "dist/**", ".rollup.cache/**"],
+      "outputs": ["src/**", ".cache-css/**", ".rollup.cache/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["dist/**", "target/release/**"],
+      "outputs": ["target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
-    },
-    "@remotion/player-example#lint": {
-      "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/it-tests#test": {
       "dependsOn": [

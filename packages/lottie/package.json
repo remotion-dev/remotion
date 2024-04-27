@@ -10,8 +10,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
-		"build": "bun bundle.ts && tsc -d",
-		"watch": "tsc -w"
+		"build": "bun bundle.ts"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "bun bundle.ts && tsc -d"
+		"build": "bun bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
 	"contributors": [],
