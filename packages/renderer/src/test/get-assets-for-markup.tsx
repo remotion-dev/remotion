@@ -5,13 +5,13 @@
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
+	act,
 	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 
