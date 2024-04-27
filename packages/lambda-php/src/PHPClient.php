@@ -1,20 +1,16 @@
 <?php
 namespace Remotion\LambdaPhp;
 
-use Remotion\LambdaPhp\GetRenderProgressResponse;
-use Aws\Credentials\CredentialProvider;
 use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
 
-require_once __DIR__ . '/Version.php';
-
 class PHPClient
 {
-    private $client;
-    private $region;
-    private $serveUrl;
-    private $functionName;
+    protected $client;
+    protected $region;
+    protected $serveUrl;
+    protected $functionName;
 
     public function __construct(string $region, string $serveUrl, string $functionName, ?callable $credential)
     {
@@ -62,7 +58,7 @@ class PHPClient
             'renderId' => $renderId,
             'bucketName' => $bucketName,
             'type' => 'status',
-            "version" => VERSION,
+            "version" => Semantic::VERSION,
             "s3OutputProvider" => null,
             "logLevel" => $logLevel ,
         );
@@ -96,12 +92,19 @@ class PHPClient
     {
         $response = json_decode($response, true);
 
+        // AWS response
         if (isset($response->errorMessage)) {
             throw new Exception($response->errorMessage);
         }
 
         $classResponse = new RenderMediaOnLambdaResponse();
+
+        // Remotion response
+        if ($response['type'] === 'error') {
+            throw new Exception($response['message']);
+        }
         $classResponse->type = $response['type'];
+        print_r(json_encode($response));
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
         return $classResponse;

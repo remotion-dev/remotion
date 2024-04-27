@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.143",
+	"version": "4.0.147",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -49,6 +49,7 @@
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
+		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
@@ -69,16 +70,16 @@
 		"opentype.js": "^1.3.4",
 		"polished": "^4.0.5",
 		"prettier": "3.2.5",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"react-is": "^18.2.0",
+		"react": "18.3.0",
+		"react-dom": "18.3.0",
+		"react-is": "18.3.0",
 		"remotion": "workspace:*",
 		"styled-components": "^5.3.6",
 		"three": "0.158.0",
 		"ts-unused-exports": "^7.0.1",
 		"use-asset": "^1.0.4",
 		"vitest": "0.31.1",
-		"zod": "^3.22.3"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"eslint": "8.56.0",

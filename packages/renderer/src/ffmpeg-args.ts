@@ -1,7 +1,7 @@
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
-import type {ColorSpace} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
@@ -70,7 +70,7 @@ export const generateFfmpegArgs = ({
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 }): string[][] => {
 	const encoderName = getCodecName(codec);
 
@@ -78,8 +78,10 @@ export const generateFfmpegArgs = ({
 		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));
 	}
 
+	const resolvedColorSpace = colorSpace ?? DEFAULT_COLOR_SPACE;
+
 	const colorSpaceOptions: string[][] =
-		colorSpace === 'bt709'
+		resolvedColorSpace === 'bt709'
 			? [
 					['-colorspace:v', 'bt709'],
 					['-color_primaries:v', 'bt709'],
@@ -91,7 +93,7 @@ export const generateFfmpegArgs = ({
 							// "Color range" section
 							['-vf', 'zscale=matrix=709:matrixin=709:range=limited'],
 				]
-			: colorSpace === 'bt2020-ncl'
+			: resolvedColorSpace === 'bt2020-ncl'
 				? [
 						['-colorspace:v', 'bt2020nc'],
 						['-color_primaries:v', 'bt2020'],

@@ -131,6 +131,7 @@ export {
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export {
+	AbsoluteFillLayout,
 	LayoutAndStyle,
 	Sequence,
 	SequenceProps,

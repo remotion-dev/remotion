@@ -265,7 +265,7 @@ class RenderMediaParams:
     max_retries: int = 1
     jpeg_quality: int = 80
     privacy: Privacy = Privacy.PUBLIC
-    color_space: str = 'default'
+    color_space: Optional[str] = None
     log_level: Optional[LogLevel] = LogLevel.INFO
     frame_range: Optional[str] = None
     timeout_in_milliseconds: Optional[int] = 30000

@@ -1,7 +1,12 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
-import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
+import type {
+	AbsoluteFillLayout,
+	LayoutAndStyle,
+	SequencePropsWithoutDuration,
+} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -17,6 +22,11 @@ const TransitionSeriesTransition = function <
 	return null;
 };
 
+type LayoutBasedProps =
+	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? AbsoluteFillLayout
+		: LayoutAndStyle;
+
 type SeriesSequenceProps = PropsWithChildren<
 	{
 		readonly durationInFrames: number;
@@ -26,7 +36,7 @@ type SeriesSequenceProps = PropsWithChildren<
 		 * @deprecated For internal use only
 		 */
 		readonly stack?: string;
-	} & LayoutAndStyle &
+	} & LayoutBasedProps &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
 
@@ -321,10 +331,20 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
-} = ({children, name, ...otherProps}) => {
+} = ({children, name, layout: passedLayout, ...otherProps}) => {
 	const displayName = name ?? '<TransitionSeries>';
+	const layout = passedLayout ?? 'absolute-fill';
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		layout !== 'absolute-fill'
+	) {
+		throw new TypeError(
+			`The "layout" prop of <TransitionSeries /> is not supported anymore in v5. TransitionSeries' must be absolutely positioned.`,
+		);
+	}
+
 	return (
-		<Sequence name={displayName} {...otherProps}>
+		<Sequence name={displayName} layout={layout} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);

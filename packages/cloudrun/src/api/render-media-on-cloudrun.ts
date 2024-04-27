@@ -181,7 +181,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
 	};
 

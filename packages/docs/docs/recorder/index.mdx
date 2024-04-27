@@ -5,45 +5,116 @@ sidebar_label: Introduction
 crumb: Templates
 ---
 
-The Remotion Recorder is a [Remotion](https://remotion.dev) template for producing screencast videos for social media.
+The Remotion Recorder is a [Remotion](https://remotion.dev) template for producing great videos for multiple platforms.
 
-**Responsive**: Record once and export in both 16:9 as well as 1:1 aspect ratio.  
-**Hackable**: It ships as Remotion source code, so you can customize everything: the colors, layout, animations and much more.  
-**Clean**: A clear layout perfectly positioning your facecam, screen and captions.
+## What makes a good video?
+
+### Platform-agnostic
+
+YouTube videos should have an aspect ratio of 16:9.  
+LinkedIn and Twitter should use 1:1.  
+YouTube videos should have endcards, while a Twitter videos should have captions.
+
+With the Recorder, you record and edit once, and export the best format for each platform.
+
+### Captioned
+
+By default, videos on Instagram, LinkedIn and Twitter are muted.  
+Add subtitles so you capture a viewers interest before they scroll by.
+
+Remotion Recorder automatically transcribes your video using Whisper.cpp and adds animated captions to it.
+
+### Concise
+
+Value the viewers time by cutting out pauses and bad takes.
+
+The Recorder lets you record many small clips and stitches them together.  
+It's easy to discard bad takes and retry immediately.  
+Silence at the start and end of your take is automatically removed, so it's not tedious to edit either!
+
+### Engaging
+
+Subtle animations, background music, titles, b-roll footage and effects make your video more interesting.
+
+The Recorder always has an appealing layout that smoothly transitions between scenes, and allows you to add secondary clips over your voiceover.
+
+Use the music that comes with the Recorder or add your own. Volume is lowered automatically when you speak.
+
+### On-brand
+
+Make your video recognizable by giving it a unique characteristic.  
+It could be a specific color, a font, or a border around your facecam.
+
+You can fully customize the style of the video with React and CSS.  
+You will get the full source code of the Recorder, so you can make it exactly yours.
+
+### Great audio
+
+Having a microphone is only half the battle. Great audio has consistent volume throughout, no clipping, consistent pacing and mixes well with the background music.
+
+The Recorder has a volume meter that tells you when you are too close to the microphone.  
+The silence at the start and end of your take is automatically removed and pauses between your clips are consistent.  
+A script is included to make all clips of your video have the same volume.
+
+### Call to Action
+
+Once a viewer has watched your video, give them a next step.  
+The Recorder makes it easy to display a Follow/Subscribe/Connect button, link your other platforms and even has cutouts for layouting recommended videos on YouTube.  
+This is a great time to turn up the music and let it play at full volume.
 
 ## Features
 
 ### Recording
 
-Record your facecam and screen in sync but independently.  
-Additionally, record up to two other sources at the same time for multicam setups.
+Record your facecam and screen in sync but independently, so you can change the layout later.  
+See if you are too loud or off-center.
+
+### Captioning
+
+Automatically transcribes your video using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and adds animated captions to it.  
+Remap wrongly transcribed words programmatically or manually.  
+Animates your captions word-by-word.
 
 ### Silence removal
 
 Automatically remove the silence at the start and end of your take.
 
-### Captioning
+### Music
 
-Automatically transcribes your video using [Whisper](https://openai.com/research/whisper) and adds animated captions to it.  
-Remap wrongly transcribed words programmatically or manually.  
-Animates your captions word-by-word.
+Add background music to your video and automatically fade between the different sections.  
+Three exclusive tracks are included that you may use for your video.
 
-### Background music
+### Layouting
 
-Add background music to your video and automatically fade between the different sections.
+Whether you only record your facecam, or also your display, the Recorder always finds the ideal layout - even if you mix landscape and portrait videos.
 
 ### Transitions
 
-Enable clean transitions between scenes and add sound effects to them.
+Enable clean transitions between scenes - no matter if you change the layout during the video.
 
 ### Chapters
 
 Mark a scene as the beginning of a new chapter and automatically generated animated chapters.
 
+### B-Roll
+
+Add images and videos on top of your facecam or display while your voiceover is playing to give the video more depth.
+
 ### Endcard
 
-Automatically generate a platform-agnostic end card with call to actions, your other platforms and links.
+Automatically generate a platform-agnostic end card with a follow call to action, your other platforms and links.
 
-### Want more?
+### Exporting
 
-The Remotion Recorder ships as source code. You may customize it to your needs if you have TypeScript and React knowledge.
+Export your video with much control over the encoding options.  
+Render a video using the click of a button, the CLI, Node.JS APIs, GitHub Actions, or even on AWS Lambda!
+
+### Dark mode
+
+The two default themes are light and dark.  
+If you plan on embedding the video on a website, you can embed one version for light mode and one for dark mode.
+
+### Customization
+
+The Remotion Recorder ships source code.  
+You may customize it however you like if you have TypeScript and React knowledge.

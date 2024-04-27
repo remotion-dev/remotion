@@ -58,7 +58,7 @@ type renderInternalOptions struct {
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
-	ColorSpace                     string                 `json:"colorSpace"`
+	ColorSpace                     interface{}            `json:"colorSpace"`
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
@@ -91,11 +91,8 @@ type renderInternalOptions struct {
 }
 
 type RawInvokeResponse struct {
-	StatusCode int `json:"statusCode"`
-	Headers    struct {
-		ContentType string `json:"content-type"`
-	} `json:"headers"`
 	Body string `json:"body"`
+	Type string `json:"type"`
 }
 
 type RemotionRenderResponse struct {

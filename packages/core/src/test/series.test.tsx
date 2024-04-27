@@ -5,6 +5,7 @@
 import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {expect, test} from 'vitest';
+import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Series} from '../series/index.js';
 import {TimelineContext} from '../timeline-position-state.js';
@@ -384,5 +385,50 @@ test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () =
 		);
 	}).toThrow(
 		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got Infinity\./,
+	);
+});
+
+test('Disallow Series.Sequence to not be inside Series', () => {
+	expect(() => {
+		renderForFrame(
+			10,
+			<WrapSequenceContext>
+				<Series.Sequence durationInFrames={5}>
+					<First />
+				</Series.Sequence>
+			</WrapSequenceContext>,
+		);
+	}).toThrow(/This component must be inside a <Series \/> component\./);
+});
+
+test('Disallow Series.Sequence to not be inside Series 2', () => {
+	expect(() => {
+		renderForFrame(
+			10,
+			<WrapSequenceContext>
+				<Series>
+					<Series.Sequence durationInFrames={15}>
+						<Series.Sequence durationInFrames={10} />
+					</Series.Sequence>
+				</Series>
+			</WrapSequenceContext>,
+		);
+	}).toThrow(/This component must be inside a <Series \/> component\./);
+});
+
+test('Allow Series to be nested', () => {
+	renderForFrame(
+		10,
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5}>
+					<AbsoluteFill>
+						<Series>
+							<Series.Sequence durationInFrames={10} />
+						</Series>
+					</AbsoluteFill>
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>,
 	);
 });

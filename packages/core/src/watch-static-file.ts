@@ -1,5 +1,6 @@
 import {getRemotionEnvironment} from './get-remotion-environment';
 import type {StaticFile} from './get-static-files';
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 
 type WatcherCallback = (newData: StaticFile | null) => void;
 
@@ -20,6 +21,12 @@ export const watchStaticFile = (
 	fileName: string,
 	callback: WatcherCallback,
 ): {cancel: () => void} => {
+	if (ENABLE_V5_BREAKING_CHANGES) {
+		throw new Error(
+			'watchStaticFile() has moved into the `@remotion/studio` package. Update your imports.',
+		);
+	}
+
 	// Check if function is called in Remotion Studio
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console

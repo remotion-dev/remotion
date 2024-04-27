@@ -36,7 +36,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {isAudioCodec} from './options/audio-codec';
-import type {ColorSpace} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
@@ -302,7 +302,6 @@ const internalRenderMediaRaw = ({
 	let encodedFrames = 0;
 	let muxedFrames = 0;
 	let renderedFrames = 0;
-	let totalFramesToRender = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
@@ -417,6 +416,10 @@ const internalRenderMediaRaw = ({
 		composition.durationInFrames,
 		frameRange,
 	);
+	const totalFramesToRender = getFramesToRender(
+		realFrameRange,
+		everyNthFrame,
+	).length;
 
 	Log.verbose(
 		{indent, logLevel, tag: 'renderMedia()'},
@@ -572,7 +575,6 @@ const internalRenderMediaRaw = ({
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
-						totalFramesToRender = data.frameCount;
 						callUpdate();
 						onStart?.(data);
 					},
@@ -703,7 +705,7 @@ const internalRenderMediaRaw = ({
 				]);
 			})
 			.then(([buffer, stitchStart]) => {
-				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
+				encodedFrames = totalFramesToRender;
 				encodedDoneIn = Date.now() - stitchStart;
 				callUpdate();
 				Log.verbose(
@@ -917,7 +919,7 @@ export const renderMedia = ({
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
 		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,

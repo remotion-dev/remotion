@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-visual-editing.png
 id: visual-editing
-title: Edit props visually
+title: Edit default props visually
 sidebar_label: Visual editing
 crumb: "How To"
 ---
@@ -13,16 +13,16 @@ crumb: "How To"
   title="Visual editing"
 />
 
-To edit props visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
+You can edit the default props of a component visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
 
-## Opening the props editor
+## Opening the default props editor
 
-To open the props editor, press the <svg style={{width: 20, verticalAlign:"middle", marginLeft: 4, marginRight: 4}} viewBox="0 0 100 100" fill="transparent"><rect x="3" y="3" width="94" height="94" rx="7" stroke="var(--ifm-font-color-base)" strokeWidth="6"/><path d="M59 91.5V8.5C59 4.63401 62.134 1.5 66 1.5H92C95.866 1.5 99 4.63401 99 8.5V91.5C99 95.366 95.866 98.5 92 98.5H66C62.134 98.5 59 95.366 59 91.5Z" fill="var(--ifm-font-color-base)" stroke="var(--ifm-font-color-base)"/></svg>
+To open the default props editor, press the <svg style={{width: 20, verticalAlign:"middle", marginLeft: 4, marginRight: 4}} viewBox="0 0 100 100" fill="transparent"><rect x="3" y="3" width="94" height="94" rx="7" stroke="var(--ifm-font-color-base)" strokeWidth="6"/><path d="M59 91.5V8.5C59 4.63401 62.134 1.5 66 1.5H92C95.866 1.5 99 4.63401 99 8.5V91.5C99 95.366 95.866 98.5 92 98.5H66C62.134 98.5 59 95.366 59 91.5Z" fill="var(--ifm-font-color-base)" stroke="var(--ifm-font-color-base)"/></svg>
 icon in the top right corner of the Remotion Studio to open the right sidebar. Alternatively, press <kbd>Cmd/Ctrl</kbd> + <kbd>J</kbd> to toggle the sidebar. Select the <code>Props</code> tab.
 
-## Editing props
+## Editing default props
 
-Use the controls in the props editor to live-update the props of your composition. If you have changes, an undo ↩️ button will appear which you can use to revert to your changes in the code.
+Use the controls in the props editor to live-update the default props of your composition. If you have changes, an undo ↩️ button will appear which you can use to revert to your changes in the code.
 
 ## Supported controls
 
@@ -47,7 +47,7 @@ Controls are implemented for:
 
 Alternatively, you can edit the JSON schema directly by pressing `JSON` in the props editor. Changes will not apply if the schema is invalid.
 
-## Saving props to your code
+## Saving default props to your code
 
 Remotion can statically analyze your root file and allow you to save props back to the code via the 💾 button. For this to work, your default props must be inlined into your [`<Composition>`](/docs/composition):
 
@@ -102,3 +102,9 @@ export const RemotionRoot: React.FC = () => {
 ## Rendering videos from your input
 
 If you would like to render a video based on your input in the controls, then you don't need to save the props back to the code. Use the `Render` button to open a render dialog where your modified [default props are filled in as input props](/docs/props-resolution).
+
+## Changing input props visually
+
+In the Props editor, you can only edit the [default props](/docs/props-resolution) visually. You then have the chance to override them using the [`calculateMetadata()`](/docs/calculate-metadata) function.  
+In the [Render dialog](/docs/studio), you have the chance to change the input props.\_\_
+They can also be overridden using [`calculateMetadata()`](/docs/calculate-metadata).

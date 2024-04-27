@@ -53,7 +53,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
 		offthreadVideoCacheSizeInBytes: z.number().nullable(),
-		colorSpace: z.enum(BrowserSafeApis.validColorSpaces),
+		colorSpace: z.enum(BrowserSafeApis.validColorSpaces).nullable(),
 		clientVersion: z.string(),
 	}),
 	z.object({
