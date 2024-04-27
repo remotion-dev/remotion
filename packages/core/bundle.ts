@@ -3,7 +3,7 @@ import {build} from 'bun';
 const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	target: 'node',
+	target: 'browser',
 	external: ['remotion', 'remotion/no-react', 'react', 'react-dom'],
 });
 
@@ -17,7 +17,7 @@ await Bun.write('dist/esm/index.mjs', text);
 const versionOutput = await build({
 	entrypoints: ['src/version.ts'],
 	naming: '[name].mjs',
-	target: 'node',
+	target: 'browser',
 });
 
 const [versionFile] = versionOutput.outputs;
@@ -26,7 +26,7 @@ await Bun.write('dist/esm/version.mjs', await versionFile.text());
 const noReactOutput = await build({
 	entrypoints: ['src/no-react.ts'],
 	naming: '[name].mjs',
-	target: 'node',
+	target: 'browser',
 	external: ['remotion', 'react', 'react-dom'],
 });
 const [noReactFile] = noReactOutput.outputs;
