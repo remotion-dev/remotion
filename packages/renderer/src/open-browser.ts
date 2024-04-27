@@ -151,6 +151,7 @@ export const internalOpenBrowser = async ({
 			'--disable-sync',
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
+			'--mute-audio',
 			'--no-first-run',
 			'--video-threads=' + getIdealVideoThreadsFlag(logLevel),
 			'--enable-automation',
