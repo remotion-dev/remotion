@@ -12,9 +12,7 @@ export const DynamicDuration: React.FC<
 	return (
 		<AbsoluteFill>
 			<svg>
-				<path transformOrigin="center" style={{scale: 2}}>
-					hi
-				</path>
+				<path style={{scale: 2}}>hi</path>
 			</svg>
 		</AbsoluteFill>
 	);
