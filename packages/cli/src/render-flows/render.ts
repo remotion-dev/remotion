@@ -152,7 +152,7 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
 	forSeamlessAacConcatenation: boolean;

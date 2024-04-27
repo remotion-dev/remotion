@@ -126,7 +126,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
-		colorSpace: options.colorSpace ?? 'default',
+		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
 		crf: options.crf,

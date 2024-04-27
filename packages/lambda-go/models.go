@@ -58,7 +58,7 @@ type renderInternalOptions struct {
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
-	ColorSpace                     string                 `json:"colorSpace"`
+	ColorSpace                     interface{}            `json:"colorSpace"`
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
