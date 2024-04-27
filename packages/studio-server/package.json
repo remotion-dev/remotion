@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-server",
-	"version": "4.0.147",
+	"version": "4.0.148",
 	"description": "Remotion Editor",
 	"main": "dist",
 	"sideEffects": false,
