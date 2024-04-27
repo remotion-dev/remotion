@@ -555,6 +555,7 @@ export const launchHandler = async (
 						bucketName: params.bucketName,
 						customData: params.webhook.customData ?? null,
 					},
+					redirectsSoFar: 0,
 				},
 				params.logLevel,
 			);
@@ -652,6 +653,7 @@ export const launchHandler = async (
 						timeToFinish: postRenderData.timeToFinish,
 						costs: postRenderData.cost,
 					},
+					redirectsSoFar: 0,
 				},
 				params.logLevel,
 			);
@@ -744,6 +746,7 @@ export const launchHandler = async (
 								stack: e.stack as string,
 							})),
 						},
+						redirectsSoFar: 0,
 					},
 					params.logLevel,
 				);
