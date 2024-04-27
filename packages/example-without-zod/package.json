@@ -14,11 +14,11 @@
   "dependencies": {
     "remotion": "workspace:*",
     "@remotion/cli": "workspace:*",
-    "react": "18.3.0",
-    "react-dom": "18.3.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/react": "18.2.48",
-    "@types/react-dom": "18.2.18"
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0"
   }
 }
