@@ -53,6 +53,10 @@ writeFileSync(path.join("dist", "esm", "index.mjs"), withoutTypes);
 // Use Node.js because it does not support TypeScript
 // and the goal of this script is to get rid of the TypeScript types
 const length =
-  await $`node --input-type=module -e "import {getAvailableFonts} from './dist/esm/index.mjs'; console.log(getAvailableFonts().length)"`.text();
+  await $`node --input-type=module -e "import {getAvailableFonts} from './dist/esm/index.mjs'; console.log(getAvailableFonts().length)"`
+    .env({
+      NO_COLOR: "1",
+    })
+    .text();
 
 equal(length.trim(), "1575");
