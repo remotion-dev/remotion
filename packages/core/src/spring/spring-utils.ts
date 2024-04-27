@@ -35,6 +35,12 @@ function advance({
 
 	const deltaTime = Math.min(now - lastTimestamp, 64);
 
+	if (config.damping <= 0) {
+		throw new Error(
+			'Spring damping must be greater than 0, otherwise the spring() animation will never end, causing an infinite loop.',
+		);
+	}
+
 	const c = config.damping;
 	const m = config.mass;
 	const k = config.stiffness;
