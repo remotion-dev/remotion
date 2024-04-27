@@ -22,7 +22,7 @@ class RenderParams
     protected $maxRetries = 1;
     protected $jpegQuality = 80;
     protected $privacy = 'privacy';
-    protected $colorSpace = 'default';
+    protected $colorSpace = null;
     protected $logLevel = 'info';
     protected $frameRange = null;
     protected $timeoutInMilliseconds = 30000;
@@ -63,7 +63,7 @@ class RenderParams
         int     $maxRetries = 1,
         int     $jpegQuality = 80,
         string  $privacy = 'public',
-        string  $colorSpace = 'default',
+        ?string  $colorSpace = null,
         string  $logLevel = 'info',
         ?string $frameRange = null,
         ?string $outName = null,
