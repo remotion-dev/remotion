@@ -2,7 +2,8 @@
 import {accessSync, chmodSync, constants, statSync} from 'node:fs';
 
 const hasPermissions = (p: string) => {
-	if (process.platform !== 'linux') {
+	// We observe that with Bun, the problem also happens in macOS
+	if (process.platform !== 'linux' && process.platform !== 'darwin') {
 		try {
 			accessSync(p, constants.X_OK);
 			return true;
