@@ -39,6 +39,15 @@
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
+    "@remotion/cloudrun#build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/shared/sa-permissions.json",
+        "container/dist/**",
+        "gcpInstaller/gcpInstaller.tar"
+      ],
+      "outputMode": "new-only"
+    },
     "@remotion/renderer#build": {
       "outputs": ["target/release/**"],
       "dependsOn": ["^build"],
