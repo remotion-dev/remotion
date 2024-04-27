@@ -9,8 +9,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"watch": "tsc -w",
-		"build": "node build.mjs && tsc -d",
+		"build": "node build.mjs",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
 	},

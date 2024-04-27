@@ -12,8 +12,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d && bun bundle.ts",
+		"build": "bun bundle.ts",
 		"test": "vitest --run"
 	},
 	"dependencies": {
@@ -21,7 +20,6 @@
 	},
 	"files": [
 		"dist",
-		"!dist/tsconfig-esm.tsbuildinfo",
 		"!dist/test"
 	],
 	"peerDependencies": {

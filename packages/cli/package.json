@@ -11,9 +11,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
-		"build": "tsc -d",
-		"watch": "tsc -w"
+		"test": "vitest --run"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

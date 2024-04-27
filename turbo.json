@@ -3,12 +3,13 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache/**"],
+      "outputs": ["dist/esm/**"],
       "outputMode": "new-only"
     },
+
     "@remotion/example#build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".rollup.cache/**", "build/**"],
+      "outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],
       "outputMode": "new-only"
     },
     "build-docs": {
@@ -16,7 +17,8 @@
       "outputs": [
         ".docusaurus/**",
         "../../node_modules/.cache/twoslash/**",
-        "build/**"
+        "build/**",
+        "./node_modules/.cache/**"
       ]
     },
     "test": {
@@ -33,17 +35,23 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src/**", ".cache-css/**", "dist/**", ".rollup.cache/**"],
+      "outputs": ["src/**", ".cache-css/**", "dist/esm/**"],
       "dependsOn": ["^build"],
+      "outputMode": "new-only"
+    },
+    "@remotion/cloudrun#build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/shared/sa-permissions.json",
+        "container/dist/**",
+        "gcpInstaller/gcpInstaller.tar"
+      ],
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["dist/**", "target/release/**"],
+      "outputs": ["target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
-    },
-    "@remotion/player-example#lint": {
-      "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/it-tests#test": {
       "dependsOn": [

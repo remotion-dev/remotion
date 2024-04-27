@@ -7,7 +7,6 @@
 		"build": "bun build.ts",
 		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
 		"tarInstaller": "ts-node src/admin/bundle-installer.ts",
-		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"

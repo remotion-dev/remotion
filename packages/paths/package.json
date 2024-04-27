@@ -7,8 +7,6 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
 		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

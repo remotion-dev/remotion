@@ -13,8 +13,6 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d",
-		"watch": "tsc -w",
 		"test": "bun test src"
 	},
 	"files": [

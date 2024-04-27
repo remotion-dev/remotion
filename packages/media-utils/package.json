@@ -6,9 +6,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",

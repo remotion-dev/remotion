@@ -31,6 +31,7 @@
     { "path": "../lottie" },
     { "path": "../noise" },
     { "path": "../paths" },
+    { "path": "../google-fonts" },
     { "path": "../preload" },
     { "path": "../rive" },
     { "path": "../skia" },

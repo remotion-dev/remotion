@@ -4,5 +4,4 @@ scripts
 src
 google-fonts.json
 ensure-generation.js
-dist/tsconfig-esm.tsbuildinfo
 dist/tsconfig.tsbuildinfo

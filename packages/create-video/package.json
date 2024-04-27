@@ -11,8 +11,6 @@
 	],
 	"scripts": {
 		"formatting": "prettier src --check",
-		"build": "tsc -d",
-		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run"
 	},
