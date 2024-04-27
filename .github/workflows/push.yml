@@ -48,7 +48,9 @@ jobs:
             packages/*/dist
             packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
+            packages/google-fonts/.cache-css
           key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
@@ -100,17 +102,25 @@ jobs:
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
-          # Disbled but would like to enable:
           path: |
             tsconfig.tsbuildinfo
             packages/*/dist
             packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
+            packages/google-fonts/.cache-css
           key: ts-${{ runner.os }}-node16-v3
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/renderer -> target"
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/google-fonts/.cache-css
+          key: ssr-${{ runner.os }}-node16-v3
+
       - name: build
         run: |
           pnpm build
@@ -211,7 +221,9 @@ jobs:
             packages/*/dist
             packages/*/tsconfig.tsbuildinfo
             packages/*/.turbo
-            node_modules/.cache
+            packages/google-fonts/.cache-css
+            packages/docs/node_modules/.cache
+            packages/example/node_modules/.cache
           key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
       - name: Build & Test
