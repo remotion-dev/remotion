@@ -5,7 +5,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
   "scripts": {
-    "build": "pnpm run generate && bun bundle.ts",
+    "build": "bun bundle.ts",
     "generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },

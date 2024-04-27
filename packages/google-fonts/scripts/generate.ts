@@ -31,25 +31,20 @@ const generate = async (font: Font) => {
   let css: null | string = null;
   let fontFamily: null | string = replaceDigitsWithWords(unquote(font.family));
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
-  if (!fs.existsSync(cssFile)) {
-    //  Get from url with user agent that support woff2
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
-      },
-    });
+  //  Get from url with user agent that support woff2
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
+    },
+  });
 
-    // Save to cache
-    const body = await res.text();
-    await fs.promises.writeFile(cssFile, body);
-    console.log("Generated", cssFile);
+  // Save to cache
+  const body = await res.text();
+  await fs.promises.writeFile(cssFile, body);
+  console.log("Generated", cssFile);
 
-    css = body;
-  } else {
-    // Read css from cache
-    css = await fs.promises.readFile(cssFile, "utf-8");
-  }
+  css = body;
 
   if (!css) {
     throw new Error("no css");
