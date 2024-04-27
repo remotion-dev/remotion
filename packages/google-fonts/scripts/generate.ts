@@ -20,9 +20,6 @@ const generate = async (font: Font) => {
   const importName = removeWhitespace(font.family);
   const filename = `${importName}.ts`;
   const tsFile = path.resolve(OUTDIR, filename);
-  if (fs.existsSync(tsFile)) {
-    return;
-  }
   const cssname = `${font.family.toLowerCase().replace(/\s/g, "_")}_${
     font.version
   }.css`;
@@ -99,8 +96,11 @@ export const loadFont = <T extends keyof Variants>(
 
   mkdirSync(OUTDIR, { recursive: true });
   //  Save
+  const existed = fs.existsSync(tsFile);
   await fs.promises.writeFile(tsFile, output);
-  console.log("Wrote", tsFile);
+  if (!existed) {
+    console.log("Wrote", tsFile);
+  }
 };
 
 const run = async () => {
