@@ -7,10 +7,10 @@ slug: /lambda/cli/functions
 crumb: "Lambda CLI Reference"
 ---
 
-import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';
-import {DefaultEphemerealStorageInMb} from '../../../components/lambda/default-disk-size';
-import {DefaultTimeout} from '../../../components/lambda/default-timeout';
-import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
+import { DefaultMemorySize } from "../../../components/lambda/default-memory-size";
+import { DefaultEphemerealStorageInMb } from "../../../components/lambda/default-disk-size";
+import { DefaultTimeout } from "../../../components/lambda/default-timeout";
+import { DefaultLogRetention } from "../../../components/lambda/default-log-retention";
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
@@ -89,6 +89,10 @@ Use a custom role for the function instead of the default (`arn:aws:iam::[aws-ac
 ### `--quiet`, `-q`
 
 Only logs the function name.
+
+### `--enable-v5-runtime`<AvailableFrom v="4.0.148" />
+
+Enable the [upcoming v5 runtime](/docs/lambda/runtime#runtime-changes-in-remotion-50) with newer Chrome and Node versions early.
 
 ## ls
 
