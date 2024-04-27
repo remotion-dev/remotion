@@ -22,9 +22,9 @@ fs.writeFileSync(
 export const src =
 // eslint-disable-next-line no-template-curly-in-string
   ${JSON.stringify(content)};
-`.trim()
+`.trim(),
 );
 
-execSync('pnpm exec prettier --write src/worker/source.ts');
+execSync('bunx prettier --write src/worker/source.ts');
 
 fs.unlinkSync(tmp);
