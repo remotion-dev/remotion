@@ -19,8 +19,8 @@
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "devDependencies": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.0",
+    "react-dom": "18.3.0",
     "remotion": "workspace:*",
     "@jonny/eslint-config": "3.0.281",
     "@types/node": "18.14.6",

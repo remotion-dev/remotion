@@ -71,15 +71,15 @@
     "mux-embed": "^4.16.0",
     "plyr": "^3.7.3",
     "polished": "4.1.2",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.0",
+    "react-dom": "18.3.0",
     "remark-shiki-twoslash": "^3.1.3",
     "remotion": "workspace:*",
     "swc-loader": "^0.2.3",
     "three": "0.158.0",
     "uuid": "^8.3.2",
     "vitest": "0.31.1",
-    "zod": "^3.22.3"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",
