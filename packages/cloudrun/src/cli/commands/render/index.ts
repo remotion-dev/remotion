@@ -8,6 +8,7 @@ import {downloadFile} from '../../../api/download-file';
 import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
+import {parsedCloudrunCli} from '../../args';
 import {displayCrashLogs} from '../../helpers/cloudrun-crash-logs';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
@@ -63,6 +64,10 @@ export const renderCommand = async (
 				compositionCodec: null,
 			},
 		);
+
+	const imageFormat = parsedCloudrunCli['image-format'];
+
+	const audioCodec = parsedCloudrunCli['audio-codec'];
 
 	const {
 		envVariables,
@@ -293,7 +298,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		x264Preset,
 		crf,
 		pixelFormat,
-		imageFormat: videoImageFormat,
+		imageFormat,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
