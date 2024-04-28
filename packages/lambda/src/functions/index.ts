@@ -28,25 +28,17 @@ import {makePayloadMessage} from './streaming/streaming';
 const sendResponse = ({
 	responseStream,
 	response,
-	enableStreaming,
 }: {
 	responseStream: ResponseStream;
 	response: Record<string, unknown>;
-	enableStreaming: boolean;
 }) => {
-	if (enableStreaming) {
-		const message = makePayloadMessage({
-			message: {type: 'response-json', payload: response},
-			status: 0,
-		});
-		responseStream.write(message, () => {
-			responseStream.end();
-		});
-	} else {
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
-		});
-	}
+	const message = makePayloadMessage({
+		message: {type: 'response-json', payload: response},
+		status: 0,
+	});
+	responseStream.write(message, () => {
+		responseStream.end();
+	});
 };
 
 const innerHandler = async ({
@@ -106,7 +98,6 @@ const innerHandler = async ({
 		sendResponse({
 			responseStream,
 			response,
-			enableStreaming: false,
 		});
 
 		return;
@@ -129,7 +120,6 @@ const innerHandler = async ({
 		sendResponse({
 			responseStream,
 			response,
-			enableStreaming: false,
 		});
 		return;
 	}
@@ -152,7 +142,6 @@ const innerHandler = async ({
 		sendResponse({
 			responseStream,
 			response,
-			enableStreaming: false,
 		});
 		return;
 	}
@@ -171,7 +160,7 @@ const innerHandler = async ({
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
 		});
-		sendResponse({responseStream, response, enableStreaming: false});
+		sendResponse({responseStream, response});
 		return;
 	}
 
@@ -214,7 +203,6 @@ const innerHandler = async ({
 		sendResponse({
 			responseStream,
 			response,
-			enableStreaming: params.enableStreaming,
 		});
 		return;
 	}
@@ -229,7 +217,7 @@ const innerHandler = async ({
 		);
 
 		const response = await infoHandler(params);
-		sendResponse({responseStream, response, enableStreaming: false});
+		sendResponse({responseStream, response});
 		return;
 	}
 
@@ -246,7 +234,7 @@ const innerHandler = async ({
 		const response = await mergeHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		sendResponse({responseStream, response, enableStreaming: false});
+		sendResponse({responseStream, response});
 	}
 
 	if (params.type === LambdaRoutines.compositions) {
@@ -261,7 +249,7 @@ const innerHandler = async ({
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		sendResponse({responseStream, response, enableStreaming: false});
+		sendResponse({responseStream, response});
 		return;
 	}
 
@@ -282,7 +270,7 @@ const routine = async (
 			stack: (err as Error).stack as string,
 		};
 
-		sendResponse({responseStream, response: res, enableStreaming: false});
+		sendResponse({responseStream, response: res});
 	}
 };
 

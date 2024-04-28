@@ -392,6 +392,7 @@ const innerLaunchHandler = async ({
 
 	const framesRendered = new Array(lambdaPayloads.length).fill(0);
 
+	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload, i) => {
 			if (params.enableStreaming) {

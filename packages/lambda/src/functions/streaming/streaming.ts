@@ -85,12 +85,12 @@ export type OnMessage = (options: StreamingMessage) => void;
 
 const magicSeparator = Buffer.from('remotion_buffer:');
 
-const parseJsonOrThrowSource = (data: Buffer) => {
+const parseJsonOrThrowSource = (data: Buffer, type: string) => {
 	const asString = data.toString('utf-8');
 	try {
 		return JSON.parse(asString);
 	} catch (err) {
-		throw new Error(`Invalid JSON: ${asString}`);
+		throw new Error(`Invalid JSON (${type}): ${asString}`);
 	}
 };
 
@@ -179,7 +179,9 @@ export const makeStreaming = (options: {onMessage: OnMessage}) => {
 		);
 
 		const innerPayload =
-			formatMap[messageType] === 'json' ? parseJsonOrThrowSource(data) : data;
+			formatMap[messageType] === 'json'
+				? parseJsonOrThrowSource(data, messageType)
+				: data;
 
 		const payload: StreamingPayload = {
 			type: messageType,
