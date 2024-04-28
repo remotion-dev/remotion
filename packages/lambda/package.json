@@ -13,7 +13,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",
 		"build": "pnpm run buildlambda",
-		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
+		"buildlambda": "bun src/admin/bundle-lambda.ts",
 		"prepublishOnly": "bun src/admin/bundle-lambda.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

@@ -24,7 +24,6 @@ const bundleLambda = async () => {
 		format: 'esm',
 	});
 	await Bun.write(outfile, await out.outputs[0].text());
-	console.log(out);
 
 	const filesInCwd = readdirSync(dir);
 	const filesToCopy = filesInCwd.filter(
