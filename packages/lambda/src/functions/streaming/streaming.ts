@@ -249,4 +249,4 @@ export const makePayloadMessage = ({
 	return concat;
 };
 
-export type OnStream = (payload: StreamingPayload) => void;
+export type OnStream = (payload: StreamingPayload) => Promise<void>;

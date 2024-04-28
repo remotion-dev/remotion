@@ -18,7 +18,6 @@ import type {StreamingPayloads} from './helpers/streaming-payloads';
 import {sendProgressEvent} from './helpers/streaming-payloads';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
-import {mergeHandler} from './merge';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
@@ -186,16 +185,19 @@ const innerHandler = async ({
 				isWarm,
 			},
 			(payload) => {
-				if (params.enableStreaming) {
+				return new Promise((resolve) => {
 					const message = makePayloadMessage({
 						message: payload,
 						status: 0,
 					});
 					console.log('Sending message', message.toString('utf-8'));
+					// TODO: Ensure write happens in order
 					responseStream.write(message, () => {
+						resolve();
 						console.log('TODO do something with the message');
 					});
-				}
+					// TODO: Error handling?
+				});
 			},
 			context,
 		);
@@ -219,22 +221,6 @@ const innerHandler = async ({
 		const response = await infoHandler(params);
 		sendResponse({responseStream, response});
 		return;
-	}
-
-	if (params.type === LambdaRoutines.merge) {
-		printCloudwatchHelper(
-			LambdaRoutines.merge,
-			{
-				renderId: params.renderId,
-				isWarm,
-			},
-			params.logLevel,
-		);
-
-		const response = await mergeHandler(params, {
-			expectedBucketOwner: currentUserId,
-		});
-		sendResponse({responseStream, response});
 	}
 
 	if (params.type === LambdaRoutines.compositions) {

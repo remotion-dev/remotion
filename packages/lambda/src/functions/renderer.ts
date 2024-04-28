@@ -214,7 +214,13 @@ const renderHandler = async ({
 					);
 				}
 
-				onStream({type: 'frames-rendered', payload: {frames: renderedFrames}});
+				onStream({
+					type: 'frames-rendered',
+					payload: {frames: renderedFrames},
+				}).catch((err) => {
+					console.log('Could not write progress', err);
+					return reject(err);
+				});
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
@@ -317,6 +323,13 @@ const renderHandler = async ({
 		{indent: false, logLevel: params.logLevel},
 		'Writing chunk to S3',
 	);
+	if (params.enableStreaming) {
+		await onStream({
+			type: 'chunk-rendered',
+			payload: fs.readFileSync(videoOutputLocation),
+		});
+	}
+
 	const writeStart = Date.now();
 	await Promise.all([
 		lambdaWriteFile({
