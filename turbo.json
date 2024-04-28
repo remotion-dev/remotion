@@ -29,9 +29,11 @@
       "outputs": []
     },
     "lint": {
+      "dependsOn": ["//#ts-build"],
       "outputs": []
     },
     "formatting": {
+      "dependsOn": ["//#ts-build"],
       "outputs": []
     },
     "@remotion/example#lint": {
