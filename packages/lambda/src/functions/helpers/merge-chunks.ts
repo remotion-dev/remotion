@@ -1,8 +1,5 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
-import {existsSync, mkdirSync, rmSync} from 'node:fs';
-import {join} from 'node:path';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import {
 	cleanupSerializedInputProps,
@@ -15,16 +12,14 @@ import type {
 	SerializedInputProps,
 } from '../../shared/constants';
 import {
-	CONCAT_FOLDER_TOKEN,
 	ENCODING_PROGRESS_STEP_SIZE,
 	encodingProgressKey,
 	initalizedMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
-import {truthy} from '../../shared/truthy';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
-import {concatVideosS3, getAllFilesS3} from './concat-videos';
+import {concatVideosS3} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {cleanupFiles} from './delete-chunks';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -34,7 +29,6 @@ import {inspectErrors} from './inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './io';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import {timer} from './timer';
-import type {EnhancedErrorInfo} from './write-lambda-error';
 import {writeLambdaError} from './write-lambda-error';
 import {writePostRenderData} from './write-post-render-data';
 
@@ -62,6 +56,8 @@ export const mergeChunksAndFinishRender = async (options: {
 	binariesDirectory: string | null;
 	preferLossless: boolean;
 	compositionStart: number;
+	outdir: string;
+	files: string[];
 }): Promise<PostRenderData> => {
 	let lastProgressUploaded = 0;
 
@@ -107,55 +103,12 @@ export const mergeChunksAndFinishRender = async (options: {
 		});
 	};
 
-	const onErrors = (errors: EnhancedErrorInfo[]) => {
-		RenderInternals.Log.error(
-			{indent: false, logLevel: options.logLevel},
-			'Found Errors',
-			errors,
-		);
-
-		const firstError = errors[0];
-		if (firstError.chunk !== null) {
-			throw new Error(
-				`Stopping Lambda function because error occurred while rendering chunk ${
-					firstError.chunk
-				}:\n${errors[0].stack
-					.split('\n')
-					.map((s) => `   ${s}`)
-					.join('\n')}`,
-			);
-		}
-
-		throw new Error(
-			`Stopping Lambda function because error occurred: ${errors[0].stack}`,
-		);
-	};
-
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		rmSync(outdir, {
-			recursive: true,
-		});
-	}
-
-	mkdirSync(outdir);
-
 	const {hasAudio, hasVideo} = lambdaRenderHasAudioVideo(
 		options.renderMetadata,
 	);
-	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
-	const expectedFiles = chunkMultiplier * options.chunkCount;
 
-	const files = await getAllFilesS3({
-		bucket: options.bucketName,
-		expectedFiles,
-		outdir,
-		renderId: options.renderId,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
-		onErrors,
-		logLevel: options.logLevel,
-	});
+	// TODO: Add back get files
+
 	const encodingStart = Date.now();
 	if (options.renderMetadata.type === 'still') {
 		throw new Error('Cannot merge stills');
@@ -167,8 +120,8 @@ export const mergeChunksAndFinishRender = async (options: {
 		codec: options.codec,
 		fps: options.fps,
 		numberOfGifLoops: options.numberOfGifLoops,
-		files,
-		outdir,
+		files: options.files,
+		outdir: options.outdir,
 		audioCodec: options.audioCodec,
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,

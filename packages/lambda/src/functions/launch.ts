@@ -2,6 +2,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {existsSync, mkdirSync, rmSync, writeFileSync} from 'fs';
+import path, {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
@@ -18,8 +20,10 @@ import type {
 	RenderMetadata,
 } from '../shared/constants';
 import {
+	CONCAT_FOLDER_TOKEN,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
+	chunkKeyForIndex,
 	renderMetadataKey,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
@@ -385,6 +389,17 @@ const innerLaunchHandler = async ({
 
 	const framesRendered = new Array(lambdaPayloads.length).fill(0);
 
+	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+	if (existsSync(outdir)) {
+		rmSync(outdir, {
+			recursive: true,
+		});
+	}
+
+	mkdirSync(outdir);
+
+	const files: string[] = [];
+
 	// TODO: Now this will wait for the render to complete
 	await Promise.all(
 		lambdaPayloads.map(async (payload, i) => {
@@ -405,9 +420,41 @@ const innerLaunchHandler = async ({
 									0,
 								)} frames rendered (${message.payload.frames})`,
 							);
-						} else if (message.type === 'chunk-rendered') {
+						} else if (message.type === 'video-chunk-rendered') {
+							const filename = join(
+								outdir,
+								// TODO: Can be simplified
+								path.basename(
+									chunkKeyForIndex({
+										index: i,
+										renderId: params.renderId,
+										type: 'video',
+									}),
+								),
+							);
+							writeFileSync(filename, message.payload);
 							console.log(
 								`[STREAMING]: ${message.payload.length} bytes chunk received`,
+								filename,
+							);
+							files.push(filename);
+						} else if (message.type === 'audio-chunk-rendered') {
+							const filename = join(
+								outdir,
+								// TODO: Can be simplified
+								path.basename(
+									chunkKeyForIndex({
+										index: i,
+										renderId: params.renderId,
+										type: 'audio',
+									}),
+								),
+							);
+							writeFileSync(filename, message.payload);
+							files.push(filename);
+							console.log(
+								`[STREAMING]: ${message.payload.length} bytes audio chunk received`,
+								filename,
 							);
 						}
 					},
@@ -444,6 +491,8 @@ const innerLaunchHandler = async ({
 		binariesDirectory: null,
 		preferLossless: params.preferLossless,
 		compositionStart: realFrameRange[0],
+		outdir,
+		files,
 	});
 
 	return postRenderData;

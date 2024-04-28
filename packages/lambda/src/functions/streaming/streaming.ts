@@ -1,15 +1,17 @@
 const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
-const chunkRendered = 'chunk-rendered' as const;
+const videoChunkRendered = 'video-chunk-rendered' as const;
+const audioChunkRendered = 'audio-chunk-rendered' as const;
 const responseJson = 'response-json' as const;
 
 const messageTypes = {
 	'1': {type: framesRendered},
 	'2': {type: errorOccurred},
 	'3': {type: renderIdDetermined},
-	'4': {type: chunkRendered},
-	'5': {type: responseJson},
+	'4': {type: videoChunkRendered},
+	'5': {type: audioChunkRendered},
+	'6': {type: responseJson},
 } as const;
 
 type MessageTypeId = keyof typeof messageTypes;
@@ -20,7 +22,8 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[errorOccurred]: 'json',
 	[renderIdDetermined]: 'json',
 	[responseJson]: 'json',
-	[chunkRendered]: 'binary',
+	[videoChunkRendered]: 'binary',
+	[audioChunkRendered]: 'binary',
 };
 
 export type StreamingPayload =
@@ -31,7 +34,11 @@ export type StreamingPayload =
 			};
 	  }
 	| {
-			type: typeof chunkRendered;
+			type: typeof videoChunkRendered;
+			payload: Buffer;
+	  }
+	| {
+			type: typeof audioChunkRendered;
 			payload: Buffer;
 	  }
 	| {

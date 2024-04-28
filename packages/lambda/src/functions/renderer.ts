@@ -324,10 +324,19 @@ const renderHandler = async ({
 		'Writing chunk to S3',
 	);
 	if (params.enableStreaming) {
-		await onStream({
-			type: 'chunk-rendered',
-			payload: fs.readFileSync(videoOutputLocation),
-		});
+		if (audioOutputLocation) {
+			await onStream({
+				type: 'audio-chunk-rendered',
+				payload: fs.readFileSync(audioOutputLocation),
+			});
+		}
+
+		if (videoOutputLocation) {
+			await onStream({
+				type: 'video-chunk-rendered',
+				payload: fs.readFileSync(videoOutputLocation),
+			});
+		}
 	}
 
 	const writeStart = Date.now();
