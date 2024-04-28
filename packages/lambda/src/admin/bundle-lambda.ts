@@ -23,6 +23,10 @@ const bundleLambda = async () => {
 		entrypoints: [template],
 		format: 'esm',
 	});
+	if (!out.success) {
+		throw out.logs.join('\n');
+	}
+
 	await Bun.write(outfile, await out.outputs[0].text());
 
 	const filesInCwd = readdirSync(dir);
