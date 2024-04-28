@@ -83,6 +83,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	renderEstimatedTime: number;
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
@@ -305,6 +306,13 @@ const internalRenderMediaRaw = ({
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
+	let renderEstimatedTime = 0;
+	// Hold the value of the last time a sample was processed
+	let lastFrameRenderTimeUpdate = performance.now();
+	// Hold an array of frame render time samples so they can be averaged
+	const frameRenderTimeSamples: number[] = [];
+	// The duration of when to process the sample
+	const SAMPLE_INTERVAL = 2000;
 
 	const renderStart = Date.now();
 
@@ -434,6 +442,7 @@ const internalRenderMediaRaw = ({
 			encodedFrames: encoded,
 			renderedDoneIn,
 			renderedFrames,
+			renderEstimatedTime,
 			stitchStage,
 			progress:
 				Math.round((70 * renderedFrames + 30 * encoded) / totalFramesToRender) /
@@ -568,6 +577,31 @@ const internalRenderMediaRaw = ({
 						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
+
+						// Aggregate frame render time samples
+						frameRenderTimeSamples.push(timeToRenderInMilliseconds);
+
+						// Update frames render estimated time every SAMPLE_INTERVAL
+						if (
+							performance.now() - lastFrameRenderTimeUpdate >
+							SAMPLE_INTERVAL
+						) {
+							lastFrameRenderTimeUpdate = performance.now();
+							const remainingFrames = totalFramesToRender - renderedFrames;
+
+							// Get avarage by summing all samples and dividing by the number of samples
+							const avarage = frameRenderTimeSamples.reduce((a, b) => a + b, 0);
+							const avarageRenderTime = avarage / frameRenderTimeSamples.length;
+
+							// Get estimated time by multiplying the avarage render time by the remaining frames
+							renderEstimatedTime = Math.round(
+								remainingFrames * avarageRenderTime,
+							);
+
+							// Clear samples array for the next interval
+							frameRenderTimeSamples.splice(0, frameRenderTimeSamples.length);
+						}
+
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},

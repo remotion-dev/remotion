@@ -21,6 +21,7 @@ export type RenderStep = 'bundling' | 'rendering' | 'stitching';
 
 export type RenderingProgressInput = {
 	frames: number;
+	renderEstimatedTime: number;
 	totalFrames: number;
 	steps: RenderStep[];
 	concurrency: number;

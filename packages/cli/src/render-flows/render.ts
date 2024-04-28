@@ -395,6 +395,7 @@ export const renderVideoFlow = async ({
 		totalFrames: totalFrames.length,
 		concurrency: actualConcurrency,
 		doneIn: null,
+		renderEstimatedTime: 0,
 		steps,
 	};
 
@@ -523,6 +524,8 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
+			(renderingProgress as RenderingProgressInput).renderEstimatedTime =
+				update.renderEstimatedTime;
 			updateRenderProgress({newline: false, printToConsole: true});
 		},
 		puppeteerInstance,

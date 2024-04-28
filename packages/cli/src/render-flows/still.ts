@@ -289,6 +289,7 @@ export const renderStillFlow = async ({
 		concurrency: 1,
 		doneIn: null,
 		steps,
+		renderEstimatedTime: 0,
 		totalFrames: 1,
 	};
 
@@ -344,6 +345,7 @@ export const renderStillFlow = async ({
 		frames: 1,
 		concurrency: 1,
 		doneIn: Date.now() - renderStart,
+		renderEstimatedTime: Date.now() - renderStart,
 		steps,
 		totalFrames: 1,
 	};
