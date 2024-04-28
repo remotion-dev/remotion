@@ -25,11 +25,39 @@ import {startHandler} from './start';
 import {stillHandler} from './still';
 import {makePayloadMessage} from './streaming/streaming';
 
-const innerHandler = async (
-	params: LambdaPayload,
-	responseStream: ResponseStream,
-	context: RequestContext,
-): Promise<void> => {
+const sendResponse = ({
+	responseStream,
+	response,
+	enableStreaming,
+}: {
+	responseStream: ResponseStream;
+	response: Record<string, unknown>;
+	enableStreaming: boolean;
+}) => {
+	if (enableStreaming) {
+		const message = makePayloadMessage({
+			message: {type: 'response-json', payload: response},
+			status: 0,
+		});
+		responseStream.write(message, () => {
+			responseStream.end();
+		});
+	} else {
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
+	}
+};
+
+const innerHandler = async ({
+	params,
+	responseStream,
+	context,
+}: {
+	params: LambdaPayload;
+	responseStream: ResponseStream;
+	context: RequestContext;
+}): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
@@ -75,8 +103,10 @@ const innerHandler = async (
 			params,
 			renderId,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
+		sendResponse({
+			responseStream,
+			response,
+			enableStreaming: false,
 		});
 
 		return;
@@ -95,8 +125,11 @@ const innerHandler = async (
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
+
+		sendResponse({
+			responseStream,
+			response,
+			enableStreaming: false,
 		});
 		return;
 	}
@@ -116,8 +149,10 @@ const innerHandler = async (
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
+		sendResponse({
+			responseStream,
+			response,
+			enableStreaming: false,
 		});
 		return;
 	}
@@ -136,9 +171,7 @@ const innerHandler = async (
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
-		});
+		sendResponse({responseStream, response, enableStreaming: false});
 		return;
 	}
 
@@ -169,20 +202,20 @@ const innerHandler = async (
 						message: payload,
 						status: 0,
 					});
-					console.log(message);
+					console.log('Sending message', message.toString('utf-8'));
+					responseStream.write(message, () => {
+						console.log('TODO do something with the message');
+					});
 				}
 			},
 			context,
 		);
 
-		if (params.enableStreaming) {
-			responseStream.end();
-		} else {
-			responseStream.write(JSON.stringify(response), () => {
-				responseStream.end();
-			});
-		}
-
+		sendResponse({
+			responseStream,
+			response,
+			enableStreaming: params.enableStreaming,
+		});
 		return;
 	}
 
@@ -196,9 +229,7 @@ const innerHandler = async (
 		);
 
 		const response = await infoHandler(params);
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
-		});
+		sendResponse({responseStream, response, enableStreaming: false});
 		return;
 	}
 
@@ -215,9 +246,7 @@ const innerHandler = async (
 		const response = await mergeHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
-		});
+		sendResponse({responseStream, response, enableStreaming: false});
 	}
 
 	if (params.type === LambdaRoutines.compositions) {
@@ -232,9 +261,7 @@ const innerHandler = async (
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response), () => {
-			responseStream.end();
-		});
+		sendResponse({responseStream, response, enableStreaming: false});
 		return;
 	}
 
@@ -247,7 +274,7 @@ const routine = async (
 	context: RequestContext,
 ): Promise<void> => {
 	try {
-		await innerHandler(params, responseStream, context);
+		await innerHandler({params, responseStream, context});
 	} catch (err) {
 		const res: OrError<0> = {
 			type: 'error',
@@ -255,8 +282,7 @@ const routine = async (
 			stack: (err as Error).stack as string,
 		};
 
-		responseStream.write(JSON.stringify(res));
-		responseStream.end();
+		sendResponse({responseStream, response: res, enableStreaming: false});
 	}
 };
 

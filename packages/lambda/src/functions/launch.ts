@@ -390,8 +390,10 @@ const innerLaunchHandler = async ({
 		customCredentials: null,
 	});
 
+	const framesRendered = new Array(lambdaPayloads.length).fill(0);
+
 	await Promise.all(
-		lambdaPayloads.map(async (payload) => {
+		lambdaPayloads.map(async (payload, i) => {
 			if (params.enableStreaming) {
 				await callLambda({
 					functionName,
@@ -402,8 +404,12 @@ const innerLaunchHandler = async ({
 					type: LambdaRoutines.renderer,
 					onMessage: ({message}) => {
 						if (message.type === 'frames-rendered') {
+							framesRendered[i] = message.payload.frames;
 							console.log(
-								`[STREAMING]: ${message.payload.frames} frames rendered`,
+								`${framesRendered.reduce(
+									(a, b) => a + b,
+									0,
+								)} frames rendered (${message.payload.frames})`,
 							);
 						} else if (message.type === 'chunk-rendered') {
 							console.log(

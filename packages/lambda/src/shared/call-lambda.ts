@@ -19,16 +19,30 @@ type Options<T extends LambdaRoutines> = {
 	onMessage: OnMessage;
 };
 
-const parseJsonWithErrorSurfacing = (input: string) => {
+const parseJsonWithErrorSurfacing = ({
+	input,
+	type,
+}: {
+	input: string;
+	type: string;
+}) => {
 	try {
 		return JSON.parse(input);
 	} catch {
-		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
+		throw new Error(
+			`${INVALID_JSON_MESSAGE}. Invoking: ${type} Response: ${JSON.stringify(input)}`,
+		);
 	}
 };
 
-const parseJson = <T extends LambdaRoutines>(input: string) => {
-	let json = parseJsonWithErrorSurfacing(input) as
+const parseJson = <T extends LambdaRoutines>({
+	input,
+	type,
+}: {
+	input: string;
+	type: string;
+}) => {
+	let json = parseJsonWithErrorSurfacing({input, type}) as
 		| OrError<Awaited<LambdaReturnValues[T]>>
 		| {
 				errorType: string;
@@ -41,7 +55,7 @@ const parseJson = <T extends LambdaRoutines>(input: string) => {
 		  };
 
 	if ('statusCode' in json) {
-		json = parseJsonWithErrorSurfacing(json.body) as
+		json = parseJsonWithErrorSurfacing({input: json.body, type}) as
 			| OrError<Awaited<LambdaReturnValues[T]>>
 			| {
 					errorType: string;
@@ -116,8 +130,16 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		}),
 	);
 
+	let responseJson: Record<string, unknown> | null = null;
+
 	const {addData} = makeStreaming({
-		onMessage,
+		onMessage: (message) => {
+			if (message.message.type === 'response-json') {
+				responseJson = message.message.payload;
+			} else {
+				onMessage(message);
+			}
+		},
 	});
 
 	const events =
@@ -129,8 +151,8 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
-		if (event.PayloadChunk) {
-			addData(Buffer.from(event.PayloadChunk.Payload as Uint8Array));
+		if (event.PayloadChunk && event.PayloadChunk.Payload) {
+			addData(Buffer.from(event.PayloadChunk.Payload));
 			// Decode the raw bytes into a string a human can read
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload,
@@ -157,7 +179,11 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		}
 	}
 
-	const json = parseJson<T>(responsePayload.trim());
+	if (responseJson) {
+		return responseJson as LambdaReturnValues[T];
+	}
+
+	const json = parseJson<T>({input: responsePayload.trim(), type});
 
 	return json;
 };

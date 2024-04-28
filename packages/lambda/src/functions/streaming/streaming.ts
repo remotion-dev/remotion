@@ -2,12 +2,14 @@ const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
 const chunkRendered = 'chunk-rendered' as const;
+const responseJson = 'response-json' as const;
 
 const messageTypes = {
 	'1': {type: framesRendered},
 	'2': {type: errorOccurred},
 	'3': {type: renderIdDetermined},
 	'4': {type: chunkRendered},
+	'5': {type: responseJson},
 } as const;
 
 type MessageTypeId = keyof typeof messageTypes;
@@ -17,6 +19,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
 	[errorOccurred]: 'json',
 	[renderIdDetermined]: 'json',
+	[responseJson]: 'json',
 	[chunkRendered]: 'binary',
 };
 
@@ -42,6 +45,10 @@ export type StreamingPayload =
 			payload: {
 				renderId: string;
 			};
+	  }
+	| {
+			type: typeof responseJson;
+			payload: Record<string, unknown>;
 	  };
 
 export const messageTypeIdToMessage = (
@@ -69,12 +76,23 @@ export const messageTypeToMessageId = (
 	return id;
 };
 
-export type OnMessage = (options: {
+type StreamingMessage = {
 	successType: 'error' | 'success';
 	message: StreamingPayload;
-}) => void;
+};
+
+export type OnMessage = (options: StreamingMessage) => void;
 
 const magicSeparator = Buffer.from('remotion_buffer:');
+
+const parseJsonOrThrowSource = (data: Buffer) => {
+	const asString = data.toString('utf-8');
+	try {
+		return JSON.parse(asString);
+	} catch (err) {
+		throw new Error(`Invalid JSON: ${asString}`);
+	}
+};
 
 export const makeStreaming = (options: {onMessage: OnMessage}) => {
 	let outputBuffer = Buffer.from('');
@@ -160,12 +178,12 @@ export const makeStreaming = (options: {onMessage: OnMessage}) => {
 			messageTypeString as MessageTypeId,
 		);
 
+		const innerPayload =
+			formatMap[messageType] === 'json' ? parseJsonOrThrowSource(data) : data;
+
 		const payload: StreamingPayload = {
 			type: messageType,
-			payload:
-				formatMap[messageType] === 'json'
-					? JSON.parse(data.toString('utf-8'))
-					: data,
+			payload: innerPayload,
 		};
 
 		options.onMessage({
