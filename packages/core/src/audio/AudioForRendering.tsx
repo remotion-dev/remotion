@@ -141,7 +141,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	// If audio source switches, make new handle
 	useLayoutEffect(() => {
-		if (window.process.env.NODE_ENV === 'test') {
+		if (window.process?.env?.NODE_ENV === 'test') {
 			return;
 		}
 

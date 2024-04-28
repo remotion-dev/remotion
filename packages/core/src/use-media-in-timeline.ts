@@ -104,7 +104,7 @@ export const useMediaInTimeline = ({
 
 		if (
 			!getRemotionEnvironment().isStudio &&
-			window.process.env.NODE_ENV !== 'test'
+			window.process?.env?.NODE_ENV !== 'test'
 		) {
 			return;
 		}
