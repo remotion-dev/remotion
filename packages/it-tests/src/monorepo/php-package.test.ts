@@ -115,6 +115,7 @@ class Semantic
       x264Preset: null,
       preferLossless: false,
       indent: false,
+      enableStreaming: false,
     });
     const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
     const parsedJson = JSON.parse(jsonOutput);
