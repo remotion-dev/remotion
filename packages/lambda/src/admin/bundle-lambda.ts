@@ -1,6 +1,6 @@
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import {$} from 'bun';
-import fs, {cpSync, readdirSync} from 'node:fs';
+import fs, {cpSync, existsSync, readdirSync} from 'node:fs';
 import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
@@ -10,7 +10,7 @@ const bundleLambda = async () => {
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
-	const outfile = path.join(outdir, 'index.js');
+	const outfile = path.join(outdir, 'index.mjs');
 
 	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
@@ -53,6 +53,10 @@ const bundleLambda = async () => {
 		),
 		`${outdir}/mappings.wasm`,
 	);
+
+	if (existsSync(FUNCTION_ZIP_ARM64)) {
+		fs.rmSync(FUNCTION_ZIP_ARM64);
+	}
 
 	if (process.platform === 'darwin') {
 		await $`zip -j -r ${FUNCTION_ZIP_ARM64} ${outdir}`;
