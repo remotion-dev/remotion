@@ -78,8 +78,6 @@ export const getCliOptions = (options: {
 	const height = ConfigInternals.getHeight();
 	const width = ConfigInternals.getWidth();
 
-	const audioCodec = ConfigInternals.getAudioCodec() ?? null;
-
 	RenderInternals.validateConcurrency({
 		value: concurrency,
 		setting: 'concurrency',
