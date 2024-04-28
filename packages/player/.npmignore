@@ -6,7 +6,6 @@ tsconfig.tsbuildinfo
 vitest.config.mts
 *.tgz
 .turbo
-dist/tsconfig-cjs.tsbuildinfo
 dist/tsconfig.tsbuildinfo
 tsconfig.json
 ensure-correct-version.ts
