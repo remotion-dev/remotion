@@ -41,7 +41,7 @@ type InternalRenderMediaOnCloudrun = {
 		| ((progress: number, error?: boolean) => void)
 		| undefined;
 	codec: CloudrunCodec;
-	audioCodec: AudioCodec | null;
+	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
 	proResProfile: ProResProfile | undefined;
 	pixelFormat: PixelFormat | undefined;
@@ -365,7 +365,7 @@ export const renderMediaOnCloudrun = ({
 		outName: outName ?? undefined,
 		updateRenderProgress: updateRenderProgress ?? undefined,
 		jpegQuality: jpegQuality ?? undefined,
-		audioCodec: audioCodec ?? null,
+		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
