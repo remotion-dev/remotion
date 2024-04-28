@@ -35,6 +35,7 @@ type LambdaCommandLineOptions = {
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
+	['enable-streaming']: boolean;
 	[BrowserSafeApis.options.deleteAfterOption.cliFlag]: DeleteAfter | undefined;
 	[BrowserSafeApis.options.folderExpiryOption.cliFlag]: boolean | undefined;
 };

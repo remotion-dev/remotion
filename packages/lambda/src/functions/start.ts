@@ -105,6 +105,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		deleteAfter: params.deleteAfter,
 		colorSpace: params.colorSpace,
+		enableStreaming: params.enableStreaming,
 		preferLossless: params.preferLossless,
 	};
 

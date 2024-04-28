@@ -28,6 +28,7 @@ export const BooleanFlags = [
 	'ipv4',
 	BrowserSafeApis.options.beepOnFinishOption.cliFlag,
 	'repro',
+	'enable-streaming',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

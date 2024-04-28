@@ -33,7 +33,7 @@ export const getRenderProgress = async (
 		type: LambdaRoutines.status,
 		payload: getRenderProgressPayload(input),
 		region: input.region,
-		receivedStreamingPayload: () => undefined,
+		onMessage: () => undefined,
 		timeoutInTest: 120000,
 		retriesRemaining: 2,
 	});

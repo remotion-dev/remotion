@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
-import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
-import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
+import type {OnMessage} from '../functions/streaming/streaming';
+import {makeStreaming} from '../functions/streaming/streaming';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
@@ -15,8 +15,8 @@ type Options<T extends LambdaRoutines> = {
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
-	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
 	timeoutInTest: number;
+	onMessage: OnMessage;
 };
 
 const parseJsonWithErrorSurfacing = (input: string) => {
@@ -106,8 +106,8 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	type,
 	payload,
 	region,
-	receivedStreamingPayload,
 	timeoutInTest,
+	onMessage,
 }: Options<T>): Promise<LambdaReturnValues[T]> => {
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
@@ -115,6 +115,10 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 			Payload: JSON.stringify({type, ...payload}),
 		}),
 	);
+
+	const {addData} = makeStreaming({
+		onMessage,
+	});
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
@@ -126,17 +130,12 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 		// `PayloadChunk`: These contain the actual raw bytes of the chunk
 		// It has a single property: `Payload`
 		if (event.PayloadChunk) {
+			addData(Buffer.from(event.PayloadChunk.Payload as Uint8Array));
 			// Decode the raw bytes into a string a human can read
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload,
 			);
-			const streamPayload = isStreamingPayload(decoded);
-
-			if (streamPayload) {
-				receivedStreamingPayload(streamPayload);
-				continue;
-			}
-
+			// TODO: Replace the streaming payload of render-id-determined
 			responsePayload += decoded;
 		}
 

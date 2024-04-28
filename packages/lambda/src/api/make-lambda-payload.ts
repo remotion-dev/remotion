@@ -78,6 +78,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	audioCodec: AudioCodec | null;
 	colorSpace: ColorSpace | null;
 	deleteAfter: DeleteAfter | null;
+	enableStreaming: boolean;
 	indent: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
@@ -122,6 +123,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
+	enableStreaming,
 	preferLossless,
 }: InnerRenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
@@ -173,7 +175,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		numberOfGifLoops,
 		concurrencyPerLambda,
 		downloadBehavior,
-		muted: muted ?? false,
+		muted,
 		version: VERSION,
 		overwrite: overwrite ?? false,
 		audioBitrate: audioBitrate ?? null,

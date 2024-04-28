@@ -9,7 +9,7 @@ test('Info handler should return version', async () => {
 			logLevel: 'info',
 		},
 		functionName: 'remotion-dev-lambda',
-		receivedStreamingPayload: () => undefined,
+		onMessage: () => undefined,
 		region: 'us-east-1',
 		timeoutInTest: 120000,
 		retriesRemaining: 0,

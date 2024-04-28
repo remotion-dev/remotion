@@ -38,17 +38,24 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import type {OnStream} from './streaming/streaming';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
 };
 
-const renderHandler = async (
-	params: LambdaPayload,
-	options: Options,
-	logs: BrowserLog[],
-): Promise<{}> => {
+const renderHandler = async ({
+	params,
+	options,
+	logs,
+	onStream,
+}: {
+	params: LambdaPayload;
+	options: Options;
+	logs: BrowserLog[];
+	onStream: OnStream;
+}): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -206,6 +213,8 @@ const renderHandler = async (
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
+
+				onStream({type: 'frames-rendered', payload: {frames: renderedFrames}});
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
@@ -387,6 +396,7 @@ export const ENABLE_SLOW_LEAK_DETECTION = false;
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options,
+	onStream: OnStream,
 	requestContext: RequestContext,
 ): Promise<{
 	type: 'success';
@@ -400,7 +410,7 @@ export const rendererHandler = async (
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 
 	try {
-		await renderHandler(params, options, logs);
+		await renderHandler({params, options, logs, onStream});
 		return {
 			type: 'success',
 		};
@@ -451,7 +461,7 @@ export const rendererHandler = async (
 				payload: retryPayload,
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
-				receivedStreamingPayload: () => undefined,
+				onMessage: () => undefined,
 				timeoutInTest: 120000,
 				retriesRemaining: 0,
 			});

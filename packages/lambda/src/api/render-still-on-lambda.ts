@@ -78,16 +78,16 @@ const internalRenderStillOnLambda = async (
 			type: LambdaRoutines.still,
 			payload: await makeLambdaRenderStillPayload(input),
 			region,
-			receivedStreamingPayload: (payload) => {
-				if (payload.type === 'render-id-determined') {
-					onInit({
-						renderId: payload.renderId,
+			onMessage: ({message}) => {
+				if (message.type === 'render-id-determined') {
+					onInit?.({
+						renderId: message.payload.renderId,
 						cloudWatchLogs: getCloudwatchMethodUrl({
 							functionName,
 							method: LambdaRoutines.still,
 							region,
 							rendererFunctionName: null,
-							renderId: payload.renderId,
+							renderId: message.payload.renderId,
 						}),
 						lambdaInsightsUrl: getLambdaInsightsUrl({
 							functionName,
