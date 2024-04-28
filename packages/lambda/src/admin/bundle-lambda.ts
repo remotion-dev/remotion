@@ -1,4 +1,3 @@
-import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
@@ -16,18 +15,15 @@ const bundleLambda = async () => {
 	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
-		path.join(__dirname, '..', 'functions', 'index'),
+		path.join(__dirname, '..', 'functions', 'index.ts'),
 	);
 
-	await BundlerInternals.esbuild.build({
-		platform: 'node',
-		target: 'node16',
-		bundle: true,
-		outfile,
-		entryPoints: [template],
-		treeShaking: true,
-		external: [],
+	const out = await Bun.build({
+		target: 'node',
+		entrypoints: [template],
+		format: 'esm',
 	});
+	console.log(out);
 
 	const filesInCwd = readdirSync(dir);
 	const filesToCopy = filesInCwd.filter(
