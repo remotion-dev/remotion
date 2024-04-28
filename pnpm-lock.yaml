@@ -1285,9 +1285,6 @@ importers:
       '@smithy/abort-controller':
         specifier: 2.0.1
         version: 2.0.1
-      aws-policies:
-        specifier: ^1.0.1
-        version: 1.0.1
       mime-types:
         specifier: 2.1.34
         version: 2.1.34
@@ -11337,10 +11334,6 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       possible-typed-array-names: 1.0.0
-
-  /aws-policies@1.0.1:
-    resolution: {integrity: sha512-0YFbgK1NqXzIoWWPlJPeH9cKFbZ3I6WedFSY7TgKNnHE+SxnA0w1pa2Bg2JeDjwtYAzoyOtc8fAXmyi6al2KUQ==}
-    dev: false
 
   /axios@0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
