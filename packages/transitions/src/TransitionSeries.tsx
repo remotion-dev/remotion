@@ -42,7 +42,7 @@ type SeriesSequenceProps = PropsWithChildren<
 
 const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
+	return children;
 };
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
@@ -237,6 +237,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
@@ -266,6 +268,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
@@ -289,6 +293,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
@@ -307,6 +313,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
+					// eslint-disable-next-line react/no-array-index-key
+					key={i}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
