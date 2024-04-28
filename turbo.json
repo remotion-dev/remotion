@@ -2,11 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "//#ts-build"],
       "outputs": ["dist/esm/**"],
       "outputMode": "new-only"
     },
-
+    "//#ts-build": {
+      "outputs": ["packages/**/dist/**.js", "packages/**/dist/**.d.ts"],
+      "outputMode": "new-only"
+    },
     "@remotion/example#build": {
       "dependsOn": ["^build"],
       "outputs": ["build/**", "dist/esm/**", "./node_modules/.cache/**"],

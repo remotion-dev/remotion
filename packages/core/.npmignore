@@ -7,9 +7,7 @@ tsconfig.tsbuildinfo
 coverage
 ensure-correct-version.js
 .turbo
-tsconfig-cjs.json
 tsconfig.json
-dist/tsconfig-cjs.tsbuildinfo
 .prettierrc.js
 dist/esm/**.d.ts
 dist/esm/**/**.d.ts

@@ -106,6 +106,9 @@ importers:
       astro:
         specifier: ^2.0.14
         version: 2.0.14(@types/node@18.14.6)
+      lottie-web:
+        specifier: 5.12.2
+        version: 5.12.2
       react:
         specifier: ^18.1.0
         version: 18.2.0

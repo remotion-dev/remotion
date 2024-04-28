@@ -15,6 +15,6 @@ if (majorVersion < 16) {
   process.exit(0);
 }
 
-execSync("pnpm exec astro build", {
+execSync("bunx astro build", {
   stdio: "inherit",
 });
