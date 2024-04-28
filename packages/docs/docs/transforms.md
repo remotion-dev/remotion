@@ -154,6 +154,20 @@ If both transformations use the `transform` property, specify multiple transform
 
 Note that the order matters. The transformations are applied in the order they are specified.
 
+## Using the `makeTransform()` helper
+
+Install [@remotion/animation-utils](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate `transform` strings.
+
+```tsx twoslash
+import { makeTransform, rotate, translate } from "@remotion/animation-utils";
+
+const transform = translate(50, 50);
+// => "translate(50px, 50px)"
+
+const multiTransform = makeTransform([rotate(45), translate(50, 50)]);
+// => "rotate(45deg) translate(50px, 50px)"
+```
+
 ## More ways to transform objects
 
 These are just some of the basic transformations. Here are some more transformations that are possible:
@@ -166,7 +180,3 @@ These are just some of the basic transformations. Here are some more transformat
 - The weight and slant of a [dynamic font](https://twitter.com/JNYBGR/status/1598983409367683072)
 - The stops of a `linear-gradient`
 - The values of a CSS `filter()`
-
-<hr/>
-
-Ready for the next step? Let's animate some properties!

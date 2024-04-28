@@ -1,10 +1,11 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Compositor} from './compositor/compositor';
 import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
@@ -23,7 +24,7 @@ export type RemotionServer = {
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
-	sourceMap: Promise<AnySourceMapConsumer | null>;
+	sourceMap: SourceMapGetter;
 	downloadMap: DownloadMap;
 };
 
@@ -35,6 +36,8 @@ type PrepareServerOptions = {
 	logLevel: LogLevel;
 	indent: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	binariesDirectory: string | null;
+	forceIPv4: boolean;
 };
 
 export const prepareServer = async ({
@@ -45,9 +48,11 @@ export const prepareServer = async ({
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
+	forceIPv4,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
-	Log.verboseAdvanced(
+	Log.verbose(
 		{indent, logLevel},
 		'Created directory for temporary files',
 		downloadMap.assetDir,
@@ -66,26 +71,38 @@ export const prepareServer = async ({
 			logLevel,
 			indent,
 			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			forceIPv4,
 		});
+
+		let remoteSourceMap: AnySourceMapConsumer | null = null;
+
+		getSourceMapFromRemoteUrl(
+			getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
+		)
+			.then((s) => {
+				remoteSourceMap = s;
+			})
+			.catch((err) => {
+				Log.verbose(
+					{indent, logLevel},
+					'Could not fetch sourcemap for ',
+					webpackConfigOrServeUrl,
+					err,
+				);
+			});
 
 		return Promise.resolve({
 			serveUrl: webpackConfigOrServeUrl,
 			closeServer: () => {
 				cleanDownloadMap(downloadMap);
+				remoteSourceMap?.destroy();
+				remoteSourceMap = null;
 				return closeProxy();
 			},
 			offthreadPort,
 			compositor: comp,
-			sourceMap: getSourceMapFromRemoteUrl(
-				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
-			).catch((err) => {
-				Log.verbose(
-					'Could not fetch sourcemap for ',
-					webpackConfigOrServeUrl,
-					err,
-				);
-				return null;
-			}),
+			sourceMap: () => remoteSourceMap,
 			downloadMap,
 		});
 	}
@@ -99,9 +116,22 @@ export const prepareServer = async ({
 		);
 	}
 
-	const sourceMap = getSourceMapFromLocalFile(
-		path.join(webpackConfigOrServeUrl, Internals.bundleName),
-	);
+	let localSourceMap: AnySourceMapConsumer | null = null;
+
+	getSourceMapFromLocalFile(
+		path.join(webpackConfigOrServeUrl, NoReactInternals.bundleName),
+	)
+		.then((s) => {
+			localSourceMap = s;
+		})
+		.catch((err) => {
+			Log.verbose(
+				{indent, logLevel},
+				'Could not fetch sourcemap for ',
+				webpackConfigOrServeUrl,
+				err,
+			);
+		});
 
 	const {
 		port: serverPort,
@@ -115,11 +145,14 @@ export const prepareServer = async ({
 		logLevel,
 		indent,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
+		forceIPv4,
 	});
 
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {
-			sourceMap.then((s) => s?.destroy());
+			localSourceMap?.destroy();
+			localSourceMap = null;
 			cleanDownloadMap(downloadMap);
 			if (!force) {
 				await waitForSymbolicationToBeDone();
@@ -127,10 +160,12 @@ export const prepareServer = async ({
 
 			return close();
 		},
+		// This should be kept localhost, even if the server is bound to ::1,
+		// to prevent "Failed to load resource: net::ERR_FAILED  Access to image at 'http://localhost:3000/proxy?src=http%3A%2F%2F%5B%3A%3A%5D%3A3000%2Fpublic%2Fframer.webm&time=0&transparent=false' from origin 'http://[::]:3000' has been blocked by CORS policy: The request client is not a secure context and the resource is in more-private address space `local`".
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
-		sourceMap,
+		sourceMap: () => localSourceMap,
 		downloadMap,
 	});
 };
@@ -189,10 +224,9 @@ export const makeOrReuseServer = async (
 	return {
 		server: newServer,
 		cleanupServer: (force: boolean) => {
-			newServer.closeServer(force);
 			cleanupOnDownloadNew();
 			cleanupErrorNew();
-			return Promise.resolve();
+			return Promise.all([newServer.closeServer(force)]);
 		},
 	};
 };

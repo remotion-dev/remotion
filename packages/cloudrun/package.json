@@ -1,13 +1,12 @@
 {
 	"name": "@remotion/cloudrun",
-	"version": "4.0.37",
+	"version": "4.0.148",
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json && pnpm run buildContainer && pnpm run tarInstaller",
+		"build": "bun build.ts",
 		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
 		"tarInstaller": "ts-node src/admin/bundle-installer.ts",
-		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
@@ -24,24 +23,25 @@
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "^8.7.0",
 		"remotion": "workspace:*",
-		"zod": "^3.21.4"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "^18.11.2",
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
-		"eslint": "8.42.0",
-		"prettier": "3.0.2",
-		"prettier-plugin-organize-imports": "^3.2.2",
-		"ts-node": "^10.8.0",
-		"vitest": "0.24.3"
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "^3.2.4",
+		"ts-node": "10.9.2",
+		"vitest": "0.31.1"
 	},
 	"exports": {
 		"./package.json": "./package.json",
 		".": "./dist/index.js",
 		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
+		"./client": "./dist/client.js",
 		"./permissions.json": "./dist/shared/sa-permissions.json"
 	},
 	"typesVersions": {
@@ -51,6 +51,9 @@
 			],
 			"regions": [
 				"dist/regions.d.ts"
+			],
+			"client": [
+				"dist/client.d.ts"
 			]
 		}
 	}

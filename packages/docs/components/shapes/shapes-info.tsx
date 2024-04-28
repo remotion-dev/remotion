@@ -2,6 +2,7 @@ import {
   makeCircle,
   makeEllipse,
   makePie,
+  makePolygon,
   makeRect,
   makeStar,
   makeTriangle,
@@ -153,6 +154,34 @@ export const shapeComponents: ShapeComponent[] = [
       },
     ],
   },
+  {
+    shape: "Polygon",
+    fn: makePolygon,
+    params: [
+      {
+        name: "points",
+        type: "number",
+        description: "The number of points in the polygon.",
+      },
+      {
+        name: "radius",
+        type: "number",
+        description: "The radius of the polygon.",
+      },
+      {
+        name: "edgeRoundness",
+        type: "number | null",
+        description:
+          "Allows to modify the shape by rounding the edges using bezier curves. Default null.",
+      },
+      {
+        name: "cornerRadius",
+        type: "number",
+        description:
+          "Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.",
+      },
+    ],
+  },
 ];
 
 const globalParams: Param[] = [
@@ -232,7 +261,7 @@ export const ShapeOptions: React.FC<{
   all: boolean;
 }> = ({ shape, all }) => {
   const shapeComponent = shapeComponents.find(
-    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+    (c) => c.shape.toLowerCase() === shape.toLowerCase(),
   );
 
   return (
@@ -255,7 +284,8 @@ export const ShapeOptions: React.FC<{
       })}
       {all &&
       (shapeComponent.shape === "Rect" ||
-        shapeComponent.shape === "Triangle") ? (
+        shapeComponent.shape === "Triangle" ||
+        shapeComponent.shape === "Polygon") ? (
         <>
           <h3>
             <code>cornerRadius</code>
@@ -295,7 +325,7 @@ export const MakeShapeReturnType: React.FC<{
   shape: string;
 }> = ({ shape }) => {
   const shapeComponent = shapeComponents.find(
-    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+    (c) => c.shape.toLowerCase() === shape.toLowerCase(),
   );
 
   return (
@@ -353,7 +383,7 @@ export const MakeShapeSeeAlso: React.FC<{
   shape: string;
 }> = ({ shape }) => {
   const shapeComponent = shapeComponents.find(
-    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+    (c) => c.shape.toLowerCase() === shape.toLowerCase(),
   );
 
   return (
@@ -383,7 +413,7 @@ export const ShapeSeeAlso: React.FC<{
   shape: string;
 }> = ({ shape }) => {
   const shapeComponent = shapeComponents.find(
-    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+    (c) => c.shape.toLowerCase() === shape.toLowerCase(),
   );
 
   return (

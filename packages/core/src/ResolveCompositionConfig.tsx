@@ -11,10 +11,13 @@ import {
 } from 'react';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
-import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
 type ResolveCompositionConfigContect = Record<
@@ -43,6 +46,10 @@ type VideoConfigState =
 			error: Error;
 	  };
 
+export const needsResolution = (composition: AnyComposition) => {
+	return Boolean(composition.calculateMetadata);
+};
+
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
@@ -50,10 +57,13 @@ export const ResolveCompositionConfig: React.FC<
 > = ({children}) => {
 	const [currentRenderModalComposition, setCurrentRenderModalComposition] =
 		useState<string | null>(null);
-	const {compositions, currentComposition, currentCompositionMetadata} =
+	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
 	const selectedComposition = compositions.find(
-		(c) => c.id === currentComposition,
+		(c) =>
+			canvasContent &&
+			canvasContent.type === 'composition' &&
+			canvasContent.compositionId === c.id,
 	);
 	const renderModalComposition = compositions.find(
 		(c) => c.id === currentRenderModalComposition,
@@ -146,6 +156,9 @@ export const ResolveCompositionConfig: React.FC<
 		[currentCompositionMetadata],
 	);
 
+	const currentComposition =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+
 	useImperativeHandle(
 		resolveCompositionsRef,
 		() => {
@@ -226,10 +239,6 @@ export const ResolveCompositionConfig: React.FC<
 	);
 };
 
-export const needsResolution = (composition: AnyComposition) => {
-	return Boolean(composition.calculateMetadata);
-};
-
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
@@ -238,8 +247,10 @@ export const useResolvedVideoConfig = (
 	) as ResolveCompositionConfigContect;
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
-	const {compositions, currentComposition, currentCompositionMetadata} =
+	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
+	const currentComposition =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
 
@@ -260,11 +271,31 @@ export const useResolvedVideoConfig = (
 					id: composition.id,
 					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
+					defaultCodec: currentCompositionMetadata.defaultCodec,
 				},
 			};
 		}
 
 		if (!needsResolution(composition)) {
+			validateDurationInFrames(composition.durationInFrames, {
+				allowFloats: false,
+				component: `in <Composition id="${composition.id}">`,
+			});
+			validateFps(
+				composition.fps,
+				`in <Composition id="${composition.id}">`,
+				false,
+			);
+			validateDimension(
+				composition.width,
+				'width',
+				`in <Composition id="${composition.id}">`,
+			);
+			validateDimension(
+				composition.height,
+				'height',
+				`in <Composition id="${composition.id}">`,
+			);
 			return {
 				type: 'success',
 				result: {
@@ -282,6 +313,7 @@ export const useResolvedVideoConfig = (
 							? {}
 							: getInputProps() ?? {}),
 					},
+					defaultCodec: null,
 				},
 			};
 		}

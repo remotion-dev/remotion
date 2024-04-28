@@ -1,10 +1,10 @@
 {
   "name": "@remotion/discord-poster",
-  "version": "4.0.37",
+  "version": "4.0.148",
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
-    "discord": "ts-node src/post.ts"
+    "discord": "bun src/post.ts"
   },
   "private": true,
   "devDependencies": {

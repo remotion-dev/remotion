@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-using-fonts.png
 title: Using fonts
+sidebar_label: Fonts
 id: fonts
 crumb: "Techniques"
 ---
@@ -55,7 +56,7 @@ import { continueRender, delayRender, staticFile } from "remotion";
 const waitForFont = delayRender();
 const font = new FontFace(
   `Bangers`,
-  `url('${staticFile("bangers.woff2")}') format('woff2')`
+  `url('${staticFile("bangers.woff2")}') format('woff2')`,
 );
 
 font

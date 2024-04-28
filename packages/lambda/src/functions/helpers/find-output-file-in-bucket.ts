@@ -30,7 +30,7 @@ export const findOutputFileInBucket = async ({
 	const {renderBucketName, key} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		null,
+		customCredentials,
 	);
 
 	try {
@@ -38,6 +38,7 @@ export const findOutputFileInBucket = async ({
 			bucketName,
 			key,
 			region,
+			customCredentials,
 		});
 		return {
 			lastModified: head.LastModified?.getTime() as number,
@@ -46,7 +47,7 @@ export const findOutputFileInBucket = async ({
 				renderMetadata,
 				bucketName,
 				customCredentials,
-			),
+			).url,
 		};
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {

@@ -1,20 +1,15 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
-import {
-	getDefaultAudioCodec,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
+import {callFf} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
-import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
+import {checkRuntimeVersion} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
-import {combineVideos} from './combine-videos';
+import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {copyImageToClipboard} from './copy-to-clipboard';
@@ -36,7 +31,6 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -44,16 +38,21 @@ import {
 	validStillImageFormats,
 	validVideoImageFormats,
 } from './image-format';
-import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
+import {INDENT_TOKEN, Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser, killAllBrowsers} from './open-browser';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	validOpenGlRenderers,
+	validateOpenGlRenderer,
+} from './options/gl';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {getPortConfig, isIpV6Supported} from './port-config';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderFrames} from './render-frames';
 import {internalRenderMedia} from './render-media';
@@ -61,6 +60,7 @@ import {internalRenderStill} from './render-still';
 import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
+import {getChromiumGpuInformation} from './test-gpu';
 import {tmpDir} from './tmp-dir';
 import {
 	getMaxConcurrency,
@@ -68,11 +68,83 @@ import {
 	validateConcurrency,
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+export {Browser} from './browser';
+export {BrowserExecutable} from './browser-executable';
+export {BrowserLog} from './browser-log';
+export type {HeadlessBrowser} from './browser/Browser';
+export {Codec, CodecOrUndefined} from './codec';
+export {Crf} from './crf';
+export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
+export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export {extractAudio} from './extract-audio';
+export type {FfmpegOverrideFn} from './ffmpeg-override';
+export {FileExtension} from './file-extensions';
+export {FrameRange} from './frame-range';
+export {GetCompositionsOptions, getCompositions} from './get-compositions';
+export {SilentPart, getSilentParts} from './get-silent-parts';
+export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
+export {
+	ImageFormat,
+	StillImageFormat,
+	VideoImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
+} from './image-format';
+export type {LogLevel} from './log-level';
+export {LogOptions} from './logger';
+export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
+export {openBrowser} from './open-browser';
+export type {ChromiumOptions} from './open-browser';
+export {ColorSpace} from './options/color-space';
+export {DeleteAfter} from './options/delete-after';
+export {OpenGlRenderer} from './options/gl';
+export {NumberOfGifLoops} from './options/number-of-gif-loops';
+export {
+	DownloadBrowserProgressFn,
+	OnBrowserDownload,
+} from './options/on-browser-download';
+export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
+export {X264Preset} from './options/x264-preset';
+export {PixelFormat} from './pixel-format';
+export {RemotionServer} from './prepare-server';
+export {ProResProfile} from './prores-profile';
+export {RenderFramesOptions, renderFrames} from './render-frames';
+export {
+	InternalRenderMediaOptions,
+	RenderMediaOnProgress,
+	RenderMediaOptions,
+	SlowFrame,
+	StitchingState,
+	renderMedia,
+} from './render-media';
+export {RenderStillOptions, renderStill} from './render-still';
+export {
+	SelectCompositionOptions,
+	selectComposition,
+} from './select-composition';
+export {
+	StitchFramesToVideoOptions,
+	stitchFramesToVideo,
+} from './stitch-frames-to-video';
+export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
+export {OnStartData, RenderFramesOutput} from './types';
+export {validateOutputFilename} from './validate-output-filename';
+export type {AudioCodec};
+
+import {makeDownloadMap} from './assets/download-map';
+import {codecSupportsMedia} from './codec-supports-media';
+import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {internalEnsureBrowser} from './ensure-browser';
+import type {AudioCodec} from './options/audio-codec';
 import {
-	DEFAULT_OPENGL_RENDERER,
-	validateOpenGlRenderer,
-	validOpenGlRenderers,
-} from './validate-opengl-renderer';
+	getDefaultAudioCodec,
+	getExtensionFromAudioCodec,
+	isAudioCodec,
+	resolveAudioCodec,
+	supportedAudioCodecs,
+} from './options/audio-codec';
+import {getShouldRenderAudio} from './render-has-audio';
+import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
 import {
@@ -80,62 +152,7 @@ import {
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
 
-export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-export {AudioCodec} from './audio-codec';
-export {Browser} from './browser';
-export {BrowserExecutable} from './browser-executable';
-export {BrowserLog} from './browser-log';
-export type {HeadlessBrowser} from './browser/Browser';
-export {Codec, CodecOrUndefined} from './codec';
-export {Crf} from './crf';
-export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
-export type {FfmpegOverrideFn} from './ffmpeg-override';
-export {FileExtension} from './file-extensions';
-export {FrameRange} from './frame-range';
-export {getCompositions, GetCompositionsOptions} from './get-compositions';
-export {getSilentParts} from './get-silent-parts';
-export {getVideoMetadata} from './get-video-metadata';
-export {
-	ImageFormat,
-	StillImageFormat,
-	validateSelectedPixelFormatAndImageFormatCombination,
-	VideoImageFormat,
-} from './image-format';
-export type {LogLevel} from './log-level';
-export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
-export {openBrowser} from './open-browser';
-export type {ChromiumOptions} from './open-browser';
-export {ColorSpace} from './options/color-space';
-export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
-export {PixelFormat} from './pixel-format';
-export {RemotionServer} from './prepare-server';
-export {ProResProfile} from './prores-profile';
-export {renderFrames, RenderFramesOptions} from './render-frames';
-export {
-	InternalRenderMediaOptions,
-	renderMedia,
-	RenderMediaOnProgress,
-	RenderMediaOptions,
-	SlowFrame,
-	StitchingState,
-} from './render-media';
-export {renderStill, RenderStillOptions} from './render-still';
-export {
-	selectComposition,
-	SelectCompositionOptions,
-} from './select-composition';
-export {
-	stitchFramesToVideo,
-	StitchFramesToVideoOptions,
-} from './stitch-frames-to-video';
-export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
-export {OnStartData, RenderFramesOutput} from './types';
-export {OpenGlRenderer} from './validate-opengl-renderer';
-export {validateOutputFilename} from './validate-output-filename';
-export {X264Preset} from './x264-preset';
-
 export const RenderInternals = {
-	ensureLocalBrowser,
 	getActualConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
@@ -180,18 +197,16 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
-	combineVideos,
+	combineChunks,
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,
-	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
 	makeFileExtensionMap,
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -199,8 +214,6 @@ export const RenderInternals = {
 	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
-	getLogLevel,
-	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
 	HeadlessBrowser,
@@ -214,7 +227,18 @@ export const RenderInternals = {
 	internalRenderMedia,
 	validOpenGlRenderers,
 	copyImageToClipboard,
+	isIpV6Supported,
+	getChromiumGpuInformation,
+	getPortConfig,
+	makeDownloadMap,
+	getExtensionFromAudioCodec,
+	makeFileExecutableIfItIsNot,
+	resolveAudioCodec,
+	getShouldRenderAudio,
+	codecSupportsMedia,
+	toMegabytes,
+	internalEnsureBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-checkNodeVersionAndWarnAboutRosetta();
+checkRuntimeVersion('info', false);

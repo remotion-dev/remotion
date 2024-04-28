@@ -16,36 +16,6 @@ export type Expert = {
 
 export const experts: Expert[] = [
   {
-    slug: "marcus-stenbeck",
-    name: "Marcus Stenbeck",
-    image: "/img/freelancers/marcus.jpeg",
-    x: "marcusstenbeck",
-    github: "marcusstenbeck",
-    linkedin: "in/mstenbeck/",
-    email: "marcus.stenbeck+remotionexpert@gmail.com",
-    videocall: null,
-    since: new Date("2022-08-15").getTime(),
-    description: (
-      <div>
-        <p>
-          Creator of{" "}
-          <a
-            target={"_blank"}
-            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
-          >
-            Remotion{"'"}s Audiogram template
-          </a>
-          <br />I make templates, libraries and educational content at{" "}
-          <a target={"_blank"} href="https://remotionkit.com">
-            remotionkit.com
-          </a>
-          {"."}
-        </p>
-      </div>
-    ),
-    website: null,
-  },
-  {
     slug: "florent-pergoud",
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
@@ -174,20 +144,28 @@ export const experts: Expert[] = [
     slug: "karel-nagel",
     name: "Karel Nagel",
     image: "/img/freelancers/karel.jpeg",
-    website: null,
-    x: null,
+    website: "https://asius.ai/",
+    x: "AsiusAI",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
     since: new Date("2022-08-22").getTime(),
-    email: "karel@asius.ee",
+    email: "karel@asius.ai",
     videocall: null,
     description: (
       <div>
-        I made:{" "}
-        <a target={"_blank"} href="https://asius.ee/">
-          TikTok automation, ENS video
+        I have created Remotion videos for many companies and helped them with
+        deployment, some examples are visible{" "}
+        <a target={"_blank"} href="https://asius.ai/#portfolio">
+          here
+        </a>
+        . Additionally, I am the creator of the{" "}
+        <a target={"_blank"} href="https://github.com/karelnagel/remotion-sst">
+          remotion-sst
         </a>{" "}
-        and many more!
+        package, which simplifies the deployment of Remotion Lambda to AWS using
+        SST.
+        <br />I am available for contract opportunities in Remotion projects and
+        web development.
       </div>
     ),
   },
@@ -217,7 +195,7 @@ export const experts: Expert[] = [
     x: null,
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
-    email: "m.mcgillivray@outlook.com",
+    email: "mm@mattm9y.com",
     videocall: "remotion-expert-matt-mcgillivray",
     since: new Date("2023-01-30").getTime(),
     description: (
@@ -389,11 +367,15 @@ export const experts: Expert[] = [
     since: new Date("2023-07-03").getTime(),
     description: (
       <div>
-        I&apos;ve built{" "}
+        Launched apps that combine Remotion & AI for generative video -{" "}
+        <a target={"_blank"} href="https://maxroom.co/">
+          MaxRoom
+        </a>{" "}
+        and{" "}
         <a target={"_blank"} href="https://swiftube.vercel.app/">
           Swiftube
-        </a>{" "}
-        - an AI-based Video Making tool.
+        </a>
+        .
         <br />
         Looking at leveraging the power of Remotion for your projects?
         Let&apos;s join forces!
@@ -421,6 +403,65 @@ export const experts: Expert[] = [
         an AI video editor for short talking head videos. I have worked in
         companies like Microsoft and early-stage startups like Directi. I can
         build products super fast from scratch. Looking forward to helping you.
+      </div>
+    ),
+  },
+  {
+    slug: "pramod-kumar",
+    name: "Pramod Kumar",
+    image: "/img/freelancers/pramod.jpg",
+    website: "https://www.pramod73.in/",
+    x: "pramodk73",
+    github: "pskd73",
+    linkedin: "in/pramod-kumar-1a135b74/",
+    email: "pramodkumar.damam73@gmail.com",
+    videocall: "remotion-expert-pramod-kumar",
+    since: new Date("2024-03-10").getTime(),
+    description: (
+      <div>
+        I have been building software for the last 10 years across multiple
+        technologies with strong software architecture skills. I have built two
+        products that are based on Remotion.{" "}
+        <a target={"_blank"} href="https://slickwid.com">
+          SlickWid
+        </a>{" "}
+        a quick way to make videos for your social media, and{" "}
+        <a target={"_blank"} href="https://motionshot.app">
+          MotionShot
+        </a>{" "}
+        through which you can make informative walkthrough guides for your
+        products, tutorials, and how-tos. <br />I made{" "}
+        <a
+          target={"_blank"}
+          href="https://github.com/pskd73/remotion-animate-text"
+        >
+          remotion-animate-text
+        </a>{" "}
+        for Remotion to animate text. I build products in public on X. I love
+        helping the community. Feel free to reach out. Looking forward!
+      </div>
+    ),
+  },
+  {
+    slug: "ayush-soni",
+    name: "Ayush Soni",
+    image: "/img/freelancers/ayush.png",
+    website: "https://ayushsoni.com/",
+    x: "ayysoni",
+    github: null,
+    linkedin: "in/ayushsoni1001/",
+    email: "hi@ayushsoni.com",
+    videocall: "remotion-expert-ayush-soni",
+    since: new Date("2024-03-17").getTime(),
+    description: (
+      <div>
+        I’ve been coding and building cool projects since 5th grade (software
+        and hardware both) across multiple technologies. Currently I’m building{" "}
+        <a target={"_blank"} href="https://www.typeframes.com/">
+          Typeframes
+        </a>{" "}
+        using Remotion, it is a tool to create videos. I build products in
+        public on X. I’d love to hear your story.
       </div>
     ),
   },

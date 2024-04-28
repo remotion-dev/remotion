@@ -19,6 +19,10 @@ export const allowESLintShareableConfig = () => {
     "code" in ex &&
     (ex as { code: unknown }).code === "MODULE_NOT_FOUND";
 
+  // error: "The argument 'filename' must be a file URL object, file URL string, or absolute path string. Received ''"
+  const isInvalidImporterPath: (ex: unknown) => boolean = (ex) =>
+    (ex as { code: unknown } | undefined)?.code === "ERR_INVALID_ARG_VALUE";
+
   // Module path for eslintrc.cjs
   // Example: ".../@eslint/eslintrc/dist/eslintrc.cjs"
   let eslintrcBundlePath: string | undefined = undefined;
@@ -250,8 +254,15 @@ export const allowESLintShareableConfig = () => {
             moduleName: string,
             _relativeToPath: string
           ) {
-            // resolve using importerPath instead of relativeToPath
-            return originalResolve.call(this, moduleName, importerPath);
+            try {
+              // resolve using importerPath instead of relativeToPath
+              return originalResolve.call(this, moduleName, importerPath);
+            } catch (e) {
+              if (isModuleResolutionError(e) || isInvalidImporterPath(e)) {
+                return originalResolve.call(this, moduleName, _relativeToPath);
+              }
+              throw e;
+            }
           };
           return originalLoadPlugin.apply(this, arguments);
         } finally {
@@ -270,8 +281,15 @@ export const allowESLintShareableConfig = () => {
             moduleName: string,
             _relativeToPath: string
           ) {
-            // resolve using ctx.filePath instead of relativeToPath
-            return originalResolve.call(this, moduleName, ctx.filePath);
+            try {
+              // resolve using ctx.filePath instead of relativeToPath
+              return originalResolve.call(this, moduleName, ctx.filePath);
+            } catch (e) {
+              if (isModuleResolutionError(e) || isInvalidImporterPath(e)) {
+                return originalResolve.call(this, moduleName, _relativeToPath);
+              }
+              throw e;
+            }
           };
           return originalLoadPlugin.apply(this, arguments);
         } finally {

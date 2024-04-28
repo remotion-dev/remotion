@@ -6,18 +6,58 @@ import { filteredFonts } from "./filtered-fonts";
 
 const OUTDIR = "./src";
 
+const typesInfo = `
+type Variants = Record<
+  string,
+  {
+    weights: string;
+    subsets: string;
+  }
+>;
+
+export type FontInfo = {
+  fontFamily: string;
+  importName: string;
+  version: string;
+  url: string;
+  unicodeRanges: Record<string, string>;
+  fonts: Record<string, Record<string, Record<string, string>>>;
+}
+
+export type GoogleFont = {
+  getInfo: () => FontInfo;
+  fontFamily: string;
+  loadFont: <T extends keyof Variants>(
+    style?: T | undefined,
+    options?:
+      | {
+          weights?: Variants[T]["weights"][] | undefined;
+          subsets?: Variants[T]["subsets"][] | undefined;
+          document?: Document | undefined;
+        }
+      | undefined
+  ) => {
+    fontFamily: string;
+    fonts: Record<string, Record<string, Record<string, string>>>;
+    unicodeRanges: Record<string, string>;
+  };
+};
+`;
+
 const generate = async () => {
   // Prepare filename
   const filename = `index.ts`;
 
   console.log(`- Generating ${filename}`);
-  let output = `export const getAvailableFonts = () => ${JSON.stringify(
+  let output = `${typesInfo}
+  
+  export const getAvailableFonts = () => ${JSON.stringify(
     filteredFonts.map((f) => {
       const importName = removeWhitespace(unquote(f.family));
       return {
         fontFamily: unquote(f.family),
         importName,
-        load: `() => import('./${importName}')`,
+        load: `() => import('./${importName}') as Promise<GoogleFont>`,
       };
     })
   )};`.replace(/\"\(\)\s\=\>\s(.*?)\"/g, (e) => {
@@ -43,7 +83,7 @@ const generate = async () => {
     if (!read.typesVersions) read.typesVersions = {};
     if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
     read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
-      `dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
+      `dist/cjs/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
   }
 

@@ -5,6 +5,7 @@ import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
 import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {getPortConfig} from './port-config';
 import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
@@ -17,6 +18,8 @@ export const serveStatic = async (
 		logLevel: LogLevel;
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
+		binariesDirectory: string | null;
+		forceIPv4: boolean;
 	},
 ): Promise<{
 	port: number;
@@ -33,6 +36,7 @@ export const serveStatic = async (
 		logLevel: options.logLevel,
 		indent: options.indent,
 		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: options.binariesDirectory,
 	});
 
 	const connections: Record<string, Socket> = {};
@@ -70,21 +74,35 @@ export const serveStatic = async (
 	let selectedPort: number | null = null;
 
 	const maxTries = 5;
+
+	const portConfig = getPortConfig(options.forceIPv4);
+
 	for (let i = 0; i < maxTries; i++) {
+		let unlock = () => {};
 		try {
 			selectedPort = await new Promise<number>((resolve, reject) => {
-				getDesiredPort(options?.port ?? undefined, 3000, 3100)
-					.then(({port, didUsePort}) => {
-						server.listen(port);
+				getDesiredPort({
+					desiredPort: options?.port ?? undefined,
+					from: 3000,
+					to: 3100,
+					hostsToTry: portConfig.hostsToTry,
+				})
+					.then(({port, unlockPort}) => {
+						unlock = unlockPort;
+						server.listen({port, host: portConfig.host});
 						server.on('listening', () => {
 							resolve(port);
-							return didUsePort();
+							return unlock();
 						});
 						server.on('error', (err) => {
+							unlock();
 							reject(err);
 						});
 					})
-					.catch((err) => reject(err));
+					.catch((err) => {
+						unlock();
+						return reject(err);
+					});
 			});
 			const destroyConnections = function () {
 				for (const key in connections) connections[key].destroy();
@@ -92,12 +110,16 @@ export const serveStatic = async (
 
 			const close = async () => {
 				await Promise.all([
-					new Promise<void>((resolve) => {
+					new Promise<void>((resolve, reject) => {
 						// compositor may have already quit before,
 						// this is okay as we are in cleanup phase
-						closeCompositor().finally(() => {
-							resolve();
-						});
+						closeCompositor()
+							.catch((err) => {
+								reject(err);
+							})
+							.finally(() => {
+								resolve();
+							});
 					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();

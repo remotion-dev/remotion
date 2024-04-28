@@ -45,15 +45,6 @@ export const V4Countdown: React.FC<{
 
   const targetUnixTimeStamp = 1688403600;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentCountdown = getUpdatedCountdown();
-      setCountdown(currentCountdown);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [countdown]);
-
   const getUpdatedCountdown = (): [string, string, string, string] => {
     const currentUnixTime = Math.floor(Date.now() / 1000);
 
@@ -76,6 +67,15 @@ export const V4Countdown: React.FC<{
 
     return [strDays, strHours, strMinutes, strSeconds];
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentCountdown = getUpdatedCountdown();
+      setCountdown(currentCountdown);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [countdown]);
 
   if (Math.floor(Date.now() / 1000) > targetUnixTimeStamp) {
     setShowCountdown(false);

@@ -1,0 +1,69 @@
+{
+	"name": "@remotion/studio",
+	"version": "4.0.148",
+	"description": "Remotion Editor",
+	"main": "dist",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"build": "bun bundle.ts",
+		"test": "bun test src",
+		"formatting": "prettier src --check"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"semver": "7.5.3",
+		"remotion": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/media-utils": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
+		"memfs": "3.4.3",
+		"source-map": "0.7.3",
+		"open": "^8.4.2"
+	},
+	"devDependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"@jonny/eslint-config": "3.0.281",
+		"@types/node": "18.14.6",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
+		"eslint": "8.56.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.32.2",
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier": "3.2.5",
+		"@types/semver": "^7.3.4",
+		"prettier-plugin-organize-imports": "3.2.4",
+		"zod": "3.22.3",
+		"@remotion/zod-types": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./entry": "./dist/previewEntry.js",
+		"./internals": {
+			"types": "./dist/internals.d.ts",
+			"module": "./dist/esm/internals.mjs",
+			"import": "./dist/esm/internals.mjs",
+			"require": "./dist/internals.js"
+		}
+	}
+}

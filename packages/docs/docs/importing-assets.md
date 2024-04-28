@@ -2,6 +2,7 @@
 image: /generated/articles-docs-importing-assets.png
 id: assets
 title: Importing assets
+sidebar_label: Assets
 crumb: "How To"
 ---
 
@@ -184,3 +185,38 @@ Prefer importing using [`staticFile()`](/docs/staticfile) if possible.
 ## Dynamic duration based on assets
 
 To make your videos duration dependent based on your assets, see: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)
+
+## Files outside of the project
+
+Remotion runs in the browser, so it does not have access to arbitrary files on your computer.  
+It is also not possible to use the `fs` module from Node.js in the browser.  
+Instead, put assets in the `public/` folder and use [`getStaticFiles()`](/docs/getstaticfiles) to enumerate them.
+
+See [why does Remotion does not support absolute paths](/docs/miscellaneous/absolute-paths).
+
+## Adding assets after bundling
+
+Before rendering, the code gets bundled using Webpack, and only bundled assets can be accessed afterwards.  
+For this reason, assets that are being added to the public folder after [`bundle()`](/docs/bundle) is called will not be accessible during render.  
+However, if you use the [server-side rendering APIs](/docs/ssr-node), you can add assets to the `public` folder that is inside the bundle after the fact.
+
+## Use `<Img>`, `<Video>` and `<Audio>`
+
+**Prefer [`<Img />`](/docs/img) or [`<Gif />`](/docs/gif)** over the native `<img>` tag, `<Image>` from Next.js and CSS `background-image`.  
+**Prefer [`<OffthreadVideo />`](/docs/offthreadvideo) or [`<Video />`](/docs/video)** over the native `<video>` tag.  
+**Prefer [`<Audio />`](/docs/audio)** over the native `<audio>` tag.  
+**Prefer [`<IFrame />`](/docs/iframe)** over the native `<iframe>` tag.
+
+<br/>
+
+By using the components from Remotion, you ensure that:
+
+<Step>1</Step> The assets are fully loaded before the the frame is rendered<br/>
+<Step>2</Step> The images and videos are synchronized with Remotion's timeline.
+
+## See also
+
+- [staticFile()](/docs/staticfile)
+- [getStaticFiles()](/docs/getstaticfiles)
+- [watchStaticFile()](/docs/watchstaticfile)
+- [Why Remotion does not support absolute paths](/docs/miscellaneous/absolute-paths)

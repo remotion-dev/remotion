@@ -1,8 +1,8 @@
 import React from "react";
 import { BlueButton } from "../../components/layout/Button";
 import { Spacer } from "../../components/layout/Spacer";
-import { EmailLogo, GitHubLogo, LinkedInLogo, TwitterLogo } from "./icons";
 import TeamCardsCSS from "./TeamCardsCSS.module.css";
+import { EmailLogo, GitHubLogo, LinkedInLogo, TwitterLogo } from "./icons";
 
 const ButtonMailto = ({ mailto, label }) => {
   return <a href={mailto}>{label}</a>;

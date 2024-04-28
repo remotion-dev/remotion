@@ -8,6 +8,17 @@ export type LottieAnimationData = {
 	op: number;
 } & Record<string | number | symbol, unknown>;
 
+export type AspectRatioConstraint =
+	| 'none'
+	| 'xMinYMin'
+	| 'xMidYMin'
+	| 'xMaxYMin'
+	| 'xMinYMid'
+	| 'xMidYMid'
+	| 'xMaxYMid'
+	| 'xMinYMax'
+	| 'xMidYMax';
+
 export type LottieProps = {
 	/**
 	 * JSON object with the animation data.
@@ -33,6 +44,21 @@ export type LottieProps = {
 	 * CSS properties to apply to the container of the animation.
 	 */
 	style?: CSSProperties;
+	/**
+	 * The render engine of the Lotti files.
+	 */
+	renderer?: 'svg' | 'canvas' | 'html';
+	/**
+	 * for svg and canvas renderer it simulates the behavior of the preserveAspectRatio property on svgs.
+	 * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio
+	 */
+
+	preserveAspectRatio?:
+		| AspectRatioConstraint
+		| `${AspectRatioConstraint} ${'slice' | 'meet'}`;
+
+	assetsPath?: string;
+
 	/**
 	 * Callback that gets invoked when new animation data has been initialized
 	 */

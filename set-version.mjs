@@ -27,7 +27,7 @@ const dirs = readdirSync("packages")
     existsSync(path.join(process.cwd(), "packages", dir, "package.json"))
   );
 
-for (const dir of dirs) {
+for (const dir of [path.join("cloudrun", "container"), ...dirs]) {
   const packageJsonPath = path.join(
     process.cwd(),
     "packages",
@@ -39,7 +39,7 @@ for (const dir of dirs) {
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
   try {
     console.log("setting version for", dir);
-    execSync("pnpm exec prettier --write package.json", {
+    execSync("bunx prettier --write package.json", {
       cwd: path.join(process.cwd(), "packages", dir),
     });
   } catch (e) {
@@ -47,17 +47,22 @@ for (const dir of dirs) {
   }
 }
 
-execSync("node ensure-correct-version.js", {
+execSync("bun ensure-correct-version.ts", {
   cwd: "packages/core",
 });
 
-execSync("pnpm exec vitest src/monorepo --run", {
+execSync("bunx vitest src/monorepo --run", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });
 
 execSync("node build.mjs --all", {
   cwd: "packages/renderer",
+  stdio: "inherit",
+});
+
+execSync("pnpm build", {
+  cwd: "packages/cloudrun",
   stdio: "inherit",
 });
 

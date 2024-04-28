@@ -1,12 +1,12 @@
 import type {Codec} from './codec';
-import {isAudioCodec} from './is-audio-codec';
+import {isAudioCodec} from './options/audio-codec';
 
 export const getCodecName = (codec: Codec): string | null => {
 	if (isAudioCodec(codec)) {
 		return null;
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts') {
 		return 'libx264';
 	}
 

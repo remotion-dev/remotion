@@ -5,8 +5,6 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
-import { YouTube } from "../components/YouTube";
-
 <YouTube
   minutes={11}
   href="https://youtu.be/dQyPUasZY7I"
@@ -20,11 +18,11 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
 ## When should I use it?
 
-- You are rendering less than 1 hour of video per minute. <sub>([AWS Lambda Concurrency Limit / Burst Limit constraint](/docs/lambda/troubleshooting/rate-limit))</sub>
-- Your videos are less than 2 hours long. <sub>([AWS Lambda storage constraint](/docs/lambda/disk-size))</sub>
+- Your videos are less than 30 minutes long at Full HD. <sub>approximately until the 15min AWS Timeout limit is hit</sub>
+- You stay within the ([AWS Lambda Concurrency Limit](/docs/lambda/troubleshooting/rate-limit)) or you are requesting an [increase from AWS](/docs/lambda/troubleshooting/rate-limit).
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 
-If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
+If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr) or consider using [Cloud Run](/docs/cloudrun).
 
 ## How it works
 
@@ -58,7 +56,6 @@ The following regions are available for Remotion Lambda:
 
 - You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the separated chunks and the concatenated output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
 - [Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased](/docs/lambda/troubleshooting/rate-limit).
-- Lambda has a [burst limit of as low as 500](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html) (depending per region) functions that can be spawned in a short amount of time. If you render a lot of videos, you must slowly build up invocations rather than trigger them all at once.
 
 ## Cost
 
@@ -84,7 +81,7 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Se
 
 The standard Remotion license applies. https://github.com/remotion-dev/remotion/blob/main/LICENSE.md
 
-Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://companies.remotion.dev/
+Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://remotion.pro
 
 ## Uninstalling
 

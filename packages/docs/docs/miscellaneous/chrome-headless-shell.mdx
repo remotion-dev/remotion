@@ -1,0 +1,94 @@
+---
+image: /generated/articles-docs-miscellaneous-chrome-headless-shell.png
+sidebar_label: Chrome Headless Shell
+title: Chrome Headless Shell
+crumb: "FAQ"
+---
+
+# Chrome Headless Shell<AvailableFrom v="4.0.137"/>
+
+Remotion will download [Chrome Headless Shell](https://developer.chrome.com/blog/chrome-headless-shell) if no local browser can be found and an API for rendering videos is used.
+
+## Supported platforms
+
+The following platforms are supported:
+
+- Linux (x64)
+- Windows (x64)
+- macOS (x64 and arm64)
+
+:::note
+[Remotion Lambda](/docs/lambda) is also support despite being arm64 on Linux.
+:::
+
+## Ensure a local browser is found
+
+Use [`ensureBrowser()`](/docs/renderer/ensure-browser) or [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure a local browser is found.  
+This function will download Chrome Headless Shell if no local browser is found.
+
+## Bring your own binary
+
+If you don't want Chrome Headless Shell to get installed or your platform is not supported, you need to specify your own Chromium-based browser:
+
+- Using the [`setBrowserExecutable()`](/docs/config#setbrowserexecutable) option in the config file (for the CLI)
+- Using the [`browserExecutable`](/docs/renderer/render-media) option in [`renderMedia()`](/docs/renderer/render-media) and other SSR APIs
+
+In [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), a version of Chrome is already installed, so you don't need to do anything.
+
+:::note
+In a future version of Chrome, headless mode in the desktop browser will stop being supported and you will need to use the Chrome Headless Shell.
+:::
+
+## Download location
+
+Chrome Headless Shell will download to
+
+```
+node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[platform]
+```
+
+`platform` can be one of `mac-arm64`, `mac-x64`, `linux64` or `win64`.
+
+At this path, a folder with the necessary files will be created.  
+An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Windows) will be created.
+
+## Chrome vs. Chrome Headless Shell
+
+Chrome used to ship with a `--headless` flag, which Remotion would use.
+
+As of Chrome 123, the headless mode is split up into:
+
+- `--headless=old`, which is ideal for screenshotting (and therefore Remotion)
+- `--headless=new`, which is ideal for browser testing
+
+`--headless=old` will stop working in a future version of Chrome.  
+The old headless mode is being extracted into "Chrome Headless Shell".
+
+Hence we encourage you to use Chrome Headless Shell to future-proof your Remotion application.
+
+## Chrome vs. Chromium
+
+Chromium is the open-source project that Chrome is based on. Some versions of Chromium don't the necessary codecs for the [`<Video >`](/docs/video) tag as well as for functions in [`@remotion/media-utils`](/docs/media-utils).
+
+This is why we recommend Chrome over Chromium.
+
+## Changes in Remotion v5.0
+
+Remotion 5.0 will not recognize your regular Chrome browser anymore.  
+You will need to use Chrome Headless Shell, because Chrome is [discontinuing the `--headless=old`](#chrome-vs-chrome-headless-shell) mode.
+
+## Thorium (v4.0.18 - v4.0.135)
+
+In these versions, if no local browser can be found, an instance of [Thorium](https://thorium.rocks/) is downloaded.
+
+Thorium is a free and open-source browser forked off Chromium, which includes the codecs needed to render videos.
+
+## Chromium (before v4.0.18)
+
+In previous versions, Remotion would download the free version of Chromium, which would not include codecs for the proprietary H.264 and H.265 codecs.
+This would often lead to problems when using the [`<Video>`](/docs/video) tag.
+
+## See also
+
+- [`ensureBrowser()`](/docs/renderer/ensure-browser)
+- [Media playback error](/docs/media-playback-error)

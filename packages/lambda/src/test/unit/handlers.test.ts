@@ -5,7 +5,9 @@ import {LambdaRoutines} from '../../shared/constants';
 test('Info handler should return version', async () => {
 	const response = await callLambda({
 		type: LambdaRoutines.info,
-		payload: {},
+		payload: {
+			logLevel: 'info',
+		},
 		functionName: 'remotion-dev-lambda',
 		onMessage: () => undefined,
 		region: 'us-east-1',

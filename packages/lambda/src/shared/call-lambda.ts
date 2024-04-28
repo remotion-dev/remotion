@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
 import type {OnMessage} from '../functions/streaming/streaming';
@@ -16,6 +17,60 @@ type Options<T extends LambdaRoutines> = {
 	region: AwsRegion;
 	timeoutInTest: number;
 	onMessage: OnMessage;
+};
+
+const parseJsonWithErrorSurfacing = (input: string) => {
+	try {
+		return JSON.parse(input);
+	} catch {
+		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
+	}
+};
+
+const parseJson = <T extends LambdaRoutines>(input: string) => {
+	let json = parseJsonWithErrorSurfacing(input) as
+		| OrError<Awaited<LambdaReturnValues[T]>>
+		| {
+				errorType: string;
+				errorMessage: string;
+				trace: string[];
+		  }
+		| {
+				statusCode: string;
+				body: string;
+		  };
+
+	if ('statusCode' in json) {
+		json = parseJsonWithErrorSurfacing(json.body) as
+			| OrError<Awaited<LambdaReturnValues[T]>>
+			| {
+					errorType: string;
+					errorMessage: string;
+					trace: string[];
+			  };
+	}
+
+	if ('errorMessage' in json) {
+		const err = new Error(json.errorMessage);
+		err.name = json.errorType;
+		err.stack = (json.trace ?? []).join('\n');
+		throw err;
+	}
+
+	// This will not happen, it is for narrowing purposes
+	if ('statusCode' in json) {
+		throw new Error(
+			`Lambda function failed with status code ${json.statusCode}`,
+		);
+	}
+
+	if (json.type === 'error') {
+		const err = new Error(json.message);
+		err.stack = json.stack;
+		throw err;
+	}
+
+	return json;
 };
 
 export const callLambda = async <T extends LambdaRoutines>(
@@ -89,7 +144,9 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 				const logs = `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:logs-insights$3FqueryDetail$3D~(end~0~start~-3600~timeType~'RELATIVE~unit~'seconds~editorString~'fields*20*40timestamp*2c*20*40requestId*2c*20*40message*0a*7c*20filter*20*40requestId*20like*20*${res.$metadata.requestId}*22*0a*7c*20sort*20*40timestamp*20asc~source~(~'*2faws*2flambda*2f${functionName}))`;
 				if (event.InvokeComplete.ErrorCode === 'Unhandled') {
 					throw new Error(
-						`Lambda function ${functionName} failed with an unhandled error. See ${logs} to see the logs of this invocation.`,
+						`Lambda function ${functionName} failed with an unhandled error: ${
+							event.InvokeComplete.ErrorDetails as string
+						} See ${logs} to see the logs of this invocation.`,
 					);
 				}
 
@@ -101,60 +158,6 @@ const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
 	}
 
 	const json = parseJson<T>(responsePayload.trim());
-
-	return json;
-};
-
-const parseJsonWithErrorSurfacing = (input: string) => {
-	try {
-		return JSON.parse(input);
-	} catch {
-		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
-	}
-};
-
-const parseJson = <T extends LambdaRoutines>(input: string) => {
-	let json = parseJsonWithErrorSurfacing(input) as
-		| OrError<Awaited<LambdaReturnValues[T]>>
-		| {
-				errorType: string;
-				errorMessage: string;
-				trace: string[];
-		  }
-		| {
-				statusCode: string;
-				body: string;
-		  };
-
-	if ('statusCode' in json) {
-		json = parseJsonWithErrorSurfacing(json.body) as
-			| OrError<Awaited<LambdaReturnValues[T]>>
-			| {
-					errorType: string;
-					errorMessage: string;
-					trace: string[];
-			  };
-	}
-
-	if ('errorMessage' in json) {
-		const err = new Error(json.errorMessage);
-		err.name = json.errorType;
-		err.stack = (json.trace ?? []).join('\n');
-		throw err;
-	}
-
-	// This will not happen, it is for narrowing purposes
-	if ('statusCode' in json) {
-		throw new Error(
-			`Lambda function failed with status code ${json.statusCode}`,
-		);
-	}
-
-	if (json.type === 'error') {
-		const err = new Error(json.message);
-		err.stack = json.stack;
-		throw err;
-	}
 
 	return json;
 };

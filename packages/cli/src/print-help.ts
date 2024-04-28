@@ -1,92 +1,155 @@
+import type {LogLevel} from '@remotion/renderer';
+import {BROWSER_COMMAND} from './browser';
 import {chalk} from './chalk';
+import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
 
-const printFlags = (flags: [string, string][]) => {
-	flags.forEach(([flag, description]) => {
-		Log.info(chalk.blue(`${flag.padEnd(22, ' ')} ${description}`));
-	});
-};
+export const printHelp = (logLevel: LogLevel) => {
+	Log.info({indent: false, logLevel}, `@remotion/cli ${packagejson.version}`);
+	Log.info(
+		{indent: false, logLevel},
+		`© ${new Date().getFullYear()} Remotion AG`,
+	);
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available commands:');
 
-export const printHelp = () => {
+	Log.info({indent: false, logLevel});
 	Log.info(
-		`@remotion/cli ${
-			packagejson.version
-		} © ${new Date().getFullYear()} The Remotion developers`,
+		{indent: false, logLevel},
+		chalk.blue('remotion studio') + chalk.gray(' <entry-point.ts>'),
 	);
-	Log.info();
-	Log.info('Available commands:');
-	Log.info('');
-	Log.info('remotion studio <entry-point.ts>');
-	Log.info(chalk.gray('Start the Remotion studio.'));
-	printFlags([['--props', 'Pass input props as filename or as JSON']]);
-	Log.info();
-	Log.info('remotion render <entry-point.ts> <comp-id> <output-file.mp4>');
-	Log.info(chalk.gray('Render video, audio or an image sequence.'));
-	printFlags([
-		['--props', 'Pass input props as filename or as JSON'],
-		['--concurrency', 'How many frames to render in parallel'],
-		['--image-format', 'Format to render the video/still in'],
-		['--pixel-format', 'Custom pixel format, see docs for available values'],
-		['--config', 'Custom location for a Remotion config file'],
-		['--jpeg-quality', 'Quality for rendered frames, JPEG only, 0-100'],
-		['--overwrite', 'Overwrite if file exists, default true'],
-		['--sequence', 'Output as an image sequence'],
-		['--codec', 'Video of audio codec'],
-		['--audio-bitrate', 'Customize the output audio bitrate'],
-		['--video-bitrate', 'Customize the output video bitrate'],
-		['--crf', 'FFMPEG CRF value, controls quality, see docs for info'],
-		['--browser-executable', 'Custom path for browser executable'],
-		['--frames', 'Render a portion or a still of a video'],
-		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
-		['--log', 'Log level, "error", "warning", "verbose", "info" (default)'],
-		['--port', 'Custom port to use for the HTTP server'],
-		['--env-file', 'Specify a location for a dotenv file'],
-	]);
-	Log.info();
-	Log.info('remotion still <entry-point.ts> <comp-id> <still.png>');
-	Log.info(chalk.gray('Render a still frame and save it as an image.'));
-	printFlags([
-		['--frame', 'Which frame to render (default 0)'],
-		['--image-format', 'Format to render the video/still in'],
-		['--props', 'Pass input props as filename or as JSON'],
-		['--config', 'Custom location for a Remotion config file'],
-		['--jpeg-quality', 'Quality for rendered frames, JPEG only, 0-100'],
-		['--overwrite', 'Overwrite if file exists, default true'],
-		['--browser-executable', 'Custom path for browser executable'],
-		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
-		['--log', 'Log level, "error", "warning", "verbose", "info" (default)'],
-		['--port', 'Custom port to use for the HTTP server'],
-		['--env-file', 'Specify a location for a dotenv file'],
-	]);
-	Log.info();
-	Log.info('remotion compositions <index-file.ts>');
-	Log.info(chalk.gray('Prints the available compositions.'));
-	Log.info();
-	Log.info('remotion benchmark <index-file.ts> <list-of-compositions>');
+	Log.info({indent: false, logLevel}, 'Start the Remotion studio.');
 	Log.info(
-		chalk.gray(
-			'Benchmarks rendering a composition. Same options as for render.',
-		),
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/studio'),
 	);
-	Log.info();
-	Log.info('remotion ' + VERSIONS_COMMAND);
+
+	Log.info({indent: false, logLevel});
 	Log.info(
-		chalk.gray('Prints and validates versions of all Remotion packages.'),
+		{indent: false, logLevel},
+		chalk.blue('remotion render') +
+			chalk.gray(' <entry-point.ts> <comp-id> <output-file.mp4>'),
 	);
-	Log.info();
-	Log.info('remotion upgrade');
-	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
-	printFlags([
-		[
-			'--package-manager',
-			'Force a specific package manager, defaults to use from lockfile',
-		],
-	]);
-	Log.info();
 	Log.info(
+		{indent: false, logLevel},
+		'Render video, audio or an image sequence.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/render'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion still') +
+			chalk.gray(' <entry-point.ts> <comp-id> <still.png>'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Render a still frame and save it as an image.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/still'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion bundle') + chalk.gray(' <entry-point.ts>'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Create a Remotion bundle to be deployed to the web.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/bundle'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion compositions') + chalk.gray(' <index-file.ts>'),
+	);
+	Log.info({indent: false, logLevel}, 'Prints the available compositions.');
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/compositions'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion benchmark') +
+			chalk.gray(' <index-file.ts> <list-of-compositions>'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Benchmarks rendering a composition. Same options as for render.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/benchmark'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion ' + VERSIONS_COMMAND),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Prints and validates versions of all Remotion packages.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/versions'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion ' + GPU_COMMAND));
+	Log.info(
+		{indent: false, logLevel},
+		'Prints information about how Chrome uses the CPU.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/gpu'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion upgrade'));
+	Log.info(
+		{indent: false, logLevel},
+		'Ensure Remotion is on the newest version.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/upgrade'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue(`remotion ${BROWSER_COMMAND}`),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Ensure Remotion has a browser it can use for rendering.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/browser'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.',
 	);
 };

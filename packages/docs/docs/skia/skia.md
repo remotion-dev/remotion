@@ -79,7 +79,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
 :::
 
-Next, you need to refactor the [entry point](/docs/terminology#entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
+Next, you need to refactor the [entry point](/docs/terminology/entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
 
 ```ts twoslash title="src/index.ts"
 // @filename: ./Root.tsx
@@ -107,14 +107,22 @@ You can find the [starter template](https://github.com/remotion-dev/template-ski
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
 
 ```bash
 npx create-video --skia
+```
+
+  </TabItem>
+    <TabItem value="bun">
+
+```bash
+bun create video --skia
 ```
 
   </TabItem>

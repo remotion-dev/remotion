@@ -2,7 +2,7 @@ dist/test/**
 src
 .eslintrc
 tsconfig.tsbuildinfo
-vitest.config.ts
+vitest.config.mts
 *.tgz
 .turbo
 tsconfig.json

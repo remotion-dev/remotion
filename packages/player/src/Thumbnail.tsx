@@ -7,6 +7,7 @@ import type {
 import {
 	forwardRef,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -38,7 +39,7 @@ type ThumbnailProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <
+const ThumbnailFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >(
@@ -57,11 +58,18 @@ export const ThumbnailFn = <
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
 ) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_isPlayer = true;
+		}, []);
+	}
+
 	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
-		return {
+		const value: TimelineContextValue = {
 			playing: false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
@@ -76,6 +84,8 @@ export const ThumbnailFn = <
 			},
 			audioAndVideoTags: {current: []},
 		};
+
+		return value;
 	}, [frameToDisplay, thumbnailId]);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
@@ -99,12 +109,12 @@ export const ThumbnailFn = <
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={passedInputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI
+						ref={rootRef}
 						className={className}
 						errorFallback={errorFallback}
 						inputProps={passedInputProps}
@@ -125,7 +135,7 @@ const forward = forwardRef as <T, P = {}>(
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**
- * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a single frame of a video.
+ * @description A component which can be rendered in a regular React App (for example: Next.js, Vite) to display a single frame of a video.
  * @see [Documentation](https://www.remotion.dev/docs/player/thumbnail)
  */
 

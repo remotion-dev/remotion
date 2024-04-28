@@ -45,7 +45,9 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 				validateQualitySettings({
 					crf: entry[0],
 					codec: entry[1],
-					videoBitrate: undefined,
+					videoBitrate: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
 				}),
 			).not.toThrow()),
 	);
@@ -73,7 +75,9 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 				validateQualitySettings({
 					crf: entry[0],
 					codec: entry[1],
-					videoBitrate: undefined,
+					videoBitrate: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
 				}),
 			).toThrow(
 				new RegExp(
@@ -85,21 +89,53 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 
 test('ProRes', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined}),
+		validateQualitySettings({
+			crf: 3,
+			codec: 'prores',
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
+		}),
 	).toThrow(/The "prores" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined}),
+		validateQualitySettings({
+			crf: 3,
+			codec: 'wav',
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
+		}),
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
 
 test('WAV', () => {
 	expect(() =>
-		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M'}),
+		validateQualitySettings({
+			crf: 10,
+			codec: 'h264',
+			videoBitrate: '1M',
+			encodingMaxRate: null,
+			encodingBufferSize: null,
+		}),
 	).toThrow(
 		/"crf" and "videoBitrate" can not both be set. Choose one of either./,
+	);
+});
+
+test('encodingMaxRate', () => {
+	expect(() =>
+		validateQualitySettings({
+			crf: 10,
+			codec: 'h264',
+			videoBitrate: null,
+			encodingMaxRate: '1M',
+			encodingBufferSize: null,
+		}),
+	).toThrow(
+		/"encodingMaxRate" can not be set without also setting "encodingBufferSize"./,
 	);
 });
 

@@ -1,7 +1,8 @@
 ---
 image: /generated/articles-docs-dynamic-metadata.png
 id: dynamic-metadata
-title: Variable metadata
+title: Variable duration and dimensions
+sidebar_label: Variable duration
 crumb: "How To"
 ---
 
@@ -76,7 +77,7 @@ export const Index: React.FC = () => {
 
   useEffect(() => {
     getVideoMetadata(
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     )
       .then(({ durationInSeconds }) => {
         setDuration(Math.round(durationInSeconds * 30));
@@ -146,7 +147,7 @@ export const Index: React.FC = () => {
 
   useEffect(() => {
     getVideoMetadata(
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     )
       .then(({ durationInSeconds }) => {
         setDuration(Math.round(durationInSeconds * 30));
@@ -208,7 +209,8 @@ export const Index: React.FC = () => {
         defaultProps: {},
         props: {},
         abortSignal: new AbortController().signal,
-      })
+        compositionId: "MyComp",
+      }),
     )
       .then(({ durationInFrames, props, width, height, fps }) => {
         setMetadata({

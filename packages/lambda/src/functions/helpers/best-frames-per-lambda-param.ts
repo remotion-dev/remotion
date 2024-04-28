@@ -1,4 +1,4 @@
-import {interpolate} from 'remotion';
+import {interpolate} from 'remotion/no-react';
 
 // Always update the code in docs/lambda/concurrency.md too
 

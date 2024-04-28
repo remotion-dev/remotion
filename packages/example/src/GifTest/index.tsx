@@ -24,7 +24,14 @@ const GifTest: React.FC = () => {
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>
 			<Sequence durationInFrames={50}>
-				<Gif ref={ref1} src={giphy} width={width} height={height} fit="fill" />
+				<Gif
+					ref={ref1}
+					playbackRate={4}
+					src={giphy}
+					width={width}
+					height={height}
+					fit="fill"
+				/>
 			</Sequence>
 
 			<Sequence from={50} durationInFrames={50}>
@@ -56,6 +63,21 @@ const GifTest: React.FC = () => {
 				<Gif
 					ref={ref4}
 					src={staticFile('disposal-type-3.gif')}
+					width={width}
+					height={height}
+					fit="fill"
+				/>
+			</Sequence>
+			<Sequence
+				from={200}
+				durationInFrames={50}
+				style={{
+					backgroundColor: 'white',
+				}}
+			>
+				<Gif
+					ref={ref4}
+					src={staticFile('non-animated-interlaced.gif')}
 					width={width}
 					height={height}
 					fit="fill"

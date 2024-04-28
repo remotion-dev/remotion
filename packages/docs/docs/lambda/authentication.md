@@ -62,7 +62,7 @@ const setEnvForKey = (key: number) => {
 setEnvForKey(getRandomAwsAccount());
 ```
 
-## Using and AWS profile
+## Using an AWS profile
 
 _available from v3.3.9_
 

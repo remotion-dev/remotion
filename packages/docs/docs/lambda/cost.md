@@ -26,7 +26,11 @@ Reducing the memory will linearly decrease the cost. Try out different values fo
 
 ## Make the render more performant
 
-Making your render more efficient will also reduce the cost of using Lambda. See the [general performance tips](/docs/performance)
+Making your render more efficient will also reduce the cost of using Lambda. See the [general performance tips](/docs/performance).
+
+## Real life optimization example
+
+See [this video](https://www.remotion.dev/docs/lambda/optimizing-cost) of how we optimized the cost of a Lambda function by finding the bottlenecks and eliminating them.
 
 ## See also
 

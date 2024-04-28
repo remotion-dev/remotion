@@ -1,4 +1,4 @@
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -12,6 +12,8 @@ export const screenshotDOMElement = async ({
 	height,
 	width,
 	clipRegion,
+	timeoutInMilliseconds,
+	scale,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
@@ -22,6 +24,8 @@ export const screenshotDOMElement = async ({
 	height: number;
 	width: number;
 	clipRegion: ClipRegion | null;
+	timeoutInMilliseconds: number;
+	scale: number;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -37,6 +41,7 @@ export const screenshotDOMElement = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 	} else {
 		await puppeteerEvaluateWithCatch({
@@ -46,6 +51,7 @@ export const screenshotDOMElement = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds,
 		});
 	}
 
@@ -63,6 +69,7 @@ export const screenshotDOMElement = async ({
 		width,
 		height,
 		clipRegion,
+		scale,
 	});
 	if (typeof buf === 'string') {
 		throw new TypeError('Expected a buffer');

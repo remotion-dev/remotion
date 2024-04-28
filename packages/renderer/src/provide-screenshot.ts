@@ -1,4 +1,4 @@
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {screenshotDOMElement} from './screenshot-dom-element';
@@ -11,6 +11,8 @@ export const provideScreenshot = ({
 	height,
 	width,
 	clipRegion,
+	timeoutInMilliseconds,
+	scale,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
@@ -22,6 +24,8 @@ export const provideScreenshot = ({
 	height: number;
 	width: number;
 	clipRegion: ClipRegion | null;
+	timeoutInMilliseconds: number;
+	scale: number;
 }): Promise<Buffer> => {
 	return screenshotDOMElement({
 		page,
@@ -33,5 +37,7 @@ export const provideScreenshot = ({
 		height,
 		width,
 		clipRegion,
+		timeoutInMilliseconds,
+		scale,
 	});
 };

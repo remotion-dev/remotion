@@ -25,28 +25,6 @@ Config.setPixelFormat("yuv444p");
 Config.setCodec("h265");
 ```
 
-## Old config file format
-
-In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
-
-Previously, each config option was two levels deep:
-
-```ts title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.Bundling.setCachingEnabled(false);
-```
-
-From v3.3.39 on, all options can be accessed directly from the `Config` object.
-
-```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.setCachingEnabled(false);
-```
-
-The old way is deprecated, but will work for the foreseeable future.
-
 ## overrideWebpackConfig()<AvailableFrom v="1.1.0" />
 
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
@@ -75,43 +53,45 @@ Config.setCachingEnabled(false);
 
 The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
-## setPort()
+## setStudioPort()<AvailableFrom v="4.0.61" />
 
-Define on which port Remotion should start it's HTTP servers.  
-HTTP servers
-By default, Remotion will try to find a free port.  
-If you specify a port, but it's not available, Remotion will throw an error.
-
-:::note
-When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it.  
-During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
-:::
+Set the HTTP port for the Studio.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setPort(3003);
+Config.setStudioPort(3003);
+```
+
+The [command line flag](/docs/cli/studio#--port) `--port` will take precedence over this option.
+
+## setRendererPort()<AvailableFrom v="4.0.61" />
+
+Set the port to be used to host the Webpack bundle.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStudioPort(3004);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
 ## setPublicDir()<AvailableFrom v="3.2.13" />
 
-Define the location of the `public/` directory.  
-By default it is a folder named "public" inside the current working directory.  
-You can either set an absolute path, or a relative path that will be resolved from the closest package.json location.
+<Options id="public-dir"  />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setPublicDir("./publico");
+Config.setPublicDir("./custom-public-dir");
 ```
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
 ## setEntryPoint()<AvailableFrom v="3.2.40" />
 
-Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+Sets the Remotion [entry point](/docs/terminology/entry-point), you don't have to specify it for CLI commands.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -252,7 +232,7 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
-By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+<Options id="disable-headless"  />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -262,11 +242,23 @@ import { Config } from "@remotion/cli/config";
 Config.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
+## setChromiumMultiProcessOnLinux()<AvailableFrom v="4.0.42" />
+
+<Options id="enable-multiprocess-on-linux" cli/>
+
+```tsx twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+// ---cut---
+
+Config.setChromiumMultiProcessOnLinux(true);
+```
+
+The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enable-multiprocess-on-linux` will take precedence over this option.
 
 ## setChromiumOpenGlRenderer
 
-Select the OpenGL renderer backend for Chromium.
+<Options id="gl" />
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -275,18 +267,6 @@ import { Config } from "@remotion/cli/config";
 
 Config.setChromiumOpenGlRenderer("angle");
 ```
-
-<AngleChangelog/>
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
 
 The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
 
@@ -392,6 +372,18 @@ Config.setEnforceAudioTrack(true);
 
 The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
+### setForSeamlessAacConcatenation()<AvailableFrom v="4.0.123" />
+
+<Options id="for-seamless-aac-concatenation" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setForSeamlessAacConcatenation(true);
+```
+
+The [command line flag](/docs/cli/render#--for-seamless-aac-concatenation) `--for-seamless-aac-concatenation` will take precedence over this option.
+
 ## setFrameRange()<AvailableFrom v="2.0.0" />
 
 Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
@@ -456,7 +448,7 @@ The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` 
 
 ## setNumberOfGifLoops()
 
-This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
+<Options id="number-of-gif-loops" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -657,13 +649,9 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
-### `setVideoBitrate()`<AvailableFrom v="3.2.32" />
+## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -673,13 +661,33 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-### `setAudioBitrate`<AvailableFrom v="3.2.32" />
+## `setEncodingBufferSize()`<AvailableFrom v="4.0.78" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="buffer-size" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingBufferSize("10000k");
+```
+
+The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
+
+## `setEncodingMaxRate()`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setEncodingMaxRate("5000k");
+```
+
+The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
+
+## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
+
+<Options id="audio-bitrate" />
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -689,9 +697,7 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
-### `setEnableFolderExpiry`<AvailableFrom v="4.0.32" />
-
-For Lambda:
+## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
 <br/>
@@ -703,9 +709,19 @@ import { Config } from "@remotion/cli/config";
 Config.setEnableFolderExpiry(true);
 ```
 
-### `setDeleteAfter`<AvailableFrom v="4.0.32" />
+## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
-For Lambda:
+<Options id="enable-lambda-insights" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setLambdaInsights(true);
+```
+
+## `setDeleteAfter()`<AvailableFrom v="4.0.32" />
 
 <Options id="delete-after" />
 <br/>
@@ -717,7 +733,51 @@ import { Config } from "@remotion/cli/config";
 Config.setDeleteAfter("3-days");
 ```
 
-## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
+## `setBeepOnFinish()`<AvailableFrom v="4.0.84" />
+
+<Options id="beep-on-finish" />
+<br/>
+<br/>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBeepOnFinish(true);
+```
+
+The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+
+## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
+
+Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBufferStateDelayInMilliseconds(0);
+```
+
+## `setBinariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setBinariesDirectory("/path/to/custom/directory");
+```
+
+## `setPreferLosslessAudio?`<AvailableFrom v="4.0.123" />
+
+<Options id="prefer-lossless" />
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPreferLosslessAudio(true);
+```
+
+## overrideFfmpegCommand()<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
@@ -790,6 +850,71 @@ Config.setFfprobeExecutable("/path/to/custom/ffprobe");
 ```
 
 The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
+## ~~setPort()~~
+
+_deprecated in v4.0.61 - use [`setStudioPort()`](/docs/config#setstudioport)_
+and [`setRendererPort()`](/docs/config#setrendererport) instead.
+
+Define on which port Remotion should start it's HTTP servers.  
+By default, Remotion will try to find a free port.  
+If you specify a port, but it's not available, Remotion will throw an error.
+
+:::warning
+Setting this option will break rendering in the Remotion Studio, because this option controls two settings at the same time:
+
+- When starting the [Remotion Studio](/docs/terminology/studio), a server will be started to host it ([`setStudioPort()`](/docs/config#setstudioport)).
+- During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology/bundle) ([`setRendererPort()`](/docs/config#setrendererport)).
+
+Use the options individually.
+:::
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPort(3003);
+```
+
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
+
+## Importing ES Modules
+
+The [config file](/docs/config) gets executed in a CommonJS environment. If you want to import ES modules to override the Webpack config, you can pass an async function to `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: src/enable-sass.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableSass: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig(async (currentConfiguration) => {
+  const { enableSass } = await import("./src/enable-sass");
+  return enableSass(currentConfiguration);
+});
+```
+
+## Old config file format
+
+In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
+
+Previously, each config option was two levels deep:
+
+```ts title="remotion.config.ts"
+Config.Bundling.setCachingEnabled(false);
+```
+
+From v3.3.39 on, all options can be accessed directly from the `Config` object.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setCachingEnabled(false);
+```
+
+The old way is deprecated, but will work for the foreseeable future.
 
 ## See also
 

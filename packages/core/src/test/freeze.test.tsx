@@ -4,13 +4,18 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {Freeze} from '../freeze.js';
 import {Sequence} from '../Sequence.js';
+import {Freeze} from '../freeze.js';
 import type {TimelineContextValue} from '../timeline-position-state.js';
 import {TimelineContext} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
+
+const TestComponent: React.FC = () => {
+	const frame = useCurrentFrame();
+	return <div>{frame}</div>;
+};
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
@@ -87,11 +92,6 @@ const WithSequence: React.FC = () => {
 			</Sequence>
 		</WrapSequenceContext>
 	);
-};
-
-const TestComponent: React.FC = () => {
-	const frame = useCurrentFrame();
-	return <div>{frame}</div>;
 };
 
 describe('Integration tests', () => {

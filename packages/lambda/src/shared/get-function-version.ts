@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from './call-lambda';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from './constants';
@@ -5,15 +6,17 @@ import {COMMAND_NOT_FOUND, LambdaRoutines} from './constants';
 export const getFunctionVersion = async ({
 	functionName,
 	region,
+	logLevel,
 }: {
 	functionName: string;
 	region: AwsRegion;
+	logLevel: LogLevel;
 }): Promise<string> => {
 	try {
 		const result = await callLambda({
 			functionName,
 			payload: {
-				type: LambdaRoutines.info,
+				logLevel,
 			},
 			region,
 			type: LambdaRoutines.info,

@@ -228,6 +228,16 @@ impl From<TryLockError<RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mute
     }
 }
 
+impl From<PoisonError<RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<FrameCache>>>>>>
+    for ErrorWithBacktrace
+{
+    fn from(
+        err: PoisonError<RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<FrameCache>>>>>,
+    ) -> ErrorWithBacktrace {
+        ErrorWithBacktrace::from(err.to_string())
+    }
+}
+
 impl std::fmt::Debug for ErrorWithBacktrace {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.error {

@@ -3,9 +3,9 @@ import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React, { useCallback, useMemo, useState } from "react";
+import { CoolInput } from "../../../components/TextInput";
 import { PlainButton } from "../../../components/layout/Button";
 import { Spacer } from "../../../components/layout/Spacer";
-import { CoolInput } from "../../../components/TextInput";
 import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
 import { Seo } from "../../components/Seo";
 import styles from "./v4.module.css";
@@ -17,6 +17,64 @@ const spacer: React.CSSProperties = {
 const errorStyle: React.CSSProperties = {
   color: "#FF3232",
   textAlign: "center",
+};
+
+export const EventComp: React.FC<{
+  date: string;
+  title: string;
+  description: string;
+  youtubeId?: string;
+}> = ({ date, title, description, youtubeId }) => {
+  return (
+    <div
+      style={{
+        border: "2px solid var(--ifm-font-color-base)",
+        borderBottomWidth: 4,
+        borderRadius: 8,
+        padding: 10,
+      }}
+    >
+      <p className={styles.date}>{date}</p>
+      <p className={styles.eventtitle}>{title}</p>
+      <p>{description}</p>
+      {youtubeId ? (
+        <iframe
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+          }}
+          src={`https://www.youtube.com/embed/${youtubeId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+            backgroundColor: "var(--ifm-out-of-focus)",
+            borderRadius: 5,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              color: "var(--ifm-subtitle)",
+              justifyContent: "center",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Check back {date}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const V4: React.FC = () => {
@@ -52,14 +110,11 @@ const V4: React.FC = () => {
 
         if (isValidEmail(email)) {
           setLoading(true);
-          const res = await fetch(
-            "https://companies.remotion.dev/api/newsletter",
-            {
-              method: "POST",
-              body: JSON.stringify({ email }),
-              headers: { "content-type": "application/json" },
-            },
-          );
+          const res = await fetch("https://www.remotion.pro/api/newsletter", {
+            method: "POST",
+            body: JSON.stringify({ email }),
+            headers: { "content-type": "application/json" },
+          });
           const json = await res.json();
           if (json.success) {
             setSubscribed(true);
@@ -180,64 +235,6 @@ const V4: React.FC = () => {
         </div>
       </div>
     </Layout>
-  );
-};
-
-export const EventComp: React.FC<{
-  date: string;
-  title: string;
-  description: string;
-  youtubeId?: string;
-}> = ({ date, title, description, youtubeId }) => {
-  return (
-    <div
-      style={{
-        border: "2px solid var(--ifm-font-color-base)",
-        borderBottomWidth: 4,
-        borderRadius: 8,
-        padding: 10,
-      }}
-    >
-      <p className={styles.date}>{date}</p>
-      <p className={styles.eventtitle}>{title}</p>
-      <p>{description}</p>
-      {youtubeId ? (
-        <iframe
-          style={{
-            width: "100%",
-            aspectRatio: "16 / 9",
-          }}
-          src={`https://www.youtube.com/embed/${youtubeId}`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      ) : (
-        <div
-          style={{
-            width: "100%",
-            aspectRatio: "16 / 9",
-            backgroundColor: "var(--ifm-out-of-focus)",
-            borderRadius: 5,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              color: "var(--ifm-subtitle)",
-              justifyContent: "center",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
-            Check back {date}
-          </div>
-        </div>
-      )}
-    </div>
   );
 };
 

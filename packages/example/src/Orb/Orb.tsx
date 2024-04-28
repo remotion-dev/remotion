@@ -27,6 +27,7 @@ export const Orb = () => {
 				height={15}
 				blur={2.5}
 				far={1.6}
+				// @ts-expect-error wrong types
 				getObjectsByProperty={false}
 				matrixWorldAutoUpdate={false}
 			/>

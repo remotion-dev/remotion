@@ -1,8 +1,8 @@
 {
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": false,
-    "source.fixAll": true
+    "source.organizeImports": "never",
+    "source.fixAll": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[rust]": {
@@ -12,13 +12,21 @@
     "./packages/lambda-python/src",
     "./packages/lambda-python/remotion_lambda_sdk"
   ],
-  "[php]": {
-    "editor.defaultFormatter": "DEVSENSE.phptools-vscode"
-  },
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
   },
-  "python.formatting.provider": "none",
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "typescript.preferences.autoImportFileExcludePatterns": [
     "@types/node/test.d.ts"
   ],
@@ -26,5 +34,6 @@
     "editor.defaultFormatter": "golang.go"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "python.terminal.activateEnvironment": false
+  "python.terminal.activateEnvironment": false,
+  "rust-analyzer.cargo.buildScripts.enable": false
 }

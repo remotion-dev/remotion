@@ -49,6 +49,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams.Muted = options.Muted
+	internalParams.PreferLossless = options.PreferLossless
 	internalParams.Overwrite = options.Overwrite
 
 	if options.RendererFunctionName == "" {
@@ -77,7 +78,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Privacy = options.Privacy
 	}
 	if options.ColorSpace == "" {
-		internalParams.ColorSpace = "default"
+		internalParams.ColorSpace = nil
 	} else {
 		internalParams.ColorSpace = options.ColorSpace
 	}
@@ -154,9 +155,15 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 		return nil, validationErrors
 	}
 
+	logLevel := "info"
+	if options.LogLevel != "" {
+		logLevel = options.LogLevel
+	}
+
 	internalParams := renderProgressInternalConfig{
 		RenderId:   options.RenderId,
 		BucketName: options.BucketName,
+		LogLevel:   logLevel,
 		Type:       "status",
 		Version:    VERSION,
 	}

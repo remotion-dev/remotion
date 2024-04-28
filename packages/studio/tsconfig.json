@@ -1,0 +1,30 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "./src",
+		"outDir": "dist",
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../media-utils"
+		},
+		{
+			"path": "../studio-shared"
+		},
+		{
+			"path": "../zod-types"
+		},
+		{
+			"path": "../renderer"
+		},
+		{
+			"path": "../player"
+		}
+	]
+}

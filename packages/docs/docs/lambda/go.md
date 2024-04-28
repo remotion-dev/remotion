@@ -101,6 +101,7 @@ func main() {
 		Region:       region,
 		RenderId:     renderResponse.RenderId,
 		BucketName:   renderResponse.BucketName,
+		LogLevel:		  "info",
 	}
 	// Execute getting the render progress
 	renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)

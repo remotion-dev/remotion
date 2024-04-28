@@ -1,7 +1,10 @@
 import {registerRoot} from 'remotion';
-import {Index} from './Root';
+// @ts-expect-error load-skia
+import {loadSkia} from './load-skia.js';
 
 // Should be able to defer registerRoot()
-setTimeout(() => {
+(async () => {
+	await loadSkia();
+	const {Index} = await import('./Root');
 	registerRoot(Index);
-}, 500);
+})();

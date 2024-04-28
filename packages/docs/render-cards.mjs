@@ -2,6 +2,7 @@ import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 import { execSync } from "child_process";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { readDir } from "./get-pages.mjs";
 
@@ -16,7 +17,8 @@ const findId = (split, page) => {
 
   return page
     .replace(process.cwd() + path.sep + "docs" + path.sep, "")
-    .replace(/.md$/, "");
+    .replace(/.md$/, "")
+    .replace(/.mdx$/, "");
 };
 
 const findTitle = (split) => {
@@ -45,28 +47,38 @@ const pages = readDir(root);
 
 for (const page of pages) {
   const opened = fs.readFileSync(page, "utf8");
-  const frontmatter = opened.match(/---\n((.|\n)*?)---\n/);
+  const frontmatter =
+    opened.match(/---\n((.|\n)*?)---\n/) ??
+    opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
   if (!frontmatter) {
+    console.log("No frontmatter for", page);
     continue;
   }
 
-  const split = frontmatter[1].split("\n");
-  const id = findId(split, page);
+  const split = frontmatter[1].split(os.EOL);
+  const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
   const title = findTitle(split);
   const crumb = findCrumb(split);
 
-  const relativePath = page.replace(process.cwd() + path.sep, "");
+  const relativePath = page
+    .replace(process.cwd() + path.sep, "")
+    .replaceAll(path.sep, path.posix.sep);
+
   const compId =
-    "articles-" + relativePath.replace(/\//g, "-").replace(/.md$/, "");
+    "articles-" +
+    relativePath
+      .replaceAll(path.posix.sep, "-")
+      .replace(/.md$/, "")
+      .replace(/.mdx$/, "");
   data.push({ id, title, relativePath, compId, crumb });
 }
 
 fs.writeFileSync(
   path.join(process.cwd(), "src", "data", "articles.ts"),
-  `export const articles = ` + JSON.stringify(data, null, 2)
+  `export const articles = ` + JSON.stringify(data, null, 2),
 );
 
-execSync("pnpm exec prettier src/data/articles.ts --write");
+execSync("bunx prettier src/data/articles.ts --write");
 
 // render cards
 const serveUrl = await bundle({
@@ -76,7 +88,7 @@ const serveUrl = await bundle({
 const compositions = await getCompositions(serveUrl);
 
 for (const composition of compositions.filter(
-  (c) => c.id.startsWith("expert") || c.id.startsWith("template")
+  (c) => c.id.startsWith("expert") || c.id.startsWith("template"),
 )) {
   const output = `static/generated/${composition.id}.png`;
   if (fs.existsSync(output)) {
@@ -96,7 +108,6 @@ for (const entry of data) {
   const composition = compositions.find((c) => c.id === entry.compId);
   const output = `static/generated/${composition.id}.png`;
   if (fs.existsSync(output)) {
-    console.log("Existed", composition.id);
     continue;
   }
 
@@ -109,7 +120,7 @@ for (const entry of data) {
 
   const fileContents = fs.readFileSync(out, "utf-8");
   const lines = fileContents
-    .split("\n")
+    .split(os.EOL)
     .filter((l) => !l.startsWith("image: "));
   const frontmatterLine = lines.findIndex((l) => l === "---");
   if (frontmatterLine === -1) {
@@ -120,7 +131,7 @@ for (const entry of data) {
     ...lines.slice(0, frontmatterLine + 1),
     `image: /${output.substring("/static".length)}`,
     ...lines.slice(frontmatterLine + 1),
-  ].join("\n");
+  ].join(os.EOL);
 
   fs.writeFileSync(out, newLines);
   console.log("Rendered", composition.id);

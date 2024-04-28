@@ -34,16 +34,57 @@ You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> d
 
 A string pointing to an audio asset.
 
+### `options?`<AvailableFrom v="4.0.121"/>
+
+#### `sampleRate?`<AvailableFrom v="4.0.121"/>
+
+The `sampleRate` that should be passed into the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext) constructor. If not provided, the default value is `48000`.
+
+In versions before 4.0.121, the default value was `undefined`, leading to undeterministic behavior across devices rendering.
+
 ## Return value
 
-`Promise<AudioData>` - object with information about the audio data:
+_`Promise<AudioData>`_
 
-- `channelWaveforms`: `Float32Array[]` an array with waveform information for each channel.
-- `sampleRate`: `number` How many samples per second each waveform contains.
-- `durationInSeconds`: `number` The duration of the audio in seconds.
-- `numberOfChannels`: `number` The number of channels contained in the audio file. This corresponds to the length of the `channelWaveforms` array.
-- `resultId`: `string` Unique identifier of this audio data fetching call. Other functions can cache expensive operations if they get called with the same resultId multiple times.
-- `isRemote`: `boolean` Whether the audio was imported locally or from a different origin.
+An object with information about the audio data:
+
+### `channelWaveforms`
+
+_Float32Array[]_
+
+An array with waveform information for each channel.
+
+### `sampleRate`
+
+_number_
+
+The sample rate of the generated `AudioContext`. This will be the same as the `sampleRate` input option if passed, `48000` otherwise, and in version previous to 4.0.121, the sample rate of the device's preferred output device.
+
+:::note
+Previously, this documentation stated that this is the sample rate of the audio file. This is incorrect. [The sample rate of the audio file is not exposed to the browser's JavaScript environment.](https://github.com/WebAudio/web-audio-api/issues/30)
+:::
+
+### `durationInSeconds`
+
+_number_
+
+The duration of the audio in seconds.
+
+### `numberOfChannels`
+
+_number_
+
+The number of channels contained in the audio file. This corresponds to the length of the `channelWaveforms` array.
+
+### `resultId`
+
+_string_ Unique identifier of this audio data fetching call. Other functions can cache expensive operations if they get called with the same resultId multiple times.
+
+### `isRemote`
+
+_boolean_
+
+Whether the audio was imported locally or from a different origin.
 
 ## Example
 
@@ -81,10 +122,18 @@ await getAudioData(staticFile("my-file.wav")); /* {
 } */
 ```
 
+## Errors
+
+If you pass in a file that has no audio track, this function will throw an error you need to handle.
+
+To determine if a file has an audio track, you may use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata#audiocodec) function on the server to reject a file if it has no audio track. To do so, check if the `audioCodec` field is `null`.
+
 ## Caching behavior
 
 This function is memoizing the results it returns.
-If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed. To clear the cache, you have to reload the page.
+
+If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed.  
+To clear the cache, you have to reload the page.
 
 ## Alternatives
 

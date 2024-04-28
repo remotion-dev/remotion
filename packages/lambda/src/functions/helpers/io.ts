@@ -126,8 +126,8 @@ export const tryLambdaWriteFile = async ({
 				privacy === 'no-acl'
 					? undefined
 					: privacy === 'private'
-					? 'private'
-					: 'public-read',
+						? 'private'
+						: 'public-read',
 			ExpectedBucketOwner: customCredentials
 				? undefined
 				: expectedBucketOwner ?? undefined,
@@ -191,15 +191,17 @@ export const lambdaHeadCommand = async ({
 	bucketName,
 	key,
 	region,
+	customCredentials,
 }: {
 	bucketName: string;
 	key: string;
 	region: AwsRegion;
+	customCredentials: CustomCredentials | null;
 }): Promise<{
 	LastModified?: Date | undefined;
 	ContentLength?: number | undefined;
 }> => {
-	const head = await getS3Client(region, null).send(
+	const head = await getS3Client(region, customCredentials).send(
 		new HeadObjectCommand({
 			Bucket: bucketName,
 			Key: key,

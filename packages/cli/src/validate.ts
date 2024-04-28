@@ -1,5 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
-export const validateDimension: typeof Internals.validateDimension =
-	Internals.validateDimension;
+export const validateDimension: typeof NoReactInternals.validateDimension =
+	NoReactInternals.validateDimension;

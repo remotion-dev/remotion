@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-render-as-gif.png
 id: render-as-gif
-title: Render as GIF
+title: Rendering GIFs
 crumb: "Techniques"
 ---
 
@@ -47,6 +47,10 @@ The `numberOfGifLoops` option can be set:
 ## Importing GIFs
 
 Wondering how to import other GIFs into a Remotion project? [See here.](/docs/gif)
+
+## Transparent GIFs
+
+To render a transparent GIF, the [`imageFormat`](/docs/renderer/render-media) option must be set to `"png"`. In the Remotion Studio, this can be set in the "Picture" tab.
 
 ## See also
 

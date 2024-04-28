@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {parsePath} from '../parse-path';
 
 test('Should be able to parse path', () => {

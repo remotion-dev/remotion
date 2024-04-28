@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
 import type {VideoMetadata} from './types';
@@ -27,7 +28,7 @@ const fn = (src: string): Promise<VideoMetadata> => {
 			const pixels = video.videoHeight * video.videoWidth;
 
 			if (pixels === 0) {
-				reject(new Error('Unable to determine video metadata'));
+				reject(new Error(`Unable to determine video metadata for ${src}`));
 				return;
 			}
 

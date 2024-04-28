@@ -11,12 +11,16 @@ type ReturnType =
 	| null;
 
 export const useVideo = (): ReturnType => {
-	const context = useContext(CompositionManager);
+	const {canvasContent, compositions, currentCompositionMetadata} =
+		useContext(CompositionManager);
 
-	const selected = context.compositions.find((c) => {
-		return c.id === context.currentComposition;
+	const selected = compositions.find((c) => {
+		return (
+			canvasContent?.type === 'composition' &&
+			c.id === canvasContent.compositionId
+		);
 	});
-	const resolved = useResolvedVideoConfig(context.currentComposition);
+	const resolved = useResolvedVideoConfig(selected?.id ?? null);
 
 	return useMemo((): ReturnType => {
 		if (!resolved) {
@@ -41,8 +45,8 @@ export const useVideo = (): ReturnType => {
 			id: selected.id,
 			// We override the selected metadata with the metadata that was passed to renderMedia(),
 			// and don't allow it to be changed during render anymore
-			...(context.currentCompositionMetadata ?? {}),
+			...(currentCompositionMetadata ?? {}),
 			component: selected.component,
 		};
-	}, [context.currentCompositionMetadata, resolved, selected]);
+	}, [currentCompositionMetadata, resolved, selected]);
 };

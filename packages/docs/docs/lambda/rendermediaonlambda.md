@@ -10,7 +10,7 @@ import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-p
 Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
 
 Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
-A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
@@ -72,9 +72,9 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 ### `frameRange?`
 
-_optional_
+_number | [number, number] - optional_
 
-Render a subset of a video. Example: `[0, 9]` to select the first 10 frames. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `serveUrl`
 
@@ -169,7 +169,7 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 _optional_
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `jpegQuality`
 
@@ -183,13 +183,21 @@ Renamed to `jpegQuality` in v4.0.0.
 
 _optional_
 
-See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+<Options id="audio-bitrate"/>
 
 ### `videoBitrate?`
 
 _optional_
 
-See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+<Options id="video-bitrate"/>
+
+### `bufferSize?`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size"/>
+
+### `maxRate?`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate"/>
 
 ### `maxRetries`
 
@@ -217,8 +225,8 @@ The file name of the media output.
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
-- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination)
+- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
+- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination).
 
 ### `timeoutInMilliseconds?`
 
@@ -242,7 +250,7 @@ Renders only every nth frame. For example only every second frame, every third f
 
 _optional, available since v3.1_
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `downloadBehavior?`
 
@@ -272,20 +280,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromiums default
-
-:::note
-The default for Lambda is `swangle`, but `null` elsewhere.
-:::
+<Options id="gl"  />
 
 ### `overwrite?`
 
@@ -343,9 +338,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
@@ -360,6 +353,10 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 ### `deleteAfter?`<AvailableFrom v="4.0.32"/>
 
 <Options id="delete-after"/>
+
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
+
+<Options  id="prefer-lossless" />
 
 ### ~~`dumpBrowserLogs?`~~
 
@@ -379,15 +376,15 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 
 The S3 bucket name in which all files are being saved.
 
-### `cloudWatchLogs`
-
-_available from v3.2.10_
+### `cloudWatchLogs`<AvailableFrom v="3.2.10"/>
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `folderInS3Console`
+### `lambdaInsightsUrl`<AvailableFrom v="4.0.61"/>
 
-_available from v3.2.43_
+A link to the [Lambda Insights](/docs/lambda/insights), if you enabled it.
+
+### `folderInS3Console`<AvailableFrom v="3.2.43"/>
 
 A link to the folder in the AWS console where each chunk and render is located.
 

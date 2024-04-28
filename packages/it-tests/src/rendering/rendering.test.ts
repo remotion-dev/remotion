@@ -2,9 +2,21 @@ import { RenderInternals } from "@remotion/renderer";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import { beforeEach, expect, test } from "vitest";
+import { beforeAll, beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
+
+beforeAll(async () => {
+  /**
+   * Before running any of these tests, we should bundle the example project. In the CI, this is already done.
+   */
+  if (process.env.CI) {
+    return;
+  }
+  await execa("pnpm", ["exec", "remotion", "bundle"], {
+    cwd: path.join(process.cwd(), "..", "example"),
+  });
+});
 
 beforeEach(() => {
   if (fs.existsSync(outputPath)) {
@@ -19,6 +31,7 @@ test("Should be able to render video with custom port", async () => {
       "exec",
       "remotion",
       "render",
+      "build",
       "ten-frame-tester",
       "--codec",
       "h264",
@@ -35,7 +48,14 @@ test("Should be able to render video with custom port", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [outputPath]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outputPath],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
@@ -52,6 +72,8 @@ test("Should fail to render out of range CRF", async () => {
       "exec",
       "remotion",
       "render",
+      "build",
+
       "ten-frame-tester",
       "--codec",
       "vp8",
@@ -78,6 +100,8 @@ test("Should fail to render out of range frame when range is a number", async ()
       "exec",
       "remotion",
       "render",
+      "build",
+
       "ten-frame-tester",
       "--sequence",
       "--frames=10",
@@ -101,6 +125,8 @@ test("Should fail to render out of range frame when range is a string", async ()
       "exec",
       "remotion",
       "render",
+      "build",
+
       "ten-frame-tester",
       "--frames=2-10",
       outputPath,
@@ -122,6 +148,7 @@ test("Should render a ProRes video", async () => {
       "exec",
       "remotion",
       "render",
+      "build",
       "ten-frame-tester",
       "--prores-profile=4444",
       out,
@@ -136,7 +163,14 @@ test("Should render a ProRes video", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data.includes("prores (4444)") || data.includes("prores (ap4h")).toBe(
     true
@@ -149,7 +183,15 @@ test("Should render a still image if single frame specified", async () => {
   const outImg = path.join(outDir, "element-2.png");
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "ten-frame-tester", "--frames=2", outDir],
+    [
+      "exec",
+      "remotion",
+      "render",
+      "build",
+      "ten-frame-tester",
+      "--frames=2",
+      outDir,
+    ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
@@ -158,7 +200,14 @@ test("Should render a still image if single frame specified", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outImg)).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [outImg]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outImg],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: png");
   await fs.promises.rm(outDir, {
@@ -170,7 +219,7 @@ test("Should be able to render a WAV audio file", async () => {
   const out = outputPath.replace("mp4", "wav");
   const task = execa(
     "pnpm",
-    ["exec", "remotion", "render", "audio-testing", out],
+    ["exec", "remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -180,7 +229,14 @@ test("Should be able to render a WAV audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("pcm_s16le");
   expect(data).toContain("2 channels");
@@ -195,7 +251,7 @@ test("Should be able to render a MP3 audio file", async () => {
   const out = outputPath.replace("mp4", "mp3");
   const task = execa(
     "pnpm",
-    ["exec", "remotion", "render", "audio-testing", out],
+    ["exec", "remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -205,7 +261,14 @@ test("Should be able to render a MP3 audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
@@ -220,7 +283,7 @@ test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
   const task = execa(
     "pnpm",
-    ["exec", "remotion", "render", "audio-testing", out],
+    ["exec", "remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -230,7 +293,14 @@ test("Should be able to render a AAC audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("aac");
   expect(data).toContain("stereo");
@@ -244,7 +314,7 @@ test("Should be able to render a AAC audio file", async () => {
 test("Should render a video with GIFs", async () => {
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "gif", "--frames=0-47", outputPath],
+    ["exec", "remotion", "render", "build", "gif", "--frames=0-47", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -252,11 +322,18 @@ test("Should render a video with GIFs", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outputPath)).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [outputPath]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outputPath],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).not.toContain("bt709");
-  expect(data).toContain("Duration: 00:00:01.60");
+  expect(data).toContain("Duration: 00:00:01.64");
 
   fs.unlinkSync(outputPath);
 });
@@ -266,7 +343,7 @@ test("Should render a video with Offline Audio-context", async () => {
 
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "offline-audio-buffer", out],
+    ["exec", "remotion", "render", "build", "offline-audio-buffer", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -274,7 +351,14 @@ test("Should render a video with Offline Audio-context", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(out)).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Stream #0:0: Audio: mp3");
   expect(data).toContain("48000 Hz, stereo");
@@ -285,13 +369,20 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "ten-frame-tester", out],
+    ["exec", "remotion", "render", "build", "ten-frame-tester", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   expect(task.exitCode).toBe(0);
-  const info = await RenderInternals.callFf("ffprobe", [out]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [out],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Duration: 00:00:00.36");
   expect(data).toContain("Audio: mp3, 48000 Hz");
@@ -306,6 +397,7 @@ test("Should render a still that uses the staticFile() API and should apply prop
       "exec",
       "remotion",
       "still",
+      "build",
       "static-demo",
       out,
       "--log=verbose",
@@ -319,23 +411,22 @@ test("Should render a still that uses the staticFile() API and should apply prop
   fs.unlinkSync(out);
 });
 
-test("Dynamic duration should work, and render from inside src/", async () => {
+test("Dynamic duration should work and audio separation", async () => {
+  const audio = path.join(process.cwd(), "..", "example", "audio.wav");
+
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
-    path.join(
-      process.cwd(),
-      "..",
-      "example",
-      "node_modules",
-      ".bin",
-      "remotion"
-    ),
+    "pnpm",
     [
+      "exec",
+      "remotion",
       "render",
-      "src/index.ts",
+      "build",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
+      "--separate-audio-to",
+      "audio.wav",
       outputPath,
     ],
     {
@@ -346,16 +437,40 @@ test("Dynamic duration should work, and render from inside src/", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outputPath)).toBe(true);
 
-  const info = await RenderInternals.callFf("ffprobe", [outputPath]);
+  const info = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [outputPath],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   const expectedDuration = (randomDuration / 30).toFixed(2);
   expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+  expect(data).toContain(
+    `Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive)`
+  );
 
   fs.unlinkSync(outputPath);
+
+  const audioInfo = await RenderInternals.callFf({
+    bin: "ffprobe",
+    args: [audio],
+    indent: false,
+    logLevel: "info",
+    binariesDirectory: null,
+    cancelSignal: undefined,
+  });
+  const audioData = audioInfo.stderr;
+  expect(audioData).toContain(
+    "  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16"
+  );
+  fs.unlinkSync(audio);
 });
 
-test("Should be able to render if remotion.config.js is not provided", async () => {
+test("Should be able to render if remotion.config.js is not provided, and separate audio", async () => {
   const task = await execa(
     "node",
     [
@@ -381,7 +496,9 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       "packages/cli/remotion-cli.js",
       "render",
       "packages/example/src/ts-entry.tsx",
+
       "framer",
+      "--public-dir=packages/example/public",
       outputPath,
     ],
     {
@@ -400,6 +517,7 @@ test("Should be able to render a huge payload that gets serialized", async () =>
       "exec",
       "remotion",
       "still",
+      "build",
       "huge-payload",
       outputPath.replace(".mp4", ".png"),
     ],
@@ -415,7 +533,15 @@ test("Should be able to render a huge payload that gets serialized", async () =>
 test("If timeout, the error should be shown", async () => {
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "Timeout", outputPath, "--timeout=7000"],
+    [
+      "exec",
+      "remotion",
+      "render",
+      "build",
+      "Timeout",
+      outputPath,
+      "--timeout=7000",
+    ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,

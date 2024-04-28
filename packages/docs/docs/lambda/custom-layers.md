@@ -8,12 +8,12 @@ crumb: "Lambda"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Lambda function [includes FFMPEG, Chrome and base fonts by default](/docs/lambda/runtime).
+The Lambda function [includes Chrome and base fonts by default](/docs/lambda/runtime).
 
 In some advanced use cases, you want to replace certain parts of the stack:
 
-- Use another Chrome version (binaries can be obtained from [chromiumforlambda.com](https://www.chromiumforlambda.com))
-- Replace default fonts or emojis (such as Apple Emoji font)
+- Use another Chrome version (you may need to [build it yourself](https://github.com/remotion-dev/chrome-build-instructions/tree/main))
+- Replace default fonts or emojis (such as [Apple Emoji font](https://github.com/samuelngs/apple-emoji-linux))
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
@@ -134,7 +134,7 @@ const { client, sdk } = getAwsClient({
 const fnConfig = await client.send(
   new sdk.GetFunctionConfigurationCommand({
     FunctionName: FUNCTION_NAME,
-  })
+  }),
 );
 
 if (!fnConfig) {
@@ -150,7 +150,7 @@ await client.send(
         .map((l) => l.Arn as string),
       LAYER_TO_ADD,
     ],
-  })
+  }),
 );
 ```
 

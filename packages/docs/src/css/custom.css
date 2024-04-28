@@ -54,6 +54,10 @@ h6 {
   font-style: normal;
 }
 
+[class*="col"][class*="lastUpdated"] {
+  display: none;
+}
+
 :root {
   --ifm-color-primary: #0b84f3;
   --ifm-color-primary-dark: #0a77db;
@@ -183,4 +187,17 @@ code {
   .only-desktop {
     display: none;
   }
+}
+
+.pro-item a::after {
+  content: "Paid";
+  font-size: 12px;
+  opacity: 0.7;
+  border: 1px solid;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  margin-left: 6px;
+  border-radius: 4px;
 }

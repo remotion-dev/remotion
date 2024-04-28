@@ -1,6 +1,6 @@
-import type {ChromiumOptions, LogLevel, ToOptions} from '@remotion/renderer';
+import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
@@ -18,14 +18,14 @@ export type GetCompositionsOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	envVariables?: Record<string, string>;
-	logLevel?: LogLevel;
-	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
 	/**
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & Partial<
+	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
+>;
 
 export type GetCompositionsOnLambdaOutput = VideoConfig[];
 

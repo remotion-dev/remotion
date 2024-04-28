@@ -37,7 +37,7 @@ test("Go package should create the same payload as normal Lambda package", async
     audioBitrate: null,
     audioCodec: null,
     chromiumOptions: {},
-    colorSpace: "default",
+    colorSpace: null,
     concurrencyPerLambda: 1,
     crf: undefined,
     deleteAfter: null,
@@ -65,10 +65,14 @@ test("Go package should create the same payload as normal Lambda package", async
     scale: 1,
     timeoutInMilliseconds: 30000,
     videoBitrate: null,
+    encodingMaxRate: null,
+    encodingBufferSize: null,
     webhook: null,
     x264Preset: null,
     inputProps: {},
     enableStreaming: false,
+    preferLossless: false,
+    indent: false,
   });
 
   expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

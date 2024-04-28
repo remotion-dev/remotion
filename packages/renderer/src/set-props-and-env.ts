@@ -62,6 +62,10 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_initialFrame = key;
 	}, initialFrame);
 
+	await page.evaluateOnNewDocument(() => {
+		window.remotion_attempt = 1;
+	});
+
 	await page.evaluateOnNewDocument((port: number) => {
 		window.remotion_proxyPort = port;
 	}, proxyPort);
@@ -73,6 +77,34 @@ const innerSetPropsAndEnv = async ({
 	await page.evaluateOnNewDocument((enabled: boolean) => {
 		window.remotion_videoEnabled = enabled;
 	}, videoEnabled);
+
+	await page.evaluateOnNewDocument(() => {
+		window.alert = (message) => {
+			if (message) {
+				window.window.remotion_cancelledError = new Error(
+					`alert("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.window.remotion_cancelledError = new Error(
+					'alert() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+		};
+
+		window.confirm = (message) => {
+			if (message) {
+				window.remotion_cancelledError = new Error(
+					`confirm("${message}") was called. It cannot be called in a headless browser.`,
+				).stack;
+			} else {
+				window.remotion_cancelledError = new Error(
+					'confirm() was called. It cannot be called in a headless browser.',
+				).stack;
+			}
+
+			return false;
+		};
+	});
 
 	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
@@ -126,6 +158,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	if (typeof isRemotionFn === 'undefined') {
@@ -138,6 +171,7 @@ const innerSetPropsAndEnv = async ({
 			args: [],
 			frame: null,
 			page,
+			timeoutInMilliseconds: actualTimeout,
 		});
 
 		// AWS shakyness
@@ -165,6 +199,7 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
 	const {value: remotionVersion} = await puppeteerEvaluateWithCatch<string>({
@@ -174,9 +209,10 @@ const innerSetPropsAndEnv = async ({
 		args: [],
 		frame: null,
 		page,
+		timeoutInMilliseconds: actualTimeout,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '10';
+	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
@@ -194,7 +230,7 @@ const innerSetPropsAndEnv = async ({
 
 	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,
@@ -208,7 +244,7 @@ const innerSetPropsAndEnv = async ({
 				].join('\n'),
 			);
 		} else {
-			Log.warnAdvanced(
+			Log.warn(
 				{
 					indent,
 					logLevel,
@@ -219,17 +255,27 @@ const innerSetPropsAndEnv = async ({
 	}
 };
 
-export const setPropsAndEnv = (params: SetPropsAndEnv) => {
-	return Promise.race([
-		innerSetPropsAndEnv(params),
-		new Promise((_, reject) => {
-			setTimeout(() => {
-				reject(
-					new Error(
-						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
-					),
-				);
-			}, params.timeoutInMilliseconds);
-		}),
-	]);
+export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
+	let timeout: Timer | null = null;
+
+	try {
+		const result = await Promise.race([
+			innerSetPropsAndEnv(params),
+			new Promise((_, reject) => {
+				timeout = setTimeout(() => {
+					reject(
+						new Error(
+							`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+						),
+					);
+				}, params.timeoutInMilliseconds);
+			}),
+		]);
+
+		return result;
+	} finally {
+		if (timeout !== null) {
+			clearTimeout(timeout);
+		}
+	}
 };

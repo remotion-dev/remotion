@@ -15,7 +15,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 **Pros**
 
 ✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
-✅ &nbsp; Can be rendered without having to be downloaded fully.  
+✅ &nbsp; Can be rendered without having to be downloaded fully (only if you don't need audio and pass `muted`).  
 ✅ &nbsp; [Renders embedded transparent videos quickly](/docs/transparent-videos).
 
 **Cons**
@@ -30,7 +30,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 A more sophisticated way of embedding a video, which:
 
 - renders a `<video>` tag during preview
-- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFMPEG outside the browser
+- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFmpeg outside the browser
 
 **Pros**
 
@@ -43,6 +43,7 @@ A more sophisticated way of embedding a video, which:
 
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
 ⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<Img/>` during render.  
+⛔ &nbsp; Does not natively support the `loop` attribute. Checkout [looping an offthread video](/docs/offthreadvideo#looping-a-video) for more info.
 ⛔ &nbsp; The video cannot be drawn to a canvas.  
 ⛔ &nbsp; Supports embedded transparent videos only if [`transparent`](/docs/offthreadvideo#transparent-) is set which leads to a performance penalty.
 

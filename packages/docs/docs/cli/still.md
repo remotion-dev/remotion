@@ -12,8 +12,10 @@ _Available from v2.3._
 Render a still frame based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion still <entry-file> [<composition-id>] [<output-location>]
+npx remotion still <serve-url|entry-point>? [<composition-id>] [<output-location>]
 ```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 If `output-location` is not passed, the still will be rendered into the `out` folder.  
 If `composition-id` is also not passed, Remotion will let you select a composition.
@@ -83,7 +85,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-path" />
 
 ### `--timeout`
 
@@ -107,19 +109,7 @@ Opens an actual browser during rendering to observe the render.
 
 ### `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" cli />
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
@@ -128,6 +118,14 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
 
 ### ~~`--ffmpeg-executable`~~
 

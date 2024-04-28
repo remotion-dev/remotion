@@ -91,8 +91,9 @@ A callback function that gets called when the render starts, useful to obtain th
 
 It receives an object with the following properties:
 
-- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
 - `renderId`: The ID of the render.
+- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+- `lambdaInsightsUrl`<AvailableFrom v="4.0.61" />: A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
 
 Example usage:
 
@@ -120,9 +121,10 @@ const otherParameters: RenderStillOnLambdaInput = {
 };
 await renderStillOnLambda({
   ...otherParameters,
-  onInit: ({ cloudWatchLogs, renderId }) => {
+  onInit: ({ cloudWatchLogs, renderId, lambdaInsightsUrl }) => {
     console.log(console.log(`Render invoked with ID = ${renderId}`));
     console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+    console.log(`Lambda Insights (if enabled): ${lambdaInsightsUrl}`);
   },
 });
 ```
@@ -180,8 +182,8 @@ _optional_
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
-- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination)
+- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
+- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination).
 
 ### `timeoutInMilliseconds?`
 
@@ -227,20 +229,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-_string_
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromiums default
-
-:::note
-The default for Lambda is `"swangle"`, but `null` elsewhere.
-:::
+<Options id="gl"  />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
@@ -256,7 +245,9 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 _optional_
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
+
+Logs can be read through the CloudWatch URL that this function returns.
 
 ### ~~`dumpBrowserLogs?`~~
 
@@ -275,6 +266,10 @@ The S3 bucket in which the video was saved.
 ### `url`
 
 An AWS S3 URL where the output is available.
+
+### `outKey`<AvailableFrom v="4.0.141" />
+
+The S3 key where the output is saved.
 
 ### `estimatedPrice`
 

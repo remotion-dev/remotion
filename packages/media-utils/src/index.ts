@@ -4,6 +4,7 @@ export {
 	getAudioDuration,
 	getAudioDurationInSeconds,
 } from './get-audio-duration-in-seconds';
+export {getImageDimensions} from './get-image-dimensions';
 export {getVideoMetadata} from './get-video-metadata';
 export {getWaveformPortion} from './get-waveform-portion';
 export * from './types';

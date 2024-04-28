@@ -1,8 +1,4 @@
-import {
-	defaultAudioCodecs,
-	supportedAudioCodecs,
-	validAudioCodecs,
-} from './audio-codec';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -14,25 +10,30 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
-import {isAudioCodec} from './is-audio-codec';
-import {audioBitrateOption} from './options/audio-bitrate';
-import {colorSpaceOption, validColorSpaces} from './options/color-space';
-import {crfOption} from './options/crf';
-import {deleteAfterOption} from './options/delete-after';
-import {enforceAudioOption} from './options/enforce-audio';
-import {folderExpiryOption} from './options/folder-expiry';
-import {jpegQualityOption} from './options/jpeg-quality';
-import {muteOption} from './options/mute';
-import {offthreadVideoCacheSizeInBytesOption} from './options/offthreadvideo-cache-size';
+import {validStillImageFormats, validVideoImageFormats} from './image-format';
+import {DEFAULT_JPEG_QUALITY} from './jpeg-quality';
+import {logLevels} from './log-level';
+import {allOptions} from './options';
+import {
+	defaultAudioCodecs,
+	getExtensionFromAudioCodec,
+	isAudioCodec,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './options/audio-codec';
+import {DEFAULT_COLOR_SPACE, validColorSpaces} from './options/color-space';
+import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
-import {scaleOption} from './options/scale';
-import {videoBitrate} from './options/video-bitrate';
-import {videoCodecOption} from './options/video-codec';
-import {webhookCustomDataOption} from './options/webhook-custom-data';
-import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {getOutputCodecOrUndefined} from './options/video-codec';
+import {x264PresetOptions} from './options/x264-preset';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validPixelFormats,
+	validPixelFormatsForCodec,
+} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
-import {x264PresetOptions} from './x264-preset';
+export {AvailableOptions, TypeOfOption} from './options';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -44,29 +45,25 @@ export const BrowserSafeApis = {
 	proResProfileOptions,
 	x264PresetOptions,
 	validPixelFormats,
+	validOpenGlRenderers,
+	validPixelFormatsForCodec,
+	validVideoImageFormats,
+	validStillImageFormats,
 	DEFAULT_PIXEL_FORMAT,
+	DEFAULT_TIMEOUT,
+	DEFAULT_JPEG_QUALITY,
+	DEFAULT_COLOR_SPACE,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,
 	defaultCodecsForFileExtension,
 	validateOutputFilename,
-	options: {
-		scaleOption,
-		crfOption,
-		jpegQualityOption,
-		videoBitrate,
-		audioBitrateOption,
-		enforceAudioOption,
-		muteOption,
-		videoCodecOption,
-		offthreadVideoCacheSizeInBytesOption,
-		webhookCustomDataOption,
-		colorSpaceOption,
-		deleteAfterOption,
-		folderExpiryOption,
-	},
+	options: allOptions,
 	validColorSpaces,
 	optionsMap,
 	codecSupportsCrf,
 	codecSupportsVideoBitrate,
+	logLevels,
+	getOutputCodecOrUndefined,
+	getExtensionFromAudioCodec,
 };

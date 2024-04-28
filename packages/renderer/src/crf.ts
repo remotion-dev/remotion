@@ -1,5 +1,5 @@
 import type {Codec} from './codec';
-import {isAudioCodec} from './is-audio-codec';
+import {isAudioCodec} from './options/audio-codec';
 
 export type Crf = number | undefined;
 
@@ -8,7 +8,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts') {
 		return 18; // FFMPEG default 23
 	}
 
@@ -48,7 +48,7 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [0, 0];
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts') {
 		return [1, 51];
 	}
 
@@ -71,16 +71,31 @@ export const validateQualitySettings = ({
 	codec,
 	crf,
 	videoBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
 }: {
 	crf: unknown;
 	codec: Codec;
-	videoBitrate: string | null | undefined;
+	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
 }): string[] => {
 	if (crf && videoBitrate) {
 		throw new Error(
 			'"crf" and "videoBitrate" can not both be set. Choose one of either.',
 		);
 	}
+
+	if (encodingMaxRate && !encodingBufferSize) {
+		throw new Error(
+			'"encodingMaxRate" can not be set without also setting "encodingBufferSize".',
+		);
+	}
+
+	const bufSizeArray = encodingBufferSize
+		? ['-bufsize', encodingBufferSize]
+		: [];
+	const maxRateArray = encodingMaxRate ? ['-maxrate', encodingMaxRate] : [];
 
 	if (videoBitrate) {
 		if (codec === 'prores') {
@@ -93,13 +108,12 @@ export const validateQualitySettings = ({
 			return [];
 		}
 
-		return ['-b:v', videoBitrate];
+		return ['-b:v', videoBitrate, ...bufSizeArray, ...maxRateArray];
 	}
 
 	if (crf === null || typeof crf === 'undefined') {
 		const actualCrf = getDefaultCrfForCodec(codec);
-
-		return ['-crf', String(actualCrf)];
+		return ['-crf', String(actualCrf), ...bufSizeArray, ...maxRateArray];
 	}
 
 	if (typeof crf !== 'number') {
@@ -137,5 +151,5 @@ export const validateQualitySettings = ({
 		return [];
 	}
 
-	return ['-crf', String(crf)];
+	return ['-crf', String(crf), ...bufSizeArray, ...maxRateArray];
 };

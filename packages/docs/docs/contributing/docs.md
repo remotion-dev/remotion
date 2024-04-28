@@ -27,7 +27,7 @@ values={[
 
 This method will avoid having to compile all docs. You cannot validate if links to other docs are valid.
 
-<Step>1</Step> Set up the Remotion repository <a href="/docs/contributing">according the instructions here</a>. <br/>
+<Step>1</Step> Set up the Remotion repository <a href="/docs/contributing">according to the instructions here</a>. <br/>
 <Step>2</Step> Run <code>node new-doc.mjs</code> and follow the instructions.<br/>
 
   </TabItem>
@@ -110,7 +110,7 @@ Use `<ExperimentalBadge />` to mark something as experimental:
 
 ### Demos
 
-Using `<Demo type="[demo-name]" />` you can render a [Remotion Player](/docs/terminology#remotion-player) and specify props that can be updated.
+Using `<Demo type="[demo-name]" />` you can render a [Remotion Player](/docs/terminology/player) and specify props that can be updated.
 
 ```md
 <Demo type="rect"/>

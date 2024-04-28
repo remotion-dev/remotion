@@ -1,6 +1,8 @@
 import {validateFps} from '../validation/validate-fps.js';
-import type {SpringConfig} from './spring-utils.js';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils.js';
+
+const cache = new Map<string, number>();
 
 /**
  * @description The function returns how long it takes for a spring animation to settle
@@ -45,6 +47,20 @@ export function measureSpring({
 		throw new TypeError('Threshold is below 0');
 	}
 
+	const cacheKey = [
+		fps,
+		config.damping,
+		config.mass,
+		config.overshootClamping,
+		config.stiffness,
+		from,
+		to,
+		threshold,
+	].join('-');
+	if (cache.has(cacheKey)) {
+		return cache.get(cacheKey)!;
+	}
+
 	validateFps(fps, 'to the measureSpring() function', false);
 
 	const range = Math.abs(from - to);
@@ -55,8 +71,6 @@ export function measureSpring({
 			fps,
 			frame,
 			config,
-			from,
-			to,
 		});
 	};
 
@@ -88,6 +102,8 @@ export function measureSpring({
 			finishedFrame = frame + 1;
 		}
 	}
+
+	cache.set(cacheKey, finishedFrame);
 
 	return finishedFrame;
 }

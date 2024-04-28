@@ -14,9 +14,14 @@ export const loadConfigFile = async (
 	const tsconfigJson = path.join(remotionRoot, 'tsconfig.json');
 	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
 		Log.error(
+			{indent: false, logLevel: 'error'},
 			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.',
 		);
-		Log.error('The root directory is:', remotionRoot);
+		Log.error(
+			{indent: false, logLevel: 'error'},
+			'The root directory is:',
+			remotionRoot,
+		);
 		process.exit(1);
 	}
 
@@ -33,21 +38,28 @@ export const loadConfigFile = async (
 		packages: 'external',
 	});
 	if (result.errors.length > 0) {
-		Log.error('Error in remotion.config.ts file');
+		Log.error(
+			{indent: false, logLevel: 'error'},
+			'Error in remotion.config.ts file',
+		);
 		for (const err in result.errors) {
-			Log.error(err);
+			Log.error({indent: false, logLevel: 'error'}, err);
 		}
 
 		process.exit(1);
 	}
 
-	const str = new TextDecoder().decode(result.outputFiles[0].contents);
+	let str = new TextDecoder().decode(result.outputFiles[0].contents);
 
 	const currentCwd = process.cwd();
 
 	// The config file is always executed from the Remotion root, if `process.cwd()` is being used. We cannot enforce this in worker threads used for testing
 	if (isMainThread) {
 		process.chdir(remotionRoot);
+	}
+
+	if (process.env.PATCH_BUN_DEVELOPMENT) {
+		str = str.replace('@remotion/cli/config', './config');
 	}
 
 	// Exectute the contents of the config file

@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path, {extname} from 'node:path';
-import type {TRenderAsset} from 'remotion';
-import {random} from 'remotion';
+import type {TRenderAsset} from 'remotion/no-react';
+import {random} from 'remotion/no-react';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import type {LogLevel} from '../log-level';
 import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
@@ -29,10 +30,6 @@ const waitForAssetToBeDownloaded = ({
 	downloadDir: string;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
-	if (process.env.NODE_ENV === 'test') {
-		console.log('waiting for asset to be downloaded', src);
-	}
-
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		return Promise.resolve(
 			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string,
@@ -150,9 +147,13 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	downloadMap,
+	indent,
+	logLevel,
 }: {
 	src: string;
 	downloadMap: DownloadMap;
+	indent: boolean;
+	logLevel: LogLevel;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
@@ -192,10 +193,6 @@ export const downloadAsset = async ({
 			[downloadDir: string]: boolean;
 		}
 	)[downloadDir] = true;
-
-	if (process.env.NODE_ENV === 'test') {
-		console.log('Actually downloading asset', src);
-	}
 
 	downloadMap.emitter.dispatchDownload(src);
 
@@ -247,6 +244,8 @@ export const downloadAsset = async ({
 				src,
 				contentType,
 			}),
+		indent,
+		logLevel,
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
@@ -334,7 +333,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 		split.length > 1 && split[split.length - 1]
 			? `.${split[split.length - 1]}`
 			: '';
-	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+	const hashedFileName = String(random(`${src}${pathname}${search}`)).replace(
 		'0.',
 		'',
 	);
@@ -348,15 +347,21 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	renderAsset,
 	onDownload,
 	downloadMap,
+	logLevel,
+	indent,
 }: {
 	renderAsset: TRenderAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
+	logLevel: LogLevel;
+	indent: boolean;
 }): Promise<TRenderAsset> => {
 	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: renderAsset.src,
 		downloadMap,
+		indent,
+		logLevel,
 	});
 	cleanup();
 
@@ -384,13 +389,14 @@ export const attachDownloadListenerToEmitter = (
 		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
 			(l) => l !== onDownload,
 		);
+		return Promise.resolve();
 	});
 
-	const a = downloadMap.emitter.addEventListener(
+	const cleanupDownloadListener = downloadMap.emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {
 			const progress = onDownload(initialSrc);
-			const b = downloadMap.emitter.addEventListener(
+			const cleanupProgressListener = downloadMap.emitter.addEventListener(
 				'progress',
 				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
 					if (initialSrc === progressSrc) {
@@ -398,14 +404,20 @@ export const attachDownloadListenerToEmitter = (
 					}
 				},
 			);
-			cleanup.push(b);
+			cleanup.push(() => {
+				cleanupProgressListener();
+				return Promise.resolve();
+			});
 		},
 	);
-	cleanup.push(() => a());
+	cleanup.push(() => {
+		cleanupDownloadListener();
+		return Promise.resolve();
+	});
 
 	return () => {
 		cleanup.forEach((c) => c());
 	};
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;

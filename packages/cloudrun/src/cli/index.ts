@@ -1,67 +1,72 @@
 import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
-import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
-import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
-import {renderCommand, RENDER_COMMAND} from './commands/render';
-import {servicesCommand, SERVICES_COMMAND} from './commands/services';
-import {sitesCommand, SITES_COMMAND} from './commands/sites';
-import {stillCommand, STILL_COMMAND} from './commands/still';
+import {PERMISSIONS_COMMAND, permissionsCommand} from './commands/permissions';
+import {REGIONS_COMMAND, regionsCommand} from './commands/regions';
+import {RENDER_COMMAND, renderCommand} from './commands/render';
+import {SERVICES_COMMAND, servicesCommand} from './commands/services';
+import {SITES_COMMAND, sitesCommand} from './commands/sites';
+import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {Log} from './log';
 
-const matchCommand = (args: string[], remotionRoot: string) => {
+const matchCommand = (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	if (parsedCloudrunCli.help || args.length === 0 || args[0] === 'help') {
-		printHelp();
+		printHelp(logLevel);
 		quit(0);
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot);
+		return renderCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot);
+		return stillCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === SERVICES_COMMAND) {
-		return servicesCommand(args.slice(1));
+		return servicesCommand(args.slice(1), logLevel);
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === REGIONS_COMMAND) {
-		return regionsCommand();
+		return regionsCommand(logLevel);
 	}
 
 	if (args[0] === PERMISSIONS_COMMAND) {
-		return permissionsCommand();
+		return permissionsCommand(logLevel);
 	}
 
 	if (args[0] === 'deploy') {
-		Log.info(`The "deploy" command does not exist.`);
-		Log.info(`Did you mean "service deploy"?`);
+		Log.info({indent: false, logLevel}, `The "deploy" command does not exist.`);
+		Log.info({indent: false, logLevel}, `Did you mean "service deploy"?`);
 	}
 
-	Log.error(`Command ${args[0]} not found.`);
-	printHelp();
+	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
+	printHelp(logLevel);
 	quit(1);
 };
 
-export const executeCommand = async (args: string[], remotionRoot: string) => {
+export const executeCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
 	try {
-		await matchCommand(args, remotionRoot);
+		await matchCommand(args, remotionRoot, logLevel);
 	} catch (err) {
 		const error = err as Error;
 		if (error instanceof RenderInternals.SymbolicateableError) {
-			await CliInternals.printError(
-				error,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(error, logLevel);
 		} else {
 			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
 
@@ -72,10 +77,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 				stack: error.stack,
 				stackFrame: frames,
 			});
-			await CliInternals.printError(
-				errorWithStackFrame,
-				ConfigInternals.Logging.getLogLevel(),
-			);
+			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
 
 		quit(1);

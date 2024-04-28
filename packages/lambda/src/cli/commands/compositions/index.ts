@@ -1,4 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {getCompositionsOnLambda} from '../../..';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
@@ -10,37 +12,67 @@ import {Log} from '../../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
 
+const {
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+} = BrowserSafeApis.options;
+
 export const compositionsCommand = async (
 	args: string[],
-	remotionRoot: string,
+	logLevel: LogLevel,
 ) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
-		Log.error('No serve URL passed.');
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
 		Log.info(
+			{indent: false, logLevel},
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
 		);
-		Log.info();
-		Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} ${COMPOSITIONS_COMMAND} <serve-url>`,
+		);
 		quit(1);
 	}
 
 	const {
-		chromiumOptions,
 		envVariables,
 		inputProps,
+		ignoreCertificateErrors,
+		userAgent,
+		disableWebSecurity,
+	} = CliInternals.getCliOptions({
+		isStill: false,
 		logLevel,
-		puppeteerTimeout,
-	} = await CliInternals.getCliOptions({
-		type: 'get-compositions',
-		isLambda: true,
-		remotionRoot,
 	});
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+	};
 
 	const region = getAwsRegion();
 	validateServeUrl(serveUrl);
-	const functionName = await findFunctionName();
+	const functionName = await findFunctionName(logLevel);
 
 	const comps = await getCompositionsOnLambda({
 		functionName,
@@ -54,5 +86,5 @@ export const compositionsCommand = async (
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
 	});
 
-	CliInternals.printCompositions(comps);
+	CliInternals.printCompositions(comps, logLevel);
 };

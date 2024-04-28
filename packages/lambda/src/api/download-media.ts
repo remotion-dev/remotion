@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import path from 'node:path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
@@ -15,6 +16,7 @@ export type DownloadMediaInput = {
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
 	customCredentials?: CustomCredentials;
+	logLevel?: LogLevel;
 };
 
 export type DownloadMediaOutput = {
@@ -64,6 +66,7 @@ export const downloadMedia = async (
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,
 		customCredentials,
+		logLevel: input.logLevel ?? 'info',
 	});
 
 	return {

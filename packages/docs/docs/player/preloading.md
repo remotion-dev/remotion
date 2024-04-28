@@ -5,7 +5,7 @@ title: "Preloading assets"
 crumb: "@remotion/player"
 ---
 
-By default, assets such as videos, audio, or images will only be loaded as they enter the video. When using the [Remotion Player](/docs/terminology#remotion-player), you may want to preload those assets beforehand to make them play immediately once they enter the video.
+By default, assets such as videos, audio, or images will only be loaded as they enter the video. When using the [Remotion Player](/docs/terminology/player), you may want to preload those assets beforehand to make them play immediately once they enter the video.
 
 Two ways of preloading are supported:
 
@@ -22,7 +22,7 @@ import { preloadAudio, preloadVideo } from "@remotion/preload";
 
 const unpreloadVideo = preloadVideo("https://example.com/video.mp4");
 const unpreloadAudio = preloadAudio(
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
 );
 
 // Later, you can optionally clean up the preload
@@ -103,7 +103,7 @@ free();
   No guarantee, just a signal to the browser
     </td>
     <td style={{color: "green"}}>
-  Guaranteed to be ready
+  Guaranteed to be ready, posssible to track progress of loading
     </td>
   </tr>
     <tr>

@@ -1,0 +1,8 @@
+{
+  "name": "bugs",
+  "dependencies": {
+    "@types/node": "^20.6.5"
+  },
+  "private": true,
+  "version": "4.0.148"
+}

@@ -25,13 +25,13 @@ export const GetStarted: React.FC = () => {
           <div
             className={styles.codeblock}
             onClick={() => {
-              navigator.clipboard.writeText("npm init video");
+              navigator.clipboard.writeText("npx create-video@latest");
 
               setClicked(Date.now());
             }}
             title="Click to copy"
           >
-            $ npm init video
+            $ npx create-video@latest
           </div>
           <div style={{ width: 10 }} />
           <a

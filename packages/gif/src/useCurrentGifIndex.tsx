@@ -2,10 +2,15 @@ import {useMemo} from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 import type {GifLoopBehavior} from './props';
 
-export function useCurrentGifIndex(
-	delays: number[],
-	loopBehavior: GifLoopBehavior,
-): number {
+export function useCurrentGifIndex({
+	delays,
+	loopBehavior,
+	playbackRate,
+}: {
+	delays: number[];
+	loopBehavior: GifLoopBehavior;
+	playbackRate: number;
+}): number {
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 
@@ -24,7 +29,9 @@ export function useCurrentGifIndex(
 		return 0;
 	}
 
-	const time = (currentFrame / videoConfig.fps) * 1000;
+	const updatedFrame = currentFrame / (1 / playbackRate);
+
+	const time = (updatedFrame / videoConfig.fps) * 1000;
 
 	if (loopBehavior === 'pause-after-finish' && time >= duration) {
 		return delays.length - 1;

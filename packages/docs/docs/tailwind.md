@@ -16,8 +16,9 @@ The easiest way to get started with Tailwind and Remotion is to [use the templat
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
 ]
 }>
 <TabItem value="npm">
@@ -34,7 +35,13 @@ pnpm create video --tailwind
 ```
 
   </TabItem>
+  <TabItem value="bun">
 
+```bash
+bun create video --tailwind
+```
+
+  </TabItem>
   <TabItem value="yarn">
 
 ```bash

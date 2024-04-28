@@ -9,41 +9,7 @@ A package containing the [`bundle()`](/docs/bundle) function, which takes a Remo
 
 ## Installation
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'pnpm', value: 'pnpm', },
-{ label: 'yarn', value: 'yarn', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/bundler
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/bundler
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/bundler
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="@remotion/bundler"/>
 
 ## API
 

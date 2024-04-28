@@ -101,33 +101,34 @@ npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 
 When server-rendering using [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you can pass props using the [`inputProps`](/docs/renderer/render-media#inputprops) option:
 
-```tsx twoslash {8-10}
+```tsx twoslash {3-5, 10, 18}
 // @module: esnext
 // @target: es2017
-const composition = {
-  fps: 30,
-  durationInFrames: 30,
-  width: 1080,
-  height: 1080,
-  id: "my-video",
-  defaultProps: {},
-  props: {},
-};
 const serveUrl = "/path/to/bundle";
 const outputLocation = "/path/to/frames";
 // ---cut---
-import { renderMedia } from "@remotion/renderer";
+import { renderMedia, selectComposition } from "@remotion/renderer";
+
+const inputProps = {
+  titleText: "Hello World",
+};
+
+const composition = await selectComposition({
+  serveUrl,
+  id: "my-video",
+  inputProps,
+});
 
 await renderMedia({
   composition,
   serveUrl,
   codec: "h264",
   outputLocation,
-  inputProps: {
-    titleText: "Hello World",
-  },
+  inputProps,
 });
 ```
+
+You should pass your `inputProps` to both [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media).
 
 ### Passing input props in GitHub Actions
 

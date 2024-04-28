@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
 import type {AudioData} from './types';
@@ -9,6 +10,7 @@ type FnParameters = {
 	frame: number;
 	fps: number;
 	numberOfSamples: number;
+	optimizeFor?: 'accuracy' | 'speed';
 };
 
 /**
@@ -21,6 +23,7 @@ const visualizeAudioFrame = ({
 	frame,
 	fps,
 	numberOfSamples,
+	optimizeFor,
 }: FnParameters) => {
 	const cacheKey = metadata.resultId + frame + fps + numberOfSamples;
 	if (cache[cacheKey]) {
@@ -36,6 +39,9 @@ const visualizeAudioFrame = ({
 		fps,
 		sampleRate: metadata.sampleRate,
 		maxInt,
+		optimizeFor:
+			optimizeFor ??
+			(NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 'speed' : 'accuracy'),
 	});
 };
 

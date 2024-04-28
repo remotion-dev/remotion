@@ -2,112 +2,30 @@
 
 import type {Point, Properties} from './types';
 
-export const makeArc = ({
-	x0,
-	y0,
-	rx,
-	ry,
-	xAxisRotate,
-	LargeArcFlag,
-	SweepFlag,
-	x1,
-	y1,
-}: {
-	x0: number;
-	y0: number;
-	rx: number;
-	ry: number;
-	xAxisRotate: number;
-	LargeArcFlag: boolean;
-	SweepFlag: boolean;
-	x1: number;
-	y1: number;
-}): Properties => {
-	const lengthProperties = approximateArcLengthOfCurve(300, (t: number) => {
-		return pointOnEllipticalArc({
-			p0: {x: x0, y: y0},
-			rx,
-			ry,
-			xAxisRotation: xAxisRotate,
-			largeArcFlag: LargeArcFlag,
-			sweepFlag: SweepFlag,
-			p1: {x: x1, y: y1},
-			t,
-		});
-	});
-	const length = lengthProperties.arcLength;
-
-	const getTotalLength = () => {
-		return length;
-	};
-
-	const getPointAtLength = (fractionLength: number): Point => {
-		if (fractionLength < 0) {
-			fractionLength = 0;
-		} else if (fractionLength > length) {
-			fractionLength = length;
-		}
-
-		const position = pointOnEllipticalArc({
-			p0: {x: x0, y: y0},
-			rx,
-			ry,
-			xAxisRotation: xAxisRotate,
-			largeArcFlag: LargeArcFlag,
-			sweepFlag: SweepFlag,
-			p1: {x: x1, y: y1},
-			t: fractionLength / length,
-		});
-
-		return {x: position.x, y: position.y};
-	};
-
-	const getTangentAtLength = (fractionLength: number): Point => {
-		if (fractionLength < 0) {
-			fractionLength = 0;
-		} else if (fractionLength > length) {
-			fractionLength = length;
-		}
-
-		const point_dist = 0.05; // needs testing
-		const p1 = getPointAtLength(fractionLength);
-		let p2: Point;
-
-		if (fractionLength < 0) {
-			fractionLength = 0;
-		} else if (fractionLength > length) {
-			fractionLength = length;
-		}
-
-		if (fractionLength < length - point_dist) {
-			p2 = getPointAtLength(fractionLength + point_dist);
-		} else {
-			p2 = getPointAtLength(fractionLength - point_dist);
-		}
-
-		const xDist = p2.x - p1.x;
-		const yDist = p2.y - p1.y;
-		const dist = Math.sqrt(xDist * xDist + yDist * yDist);
-
-		if (fractionLength < length - point_dist) {
-			return {x: -xDist / dist, y: -yDist / dist};
-		}
-
-		return {x: xDist / dist, y: yDist / dist};
-	};
-
-	return {
-		getPointAtLength,
-		getTangentAtLength,
-		getTotalLength,
-	};
+const mod = (x: number, m: number) => {
+	return ((x % m) + m) % m;
 };
 
-interface PointOnEllipticalArc {
-	x: number;
-	y: number;
-	ellipticalArcAngle: number;
-}
+const toRadians = (angle: number) => {
+	return angle * (Math.PI / 180);
+};
+
+const distance = (p0: Point, p1: Point) => {
+	return Math.sqrt((p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2);
+};
+
+const clamp = (val: number, min: number, max: number) => {
+	return Math.min(Math.max(val, min), max);
+};
+
+const angleBetween = (v0: Point, v1: Point) => {
+	const p = v0.x * v1.x + v0.y * v1.y;
+	const n = Math.sqrt((v0.x ** 2 + v0.y ** 2) * (v1.x ** 2 + v1.y ** 2));
+	const sign = v0.x * v1.y - v0.y * v1.x < 0 ? -1 : 1;
+	const angle = sign * Math.acos(p / n);
+
+	return angle;
+};
 
 const pointOnEllipticalArc = ({
 	p0,
@@ -291,27 +209,106 @@ const approximateArcLengthOfCurve = (
 	};
 };
 
-const mod = (x: number, m: number) => {
-	return ((x % m) + m) % m;
+export const makeArc = ({
+	x0,
+	y0,
+	rx,
+	ry,
+	xAxisRotate,
+	LargeArcFlag,
+	SweepFlag,
+	x1,
+	y1,
+}: {
+	x0: number;
+	y0: number;
+	rx: number;
+	ry: number;
+	xAxisRotate: number;
+	LargeArcFlag: boolean;
+	SweepFlag: boolean;
+	x1: number;
+	y1: number;
+}): Properties => {
+	const lengthProperties = approximateArcLengthOfCurve(300, (t: number) => {
+		return pointOnEllipticalArc({
+			p0: {x: x0, y: y0},
+			rx,
+			ry,
+			xAxisRotation: xAxisRotate,
+			largeArcFlag: LargeArcFlag,
+			sweepFlag: SweepFlag,
+			p1: {x: x1, y: y1},
+			t,
+		});
+	});
+	const length = lengthProperties.arcLength;
+
+	const getPointAtLength = (fractionLength: number): Point => {
+		if (fractionLength < 0) {
+			fractionLength = 0;
+		} else if (fractionLength > length) {
+			fractionLength = length;
+		}
+
+		const position = pointOnEllipticalArc({
+			p0: {x: x0, y: y0},
+			rx,
+			ry,
+			xAxisRotation: xAxisRotate,
+			largeArcFlag: LargeArcFlag,
+			sweepFlag: SweepFlag,
+			p1: {x: x1, y: y1},
+			t: fractionLength / length,
+		});
+
+		return {x: position.x, y: position.y};
+	};
+
+	return {
+		getPointAtLength,
+		getTangentAtLength: (fractionLength: number): Point => {
+			if (fractionLength < 0) {
+				fractionLength = 0;
+			} else if (fractionLength > length) {
+				fractionLength = length;
+			}
+
+			const point_dist = 0.05; // needs testing
+			const p1 = getPointAtLength(fractionLength);
+			let p2: Point;
+
+			if (fractionLength < 0) {
+				fractionLength = 0;
+			} else if (fractionLength > length) {
+				fractionLength = length;
+			}
+
+			if (fractionLength < length - point_dist) {
+				p2 = getPointAtLength(fractionLength + point_dist);
+			} else {
+				p2 = getPointAtLength(fractionLength - point_dist);
+			}
+
+			const xDist = p2.x - p1.x;
+			const yDist = p2.y - p1.y;
+			const dist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+			if (fractionLength < length - point_dist) {
+				return {x: -xDist / dist, y: -yDist / dist};
+			}
+
+			return {x: xDist / dist, y: yDist / dist};
+		},
+		getTotalLength: () => {
+			return length;
+		},
+		type: 'arc',
+	};
 };
 
-const toRadians = (angle: number) => {
-	return angle * (Math.PI / 180);
-};
-
-const distance = (p0: Point, p1: Point) => {
-	return Math.sqrt((p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2);
-};
-
-const clamp = (val: number, min: number, max: number) => {
-	return Math.min(Math.max(val, min), max);
-};
-
-const angleBetween = (v0: Point, v1: Point) => {
-	const p = v0.x * v1.x + v0.y * v1.y;
-	const n = Math.sqrt((v0.x ** 2 + v0.y ** 2) * (v1.x ** 2 + v1.y ** 2));
-	const sign = v0.x * v1.y - v0.y * v1.x < 0 ? -1 : 1;
-	const angle = sign * Math.acos(p / n);
-
-	return angle;
-};
+interface PointOnEllipticalArc {
+	x: number;
+	y: number;
+	ellipticalArcAngle: number;
+}

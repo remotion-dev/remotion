@@ -18,8 +18,10 @@ The structure of a command is as follows:
 npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- The serve URL is obtained by deploying a Remotion project to an AWS S3 bucket using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
+Arguments:
+
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -129,23 +131,15 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ### `--video-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ### `--prores-profile`
 
@@ -153,7 +147,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--x264-preset`
 
-[Set the x264 preset](/docs/config#setx264Preset). This option is only valid if the [`codec`](#--codec) has been set to `h264`. Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo` Default: `medium`
+<Options id="x264-preset" />
 
 ### `--crf`
 
@@ -187,7 +181,7 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+<Options id="number-of-gif-loops" />
 
 ### `--out-name`
 
@@ -239,19 +233,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 ### `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" cli />
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
@@ -272,3 +254,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 
 <Options cli id="color-space" />
+
+### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
+
+<Options cli id="prefer-lossless" />

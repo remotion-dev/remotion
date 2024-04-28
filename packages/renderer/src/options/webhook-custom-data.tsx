@@ -1,8 +1,10 @@
-import {AnyRemotionOption} from './option';
+import type {AnyRemotionOption} from './option';
+
+const cliFlag = 'webhook-custom-data' as const;
 
 export const webhookCustomDataOption = {
 	name: 'Webhook custom data',
-	cliFlag: 'webhook-custom-data' as const,
+	cliFlag,
 	description: (type) => (
 		<>
 			Pass up to 1,024 bytes of a JSON-serializable object to the webhook. This
@@ -15,4 +17,10 @@ export const webhookCustomDataOption = {
 	ssrName: 'customData' as const,
 	docLink: 'https://www.remotion.dev/docs/lambda/webhooks',
 	type: {} as Record<string, unknown> | null,
-} satisfies AnyRemotionOption;
+	getValue: () => {
+		throw new Error('Option resolution not implemented');
+	},
+	setConfig: () => {
+		throw new Error('Not implemented');
+	},
+} satisfies AnyRemotionOption<Record<string, unknown> | null>;

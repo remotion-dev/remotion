@@ -1,12 +1,15 @@
-import {formatBytes} from './format-bytes';
+import type {DownloadProgress} from '@remotion/studio-server';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {makeProgressBar} from './make-progress-bar';
-import type {DownloadProgress} from './progress-types';
 import {truthy} from './truthy';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
 
-	return `[${formatBytes(downloaded).padEnd(desiredLength - 2, ' ')}]`;
+	return `[${StudioServerInternals.formatBytes(downloaded).padEnd(
+		desiredLength - 2,
+		' ',
+	)}]`;
 };
 
 export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
@@ -41,10 +44,10 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 			? makeProgressBar(
 					progresses.reduce((a, b) => a + (b.progress as number), 0) /
 						progresses.length,
-			  )
+				)
 			: getFileSizeDownloadBar(
 					progresses.reduce((a, b) => a + b.downloaded, 0),
-			  ),
+				),
 		`Downloading ${progresses.length} files`,
 	]
 		.filter(truthy)

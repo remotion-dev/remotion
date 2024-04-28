@@ -9,5 +9,5 @@ import {construct} from './helpers/construct';
  */
 export const getLength = (path: string) => {
 	const constructucted = construct(path);
-	return constructucted.length;
+	return constructucted.totalLength;
 };

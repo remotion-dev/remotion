@@ -1,22 +1,34 @@
-import {CalculateMetadataFunction} from 'remotion';
-import {zColor} from '@remotion/zod-types';
-import './style.css';
 import {alias} from 'lib/alias';
 import React, {useCallback} from 'react';
-import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
+import {
+	CalculateMetadataFunction,
+	Composition,
+	Folder,
+	getInputProps,
+	staticFile,
+	Still,
+} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
+import {NativeBufferStateForImage} from './BufferState/Image';
+import {NativeBufferState} from './BufferState/Simple';
+import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {Green} from './Green';
+import {HlsDemo} from './Hls/HlsDemo';
+import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {
@@ -24,8 +36,11 @@ import {
 	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import {PremountedExample} from './Premount';
+import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
@@ -35,36 +50,44 @@ import {
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
+import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
+import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
+import {
+	SaveDefaultProps,
+	saveStudioSchema,
+} from './StudioApis/SaveDefaultProps';
+import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
+import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
+import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
+import {VideoTextureDemo} from './ThreeScene/Scene';
+import {Timeout} from './Timeout';
+import {FitText, fitTextSchema} from './Title/FitText';
+import {AudioTransition} from './Transitions/AudioTransition';
+import {BasicTransition} from './Transitions/BasicTransition';
+import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import {Tailwind} from './Tailwind';
-import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
-import {HugePayload, hugePayloadSchema} from './HugePayload';
-import {Timeout} from './Timeout';
-import {PageTransition} from './Transitions/PageTransition';
-import {_props} from './typechecks';
+import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
-	throw new Error('should support TS aliases');
-}
-
-if (!_props) {
 	throw new Error('should support TS aliases');
 }
 
@@ -341,7 +364,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={10000}
 				/>
 				<Composition
 					id="skip-zero-frame"
@@ -429,6 +452,16 @@ export const Index: React.FC = () => {
 						line2: 'text',
 					}}
 				/>
+				<Still
+					id="FitText"
+					component={FitText}
+					width={800}
+					height={900}
+					schema={fitTextSchema}
+					defaultProps={{
+						line: 'Test',
+					}}
+				/>
 				<Composition
 					id="beta-text"
 					component={BetaText}
@@ -443,6 +476,14 @@ export const Index: React.FC = () => {
 					schema={betaTextSchema}
 				/>
 				<Composition
+					id="green"
+					component={Green}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={2}
+				/>
+				<Composition
 					id="react-svg"
 					lazyComponent={() => import('./ReactSvg')}
 					width={1920}
@@ -455,6 +496,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-tests">
+				<Composition
+					id="hls"
+					component={HlsDemo}
+					width={1920}
+					height={1080}
+					durationInFrames={100}
+					fps={30}
+				/>
 				<Composition
 					id="video-testing-mp4"
 					component={VideoTesting}
@@ -485,15 +534,18 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1920}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={30 * 60}
+					defaultProps={{
+						src: 'variablefps.webm',
+					}}
 				/>
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920 * 2}
-					height={1080 * 2}
-					fps={60}
-					durationInFrames={20000}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={30 * 60}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -576,15 +628,26 @@ export const Index: React.FC = () => {
 					width={1800}
 					height={2200}
 				/>
+				<Still
+					id="still-helloworld"
+					defaultProps={{message: 'Hello from default!'}}
+					component={StillHelloWorld}
+					width={1920}
+					height={1080}
+				/>
 			</Folder>
 			<Folder name="features">
-				<Composition
+				<Still
 					id="mdx-test"
 					lazyComponent={() => import('./MdxTest')}
 					width={1080}
 					height={1080}
-					fps={30}
-					durationInFrames={30 * 30}
+				/>
+				<Still
+					id="watch-static"
+					component={WatchStaticDemo}
+					width={1080}
+					height={1080}
 				/>
 				<Composition
 					id="color-interpolation"
@@ -592,6 +655,51 @@ export const Index: React.FC = () => {
 					width={1280}
 					height={720}
 					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="text-stroke"
+					component={TextStroke}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="native-buffer-state"
+					component={NativeBufferState}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-video"
+					component={NativeBufferStateForVideo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-image"
+					component={NativeBufferStateForImage}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="default-codec"
+					component={ColorInterpolation}
+					width={1280}
+					height={720}
+					fps={30}
+					calculateMetadata={() => {
+						return {
+							defaultCodec: 'aac',
+						};
+					}}
 					durationInFrames={100}
 				/>
 				<Still
@@ -670,6 +778,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-testing-short-loop"
+					lazyComponent={() => import('./AudioTesting/ShortLoop')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
 					id="audio-testing-amplify"
 					lazyComponent={() => import('./AudioTesting/Amplify')}
 					width={1080}
@@ -719,6 +835,34 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="use-video-texture"
+					component={VideoTextureDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					defaultProps={{
+						baseScale: 1,
+						deviceType: 'phone',
+						phoneColor: 'black',
+						textureType: 'video',
+					}}
+				/>
+				<Composition
+					id="use-offthread-video-texture"
+					component={VideoTextureDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					defaultProps={{
+						baseScale: 1,
+						deviceType: 'phone',
+						phoneColor: 'black',
+						textureType: 'offthreadvideo',
+					}}
 				/>
 			</Folder>
 			<Folder name="lottie">
@@ -828,7 +972,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={200}
+					durationInFrames={250}
 				/>
 				<Composition
 					id="gif-duration"
@@ -916,132 +1060,71 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
-						vehicle: z
-							.string()
-							.max(3, 'Too long')
-							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
-						other: z.string(),
-						abc: z.object({
-							union: z.null().or(
+						union: z.array(
+							z.discriminatedUnion('type', [
 								z.object({
-									abc: z.string(),
+									type: z.literal('car'),
+									color: z.string(),
+									obj: z.array(
+										z.object({
+											link: z.string(),
+										}),
+									),
 								}),
-							),
-							jkl: z.string(),
-							def: z.object({
-								unionArray: z.array(z.null().or(z.string())),
-								pef: z.string(),
-							}),
-						}),
-						array: z
-							.array(
 								z.object({
-									a: z.string(),
-									b: z.string(),
+									type: z.literal('boat'),
+									depth: z.number(),
 								}),
-							)
-							.min(2),
-						array2: z.array(z.array(z.number())),
-						mynum: z.number().lt(10),
-						value: z.boolean().refine((v) => v === false || v === true),
-						lol: z.undefined(),
-						haha: z.null(),
-						yo: z.any(),
-						un: z.unknown(),
-						num: z.coerce.string(),
-						date: z.date(),
-						values: z.enum(['a', 'b', 'c']),
-						supersuperlongvalueabcdefghji: z.string(),
-						incompatible: z.null().or(z.undefined()),
-						color: zColor(),
-						nullable: z.nullable(z.string()),
-						optional: z.string().optional(),
-						filePath: z.string().refine((v) => v.endsWith('.png')),
-						longEnum: z.enum([
-							'a',
-							'b',
-							'c',
-							'd',
-							'e',
-							'f',
-							'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-							'h',
-							'i',
-							'j',
-							'k',
-							'l',
-							'm',
-							'n',
-							'o',
-							'p',
-							'q',
-							'r',
-							's',
-							't',
-							'u',
-							'v',
-							'w',
-							'x',
-							'y',
-							'z',
-						]),
-						union: z.discriminatedUnion('type', [
-							z.object({
-								type: z.literal('car'),
-								color: z.string(),
-							}),
-							z.object({
-								type: z.literal('boat'),
-								depth: z.number(),
-							}),
-						]),
+							]),
+						),
 					})}
 					defaultProps={{
-						vehicle: 'car',
-						other: 'hi',
-						abc: {
-							union: null,
-							def: {unionArray: [null], pef: 'hu'},
-							jkl: 'sting',
-							xyz: 'hi',
-						},
-						array: [
-							{a: 'a', b: 'bbbbb'},
-							{a: 'a', b: 'b'},
+						union: [
+							{type: 'boat' as const, depth: 10},
+							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
 						],
-						array2: [[12], [12]],
-						mynum: 4,
-						value: true,
-						haha: null,
-						yo: {hi: ' there'},
-						un: 'hi',
-						num: '179',
-						date: new Date('1999-02-12T22:20:00.000Z'),
-						values: 'a' as const,
-						supersuperlongvalueabcdefghji: 'hi',
-						incompatible: null,
-						longEnum: 'k' as const,
-						color: '#eb3a60',
-						nullable: null,
-						optional: '',
-						filePath: staticFile('nested/logö.png'),
-						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
-					calculateMetadata={({defaultProps}) => {
-						return {
-							durationInFrames: defaultProps.mynum * 10,
-							props: {
-								...defaultProps,
-							},
-						};
-					}}
+				/>
+			</Folder>
+			<Folder name="Premount">
+				<Composition
+					id="premounted"
+					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+				<Composition
+					id="premounted-remote"
+					component={PremountedRemoteVideos}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
 				/>
 			</Folder>
 			<Folder name="Transitions">
 				<Composition
-					id="transition"
-					component={PageTransition}
+					id="basic-transition"
+					component={BasicTransition}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="audio-transition"
+					component={AudioTransition}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="custom-transition"
+					component={CustomTransition}
 					fps={30}
 					height={1080}
 					durationInFrames={300}
@@ -1058,10 +1141,16 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 					defaultProps={{
-						title: 'sdasdsd',
+						title: 'sdasds',
 						delay: 5.2,
 						color: '#df822a',
-						list: ['Sample Item'],
+						list: [{name: 'first', age: 12}],
+						description: 'Sample description \nOn multiple lines',
+						dropdown: 'a' as const,
+						superSchema: [
+							{type: 'a' as const, a: {a: 'hi'}},
+							{type: 'b' as const, b: {b: 'hi'}},
+						],
 					}}
 				/>
 				{/**
@@ -1095,6 +1184,63 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={60}
+				/>
+			</Folder>
+			<Composition
+				id="Layers"
+				component={Layers}
+				width={1080}
+				height={1080}
+				durationInFrames={200}
+				fps={30}
+				defaultProps={{}}
+			/>
+			<Composition
+				id="WidthHeight"
+				component={WidthHeightSequences}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="RetryDelayRender"
+				component={RetryDelayRender}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
+			/>
+			<Folder name="Skia">
+				<Composition
+					id="skia-shader"
+					component={RuntimeShaderDemo}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="studio-apis">
+				<Composition
+					id="save-default-props"
+					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="write-static-file"
+					component={WriteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
 				/>
 			</Folder>
 		</>

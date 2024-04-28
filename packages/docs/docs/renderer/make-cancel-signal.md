@@ -24,6 +24,7 @@ const composition: VideoConfig = {
   width: 1280,
   defaultProps: {},
   props: {},
+  defaultCodec: null,
 };
 // ---cut---
 import { makeCancelSignal, renderMedia } from "@remotion/renderer";

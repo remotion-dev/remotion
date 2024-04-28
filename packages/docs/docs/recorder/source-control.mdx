@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-recorder-source-control.png
+title: Source Control
+crumb: Recorder
+---
+
+We have two recommended approaches for dealing with the videos that you add to the Remotion project.
+
+## Method 1: Add public folder to .gitignore
+
+:::tip
+👍 Recommended when you want to keep the videos local and want minimal setup.
+:::
+
+Add the public folder containing all your assets to `.gitignore` by running the following command in your Recorder root:
+
+```bash
+echo "public" > .gitignore
+```
+
+This prevents all the assets in your public folder from being added to your Git repository.  
+The videos are being kept locally and only changes to the code can be staged.
+
+## Method 2: Use Git LFS
+
+:::tip
+👍 Recommended when you want to back up, archive, or share your video source files with others.
+:::
+
+If you want to add all your recordings to your repository, you can use Git LFS.
+
+Your Git provider might charge you for storage.  
+A GitHub account includes 1 GiB of free storage and 1 GiB a month of free bandwidth. [Afterwards, you can buy a 50GB data pack for $5](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/upgrading-git-large-file-storage).
+
+### Setup Git LFS
+
+1. [Download Git LFS](https://git-lfs.com/).
+2. Initialize Git LFS in your repository:
+
+```bash
+git lfs install
+```
+
+3. Configure Git LFS to track all .mp4 files located in the /public and all its subfolders:
+
+```bash
+git lfs track public/**/*.mp4
+```

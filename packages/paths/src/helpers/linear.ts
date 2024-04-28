@@ -1,5 +1,5 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
-import type {Point, PointProperties} from './types';
+import type {Point, Properties} from './types';
 
 export const makeLinearPosition = ({
 	x0,
@@ -11,35 +11,24 @@ export const makeLinearPosition = ({
 	x1: number;
 	y0: number;
 	y1: number;
-}) => {
-	const getTotalLength = () => {
-		return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
-	};
-
-	const getPointAtLength = (pos: number): Point => {
-		let fraction = pos / Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
-
-		fraction = Number.isNaN(fraction) ? 1 : fraction;
-		const newDeltaX = (x1 - x0) * fraction;
-		const newDeltaY = (y1 - y0) * fraction;
-
-		return {x: x0 + newDeltaX, y: y0 + newDeltaY};
-	};
-
-	const getTangentAtLength = (): Point => {
-		const module = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
-		return {x: (x1 - x0) / module, y: (y1 - y0) / module};
-	};
-
-	const getPropertiesAtLength = (): PointProperties => {
-		const tangent = getTangentAtLength();
-		return {tangentX: tangent.x, tangentY: tangent.y};
-	};
-
+}): Properties => {
 	return {
-		getTotalLength,
-		getPointAtLength,
-		getTangentAtLength,
-		getPropertiesAtLength,
+		getTotalLength: () => {
+			return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
+		},
+		getPointAtLength: (pos: number): Point => {
+			let fraction = pos / Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
+
+			fraction = Number.isNaN(fraction) ? 1 : fraction;
+			const newDeltaX = (x1 - x0) * fraction;
+			const newDeltaY = (y1 - y0) * fraction;
+
+			return {x: x0 + newDeltaX, y: y0 + newDeltaY};
+		},
+		getTangentAtLength: (): Point => {
+			const module = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+			return {x: (x1 - x0) / module, y: (y1 - y0) / module};
+		},
+		type: 'linear',
 	};
 };

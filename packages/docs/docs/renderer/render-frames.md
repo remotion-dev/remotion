@@ -106,6 +106,10 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
+### `port?`
+
+Prefer a specific port that will be used to serve the Remotion project. If not specified, a random port will be used.
+
 ### `frameRange?`
 
 _optional_
@@ -120,8 +124,7 @@ Disables audio output. This option may only be set in combination with a video c
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
-`verbose` will also log `console.log`'s from the browser.
+<Options id="log"/>
 
 ### `puppeteerInstance?`
 
@@ -247,49 +250,49 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 Chromium flags need to be set at browser launch. If you pass an instance using [`puppeteerInstance`](#puppeteerinstance), options passed to `renderFrames()` will not apply, but rather the flags that have been passed to [`openBrowser()`](/docs/renderer/open-browser).
 :::
 
-#### `disableWebSecurity`
+#### `disableWebSecurity?`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-#### `ignoreCertificateErrors`
+#### `enableMultiProcessOnLinux?`<AvailableFrom v="4.0.42" />
+
+_boolean - default `true`_
+
+<Options id="enable-multiprocess-on-linux" />
+
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `headless`
+#### `headless?`
 
-_boolean - default `true`_
+<Options id="disable-headless"  />
 
-If disabled, the render will open an actual Chrome window where you can see the render happen.
-
-#### `gl`
+#### `gl?`
 
 _string_
 
-<AngleChangelog />
+<Options id="gl" />
 
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromiums default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
-
-#### `userAgent`<AvailableFrom v="3.3.83"/>
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+
+<Options id="on-browser-download" />
 
 ### ~~`quality?`~~
 

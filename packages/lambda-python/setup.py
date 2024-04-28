@@ -2,8 +2,14 @@ import os
 import setuptools
 from remotion_lambda.version import VERSION
 
+def load_requirements(path):
+    with open(path) as f:
+        return [line.strip() for line in f]
+
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
     README = readme.read()
+
+requirements = load_requirements('requirements.txt')
 
 setuptools.setup(
     name="remotion_lambda",
@@ -21,5 +27,5 @@ setuptools.setup(
     python_requires='>=3.6',
     # Name of the python package
     py_modules=["remotion-lambda"],
-
+    install_requires=requirements,
 )

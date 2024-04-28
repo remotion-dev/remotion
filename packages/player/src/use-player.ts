@@ -18,6 +18,11 @@ type UsePlayerMethods = {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
+	isBuffering: () => boolean;
+	/**
+	 * @deprecated Remotion internal API
+	 */
+	remotionInternal_currentFrameRef: React.MutableRefObject<number>;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -31,8 +36,9 @@ export const usePlayer = (): UsePlayerMethods => {
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const {audioAndVideoTags} = useContext(Internals.Timeline.TimelineContext);
 
-	const frameRef = useRef<number>();
+	const frameRef = useRef<number>(frame);
 	frameRef.current = frame;
+
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
 	const emitter = useContext(PlayerEventEmitterContext);
@@ -45,11 +51,22 @@ export const usePlayer = (): UsePlayerMethods => {
 		throw new TypeError('Expected Player event emitter context');
 	}
 
+	const bufferingContext = useContext(Internals.BufferingContextReact);
+	if (!bufferingContext) {
+		throw new Error(
+			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
+		);
+	}
+
+	const {buffering} = bufferingContext;
+
 	const seek = useCallback(
 		(newFrame: number) => {
 			if (video?.id) {
 				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
 			}
+
+			frameRef.current = newFrame;
 
 			emitter.dispatchSeek(newFrame);
 		},
@@ -109,6 +126,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {
 			imperativePlaying.current = false;
+			frameRef.current = playStart.current as number;
 			if (config) {
 				setTimelinePosition((c) => ({
 					...c,
@@ -175,10 +193,12 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame: () => frameRef.current as number,
-			isPlaying: () => imperativePlaying.current as boolean,
+			getCurrentFrame: () => frameRef.current,
+			isPlaying: () => imperativePlaying.current,
+			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
+			remotionInternal_currentFrameRef: frameRef,
 		};
 	}, [
 		frameBack,
@@ -191,8 +211,9 @@ export const usePlayer = (): UsePlayerMethods => {
 		seek,
 		isFirstFrame,
 		pauseAndReturnToPlayStart,
-		imperativePlaying,
 		hasPlayed,
+		imperativePlaying,
+		buffering,
 	]);
 
 	return returnValue;

@@ -7,12 +7,7 @@ const rotate: React.CSSProperties = {
 const ICON_SIZE = 18;
 export const PlayerPreview: React.FC = () => {
   return (
-    <a
-      href="https://www.youtube.com/watch?v=GN2jkJphR5M"
-      target="_blank"
-      data-splitbee-event="External Link"
-      data-splitbee-event-target={"YouTube Trailer"}
-    >
+    <a href="https://www.youtube.com/watch?v=GN2jkJphR5M" target="_blank">
       <div className={styles.playerpreview}>
         <img
           style={{

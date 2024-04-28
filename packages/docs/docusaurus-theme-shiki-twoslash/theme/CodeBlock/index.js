@@ -1,23 +1,32 @@
 // Based on https://github.com/facebook/docusaurus/blob/ed9d2a26f5a7b8096804ae1b3a4fffc504f8f90d/packages/docusaurus-theme-classic/src/theme/CodeBlock/index.tsx
 // which is under MIT License as per the banner
 
-import "./styles.css"
+import "./styles.css";
 
-import copy from "copy-text-to-clipboard"
-import React, { useRef, useState } from "react"
-import Translate, { translate } from "@docusaurus/Translate"
+import Translate, { translate } from "@docusaurus/Translate";
+import copy from "copy-text-to-clipboard";
+import React, { useRef, useState } from "react";
 
 const CodeBlock = ({ children, ...props }) => {
-  const pre = useRef(null)
-  const [showCopied, setShowCopied] = useState(false)
+  const pre = useRef(null);
+  const [showCopied, setShowCopied] = useState(false);
 
   const handleCopyCode = () => {
     if (pre.current) {
-      copy(Array.from(pre.current.querySelectorAll("code div.line")).map(el => el.textContent).join("\n"))
+      const elementToSelect = pre.current.querySelector("code div.line")?.length
+        ? "code div.line"
+        : "div div.line";
+
+      copy(
+        Array.from(pre.current.querySelectorAll(elementToSelect))
+          .map((el) => el.textContent)
+          .join("\n"),
+      );
     }
-    setShowCopied(true)
-    setTimeout(() => setShowCopied(false), 2000)
-  }
+
+    setShowCopied(true);
+    setTimeout(() => setShowCopied(false), 2000);
+  };
 
   return (
     <pre {...props} ref={pre}>
@@ -33,17 +42,23 @@ const CodeBlock = ({ children, ...props }) => {
         onClick={handleCopyCode}
       >
         {showCopied ? (
-          <Translate id="theme.CodeBlock.copied" description="The copied button label on code blocks">
+          <Translate
+            id="theme.CodeBlock.copied"
+            description="The copied button label on code blocks"
+          >
             Copied
           </Translate>
         ) : (
-          <Translate id="theme.CodeBlock.copy" description="The copy button label on code blocks">
+          <Translate
+            id="theme.CodeBlock.copy"
+            description="The copy button label on code blocks"
+          >
             Copy
           </Translate>
         )}
       </button>
     </pre>
-  )
-}
+  );
+};
 
-export default CodeBlock
+export default CodeBlock;

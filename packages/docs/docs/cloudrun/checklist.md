@@ -18,7 +18,7 @@ Before you go live, go through this checklist to make sure Cloud Run is running 
 
 ### Optimizing for memory
 
-Adding too much memory to your Cloud Run services can make rendering more costly. Reducing the memory of your service by 25% will also decrease your cost by 25%! Redeploy your service multiple times and lower the memory size as much as possible until you feel you hit the sweet spot between low costs and confidence that your video will render reliably.
+Adding too much memory to your Cloud Run services can make rendering more costly. Redeploy your service multiple times and lower the memory size as much as possible until you feel you hit the sweet spot between low costs and confidence that your video will render reliably.
 
 ### Maximum file size
 
@@ -51,4 +51,4 @@ The default timeout for your Cloud Run service is <DefaultTimeout /> seconds. Me
 
 ### Valid Company license
 
-Companies with more than 3 people need to buy cloud rendering seats in order to use Remotion Cloud Run. Please familiarize yourself with the [license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and [buy the necessary cloud seats](https://companies.remotion.dev/) before launching.
+Companies with more than 3 people need to buy cloud rendering seats in order to use Remotion Cloud Run. Please familiarize yourself with the [license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and [buy the necessary cloud seats](https://www.remotion.pro) before launching.

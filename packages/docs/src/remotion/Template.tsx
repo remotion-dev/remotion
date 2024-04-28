@@ -68,6 +68,7 @@ export const TemplateComp: React.FC<{
             }}
           >
             {template.cliId === "next" ||
+            template.cliId === "next-tailwind" ||
             template.cliId === "next-pages-dir" ? null : (
               <>
                 <IconForTemplate scale={1.6} template={template} />{" "}

@@ -31,6 +31,10 @@ export const createLock = ({timeout}: {timeout: number | null}) => {
 
 		resolveWaiters();
 
+		if (locks.length === 0) {
+			return Promise.resolve();
+		}
+
 		if (timeout === null) {
 			return success;
 		}

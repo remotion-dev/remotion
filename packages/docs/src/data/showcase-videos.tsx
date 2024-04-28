@@ -13,6 +13,7 @@ export type ShowcaseVideo = {
   }[];
   submittedOn: Date;
   type: "mux_video";
+  time?: string | null;
   muxId: string;
   author: {
     name: string;
@@ -24,6 +25,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Spotify Wrapped",
     type: "mux_video",
+    time: "10",
     muxId: "V5Dpfui9NmUSons5P5VQRbyX5m5011LsRA01f0129CLbHo",
     description:
       "A recreation of Spotify Wrapped where you can override all text and images programmatically.",
@@ -48,6 +50,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "AnySticker In App Assets",
     type: "mux_video",
+    time: "10",
     muxId: "HL4G1x01aX8lizSXFGuQG8do6LLKcI1mup6WjIz6OEFE",
     description:
       "This video will welcome users in the newest version of AnySticker.",
@@ -68,6 +71,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Remotion Trailer",
     type: "mux_video",
+    time: "10",
     muxId: "nJ2JnX2a02JiDvirVoNrz02lJ01q8DuvIZoKKq8q1uPdKA",
     description: "The original trailer which announced Remotion.",
     width: 1920,
@@ -91,6 +95,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "VFB Crowdfunding Campaign",
     type: "mux_video",
+    time: "10",
     muxId: "L7DYDk9o701zxfWUhcFb1Z1mGGzYoIuxddwNVI3tcemQ",
     description:
       "An animation celebrating a successful fundraising campaign. It fetches the amount raised programmatically and generates an animation suitable for posting on Instagram.",
@@ -115,6 +120,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Love, Death & React",
     type: "mux_video",
+    time: "10",
     muxId: "pEo7cREHlak5FxdpNOKB8BYlUCa19Klkfn1XtXxjfxc",
     description: "A recreation of Netflix's 'Love, Death & React' intro.",
     width: 1280,
@@ -142,6 +148,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Music Player",
     type: "mux_video",
+    time: "10",
     muxId: "7NZ41UEioG00jZygP02NXji01wr7HE02R8m3puh19V8IlZw",
     description:
       "A music player visualization for teasing tracks on Instagram.",
@@ -166,6 +173,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Crypto Prices",
     type: "mux_video",
+    time: "10",
     muxId: "fAhMmqHE5fQg9V7H2CwNj4buFC6JhLDfgaMI9OBpYhw",
     description:
       "Fully automated Twitter bot summarizing movements in the crypto market.",
@@ -190,6 +198,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Piano Teacher",
     type: "mux_video",
+    time: "10",
     muxId: "uuhPSi5C01DIIxBm3HcxJGs9d8hYmDnNjkmgwTMWJQPg",
     description:
       "A MIDI-to-Remotion converter visualizing how to play a song on the piano.",
@@ -210,6 +219,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Vlog editor",
     type: "mux_video",
+    time: "10",
     muxId: "pSEhcZX5HBJy9SFK4j7vGs00NhPFCedqwL9X01ykNsIlo",
     description:
       "This daily vlog is automatically cut together using Remotion. Clips are recorded and uploaded to an FTP server, YouTube clips downloaded automatically.",
@@ -234,6 +244,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Flow Fields",
     type: "mux_video",
+    time: "10",
     muxId: "st5ifZHHqs8k9m19FNqYyRdh01CM8pX302ikEzAvnikTA",
     description: "A generative SVG animation using noise.",
     width: 720,
@@ -257,6 +268,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "CSS+SVG effects",
     type: "mux_video",
+    time: "10",
     muxId: "ujzfb6501KAiNDwKDzLIzCvcWxECz01rfSXh500I3mmifo",
     description: "A generative CSS + SVG animation.",
     width: 500,
@@ -280,6 +292,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Personalized Welcome Videos",
     type: "mux_video",
+    time: "10",
     muxId: "BPP7jS72gdEtARObTEGOc5GHnDv6ODfp48hIFMU9U6E",
     description:
       "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
@@ -300,6 +313,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "All Champions League Winners in History",
     type: "mux_video",
+    time: "10",
     muxId: "R9SZTw2ZoWuV44i5QVx5yVu01VaGm89JlZ876TdVXAyQ",
     description:
       "This video shows all the UEFA Champions Cup (1956-1992) and Champions League (since 1993) Winners year by year and concludes with the ranking of the countries with the most trophies.",
@@ -324,6 +338,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Code Highlighter",
     type: "mux_video",
+    time: "10",
     muxId: "1W02pMAx5ZdtRE2PajqW7Ni01qbxADjpe37o4Non9Sonc",
     description:
       "This video animates code and highlights interesting parts of it.",
@@ -348,6 +363,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Redesigning the Scatterplot",
     type: "mux_video",
+    time: "10",
     muxId: "mnQCnHc56wrafN4DIPkIdYpFh7Yk202rbMOzxrZaUylE",
     description:
       "In this video you get a visual display of some quantitative information.",
@@ -368,6 +384,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Twitter year in review",
     type: "mux_video",
+    time: "10",
     muxId: "iRnXEBXAvxCQAtu01TVEJsizIfXaPpxlyqeJfm54K1Vs",
     description:
       "This videos shows the user various metrics of their Twitter account.",
@@ -392,6 +409,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Data Science Course Ad",
     type: "mux_video",
+    time: "10",
     muxId: "MqUUJjKZk01x9KGUJtSD1SLoUHmrab3eaVx9sDPCw9L00",
     description:
       "This is a promo video of a data science course offered by Quantargo.",
@@ -416,6 +434,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Animated Social Media Preview Card",
     type: "mux_video",
+    time: "10",
     muxId: "zSKsGBzfoPowlFVBm47N01aoMK2Er8qkM3CzZgnUDido",
     description:
       "Here you see a promo video of Sam Larsen-Disney's newsletter.",
@@ -444,6 +463,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Snappy Format File Animation",
     type: "mux_video",
+    time: "10",
     muxId: "WopGJTJ4UfzD5zu9yXl4aEZ3ASufllximGBL9AjsjDQ",
     description:
       "In this visual you get to see an animation of various file formats.",
@@ -468,6 +488,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Product Announcement Video",
     type: "mux_video",
+    time: "10",
     muxId: "lSa6eYA01jP5ooFSgTE02P6nfRbjIbF1kcr5LdwS01Zp8o",
     description:
       "Animation showing new features on the newly built website of Verdaccio, a lightweight private Node.js proxy regisry.",
@@ -492,6 +513,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "1000 Stars for Code Hike",
     type: "mux_video",
+    time: "10",
     muxId: "x7Dzaunb9JbdwyaR00CwBnIC2MkUPzJwmSiUrtNiYYP4",
     description:
       "A celebration video by Code Hike for reaching 1000 stars on GitHub.",
@@ -520,6 +542,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Instagram Profile as a Story",
     type: "mux_video",
+    time: "10",
     muxId: "6hyS0000BS02M4MPbZJxBuUG9SnJJCxCglHrTuWRdbpvOY",
     description:
       "A profile video generator which allows you to share your Instagram profile as a story.",
@@ -540,6 +563,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Code Stack - A Fully Automated News Podcast",
     type: "mux_video",
+    time: "10",
     muxId: "w02JWs4nf5GXSQjhHzIF00Ws6e1L1pz5PaZ02AgnE02K6dI",
     description:
       "Get a daily briefing with CodeStack's fully automated news podcast that reads news using text-to-speech.",
@@ -568,6 +592,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Weather Report",
     type: "mux_video",
+    time: "10",
     muxId: "dE02NVflg500LNpSECSUmcwLFpKU100Z9TY362Lifdo0228",
     description:
       "A fully automated weather forecast that appears in your TikTok or Instagram feed.",
@@ -596,6 +621,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Name The Movie - Quiz",
     type: "mux_video",
+    time: "10",
     muxId: "FFft61dbntN4DEnt00HiXCmfiJhNLnOaI02dT2D802oPIY",
     description:
       "A quiz game that gives you quotes from classic films to guess their title.",
@@ -620,6 +646,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Podopi - Convert a Blog to Podcast",
     type: "mux_video",
+    time: "10",
     muxId: "wvTZmoaRnhpGuc93nd39vz4MpSeOkXjnS5XFzOK01Lco",
     description:
       "This promo video is done by using Remotion. It shows you how easily you can extend your blog to a podcast.",
@@ -641,29 +668,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Mickel Andersson",
     },
   },
-  {
-    title: "Cricket Match Feature",
-    type: "mux_video",
-    muxId: "zDEoYi6tII8cA017JrZpqyx1hf2ErMaPUklUSSkdkhKk",
-    description:
-      "An animation showing the two teams competing in todays cricket match.",
-    height: 1280,
-    width: 720,
-    submittedOn: new Date("08-05-2021"),
-    links: [
-      {
-        type: "video",
-        url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
-      },
-    ],
-    author: {
-      url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
-      name: "Suthar",
-    },
-  },
+
   {
     title: "Flashy Title Card",
     type: "mux_video",
+    time: "10",
     muxId: "J8H3dOuyC01ZurH9NnSvd17oS00FUPKns8HnTO02KyCF02k",
     description: "A nice title design in William Candillons video.",
     height: 720,
@@ -687,6 +696,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Remotion Web Summit Talk",
     type: "mux_video",
+    time: "10",
     muxId: "fWKVFtHn4bIEcPlqhsHcf69t0100SkUE6WXB600NcENQww",
     description:
       "A talk about Remotion given at React Summit 2021, fully written in React",
@@ -711,6 +721,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Conference talk",
     type: "mux_video",
+    time: "10",
     muxId: "01DRoSacYBQvVpDzoAXl01Wt2r8JWtgTq4t5lFwPjVcDE",
     description:
       "A conference talk production composed in Remotion, including code animations, facecam, subtitles and a browser as an iFrame.",
@@ -739,6 +750,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Cloudfront Explainer",
     type: "mux_video",
+    time: "10",
     muxId: "BrKshHsFgC8DNhQPJGeu4fVjjWlzxHFLvMTcPB6EB6E",
     description: "The intro for an online course about Cloudfront.",
     height: 1080,
@@ -762,6 +774,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Apple Spring Loaded Logo",
     type: "mux_video",
+    time: "10",
     muxId: "wvFXhgp3WA8bvp025y74gkoX56TKTyX7Xx9Qvos1TStc",
     description:
       "A recreation of Apple's Spring Loaded Logo for their Spring 2021 Keynote. Uses Remotions interpolateColors() API.",
@@ -786,6 +799,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "The math behind animations",
     type: "mux_video",
+    time: "30",
     muxId: "IDMyruXHia3rmOllIi13uy01hHgN4UxkAZT4BcgwiN00E",
     description:
       "William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
@@ -810,6 +824,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Liquid Swipe Tutorial Intro",
     type: "mux_video",
+    time: "10",
     muxId: "01h4QMewhXr0249p1k8buxKgcN86hmS3VgRDPenY6Yyr4",
     description:
       "This intro warms you up for an awesome React Native tutorial on how to recreate a Liquid Swipe animation.",
@@ -834,6 +849,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Transfer Fee Record Specific to British Football",
     type: "mux_video",
+    time: "10",
     muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
     description:
       "An infographic showing the progression of the transfer fee record in British Football",
@@ -859,6 +875,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Coronavirus Cases Visualization",
     type: "mux_video",
+    time: "10",
     muxId: "Anx7p2jNQLUsSWBOjnEzdo9xvfC9spsVyL01sk7esrtY",
     description: "Timelapse of the spread of the coronavirus in the world.",
     height: 1080,
@@ -878,6 +895,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Remotion 2.0 trailer",
     type: "mux_video",
+    time: "10",
     muxId: "g00CHkGQm1J0101dma3TBPvwufeAKZ8yOZk9p0048soVjW00",
     description: "Trailer for Remotion 2.0 launch",
     height: 1080,
@@ -905,6 +923,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "EcoEats",
     type: "mux_video",
+    time: "10",
     muxId: "XJpfsCytTHSoAyVwfObPVXbNN64Thj2Z8pLvoqO1Ocs",
     description:
       "A promo video for a zero emission takeaway and grocery delivery service.",
@@ -923,32 +942,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Lotus App",
-    type: "mux_video",
-    muxId: "LAtfpU01MnxJc200ccLrLVPanKx7wSv1NNT42027Ptq4VI",
-    description:
-      "An animated Lotus icon in the Dock on Mac. With Lotus you can manage your GitHub notifications without stress.",
-    height: 230,
-    width: 378,
-    submittedOn: new Date("08-12-2021"),
-    links: [
-      {
-        type: "video",
-        url: "https://twitter.com/vadimdemedes/status/1425178353737293829",
-      },
-      {
-        type: "website",
-        url: "https://getlotus.app/",
-      },
-    ],
-    author: {
-      url: "Vadim Demedes",
-      name: "https://vadimdemedes.com/",
-    },
-  },
-  {
     title: "Olympics Ranking",
     type: "mux_video",
+    time: "10",
     muxId: "uggP01wfSNgmwm9KjanfeKvbQdbeVdDK0001qdBfDszCB4",
     description:
       "A medal ranking which shows which country has won the most medals at the Tokyo Olympics so far.",
@@ -969,6 +965,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "The Song of the Fae - Animated Banner",
     type: "mux_video",
+    time: "10",
     muxId: "cEmxepEENf6004NhdttN7igT3O8o82ODq02dn01PMgS101I",
     description:
       "An animated banner as an intro sequences for a game called The Song of the Fae.",
@@ -989,6 +986,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Feature overview",
     type: "mux_video",
+    time: "10",
     muxId: "d2SvbrhHvyJZb2EmSv441M601UBy1dfEYfToKGqDpV01Y",
     description: "A showcase of features in the new Bottom Sheet library.",
     height: 640,
@@ -1012,6 +1010,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "AnySticker Announcement",
     type: "mux_video",
+    time: "10",
     muxId: "GhK5YXKrtWTa2kEf7HajaE6DG2FtTNsZfW7mfIzQBJ00",
     description:
       "A hyped up announcement trailer for the new AnySticker app, made using React Three Fiber.",
@@ -1040,6 +1039,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Outro Cards",
     type: "mux_video",
+    time: "10",
     muxId: "Rzmd76Rry7hQAAvTREyaLLT4wSAuc9zouk3ZxOmybq4",
     description:
       "Animated playing cards. Used as a background for an outro thanking subscribers for their support.",
@@ -1064,6 +1064,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Mux stats tutorial",
     type: "mux_video",
+    time: "10",
     muxId: "DDgXb2KfPk7xdvxEoyPkrl7GcybohNon",
     description:
       "An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.",
@@ -1092,6 +1093,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Audio Player",
     type: "mux_video",
+    time: "10",
     muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
     description: "A Reusable audio player template created using Remotion.",
     height: 1920,
@@ -1115,6 +1117,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Product Hunt Today",
     type: "mux_video",
+    time: "10",
     muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
     description:
       "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
@@ -1141,23 +1144,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Old french TV trailer (tribute)",
-    type: "mux_video",
-    muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
-    description:
-      'Video tribute to an old TV jingle called "La trilogie du samedi" broadcasted in the early 2000s in France on the channel M6.',
-    height: 1080,
-    width: 1920,
-    submittedOn: new Date("04-01-2022"),
-    links: [],
-    author: {
-      url: "https://twitter.com/Slashgear_",
-      name: "Antoine Caron & Mickaël Alves",
-    },
-  },
-  {
     title: "snappify ProductHunt GIF",
     type: "mux_video",
+    time: "10",
     muxId: "vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is",
     description:
       "An animated Logo used for the ProductHunt launch of snappify.",
@@ -1186,6 +1175,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Master Duel Week",
     type: "mux_video",
+    time: "10",
     muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
     description:
       "Automated Twitter bot that tweets a trading card game's meta deck weekly",
@@ -1214,6 +1204,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Top 15 smallest animals in this planet",
     type: "mux_video",
+    time: "10",
     muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
     description: "A simple Top List Video",
     height: 1080,
@@ -1237,6 +1228,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Blast Workout video trailer",
     type: "mux_video",
+    time: "30",
     muxId: "txrjnbtkqe1P701kHusZ4EeIY883aHVvVGF8xsAKKX24",
     description:
       "Blast Workout video trailer as it is displayed on the play store",
@@ -1257,6 +1249,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Blast Workout Rotato style 3D",
     type: "mux_video",
+    time: "10",
     muxId: "pw7GlBHgVlhwE9JMWMXk5ta01n2pPBEIgu8akS025zYB8",
     description: "Blast Workout Rotato style 3D showcasing app features",
     height: 1280,
@@ -1276,6 +1269,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Funeral Collage/Slideshow",
     type: "mux_video",
+    time: "10",
     muxId: "3ZOyZm01dqewQjVUNP02MzqWooJlYJ00cVSLX9WjSwuYjs",
     description:
       "Online memorial photo slideshow maker. Create a fitting tribute video for your loved one.",
@@ -1300,6 +1294,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "JavaScript Code Execution demo",
     type: "mux_video",
+    time: "10",
     muxId: "psJ32DSTQqeLaZYhBC5sa3HH7gkzwt7HinQsHela01OA",
     description:
       "In this video I had explained how Javascript code gets executed. I had made this video completely using Remotion and ReactJS.",
@@ -1320,6 +1315,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Stocks Year in Review",
     type: "mux_video",
+    time: "10",
     muxId: "tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c",
     description:
       "Enter a stock ticker to see how the stock performed in 2022. Powered by the Polygon Stock API.",
@@ -1340,6 +1336,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "The Eudaimonia Machine: The Ultimate Productivity Hack?",
     type: "mux_video",
+    time: "10",
     muxId: "LEKN01a35v01OK2vyVxE00LJhm13JtRzJSnTrJjVYQeQtw",
     description:
       "This explainer video on the Eudaimonia Machine (featured in Cal Newport's 'Deep Work') was made completely with Remotion.",
@@ -1362,27 +1359,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "TVFoodMaps Tik Tok",
-    type: "mux_video",
-    muxId: "5ON0000Gg9ov1z01in02jC02k2xjltp01xg3h9CVfymANi01iE",
-    description: "Video generated from TVFoodMaps lists",
-    height: 1920,
-    width: 1080,
-    submittedOn: new Date("02-11-2023"),
-    links: [
-      {
-        type: "website",
-        url: "https://www.tvfoodmaps.com",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/tvfoodmaps",
-      name: "TVFoodMaps",
-    },
-  },
-  {
     title: "The Quiz Universe - Film Quiz",
     type: "mux_video",
+    time: "10",
     muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
     description:
       "This film quiz presents the scenes of movies and highlights the cast and crew.",
@@ -1404,6 +1383,157 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Redando Ford",
     },
   },
+  {
+    title: "BarGPT TikToks",
+    type: "mux_video",
+    time: "10",
+    muxId: "5uqV22rmxwQSr02ESt9ovQSE02HhAzUdBHUm02W6Mqu3NY",
+    description:
+      "BarGPT, the AI cocktail generator, uses remotion to generate TikTok videos from its AI generated cocktail recipes.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("09-29-2023"),
+    links: [
+      {
+        type: "website",
+        url: "https://www.bargpt.app",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/BarGPT",
+      name: "BarGPT.app",
+    },
+  },
+  {
+    title: "Next.js Filesystem Routing",
+    type: "mux_video",
+    time: "10",
+    muxId: "dWxzp02gvlUM42a6GSQ02g006qiW2T43QGeuszqimY0200AE",
+    description: "Delba Oliveira visually explains Next.js and React concepts.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("10-09-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/delba_oliveira/status/1707439537054535867",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/@Delba",
+      },
+    ],
+    author: {
+      url: "https://delba.dev/",
+      name: "Delba Oliveira",
+    },
+  },
+  {
+    title: "Meet New Books - One of many book recommendation videos",
+    type: "mux_video",
+    time: "10",
+    muxId: "601PVDW5t02VqRWd4XXDUUBM41t66JVBEO5f00VrGCUXE00",
+    description:
+      "An automated book recommendation video showcasing popular books.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("10-12-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.instagram.com/p/Cx8u6pTNqCi/",
+      },
+    ],
+    author: {
+      url: "https://www.meetnewbooks.com/",
+      name: "MeetNewBooks.com",
+    },
+  },
+  /*
+  {
+    title: "Old french TV trailer (tribute)",
+    type: "mux_video",
+    time: "10",
+    muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
+    description:
+      'Video tribute to an old TV jingle called "La trilogie du samedi" broadcasted in the early 2000s in France on the channel M6.',
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("04-01-2022"),
+    links: [],
+    author: {
+      url: "https://twitter.com/Slashgear_",
+      name: "Antoine Caron & Mickaël Alves",
+    },
+  },
+  {
+    title: "TVFoodMaps Tik Tok",
+    type: "mux_video",
+    time: "10",
+    muxId: "5ON0000Gg9ov1z01in02jC02k2xjltp01xg3h9CVfymANi01iE",
+    description: "Video generated from TVFoodMaps lists",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("02-11-2023"),
+    links: [
+      {
+        type: "website",
+        url: "https://www.tvfoodmaps.com",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/tvfoodmaps",
+      name: "TVFoodMaps",
+    },
+  },
+  {
+    title: "Cricket Match Feature",
+    type: "mux_video",
+    time: "10",
+    muxId: "zDEoYi6tII8cA017JrZpqyx1hf2ErMaPUklUSSkdkhKk",
+    description:
+      "An animation showing the two teams competing in todays cricket match.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      },
+    ],
+    author: {
+      url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      name: "Suthar",
+    },
+  },
+  {
+    title: "Lotus App",
+    type: "mux_video",
+    time: "10",
+    muxId: "LAtfpU01MnxJc200ccLrLVPanKx7wSv1NNT42027Ptq4VI",
+    description:
+      "An animated Lotus icon in the Dock on Mac. With Lotus you can manage your GitHub notifications without stress.",
+    height: 230,
+    width: 378,
+    submittedOn: new Date("08-12-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/vadimdemedes/status/1425178353737293829",
+      },
+      {
+        type: "website",
+        url: "https://getlotus.app/",
+      },
+    ],
+    author: {
+      url: "Vadim Demedes",
+      name: "https://vadimdemedes.com/",
+    },
+  },
+
+  */
 ];
 
 const dateString = (date: Date) =>

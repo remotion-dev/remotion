@@ -47,13 +47,12 @@ A string pointing to an audio asset.
 ## Example
 
 ```tsx twoslash
-import { Audio } from "remotion";
 // ---cut---
 import { useAudioData } from "@remotion/media-utils";
-import music from "./music.mp3";
+import { staticFile } from "remotion";
 
 export const MyComponent: React.FC = () => {
-  const audioData = useAudioData(music);
+  const audioData = useAudioData(staticFile("music.mp3"));
 
   if (!audioData) {
     return null;
@@ -62,6 +61,14 @@ export const MyComponent: React.FC = () => {
   return <div>This file has a {audioData.sampleRate} sampleRate.</div>;
 };
 ```
+
+## Errors
+
+If you pass in a file that has no audio track, this hook will throw an error (_from v4.0.75_) or lead to an unhandled rejection (_until v4.0.74_).
+
+To determine if a file has an audio track, you may use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata#audiocodec) function on the server to reject a file if it has no audio track. To do so, check if the `audioCodec` field is `null`.
+
+If you want to catch the error in the component, you need to make your own inline hook by taking the source code from the bottom of this page.
 
 ## See also
 

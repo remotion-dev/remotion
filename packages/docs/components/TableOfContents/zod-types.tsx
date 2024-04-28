@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"zColor()"}</strong>
           <div>A Zod Type for colors</div>
         </TOCItem>
+        <TOCItem link="/docs/zod-types/z-textarea">
+          <strong>{"zTextarea()"}</strong>
+          <div>A Zod Type for multiple-line text in a textarea</div>
+        </TOCItem>
       </Grid>
     </div>
   );

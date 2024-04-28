@@ -31,10 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 	const transparent = params.get('transparent');
 
+	const toneMapped = params.get('toneMapped');
+
+	if (!toneMapped) {
+		throw new Error('Did not get `toneMapped` parameter');
+	}
+
 	return {
 		src,
 		time: parseFloat(time),
 		transparent: transparent === 'true',
+		toneMapped: toneMapped === 'true',
 	};
 };
 
@@ -46,37 +53,40 @@ export const startOffthreadVideoServer = ({
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
+	binariesDirectory,
 }: {
 	downloadMap: DownloadMap;
 	offthreadVideoCacheSizeInBytes: number | null;
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	binariesDirectory: string | null;
 }): {
 	listener: RequestListener;
 	close: () => Promise<void>;
 	compositor: Compositor;
 } => {
 	validateOffthreadVideoCacheSizeInBytes(offthreadVideoCacheSizeInBytes);
-	const compositor = startCompositor(
-		'StartLongRunningProcess',
-		{
+	const compositor = startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency,
 			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
 		indent,
-	);
+		binariesDirectory,
+	});
 
 	return {
-		close: () => {
+		close: async () => {
 			// Note: This is being used as a promise:
 			//     .close().then()
 			// but if finishCommands() fails, it acts like a sync function,
 			// therefore we have to catch an error and put a promise rejection
 			try {
-				compositor.finishCommands();
+				await compositor.finishCommands();
 				return compositor.waitForDone();
 			} catch (err) {
 				return Promise.reject(err);
@@ -93,7 +103,9 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			const {src, time, transparent, toneMapped} = extractUrlAndSourceFromUrl(
+				req.url,
+			);
 			response.setHeader('access-control-allow-origin', '*');
 			if (transparent) {
 				response.setHeader('content-type', `image/png`);
@@ -128,7 +140,7 @@ export const startOffthreadVideoServer = ({
 			});
 
 			let extractStart = Date.now();
-			downloadAsset({src, downloadMap})
+			downloadAsset({src, downloadMap, indent, logLevel})
 				.then((to) => {
 					return new Promise<Buffer>((resolve, reject) => {
 						if (closed) {
@@ -137,14 +149,16 @@ export const startOffthreadVideoServer = ({
 						}
 
 						extractStart = Date.now();
-						resolve(
-							compositor.executeCommand('ExtractFrame', {
+						compositor
+							.executeCommand('ExtractFrame', {
 								src: to,
 								original_src: src,
 								time,
 								transparent,
-							}),
-						);
+								tone_mapped: toneMapped,
+							})
+							.then(resolve)
+							.catch(reject);
 					});
 				})
 				.then((readable) => {
@@ -164,6 +178,7 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
+								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
 						}
@@ -180,13 +195,18 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.catch((err) => {
-					response.writeHead(500);
+					if (!response.headersSent) {
+						response.writeHead(500);
+					}
+
 					response.end();
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
-					if (err.message !== REQUEST_CLOSED_TOKEN) {
+					if (
+						err.message !== REQUEST_CLOSED_TOKEN &&
+						!err.message.includes('EPIPE')
+					) {
 						downloadMap.emitter.dispatchError(err);
-						console.log('Error occurred', err);
 					}
 				});
 		},

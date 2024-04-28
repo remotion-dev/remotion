@@ -1,4 +1,5 @@
-import {PureJSAPIs} from '@remotion/renderer/pure';
+import type {LogLevel} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -21,6 +22,8 @@ type InternalDeployServiceInput = {
 	maxInstances: number;
 	projectID: string;
 	region: string;
+	logLevel: LogLevel;
+	indent: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -29,6 +32,7 @@ export type DeployServiceInput = {
 	timeoutSeconds?: number;
 	minInstances?: number;
 	maxInstances?: number;
+	logLevel?: LogLevel;
 	projectID: string;
 	region: string;
 };
@@ -49,6 +53,7 @@ const deployServiceRaw = async ({
 	maxInstances,
 	projectID,
 	region,
+	logLevel,
 }: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
@@ -66,6 +71,7 @@ const deployServiceRaw = async ({
 		timeoutSeconds,
 		projectID,
 		region,
+		logLevel,
 	});
 
 	const serviceName = generateServiceName({
@@ -111,7 +117,7 @@ const deployServiceRaw = async ({
 };
 
 export const internalDeployService =
-	PureJSAPIs.wrapWithErrorHandling(deployServiceRaw);
+	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
 
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
@@ -134,6 +140,7 @@ export const deployService = ({
 	maxInstances,
 	projectID,
 	region,
+	logLevel,
 }: DeployServiceInput): Promise<DeployServiceOutput> => {
 	return internalDeployService({
 		performImageVersionValidation,
@@ -144,5 +151,7 @@ export const deployService = ({
 		maxInstances: maxInstances ?? DEFAULT_MAX_INSTANCES,
 		projectID,
 		region,
+		logLevel: logLevel ?? 'info',
+		indent: false,
 	});
 };

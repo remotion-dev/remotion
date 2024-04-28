@@ -12,6 +12,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -19,6 +20,7 @@ test(
 			original_src: exampleVideos.bigBuckBunny,
 			time: 40,
 			transparent: false,
+			tone_mapped: true,
 		});
 		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
@@ -27,10 +29,11 @@ test(
 			original_src: exampleVideos.bigBuckBunny,
 			time: 40.4,
 			transparent: false,
+			tone_mapped: true,
 		});
 		expect(data2.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 
 		expect(data.subarray(0, 1000)).not.toEqual(data2.subarray(0, 1000));
@@ -45,6 +48,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -52,6 +56,7 @@ test(
 			original_src: exampleVideos.transparentWebm,
 			time: 1,
 			transparent: true,
+			tone_mapped: true,
 		});
 
 		// Platform specific PNG encoder settings
@@ -68,7 +73,7 @@ test(
 			expect(data[170001] / 100).toBeCloseTo(0.33, 0.01);
 		}
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -79,12 +84,14 @@ test('Should be able to start two compositors', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const compositor2 = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -92,12 +99,14 @@ test('Should be able to start two compositors', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: true,
 	});
 	await compositor2.executeCommand('ExtractFrame', {
 		src: exampleVideos.bigBuckBunny,
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: true,
 	});
 });
 
@@ -106,6 +115,7 @@ test('Should be able to seek backwards', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -113,6 +123,7 @@ test('Should be able to seek backwards', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
+		tone_mapped: true,
 	});
 	expect(data.length).toBe(2764854);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
@@ -120,10 +131,11 @@ test('Should be able to seek backwards', async () => {
 		original_src: exampleVideos.bigBuckBunny,
 		time: 35,
 		transparent: false,
+		tone_mapped: true,
 	});
 	expect(data2.length).toBe(2764854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -134,6 +146,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -141,10 +154,11 @@ test(
 			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 0.04,
 			transparent: false,
+			tone_mapped: true,
 		});
 		expect(data.length).toBe(3499254);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -157,6 +171,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -164,6 +179,7 @@ test(
 			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 3.33,
 			transparent: false,
+			tone_mapped: true,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
@@ -176,7 +192,7 @@ test(
 		expect(topLeftPixelG / 100).toBeCloseTo(1.13, 0.01);
 		expect(topLeftPixelB / 100).toBeCloseTo(1.96, 0.01);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
 	{timeout: 10000},
@@ -189,6 +205,7 @@ test(
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
+			binariesDirectory: null,
 		});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -196,6 +213,7 @@ test(
 			original_src: exampleVideos.corrupted,
 			time: 100,
 			transparent: false,
+			tone_mapped: true,
 		});
 
 		// Pixel fixing
@@ -204,10 +222,56 @@ test(
 		expect(data[1645650] / 100).toBeCloseTo(0.41, 0.01);
 		expect(data[2000000] / 100).toBeCloseTo(0.2, 0.01);
 
-		compositor.finishCommands();
+		await compositor.finishCommands();
 		await compositor.waitForDone();
 	},
-	{timeout: 10000},
+	{timeout: 20000},
+);
+
+test(
+	'Should get a frame of a transparent video with a custom DAR',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentwithdar,
+			original_src: exampleVideos.transparentwithdar,
+			time: 0.5,
+			transparent: false,
+			tone_mapped: true,
+		});
+
+		const header = data.subarray(0, BMP_HEADER_SIZE);
+
+		const width = header.readInt32LE(18);
+		const height = header.readInt32LE(22);
+		expect(width).toBe(683);
+		expect(height).toBe(512);
+
+		// Expected length fixing
+		expect(data.length).toBe(1050678);
+
+		const transparentdata = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentwithdar,
+			original_src: exampleVideos.transparentwithdar,
+			time: 0.5,
+			transparent: true,
+			tone_mapped: true,
+		});
+
+		// Expected length fixing
+		expect(transparentdata.length).toBeGreaterThan(174000);
+		expect(transparentdata.length).toBeLessThan(175000);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 20000},
 );
 
 test('Should be able to extract a frame with abnormal DAR', async () => {
@@ -215,6 +279,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -222,6 +287,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 		original_src: exampleVideos.customDar,
 		time: 3.33,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	const header = data.subarray(0, BMP_HEADER_SIZE);
@@ -229,14 +295,14 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	const width = header.readInt32LE(18);
 	const height = header.readInt32LE(22);
 
-	expect(height).toBe(1280);
-	expect(width).toBe(720);
+	expect(width).toBe(1280);
+	expect(height).toBe(2276);
 
-	expect(data[0x00169915]).approximately(144, 2);
-	expect(data[0x0012dd58]).approximately(159, 2);
-	expect(data[0x00019108]).approximately(209, 2);
+	expect(data[0x00169915]).approximately(250, 2);
+	expect(data[0x0012dd58]).approximately(249, 2);
+	expect(data[0x00019108]).approximately(249, 2);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -245,6 +311,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	let prevPixel = '';
@@ -255,6 +322,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 			original_src: exampleVideos.bigBuckBunny,
 			time: i,
 			transparent: false,
+			tone_mapped: true,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
@@ -289,6 +357,7 @@ test('Last frame should be fast', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const time = Date.now();
@@ -298,6 +367,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 5.0,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	const time_end = Date.now();
@@ -309,6 +379,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 5.0,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	// Time should be way less now
@@ -322,6 +393,7 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 100,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	// Time should be way less now
@@ -337,13 +409,14 @@ test('Last frame should be fast', async () => {
 		original_src: exampleVideos.transparentWebm,
 		time: 1,
 		transparent: true,
+		tone_mapped: true,
 	});
 
 	const time4_end = Date.now();
 	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
 	expect(data4.length).not.toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -352,6 +425,7 @@ test('Should get from a screen recording', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -359,11 +433,12 @@ test('Should get from a screen recording', async () => {
 		original_src: exampleVideos.screenrecording,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	expect(data.length).toBe(15230038);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -372,6 +447,7 @@ test('Should get from video with no fps', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -379,11 +455,12 @@ test('Should get from video with no fps', async () => {
 		original_src: exampleVideos.nofps,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	expect(data.length).toBe(3044334);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -392,6 +469,7 @@ test('Should get from broken webcam video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -399,11 +477,12 @@ test('Should get from broken webcam video', async () => {
 		original_src: exampleVideos.webcam,
 		time: 0,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	expect(data.length).toBe(921654);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -412,6 +491,7 @@ test('Should get from iPhone video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -419,11 +499,12 @@ test('Should get from iPhone video', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: 1,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	expect(data.length).toBe(24883254);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -432,6 +513,7 @@ test('Should get from AV1 video', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -439,11 +521,12 @@ test('Should get from AV1 video', async () => {
 		original_src: exampleVideos.av1,
 		time: 0.5,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	expect(data.length).toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -452,6 +535,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -459,6 +543,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 		original_src: exampleVideos.variablefps,
 		time: 0,
 		transparent: true,
+		tone_mapped: true,
 	});
 
 	// Should resort back to BMP because it is faster
@@ -467,7 +552,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 
 	expect(data.length).toBe(2764854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -476,6 +561,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -483,6 +569,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 		original_src: exampleVideos.zerotimestamp,
 		time: 1.5,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	// Should resort back to BMP because it is faster
@@ -491,7 +578,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 
 	expect(data.length).toBe(6220854);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -500,6 +587,7 @@ test('Two different starting times should not result in big seeking', async () =
 		maximumFrameCacheItemsInBytes: 300 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const expected = [];
@@ -511,6 +599,7 @@ test('Two different starting times should not result in big seeking', async () =
 			original_src: exampleVideos.bigBuckBunny,
 			time,
 			transparent: false,
+			tone_mapped: true,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
@@ -540,7 +629,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
 	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
 
-	expect(expected[4][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
 	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 
@@ -569,7 +658,7 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(statsJson.open_streams).toBe(2);
 	expect(statsJson.open_videos).toBe(1);
 
-	compositor.finishCommands();
+	await compositor.finishCommands();
 	await compositor.waitForDone();
 });
 
@@ -607,6 +696,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		maximumFrameCacheItemsInBytes: 500,
 		logLevel: 'info',
 		indent: false,
+		binariesDirectory: null,
 	});
 
 	const firstFrame = await compositor.executeCommand('ExtractFrame', {
@@ -614,6 +704,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: frame30,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	const secondFrame = await compositor.executeCommand('ExtractFrame', {
@@ -621,6 +712,7 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		original_src: exampleVideos.iphonevideo,
 		time: frame31,
 		transparent: false,
+		tone_mapped: true,
 	});
 
 	const hundredRandomPixels = new Array(100).fill(true).map(() => {

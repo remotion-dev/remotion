@@ -60,6 +60,33 @@ const makeInstructions = (
 const segmentRegExp = /([astvzqmhlc])([^astvzqmhlc]*)/gi;
 const numberRegExp = /-?[0-9]*\.?[0-9]+(?:e[-+]?\d+)?/gi;
 
+const parseValues = (
+	args: string,
+	instructionType: Instruction['type'] | 'z',
+) => {
+	const numbers = args.match(numberRegExp);
+	if (!numbers) {
+		if (instructionType === 'Z' || instructionType === 'z') {
+			return [];
+		}
+
+		throw new Error(
+			`Malformed path data: ${instructionType} was expected to have numbers afterwards`,
+		);
+	}
+
+	const expectedArguments = length[instructionType];
+	if (numbers.length % expectedArguments !== 0) {
+		throw new Error(
+			`Malformed path data: ${instructionType} was expected to have a multiple of ${expectedArguments} numbers, but got "${instructionType} ${numbers.join(
+				' ',
+			)} instead"`,
+		);
+	}
+
+	return numbers.map(Number);
+};
+
 /**
  * @description Parses an SVG string path into an array of Instruction's.
  * @param {string} path
@@ -295,31 +322,4 @@ export const parsePath = (path: string): Instruction[] => {
 			throw new Error(`Invalid path element ${segmentString}`);
 		}, [])
 		.flat(1);
-};
-
-const parseValues = (
-	args: string,
-	instructionType: Instruction['type'] | 'z',
-) => {
-	const numbers = args.match(numberRegExp);
-	if (!numbers) {
-		if (instructionType === 'Z' || instructionType === 'z') {
-			return [];
-		}
-
-		throw new Error(
-			`Malformed path data: ${instructionType} was expected to have numbers afterwards`,
-		);
-	}
-
-	const expectedArguments = length[instructionType];
-	if (numbers.length % expectedArguments !== 0) {
-		throw new Error(
-			`Malformed path data: ${instructionType} was expected to have a multiple of ${expectedArguments} numbers, but got "${instructionType} ${numbers.join(
-				' ',
-			)} instead"`,
-		);
-	}
-
-	return numbers.map(Number);
 };

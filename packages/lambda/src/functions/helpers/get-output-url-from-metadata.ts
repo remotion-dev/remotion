@@ -8,12 +8,13 @@ export const getOutputUrlFromMetadata = (
 	bucketName: string,
 	customCredentials: CustomCredentials | null,
 ) => {
-	const outname = getExpectedOutName(
+	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
 		customCredentials,
 	);
-	return `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${
-		outname.renderBucketName
-	}/${outname.key}`;
+	return {
+		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${renderBucketName}/${key}`,
+		key,
+	};
 };

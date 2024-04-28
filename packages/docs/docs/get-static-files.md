@@ -7,10 +7,18 @@ crumb: "API"
 
 _Available from v3.3.26._
 
-Gets an array containing all files in the `public/` folder. You can reference them by using [`staticFile()`](/docs/staticfile).
+:::note
+This API is being moved to the `@remotion/studio` package. Prefer importing the API from [`@remotion/studio`](/docs/studio/get-static-files) instead of `remotion`.
+:::
+
+Gets an array containing all files in the `public/` folder.  
+You can reference them by using [`staticFile()`](/docs/staticfile).
+
+:::warning
+This feature _only_ works in Remotion Studio and during rendering, otherwise it returns an empty array.  
+:::
 
 :::note
-This feature does not work in the Remotion Player and returns an empty array.  
 On Linux, watching for changes in subdirectories is only supported from Node.js v19.1.0. If you use a version earlier than that, you need to refresh the Remotion Studio browser tab manually.
 :::
 
@@ -52,7 +60,7 @@ const data = files.find((f) => {
 
 ## API
 
-Takes no arguments and returns an array of object, each of which have three entries:
+Takes no arguments and returns an array of object, each of which have four entries:
 
 - `name`: The path relative to the public folder.
   :::note
@@ -65,9 +73,14 @@ Takes no arguments and returns an array of object, each of which have three entr
 
 ## Maximum files
 
-For performance, only the first 1000 items are fetched and displayed.
+For performance, only the first 10000 items are fetched and displayed.
+
+**Changelog**
+
+Before v4.0.64, only the first 1000 items were displayed.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-static-files.ts)
 - [`staticFile()`](/docs/staticfile)
+- [`watchStaticFile()`](/docs/watchstaticfile)

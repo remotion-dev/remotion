@@ -1,3 +1,7 @@
+const getRegex = () => /^([a-zA-Z0-9-\u4E00-\u9FFF])+$/g;
+
+export const isFolderNameValid = (name: string) => name.match(getRegex());
+
 export const validateFolderName = (name: string | null) => {
 	if (name === undefined || name === null) {
 		throw new TypeError('You must pass a name to a <Folder />.');
@@ -15,10 +19,6 @@ export const validateFolderName = (name: string | null) => {
 		);
 	}
 };
-
-const getRegex = () => /^([a-zA-Z0-9-])+$/g;
-
-export const isFolderNameValid = (name: string) => name.match(getRegex());
 
 export const invalidFolderNameErrorMessage = `Folder name must match ${String(
 	getRegex(),

@@ -60,6 +60,20 @@ You can verify that this is the problem by opening the video or audio in a new t
 
 You can determine if a video supports seeking, you can use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata) function.
 
+<Step>3</Step> Media was prevented from being loaded into a video tag.
+
+The following headers can prevent a file from being included:
+
+- `X-Frame-Options: DENY`
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Frame-Options: ALLOW-FROM https://example.com/`
+- `Content-Security-Policy: frame-ancestors 'none'`
+- `Content-Security-Policy: frame-ancestors 'self'`
+- `Content-Security-Policy: frame-ancestors https://example.com/`
+- `Cross-Origin-Resource-Policy: same-origin`
+
+Those videos files cannot be loaded due to policy from the server.
+
 ## Solutions
 
 Consider one of these solutions:

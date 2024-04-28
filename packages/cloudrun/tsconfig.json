@@ -10,5 +10,5 @@
 		{"path": "../cli"},
 		{"path": "../renderer"}
 	],
-	"exclude": ["vitest.config.ts"]
+	"exclude": ["vitest.config.mts"]
 }

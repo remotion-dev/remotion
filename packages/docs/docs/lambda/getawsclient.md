@@ -9,8 +9,9 @@ This API exposes full access to the AWS SDK that Remotion uses under the hood. Y
 
 ## Example: Getting a buffer for a render
 
-```tsx {18-27}
-import { getAwsClient, getRenderProgress } from "@remotion/lambda";
+```tsx {19-28}
+// Import from "@remotion/lambda" instead before Remotion v4.0.60
+import { getAwsClient, getRenderProgress } from "@remotion/lambda/client";
 import { Readable } from "stream";
 
 const bucketName = "remotionlambda-d9mafgx";
@@ -34,7 +35,7 @@ const getFileAsBuffer = async () => {
     new sdk.GetObjectCommand({
       Bucket: bucketName,
       Key: progress.outKey,
-    })
+    }),
   );
 
   return data.Body as Readable;
@@ -44,7 +45,8 @@ const getFileAsBuffer = async () => {
 ## Example: Enable CORS for a bucket
 
 ```tsx
-import { getAwsClient } from "@remotion/lambda";
+// Import from "@remotion/lambda" instead before Remotion v4.0.60
+import { getAwsClient } from "@remotion/lambda/client";
 
 const { client, sdk } = getAwsClient({ region: "us-east-1", service: "s3" });
 
@@ -60,7 +62,7 @@ client.send(
         },
       ],
     },
-  })
+  }),
 );
 ```
 
@@ -121,3 +123,4 @@ You don't need to create a new client from the SDK and should instead reuse the 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-aws-client.ts)
+- [Light client](/docs/lambda/light-client)

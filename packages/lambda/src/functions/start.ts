@@ -81,7 +81,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		logLevel: params.logLevel ?? 'info',
+		logLevel: params.logLevel,
 		frameRange: params.frameRange,
 		outName: params.outName,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -96,6 +96,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		webhook: params.webhook,
 		audioBitrate: params.audioBitrate,
 		videoBitrate: params.videoBitrate,
+		encodingBufferSize: params.encodingBufferSize,
+		encodingMaxRate: params.encodingMaxRate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
@@ -104,16 +106,23 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		deleteAfter: params.deleteAfter,
 		colorSpace: params.colorSpace,
 		enableStreaming: params.enableStreaming,
+		preferLossless: params.preferLossless,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone
-	await getLambdaClient(getCurrentRegionInFunction()).send(
+	const result = await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
 		}),
 	);
+	if (result.FunctionError) {
+		throw new Error(
+			`Lambda function returned error: ${result.FunctionError} ${result.LogResult}`,
+		);
+	}
+
 	await initialFile;
 
 	return {

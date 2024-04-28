@@ -1,6 +1,6 @@
 export const DEFAULT_JPEG_QUALITY = 80;
 
-export const validateJpegQuality = (q: number | undefined) => {
+export const validateJpegQuality = (q: unknown) => {
 	if (typeof q !== 'undefined' && typeof q !== 'number') {
 		throw new Error(
 			`JPEG Quality option must be a number or undefined. Got ${typeof q} (${JSON.stringify(

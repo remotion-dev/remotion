@@ -20,9 +20,11 @@ The `npx remotion cloudrun sites` command allows to create, view and delete Remo
 
 ## create
 
+```bash
+npx remotion cloudrun sites create <entry-point>?
 ```
-npx remotion cloudrun sites create src/index.ts
-```
+
+You may pass an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 Bundle and upload a Remotion video to a Cloud Storage bucket.
 

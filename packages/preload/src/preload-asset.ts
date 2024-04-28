@@ -2,6 +2,19 @@ import {resolveRedirect} from './resolve-redirect';
 
 const typesAllowed = ['video', 'audio', 'image', 'font'] as const;
 
+export const isIosSafari = () => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isSafari = Boolean(
+		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	);
+	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
+	return isIpadIPodIPhone && (isSafari || isChrome);
+};
+
 export const preloadAsset = (
 	src: string,
 	elemType: (typeof typesAllowed)[number],
@@ -52,7 +65,10 @@ export const preloadAsset = (
 	}
 
 	const elem = document.createElement(elemType);
-	elem.preload = 'auto';
+	elem.preload =
+		(elemType === 'video' || elemType === 'audio') && isIosSafari()
+			? 'metadata'
+			: 'auto';
 	elem.controls = true;
 
 	elem.style.display = 'none';

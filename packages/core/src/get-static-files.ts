@@ -1,3 +1,5 @@
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
+
 let warnedServer = false;
 let warnedPlayer = false;
 
@@ -7,6 +9,7 @@ const warnServerOnce = () => {
 	}
 
 	warnedServer = true;
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Called getStaticFiles() on the server. The API is only available in the browser. An empty array was returned.',
 	);
@@ -18,6 +21,7 @@ const warnPlayerOnce = () => {
 	}
 
 	warnedPlayer = true;
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Called getStaticFiles() while using the Remotion Player. The API is only available while using the Remotion Studio. An empty array was returned.',
 	);
@@ -28,6 +32,12 @@ const warnPlayerOnce = () => {
  * @see [Documentation](https://www.remotion.dev/docs/getstaticfiles)
  */
 export const getStaticFiles = (): StaticFile[] => {
+	if (ENABLE_V5_BREAKING_CHANGES) {
+		throw new Error(
+			'getStaticFiles() has moved into the `@remotion/studio` package. Update your imports.',
+		);
+	}
+
 	if (typeof document === 'undefined') {
 		warnServerOnce();
 		return [];

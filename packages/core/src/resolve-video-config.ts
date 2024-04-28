@@ -1,85 +1,11 @@
 import type {AnyZodObject} from 'zod';
 import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
+import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
-
-export const resolveVideoConfig = ({
-	composition,
-	editorProps: editorPropsOrUndefined,
-	signal,
-	inputProps,
-}: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
-	editorProps: object;
-	signal: AbortSignal;
-	inputProps: Record<string, unknown>;
-}): VideoConfig | Promise<VideoConfig> => {
-	const calculatedProm = composition.calculateMetadata
-		? composition.calculateMetadata({
-				defaultProps: composition.defaultProps ?? {},
-				props: {
-					...(composition.defaultProps ?? {}),
-					...(editorPropsOrUndefined ?? {}),
-					...inputProps,
-				},
-				abortSignal: signal,
-		  })
-		: null;
-
-	const fallbackProps = {
-		...(composition.defaultProps ?? {}),
-		...(inputProps ?? {}),
-	};
-
-	if (
-		calculatedProm !== null &&
-		typeof calculatedProm === 'object' &&
-		'then' in calculatedProm
-	) {
-		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps} = validateCalculated({
-				calculated: c,
-				composition,
-			});
-			return {
-				width,
-				height,
-				fps,
-				durationInFrames,
-				id: composition.id,
-				defaultProps: composition.defaultProps ?? {},
-				props: c.props ?? fallbackProps,
-			};
-		});
-	}
-
-	const data = validateCalculated({
-		calculated: calculatedProm,
-		composition,
-	});
-
-	if (calculatedProm === null) {
-		return {
-			...data,
-			id: composition.id,
-			defaultProps: composition.defaultProps ?? {},
-			props: fallbackProps,
-		};
-	}
-
-	return {
-		...data,
-		id: composition.id,
-		defaultProps: composition.defaultProps ?? {},
-		props: calculatedProm.props ?? composition.defaultProps ?? {},
-	};
-};
 
 const validateCalculated = ({
 	composition,
@@ -126,5 +52,85 @@ const validateCalculated = ({
 		component: `of the "<Composition />" component with the id "${composition.id}"`,
 	});
 
-	return {width, height, fps, durationInFrames};
+	const defaultCodec = calculated?.defaultCodec;
+	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+
+	return {width, height, fps, durationInFrames, defaultCodec};
+};
+
+export const resolveVideoConfig = ({
+	composition,
+	editorProps: editorPropsOrUndefined,
+	signal,
+	inputProps,
+}: {
+	composition: TCompMetadataWithCalcFunction<
+		AnyZodObject,
+		Record<string, unknown>
+	>;
+	editorProps: object;
+	signal: AbortSignal;
+	inputProps: Record<string, unknown>;
+}): VideoConfig | Promise<VideoConfig> => {
+	const originalProps = {
+		...(composition.defaultProps ?? {}),
+		...(editorPropsOrUndefined ?? {}),
+		...(inputProps ?? {}),
+	};
+
+	const calculatedProm = composition.calculateMetadata
+		? composition.calculateMetadata({
+				defaultProps: composition.defaultProps ?? {},
+				props: originalProps,
+				abortSignal: signal,
+				compositionId: composition.id,
+			})
+		: null;
+
+	if (
+		calculatedProm !== null &&
+		typeof calculatedProm === 'object' &&
+		'then' in calculatedProm
+	) {
+		return calculatedProm.then((c) => {
+			const {height, width, durationInFrames, fps, defaultCodec} =
+				validateCalculated({
+					calculated: c,
+					composition,
+				});
+			return {
+				width,
+				height,
+				fps,
+				durationInFrames,
+				id: composition.id,
+				defaultProps: composition.defaultProps ?? {},
+				props: c.props ?? originalProps,
+				defaultCodec: defaultCodec ?? null,
+			};
+		});
+	}
+
+	const data = validateCalculated({
+		calculated: calculatedProm,
+		composition,
+	});
+
+	if (calculatedProm === null) {
+		return {
+			...data,
+			id: composition.id,
+			defaultProps: composition.defaultProps ?? {},
+			props: originalProps,
+			defaultCodec: null,
+		};
+	}
+
+	return {
+		...data,
+		id: composition.id,
+		defaultProps: composition.defaultProps ?? {},
+		props: calculatedProm.props ?? originalProps,
+		defaultCodec: calculatedProm.defaultCodec ?? null,
+	};
 };

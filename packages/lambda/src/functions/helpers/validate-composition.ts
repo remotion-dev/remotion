@@ -1,11 +1,12 @@
 import type {
 	ChromiumOptions,
 	LogLevel,
+	OnBrowserDownload,
 	openBrowser,
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -23,6 +24,7 @@ type ValidateCompositionOptions = {
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
+	onBrowserDownload: OnBrowserDownload;
 };
 
 export const validateComposition = async ({
@@ -39,6 +41,7 @@ export const validateComposition = async ({
 	logLevel,
 	server,
 	offthreadVideoCacheSizeInBytes,
+	onBrowserDownload,
 }: ValidateCompositionOptions): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -55,6 +58,8 @@ export const validateComposition = async ({
 		onBrowserLog: null,
 		server,
 		offthreadVideoCacheSizeInBytes,
+		binariesDirectory: null,
+		onBrowserDownload,
 	});
 
 	return {

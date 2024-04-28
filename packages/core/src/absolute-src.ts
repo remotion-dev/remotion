@@ -1,3 +1,7 @@
 export const getAbsoluteSrc = (relativeSrc: string) => {
-	return new URL(relativeSrc, window.location.origin).href;
+	if (typeof window === 'undefined') {
+		return relativeSrc;
+	}
+
+	return new URL(relativeSrc, window.origin).href;
 };

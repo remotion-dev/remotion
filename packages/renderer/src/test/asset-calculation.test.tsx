@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 /**
  * @vitest-environment jsdom
  */
@@ -40,6 +41,8 @@ test('Should be able to collect assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -60,6 +63,8 @@ test('Should get multiple assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -70,6 +75,8 @@ test('Should get multiple assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -94,6 +101,8 @@ test('Should handle jumps inbetween', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -104,6 +113,8 @@ test('Should handle jumps inbetween', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -125,6 +136,8 @@ test('Should support sequencing', async () => {
 		volume: 1,
 		playbackRate: 1,
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 20,
 	});
 });
 
@@ -156,6 +169,8 @@ test('Should calculate volumes correctly', async () => {
 			)
 			.filter((f) => f > 0),
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 0,
 	});
 });
 
@@ -197,5 +212,7 @@ test('Should calculate startFrom correctly', async () => {
 			)
 			.filter((i) => i > 0),
 		allowAmplificationDuringRender: false,
+		toneFrequency: null,
+		audioStartFrame: 100,
 	});
 });

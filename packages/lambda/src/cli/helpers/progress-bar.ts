@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
 export type BundleProgress = {
 	progress: number;
@@ -60,7 +60,7 @@ const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 			stats.addedFiles ? `+${stats.addedFiles}` : null,
 			stats.removedFiles ? `-${stats.removedFiles}` : null,
 		]
-			.filter(Internals.truthy)
+			.filter(NoReactInternals.truthy)
 			.join(',')} ${total === 1 ? 'file' : 'files'})`,
 	);
 };
@@ -80,11 +80,11 @@ export const makeDeployProgressBar = ({
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
 						totalSize,
-				  )}`
+					)}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 		makeUploadDiff({stats}),
 	]
-		.filter(Internals.truthy)
+		.filter(NoReactInternals.truthy)
 		.join(' ');
 };

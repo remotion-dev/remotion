@@ -5,7 +5,7 @@ tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
 .turbo
-vitest.config.ts
+vitest.config.mts
 target
 rust
 install_platforms.sh

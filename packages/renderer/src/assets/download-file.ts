@@ -1,5 +1,7 @@
 import {createWriteStream} from 'node:fs';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import type {LogLevel} from '../log-level';
+import {Log} from '../logger';
 import {readFile} from './read-file';
 
 type Response = {sizeInBytes: number; to: string};
@@ -14,6 +16,8 @@ type Options = {
 				totalSize: number | null;
 		  }) => void)
 		| undefined;
+	logLevel: LogLevel;
+	indent: boolean;
 };
 
 const incorrectContentLengthToken = 'Download finished with';
@@ -22,7 +26,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
 		let resolved = false;
-		let timeout: NodeJS.Timeout | undefined;
+		let timeout: Timer | undefined;
 
 		const resolveAndFlag = (val: Response) => {
 			resolved = true;
@@ -134,12 +138,22 @@ export const downloadFile = async (
 		const {message} = err as Error;
 		if (
 			message === 'aborted' ||
-			message.includes(incorrectContentLengthToken)
+			message === 'ECONNRESET' ||
+			message.includes(incorrectContentLengthToken) ||
+			// Try again if hitting internal errors
+			message.includes('503') ||
+			message.includes('502') ||
+			message.includes('504') ||
+			message.includes('500')
 		) {
 			if (retries === 0) {
 				throw err;
 			}
 
+			Log.warn(
+				{indent: options.indent, logLevel: options.logLevel},
+				`Downloading ${options.url} failed (will retry): ${message}`,
+			);
 			const backoffInSeconds = (attempt + 1) ** 2;
 			await new Promise<void>((resolve) => {
 				setTimeout(() => resolve(), backoffInSeconds * 1000);

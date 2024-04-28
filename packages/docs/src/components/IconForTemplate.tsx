@@ -10,6 +10,7 @@ import { SkiaIcon } from "./icons/skia";
 import { Stargazer } from "./icons/stargazer";
 import { StillIcon } from "./icons/still";
 import { Tailwind } from "./icons/tailwind";
+import { TikTok } from "./icons/tiktok";
 import { TypeScriptIcon } from "./icons/ts";
 import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
@@ -133,12 +134,20 @@ export const IconForTemplate: React.FC<{
     return <OverlayIcon style={{ height: scale * 42 }} />;
   }
 
-  if (template.cliId === "next" || template.cliId === "next-pages-dir") {
+  if (
+    template.cliId === "next" ||
+    template.cliId === "next-tailwind" ||
+    template.cliId === "next-pages-dir"
+  ) {
     return <NextIcon style={{ height: scale * 36 }} />;
   }
 
   if (template.cliId === "stargazer") {
     return <Stargazer style={{ height: scale * 36 }} />;
+  }
+
+  if (template.cliId === "tiktok") {
+    return <TikTok style={{ height: scale * 36 }} />;
   }
 
   return (

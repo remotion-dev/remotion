@@ -2,7 +2,7 @@ import type {LifecycleRule} from '@aws-sdk/client-s3';
 import {randomHash} from '../../shared/random-hash';
 import {truthy} from '../../shared/truthy';
 
-// Needs to be in sync with cli/src/config/render-folder-expiry.ts#L7
+// Needs to be in sync with renderer/src/options/delete-after.ts#L7
 const expiryDays = {
 	'1-day': 1,
 	'3-days': 3,

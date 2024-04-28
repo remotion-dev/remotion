@@ -10,14 +10,10 @@ _Available from v2.6.12._
 Print list of composition IDs based on a path of an entry point.
 
 ```bash
-npx remotion compositions <entry-file>
+npx remotion compositions <serve-url|entry-file>?
 ```
 
-If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
-
-1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
-3. Fail as entry point could not be determined.
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 ## Flags
 
@@ -55,7 +51,7 @@ If you don't feel like passing command line flags every time, consider creating 
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-path" />
 
 ### `--timeout`
 
@@ -75,9 +71,13 @@ _available since v2.6.5_
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--disable-headless`
+### `--disable-headless?`
 
-Opens an actual browser to observe the composition fetching.
+<Options id="disable-headless"  />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
@@ -86,6 +86,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
 
 ### `--quiet`, `--q`
 

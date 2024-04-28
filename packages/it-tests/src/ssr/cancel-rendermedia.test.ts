@@ -1,5 +1,5 @@
 import { renderMedia, makeCancelSignal } from "@remotion/renderer";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
 
 test("Should be able to cancel render", async () => {
   try {
@@ -7,7 +7,7 @@ test("Should be able to cancel render", async () => {
     const val = renderMedia({
       codec: "h264",
       serveUrl:
-        "https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/",
+        "https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,
@@ -16,6 +16,7 @@ test("Should be able to cancel render", async () => {
         width: 1280,
         defaultProps: {},
         props: {},
+        defaultCodec: null,
       },
       outputLocation: "out/render.mp4",
       cancelSignal,

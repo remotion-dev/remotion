@@ -1,14 +1,22 @@
 import type {FC, PropsWithChildren} from 'react';
-import {Children, forwardRef, useMemo} from 'react';
+import React, {Children, forwardRef, useMemo} from 'react';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {ENABLE_V5_BREAKING_CHANGES} from '../v5-flag.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {flattenChildren} from './flatten-children.js';
+import {
+	IsInsideSeriesContainer,
+	IsNotInsideSeriesProvider,
+	useRequireToBeInsideSeries,
+} from './is-inside-series.js';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
-		durationInFrames: number;
-		offset?: number;
+		readonly durationInFrames: number;
+		readonly offset?: number;
+		readonly className?: string;
 	} & Pick<SequenceProps, 'layout' | 'name'> &
 		LayoutAndStyle
 >;
@@ -18,25 +26,34 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SeriesSequenceProps
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 > = ({children}, _ref) => {
+	useRequireToBeInsideSeries();
 	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
+	return <IsNotInsideSeriesProvider>{children}</IsNotInsideSeriesProvider>;
 };
 
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
+
+type V4Props = {
+	children: React.ReactNode;
+};
+
+type V5Props = SequenceProps;
+
+type SeriesProps = true extends typeof ENABLE_V5_BREAKING_CHANGES
+	? V5Props
+	: V4Props;
 
 /**
  * @description with this component, you can easily stitch together scenes that should play sequentially after another.
  * @see [Documentation](https://www.remotion.dev/docs/series)
  */
-const Series: FC<{
-	children: React.ReactNode;
-}> & {
+const Series: FC<SeriesProps> & {
 	Sequence: typeof SeriesSequence;
-} = ({children}) => {
+} = (props) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		const flattenedChildren = flattenChildren(children);
+		const flattenedChildren = flattenChildren(props.children);
 		return Children.map(flattenedChildren, (child, i) => {
 			const castedChild = child as unknown as
 				| {
@@ -52,13 +69,13 @@ const Series: FC<{
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but you passed a string "${castedChild}"`,
 				);
 			}
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`,
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but got ${castedChild} instead`,
 				);
 			}
 
@@ -75,6 +92,7 @@ const Series: FC<{
 				durationInFrames,
 				children: _children,
 				from,
+				name,
 				...passedProps
 			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
@@ -111,6 +129,7 @@ const Series: FC<{
 			startFrame += durationInFramesProp + offset;
 			return (
 				<Sequence
+					name={name || '<Series.Sequence>'}
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
@@ -120,12 +139,21 @@ const Series: FC<{
 				</Sequence>
 			);
 		});
-	}, [children]);
+	}, [props.children]);
 
-	/* eslint-disable react/jsx-no-useless-fragment */
-	return <>{childrenValue}</>;
+	if (ENABLE_V5_BREAKING_CHANGES) {
+		return (
+			<IsInsideSeriesContainer>
+				<Sequence {...props}>{childrenValue}</Sequence>
+			</IsInsideSeriesContainer>
+		);
+	}
+
+	return <IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>;
 };
 
 Series.Sequence = SeriesSequence;
 
 export {Series};
+
+addSequenceStackTraces(SeriesSequence);

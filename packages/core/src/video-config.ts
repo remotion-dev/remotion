@@ -1,3 +1,5 @@
+import type {Codec} from './codec';
+
 export type VideoConfig = {
 	width: number;
 	height: number;
@@ -6,4 +8,5 @@ export type VideoConfig = {
 	id: string;
 	defaultProps: Record<string, unknown>;
 	props: Record<string, unknown>;
+	defaultCodec: Codec | null;
 };

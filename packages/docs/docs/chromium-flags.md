@@ -71,7 +71,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCer
 
 ## `--disable-headless`
 
-Setting this flag will open an actual Chrome during render where you can see the render happen.
+<Options id="disable-headless"  />
 
 ### Via Node.JS APIs
 
@@ -99,19 +99,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumHeadlessM
 
 ## `--gl`
 
-<AngleChangelog />
-
-Select the OpenGL renderer backend for Chromium.
-Accepted values:
-
-- `"angle"`,
-- `"egl"`,
-- `"swiftshader"`
-- `"swangle"`
-- `null` - Chromium's default
-
-**Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swangle"`.
+<Options id="gl" />
 
 ### Via Node.JS APIs
 

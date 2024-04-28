@@ -1,6 +1,6 @@
 import path from "node:path";
 import { expect, test } from "vitest";
-import { getVideoMetadata } from "@remotion/renderer";
+import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
 import { exampleVideos } from "./example-videos";
@@ -10,7 +10,7 @@ test("Should return video metadata", async () => {
     logLevel: "info",
   });
 
-  expect(metadataResponse).toEqual({
+  const videoMetadata: VideoMetadata = {
     fps: 24,
     width: 1080,
     height: 1080,
@@ -19,7 +19,12 @@ test("Should return video metadata", async () => {
     canPlayInVideoTag: true,
     supportsSeeking: true,
     colorSpace: "bt601",
-  });
+    audioCodec: null,
+    audioFileExtension: null,
+    pixelFormat: "yuv420p",
+  };
+
+  expect(metadataResponse).toEqual(videoMetadata);
 });
 
 test("Should return video metadata", async () => {
@@ -29,6 +34,8 @@ test("Should return video metadata", async () => {
 
   expect(metadataResponse.supportsSeeking).toEqual(true);
   expect(metadataResponse.colorSpace).toEqual("bt601");
+  expect(metadataResponse.audioCodec).toEqual("aac");
+  expect(metadataResponse.audioFileExtension).toEqual("aac");
 });
 
 test("Should return AV1 video data", async () => {
@@ -37,6 +44,8 @@ test("Should return AV1 video data", async () => {
   });
   expect(metadataResponse.codec).toEqual("av1");
   expect(metadataResponse.colorSpace).toEqual("bt709");
+  expect(metadataResponse.audioCodec).toEqual(null);
+  expect(metadataResponse.audioFileExtension).toEqual(null);
 });
 
 test("Should return AV1 video data", async () => {
@@ -45,6 +54,8 @@ test("Should return AV1 video data", async () => {
   });
   expect(metadataResponse.codec).toEqual("vp8");
   expect(metadataResponse.colorSpace).toEqual("bt709");
+  expect(metadataResponse.audioCodec).toEqual("opus");
+  expect(metadataResponse.audioFileExtension).toEqual("opus");
 });
 
 test("Should return HEVC video codec", async () => {
@@ -54,6 +65,8 @@ test("Should return HEVC video codec", async () => {
   expect(metadataResponse.codec).toEqual("h265");
   expect(metadataResponse.canPlayInVideoTag).toEqual(true);
   expect(metadataResponse.colorSpace).toEqual("bt2020-ncl");
+  expect(metadataResponse.audioCodec).toEqual("aac");
+  expect(metadataResponse.audioFileExtension).toEqual("aac");
 });
 
 test("Should return an error due to non existing file", async () => {

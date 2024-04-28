@@ -1,3 +1,4 @@
+import type React from 'react';
 import {createContext} from 'react';
 import type {AnyZodObject} from 'zod';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
@@ -6,8 +7,22 @@ import type {VideoConfig} from './video-config.js';
 
 export type BaseMetadata = Pick<
 	VideoConfig,
-	'durationInFrames' | 'fps' | 'props' | 'height' | 'width'
+	'durationInFrames' | 'fps' | 'props' | 'height' | 'width' | 'defaultCodec'
 >;
+
+export type CanvasContent =
+	| {
+			type: 'composition';
+			compositionId: string;
+	  }
+	| {
+			type: 'asset';
+			asset: string;
+	  }
+	| {
+			type: 'output';
+			path: string;
+	  };
 
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
@@ -20,11 +35,11 @@ export type CompositionManagerContext = {
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
-	currentComposition: string | null;
-	setCurrentComposition: (curr: string) => void;
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
 	folders: TFolder[];
+	canvasContent: CanvasContent | null;
+	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -33,9 +48,9 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterComposition: () => undefined,
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
-	currentComposition: null,
-	setCurrentComposition: () => undefined,
 	setCurrentCompositionMetadata: () => undefined,
 	folders: [],
 	currentCompositionMetadata: null,
+	canvasContent: null,
+	setCanvasContent: () => undefined,
 });

@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
@@ -10,6 +10,8 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
+import {parseLambdaChunkKey} from '../../shared/parse-chunk-key';
+import {truthy} from '../../shared/truthy';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -30,6 +32,7 @@ import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 import {makeTimeoutError} from './make-timeout-error';
+import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
@@ -63,10 +66,13 @@ export const getProgress = async ({
 			customCredentials,
 		);
 
-		const totalFrameCount = RenderInternals.getFramesToRender(
-			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame,
-		).length;
+		const totalFrameCount =
+			postRenderData.renderMetadata.type === 'still'
+				? 1
+				: RenderInternals.getFramesToRender(
+						postRenderData.renderMetadata.frameRange,
+						postRenderData.renderMetadata.everyNthFrame,
+					).length;
 
 		return {
 			framesRendered: totalFrameCount,
@@ -105,6 +111,8 @@ export const getProgress = async ({
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
 			type: 'success',
+			estimatedBillingDurationInMilliseconds:
+				postRenderData.estimatedBillingDurationInMilliseconds,
 		};
 	}
 
@@ -126,7 +134,7 @@ export const getProgress = async ({
 					renderId,
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner,
-			  })
+				})
 			: null,
 		inspectErrors({
 			contents,
@@ -156,33 +164,39 @@ export const getProgress = async ({
 				renderMetadata,
 				region,
 				customCredentials,
-		  })
+			})
 		: null;
 
-	const accruedSoFar = Number(
-		estimatePriceFromBucket({
-			contents,
-			renderMetadata,
-			memorySizeInMb,
-			outputFileMetadata: outputFile,
-			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
-			// We cannot determine the ephemeral storage size, so we
-			// overestimate the price, but will only have a miniscule effect (~0.2%)
-			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		}),
-	);
+	const priceFromBucket = estimatePriceFromBucket({
+		contents,
+		renderMetadata,
+		memorySizeInMb,
+		outputFileMetadata: outputFile,
+		lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+	});
+
+	const {hasAudio, hasVideo} = renderMetadata
+		? lambdaRenderHasAudioVideo(renderMetadata)
+		: {hasAudio: false, hasVideo: false};
 
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
 		contents,
 		output: outputFile?.url ?? null,
 		renderId,
+		hasAudio,
+		hasVideo,
 	});
 
 	const timeToFinish = getTimeToFinish({
 		lastModified: outputFile?.lastModified ?? null,
 		renderMetadata,
 	});
+
+	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 	const framesRendered = renderMetadata
@@ -192,10 +206,12 @@ export const getProgress = async ({
 				frameRange: renderMetadata.frameRange,
 				framesPerLambda: renderMetadata.framesPerLambda,
 				renderId,
-		  })
+			})
 		: 0;
 
-	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
+	const allChunks =
+		chunks.length / chunkMultiplier ===
+		(renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
@@ -214,7 +230,7 @@ export const getProgress = async ({
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
 				renderMetadata.everyNthFrame,
-		  ).length
+			).length
 		: null;
 
 	const encodingStatus = getEncodingMetadata({
@@ -230,31 +246,56 @@ export const getProgress = async ({
 
 	const chunkCount = outputFile
 		? renderMetadata?.totalChunks ?? 0
-		: chunks.length;
+		: chunks.length / chunkMultiplier;
+
+	const availableChunks = chunks.map((c) =>
+		parseLambdaChunkKey(c.Key as string),
+	);
+
+	const missingChunks = renderMetadata
+		? new Array(renderMetadata.totalChunks)
+				.fill(true)
+				.map((_, i) => i)
+				.filter((index) => {
+					return !availableChunks.find((c) => c.chunk === index);
+				})
+		: null;
 
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
-	const isBeyondTimeout =
+
+	// 1. If we have missing chunks, we consider it timed out
+	const isBeyondTimeoutAndMissingChunks =
 		renderMetadata &&
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000;
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		missingChunks &&
+		missingChunks.length > 0;
+
+	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
+	const isBeyondTimeoutAndHasStitchTimeout =
+		renderMetadata &&
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
-		isBeyondTimeout
+		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout
 			? makeTimeoutError({
 					timeoutInMilliseconds,
 					renderMetadata,
 					chunks,
 					renderId,
-			  })
+					missingChunks: missingChunks ?? [],
+				})
 			: null,
 		...errorExplanations,
-	].filter(Internals.truthy);
+	].filter(NoReactInternals.truthy);
 
 	return {
 		framesRendered,
 		chunks: chunkCount,
 		done: false,
 		encodingStatus,
-		costs: formatCostsInfo(accruedSoFar),
+		costs: priceFromBucket
+			? formatCostsInfo(priceFromBucket.accruedSoFar)
+			: formatCostsInfo(0),
 		renderId,
 		renderMetadata,
 		bucket: bucketName,
@@ -271,7 +312,7 @@ export const getProgress = async ({
 					contents,
 					renderId,
 					type: 'absolute-time',
-			  })
+				})
 			: null,
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
@@ -281,7 +322,7 @@ export const getProgress = async ({
 					: 0,
 			invoking: renderMetadata
 				? lambdasInvokedStats.lambdasInvoked /
-				  renderMetadata.estimatedRenderLambdaInvokations
+					renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 			frames: frameCount === null ? 0 : framesRendered / frameCount,
@@ -299,6 +340,9 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		estimatedBillingDurationInMilliseconds: priceFromBucket
+			? priceFromBucket.estimatedBillingDurationInMilliseconds
+			: null,
 		type: 'success',
 	};
 };

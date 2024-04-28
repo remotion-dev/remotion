@@ -4,63 +4,20 @@ const toSeconds = (time: number, fps: number) => {
 	return Math.round((time / fps) * 100) / 100;
 };
 
-const isSubsetOfDuration = (
-	prevStartFrom: number,
-	newStartFrom: number,
-	prevDuration: number,
-	newDuration: number,
-) => {
-	return (
-		prevStartFrom <= newStartFrom &&
-		prevStartFrom + prevDuration >= newStartFrom + newDuration
-	);
-};
-
-export const useAppendVideoFragment = ({
-	actualSrc: initialActualSrc,
-	actualFrom: initialActualFrom,
-	duration: initialDuration,
-	fps,
-}: {
-	actualSrc: string;
-	actualFrom: number;
-	duration: number;
-	fps: number;
-}) => {
-	const actualFromRef = useRef(initialActualFrom);
-	const actualDuration = useRef(initialDuration);
-	const actualSrc = useRef(initialActualSrc);
-
-	if (!isSubsetOfDuration || initialActualSrc !== actualSrc.current) {
-		actualFromRef.current = initialActualFrom;
-		actualDuration.current = initialDuration;
-		actualSrc.current = initialActualSrc;
+export const isIosSafari = () => {
+	if (typeof window === 'undefined') {
+		return false;
 	}
 
-	const appended = appendVideoFragment({
-		actualSrc: actualSrc.current,
-		actualFrom: actualFromRef.current,
-		duration: actualDuration.current,
-		fps,
-	});
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
 
-	return appended;
-};
-
-export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+	return isIpadIPodIPhone && isAppleWebKit;
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655
-const isIOSSafariCase = (actualSrc: string) => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
-				actualSrc.startsWith('blob:');
+const isIOSSafariAndBlob = (actualSrc: string) => {
+	return isIosSafari() && actualSrc.startsWith('blob:');
 };
 
 export const appendVideoFragment = ({
@@ -74,7 +31,7 @@ export const appendVideoFragment = ({
 	duration: number;
 	fps: number;
 }): string => {
-	if (isIOSSafariCase(actualSrc)) {
+	if (isIOSSafariAndBlob(actualSrc)) {
 		return actualSrc;
 	}
 
@@ -107,4 +64,57 @@ export const appendVideoFragment = ({
 	actualSrc += `,${toSeconds(duration, fps)}`;
 
 	return actualSrc;
+};
+
+const isSubsetOfDuration = ({
+	prevStartFrom,
+	newStartFrom,
+	prevDuration,
+	newDuration,
+}: {
+	prevStartFrom: number;
+	newStartFrom: number;
+	prevDuration: number;
+	newDuration: number;
+}) =>
+	prevStartFrom <= newStartFrom &&
+	prevStartFrom + prevDuration >= newStartFrom + newDuration;
+
+export const useAppendVideoFragment = ({
+	actualSrc: initialActualSrc,
+	actualFrom: initialActualFrom,
+	duration: initialDuration,
+	fps,
+}: {
+	actualSrc: string;
+	actualFrom: number;
+	duration: number;
+	fps: number;
+}) => {
+	const actualFromRef = useRef(initialActualFrom);
+	const actualDuration = useRef(initialDuration);
+	const actualSrc = useRef(initialActualSrc);
+
+	if (
+		!isSubsetOfDuration({
+			prevStartFrom: actualFromRef.current,
+			newStartFrom: initialActualFrom,
+			prevDuration: actualDuration.current,
+			newDuration: initialDuration,
+		}) ||
+		initialActualSrc !== actualSrc.current
+	) {
+		actualFromRef.current = initialActualFrom;
+		actualDuration.current = initialDuration;
+		actualSrc.current = initialActualSrc;
+	}
+
+	const appended = appendVideoFragment({
+		actualSrc: actualSrc.current,
+		actualFrom: actualFromRef.current,
+		duration: actualDuration.current,
+		fps,
+	});
+
+	return appended;
 };

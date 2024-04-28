@@ -40,12 +40,6 @@ export const uploadDir = async ({
 	onProgress: (progress: UploadDirProgress) => void;
 	toUpload: string[];
 }) => {
-	const files = await getFiles(localDir, localDir, toUpload);
-	const progresses: {[key: string]: number} = {};
-	for (const file of files) {
-		progresses[file.name] = 0;
-	}
-
 	async function getFiles(
 		directory: string,
 		originalDirectory: string,
@@ -83,6 +77,12 @@ export const uploadDir = async ({
 				}),
 		);
 		return _files.flat(1);
+	}
+
+	const files = await getFiles(localDir, localDir, toUpload);
+	const progresses: {[key: string]: number} = {};
+	for (const file of files) {
+		progresses[file.name] = 0;
 	}
 
 	const cloudStorageClient = getCloudStorageClient();

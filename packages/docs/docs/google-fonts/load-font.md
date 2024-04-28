@@ -43,12 +43,18 @@ A large font file paired with a limited bandwith can potentially lead to a rende
 
 If you want to load multiple styles, use multiple `loadFont()` statements.
 
-```tsx title="Load a specific style, weight and subset"
+```tsx twoslash title="Load a specific style, weight and subset"
+import { AbsoluteFill } from "remotion";
 import { fontFamily, loadFont } from "@remotion/google-fonts/Lobster";
 
-loadFont("normal", {
+const { waitUntilDone } = loadFont("normal", {
   weights: ["400"],
   subsets: ["latin"],
+});
+
+// Optional: Act once the font has been loaded
+waitUntilDone().then(() => {
+  console.log("Font is loaded");
 });
 
 export const GoogleFontsExample: React.FC = () => {
@@ -57,6 +63,7 @@ export const GoogleFontsExample: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
+        // Pass the `fontFamily` you imported as a style
         fontFamily: fontFamily,
         fontSize: 280,
       }}
@@ -127,6 +134,23 @@ Unicode range information about the font.
   'latin-ext': 'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
   'latin': 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
 }
+```
+
+### `waitUntilDone`<AvailableFrom v="4.0.135"/>
+
+A function that returns a promise that resolves when the font is loaded.
+
+```tsx title="Load a font in the background"
+import { loadFont } from "@remotion/google-fonts/Lobster";
+
+loadFont("normal", {
+  weights: ["400"],
+  subsets: ["latin"],
+})
+  .waitUntilDone()
+  .then(() => {
+    console.log("Done loading");
+  });
 ```
 
 ## See also

@@ -4,6 +4,5 @@ src
 tsconfig.tsbuildinfo
 *.tgz
 .turbo
-vitest.config.ts
 tsconfig.json
 .prettierrc.js

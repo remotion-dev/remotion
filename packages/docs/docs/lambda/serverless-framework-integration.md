@@ -106,7 +106,7 @@ The project has the deployment script configured in [package.json](https://githu
   // ...
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy-fn": "ts-nodwe src/infra/deploy-lambda-fn.ts",
+    "deploy-fn": "ts-node src/infra/deploy-lambda-fn.ts",
     "delete-fn": "ts-node src/infra/delete-lambda-fn.ts",
     "render-fn": "ts-node src/infra/local-render-fn.ts"
   }
@@ -425,4 +425,4 @@ This API will provide the progress details of the render, indicating whether it 
 - [Using Lambda with SQS](/docs/lambda/sqs)
 - [Permissions](/docs/lambda/permissions)
 - [Serverless Framework](https://www.serverless.com/framework/docs/getting-started)
-- Some codes are borrowed from [github-unwrapped-2021](https://github.com/remotion-dev/github-unwrapped-2021/tree/main/src)
+- Some code is borrowed from [github-unwrapped-2021](https://github.com/remotion-dev/github-unwrapped-2021/tree/main/src)

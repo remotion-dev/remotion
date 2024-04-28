@@ -7,17 +7,13 @@ crumb: CLI Reference
 
 _Alias: npx remotion preview_
 
-Start the Remotion Studio. The only argument to pass is the entry file:
+Start the [Remotion Studio](/docs/studio).
 
 ```bash
-npx remotion studio <entry-file>
+npx remotion studio <entry-point>?
 ```
 
-If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
-
-1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
-3. Fail as entry point could not be determined.
+You may pass an [entry point](/docs/terminology/entry-point) as an argument, otherwise it will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
 ## Flags
 
@@ -43,11 +39,11 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--port`
 
-[Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+[Set a custom HTTP server port to start the server on](/docs/config#setstudioport). If not defined, Remotion will try to find a free port.
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+<Options id="public-path" />
 
 ### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
 
@@ -74,6 +70,22 @@ For backwards compatibility, the `BROWSER` environment variable is also supporte
 
 A set of command line flags that should be passed to the browser. Pass them like this:
 
-```console
+```sh
 npx remotion studio --browser-args="--disable-web-security"
+```
+
+### `--beep-on-finish`<AvailableFrom v="4.0.84" />
+
+[Plays a beep sound when the video is finished rendering](/docs/config#setbeeponfinish). This is useful if you are rendering a video in the background and want to be notified when it is finished.
+
+```sh
+npx remotion studio --beep-on-finish
+```
+
+### `--ipv4`<AvailableFrom v="4.0.125" />
+
+Forces the Studio to be bound to an IPv4 interface, even if a IPv6 interface is available.
+
+```sh
+npx remotion studio --ipv4
 ```

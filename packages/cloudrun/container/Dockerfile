@@ -1,7 +1,7 @@
-FROM debian:bookworm-20230411
+FROM node:20-bookworm
 
 RUN apt-get update
-RUN apt-get install -y nodejs npm chromium
+RUN apt-get install -y chromium fonts-noto-color-emoji
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 

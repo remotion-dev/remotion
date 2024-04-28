@@ -24,10 +24,20 @@ import {
   PresignUrlInput,
   getSites,
   speculateFunctionName,
+  CustomCredentials, // available from v4.0.60
+  getAwsClient, // available from v4.0.82
+  deleteRender, // available from v4.0.84
+  DeleteRenderInput, // available from v4.0.84
 } from "@remotion/lambda/client";
 ```
 
-These functions don't have any Node.JS dependencies and can be bundled with a bundler such as Webpack or ESBuild.
+:::info
+`getServiceClient()` was included from v4.0.60 to v4.0.81 by mistake. Use [`getAwsClient()`](/docs/lambda/getawsclient) instead.
+:::
+
+These functions don't have any dependencies on our renderer and can be bundled for example with ESBuild or Webpack (like is the case for example in Next.js).
+
+Importing the light client on edge frameworks (Vercel Edge, Cloudflare Workers) is currently not supported.
 
 **We don't recommend calling these functions from the browser directly, as you will leak your AWS credentials.**
 
