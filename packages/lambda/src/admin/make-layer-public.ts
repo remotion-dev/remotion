@@ -2,7 +2,6 @@ import {
 	AddLayerVersionPermissionCommand,
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
-import {lambda} from 'aws-policies';
 import {VERSION} from 'remotion/version';
 import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
@@ -63,7 +62,7 @@ const makeLayerPublic = async () => {
 			);
 			await getLambdaClient(region).send(
 				new AddLayerVersionPermissionCommand({
-					Action: lambda.GetLayerVersion,
+					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,
 					Principal: '*',
 					VersionNumber: Version,
