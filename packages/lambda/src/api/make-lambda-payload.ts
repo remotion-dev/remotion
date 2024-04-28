@@ -192,6 +192,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		deleteAfter: deleteAfter ?? null,
 		colorSpace: colorSpace ?? null,
 		preferLossless: preferLossless ?? false,
+		enableStreaming,
 	};
 };
 

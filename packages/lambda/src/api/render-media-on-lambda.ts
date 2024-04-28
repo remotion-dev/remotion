@@ -166,6 +166,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
 		preferLossless: options.preferLossless ?? false,
+		enableStreaming: options.enableStreaming ?? false,
 		indent: false,
 	};
 };

@@ -169,6 +169,7 @@ const innerHandler = async (
 						message: payload,
 						status: 0,
 					});
+					console.log(message);
 				}
 			},
 			context,
