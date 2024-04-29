@@ -7,7 +7,6 @@ crumb: "Snippets"
 The following component will only use [`<OffthreadVideo />`](/docs/offthreadvideo) while rendering, but [`<Video />`](/docs/video) in the Player.
 This is useful for attaching a `ref` to the [`<Video />`](/docs/video) tag.
 
-`Experimental.useIsPlayer()` is used to determine if the environment is a Player. Note that this is not an official Remotion API yet that is guaranteed to be stable across patch versions.
 
 ```tsx twoslash
 import { forwardRef } from "react";
@@ -23,9 +22,9 @@ const OffthreadWhileRenderingRefForwardingFunction: React.ForwardRefRenderFuncti
   RemotionOffthreadVideoProps
 > = (props, ref) => {
   const { imageFormat, ...otherProps } = props;
-  const isPlayer = getRemotionEnvironment().isPlayer;
+  const isPreview = !getRemotionEnvironment().isRendering;
 
-  if (isPlayer) {
+  if (isPreview) {
     return <Video ref={ref} {...otherProps}></Video>;
   }
 
