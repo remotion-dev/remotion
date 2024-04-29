@@ -6,5 +6,5 @@ const md5 = (data: Buffer) =>
 
 export const getEtagOfFile = async (filePath: string) => {
 	const stream = await fs.promises.readFile(filePath);
-	return `${md5(stream)}`;
+	return md5(stream);
 };
