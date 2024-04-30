@@ -942,6 +942,7 @@ module.exports = {
           ],
         },
         "recorder/exporting",
+        "recorder/lambda-rendering",
         "recorder/source-control",
         "recorder/upgrading",
         "recorder/gear",
