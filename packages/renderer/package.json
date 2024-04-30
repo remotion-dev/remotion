@@ -9,7 +9,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "node build.mjs",
+		"build": "node build.mjs --debug",
 		"build-all": "node build.mjs --all",
 		"prepublishOnly": "node build.mjs --all"
 	},
