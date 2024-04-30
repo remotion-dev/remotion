@@ -268,6 +268,14 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
 	}
 
+	if (
+		progress.bundling.progress === 1 &&
+		progress.bundling.doneIn === null &&
+		progress.copyingState.bytes === 0
+	) {
+		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
+	}
+
 	if (progress.copyingState.doneIn === null) {
 		return `Copying public dir ${StudioServerInternals.formatBytes(
 			progress.copyingState.bytes,
@@ -281,30 +289,29 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	// Get render estimated time value and extract hours, minutes, and seconds
 	const {renderEstimatedTime} = progress.rendering;
 	const remainingTime = renderEstimatedTime / 1000;
-	const remainingTimeMinutes = Math.round((remainingTime % 3600) / 60)
-		.toString()
-		.padStart(2, '0');
-
-	const remainingTimeSeconds = Math.round(remainingTime % 60)
-		.toString()
-		.padStart(2, '0');
-
-	const remainingTimeHours = Math.floor(remainingTime / 3600)
-		.toString()
-		.padStart(2, '0');
+	const remainingTimeHours = Math.floor(remainingTime / 3600);
+	const remainingTimeMinutes = Math.round((remainingTime % 3600) / 60);
+	const remainingTimeSeconds = Math.round(remainingTime % 60);
 
 	// Create estimated time string by concatenating them with colons
-	const estimatedTimeString = [
-		remainingTimeHours,
-		remainingTimeMinutes,
-		remainingTimeSeconds,
-	].join(':');
+	const estimatedTimeString =
+		remainingTime < 1
+			? '<1s'
+			: [
+					remainingTimeHours ? `${remainingTimeHours}h` : null,
+					remainingTimeMinutes ? remainingTimeMinutes + 'm' : null,
+					`${remainingTimeSeconds}s`,
+				]
+					.filter(truthy)
+					.join(' ');
 
 	const allRendered =
 		progress.rendering.frames === progress.rendering.totalFrames;
 
 	if (!allRendered || !progress.stitching || progress.stitching.frames === 0) {
-		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}. Estimated Render Time: ${estimatedTimeString}`;
+		const etaString =
+			remainingTime > 0 ? `, time remaining: ${estimatedTimeString}` : '';
+		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}${etaString}`;
 	}
 
 	return `Stitched ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
