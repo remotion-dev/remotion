@@ -785,6 +785,7 @@ module.exports = {
         "troubleshooting/timed-out-page-function",
         "troubleshooting/delay-render-proxy",
         "troubleshooting/bundling-bundle",
+        "troubleshooting/browser-launch",
       ],
     },
     {
