@@ -268,20 +268,12 @@ export const bundleOnCli = async ({
 		progress: 1,
 		doneIn: Date.now() - bundleStartTime,
 	};
-	Log.verbose(
-		{logLevel, indent},
-		'Bundling done in',
-		bundlingState.doneIn + 'ms',
-	);
+	Log.verbose({logLevel, indent}, `Bundling done in ${bundlingState.doneIn}ms`);
 	copyingState = {
 		...copyingState,
 		doneIn: copyStart ? Date.now() - copyStart : 0,
 	};
-	Log.verbose(
-		{logLevel, indent},
-		'Copying done in ',
-		copyingState.doneIn + 'ms',
-	);
+	Log.verbose({logLevel, indent}, `Copying done in ${copyingState.doneIn}ms`);
 	updateProgress(true);
 
 	Log.verbose({indent, logLevel}, 'Bundled under', bundled);
