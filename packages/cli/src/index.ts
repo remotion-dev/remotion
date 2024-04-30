@@ -6,6 +6,7 @@ import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
+import {checkForNpmRunFlagPass} from './check-for-npm-run-flag-pass';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
@@ -83,6 +84,7 @@ export const cli = async () => {
 		: RenderInternals.registerErrorSymbolicationLock();
 
 	handleCtrlC({indent: false, logLevel});
+	checkForNpmRunFlagPass({indent: false, logLevel});
 
 	try {
 		if (command === 'bundle') {
