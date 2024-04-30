@@ -467,7 +467,6 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 		});
 
-		updateRenderProgress({newline: true, printToConsole: true});
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
@@ -549,9 +548,6 @@ export const renderVideoFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro: repro ?? false,
-		finishRenderProgress: () => {
-			updateRenderProgress({newline: true, printToConsole: true});
-		},
 		binariesDirectory,
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,

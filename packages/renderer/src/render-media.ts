@@ -122,7 +122,6 @@ export type InternalRenderMediaOptions = {
 	disallowParallelEncoding: boolean;
 	serveUrl: string;
 	concurrency: number | string | null;
-	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
 	compositionStart: number;
 } & MoreRenderMediaOptions;
@@ -236,7 +235,6 @@ const internalRenderMediaRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
-	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
@@ -436,7 +434,6 @@ const internalRenderMediaRaw = ({
 
 	const callUpdate = () => {
 		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
-
 		onProgress?.({
 			encodedDoneIn,
 			encodedFrames: encoded,
@@ -741,7 +738,6 @@ const internalRenderMediaRaw = ({
 			.then(([buffer, stitchStart]) => {
 				encodedFrames = totalFramesToRender;
 				encodedDoneIn = Date.now() - stitchStart;
-				callUpdate();
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
@@ -753,7 +749,6 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				finishRenderProgress();
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
@@ -955,7 +950,6 @@ export const renderMedia = ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
-		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,

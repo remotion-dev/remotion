@@ -483,7 +483,6 @@ export const benchmarkCommand = async (
 					binariesDirectory: binariesDirectoryOption.getValue({
 						commandLine: parsedCli,
 					}).value,
-					finishRenderProgress: () => undefined,
 					separateAudioTo: null,
 					forSeamlessAacConcatenation:
 						forSeamlessAacConcatenationOption.getValue({
