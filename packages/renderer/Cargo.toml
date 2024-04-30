@@ -23,5 +23,5 @@ ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="4b9545
 
 [[bin]]
 name = "remotion"
-path = "renderer/rust/main.rs"
+path = "rust/main.rs"
 
