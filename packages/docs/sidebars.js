@@ -938,6 +938,7 @@ module.exports = {
             "recorder/editing/transitions",
             "recorder/editing/chapters",
             "recorder/editing/music",
+            "recorder/editing/b-roll",
           ],
         },
         "recorder/exporting",
