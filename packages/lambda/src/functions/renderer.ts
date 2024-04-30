@@ -272,7 +272,6 @@ const renderHandler = async (
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
-			finishRenderProgress: () => undefined,
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
 			forSeamlessAacConcatenation: seamlessAudio,

@@ -267,8 +267,6 @@ export const benchmarkCommand = async (
 			onProgress: () => undefined,
 			indentOutput: false,
 			logLevel,
-			bundlingStep: 0,
-			steps: 1,
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
@@ -483,7 +481,6 @@ export const benchmarkCommand = async (
 					binariesDirectory: binariesDirectoryOption.getValue({
 						commandLine: parsedCli,
 					}).value,
-					finishRenderProgress: () => undefined,
 					separateAudioTo: null,
 					forSeamlessAacConcatenation:
 						forSeamlessAacConcatenationOption.getValue({

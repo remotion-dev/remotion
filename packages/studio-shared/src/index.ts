@@ -51,7 +51,6 @@ export {
 	JobProgressCallback,
 	RenderJob,
 	RenderJobWithCleanup,
-	RenderStep,
 	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,

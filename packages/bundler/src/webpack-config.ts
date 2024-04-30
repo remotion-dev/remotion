@@ -128,7 +128,7 @@ export const webpackConfig = async ({
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								if (p === 1 || p - lastProgress > 0.05) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
 									lastProgress = p;
 									onProgress(Number((p * 100).toFixed(2)));
 								}

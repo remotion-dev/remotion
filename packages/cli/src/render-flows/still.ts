@@ -13,7 +13,6 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
-	RenderStep,
 } from '@remotion/studio-server';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
@@ -30,8 +29,10 @@ import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
+	LABEL_WIDTH,
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
+	printFact,
 } from '../progress-bar';
 import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
@@ -103,6 +104,12 @@ export const renderStillFlow = async ({
 	binariesDirectory: string | null;
 	publicPath: string | null;
 }) => {
+	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
+	Log.verbose(
+		{indent, logLevel},
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
+	);
+
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
@@ -112,11 +119,6 @@ export const renderStillFlow = async ({
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
 	});
-
-	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
-		'rendering' as const,
-	].filter(truthy);
 
 	const updateRenderProgress = ({
 		newline,
@@ -129,8 +131,6 @@ export const renderStillFlow = async ({
 	}) => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
-			steps: steps.length,
-			stitchingStep: steps.indexOf('stitching'),
 			isUsingParallelEncoding,
 		});
 		if (printToConsole) {
@@ -168,7 +168,6 @@ export const renderStillFlow = async ({
 		{
 			fullPath: fullEntryPoint,
 			remotionRoot,
-			steps: steps.length,
 			publicDir,
 			onProgress: ({copying, bundling}) => {
 				aggregate.bundling = bundling;
@@ -181,7 +180,6 @@ export const renderStillFlow = async ({
 			},
 			indentOutput: indent,
 			logLevel,
-			bundlingStep: steps.indexOf('bundling'),
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => {
 					RenderInternals.deleteDirectory(dir);
@@ -271,25 +269,39 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
-	Log.verbose(
-		{indent, logLevel},
-		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
-	);
-	Log.info(
-		{indent, logLevel},
-		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`,
-		),
-	);
+	printFact('info')({
+		indent,
+		left: 'Composition',
+		logLevel,
+		right: [compositionId, isVerbose ? `(${reason})` : null]
+			.filter(truthy)
+			.join(' '),
+		color: 'gray',
+	});
+	printFact('info')({
+		indent,
+		left: 'Format',
+		logLevel,
+		right: [imageFormat, isVerbose ? `(${source})` : null]
+			.filter(truthy)
+			.join(' '),
+		color: 'gray',
+	});
+	printFact('info')({
+		indent,
+		left: 'Output',
+		logLevel,
+		right: relativeOutputLocation,
+		color: 'gray',
+	});
 
 	const renderStart = Date.now();
 
 	aggregate.rendering = {
 		frames: 0,
-		concurrency: 1,
 		doneIn: null,
-		steps,
 		totalFrames: 1,
+		timeRemainingInMilliseconds: null,
 	};
 
 	updateRenderProgress({
@@ -342,10 +354,9 @@ export const renderStillFlow = async ({
 
 	aggregate.rendering = {
 		frames: 1,
-		concurrency: 1,
 		doneIn: Date.now() - renderStart,
-		steps,
 		totalFrames: 1,
+		timeRemainingInMilliseconds: null,
 	};
 	updateRenderProgress({
 		newline: true,
@@ -354,6 +365,8 @@ export const renderStillFlow = async ({
 	});
 	Log.info(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`),
+		chalk.blue(
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+		),
 	);
 };
