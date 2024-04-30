@@ -305,12 +305,7 @@ const internalRenderMediaRaw = ({
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
 	let renderEstimatedTime = 0;
-	// Hold the value of the last time a sample was processed
-	let lastFrameRenderTimeUpdate = performance.now();
-	// Hold an array of frame render time samples so they can be averaged
-	const frameRenderTimeSamples: number[] = [];
-	// The duration of when to process the sample
-	const SAMPLE_INTERVAL = 2000;
+	let totalTimeSpentOnFrames = 0;
 
 	const renderStart = Date.now();
 
@@ -575,29 +570,13 @@ const internalRenderMediaRaw = ({
 					) => {
 						renderedFrames = frame;
 
-						// Aggregate frame render time samples
-						frameRenderTimeSamples.push(timeToRenderInMilliseconds);
+						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
+						const newAverage = totalTimeSpentOnFrames / renderedFrames;
 
-						// Update frames render estimated time every SAMPLE_INTERVAL
-						if (
-							performance.now() - lastFrameRenderTimeUpdate >
-							SAMPLE_INTERVAL
-						) {
-							lastFrameRenderTimeUpdate = performance.now();
-							const remainingFrames = totalFramesToRender - renderedFrames;
+						const remainingFrames = totalFramesToRender - renderedFrames;
 
-							// Get avarage by summing all samples and dividing by the number of samples
-							const avarage = frameRenderTimeSamples.reduce((a, b) => a + b, 0);
-							const avarageRenderTime = avarage / frameRenderTimeSamples.length;
-
-							// Get estimated time by multiplying the avarage render time by the remaining frames
-							renderEstimatedTime = Math.round(
-								remainingFrames * avarageRenderTime,
-							);
-
-							// Clear samples array for the next interval
-							frameRenderTimeSamples.splice(0, frameRenderTimeSamples.length);
-						}
+						// Get estimated time by multiplying the avarage render time by the remaining frames
+						renderEstimatedTime = Math.round(remainingFrames * newAverage);
 
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
@@ -678,7 +657,6 @@ const internalRenderMediaRaw = ({
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
 
-				callUpdate();
 				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
@@ -713,7 +691,9 @@ const internalRenderMediaRaw = ({
 								encodedFrames = frame;
 							}
 
-							callUpdate();
+							if (frame > 0) {
+								callUpdate();
+							}
 						},
 						onDownload,
 						numberOfGifLoops,
