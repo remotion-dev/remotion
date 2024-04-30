@@ -6,7 +6,7 @@ type Bug = {
   versions: string[];
 };
 
-const bugs: Bug[] = [
+export const bugs: Bug[] = [
   {
     title: "Slowdown with <TransitionSeries>",
     description:
