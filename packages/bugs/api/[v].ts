@@ -8,6 +8,13 @@ type Bug = {
 
 const bugs: Bug[] = [
   {
+    title: "Slowdown with <TransitionSeries>",
+    description:
+      "All sequences were rendered all the time, slowing down the render and making it more crash-prone.",
+    link: "https://github.com/remotion-dev/remotion/pull/3736",
+    versions: ["4.0.140", "4.0.141", "4.0.142"],
+  },
+  {
     title: "Audio issues on Lambda",
     description:
       "The new seamless audio concatenation feature does not produce clean audio in all cases.",
