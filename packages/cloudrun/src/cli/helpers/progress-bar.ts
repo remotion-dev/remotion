@@ -21,10 +21,10 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 
 export type BucketCreationProgress = {
 	creationState:
-		| 'Checking for existing bucket'
-		| 'Creating new bucket'
+		| 'Checking bucket'
+		| 'Creating bucket'
 		| 'Created bucket'
-		| 'Using existing bucket';
+		| 'Used bucket';
 	doneIn: number | null;
 };
 
@@ -36,11 +36,11 @@ export const makeBucketProgress = ({
 	let statesFinished = 0;
 
 	switch (creationState) {
-		case 'Checking for existing bucket':
+		case 'Checking bucket':
 			progress = 1;
 			break;
 
-		case 'Creating new bucket':
+		case 'Creating bucket':
 			progress = 2 / 3;
 			statesFinished = 2;
 			break;
@@ -50,7 +50,7 @@ export const makeBucketProgress = ({
 			statesFinished = 3;
 			break;
 
-		case 'Using existing bucket':
+		case 'Used bucket':
 			progress = 3 / 3;
 			statesFinished = 3;
 			break;
@@ -110,7 +110,7 @@ export const makeDeployProgressBar = ({
 }: DeployToStorageProgress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
-		`${doneIn === null ? 'Uploading' : 'Uploaded'} to GCP Storage Bucket`.padEnd(
+		`${doneIn === null ? 'Uploading' : 'Uploaded'}`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
