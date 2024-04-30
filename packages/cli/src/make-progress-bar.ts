@@ -2,7 +2,7 @@ const full = '─';
 const half = '╴';
 
 export const makeProgressBar = (percentage: number) => {
-	const totalBars = 20;
+	const totalBars = 18;
 	const barsToShow = Math.floor(percentage * totalBars);
 	const extraBar = (percentage * totalBars) % barsToShow;
 

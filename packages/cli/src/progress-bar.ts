@@ -1,4 +1,4 @@
-import type {CancelSignal} from '@remotion/renderer';
+import type {CancelSignal, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AggregateRenderProgress,
@@ -13,11 +13,15 @@ import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
+import {formatEtaString} from './eta-string';
+import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {truthy} from './truthy';
 export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
+
+const LABEL_WIDTH = 22;
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
@@ -81,19 +85,14 @@ export const createOverwriteableCliOutput = (options: {
 
 const makeBundlingProgress = ({
 	bundlingState,
-	bundlingStep,
-	steps,
 }: {
 	bundlingState: BundlingState;
-	bundlingStep: number;
-	steps: number;
 }) => {
 	const {doneIn, progress} = bundlingState;
 
 	return [
-		`(${bundlingStep + 1}/${steps})`,
+		`${doneIn ? 'Bundled' : 'Bundling'} code`.padStart(LABEL_WIDTH, ' '),
 		makeProgressBar(progress),
-		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
@@ -111,7 +110,7 @@ const makeCopyingProgress = (options: CopyingState) => {
 	return [
 		'    +',
 		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
-		'Copying public dir',
+		'Copying public dir'.padStart(LABEL_WIDTH, ' '),
 		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
 	]
 		.filter(truthy)
@@ -141,24 +140,18 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 
 export type SymbolicLinksState = {symlinks: string[]};
 
-export const makeBundlingAndCopyProgress = (
-	{
-		bundling,
-		copying,
-		symLinks,
-	}: {
-		bundling: BundlingState;
-		copying: CopyingState;
-		symLinks: SymbolicLinksState;
-	},
-	bundlingStep: number,
-	steps: number,
-) => {
+export const makeBundlingAndCopyProgress = ({
+	bundling,
+	copying,
+	symLinks,
+}: {
+	bundling: BundlingState;
+	copying: CopyingState;
+	symLinks: SymbolicLinksState;
+}) => {
 	return [
 		makeBundlingProgress({
 			bundlingState: bundling,
-			bundlingStep,
-			steps,
 		}),
 		makeCopyingProgress(copying),
 		makeSymlinkProgress(symLinks),
@@ -170,18 +163,28 @@ export const makeBundlingAndCopyProgress = (
 const makeRenderingProgress = ({
 	frames,
 	totalFrames,
-	steps,
-	concurrency,
 	doneIn,
+	timeRemainingInMilliseconds,
 }: RenderingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
-		makeProgressBar(progress),
-		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
+		[doneIn ? 'Rendered' : 'Rendering', totalFrames === 1 ? 'still' : 'frames']
 			.filter(truthy)
-			.join(' '),
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+			.join(' ')
+			.padStart(LABEL_WIDTH, ' '),
+		makeProgressBar(progress),
+		doneIn === null
+			? [
+					`${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`,
+					timeRemainingInMilliseconds
+						? chalk.gray(
+								`${formatEtaString(timeRemainingInMilliseconds)} remaining`,
+							)
+						: null,
+				]
+					.filter(truthy)
+					.join(' ')
+			: chalk.gray(`${doneIn}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
@@ -189,13 +192,9 @@ const makeRenderingProgress = ({
 
 const makeStitchingProgress = ({
 	stitchingProgress,
-	steps,
-	stitchingStep,
 	isUsingParallelEncoding,
 }: {
 	stitchingProgress: StitchingProgressInput;
-	steps: number;
-	stitchingStep: number;
 	isUsingParallelEncoding: boolean;
 }) => {
 	const {frames, totalFrames, doneIn, stage, codec} = stitchingProgress;
@@ -208,12 +207,14 @@ const makeStitchingProgress = ({
 				: 'video';
 
 	return [
-		`(${stitchingStep + 1}/${steps})`,
-		makeProgressBar(progress),
-		stage === 'muxing' && isUsingParallelEncoding
+		(stage === 'muxing' && isUsingParallelEncoding
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
-			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`
+		).padStart(LABEL_WIDTH, ' '),
+		makeProgressBar(progress),
+		doneIn === null
+			? `${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`
+			: chalk.gray(`${doneIn}ms`),
 	]
 		.filter(truthy)
 		.join(' ');
@@ -221,13 +222,9 @@ const makeStitchingProgress = ({
 
 export const makeRenderingAndStitchingProgress = ({
 	prog,
-	steps,
-	stitchingStep,
 	isUsingParallelEncoding,
 }: {
 	prog: AggregateRenderProgress;
-	steps: number;
-	stitchingStep: number;
 	isUsingParallelEncoding: boolean;
 }): {
 	output: string;
@@ -242,8 +239,6 @@ export const makeRenderingAndStitchingProgress = ({
 			? null
 			: makeStitchingProgress({
 					stitchingProgress: stitching,
-					steps,
-					stitchingStep,
 					isUsingParallelEncoding,
 				}),
 	]
@@ -287,32 +282,47 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	// Get render estimated time value and extract hours, minutes, and seconds
-	const {renderEstimatedTime} = progress.rendering;
-	const remainingTime = renderEstimatedTime / 1000;
-	const remainingTimeHours = Math.floor(remainingTime / 3600);
-	const remainingTimeMinutes = Math.round((remainingTime % 3600) / 60);
-	const remainingTimeSeconds = Math.round(remainingTime % 60);
+	const {timeRemainingInMilliseconds} = progress.rendering;
 
 	// Create estimated time string by concatenating them with colons
 	const estimatedTimeString =
-		remainingTime < 1
-			? '<1s'
-			: [
-					remainingTimeHours ? `${remainingTimeHours}h` : null,
-					remainingTimeMinutes ? remainingTimeMinutes + 'm' : null,
-					`${remainingTimeSeconds}s`,
-				]
-					.filter(truthy)
-					.join(' ');
+		timeRemainingInMilliseconds === null
+			? null
+			: formatEtaString(timeRemainingInMilliseconds);
 
 	const allRendered =
 		progress.rendering.frames === progress.rendering.totalFrames;
 
 	if (!allRendered || !progress.stitching || progress.stitching.frames === 0) {
 		const etaString =
-			remainingTime > 0 ? `, time remaining: ${estimatedTimeString}` : '';
+			timeRemainingInMilliseconds && timeRemainingInMilliseconds > 0
+				? `, time remaining: ${estimatedTimeString}`
+				: '';
 		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}${etaString}`;
 	}
 
 	return `Stitched ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };
+
+export const printFact =
+	(printLevel: LogLevel) =>
+	({
+		indent,
+		logLevel,
+		left,
+		right,
+	}: {
+		indent: boolean;
+		logLevel: LogLevel;
+		left: string;
+		right: string;
+	}) => {
+		if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
+			Log[printLevel]({indent, logLevel}, chalk.gray(`${left} = ${right}`));
+
+			return;
+		}
+
+		const leftPadded = left.padStart(LABEL_WIDTH, ' ');
+		Log[printLevel]({indent, logLevel}, chalk.gray(`${leftPadded} ${right}`));
+	};

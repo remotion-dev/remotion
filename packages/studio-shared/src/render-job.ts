@@ -17,15 +17,11 @@ type BaseRenderProgress = {
 	value: number;
 };
 
-export type RenderStep = 'bundling' | 'rendering' | 'stitching';
-
 export type RenderingProgressInput = {
 	frames: number;
-	renderEstimatedTime: number;
 	totalFrames: number;
-	steps: RenderStep[];
-	concurrency: number;
 	doneIn: number | null;
+	timeRemainingInMilliseconds: number | null;
 };
 
 export type StitchingProgressInput = {

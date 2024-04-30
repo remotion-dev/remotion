@@ -22,8 +22,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	onProgress,
 	indentOutput,
 	logLevel,
-	bundlingStep,
-	steps,
 	onDirectoryCreated,
 	quietProgress,
 	quietFlag,
@@ -42,8 +40,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	}) => void;
 	indentOutput: boolean;
 	logLevel: LogLevel;
-	bundlingStep: number;
-	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
 	quietFlag: boolean;
@@ -83,8 +79,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		onProgressCallback: onProgress,
 		indent: indentOutput,
 		logLevel,
-		bundlingStep,
-		steps,
 		onDirectoryCreated,
 		quietProgress,
 		quietFlag,
@@ -108,8 +102,6 @@ export const bundleOnCli = async ({
 	onProgressCallback,
 	indent,
 	logLevel,
-	bundlingStep,
-	steps,
 	onDirectoryCreated,
 	quietProgress,
 	quietFlag,
@@ -128,8 +120,6 @@ export const bundleOnCli = async ({
 	}) => void;
 	indent: boolean;
 	logLevel: LogLevel;
-	bundlingStep: number;
-	steps: number;
 	onDirectoryCreated: (path: string) => void;
 	quietProgress: boolean;
 	quietFlag: boolean;
@@ -162,15 +152,11 @@ export const bundleOnCli = async ({
 
 	const updateProgress = (newline: boolean) => {
 		bundlingProgress.update(
-			makeBundlingAndCopyProgress(
-				{
-					bundling: bundlingState,
-					copying: copyingState,
-					symLinks: symlinkState,
-				},
-				bundlingStep,
-				steps,
-			),
+			makeBundlingAndCopyProgress({
+				bundling: bundlingState,
+				copying: copyingState,
+				symLinks: symlinkState,
+			}),
 			newline,
 		);
 		onProgressCallback({

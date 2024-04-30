@@ -691,6 +691,10 @@ const internalRenderMediaRaw = ({
 								encodedFrames = frame;
 							}
 
+							if (encodedFrames === totalFramesToRender) {
+								encodedDoneIn = Date.now() - stitchStart;
+							}
+
 							if (frame > 0) {
 								callUpdate();
 							}
@@ -712,12 +716,9 @@ const internalRenderMediaRaw = ({
 						binariesDirectory,
 						separateAudioTo,
 					}),
-					stitchStart,
 				]);
 			})
-			.then(([buffer, stitchStart]) => {
-				encodedFrames = totalFramesToRender;
-				encodedDoneIn = Date.now() - stitchStart;
+			.then(([buffer]) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
