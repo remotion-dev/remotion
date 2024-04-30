@@ -1,23 +1,27 @@
-const full = '─';
-const half = '╴';
+import {RenderInternals} from '@remotion/renderer';
+import {chalk} from './chalk';
+
+const full = '━';
+const half = '╸';
+const half_right = '╺';
+const totalBars = 18;
 
 export const makeProgressBar = (percentage: number) => {
-	const totalBars = 18;
+	const color = RenderInternals.isColorSupported();
 	const barsToShow = Math.floor(percentage * totalBars);
 	const extraBar = (percentage * totalBars) % barsToShow;
+	const grayBars = totalBars - barsToShow;
 
-	const base = full.repeat(barsToShow) + (extraBar > 0.5 ? half : '');
-	if (percentage === 0) {
-		return `${' '.repeat(totalBars + 1)}`;
+	const showHalf = extraBar > 0.5;
+
+	const base = full.repeat(barsToShow) + (showHalf ? half : '');
+
+	const gray = (RenderInternals.isColorSupported() ? full : ' ')
+		.repeat(grayBars - (showHalf ? 1 : 0))
+		.split('');
+	if (!showHalf && barsToShow > 0 && gray.length > 0 && color) {
+		gray[0] = half_right;
 	}
 
-	if (percentage > 0 && barsToShow < 1) {
-		return `╷${' '.repeat(totalBars)}`;
-	}
-
-	if (percentage >= 1) {
-		return `╭${base.substring(0, base.length - 1)}╮`;
-	}
-
-	return `╭${base.padEnd(totalBars, ' ')}`;
+	return `${chalk.blue(base)}${chalk.dim(gray.join(''))}`;
 };

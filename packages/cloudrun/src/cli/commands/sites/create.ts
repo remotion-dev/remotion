@@ -201,7 +201,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(

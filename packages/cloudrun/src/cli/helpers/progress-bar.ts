@@ -8,9 +8,11 @@ export type BundleProgress = {
 
 export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
-		`(1/3)`,
+		`${doneIn === null ? 'Bundling' : 'Bundled'} video`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress / 100),
-		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
 		doneIn === null
 			? `${Math.round(progress)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -59,9 +61,8 @@ export const makeBucketProgress = ({
 	}
 
 	return [
-		`(2/3)`,
+		creationState.padEnd(CliInternals.LABEL_WIDTH, ' '),
 		CliInternals.makeProgressBar(progress),
-		creationState,
 		doneIn === null
 			? `${statesFinished} / ${3}`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -109,14 +110,16 @@ export const makeDeployProgressBar = ({
 }: DeployToStorageProgress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
-		`(3/3)`,
+		`${doneIn === null ? 'Uploading' : 'Uploaded'} to GCP Storage Bucket`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Uploading' : 'Uploaded'} to GCP Storage Bucket`,
 		doneIn === null
 			? typeof totalSize === 'number'
 				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
 						totalSize,
-				  )}`
+					)}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 		makeUploadDiff({stats}),

@@ -21,7 +21,7 @@ export type OverwriteableCliOutput = {
 	update: (up: string, newline: boolean) => boolean;
 };
 
-const LABEL_WIDTH = 22;
+export const LABEL_WIDTH = 18;
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
@@ -91,7 +91,7 @@ const makeBundlingProgress = ({
 	const {doneIn, progress} = bundlingState;
 
 	return [
-		`${doneIn ? 'Bundled' : 'Bundling'} code`.padStart(LABEL_WIDTH, ' '),
+		`${doneIn ? 'Bundled' : 'Bundling'} code`.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress),
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
@@ -108,9 +108,8 @@ const makeCopyingProgress = (options: CopyingState) => {
 	}
 
 	return [
-		'    +',
+		'Copying public dir'.padEnd(LABEL_WIDTH, ' '),
 		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
-		'Copying public dir'.padStart(LABEL_WIDTH, ' '),
 		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
 	]
 		.filter(truthy)
@@ -171,7 +170,7 @@ const makeRenderingProgress = ({
 		[doneIn ? 'Rendered' : 'Rendering', totalFrames === 1 ? 'still' : 'frames']
 			.filter(truthy)
 			.join(' ')
-			.padStart(LABEL_WIDTH, ' '),
+			.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress),
 		doneIn === null
 			? [
@@ -210,7 +209,7 @@ const makeStitchingProgress = ({
 		(stage === 'muxing' && isUsingParallelEncoding
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`
-		).padStart(LABEL_WIDTH, ' '),
+		).padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress),
 		doneIn === null
 			? `${String(frames).padStart(String(totalFrames).length, ' ')}/${totalFrames}`
@@ -311,18 +310,32 @@ export const printFact =
 		logLevel,
 		left,
 		right,
+		color,
 	}: {
 		indent: boolean;
 		logLevel: LogLevel;
 		left: string;
 		right: string;
+		color: 'blue' | 'gray' | undefined;
 	}) => {
+		const fn = (str: string) => {
+			if (color === 'gray') {
+				return chalk.gray(str);
+			}
+
+			if (color === 'blue') {
+				return chalk.blue(str);
+			}
+
+			return str;
+		};
+
 		if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
-			Log[printLevel]({indent, logLevel}, chalk.gray(`${left} = ${right}`));
+			Log[printLevel]({indent, logLevel}, fn(`${left} = ${right}`));
 
 			return;
 		}
 
-		const leftPadded = left.padStart(LABEL_WIDTH, ' ');
-		Log[printLevel]({indent, logLevel}, chalk.gray(`${leftPadded} ${right}`));
+		const leftPadded = left.padEnd(LABEL_WIDTH, ' ');
+		Log[printLevel]({indent, logLevel}, fn(`${leftPadded} ${right}`));
 	};

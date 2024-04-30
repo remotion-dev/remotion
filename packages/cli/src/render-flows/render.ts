@@ -43,6 +43,7 @@ import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
+	LABEL_WIDTH,
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 	printFact,
@@ -168,6 +169,7 @@ export const renderVideoFlow = async ({
 		right: [fullEntryPoint, isVerbose ? `(${entryPointReason})` : null]
 			.filter(truthy)
 			.join(' '),
+		color: 'gray',
 	});
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
@@ -364,6 +366,7 @@ export const renderVideoFlow = async ({
 		right: [compositionId, isVerbose ? `(${reason})` : null]
 			.filter(truthy)
 			.join(' '),
+		color: 'gray',
 	});
 	printFact('info')({
 		indent,
@@ -372,18 +375,21 @@ export const renderVideoFlow = async ({
 		right: [codec, isVerbose ? `(${codecReason})` : null]
 			.filter(truthy)
 			.join(' '),
+		color: 'gray',
 	});
 	printFact('info')({
 		indent,
 		logLevel,
 		left: 'Output',
 		right: relativeOutputLocation,
+		color: 'gray',
 	});
 	printFact('info')({
 		indent,
 		logLevel,
 		left: 'Concurrency',
 		right: `${actualConcurrency}x`,
+		color: 'gray',
 	});
 
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
@@ -577,13 +583,17 @@ export const renderVideoFlow = async ({
 
 	Log.info(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
+		chalk.blue(
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+		),
 	);
 
 	if (absoluteSeparateAudioTo) {
 		Log.info(
 			{indent, logLevel},
-			chalk.blue(`${audioExists ? '○' : '+'} ${absoluteSeparateAudioTo}`),
+			chalk.blue(
+				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${absoluteSeparateAudioTo}`,
+			),
 		);
 	}
 

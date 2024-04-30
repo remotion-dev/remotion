@@ -29,6 +29,7 @@ import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
+	LABEL_WIDTH,
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 	printFact,
@@ -275,6 +276,7 @@ export const renderStillFlow = async ({
 		right: [compositionId, isVerbose ? `(${reason})` : null]
 			.filter(truthy)
 			.join(' '),
+		color: 'gray',
 	});
 	printFact('info')({
 		indent,
@@ -283,12 +285,14 @@ export const renderStillFlow = async ({
 		right: [imageFormat, isVerbose ? `(${source})` : null]
 			.filter(truthy)
 			.join(' '),
+		color: 'gray',
 	});
 	printFact('info')({
 		indent,
 		left: 'Output',
 		logLevel,
 		right: relativeOutputLocation,
+		color: 'gray',
 	});
 
 	const renderStart = Date.now();
@@ -361,6 +365,8 @@ export const renderStillFlow = async ({
 	});
 	Log.info(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`),
+		chalk.blue(
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+		),
 	);
 };
