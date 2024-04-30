@@ -996,7 +996,7 @@ export const articles = [
   {
     id: "functions",
     title: "npx remotion lambda functions",
-    relativePath: "docs/lambda/cli/functions.md",
+    relativePath: "docs/lambda/cli/functions.mdx",
     compId: "articles-docs-lambda-cli-functions",
     crumb: "Lambda CLI Reference",
   },
@@ -1101,7 +1101,7 @@ export const articles = [
   {
     id: "deployfunction",
     title: "deployFunction()",
-    relativePath: "docs/lambda/deployfunction.md",
+    relativePath: "docs/lambda/deployfunction.mdx",
     compId: "articles-docs-lambda-deployfunction",
     crumb: "Lambda API",
   },
@@ -1325,7 +1325,7 @@ export const articles = [
   {
     id: "runtime",
     title: "Runtime",
-    relativePath: "docs/lambda/runtime.md",
+    relativePath: "docs/lambda/runtime.mdx",
     compId: "articles-docs-lambda-runtime",
     crumb: "Lambda",
   },
@@ -3166,6 +3166,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/browser-launch",
+    title: "Failed to launch the browser process",
+    relativePath: "docs/troubleshooting/browser-launch.mdx",
+    compId: "articles-docs-troubleshooting-browser-launch",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "troubleshooting/bundling-bundle",
     title: "Calling bundle() in bundled code",
     relativePath: "docs/troubleshooting/bundling-bundle.md",
@@ -3385,7 +3392,7 @@ export const articles = [
   {
     id: "zod-types/index",
     title: "@remotion/zod-types",
-    relativePath: "docs/zod-types/index.md",
+    relativePath: "docs/zod-types/index.mdx",
     compId: "articles-docs-zod-types-index",
     crumb: "Schema",
   },
