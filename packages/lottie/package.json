@@ -10,7 +10,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "bun test src",
-		"build": "bun bundle.ts"
+		"build": "NODE_ENV=production bun bundle.ts"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

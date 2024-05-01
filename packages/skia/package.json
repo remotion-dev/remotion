@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun bundle.ts"
+		"build": "NODE_ENV=production bun bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
 	"contributors": [],

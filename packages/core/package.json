@@ -10,7 +10,7 @@
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "bun bundle.ts"
+		"build": "NODE_ENV=production bun bundle.ts"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -37,8 +37,8 @@
 		"jsdom": "21.1.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
 		"rimraf": "^3.0.2",
 		"vitest": "0.31.1",
 		"webpack": "5.83.1",

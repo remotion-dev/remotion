@@ -468,7 +468,7 @@ importers:
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -497,11 +497,11 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 18.2.0
+        version: 18.2.0
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -1536,7 +1536,7 @@ importers:
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@testing-library/react':
         specifier: 13.1.1
-        version: 13.1.1(react-dom@18.3.1)(react@18.3.1)
+        version: 13.1.1(react-dom@18.2.0)(react@18.2.0)
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -1565,11 +1565,11 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       react:
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 18.2.0
+        version: 18.2.0
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -1611,13 +1611,13 @@ importers:
         version: 8.56.0
       next:
         specifier: 14.1.4
-        version: 14.1.4(react-dom@18.3.1)(react@18.3.1)
+        version: 14.1.4(react-dom@18.2.0)(react@18.2.0)
       react:
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 18.2.0
+        version: 18.2.0
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -9454,7 +9454,7 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/react@13.1.1(react-dom@18.3.1)(react@18.3.1):
+  /@testing-library/react@13.1.1(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-8mirlAa0OKaUvnqnZF6MdAh2tReYA2KtWVw1PKvaF5EcCZqgK5pl8iF+3uW90JdG5Ua2c2c2E2wtLdaug3dsVg==}
     engines: {node: '>=12'}
     peerDependencies:
@@ -9464,8 +9464,8 @@ packages:
       '@babel/runtime': 7.17.9
       '@testing-library/dom': 8.16.0
       '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: true
 
   /@testing-library/react@13.3.0(react-dom@18.3.1)(react@18.3.1):
@@ -9496,7 +9496,7 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
     dev: true
 
-  /@testing-library/react@14.0.0(react-dom@18.3.1)(react@18.3.1):
+  /@testing-library/react@14.0.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-S04gSNJbYE30TlIMLTzv6QCTzt9AqIF5y6s6SzVFILNcNvbV/jU96GeiTPillGQo+Ny64M/5PV7klNYYgv5Dfg==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -9506,8 +9506,8 @@ packages:
       '@babel/runtime': 7.19.0
       '@testing-library/dom': 9.0.0
       '@types/react-dom': 18.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: true
 
   /@tootallnate/once@2.0.0:
@@ -17668,7 +17668,7 @@ packages:
     resolution: {integrity: sha512-mc/caHeUcdjnC/boPWJefDr4KUIWQNv+tlnFnJd38QMou86QtxQzBJfxgGRzvx8jazYRqrVlaHarfO72uNxPOg==}
     dev: false
 
-  /next@14.1.4(react-dom@18.3.1)(react@18.3.1):
+  /next@14.1.4(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-1WTaXeSrUwlz/XcnhGTY7+8eiaFvdet5z9u3V2jb+Ek1vFo0VhHKSAIJvDWfQpttWjnyw14kBeq28TPq7bTeEQ==}
     engines: {node: '>=18.17.0'}
     hasBin: true
@@ -17689,9 +17689,9 @@ packages:
       caniuse-lite: 1.0.30001577
       graceful-fs: 4.2.11
       postcss: 8.4.31
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.1(react@18.3.1)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      styled-jsx: 5.1.1(react@18.2.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 14.1.4
       '@next/swc-darwin-x64': 14.1.4
@@ -19693,8 +19693,7 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       react: 18.2.0
-      scheduler: 0.23.0
-    dev: false
+      scheduler: 0.23.2
 
   /react-dom@18.3.1(react@18.3.1):
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
@@ -19883,7 +19882,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -20521,12 +20519,6 @@ packages:
     resolution: {integrity: sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==}
     dependencies:
       loose-envify: 1.4.0
-
-  /scheduler@0.23.0:
-    resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
-    dependencies:
-      loose-envify: 1.4.0
-    dev: false
 
   /scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
@@ -21382,7 +21374,7 @@ packages:
       supports-color: 5.5.0
     dev: false
 
-  /styled-jsx@5.1.1(react@18.3.1):
+  /styled-jsx@5.1.1(react@18.2.0):
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -21396,7 +21388,7 @@ packages:
         optional: true
     dependencies:
       client-only: 0.0.1
-      react: 18.3.1
+      react: 18.2.0
     dev: false
 
   /stylehacks@5.1.0(postcss@8.4.33):

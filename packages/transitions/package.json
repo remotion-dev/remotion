@@ -10,7 +10,7 @@
 		"test": "vitest src --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
-		"build": "bun bundle.ts"
+		"build": "NODE_ENV=production bun bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
