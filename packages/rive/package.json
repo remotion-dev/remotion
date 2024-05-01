@@ -8,7 +8,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

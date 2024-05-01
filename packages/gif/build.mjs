@@ -25,6 +25,6 @@ export const src =
 `.trim(),
 );
 
-execSync('bunx prettier --write src/worker/source.ts');
+execSync('bun x prettier --write src/worker/source.ts');
 
 fs.unlinkSync(tmp);

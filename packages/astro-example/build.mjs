@@ -15,6 +15,6 @@ if (majorVersion < 16) {
   process.exit(0);
 }
 
-execSync("bunx astro build", {
+execSync("bun x astro build", {
   stdio: "inherit",
 });
