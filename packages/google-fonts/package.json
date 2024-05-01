@@ -5,7 +5,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
   "scripts": {
-    "build": "NODE_ENV=production bun bundle.ts",
+    "build": "bun --env-file=../.env.bundle bundle.ts",
     "generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
     "prepublishOnly": "bun ensure-generation.ts"
   },

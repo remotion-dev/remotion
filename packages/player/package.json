@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "bun ensure-correct-version.ts && NODE_ENV=production bun bundle.ts",
+		"build": "bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
 		"test": "vitest src --run",
 		"prerelease": "cp ../../README.md ."
 	},
