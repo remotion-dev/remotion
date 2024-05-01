@@ -54,8 +54,8 @@
 		"jsdom": "20.0.1",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
 		"webpack": "5.83.1",
 		"zod": "3.22.3"
