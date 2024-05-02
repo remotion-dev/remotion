@@ -242,9 +242,18 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
           resourceQuery: { not: [/url/] }, // Exclude react component if *.svg?url
           use: ["@svgr/webpack"],
         },
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
+        ...(currentConfiguration.module?.rules ?? []).map((r) => {
+          if (!r.test?.toString().includes("svg")) {
+            return r;
+          }
+          return {
+            ...r,
+            // Remove Remotion loading SVGs as a URL
+            test: new RegExp(
+              r.test.toString().replace(/svg\|/g, "").slice(1, -1),
+            ),
+          };
+        }),
       ],
     },
   };
