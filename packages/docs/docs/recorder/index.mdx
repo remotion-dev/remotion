@@ -145,7 +145,7 @@ AI will make mistakes - so we make it easy to correct them.
       Write a JavaScript function to fix common misspellings
     </td>
     <td valign="top" style={{width: 950/ 3}}>
-      <img style={{height: 200, borderRadius: 5}} src="/recorder/asjson.png" autoPlay muted playsInline loop></img><br/>
+      <img style={{width: '100%', borderRadius: 5}} src="/recorder/asjson.png" autoPlay muted playsInline loop></img><br/>
       Captions are stored as editable JSON
     </td>
   </tr>
@@ -190,93 +190,65 @@ Your viewer watched the entire video! Now don't make them forget about you.
 
 The endcard is written with React and CSS, so can be easily customized.
 
-## What makes a good video?
+## Custom styling
 
-### Concise
+Having access to the entire source code, you can use CSS to customize the look of the Recorder.
 
-Value the viewers time by cutting out pauses and bad takes.
+<table style={{ tableLayout: "fixed", width: 950 }}>
+  <tr style={{ borderTop: 0 }}>
+    <td valign="top" style={{ width: 950 / 3 }}>
+      <img style={{ borderRadius: 5 }} src="/recorder/theme-light.png"></img>
+      Look of the built-in light theme
+    </td>
+    <td valign="top" style={{ width: 950 / 3 }}>
+      <img style={{ borderRadius: 5 }} src="/recorder/theme-dark.png"></img>
+      <br />
+      Look of the built-in dark theme
+    </td>
+    <td valign="top" style={{ width: 950 / 3 }}>
+      <img style={{ borderRadius: 5 }} src="/recorder/theme-fancy.png"></img>
+      <br />
+      Use CSS to make it your own!
+    </td>
+  </tr>
+</table>
 
-The Recorder lets you record many small clips and stitches them together.  
-It's easy to discard bad takes and retry immediately.  
-Silence at the start and end of your take is automatically removed, so it's not tedious to edit either!
-
-### Engaging
-
-Subtle animations, background music, titles, b-roll footage and effects make your video more interesting.
-
-The Recorder always has an appealing layout that smoothly transitions between scenes, and allows you to add secondary clips over your voiceover.
-
-Use the music that comes with the Recorder or add your own. Volume is lowered automatically when you speak.
-
-### On-brand
-
-Make your video recognizable by giving it a unique characteristic.  
-It could be a specific color, a font, or a border around your facecam.
-
-You can fully customize the style of the video with React and CSS.  
-You will get the full source code of the Recorder, so you can make it exactly yours.
-
-### Great audio
-
-Having a microphone is only half the battle. Great audio has consistent volume throughout, no clipping, consistent pacing and mixes well with the background music.
-
-The Recorder has a volume meter that tells you when you are too close to the microphone.  
-The silence at the start and end of your take is automatically removed and pauses between your clips are consistent.  
-A script is included to make all clips of your video have the same volume.
-
-## Features
-
-### Recording
+## Recording
 
 Record your facecam and screen in sync but independently, so you can change the layout later.  
 See if you are too loud or off-center.
 
-### Captioning
-
-Automatically transcribes your video using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and adds animated captions to it.  
-Remap wrongly transcribed words programmatically or manually.  
-Animates your captions word-by-word.
-
-### Silence removal
+## Silence removal
 
 Automatically remove the silence at the start and end of your take.
 
-### Music
+## Music
 
 Add background music to your video and automatically fade between the different sections.  
 Three exclusive tracks are included that you may use for your video.
 
-### Layouting
+## Layouting
 
 Whether you only record your facecam, or also your display, the Recorder always finds the ideal layout - even if you mix landscape and portrait videos.
 
-### Transitions
+## Transitions
 
 Enable clean transitions between scenes - no matter if you change the layout during the video.
 
-### Chapters
+## Chapters
 
 Mark a scene as the beginning of a new chapter and automatically generated animated chapters.
 
-### B-Roll
+## B-Roll
 
 Add images and videos on top of your facecam or display while your voiceover is playing to give the video more depth.
 
-### Endcard
-
-Automatically generate a platform-agnostic end card with a _follow_ call to action, your other platforms and links.
-
-### Exporting
+## Exporting
 
 Export your video with much control over the encoding options.  
 Render a video with a single click on a button, the CLI, Node.JS APIs, GitHub Actions, or even on AWS Lambda!
 
-### Themes
-
-The two default themes are light and dark.  
-If you plan on embedding the video on a website, you can embed one version for light mode and one for dark mode.
-
-### Customization
+## Customization
 
 The Remotion Recorder ships source code.  
 You can customize it to your liking if you have TypeScript and React knowledge.
