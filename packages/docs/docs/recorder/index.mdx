@@ -112,14 +112,85 @@ Each platform has its own conventions for how videos should look.
 
 The goal of the Recorder: Edit once <strong>and feel native on each platform</strong>.
 
+## Captions are essential
+
+Generate captions locally using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). The Recorder will automatically install it for you.  
+AI will make mistakes - so we make it easy to correct them.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950, marginBottom: 0 }}>  <tr>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/wordlevel.webm" autoPlay muted playsInline loop></video>
+      Captions have word-level timings
+      </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/noorphans.webm" autoPlay muted playsInline loop></video>
+     Orphan words are avoided by balancing the text layout
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/monospace.webm" autoPlay muted playsInline loop></video>
+      Use `backticks` to highlight technical terms
+    </td>
+
+  </tr>
+</table>
+<table style={{ tableLayout: "fixed", width: 950,}}>
+  <tr style={{borderTop: 0}}>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video style={{height: 300}} src="/recorder/subseditor.webm" autoPlay muted playsInline loop></video>
+      Fix captions quickly by clicking on a word
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <img style={{ borderRadius: 5}} src="/recorder/autocorrect.png" autoPlay muted playsInline loop></img><br/>
+      Write a JavaScript function to fix common misspellings
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <img style={{height: 200, borderRadius: 5}} src="/recorder/asjson.png" autoPlay muted playsInline loop></img><br/>
+      Captions are stored as editable JSON
+    </td>
+  </tr>
+</table>
+</div>
+
+## Agnostic endcards
+
+Your viewer watched the entire video! Now don't make them forget about you.
+
+<table style={{ width: 950, tableLayout: "fixed" }}>
+  <tr>
+    <td valign="top" style={{ width: 950 / 2 }}>
+      <p align="center" style={{ marginTop: 0, marginBottom: 0 }}>
+        <img
+          style={{ borderRadius: 5, height: 250 }}
+          src="/recorder/endcard-square.png"
+          autoPlay
+          muted
+          playsInline
+          loop
+        ></img>
+      </p>
+      If you post on Twitter, the call-to-action is "Follow" and your other platforms
+      are linked.
+    </td>
+    <td valign="top" style={{ width: 950 / 2 }}>
+      <img
+        style={{ width: 950 / 2, borderRadius: 5 }}
+        src="/recorder/endcard-youtube.png"
+        autoPlay
+        muted
+        playsInline
+        loop
+      ></img>
+      <br />
+      If you post on YouTube, the call to action is "Subscribe" and cutouts for related
+      videos are made.
+    </td>
+  </tr>
+</table>
+
+The endcard is written with React and CSS, so can be easily customized.
+
 ## What makes a good video?
-
-### Captioned
-
-By default, videos on Instagram, LinkedIn and Twitter are muted.  
-Add captions so you capture a viewers interest before they scroll by.
-
-Remotion Recorder automatically transcribes your video using Whisper.cpp and adds animated captions to it.
 
 ### Concise
 
@@ -152,12 +223,6 @@ Having a microphone is only half the battle. Great audio has consistent volume t
 The Recorder has a volume meter that tells you when you are too close to the microphone.  
 The silence at the start and end of your take is automatically removed and pauses between your clips are consistent.  
 A script is included to make all clips of your video have the same volume.
-
-### Call to Action
-
-Once a viewer has watched your video, give them a next step.  
-The Recorder makes it easy to display a Follow/Subscribe/Connect button, link your other platforms and even has cutouts for layouting recommended videos on YouTube.  
-This is a great time to turn up the music and let it play at full volume.
 
 ## Features
 
