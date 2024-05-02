@@ -25,16 +25,65 @@ The Remotion Recorder is a video production tool <strong>built entirely in JavaS
 
 Each platform has its own conventions for how videos should look.
 
-<table>
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950 }}>
   <tr>
-    <td>
-      <strong>Twitter, LinkedIn</strong>
+    <td valign="top">
+      <img
+        style={{ height: 230,  border: "3px solid black", borderRadius: 5, aspectRatio: '1 / 1' }}
+        src="/recorder/vps-square.png"
+      />
+    </td>
+    <td valign="top">
+      <img
+        style={{
+          height: 230,
+          border: "3px solid black",
+          borderRadius: 5,
+          overflow: "hidden",
+        }}
+        src="/recorder/vps-landscape.png"
+      />
+  
+    </td>
+    <td valign="top">
+     <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            height: 230,
+            border: "3px solid black",
+            borderRadius: 5,
+            overflow: "hidden",
+            aspectRatio: "9 / 16",
+            backgroundColor: "#FAFAFA",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#ccc",
+            display: "flex",
+            fontWeight: "bold",
+          }}
+        >
+          WIP
+        </div>
+      </div>
+    </td>
+
+  </tr>
+  <tr>
+  <td valign="top">      
+     <strong>Twitter, LinkedIn</strong>
       <div>1:1</div>
       <div>Muted by default</div>
       <div>Captions burned in</div>
-    </td>
-    <td>
-      <strong>YouTube</strong>
+  </td>
+  <td valign="top">   
+   <strong>YouTube</strong>
       <div>16:9</div>
       <div>Audio by default</div>
       <div>
@@ -44,29 +93,26 @@ Each platform has its own conventions for how videos should look.
         </sup>
       </div>
       <div>Endcard with related videos</div>
-    </td>
-    <td>
+      </td>
+  <td valign="top">
+   
       <strong>
-        TikTok, Reels, Shorts<sup>2)</sup>
+        TikTok, Reels, Shorts{" "}
+        <sup>
+          <a href="#tiktok-format">planned</a>
+        </sup>
       </strong>
       <div>9:16</div>
       <div>Safe space at bottom required</div>
       <div>Word-by-word captions</div>
-    </td>
+  </td>
   </tr>
 </table>
+</div>
 
-The goal of the Recorder: Make it easy and fast to <strong>edit once and export for different platforms</strong>.
+The goal of the Recorder: Edit once <strong>and feel native on each platform</strong>.
 
 ## What makes a good video?
-
-### Platform-agnostic
-
-YouTube videos should have an aspect ratio of 16:9.  
-LinkedIn and Twitter should use 1:1.  
-YouTube videos should have endcards, while a Twitter videos should have captions.
-
-With the Recorder, you record and edit once, and export the best format for each platform.
 
 ### Captioned
 
