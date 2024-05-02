@@ -3,6 +3,7 @@ image: /generated/articles-docs-recorder-index.png
 title: Remotion Recorder
 sidebar_label: Introduction
 crumb: Templates
+hide_title: true
 ---
 
 <p align="center">
@@ -18,8 +19,44 @@ crumb: Templates
   </picture>
 </p>
 
-The Remotion Recorder is a [Remotion](https://remotion.dev) template for producing
-great videos for multiple platforms.
+The Remotion Recorder is a video production tool <strong>built entirely in JavaScript</strong>.
+
+## Different platforms require different formats
+
+Each platform has its own conventions for how videos should look.
+
+<table>
+  <tr>
+    <td>
+      <strong>Twitter, LinkedIn</strong>
+      <div>1:1</div>
+      <div>Muted by default</div>
+      <div>Captions burned in</div>
+    </td>
+    <td>
+      <strong>YouTube</strong>
+      <div>16:9</div>
+      <div>Audio by default</div>
+      <div>
+        Captions as .srt file{" "}
+        <sup>
+          <a href="#youtube-captions">planned</a>
+        </sup>
+      </div>
+      <div>Endcard with related videos</div>
+    </td>
+    <td>
+      <strong>
+        TikTok, Reels, Shorts<sup>2)</sup>
+      </strong>
+      <div>9:16</div>
+      <div>Safe space at bottom required</div>
+      <div>Word-by-word captions</div>
+    </td>
+  </tr>
+</table>
+
+The goal of the Recorder: Make it easy and fast to <strong>edit once and export for different platforms</strong>.
 
 ## What makes a good video?
 
@@ -132,3 +169,10 @@ If you plan on embedding the video on a website, you can embed one version for l
 
 The Remotion Recorder ships source code.  
 You can customize it to your liking if you have TypeScript and React knowledge.
+
+---
+
+<sup id="youtube-captions">1)</sup> YouTube videos currently have their subtitles
+burned in, but we plan to add support for exporting a .srt file.
+<br />
+<sup id="tiktok-format">2)</sup> 9:16 format is currently not supported.
