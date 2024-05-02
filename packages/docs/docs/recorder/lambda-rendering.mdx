@@ -1,0 +1,35 @@
+---
+image: /generated/articles-docs-recorder-lambda-rendering.png
+title: Render on lambda
+crumb: Recorder
+---
+
+# Render on lambda
+
+If you want to render long videos faster or you want to render different versions of your videos at the same time (e.g., for different platforms or different formats), you can take advantage of [@remotion/lambda](/docs/lambda).
+
+## Setup lambda
+
+First you need to set up Remotion Lambda. Follow the step 1 to and including step 7 of the instructions shown [here](/docs/lambda/setup).
+
+## Deploy and render
+
+Add the following function and site deployment commands as well as the render command into a shell script you can execute each time you want to render a video:
+
+```shell
+bunx remotion lambda functions deploy --timeout=3000
+bunx remotion lambda sites create --site-name=<your-site-name> --enable-folder-expire
+bunx remotion lambda render <your-serve-url> <composition-id> --log=verbose --delete-after="1-day"
+```
+
+If you want to render different videos at the same time you can add render commands and change specific props to fit your needs.
+
+For exmaple if you want to render your video for YouTube, X, and Instagram, your shell script could look like this:
+
+```shell
+bunx remotion lambda functions deploy --timeout=3000
+bunx remotion lambda sites create --site-name=<your-site-name> --enable-folder-expire
+bunx remotion lambda render --props='{"platform": "youtube"}' <your-serve-url> <composition-id> --log=verbose --delete-after="1-day"
+bunx remotion lambda render --props='{"platform": "x"}' <your-serve-url> <composition-id> --log=verbose --delete-after="1-day"
+bunx remotion lambda render --props='{"platform": "instagram"}' <your-serve-url> <composition-id> --log=verbose --delete-after="1-day"
+```

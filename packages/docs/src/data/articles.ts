@@ -2319,6 +2319,13 @@ export const articles = [
     crumb: "Templates",
   },
   {
+    id: "recorder/lambda-rendering",
+    title: "Render on lambda",
+    relativePath: "docs/recorder/lambda-rendering.mdx",
+    compId: "articles-docs-recorder-lambda-rendering",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/record",
     title: "Record a scene",
     relativePath: "docs/recorder/record.mdx",

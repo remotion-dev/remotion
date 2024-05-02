@@ -7,7 +7,7 @@ crumb: Recorder
 import { RecordingButton } from "../../components/recorder/RecordButton";
 
 The Recorder ships with its own recording interface.  
-From it, you can record a video and add it as a scene to your project.
+From it, you can record a clip and add it as a scene to your project.
 
 If you haven't done so, start the Remotion Recorder:
 
@@ -25,7 +25,7 @@ Recordings need to be stored in a subfolder of `public` with the name of the com
 For example, if you want to record for the composition `my-video`, recordings will be stored under `public/my-video`.
 
 In the top right corner, use the dropdown to "Create a new folder".  
-Give it the same name as the ID of the composition your want to record for.  
+Give it the same name as the ID of the composition you want to record for.  
 The folder will be created and your subsequent recordings will be saved in this folder.
 
 ## Select sources
@@ -100,7 +100,7 @@ You can also use the hosted version of the recoding interface at [record.remotio
 
 It will not allow you to select a save destination, but instead download the recordings to your `Downloads` folder.
 
-They will have names like `webcam171234567890.webm` and `display171234567890.webm`. 
+They will have names like `webcam171234567890.webm` and `display171234567890.webm`.
 
 To copy the recordings to your Remotion project and also convert them to MP4, first open `copy.ts` in your code editor. Set the `prefix` at the top of your file to the ID of the composition that you gave when you first created a new video.
 
@@ -115,7 +115,7 @@ bun copy.ts
 bun sub.ts
 ```
 
-If you want to not use a take, just make another recording. The `copy.ts` script will only take the recordings with the biggest timestamp.
+If you want to not use a take, just make another recording. The `copy.ts` script will only take the recordings with the latest timestamp.
 
 ## Manually adding recordings
 
