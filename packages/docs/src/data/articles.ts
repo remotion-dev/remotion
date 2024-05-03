@@ -1267,6 +1267,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "naming-convention",
+    title: "Function naming convention",
+    relativePath: "docs/lambda/naming-convention.mdx",
+    compId: "articles-docs-lambda-naming-convention",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
@@ -1699,6 +1706,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/snippets/adding-animations.md",
     compId: "articles-docs-miscellaneous-snippets-adding-animations",
     crumb: "Snippets",
+  },
+  {
+    id: "miscellaneous/snippets/align-duration",
+    title: "How do I make the composition the same duration as my video?",
+    relativePath: "docs/miscellaneous/snippets/align-duration.mdx",
+    compId: "articles-docs-miscellaneous-snippets-align-duration",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/snippets/combine-compositions",

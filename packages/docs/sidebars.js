@@ -712,6 +712,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/s3-public-access",
+        "lambda/naming-convention",
       ],
     },
     {
