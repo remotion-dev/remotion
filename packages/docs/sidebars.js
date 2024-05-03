@@ -799,6 +799,7 @@ module.exports = {
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
         "miscellaneous/snippets/hls",
+        "miscellaneous/snippets/combine-compositions",
       ],
     },
 

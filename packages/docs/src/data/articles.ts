@@ -1701,6 +1701,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/combine-compositions",
+    title: "How do I combine compositions?",
+    relativePath: "docs/miscellaneous/snippets/combine-compositions.mdx",
+    compId: "articles-docs-miscellaneous-snippets-combine-compositions",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/snippets/fps-converter",
     title: "FPS converter",
     relativePath: "docs/miscellaneous/snippets/fps-converter.md",
@@ -2291,13 +2298,6 @@ export const articles = [
     crumb: "Recorder",
   },
   {
-    id: "recorder/example",
-    title: "Before you buy",
-    relativePath: "docs/recorder/example.mdx",
-    compId: "articles-docs-recorder-example",
-    crumb: "Recorder",
-  },
-  {
     id: "recorder/exporting",
     title: "Exporting a video",
     relativePath: "docs/recorder/exporting.mdx",
@@ -2320,9 +2320,16 @@ export const articles = [
   },
   {
     id: "recorder/lambda-rendering",
-    title: "Render on lambda",
+    title: "Render on Lambda",
     relativePath: "docs/recorder/lambda-rendering.mdx",
     compId: "articles-docs-recorder-lambda-rendering",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/our-recorder",
+    title: "Our Recorder",
+    relativePath: "docs/recorder/our-recorder.mdx",
+    compId: "articles-docs-recorder-our-recorder",
     crumb: "Recorder",
   },
   {
@@ -2330,6 +2337,13 @@ export const articles = [
     title: "Record a scene",
     relativePath: "docs/recorder/record.mdx",
     compId: "articles-docs-recorder-record",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/roadmap",
+    title: "Roadmap",
+    relativePath: "docs/recorder/roadmap.mdx",
+    compId: "articles-docs-recorder-roadmap",
     crumb: "Recorder",
   },
   {
