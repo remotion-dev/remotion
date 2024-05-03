@@ -28,7 +28,7 @@ export function convertToCaptions({
 			if (currentText !== '') {
 				merged.push({
 					text: currentText,
-					startInSeconds: currentTokenLevelTimestamp / 100,
+					startInSeconds: currentTokenLevelTimestamp / 1000,
 				});
 			}
 
@@ -36,13 +36,13 @@ export function convertToCaptions({
 			currentText = text.trimStart();
 			currentFrom = item.offsets.from;
 			currentTo = item.offsets.to;
-			currentTokenLevelTimestamp = item.tokens[0].t_dtw;
+			currentTokenLevelTimestamp = item.tokens[0].offsets.from;
 		} else {
 			// Continuation or start of a new sentence without leading space
 			if (currentText === '') {
 				// It's the start of the document or after a sentence that started with a space
 				currentFrom = item.offsets.from;
-				currentTokenLevelTimestamp = item.tokens[0].t_dtw;
+				currentTokenLevelTimestamp = item.tokens[0].offsets.from;
 			}
 
 			currentText += text;
@@ -54,7 +54,7 @@ export function convertToCaptions({
 		if (index === transcription.length - 1 && currentText !== '') {
 			merged.push({
 				text: currentText,
-				startInSeconds: currentTokenLevelTimestamp / 100,
+				startInSeconds: currentTokenLevelTimestamp / 1000,
 			});
 		}
 	});
