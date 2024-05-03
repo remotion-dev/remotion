@@ -79,3 +79,4 @@ Sequences by default are absolutely positioned - you can use [`layout="none"`](/
 ## See also
 
 - [`<Sequence>` component](/docs/sequence)
+- [How do I combine compositions?](/docs/miscellaneous/snippets/combine-compositions)

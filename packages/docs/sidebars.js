@@ -800,6 +800,7 @@ module.exports = {
         "miscellaneous/snippets/offthread-video-while-rendering",
         "miscellaneous/snippets/hls",
         "miscellaneous/snippets/combine-compositions",
+        "miscellaneous/snippets/align-duration",
       ],
     },
 
