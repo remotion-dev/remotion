@@ -49,9 +49,10 @@ const resetZoom: React.CSSProperties = {
 const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC<{
-	canvasContent: CanvasContent;
-	size: Size;
-}> = ({canvasContent, size}) => {
+	readonly canvasContent: CanvasContent;
+	readonly size: Size;
+	readonly isRefreshing: boolean;
+}> = ({canvasContent, size, isRefreshing}) => {
 	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
@@ -322,6 +323,7 @@ export const Canvas: React.FC<{
 						contentDimensions={contentDimensions}
 						canvasSize={size}
 						assetMetadata={assetResolution}
+						isRefreshing={isRefreshing}
 					/>
 				) : null}
 				{isFit ? null : (

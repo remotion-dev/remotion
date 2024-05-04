@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
 
 const viewBox = 100;
-const lines = 6;
+const lines = 8;
 const className = '__remotion_spinner_line';
 const remotionSpinnerAnimation = '__remotion_spinner_animation';
 
@@ -11,8 +11,8 @@ const translated =
 	'M 44 0 L 50 0 a 6 6 0 0 1 6 6 L 56 26 a 6 6 0 0 1 -6 6 L 50 32 a 6 6 0 0 1 -6 -6 L 44 6 a 6 6 0 0 1 6 -6 Z';
 
 export const Spinner: React.FC<{
-	size: number;
-	duration: number;
+	readonly size: number;
+	readonly duration: number;
 }> = ({size, duration}) => {
 	const style = useMemo(() => {
 		return {
