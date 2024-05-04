@@ -1,4 +1,3 @@
-import type React from 'react';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
