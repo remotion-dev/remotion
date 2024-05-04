@@ -22,7 +22,7 @@ import {
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {canvasRef as ref} from '../state/canvas-ref';
+import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import EditorGuides from './EditorGuides';
@@ -183,7 +183,7 @@ export const Canvas: React.FC<{
 	);
 
 	useEffect(() => {
-		const {current} = ref;
+		const {current} = canvasRef;
 		if (!current) {
 			return;
 		}
@@ -315,7 +315,7 @@ export const Canvas: React.FC<{
 
 	return (
 		<>
-			<div ref={ref} style={container}>
+			<div ref={canvasRef} style={container}>
 				{size ? (
 					<VideoPreview
 						canvasContent={canvasContent}
@@ -342,7 +342,7 @@ export const Canvas: React.FC<{
 					contentDimensions={contentDimensions}
 					canvasSize={size}
 					assetMetadata={assetResolution}
-					containerRef={ref}
+					containerRef={canvasRef}
 				/>
 			)}
 		</>
