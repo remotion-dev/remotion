@@ -104,10 +104,10 @@ const containerStyle = (options: {
 };
 
 export const VideoPreview: React.FC<{
-	canvasSize: Size;
-	contentDimensions: Dimensions | 'none' | null;
-	canvasContent: CanvasContent;
-	assetMetadata: AssetMetadata | null;
+	readonly canvasSize: Size;
+	readonly contentDimensions: Dimensions | 'none' | null;
+	readonly canvasContent: CanvasContent;
+	readonly assetMetadata: AssetMetadata | null;
 }> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
 	if (assetMetadata && assetMetadata.type === 'not-found') {
 		return (
@@ -136,10 +136,10 @@ export const VideoPreview: React.FC<{
 };
 
 const CompWhenItHasDimensions: React.FC<{
-	contentDimensions: Dimensions | 'none';
-	canvasSize: Size;
-	canvasContent: CanvasContent;
-	assetMetadata: AssetMetadata | null;
+	readonly contentDimensions: Dimensions | 'none';
+	readonly canvasSize: Size;
+	readonly canvasContent: CanvasContent;
+	readonly assetMetadata: AssetMetadata | null;
 }> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
@@ -218,10 +218,10 @@ const CompWhenItHasDimensions: React.FC<{
 };
 
 const PortalContainer: React.FC<{
-	scale: number;
-	xCorrection: number;
-	yCorrection: number;
-	contentDimensions: Dimensions;
+	readonly scale: number;
+	readonly xCorrection: number;
+	readonly yCorrection: number;
+	readonly contentDimensions: Dimensions;
 }> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
 

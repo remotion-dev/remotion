@@ -49,8 +49,8 @@ const resetZoom: React.CSSProperties = {
 const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC<{
-	canvasContent: CanvasContent;
-	size: Size;
+	readonly canvasContent: CanvasContent;
+	readonly size: Size;
 }> = ({canvasContent, size}) => {
 	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
