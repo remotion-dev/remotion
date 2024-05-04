@@ -1,11 +1,12 @@
 import type {Size} from '@remotion/player';
 import React, {useContext, useEffect} from 'react';
-import {AbsoluteFill, Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND} from '../helpers/colors';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';
+import {RefreshCompositionOverlay} from './RefreshCompositionOverlay';
 import {
 	RunningCalculateMetadata,
 	loaderLabel,
@@ -63,11 +64,13 @@ export const CanvasOrLoading: React.FC<{
 	const content = (
 		<>
 			<ZoomPersistor />
-			<Canvas size={size} canvasContent={canvasContent} />
+			<Canvas
+				isRefreshing={resolved?.type === 'success-and-refreshing'}
+				size={size}
+				canvasContent={canvasContent}
+			/>
 			{resolved?.type === 'success-and-refreshing' ? (
-				<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-					<RunningCalculateMetadata />
-				</AbsoluteFill>
+				<RefreshCompositionOverlay />
 			) : null}
 		</>
 	);

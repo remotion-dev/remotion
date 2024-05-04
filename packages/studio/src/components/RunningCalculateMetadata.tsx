@@ -1,5 +1,4 @@
 import type React from 'react';
-import {useEffect, useMemo, useState} from 'react';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
@@ -17,38 +16,16 @@ const container: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	flexDirection: 'column',
-	paddingTop: 40,
-	paddingBottom: 40,
-	paddingLeft: 100,
-	paddingRight: 100,
+	flexDirection: 'row',
+	padding: 20,
 };
 
 export const RunningCalculateMetadata: React.FC = () => {
-	const [takesALongTime, setTakesALongTime] = useState(false);
-
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setTakesALongTime(true);
-		}, 500);
-		return () => {
-			clearTimeout(timeout);
-		};
-	}, []);
-
-	const style = useMemo(() => {
-		return {
-			...loaderLabel,
-			opacity: takesALongTime ? 1 : 0,
-			transition: 'opacity 0.3s',
-		};
-	}, [takesALongTime]);
-
 	return (
 		<div style={container}>
-			<Spinner size={30} duration={1} />
-			<Spacing y={2} />
-			<div style={style}>
+			<Spinner size={24} duration={1} />
+			<Spacing x={2} />
+			<div style={loaderLabel}>
 				Running <code style={inlineCodeSnippet}>calculateMetadata()</code>...
 			</div>
 		</div>

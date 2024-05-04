@@ -108,7 +108,14 @@ export const VideoPreview: React.FC<{
 	readonly contentDimensions: Dimensions | 'none' | null;
 	readonly canvasContent: CanvasContent;
 	readonly assetMetadata: AssetMetadata | null;
-}> = ({canvasSize, contentDimensions, canvasContent, assetMetadata}) => {
+	readonly isRefreshing: boolean;
+}> = ({
+	canvasSize,
+	contentDimensions,
+	canvasContent,
+	assetMetadata,
+	isRefreshing,
+}) => {
 	if (assetMetadata && assetMetadata.type === 'not-found') {
 		return (
 			<div style={centeredContainer}>
@@ -131,6 +138,7 @@ export const VideoPreview: React.FC<{
 			canvasSize={canvasSize}
 			canvasContent={canvasContent}
 			assetMetadata={assetMetadata}
+			isRefreshing={isRefreshing}
 		/>
 	);
 };
@@ -140,7 +148,14 @@ const CompWhenItHasDimensions: React.FC<{
 	readonly canvasSize: Size;
 	readonly canvasContent: CanvasContent;
 	readonly assetMetadata: AssetMetadata | null;
-}> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
+	readonly isRefreshing: boolean;
+}> = ({
+	contentDimensions,
+	canvasSize,
+	canvasContent,
+	assetMetadata,
+	isRefreshing,
+}) => {
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
@@ -182,6 +197,7 @@ const CompWhenItHasDimensions: React.FC<{
 				getPreviewFileType(canvasContent.asset) === 'audio'
 					? 'center'
 					: 'normal',
+			opacity: isRefreshing ? 0.5 : 1,
 		};
 	}, [
 		contentDimensions,
@@ -191,6 +207,7 @@ const CompWhenItHasDimensions: React.FC<{
 		previewSize.translation.y,
 		centerY,
 		canvasContent,
+		isRefreshing,
 	]);
 
 	return (
