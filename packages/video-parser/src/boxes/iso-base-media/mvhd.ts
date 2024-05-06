@@ -1,4 +1,5 @@
 import type {BaseBox} from './base-type';
+import {toUnixTimestamp} from './to-date';
 
 export type ThreeDMatrix = [
 	number,
@@ -94,8 +95,8 @@ export const parseMvhd = (data: Buffer, offset: number): MvhdBox => {
 	chunkOffset += 4;
 
 	return {
-		creationTime: creationTime === 0 ? null : 0,
-		modificationTime: modificationTime === 0 ? null : 0,
+		creationTime: toUnixTimestamp(creationTime),
+		modificationTime: toUnixTimestamp(modificationTime),
 		timeScale,
 		durationInUnits,
 		durationInSeconds,

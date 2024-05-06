@@ -1,5 +1,6 @@
 import type {BaseBox} from './base-type';
 import type {ThreeDMatrix} from './mvhd';
+import {toUnixTimestamp} from './to-date';
 
 export interface TkhdBox extends BaseBox {
 	type: 'tkhd-box';
@@ -99,8 +100,8 @@ export const parseTkhd = (data: Buffer, fileOffset: number): TkhdBox => {
 		offset: fileOffset,
 		boxSize: data.length,
 		type: 'tkhd-box',
-		creationTime,
-		modificationTime,
+		creationTime: toUnixTimestamp(creationTime),
+		modificationTime: toUnixTimestamp(modificationTime),
 		trackId,
 		duration,
 		layer,

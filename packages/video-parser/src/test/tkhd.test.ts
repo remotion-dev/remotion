@@ -11,9 +11,9 @@ test('Should be able to parse a TKHD box correctly', () => {
 		0,
 		// flags, 24 bit
 		0, 0, 15,
-		// creation time, 64 bit
+		// creation time, 32 bit
 		226, 94, 106, 178,
-		// modification time, 64 bit
+		// modification time, 32 bit
 		226, 94, 106, 182,
 		// track id, 32 bit
 		0, 0, 0, 5,
@@ -63,9 +63,9 @@ test('Should be able to parse a TKHD box correctly', () => {
 		boxSize: 92,
 		offset: 0,
 		alternateGroup: 0,
-		creationTime: 3797838514,
+		creationTime: 1714993714000,
 		duration: 2040,
-		modificationTime: 3797838518,
+		modificationTime: 1714993718000,
 		trackId: 5,
 		version: 0,
 		layer: 0,
