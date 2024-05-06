@@ -1,15 +1,13 @@
 {
 	"name": "@remotion/paths",
-	"version": "4.0.104",
+	"version": "4.0.150",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
-		"test": "vitest --run"
+		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -20,12 +18,11 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
-		"prettier-plugin-organize-imports": "3.2.4",
-		"vitest": "0.31.1"
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
+		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"keywords": [
 		"svg",

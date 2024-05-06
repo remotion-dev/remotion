@@ -50,6 +50,15 @@ module.exports = {
           ],
         },
         "cli/benchmark",
+        {
+          type: "category",
+          label: "browser",
+          link: {
+            type: "doc",
+            id: "cli/browser/index",
+          },
+          items: ["cli/browser/ensure"],
+        },
         "cli/versions",
         "cli/upgrade",
         "cli/ffmpeg",
@@ -101,7 +110,9 @@ module.exports = {
         "spring",
         "staticfile",
         "still",
+        "use-buffer-state",
         "use-current-frame",
+        "use-current-scale",
         "use-video-config",
         "version",
         "video",
@@ -134,6 +145,7 @@ module.exports = {
         "renderer/render-still",
         "renderer/stitch-frames-to-video",
         "renderer/open-browser",
+        "renderer/ensure-browser",
         "renderer/make-cancel-signal",
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",
@@ -151,7 +163,15 @@ module.exports = {
       },
 
       label: "@remotion/player",
-      items: ["player/api", "player/thumbnail"],
+      items: [
+        {
+          type: "link",
+          href: "/docs/player",
+          label: "Guide + Examples",
+        },
+        "player/api",
+        "player/thumbnail",
+      ],
     },
     {
       type: "category",
@@ -177,6 +197,7 @@ module.exports = {
         "get-waveform-portion",
         "use-audio-data",
         "visualize-audio",
+        "get-image-dimensions",
       ],
     },
 
@@ -342,7 +363,6 @@ module.exports = {
         "paths/parse-path",
         "paths/serialize-instructions",
         "paths/reduce-instructions",
-
         "paths/get-parts",
       ],
     },
@@ -400,6 +420,20 @@ module.exports = {
         id: "rive/index",
       },
       items: ["rive/index", "rive/remotionrivecanvas"],
+    },
+    {
+      type: "category",
+      label: "@remotion/studio",
+      link: {
+        type: "doc",
+        id: "studio/api",
+      },
+      items: [
+        "studio/get-static-files",
+        "studio/watch-static-file",
+        "studio/write-static-file",
+        "studio/save-default-props",
+      ],
     },
     {
       type: "category",
@@ -464,6 +498,7 @@ module.exports = {
         id: "layout-utils/index",
       },
       items: [
+        "layout-utils/best-practices",
         "layout-utils/measure-text",
         "layout-utils/fill-text-box",
         "layout-utils/fit-text",
@@ -479,6 +514,20 @@ module.exports = {
       items: [
         "animation-utils/make-transform",
         "animation-utils/interpolate-styles",
+      ],
+    },
+    {
+      type: "category",
+      label: "@remotion/install-whisper-cpp",
+      link: {
+        type: "doc",
+        id: "install-whisper-cpp/index",
+      },
+      items: [
+        "install-whisper-cpp/install-whisper-cpp",
+        "install-whisper-cpp/download-whisper-model",
+        "install-whisper-cpp/transcribe",
+        "install-whisper-cpp/convert-to-captions",
       ],
     },
   ],
@@ -501,15 +550,15 @@ module.exports = {
       items: [
         "transforms",
         "assets",
+        "layers",
         "transitioning",
-        "use-img-and-iframe",
         "using-audio",
         "fonts",
+        "measuring",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
         "video-manipulation",
-        "measuring",
       ],
     },
     {
@@ -590,9 +639,11 @@ module.exports = {
         "player/integration",
         "player/autoplay",
         "player/current-time",
-        "player/preloading",
-        "player/best-practices",
         "troubleshooting/player-flicker",
+        "player/buffer-state",
+        "player/preloading",
+        "player/premounting",
+        "player/best-practices",
       ],
     },
     {
@@ -661,6 +712,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/s3-public-access",
+        "lambda/naming-convention",
       ],
     },
     {
@@ -688,18 +740,7 @@ module.exports = {
     {
       type: "category",
       label: "Building apps",
-      items: [
-        {
-          type: "link",
-          href: "/docs/player",
-          label: "Player",
-        },
-        "brownfield",
-        "video-uploads",
-        "buffer-state",
-        "presigned-urls",
-        "font-picker",
-      ],
+      items: ["brownfield", "video-uploads", "presigned-urls", "font-picker"],
     },
     {
       type: "category",
@@ -745,6 +786,7 @@ module.exports = {
         "troubleshooting/timed-out-page-function",
         "troubleshooting/delay-render-proxy",
         "troubleshooting/bundling-bundle",
+        "troubleshooting/browser-launch",
       ],
     },
     {
@@ -758,6 +800,8 @@ module.exports = {
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
         "miscellaneous/snippets/hls",
+        "miscellaneous/snippets/combine-compositions",
+        "miscellaneous/snippets/align-duration",
       ],
     },
 
@@ -781,6 +825,7 @@ module.exports = {
         "terminology/cloud-run-url",
         "terminology/service-name",
         "terminology/entry-point",
+        "terminology/root-file",
         "terminology/remotion-root",
         "terminology/public-dir",
         "terminology/serve-url",
@@ -793,7 +838,12 @@ module.exports = {
     {
       type: "category",
       label: "Migration guides",
-      items: ["4-0-migration", "3-0-migration", "2-0-migration"],
+      items: [
+        "5-0-migration",
+        "4-0-migration",
+        "3-0-migration",
+        "2-0-migration",
+      ],
     },
     {
       type: "category",
@@ -828,7 +878,7 @@ module.exports = {
         "security",
         "chromium-flags",
         "miscellaneous/changing-temp-dir",
-        "miscellaneous/thorium-browser",
+        "miscellaneous/chrome-headless-shell",
         "gl-options",
         "bun",
         "standalone",
@@ -865,5 +915,45 @@ module.exports = {
       ],
     },
     "license",
+    "acknowledgements",
+  ],
+  recorderSidebar: [
+    {
+      type: "category",
+      label: "Recorder",
+      items: [
+        "recorder/index",
+        "recorder/before-you-buy",
+        "recorder/buy",
+        "recorder/setup",
+        "recorder/create",
+        "recorder/record",
+        "recorder/captions",
+        {
+          type: "category",
+          label: "Editing",
+          collapsed: false,
+          items: [
+            "recorder/editing/editing",
+            "recorder/editing/captions",
+            "recorder/editing/layout",
+            "recorder/editing/scenes",
+            "recorder/editing/endcard",
+            "recorder/editing/transitions",
+            "recorder/editing/chapters",
+            "recorder/editing/music",
+            "recorder/editing/b-roll",
+          ],
+        },
+        "recorder/exporting",
+        "recorder/lambda-rendering",
+        "recorder/source-control",
+        "recorder/upgrading",
+        "recorder/roadmap",
+        "recorder/gear",
+        "recorder/our-recorder",
+        "recorder/support",
+      ],
+    },
   ],
 };

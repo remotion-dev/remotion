@@ -14,12 +14,20 @@ import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
-import {TimelineZoomCtx, TIMELINE_MIN_ZOOM} from '../../state/timeline-zoom';
+import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {defaultInOutValue} from '../TimelineInOutToggle';
+import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
+import {
+	TimelineInOutPointerHandle,
+	inPointerHandle,
+	outPointerHandle,
+} from './TimelineInOutPointerHandle';
+import {redrawTimelineSliderFast} from './TimelineSlider';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
 	canScrollTimelineIntoDirection,
@@ -30,14 +38,6 @@ import {
 	getScrollPositionForCursorOnRightEdge,
 	scrollToTimelineXOffset,
 } from './timeline-scroll-logic';
-import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
-import {
-	inPointerHandle,
-	outPointerHandle,
-	TimelineInOutPointerHandle,
-} from './TimelineInOutPointerHandle';
-import {redrawTimelineSliderFast} from './TimelineSlider';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -148,7 +148,7 @@ const Inner: React.FC = () => {
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 
-	const scroller = useRef<NodeJS.Timeout | null>(null);
+	const scroller = useRef<Timer | null>(null);
 
 	const stopInterval = () => {
 		if (scroller.current) {

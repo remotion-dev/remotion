@@ -3,19 +3,20 @@ import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
-import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
+import {Row, Spacing} from '../layout';
+import {SubMenuComponent} from './SubMenu';
 import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {
-	menuContainerTowardsBottom,
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
+	menuContainerTowardsBottom,
 } from './styles';
-import {SubMenuComponent} from './SubMenu';
 
 const container: React.CSSProperties = {
 	paddingTop: 8,
@@ -83,6 +84,7 @@ export const MenuSubItem: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const mobileLayout = useMobileLayout();
 	const {currentZIndex} = useZIndex();
 
 	const style = useMemo((): React.CSSProperties => {
@@ -92,11 +94,17 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onItemTriggered = useCallback(
+	const onPointerUp = useCallback(
 		(e: PointerEvent<HTMLDivElement>) => {
+			if (subMenu) {
+				setSubMenuActivated('with-mouse');
+				setHovered(true);
+				return;
+			}
+
 			onActionChosen(id, e);
 		},
-		[id, onActionChosen],
+		[id, onActionChosen, setSubMenuActivated, subMenu],
 	);
 
 	const onPointerEnter = useCallback(() => {
@@ -117,12 +125,14 @@ export const MenuSubItem: React.FC<{
 			return null;
 		}
 
+		const left = size.left + size.width + SUBMENU_LEFT_INSET;
+
 		return {
 			...menuContainerTowardsBottom,
-			left: size.left + size.width + SUBMENU_LEFT_INSET,
+			left: mobileLayout ? left * 0.7 : left,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
-	}, [selected, size, subMenu, subMenuActivated]);
+	}, [mobileLayout, selected, size, subMenu, subMenuActivated]);
 
 	useEffect(() => {
 		if (!hovered || !subMenu) {
@@ -150,7 +160,7 @@ export const MenuSubItem: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onPointerUp={onItemTriggered}
+			onPointerUp={onPointerUp}
 			role="button"
 			className={MENU_ITEM_CLASSNAME}
 		>

@@ -38,10 +38,10 @@ test('Must pass at least 2 elements for input range', () => {
 test('Input range must be strictly monotonically non-decreasing', () => {
 	expectToThrow(() => {
 		interpolate(1, [0, 1, 0.5], [0, 2, 0.2]);
-	}, /inputRange must be strictly monotonically non-decreasing/);
+	}, /inputRange must be strictly monotonically increasing/);
 	expectToThrow(() => {
 		interpolate(0.75, [0, 1, 1], [0, 2, 0]);
-	}, /inputRange must be strictly monotonically non-decreasing/);
+	}, /inputRange must be strictly monotonically increasing/);
 });
 
 test('Output range can be non-monotonic', () => {
@@ -207,4 +207,9 @@ test('Handle bad types', () => {
 	expect(() => interpolate([1, 2], undefined, 'string')).toThrowError(
 		/inputRange can not be undefined/,
 	);
+});
+
+test('wrap option', () => {
+	expect(interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'})).toBe(1);
+	expect(interpolate(-0.5, [0, 1], [0, 2], {extrapolateLeft: 'wrap'})).toBe(1);
 });

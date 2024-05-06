@@ -1,0 +1,10 @@
+{
+  "name": "ai-improvements",
+  "dependencies": {
+    "@types/node": "^20.6.5",
+    "@types/bun": "1.0.12",
+    "openai": "^4.18.0"
+  },
+  "private": true,
+  "version": "4.0.150"
+}

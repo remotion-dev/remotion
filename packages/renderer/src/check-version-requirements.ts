@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import {isMusl} from './compositor/get-executable-path';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -48,8 +49,17 @@ export const gLibCErrorMessage = (libCString: string) => {
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
 	const {report} = process;
 	if (report) {
+		const rep = report.getReport();
+		if (typeof rep === 'string') {
+			Log.warn(
+				{logLevel, indent},
+				'Bun limitation: process.report.getReport() ' + rep,
+			);
+			return;
+		}
+
 		// @ts-expect-error no types
-		const {glibcVersionRuntime} = report.getReport().header;
+		const {glibcVersionRuntime} = rep.header;
 		if (!glibcVersionRuntime) {
 			return;
 		}
@@ -61,18 +71,32 @@ const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
 	}
 };
 
-export const checkNodeVersionAndWarnAboutRosetta = (
-	logLevel: LogLevel,
-	indent: boolean,
-) => {
+const checkNodeVersion = () => {
 	const version = process.version.replace('v', '').split('.');
 	const majorVersion = Number(version[0]);
-	const requiredNodeVersion = 16;
 
-	if (majorVersion < 16) {
+	if (majorVersion < NoReactInternals.MIN_NODE_VERSION) {
 		throw new Error(
-			`Remotion requires at least Node ${requiredNodeVersion}. You currently have ${process.version}. Update your node version to ${requiredNodeVersion} to use Remotion.`,
+			`Remotion requires at least Node ${NoReactInternals.MIN_NODE_VERSION}. You currently have ${process.version}. Update your node version to ${NoReactInternals.MIN_NODE_VERSION} to use Remotion.`,
 		);
+	}
+};
+
+const checkBunVersion = () => {
+	if (
+		!Bun.semver.satisfies(Bun.version, `>=${NoReactInternals.MIN_BUN_VERSION}`)
+	) {
+		throw new Error(
+			`Remotion requires at least Bun ${NoReactInternals.MIN_BUN_VERSION}. You currently have ${Bun.version}. Update your Bun version to ${NoReactInternals.MIN_BUN_VERSION} to use Remotion.`,
+		);
+	}
+};
+
+export const checkRuntimeVersion = (logLevel: LogLevel, indent: boolean) => {
+	if (typeof Bun === 'undefined') {
+		checkNodeVersion();
+	} else {
+		checkBunVersion();
 	}
 
 	checkLibCRequirement(logLevel, indent);

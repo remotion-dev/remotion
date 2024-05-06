@@ -8,10 +8,10 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {getCurrentDuration} from './imperative-state';
-import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {getCurrentDuration} from './imperative-state';
+import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
 
 const container: React.CSSProperties = {
 	position: 'absolute',

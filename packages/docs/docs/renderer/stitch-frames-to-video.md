@@ -152,6 +152,14 @@ _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
+
+<Options id="for-seamless-aac-concatenation" />
+
 ### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
 _function - optional_

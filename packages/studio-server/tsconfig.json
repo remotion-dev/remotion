@@ -21,6 +21,9 @@
 			"path": "../zod-types"
 		},
 		{
+			"path": "../studio-shared"
+		},
+		{
 			"path": "../renderer"
 		},
 		{

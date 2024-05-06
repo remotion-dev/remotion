@@ -56,6 +56,9 @@ export type LottieProps = {
 	preserveAspectRatio?:
 		| AspectRatioConstraint
 		| `${AspectRatioConstraint} ${'slice' | 'meet'}`;
+
+	assetsPath?: string;
+
 	/**
 	 * Callback that gets invoked when new animation data has been initialized
 	 */

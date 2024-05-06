@@ -5,10 +5,10 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
+import {isTrackHidden} from './is-collapsed';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
@@ -21,8 +21,8 @@ const timelineContent: React.CSSProperties = {
 };
 
 export const TimelineTracks: React.FC<{
-	timeline: TrackWithHash[];
-	hasBeenCut: boolean;
+	readonly timeline: TrackWithHash[];
+	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
@@ -43,7 +43,7 @@ export const TimelineTracks: React.FC<{
 			<div style={content}>
 				<TimelineTimePadding />
 				{timeline.map((track) => {
-					if (isTrackHidden(track, timeline)) {
+					if (isTrackHidden(track)) {
 						return null;
 					}
 

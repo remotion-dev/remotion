@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "4.0.104",
+	"version": "4.0.150",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "rollup --config rollup.config.js && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -38,16 +37,14 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"@rollup/plugin-typescript": "^8.2.0",
-		"@types/react": "18.2.48",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"@jonny/eslint-config": "3.0.281",
+		"@types/react": "18.3.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"remotion": "workspace:*",
-		"rollup": "^2.70.1"
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"remotion": "workspace:*"
 	},
 	"keywords": [
 		"remotion",

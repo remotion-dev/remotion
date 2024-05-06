@@ -1,11 +1,6 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import type {Size} from '@remotion/player';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
@@ -16,6 +11,7 @@ import {
 } from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
+import MobilePanel from './MobilePanel';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -59,11 +55,19 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC<{
 	readOnlyStudio: boolean;
 	onMounted: () => void;
-}> = ({readOnlyStudio, onMounted}) => {
+	size: Size | null;
+	drawRef: React.RefObject<HTMLDivElement>;
+	bufferStateDelayInMilliseconds: number;
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	size,
+	drawRef,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
-	const ref = useRef<HTMLDivElement>(null);
 
 	const actualStateLeft = useResponsiveSidebarStatus();
 
@@ -75,10 +79,6 @@ export const TopPanel: React.FC<{
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
 
-	const size = PlayerInternals.useElementSize(ref, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
 	const hasSize = size !== null;
 
 	useEffect(() => {
@@ -103,6 +103,8 @@ export const TopPanel: React.FC<{
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
 	}, [setSidebarCollapsedState]);
 
+	const isMobileLayout = useMobileLayout();
+
 	return (
 		<div style={container}>
 			<div style={row}>
@@ -114,9 +116,15 @@ export const TopPanel: React.FC<{
 					orientation="vertical"
 				>
 					{actualStateLeft === 'expanded' ? (
-						<SplitterElement sticky={null} type="flexer">
-							<ExplorerPanel />
-						</SplitterElement>
+						isMobileLayout ? (
+							<MobilePanel onClose={onCollapseLeft}>
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</MobilePanel>
+						) : (
+							<SplitterElement sticky={null} type="flexer">
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</SplitterElement>
+						)
 					) : null}
 					{actualStateLeft === 'expanded' ? (
 						<SplitterHandle
@@ -133,7 +141,7 @@ export const TopPanel: React.FC<{
 							orientation="vertical"
 						>
 							<SplitterElement sticky={null} type="flexer">
-								<div ref={ref} style={canvasContainerStyle}>
+								<div ref={drawRef} style={canvasContainerStyle}>
 									{size ? <CanvasOrLoading size={size} /> : null}
 								</div>
 							</SplitterElement>
@@ -144,15 +152,24 @@ export const TopPanel: React.FC<{
 								/>
 							) : null}
 							{actualStateRight === 'expanded' ? (
-								<SplitterElement sticky={null} type="anti-flexer">
-									<OptionsPanel readOnlyStudio={readOnlyStudio} />
-								</SplitterElement>
+								isMobileLayout ? (
+									<MobilePanel onClose={onCollapseRight}>
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</MobilePanel>
+								) : (
+									<SplitterElement sticky={null} type="anti-flexer">
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</SplitterElement>
+								)
 							) : null}
 						</SplitterContainer>
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-			<PreviewToolbar readOnlyStudio={readOnlyStudio} />
+			<PreviewToolbar
+				bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+				readOnlyStudio={readOnlyStudio}
+			/>
 			<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
 			<TitleUpdater />
 		</div>

@@ -1,7 +1,12 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
-import type {LayoutAndStyle, SequencePropsWithoutDuration} from 'remotion';
+import type {
+	AbsoluteFillLayout,
+	LayoutAndStyle,
+	SequencePropsWithoutDuration,
+} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
@@ -17,22 +22,27 @@ const TransitionSeriesTransition = function <
 	return null;
 };
 
+type LayoutBasedProps =
+	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? AbsoluteFillLayout
+		: LayoutAndStyle;
+
 type SeriesSequenceProps = PropsWithChildren<
 	{
-		durationInFrames: number;
-		offset?: number;
-		className?: string;
+		readonly durationInFrames: number;
+		readonly offset?: number;
+		readonly className?: string;
 		/**
 		 * @deprecated For internal use only
 		 */
-		stack?: string;
-	} & LayoutAndStyle &
+		readonly stack?: string;
+	} & LayoutBasedProps &
 		Pick<SequencePropsWithoutDuration, 'name'>
 >;
 
 const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{children}</>;
+	return children;
 };
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
@@ -48,7 +58,7 @@ type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| TransitionType<PresentationProps>
 	| string;
 
-const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
+const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	children,
 }) => {
 	const {fps} = useVideoConfig();
@@ -227,29 +237,24 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							{/**
-						// @ts-expect-error	*/}
 							<UppercasePrevPresentation
 								passedProps={prevPresentation.props ?? {}}
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
 							>
-								<Sequence showInTimeline={false} {...passedProps}>
-									{child}
-								</Sequence>
+								{child}
 							</UppercasePrevPresentation>
 						</UppercaseNextPresentation>
 					</Sequence>
@@ -263,22 +268,19 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercasePrevPresentation
 							passedProps={prevPresentation.props ?? {}}
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercasePrevPresentation>
 					</Sequence>
 				);
@@ -291,22 +293,19 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					<Sequence
-						name="<TS.Sequence>"
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						from={Math.floor(actualStartFrame)}
 						durationInFrames={durationInFramesProp}
-						layout="none"
-						stack={passedProps.stack}
+						{...passedProps}
+						name={passedProps.name || '<TS.Sequence>'}
 					>
-						{/**
-						// @ts-expect-error	*/}
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
 						>
-							<Sequence showInTimeline={false} {...passedProps}>
-								{child}
-							</Sequence>
+							{child}
 						</UppercaseNextPresentation>
 					</Sequence>
 				);
@@ -314,10 +313,12 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			return (
 				<Sequence
-					name="<TS.Sequence>"
+					// eslint-disable-next-line react/no-array-index-key
+					key={i}
 					from={Math.floor(actualStartFrame)}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					name={passedProps.name || '<TS.Sequence>'}
 				>
 					{child}
 				</Sequence>
@@ -329,13 +330,29 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 	return <>{childrenValue}</>;
 };
 
+/**
+ * @description A React component designed to manage a series of transitions and sequences where each transition may have specific timing and presentation components. It extends the capabilities of `<Sequence>` and is specifically structured to handle transitions that involve entering and exiting sequences.
+ * @see [Documentation](https://remotion.dev/docs/transitions/transitionseries)
+ * @param {SequencePropsWithoutDuration} props The properties for setting the initial rendering behavior like from, name, etc. It additionally accepts children that are specifically `<TransitionSeries.Sequence>` or `<TransitionSeries.Transition>`.
+ * @returns React component that renders the transitions and sequences.
+ */
 const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
-} = ({children, name, ...otherProps}) => {
+} = ({children, name, layout: passedLayout, ...otherProps}) => {
 	const displayName = name ?? '<TransitionSeries>';
+	const layout = passedLayout ?? 'absolute-fill';
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		layout !== 'absolute-fill'
+	) {
+		throw new TypeError(
+			`The "layout" prop of <TransitionSeries /> is not supported anymore in v5. TransitionSeries' must be absolutely positioned.`,
+		);
+	}
+
 	return (
-		<Sequence name={displayName} {...otherProps}>
+		<Sequence name={displayName} layout={layout} {...otherProps}>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);

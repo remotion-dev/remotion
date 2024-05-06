@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {normalizePath} from '../normalize-path';
 
 test('Should be able to normalize a path', () => {

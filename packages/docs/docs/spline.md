@@ -70,7 +70,7 @@ Your 3D model should look like this:
 
 ## Animating 3D Model using Remotion
 
-1. Create a new Remotion project from the React Three Fiber template by running `npm init video`.
+1. Create a new Remotion project from the React Three Fiber template by running `npx create-video@latest`.
 
    ![Project Starter](../static/img/spline-guide/12_project_starter.png)
 

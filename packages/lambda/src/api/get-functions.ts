@@ -1,5 +1,6 @@
 import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
+import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -13,6 +14,7 @@ import type {FunctionInfo} from './get-function-info';
 export type GetFunctionsInput = {
 	region: AwsRegion;
 	compatibleOnly: boolean;
+	logLevel?: LogLevel;
 };
 
 const getAllFunctions = async ({
@@ -75,6 +77,7 @@ export const getFunctions = async (
 				const version = await getFunctionVersion({
 					functionName: fn.FunctionName as string,
 					region: params.region,
+					logLevel: params.logLevel ?? 'info',
 				});
 				return version;
 			} catch (err) {

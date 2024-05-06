@@ -8,6 +8,26 @@ _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package._
 
 Calculates the width and height of specified text to be used for layout calculations. Only works in the browser, not in Node.js or Bun.
 
+## Example
+
+```tsx twoslash
+import { measureText } from "@remotion/layout-utils";
+
+const text = "remotion";
+const fontFamily = "Arial";
+const fontWeight = "500";
+const fontSize = 12;
+const letterSpacing = "1px";
+
+measureText({
+  text,
+  fontFamily,
+  fontWeight,
+  fontSize,
+  letterSpacing,
+}); // { height: 14, width: 20 }
+```
+
 ## API
 
 This function has a cache. If there are two duplicate arguments inputs, the second one will return the first result without repeating the calculation.
@@ -28,9 +48,9 @@ Same as CSS style `font-family`
 
 ### `fontSize`
 
-_Required_ _number_
+_Required_ _number_ / _string_
 
-Same as CSS style `font-size`. Only _numbers_ allowed, unit `px`
+Same as CSS style `font-size`. Since v4.0.125, strings are allowed too, before only numbers.
 
 ### `fontWeight`
 
@@ -50,29 +70,31 @@ _string_
 
 Same as CSS style `font-variant-numeric`.
 
+### `textTransform`<AvailableFrom v="4.0.140"/>
+
+_string_
+
+Same as CSS style `text-transform`.
+
+### `validateFontIsLoaded?`<AvailableFrom v="4.0.136"/>
+
+_boolean_
+
+If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
+### `additionalStyles`<AvailableFrom v="4.0.140"/>
+
+_object, optional_
+
+Additional CSS properties that affect the layout of the text.
+
 ## Return value
 
 An object with `height` and `width`
 
-## Example
+## Important considerations
 
-```tsx twoslash
-import { measureText } from "@remotion/layout-utils";
-
-const text = "remotion";
-const fontFamily = "Arial";
-const fontWeight = "500";
-const fontSize = 12;
-const letterSpacing = "1px";
-
-measureText({
-  text,
-  fontFamily,
-  fontWeight,
-  fontSize,
-  letterSpacing,
-}); // { height: 14, width: 20 }
-```
+See [Best practices](/docs/layout-utils/best-practices) to ensure you get correct measurements.
 
 ## See also
 

@@ -1,5 +1,5 @@
 import {validateFps} from '../validation/validate-fps.js';
-import type {SpringConfig} from './spring-utils.js';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils.js';
 
 const cache = new Map<string, number>();
@@ -71,8 +71,6 @@ export function measureSpring({
 			fps,
 			frame,
 			config,
-			from,
-			to,
 		});
 	};
 

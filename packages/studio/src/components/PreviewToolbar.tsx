@@ -10,17 +10,17 @@ import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {FullScreenToggle} from './FullscreenToggle';
-import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
+import {PlayPause} from './PlayPause';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
-import {PlayPause} from './PlayPause';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
+import {Flex, Spacing} from './layout';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -46,8 +46,9 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC<{
-	readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+	readonly readOnlyStudio: boolean;
+	readonly bufferStateDelayInMilliseconds: number;
+}> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
 	);
@@ -79,17 +80,21 @@ export const PreviewToolbar: React.FC<{
 			{isVideoComposition ? (
 				<>
 					<Spacing x={2} />
-					<PlayPause loop={loop} playbackRate={playbackRate} />
+					<PlayPause
+						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+						loop={loop}
+						playbackRate={playbackRate}
+					/>
 					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 					<Spacing x={2} />
 					<TimelineInOutPointToggle />
 					<Spacing x={2} />
-					<CheckboardToggle />
-					<Spacing x={1} />
 				</>
 			) : null}
+			<CheckboardToggle />
+			<Spacing x={1} />
 			{isFullscreenSupported && <FullScreenToggle />}
 			<Flex />
 			<div style={sideContainer}>

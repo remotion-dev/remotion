@@ -11,8 +11,8 @@ import {
 } from 'react';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
-import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {validateDimension} from './validation/validate-dimensions.js';
@@ -39,6 +39,10 @@ type VideoConfigState =
 	  }
 	| {
 			type: 'success';
+			result: VideoConfig;
+	  }
+	| {
+			type: 'success-and-refreshing';
 			result: VideoConfig;
 	  }
 	| {
@@ -108,12 +112,28 @@ export const ResolveCompositionConfig: React.FC<
 			});
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
-				setResolvedConfigs((r) => ({
-					...r,
-					[composition.id]: {
-						type: 'loading',
-					},
-				}));
+				setResolvedConfigs((r) => {
+					const prev = r[composition.id];
+					if (
+						prev?.type === 'success' ||
+						prev?.type === 'success-and-refreshing'
+					) {
+						return {
+							...r,
+							[composition.id]: {
+								type: 'success-and-refreshing',
+								result: prev.result,
+							},
+						};
+					}
+
+					return {
+						...r,
+						[composition.id]: {
+							type: 'loading',
+						},
+					};
+				});
 				promOrNot
 					.then((c) => {
 						if (controller.signal.aborted) {

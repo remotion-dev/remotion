@@ -9,5 +9,11 @@ export const dynamicDurationSchema = z.object({
 export const DynamicDuration: React.FC<
 	z.infer<typeof dynamicDurationSchema>
 > = () => {
-	return <AbsoluteFill>hi</AbsoluteFill>;
+	return (
+		<AbsoluteFill>
+			<svg>
+				<path style={{scale: 2}}>hi</path>
+			</svg>
+		</AbsoluteFill>
+	);
 };

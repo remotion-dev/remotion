@@ -5,10 +5,14 @@ const toSeconds = (time: number, fps: number) => {
 };
 
 export const isIosSafari = () => {
-	return typeof window === 'undefined'
-		? false
-		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/));
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+
+	return isIpadIPodIPhone && isAppleWebKit;
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655
@@ -62,17 +66,19 @@ export const appendVideoFragment = ({
 	return actualSrc;
 };
 
-const isSubsetOfDuration = (
-	prevStartFrom: number,
-	newStartFrom: number,
-	prevDuration: number,
-	newDuration: number,
-) => {
-	return (
-		prevStartFrom <= newStartFrom &&
-		prevStartFrom + prevDuration >= newStartFrom + newDuration
-	);
-};
+const isSubsetOfDuration = ({
+	prevStartFrom,
+	newStartFrom,
+	prevDuration,
+	newDuration,
+}: {
+	prevStartFrom: number;
+	newStartFrom: number;
+	prevDuration: number;
+	newDuration: number;
+}) =>
+	prevStartFrom <= newStartFrom &&
+	prevStartFrom + prevDuration >= newStartFrom + newDuration;
 
 export const useAppendVideoFragment = ({
 	actualSrc: initialActualSrc,
@@ -89,7 +95,15 @@ export const useAppendVideoFragment = ({
 	const actualDuration = useRef(initialDuration);
 	const actualSrc = useRef(initialActualSrc);
 
-	if (!isSubsetOfDuration || initialActualSrc !== actualSrc.current) {
+	if (
+		!isSubsetOfDuration({
+			prevStartFrom: actualFromRef.current,
+			newStartFrom: initialActualFrom,
+			prevDuration: actualDuration.current,
+			newDuration: initialDuration,
+		}) ||
+		initialActualSrc !== actualSrc.current
+	) {
 		actualFromRef.current = initialActualFrom;
 		actualDuration.current = initialDuration;
 		actualSrc.current = initialActualSrc;

@@ -67,7 +67,7 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	userPassedPublicDir,
+	relativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -77,6 +77,9 @@ export const startStudio = async ({
 	parsedCliOpen,
 	previewEntry,
 	gitSource,
+	bufferStateDelayInMilliseconds,
+	binariesDirectory,
+	forceIPv4,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -86,10 +89,11 @@ export const startStudio = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	desiredPort: number | null;
-	maxTimelineTracks: number;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	userPassedPublicDir: string | null;
+	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -99,10 +103,12 @@ export const startStudio = async ({
 	parsedCliOpen: boolean;
 	previewEntry: string;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
+	forceIPv4: boolean;
 }) => {
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
-		userPassedPublicDir,
+		relativePublicDir,
 		remotionRoot,
 	});
 	const hash = crypto.randomBytes(6).toString('hex');
@@ -146,7 +152,6 @@ export const startStudio = async ({
 		publicDir,
 		webpackOverride,
 		poll,
-		userPassedPublicDir,
 		staticHash,
 		staticHashPrefix,
 		outputHash,
@@ -157,6 +162,9 @@ export const startStudio = async ({
 		numberOfAudioTags,
 		queueMethods,
 		gitSource,
+		bufferStateDelayInMilliseconds,
+		binariesDirectory,
+		forceIPv4,
 	});
 
 	setLiveEventsListener(liveEventsServer);
@@ -173,7 +181,7 @@ export const startStudio = async ({
 		setServerReadyComment(`http://localhost:${port}`);
 	}
 
-	printServerReadyComment('Server ready');
+	printServerReadyComment('Server ready', logLevel);
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
 		configValueShouldOpenBrowser,

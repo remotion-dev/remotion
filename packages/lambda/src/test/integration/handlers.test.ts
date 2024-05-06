@@ -6,7 +6,9 @@ import {callLambda} from '../../shared/call-lambda';
 test('Call function locally', async () => {
 	expect(
 		await callLambda({
-			payload: {},
+			payload: {
+				logLevel: 'info',
+			},
 			type: LambdaRoutines.info,
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',

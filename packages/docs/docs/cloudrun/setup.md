@@ -15,53 +15,7 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/cloudrun`
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/cloudrun
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/cloudrun
-```
-
-  </TabItem>
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/cloudrun
-```
-
-  </TabItem>
-
-</Tabs>
-
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
-
-:::note
-Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
-:::
-
-Your package.json should look like the following:
-
-```json
-  "@remotion/cli": "4.0.0", // Replace 4.0.0 with the current version
-  "@remotion/cloudrun": "4.0.0", // Remove any `^` character
-  // ...
-  "remotion": "4.0.0",
-```
+<Installation pkg="@remotion/cloudrun"/>
 
 ## 2. Create a GCP project
 
@@ -341,7 +295,7 @@ You already have the service name from a previous step. But since you only need 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const services = await getServices({
   region: "us-east1",
@@ -356,8 +310,8 @@ We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
 
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 const url = "string";
 const serviceName = "string";
 const updateRenderProgress = (progress: number) => {};
@@ -378,6 +332,10 @@ if (result.type === "success") {
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
 
@@ -405,7 +363,7 @@ We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { renderStillOnCloudrun } from "@remotion/cloudrun";
+import { renderStillOnCloudrun } from "@remotion/cloudrun/client";
 
 const url = "string";
 const serviceName = "string";
@@ -425,6 +383,10 @@ if (result.type === "success") {
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 The render will now run and after a while the image will be available in your cloud storage bucket.
 

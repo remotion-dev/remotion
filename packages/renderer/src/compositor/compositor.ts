@@ -1,5 +1,4 @@
 import {spawn} from 'node:child_process';
-import {chmodSync} from 'node:fs';
 import path from 'node:path';
 import {getActualConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
@@ -7,6 +6,7 @@ import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
+import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
@@ -33,21 +33,24 @@ export const startLongRunningCompositor = ({
 	maximumFrameCacheItemsInBytes,
 	logLevel,
 	indent,
+	binariesDirectory,
 }: {
 	maximumFrameCacheItemsInBytes: number | null;
 	logLevel: LogLevel;
 	indent: boolean;
+	binariesDirectory: string | null;
 }) => {
-	return startCompositor(
-		'StartLongRunningProcess',
-		{
+	return startCompositor({
+		type: 'StartLongRunningProcess',
+		payload: {
 			concurrency: getActualConcurrency(null),
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
 		indent,
-	);
+		binariesDirectory,
+	});
 };
 
 type RunningStatus =
@@ -64,16 +67,26 @@ type RunningStatus =
 			signal: NodeJS.Signals | null;
 	  };
 
-export const startCompositor = <T extends keyof CompositorCommand>(
-	type: T,
-	payload: CompositorCommand[T],
-	logLevel: LogLevel,
-	indent: boolean,
-): Compositor => {
-	const bin = getExecutablePath('compositor', indent, logLevel);
-	if (!process.env.READ_ONLY_FS) {
-		chmodSync(bin, 0o755);
-	}
+export const startCompositor = <T extends keyof CompositorCommand>({
+	type,
+	payload,
+	logLevel,
+	indent,
+	binariesDirectory = null,
+}: {
+	type: T;
+	payload: CompositorCommand[T];
+	logLevel: LogLevel;
+	indent: boolean;
+	binariesDirectory: string | null;
+}): Compositor => {
+	const bin = getExecutablePath({
+		type: 'compositor',
+		indent,
+		logLevel,
+		binariesDirectory,
+	});
+	makeFileExecutableIfItIsNot(bin);
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,

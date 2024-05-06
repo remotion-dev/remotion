@@ -154,6 +154,20 @@ If both transformations use the `transform` property, specify multiple transform
 
 Note that the order matters. The transformations are applied in the order they are specified.
 
+## Using the `makeTransform()` helper
+
+Install [@remotion/animation-utils](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate `transform` strings.
+
+```tsx twoslash
+import { makeTransform, rotate, translate } from "@remotion/animation-utils";
+
+const transform = translate(50, 50);
+// => "translate(50px, 50px)"
+
+const multiTransform = makeTransform([rotate(45), translate(50, 50)]);
+// => "rotate(45deg) translate(50px, 50px)"
+```
+
 ## More ways to transform objects
 
 These are just some of the basic transformations. Here are some more transformations that are possible:

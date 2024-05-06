@@ -1,12 +1,12 @@
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
 import path from 'node:path';
 import type {DownloadMap} from '../assets/download-map';
 import type {LogLevel} from '../log-level';
 import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
+import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
 import type {
 	CompositorCommand,
@@ -99,12 +99,16 @@ export const callCompositor = (
 	payload: string,
 	indent: boolean,
 	logLevel: LogLevel,
+	binariesDirectory: string | null,
 ) => {
 	return new Promise<void>((resolve, reject) => {
-		const execPath = getExecutablePath('compositor', indent, logLevel);
-		if (!process.env.READ_ONLY_FS) {
-			chmodSync(execPath, 0o755);
-		}
+		const execPath = getExecutablePath({
+			type: 'compositor',
+			indent,
+			logLevel,
+			binariesDirectory,
+		});
+		makeFileExecutableIfItIsNot(execPath);
 
 		const child = spawn(execPath, [payload], {
 			cwd: path.dirname(execPath),
@@ -147,7 +151,15 @@ export const callCompositor = (
 		try {
 			child.stdin.write(payload, (e) => {
 				if (e) {
-					reject(e);
+					if (e instanceof Error && e.message.includes('EPIPE')) {
+						reject(
+							new Error(
+								'Compositor stdin closed unexpectedly,' +
+									Buffer.concat(stderrChunks).toString('utf-8'),
+							),
+						);
+					}
+
 					return;
 				}
 

@@ -11,6 +11,9 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
+import {NativeBufferStateForImage} from './BufferState/Image';
+import {NativeBufferState} from './BufferState/Simple';
+import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -33,8 +36,11 @@ import {
 	OffthreadRemoteVideo,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import {PremountedExample} from './Premount';
+import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
@@ -50,15 +56,22 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
+import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
+import {
+	SaveDefaultProps,
+	saveStudioSchema,
+} from './StudioApis/SaveDefaultProps';
+import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
+import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
@@ -351,7 +364,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={10000}
 				/>
 				<Composition
 					id="skip-zero-frame"
@@ -643,6 +656,38 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="text-stroke"
+					component={TextStroke}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="native-buffer-state"
+					component={NativeBufferState}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-video"
+					component={NativeBufferStateForVideo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="native-buffer-state-for-image"
+					component={NativeBufferStateForImage}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
 				/>
 				<Composition
 					id="default-codec"
@@ -1042,9 +1087,27 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+			<Folder name="Premount">
+				<Composition
+					id="premounted"
+					component={PremountedExample}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+				<Composition
+					id="premounted-remote"
+					component={PremountedRemoteVideos}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1080}
+				/>
+			</Folder>
 			<Folder name="Transitions">
 				<Composition
-					id="transition"
+					id="basic-transition"
 					component={BasicTransition}
 					fps={30}
 					height={1080}
@@ -1140,6 +1203,46 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			<Composition
+				id="RetryDelayRender"
+				component={RetryDelayRender}
+				fps={30}
+				height={1080}
+				width={1080}
+				durationInFrames={120}
+			/>
+			<Folder name="Skia">
+				<Composition
+					id="skia-shader"
+					component={RuntimeShaderDemo}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="studio-apis">
+				<Composition
+					id="save-default-props"
+					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="write-static-file"
+					component={WriteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+			</Folder>
 		</>
 	);
 };

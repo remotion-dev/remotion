@@ -49,7 +49,7 @@ export function puppeteerEvaluateWithCatchAndTimeout<ReturnType>({
 	pageFunction,
 	timeoutInMilliseconds,
 }: PuppeteerCatchOptions): Promise<{value: ReturnType; size: number}> {
-	let timeout: NodeJS.Timeout | null = null;
+	let timeout: Timer | null = null;
 	return Promise.race([
 		new Promise<{value: ReturnType; size: number}>((_, reject) => {
 			timeout = setTimeout(() => {
@@ -153,6 +153,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 					(exceptionDetails.exception?.description as string).split('\n'),
 				),
 			});
+			page.close();
 			throw err;
 		}
 

@@ -8,10 +8,18 @@ crumb: "Troubleshooting"
 If you receive the following error:
 
 ```
+ ⨯ ./node_modules/@remotion/bundler/node_modules/webpack/lib/FileSystemInfo.js:9:0
+Module not found: Can't resolve 'module'
+Did you mean './module'?
+Requests that should resolve in the current directory need to start with './'.
+```
+
+or
+
+```
  ⨯ ./node_modules/@remotion/compositor-darwin-arm64/remotion
 Module parse failed: Unexpected character '�' (1:0)
 You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-(Source code omitted for this binary file)
 ```
 
 it means that the [`bundle()`](/docs/bundle) function is being bundled itself for example by Webpack or ESBuild.

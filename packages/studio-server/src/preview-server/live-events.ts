@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {
 	IncomingMessage,
@@ -21,9 +22,9 @@ const serializeMessage = (message: EventSourceEvent) => {
 	return `data: ${JSON.stringify(message)}\n\n`;
 };
 
-let printPortMessageTimeout: NodeJS.Timeout | null = null;
+let printPortMessageTimeout: Timer | null = null;
 
-export const makeLiveEventsRouter = (): LiveEventsServer => {
+export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 	let clients: Client[] = [];
 
 	const router = (request: IncomingMessage, response: ServerResponse) => {
@@ -63,7 +64,7 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 				}
 
 				printPortMessageTimeout = setTimeout(() => {
-					printServerReadyComment('To restart');
+					printServerReadyComment('To restart', logLevel);
 				}, 2500);
 			}
 		});

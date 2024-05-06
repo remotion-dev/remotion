@@ -150,7 +150,10 @@ class RemotionClient:
         )
         return json.dumps(render_params.serialize_params(), default=self._custom_serializer)
 
-    def construct_render_progress_request(self, render_id: str, bucket_name: str) -> str:
+    def construct_render_progress_request(self,
+                                          render_id: str,
+                                          bucket_name: str,
+                                          log_level="info") -> str:
         """
         Construct a render progress request in JSON format.
 
@@ -165,7 +168,8 @@ class RemotionClient:
             render_id=render_id,
             bucket_name=bucket_name,
             function_name=self.function_name,
-            region=self.region
+            region=self.region,
+            log_level=log_level
         )
         return json.dumps(progress_params.serialize_params())
 
@@ -213,26 +217,31 @@ class RemotionClient:
                     disclaimer=body_object['estimatedPrice']['disclaimer']
                 ),
                 url=body_object['output'],
-                size_in_bytes=body_object['size'],
+                size_in_bytes=body_object['sizeInBytes'],
                 bucket_name=body_object['bucketName'],
                 render_id=body_object['renderId'],
-                # cloud_watch_logs=body_object['cloud_watch_logs']
+                outKey=body_object['outKey'],
             )
 
         return None
 
-    def get_render_progress(self, render_id: str, bucket_name: str) -> RenderMediaProgress:
+    def get_render_progress(self,
+                            render_id: str,
+                            bucket_name: str,
+                            log_level="info") -> RenderMediaProgress:
         """
         Get the progress of a render.
 
         Args:
             render_id (str): ID of the render.
             bucket_name (str): Name of the bucket.
+            log_level (str): Log level ("error", "warning", "info", "verbose").
 
         Returns:
             RenderProgress: Progress of the render.
         """
-        params = self.construct_render_progress_request(render_id, bucket_name)
+        params = self.construct_render_progress_request(
+            render_id, bucket_name, log_level=log_level)
         progress_response = self._invoke_lambda(
             function_name=self.function_name, payload=params)
         if progress_response:

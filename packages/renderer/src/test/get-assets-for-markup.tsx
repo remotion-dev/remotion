@@ -5,13 +5,13 @@
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
+	act,
 	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 
@@ -22,10 +22,10 @@ let collectAssets = (): TRenderAsset[] => [];
 
 const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
-		let interval: null | number | NodeJS.Timeout = null;
+		let interval: Timer | null = null;
 		const check = () => {
 			if (window.remotion_renderReady) {
-				clearInterval(interval as number);
+				clearInterval(interval as Timer);
 				resolve();
 			}
 		};
@@ -130,7 +130,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(currentFrame, ID);
+			window.remotion_setFrame(currentFrame, ID, 1);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

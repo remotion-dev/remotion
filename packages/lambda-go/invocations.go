@@ -44,7 +44,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	}
 
 	// Unmarshal response from Lambda function
-	var renderResponseOutput RawInvokeResponse
+	var renderResponseOutput RemotionRenderResponse
 
 	responseMarshallingError := json.Unmarshal(invocationResult.Payload, &renderResponseOutput)
 
@@ -52,18 +52,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 		return nil, responseMarshallingError
 	}
 
-	return SantitiseRenderResponse(renderResponseOutput)
-}
-
-func SantitiseRenderResponse(response RawInvokeResponse) (*RemotionRenderResponse, error) {
-	var renderBody RemotionRenderResponse
-
-	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderBody)
-	if responseMarshallingError != nil {
-		return nil, responseMarshallingError
-	}
-
-	return &renderBody, nil
+	return &renderResponseOutput, nil
 }
 
 func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
@@ -102,24 +91,12 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 	}
 
 	// Unmarshal response from Lambda function
-	var renderProgressOutput RawInvokeResponse
+	var renderProgressOutput RenderProgress
 
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
 		return nil, resultUnmarshallError
 	}
 
-	return SantitiseProgressResponse(renderProgressOutput)
-}
-
-func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgress, error) {
-	var renderProgressBody RenderProgress
-
-	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderProgressBody)
-	if responseMarshallingError != nil {
-		print(responseMarshallingError.Error())
-		return nil, responseMarshallingError
-	}
-
-	return &renderProgressBody, nil;
+	return &renderProgressOutput, nil
 }

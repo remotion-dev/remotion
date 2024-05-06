@@ -30,10 +30,6 @@ const waitForAssetToBeDownloaded = ({
 	downloadDir: string;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
-	if (process.env.NODE_ENV === 'test') {
-		console.log('waiting for asset to be downloaded', src);
-	}
-
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		return Promise.resolve(
 			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string,
@@ -198,10 +194,6 @@ export const downloadAsset = async ({
 		}
 	)[downloadDir] = true;
 
-	if (process.env.NODE_ENV === 'test') {
-		console.log('Actually downloading asset', src);
-	}
-
 	downloadMap.emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
@@ -341,7 +333,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 		split.length > 1 && split[split.length - 1]
 			? `.${split[split.length - 1]}`
 			: '';
-	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+	const hashedFileName = String(random(`${src}${pathname}${search}`)).replace(
 		'0.',
 		'',
 	);

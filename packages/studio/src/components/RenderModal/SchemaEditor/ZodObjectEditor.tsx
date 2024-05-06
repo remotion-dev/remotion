@@ -2,15 +2,15 @@ import React, {useMemo, useState} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {fieldsetLabel} from '../layout';
-import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import {deepEqual} from './deep-equal';
+import {useLocalState} from './local-state';
+import type {JSONPath} from './zod-types';
 
 export type ObjectDiscrimatedUnionReplacement = {
 	discriminator: string;

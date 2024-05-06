@@ -11,10 +11,12 @@ import type {
 } from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
 	CopyStillToClipboardRequest,
 	EnumPath,
 	OpenInFileExplorerRequest,
+	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
 } from '@remotion/studio-shared';
@@ -210,6 +212,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize,
 	beepOnFinish,
 	repro,
+	forSeamlessAacConcatenation,
+	separateAudioTo,
 }: {
 	compositionId: string;
 	outName: string;
@@ -244,6 +248,8 @@ export const addVideoRenderJob = ({
 	encodingBufferSize: string | null;
 	beepOnFinish: boolean;
 	repro: boolean;
+	forSeamlessAacConcatenation: boolean;
+	separateAudioTo: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -285,6 +291,8 @@ export const addVideoRenderJob = ({
 		encodingMaxRate,
 		beepOnFinish,
 		repro,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
 	});
 };
 
@@ -319,11 +327,34 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	return callApi('/api/open-in-file-explorer', body);
 };
 
-export const copyToClipboard = ({outName}: {outName: string}) => {
+export const copyToClipboard = ({
+	outName,
+	binariesDirectory,
+}: {
+	outName: string;
+	binariesDirectory: string | null;
+}) => {
 	const body: CopyStillToClipboardRequest = {
 		outName,
+		binariesDirectory,
 	};
 	return callApi('/api/copy-still-to-clipboard', body);
+};
+
+export const applyCodemod = ({
+	codemod,
+	dryRun,
+	signal,
+}: {
+	codemod: RecastCodemod;
+	dryRun: boolean;
+	signal: AbortController['signal'];
+}) => {
+	const body: ApplyCodemodRequest = {
+		codemod,
+		dryRun,
+	};
+	return callApi('/api/apply-codemod', body, signal);
 };
 
 export const removeRenderJob = (job: RenderJob) => {
@@ -342,7 +373,11 @@ export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
 };
 
-export const updateDefaultProps = (
+export const getProjectInfo = (signal: AbortSignal) => {
+	return callApi('/api/project-info', {}, signal);
+};
+
+export const callUpdateDefaultPropsApi = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],

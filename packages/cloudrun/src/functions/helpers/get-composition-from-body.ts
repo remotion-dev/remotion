@@ -8,7 +8,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			browserExecutable: null,
 			chromiumOptions: {
 				...(body.chromiumOptions ?? {}),
-				enableMultiProcessOnLinux: false,
+				enableMultiProcessOnLinux: true,
 			},
 			envVariables: body.envVariables ?? {},
 			id: body.composition,
@@ -24,6 +24,10 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 				body.delayRenderTimeoutInMilliseconds ??
 				RenderInternals.DEFAULT_TIMEOUT,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			binariesDirectory: null,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Cloud Run');
+			},
 		},
 	);
 

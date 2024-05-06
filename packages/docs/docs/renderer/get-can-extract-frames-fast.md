@@ -26,6 +26,10 @@ console.log(result.canExtractFramesFast); // false
 console.log(result.shouldReencode); // true
 ```
 
+:::info
+Pass an absolute path to `getCanExtractFramesFast()`. URLs are not supported.
+:::
+
 ## When to use this API
 
 If you are using [`<OffthreadVideo>`](/docs/offthreadvideo), you might get a warning ["Using a slow method to extract the frame"](/docs/slow-method-to-extract-frame) if a video is included which does not include enough metadata to efficiently extract a certain frame of a video. This might result in the render becoming slow.
@@ -74,7 +78,3 @@ Returns a promise which resolves to an object with the following parameters:
 
 - `canExtractFramesFast`: _boolean_ Whether it will be fast to extract a frame from a video.
 - `shouldReencode`: _boolean_ Whether the video can be re-encoded to make the render faster.
-
-## See also
-
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/can-extract-frames-fast.ts)

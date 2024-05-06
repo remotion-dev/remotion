@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {useEffect, useRef} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
@@ -24,6 +24,7 @@ export const usePlayback = ({
 	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const buffering = useRef<null | number>(null);
 
 	// requestAnimationFrame() does not work if the tab is not active.
 	// This means that audio will keep playing even if it has ended.
@@ -31,6 +32,28 @@ export const usePlayback = ({
 	const isBackgroundedRef = useIsBackgrounded();
 
 	const lastTimeUpdateEvent = useRef<number | null>(null);
+
+	const context = useContext(Internals.BufferingContextReact);
+	if (!context) {
+		throw new Error(
+			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
+		);
+	}
+
+	useEffect(() => {
+		const onBufferClear = context.listenForBuffering(() => {
+			buffering.current = performance.now();
+		});
+
+		const onResumeClear = context.listenForResume(() => {
+			buffering.current = null;
+		});
+
+		return () => {
+			onBufferClear.remove();
+			onResumeClear.remove();
+		};
+	}, [context]);
 
 	useEffect(() => {
 		if (!config) {
@@ -49,10 +72,10 @@ export const usePlayback = ({
 			  }
 			| {
 					type: 'timeout';
-					id: NodeJS.Timeout;
+					id: Timer;
 			  }
 			| null = null;
-		const startedTime = performance.now();
+		let startedTime = performance.now();
 		let framesAdvanced = 0;
 
 		const cancelQueuedFrame = () => {
@@ -75,9 +98,10 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
+			const currentFrame = frameRef.current;
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
-				currentFrame: frameRef.current,
+				currentFrame,
 				playbackSpeed: playbackRate,
 				fps: config.fps,
 				actualFirstFrame,
@@ -85,6 +109,7 @@ export const usePlayback = ({
 				framesAdvanced,
 				shouldLoop: loop,
 			});
+
 			framesAdvanced += framesToAdvance;
 
 			if (
@@ -107,6 +132,20 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
+			if (buffering.current) {
+				const stopListening = context.listenForResume(() => {
+					stopListening.remove();
+					if (hasBeenStopped) {
+						return;
+					}
+
+					startedTime = performance.now();
+					framesAdvanced = 0;
+					callback();
+				});
+				return;
+			}
+
 			if (isBackgroundedRef.current) {
 				reqAnimFrameCall = {
 					type: 'timeout',
@@ -150,6 +189,8 @@ export const usePlayback = ({
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
 		frameRef,
+		buffering,
+		context,
 	]);
 
 	useEffect(() => {

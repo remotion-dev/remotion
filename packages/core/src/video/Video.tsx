@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
-import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
-import {DurationsContext} from './duration-state.js';
-import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
-import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
+import {DurationsContext} from './duration-state.js';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -22,15 +22,17 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			stack?: string;
+			readonly stack?: string;
 		}
 > = (props, ref) => {
 	const {
 		startFrom,
 		endAt,
 		name,
+		pauseWhenBuffering,
 		stack,
 		_remotionInternalNativeLoopPassed,
+		showInTimeline,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -100,7 +102,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={endAtFrameNo}
 				name={name}
 			>
-				<Video {...otherProps} ref={ref} />
+				<Video
+					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					{...otherProps}
+					ref={ref}
+				/>
 			</Sequence>
 		);
 	}
@@ -114,15 +120,18 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	return (
-		<VideoForDevelopment
+		<VideoForPreview
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			// Proposal: Make this default to true in v5
+			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
+			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };

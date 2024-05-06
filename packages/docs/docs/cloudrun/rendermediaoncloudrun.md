@@ -20,7 +20,7 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderMediaOnCloudrun({
   region: "us-east1",
@@ -30,11 +30,16 @@ const result = await renderMediaOnCloudrun({
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
   codec: "h264",
 });
+
 if (result.type === "success") {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
 ```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
 
 ## Arguments
 
@@ -149,7 +154,7 @@ _optional_
 
 ### `x264Preset?`
 
-See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+<Options id="x264-preset" />
 
 ### `crf?`
 
@@ -241,9 +246,7 @@ Overrides default composition height.
 
 ### `logLevel?`
 
-_optional_
-
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
+<Options id="log"/>
 
 ### `outName?`
 
@@ -254,7 +257,7 @@ The file name of the media output.
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`.
+- A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
 
 ### `delayRenderTimeoutInMilliseconds?`
 
@@ -274,9 +277,9 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 Render a silent audio track if there wouldn't be any otherwise.
 
-### `preferLossless?`
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
 
-Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
+<Options id="prefer-lossless" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 

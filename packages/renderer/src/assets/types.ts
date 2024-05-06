@@ -5,7 +5,7 @@ import type {TRenderAsset} from 'remotion/no-react';
 // type instead.
 export type UnsafeAsset = Omit<
 	TRenderAsset,
-	'frame' | 'id' | 'volume' | 'mediaFrame'
+	'frame' | 'id' | 'volume' | 'mediaFrame' | 'audioStartFrom'
 > & {
 	startInVideo: number;
 	duration: number | null;

@@ -18,6 +18,8 @@ export const serveStatic = async (
 		logLevel: LogLevel;
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
+		binariesDirectory: string | null;
+		forceIPv4: boolean;
 	},
 ): Promise<{
 	port: number;
@@ -34,6 +36,7 @@ export const serveStatic = async (
 		logLevel: options.logLevel,
 		indent: options.indent,
 		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: options.binariesDirectory,
 	});
 
 	const connections: Record<string, Socket> = {};
@@ -72,7 +75,7 @@ export const serveStatic = async (
 
 	const maxTries = 5;
 
-	const portConfig = getPortConfig();
+	const portConfig = getPortConfig(options.forceIPv4);
 
 	for (let i = 0; i < maxTries; i++) {
 		let unlock = () => {};

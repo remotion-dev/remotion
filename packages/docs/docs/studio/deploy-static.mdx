@@ -29,11 +29,13 @@ We recommend to add `build` to your `.gitignore` file. The command will offer to
 
 To deploy to Vercel, connect your repository to Vercel.
 
-In the "Build and Output" settings, set the following:
+In the "Build and Output" settings, enable "OVERRIDE" and set the following:
 
 - **Build Command**: `bunx remotion bundle`
 - **Output Directory**: `build`
 - **Installation Command**: _Leave default_
+
+![Alt text](https://github.com/remotion-dev/remotion/assets/86873911/ac38e1fb-0c95-4f64-b2b9-b72b90d69f22)
 
 :::note
 Using bunx as a script runner is slightly faster than using `npx`.
@@ -47,6 +49,47 @@ Connect your repository to Netlify.
 - **Build command**: `npx remotion bundle`
 - **Publish directory**: `build`
 - **Functions directory**: _Leave default_
+
+## Deploy to GitHub Pages
+
+<Step>1</Step> Create the following file in your repo:
+
+```yaml title=".github/workflows/deploy-studio.yml"
+name: Deploy Remotion studio
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+permissions:
+  contents: write
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: install packages
+        run: npm i
+      - name: Bundle Studio
+        run: npx remotion bundle --public-path="./"
+      - name: Deploy Studio
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+```
+
+The above code will deploy the bundled Remotion Studio to a branch `gh-pages`.
+
+:::note
+The --public-path flag for `npx remotion bundle` is available only from remotion version `4.0.127`
+:::
+
+<Step>3</Step> Go to the settings of your repository (github.com/[username]/[repo]/settings/pages) <br />
+
+<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch and
+click save.
 
 ## Rendering from a URL
 
@@ -148,7 +191,7 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
 
 const result = await renderMediaOnCloudrun({
   region: "us-east1",

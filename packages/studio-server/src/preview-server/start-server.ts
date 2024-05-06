@@ -7,7 +7,6 @@ import type {
 	RenderDefaults,
 	RenderJob,
 } from '@remotion/studio-shared';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import {handleRoutes} from '../routes';
@@ -24,11 +23,11 @@ export const startServer = async (options: {
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks?: number;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
-	userPassedPublicDir: string | null;
 	poll: number | null;
 	staticHash: string;
 	staticHashPrefix: string;
@@ -40,28 +39,31 @@ export const startServer = async (options: {
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
+	binariesDirectory: string | null;
+	forceIPv4: boolean;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const [, config] = BundlerInternals.webpackConfig({
+	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development',
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
+		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
+		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 	});
 
 	const compiler = webpack(config);
 
-	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
+	const wdmMiddleware = wdm(compiler, options.logLevel);
+	const whm = webpackHotMiddleware(compiler, options.logLevel);
 
-	const liveEventsServer = makeLiveEventsRouter();
+	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
@@ -96,10 +98,15 @@ export const startServer = async (options: {
 					numberOfAudioTags: options.numberOfAudioTags,
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
+					binariesDirectory: options.binariesDirectory,
 				});
 			})
 			.catch((err) => {
-				RenderInternals.Log.error(`Error while calling ${request.url}`, err);
+				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
+					`Error while calling ${request.url}`,
+					err,
+				);
 				if (!response.headersSent) {
 					response.setHeader('content-type', 'application/json');
 					response.writeHead(500);
@@ -122,7 +129,7 @@ export const startServer = async (options: {
 
 	const maxTries = 5;
 
-	const portConfig = RenderInternals.getPortConfig();
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
@@ -134,6 +141,10 @@ export const startServer = async (options: {
 					hostsToTry: portConfig.hostsToTry,
 				})
 					.then(({port, unlockPort}) => {
+						RenderInternals.Log.verbose(
+							{indent: false, logLevel: options.logLevel},
+							`Binding server to host ${portConfig.host}, port ${port}`,
+						);
 						server.listen({
 							port,
 							host: portConfig.host,
@@ -158,6 +169,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				RenderInternals.Log.error(
+					{indent: false, logLevel: options.logLevel},
 					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {

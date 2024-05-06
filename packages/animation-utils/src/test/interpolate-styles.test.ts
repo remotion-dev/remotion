@@ -1,6 +1,7 @@
 import {Easing} from 'remotion';
 import {expect, test} from 'vitest';
 import {interpolateStyles} from '../transformation-helpers/interpolate-styles';
+import {translate} from '../transformation-helpers/make-transform';
 
 test('If property is omitted, leave it in from previous keyframe', () => {
 	expect(
@@ -67,7 +68,7 @@ test('Throw error on incompatible shorthands', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/The start and end values must have the same structure. Start value: 20px 40px, end value: 80px/,
 	);
 });
@@ -86,7 +87,7 @@ test('Should throw an error on non-animatable properties', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/Non-animatable values cannot be interpolated. Start value: center, end value: left/,
 	);
 });
@@ -244,7 +245,7 @@ test('Should handle `border`', () => {
 				},
 			],
 		),
-	).throws(
+	).toThrow(
 		/Non-animatable values cannot be interpolated. Start value: 1px solid black, end value: 10px dotted red/,
 	);
 });
@@ -284,5 +285,43 @@ test('Should interpolate between negative values with units', () => {
 		),
 	).toEqual({
 		left: '-15px',
+	});
+});
+
+test('Should not ignore 0 values', () => {
+	expect(
+		interpolateStyles(
+			0.999,
+			[0, 1],
+			[
+				{
+					left: 1000,
+				},
+				{
+					left: 0,
+				},
+			],
+		),
+	).toEqual({
+		left: 1,
+	});
+});
+
+test('Should handle negative values in transforms well', () => {
+	expect(
+		interpolateStyles(
+			0.5,
+			[0, 1],
+			[
+				{
+					transform: translate(100, 100),
+				},
+				{
+					transform: translate(100, -100),
+				},
+			],
+		),
+	).toEqual({
+		transform: 'translate(100px, 0px)',
 	});
 });

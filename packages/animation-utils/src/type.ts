@@ -113,13 +113,13 @@ type UnitNumberAndFunctions = ReturnType<
 type UnitNumberAndFunction = UnitNumberAndFunctions[0];
 
 export type {
-	LengthUnit,
-	LengthPercentageUnit,
 	AngleUnit,
-	TransformFunctionReturnType,
-	ColorMatchers,
-	Style,
 	CSSPropertiesKey,
 	CSSPropertiesValue,
+	ColorMatchers,
+	LengthPercentageUnit,
+	LengthUnit,
+	Style,
+	TransformFunctionReturnType,
 	UnitNumberAndFunction,
 };

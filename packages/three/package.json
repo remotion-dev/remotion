@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/three",
-	"version": "4.0.104",
+	"version": "4.0.150",
 	"description": "Utility functions for using react-three-fiber with remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "rollup --failAfterWarnings --config rollup.config.js && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Björn Zeutzheim",
 	"contributors": [],
@@ -32,21 +31,19 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
+		"@jonny/eslint-config": "3.0.281",
 		"@react-three/fiber": "8.13.5",
-		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "0.157.2",
 		"@types/web": "0.0.78",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"remotion": "workspace:*",
-		"react-dom": "18.2.0",
-		"rollup": "^2.70.1",
 		"three": "0.158.0"
 	},
 	"keywords": [

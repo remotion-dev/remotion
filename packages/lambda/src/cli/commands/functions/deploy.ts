@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {deployFunction} from '../../../api/deploy-function';
+import {internalDeployFunction} from '../../../api/deploy-function';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -16,7 +17,7 @@ import {getAwsRegion} from '../../get-aws-region';
 
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const functionsDeploySubcommand = async () => {
+export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
@@ -27,6 +28,7 @@ export const functionsDeploySubcommand = async () => {
 		parsedLambdaCli['enable-lambda-insights'] ?? false;
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
+	const enableV5Runtime = parsedLambdaCli['enable-v5-runtime'] ?? undefined;
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
@@ -34,6 +36,7 @@ export const functionsDeploySubcommand = async () => {
 	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info(
+			{indent: false, logLevel},
 			CliInternals.chalk.gray(
 				`
 Region = ${region}
@@ -57,7 +60,7 @@ Lambda Insights Enabled = ${enableLambdaInsights}
 		indent: false,
 	});
 	output.update('Deploying Lambda...', false);
-	const {functionName, alreadyExisted} = await deployFunction({
+	const {functionName, alreadyExisted} = await internalDeployFunction({
 		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,
@@ -66,9 +69,12 @@ Lambda Insights Enabled = ${enableLambdaInsights}
 		diskSizeInMb,
 		customRoleArn,
 		enableLambdaInsights,
+		enableV5Runtime,
+		indent: false,
+		logLevel,
 	});
 	if (CliInternals.quietFlagProvided()) {
-		CliInternals.Log.info(functionName);
+		CliInternals.Log.info({indent: false, logLevel}, functionName);
 	}
 
 	if (alreadyExisted) {

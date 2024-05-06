@@ -131,23 +131,15 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+<Options id="audio-codec" />
 
 ### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated audio.  
-The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
-Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
-Default: `320k`
+<Options id="audio-bitrate" />
 
 ### `--video-bitrate`<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
-This option cannot be set if `--crf` is set.
-Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+<Options id="video-bitrate" />
 
 ### `--prores-profile`
 
@@ -155,7 +147,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--x264-preset`
 
-[Set the x264 preset](/docs/config#setx264Preset). This option is only valid if the [`codec`](#--codec) has been set to `h264`. Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo` Default: `medium`
+<Options id="x264-preset" />
 
 ### `--crf`
 
@@ -262,3 +254,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 
 <Options cli id="color-space" />
+
+### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
+
+<Options cli id="prefer-lossless" />

@@ -39,7 +39,7 @@ type ThumbnailProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <
+const ThumbnailFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >(
@@ -114,6 +114,7 @@ export const ThumbnailFn = <
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI
+						ref={rootRef}
 						className={className}
 						errorFallback={errorFallback}
 						inputProps={passedInputProps}

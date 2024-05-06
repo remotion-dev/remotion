@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
-import {label, optionRow, rightRow} from './layout';
 import {MultiRangeSlider} from './MultiRangeSlider';
+import {label, optionRow, rightRow} from './layout';
 
 const numberWrapper: React.CSSProperties = {
 	minWidth: '39px',

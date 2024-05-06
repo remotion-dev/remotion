@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateOutnameGui} from '../components/RenderModal/out-name-checker';
 
 test('Should catch dot after slash', () => {
@@ -9,6 +9,7 @@ test('Should catch dot after slash', () => {
 			audioCodec: 'aac',
 			renderMode: 'video',
 			stillImageFormat: 'png',
+			separateAudioTo: null,
 		}).valid,
 	).toBe(false);
 });
@@ -21,6 +22,7 @@ test('Should catch dot in front ', () => {
 			audioCodec: 'aac',
 			renderMode: 'video',
 			stillImageFormat: 'png',
+			separateAudioTo: null,
 		}).valid,
 	).toBe(false);
 });

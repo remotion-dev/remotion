@@ -182,8 +182,8 @@ _optional_
 It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
-- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
-- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination)
+- A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
+- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination).
 
 ### `timeoutInMilliseconds?`
 
@@ -245,7 +245,9 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 _optional_
 
-One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+<Options id="log"/>
+
+Logs can be read through the CloudWatch URL that this function returns.
 
 ### ~~`dumpBrowserLogs?`~~
 
@@ -264,6 +266,10 @@ The S3 bucket in which the video was saved.
 ### `url`
 
 An AWS S3 URL where the output is available.
+
+### `outKey`<AvailableFrom v="4.0.141" />
+
+The S3 key where the output is saved.
 
 ### `estimatedPrice`
 

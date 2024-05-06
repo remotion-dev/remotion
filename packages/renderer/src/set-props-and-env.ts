@@ -62,6 +62,10 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_initialFrame = key;
 	}, initialFrame);
 
+	await page.evaluateOnNewDocument(() => {
+		window.remotion_attempt = 1;
+	});
+
 	await page.evaluateOnNewDocument((port: number) => {
 		window.remotion_proxyPort = port;
 	}, proxyPort);
@@ -208,7 +212,7 @@ const innerSetPropsAndEnv = async ({
 		timeoutInMilliseconds: actualTimeout,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '10';
+	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
@@ -252,7 +256,7 @@ const innerSetPropsAndEnv = async ({
 };
 
 export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
-	let timeout: NodeJS.Timeout | null = null;
+	let timeout: Timer | null = null;
 
 	try {
 		const result = await Promise.race([

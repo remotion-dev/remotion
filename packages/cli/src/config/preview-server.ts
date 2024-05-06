@@ -1,4 +1,4 @@
-import {parsedCli} from '../parse-command-line';
+import {parsedCli} from '../parsed-cli';
 
 let studioPort: number | undefined;
 let rendererPort: number | undefined;

@@ -63,9 +63,9 @@ export const serializeJSONWithDate = ({
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
 };
 
-export const deserializeJSONWithCustomFields = (
+export const deserializeJSONWithCustomFields = <T = Record<string, unknown>>(
 	data: string,
-): Record<string, unknown> => {
+): T => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
 			return new Date(value.replace(DATE_TOKEN, ''));

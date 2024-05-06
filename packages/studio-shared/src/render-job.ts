@@ -17,14 +17,11 @@ type BaseRenderProgress = {
 	value: number;
 };
 
-export type RenderStep = 'bundling' | 'rendering' | 'stitching';
-
 export type RenderingProgressInput = {
 	frames: number;
 	totalFrames: number;
-	steps: RenderStep[];
-	concurrency: number;
 	doneIn: number | null;
+	timeRemainingInMilliseconds: number | null;
 };
 
 export type StitchingProgressInput = {
@@ -129,6 +126,8 @@ type RenderJobDynamicFields =
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
 			colorSpace: ColorSpace;
+			forSeamlessAacConcatenation: boolean;
+			separateAudioTo: string | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';
@@ -151,6 +150,7 @@ export type RenderJob = {
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	repro: boolean;
+	binariesDirectory: string | null;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

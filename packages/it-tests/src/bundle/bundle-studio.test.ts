@@ -1,16 +1,18 @@
 import path from "path";
-import execa from "execa";
 import { expect, test } from "vitest";
 import { RenderInternals, openBrowser } from "@remotion/renderer";
+import { existsSync } from "fs";
 
 test("Bundle studio", async () => {
-  await execa("pnpm", ["exec", "remotion", "bundle"], {
-    cwd: path.join(process.cwd(), "..", "example"),
-  });
-
   const browser = openBrowser("chrome");
 
   const tab = await (await browser).newPage(() => null, "info", false);
+  const folder = path.join(process.cwd(), "..", "example", "build");
+  const indexHtmlExists = existsSync(path.join(folder, "index.html"));
+  if (!indexHtmlExists) {
+    throw new Error("index.html does not exist in the build folder");
+  }
+
   const { port, close } = await RenderInternals.serveStatic(
     path.join(process.cwd(), "..", "example", "build"),
     {
@@ -21,6 +23,8 @@ test("Bundle studio", async () => {
       logLevel: "info",
       offthreadVideoCacheSizeInBytes: null,
       remotionRoot: path.join(process.cwd(), "..", "example"),
+      binariesDirectory: null,
+      forceIPv4: false,
     }
   );
   await tab.goto({

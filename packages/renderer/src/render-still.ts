@@ -9,8 +9,9 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
-import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
+import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
@@ -23,8 +24,6 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -60,14 +59,12 @@ type InternalRenderStillOptions = {
 	overwrite: boolean;
 	browserExecutable: BrowserExecutable;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
 	onDownload: RenderMediaOnDownload | null;
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -80,7 +77,6 @@ export type RenderStillOptions = {
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
@@ -90,7 +86,6 @@ export type RenderStillOptions = {
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
@@ -104,8 +99,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	offthreadVideoCacheSizeInBytes?: number | null;
-};
+} & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -135,6 +129,7 @@ const innerRenderStill = async ({
 	logLevel,
 	indent,
 	serializedResolvedPropsWithCustomSchema,
+	onBrowserDownload,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -211,6 +206,7 @@ const innerRenderStill = async ({
 			indent,
 			viewport: null,
 			logLevel,
+			onBrowserDownload,
 		}));
 	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
 	await page.setViewport({
@@ -316,6 +312,7 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 		indent,
 		logLevel,
+		attempt: 0,
 	});
 
 	const {buffer} = await takeFrameAndCompose({
@@ -356,6 +353,8 @@ const internalRenderStillRaw = (
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+				binariesDirectory: options.binariesDirectory,
+				forceIPv4: false,
 			},
 			{
 				onDownload: options.onDownload,
@@ -409,9 +408,10 @@ export const internalRenderStill = wrapWithErrorHandling(
 );
 
 /**
- *
- * @description Render a still frame from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
+ * @description Renders a single frame to an image and writes it to the specified output location.
+ * @see [Documentation](https://remotion.dev/docs/renderer/render-still)
+ * @param {RenderStillOptions} options Configuration options for rendering the still image
+ * @returns {Promise<RenderStillReturnValue>} A promise that resolves to an object with a buffer key containing the image data if no output path is defined, otherwise null.
  */
 export const renderStill = (
 	options: RenderStillOptions,
@@ -439,6 +439,9 @@ export const renderStill = (
 		verbose,
 		quality,
 		offthreadVideoCacheSizeInBytes,
+		logLevel: passedLogLevel,
+		binariesDirectory,
+		onBrowserDownload,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -453,6 +456,10 @@ export const renderStill = (
 		);
 	}
 
+	const logLevel =
+		passedLogLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info');
+	const indent = false;
+
 	return internalRenderStill({
 		composition,
 		browserExecutable: browserExecutable ?? null,
@@ -461,7 +468,7 @@ export const renderStill = (
 		envVariables: envVariables ?? {},
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
-		indent: false,
+		indent,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				staticBase: null,
@@ -479,7 +486,7 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		logLevel,
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,
@@ -487,5 +494,9 @@ export const renderStill = (
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		binariesDirectory: binariesDirectory ?? null,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderStill()'}),
 	});
 };

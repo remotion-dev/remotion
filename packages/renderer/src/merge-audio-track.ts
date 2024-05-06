@@ -7,7 +7,9 @@ import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
+import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
@@ -15,29 +17,40 @@ import {truthy} from './truthy';
 type Options = {
 	files: PreprocessedAudioTrack[];
 	outName: string;
-	numberOfSeconds: number;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
 	indent: boolean;
 	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+	onProgress: (progress: number) => void;
+	fps: number;
+	chunkLengthInSeconds: number;
 };
 
 const mergeAudioTrackUnlimited = async ({
 	outName,
 	files,
-	numberOfSeconds,
 	downloadMap,
 	remotionRoot,
 	indent,
 	logLevel,
+	binariesDirectory,
+	cancelSignal,
+	onProgress,
+	fps,
+	chunkLengthInSeconds,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
-			numberOfSeconds,
+			chunkLengthInSeconds,
 			indent,
 			logLevel,
+			binariesDirectory,
+			cancelSignal,
 		});
+		onProgress(1);
 		return;
 	}
 
@@ -49,17 +62,35 @@ const mergeAudioTrackUnlimited = async ({
 		const tempPath = tmpDir('remotion-large-audio-mixing');
 
 		try {
+			const partialProgress = new Array(chunked.length).fill(0);
+			let finalProgress = 0;
+
+			const callProgress = () => {
+				const totalProgress =
+					partialProgress.reduce((a, b) => a + b, 0) / chunked.length;
+
+				const combinedProgress = totalProgress * 0.8 + finalProgress * 0.2;
+				onProgress(combinedProgress);
+			};
+
 			const chunkNames = await Promise.all(
 				chunked.map(async (chunkFiles, i) => {
 					const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
 					await mergeAudioTrack({
 						files: chunkFiles,
-						numberOfSeconds,
+						chunkLengthInSeconds,
 						outName: chunkOutname,
 						downloadMap,
 						remotionRoot,
 						indent,
 						logLevel,
+						binariesDirectory,
+						cancelSignal,
+						onProgress: (progress) => {
+							partialProgress[i] = progress;
+							callProgress();
+						},
+						fps,
 					});
 					return chunkOutname;
 				}),
@@ -73,12 +104,19 @@ const mergeAudioTrackUnlimited = async ({
 					},
 					outName: c,
 				})),
-				numberOfSeconds,
 				outName,
 				downloadMap,
 				remotionRoot,
 				indent,
 				logLevel,
+				binariesDirectory,
+				cancelSignal,
+				onProgress: (progress) => {
+					finalProgress = progress;
+					callProgress();
+				},
+				fps,
+				chunkLengthInSeconds,
 			});
 			return;
 		} finally {
@@ -93,6 +131,7 @@ const mergeAudioTrackUnlimited = async ({
 		});
 
 	const args = [
+		['-hide_banner'],
 		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
 		['-c:a', 'pcm_s16le'],
@@ -101,8 +140,27 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = callFf({bin: 'ffmpeg', args, indent, logLevel});
+
+	const task = callFf({
+		bin: 'ffmpeg',
+		args,
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
+
+	task.stderr?.on('data', (data: Buffer) => {
+		const utf8 = data.toString('utf8');
+		const parsed = parseFfmpegProgress(utf8, fps);
+		if (parsed !== undefined) {
+			onProgress(parsed / (chunkLengthInSeconds * fps));
+		}
+	});
+
 	await task;
+
+	onProgress(1);
 	cleanup();
 };
 

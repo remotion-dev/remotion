@@ -1,15 +1,12 @@
 import type {
 	AudioCodec,
 	ChromiumOptions,
-	ColorSpace,
-	Crf,
 	FrameRange,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	ToOptions,
 	VideoImageFormat,
-	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
@@ -46,29 +43,19 @@ type InternalRenderMediaOnCloudrun = {
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
-	audioBitrate: string | null;
-	videoBitrate: string | null;
-	encodingMaxRate: string | null;
-	encodingBufferSize: string | null;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
-	crf: Crf | null;
 	pixelFormat: PixelFormat | undefined;
 	imageFormat: VideoImageFormat | undefined;
-	scale: number | undefined;
 	everyNthFrame: number | undefined;
 	frameRange: FrameRange | undefined;
 	envVariables: Record<string, string> | undefined;
 	chromiumOptions: ChromiumOptions | undefined;
-	muted: boolean | undefined;
 	forceWidth: number | null;
 	forceHeight?: number | null;
-	logLevel: LogLevel | undefined;
-	delayRenderTimeoutInMilliseconds: number | undefined;
 	concurrency: number | string | null;
-	enforceAudioTrack: boolean | undefined;
 	preferLossless: boolean | undefined;
-	colorSpace: ColorSpace | undefined;
+	indent: boolean;
+	logLevel: LogLevel;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -84,30 +71,19 @@ export type RenderMediaOnCloudrunInput = {
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
 	codec: CloudrunCodec;
 	audioCodec?: AudioCodec;
-	jpegQuality?: number;
-	audioBitrate?: string | null;
-	videoBitrate?: string | null;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
 	proResProfile?: ProResProfile;
-	x264Preset?: X264Preset;
-	crf?: number | undefined;
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
-	scale?: number;
 	everyNthFrame?: number;
 	frameRange?: FrameRange;
 	envVariables?: Record<string, string>;
 	chromiumOptions?: ChromiumOptions;
-	muted?: boolean;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-	logLevel?: LogLevel;
-	delayRenderTimeoutInMilliseconds?: number;
 	concurrency?: number | string | null;
-	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
-	colorSpace?: ColorSpace;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -205,7 +181,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
 	};
 
@@ -305,7 +281,7 @@ export const internalRenderMediaOnCloudrun = NoReactAPIs.wrapWithErrorHandling(
  * @param params.codec The media codec which should be used for encoding.
  * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
- * @param params.outputFile The name of the output file.
+ * @param params.outName The name of the output file.
  * @param params.updateRenderProgress A callback that is called with the progress of the render.
  * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.audioCodec The encoding of the audio of the output video.
@@ -396,7 +372,7 @@ export const renderMediaOnCloudrun = ({
 		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? undefined,
-		crf: crf ?? null,
+		crf: crf ?? undefined,
 		pixelFormat: pixelFormat ?? undefined,
 		imageFormat: imageFormat ?? undefined,
 		scale: scale ?? undefined,
@@ -408,7 +384,7 @@ export const renderMediaOnCloudrun = ({
 		muted: muted ?? undefined,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
-		logLevel: logLevel ?? undefined,
+		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? undefined,
 		concurrency: concurrency ?? null,
@@ -416,5 +392,6 @@ export const renderMediaOnCloudrun = ({
 		preferLossless: preferLossless ?? undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
 		colorSpace: colorSpace ?? undefined,
+		indent: false,
 	});
 };

@@ -1,13 +1,18 @@
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
-import {MAX_MENU_WIDTH, MENU_VERTICAL_PADDING} from '../Menu/styles';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {
+	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
+	MENU_VERTICAL_PADDING,
+} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
@@ -44,6 +49,7 @@ export const MenuContent: React.FC<{
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
+	const isMobileLayout = useMobileLayout();
 
 	const [subMenuActivated, setSubMenuActivated] =
 		useState<SubMenuActivated>(false);
@@ -158,15 +164,19 @@ export const MenuContent: React.FC<{
 	}, [onNextMenu, selectedItem, values]);
 
 	const containerWithHeight: React.CSSProperties = useMemo(() => {
+		const containerStyles = {...container};
 		if (fixedHeight === null) {
-			return {...container, maxHeight: 600};
+			containerStyles.maxHeight = 600;
+		} else {
+			containerStyles.maxHeight = fixedHeight;
 		}
 
-		return {
-			...container,
-			maxHeight: fixedHeight,
-		};
-	}, [fixedHeight]);
+		if (isMobileLayout) {
+			containerStyles.maxWidth = MAX_MOBILE_MENU_WIDTH;
+		}
+
+		return containerStyles;
+	}, [fixedHeight, isMobileLayout]);
 
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding({
@@ -265,7 +275,8 @@ export const MenuContent: React.FC<{
 
 		const item = values.find((i) => i.id === selectedItem);
 		if (!item) {
-			throw new Error('cannot find item');
+			// Can happen if resizing the window
+			return;
 		}
 
 		if (item.type === 'divider') {
@@ -307,8 +318,12 @@ export const MenuContent: React.FC<{
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
-					onHide();
 					item.onClick(id, e);
+					if (item.subMenu) {
+						return null;
+					}
+
+					onHide();
 				};
 
 				return (

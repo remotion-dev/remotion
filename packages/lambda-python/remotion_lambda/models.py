@@ -181,6 +181,7 @@ class RenderProgressParams:
     bucket_name: str
     function_name: str
     region: str
+    log_level: str
 
     def serialize_params(self) -> Dict:
         """
@@ -191,6 +192,7 @@ class RenderProgressParams:
             'bucketName': self.bucket_name,
             'type': 'status',
             "version": VERSION,
+            "logLevel": self.log_level,
             "s3OutputProvider": None,
         }
         return parameters
@@ -250,6 +252,7 @@ class RenderMediaParams:
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[str] = None
+    prefer_lossless: Optional[bool] = False
     composition: str = ""
     serve_url: str = ""
     frames_per_lambda: Optional[int] = None
@@ -262,7 +265,7 @@ class RenderMediaParams:
     max_retries: int = 1
     jpeg_quality: int = 80
     privacy: Privacy = Privacy.PUBLIC
-    color_space: str = 'default'
+    color_space: Optional[str] = None
     log_level: Optional[LogLevel] = LogLevel.INFO
     frame_range: Optional[str] = None
     timeout_in_milliseconds: Optional[int] = 30000
@@ -310,6 +313,7 @@ class RenderMediaParams:
             'logLevel': self.log_level,
             'frameRange': self.frame_range,
             'outName': self.out_name,
+            'preferLossless': self.prefer_lossless,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,
@@ -449,7 +453,7 @@ class RenderStillResponse:
     size_in_bytes: int
     bucket_name: str
     render_id: str
-    cloud_watch_logs: Optional[str] = None
+    outKey: str
 
 
 class RenderMediaProgress:

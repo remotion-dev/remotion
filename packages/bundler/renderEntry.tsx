@@ -15,12 +15,12 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
+	Internals,
+	VERSION,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
-	Internals,
-	VERSION,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -37,7 +37,7 @@ const getBundleMode = () => {
 };
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
 const getCanSerializeDefaultProps = (object: unknown) => {
@@ -208,15 +208,21 @@ const getRootForElement = () => {
 };
 
 const renderToDOM = (content: React.ReactElement) => {
-	// @ts-expect-error
-	if (ReactDOM.createRoot) {
-		getRootForElement().render(content);
-	} else {
+	if (!ReactDOM.createRoot) {
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(
+				'Remotion 5.0 does only support React 18+. However, ReactDOM.createRoot() is undefined.',
+			);
+		}
+
 		(ReactDOM as unknown as {render: typeof render}).render(
 			content,
 			videoContainer,
 		);
+		return;
 	}
+
+	getRootForElement().render(content);
 };
 
 const renderContent = (Root: React.FC) => {
@@ -254,9 +260,9 @@ const renderContent = (Root: React.FC) => {
 				<DelayedSpinner />
 			</div>,
 		);
-		import('@remotion/studio')
-			.then(({Studio}) => {
-				renderToDOM(<Studio readOnly rootComponent={Root} />);
+		import('@remotion/studio/internals')
+			.then(({StudioInternals}) => {
+				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
 			.catch((err) => {
 				renderToDOM(<div>Failed to load Remotion Studio: {err.message}</div>);
@@ -375,7 +381,11 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
-			throw new Error(`Could not find composition with ID ${compId}`);
+			throw new Error(
+				`Could not find composition with ID ${compId}. Available compositions: ${compositions
+					.map((c) => c.id)
+					.join(', ')}`,
+			);
 		}
 
 		const abortController = new AbortController();
@@ -416,7 +426,7 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '10';
+	window.siteVersion = '11';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

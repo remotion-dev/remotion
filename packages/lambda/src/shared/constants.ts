@@ -115,10 +115,12 @@ export const chunkKey = (renderId: string) =>
 export const chunkKeyForIndex = ({
 	renderId,
 	index,
+	type,
 }: {
 	renderId: string;
 	index: number;
-}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}`;
+	type: 'video' | 'audio';
+}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}:${type}`;
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
@@ -279,7 +281,8 @@ export type LambdaStartPayload = {
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
+	preferLossless: boolean;
 };
 
 export type LambdaStatusPayload = {
@@ -287,12 +290,14 @@ export type LambdaStatusPayload = {
 	bucketName: string;
 	renderId: string;
 	version: string;
+	logLevel: LogLevel;
 	s3OutputProvider?: CustomCredentials;
 };
 
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
+		logLevel: LogLevel;
 	};
 	start: LambdaStartPayload;
 	launch: {
@@ -336,7 +341,8 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
-		colorSpace: ColorSpace;
+		colorSpace: ColorSpace | null;
+		preferLossless: boolean;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -378,9 +384,12 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		preferLossless: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
-		colorSpace: ColorSpace;
+		colorSpace: ColorSpace | null;
+		compositionStart: number;
+		framesPerLambda: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -388,7 +397,7 @@ export type LambdaPayloads = {
 		composition: string;
 		inputProps: SerializedInputProps;
 		imageFormat: StillImageFormat;
-		envVariables: Record<string, string> | undefined;
+		envVariables: Record<string, string>;
 		attempt: number;
 		jpegQuality: number | undefined;
 		maxRetries: number;
@@ -427,6 +436,9 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		serializedResolvedProps: SerializedInputProps;
 		logLevel: LogLevel;
+		framesPerLambda: number;
+		preferLossless: boolean;
+		compositionStart: number;
 	};
 };
 
@@ -440,10 +452,15 @@ type Discriminated =
 	| {
 			type: 'still';
 			imageFormat: StillImageFormat;
+			codec: null;
 	  }
 	| {
 			type: 'video';
 			imageFormat: VideoImageFormat;
+			muted: boolean;
+			frameRange: [number, number];
+			everyNthFrame: number;
+			codec: LambdaCodec;
 	  };
 
 export type RenderMetadata = Discriminated & {
@@ -454,7 +471,6 @@ export type RenderMetadata = Discriminated & {
 	estimatedTotalLambdaInvokations: number;
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
-	codec: LambdaCodec | null;
 	audioCodec: AudioCodec | null;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
@@ -464,8 +480,6 @@ export type RenderMetadata = Discriminated & {
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
-	frameRange: [number, number];
-	everyNthFrame: number;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;
 	audioBitrate: string | null;
@@ -544,4 +558,3 @@ export type RenderProgress = {
 export type Privacy = 'public' | 'private' | 'no-acl';
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
-export const LAMBDA_BURST_LIMIT_QUOTA = 'L-548AE339';

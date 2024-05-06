@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {getTimelineSequenceLayout} from '../helpers/get-timeline-sequence-layout';
 
 test('Should test timeline sequence layout without max media duration', () => {
@@ -26,8 +26,9 @@ test('Should test timeline sequence layout without max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154,
-		width: 226,
+		marginLeft: 1154.2137986426505,
+		premountWidth: null,
+		width: 226.9893263573493,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -55,7 +56,8 @@ test('Should test timeline sequence layout with max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154,
-		width: 221,
+		marginLeft: 1154.2137986426505,
+		premountWidth: null,
+		width: 221.8531462892238,
 	});
 });

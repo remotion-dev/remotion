@@ -1,29 +1,21 @@
 import React from "react";
-import { NewsletterButton } from "./NewsletterButton";
+import { PricingBulletPoint } from "./PricingBulletPoint";
 import styles from "./pricing.module.css";
-import { PricingTable } from "./PricingTable";
 
 export const FreePricing: React.FC = () => {
   return (
-    <>
-      <div className={styles.pricingcontainer}>
-        <h2 className={styles.pricingtitle}>
-          <span className={styles.mp4}>Free</span> for individuals <br /> Funded
-          by companies
-        </h2>
-        <p>
-          Remotion is free for individuals - you can even build a business on
-          it! <br />
-          As a company, you need a license to use Remotion. <br /> With your
-          support, we constantly improve Remotion for everyone.
-        </p>
+    <div className={styles.pricingcontainer}>
+      <div className={styles.audience}>
+        For individuals and companies of up to 3 people
       </div>
-      <PricingTable />
-      <br />
-      <NewsletterButton />
-      <br />
-      <br />
-      <br />
-    </>
+      <h2 className={styles.pricingtitle}>Free License</h2>
+      <PricingBulletPoint text="Unlimited videos" checked />
+      <PricingBulletPoint text="Commercial use allowed" checked />
+      <PricingBulletPoint
+        text="Cloud rendering allowed (self-hosted)"
+        checked
+      />
+      <PricingBulletPoint text="Upgrade when your team grows" checked={false} />
+    </div>
   );
 };

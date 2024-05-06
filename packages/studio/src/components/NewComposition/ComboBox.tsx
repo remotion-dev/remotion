@@ -7,19 +7,21 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {Spacing} from '../layout';
-import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
+import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
-	fullScreenOverlay,
 	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
+	fullScreenOverlay,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
 	outerPortal,
 } from '../Menu/styles';
+import {Spacing} from '../layout';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
@@ -166,19 +168,24 @@ export const Combobox: React.FC<{
 		return spaceToTop > spaceToBottom ? spaceToTop : spaceToBottom;
 	}, [spaceToBottom, spaceToTop]);
 
+	const isMobileLayout = useMobileLayout();
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
 		}
 
-		const spaceToRight = size.windowSize.width - (size.left + size.width);
+		const spaceToRight = size.windowSize.width - size.left;
+		const spaceToLeft = size.left + size.width;
 
-		const minSpaceToRightRequired = MAX_MENU_WIDTH;
+		const minSpaceRequired = isMobileLayout
+			? MAX_MOBILE_MENU_WIDTH
+			: MAX_MENU_WIDTH;
 
 		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
-		const horizontalLayout =
-			spaceToRight >= minSpaceToRightRequired ? 'left' : 'right';
-
+		const canOpenOnLeft = spaceToLeft >= minSpaceRequired;
+		const canOpenOnRight = spaceToRight >= minSpaceRequired;
+		const horizontalLayout = canOpenOnRight ? 'left' : 'right';
 		return {
 			...(verticalLayout === 'top'
 				? {
@@ -193,11 +200,13 @@ export const Combobox: React.FC<{
 				? {
 						left: size.left,
 					}
-				: {
-						right: size.windowSize.width - size.left - size.width,
-					}),
+				: canOpenOnLeft
+					? {
+							right: size.windowSize.width - size.left - size.width,
+						}
+					: {left: 0}),
 		};
-	}, [opened, size, spaceToBottom, spaceToTop]);
+	}, [isMobileLayout, opened, size, spaceToBottom, spaceToTop]);
 
 	const selected = values.find((v) => v.id === selectedId) as
 		| SelectionItem
@@ -219,7 +228,6 @@ export const Combobox: React.FC<{
 					: INPUT_BORDER_COLOR_UNHOVERED,
 		};
 	}, [customStyle, hovered, opened]);
-
 	return (
 		<>
 			<button

@@ -4,6 +4,6 @@ export const doesReactSupportTransformOriginProperty = (version: string) => {
 		return last8Chars > 20230209;
 	}
 
-	const [major, minor] = version.split('.').map(Number);
-	return major > 18 || (major === 18 && minor >= 3);
+	const [major] = version.split('.').map(Number);
+	return major > 18;
 };

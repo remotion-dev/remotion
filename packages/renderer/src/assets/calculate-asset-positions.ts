@@ -50,6 +50,7 @@ export const calculateAssetPositions = (frames: TRenderAsset[][]): Assets => {
 					playbackRate: asset.playbackRate,
 					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 					toneFrequency: asset.toneFrequency,
+					audioStartFrame: asset.audioStartFrame,
 				});
 			}
 

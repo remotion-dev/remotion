@@ -108,6 +108,10 @@ _optional_
 
 A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
 
+:::note
+This option is not supported on mobile. You do not double-tap on mobile to go to fullscreen.
+:::
+
 ### `spaceKeyToPlayOrPause`
 
 _optional_
@@ -220,30 +224,45 @@ A player needs to be loaded if it contains elements that use React Suspense, or 
 
 _optional_
 
-A callback function that allows you to return a custom UI that gets overlayed over the player.
+A callback function that allows you to return a custom UI that gets overlayed over the Player.
 
-You can control when the poster gets rendered using the props [`showPosterWhenUnplayed`](#showposterwhenunplayed), [`showPosterWhenPaused`](#showposterwhenpaused) and [`showPosterWhenEnded`](#showposterwhenended). By default, they are all disabled.
+You can control when the poster gets rendered using the props [`showPosterWhenUnplayed`](#showposterwhenunplayed), [`showPosterWhenPaused`](#showposterwhenpaused), [`showPosterWhenEnded`](#showposterwhenended) and [`showPosterWhenBuffering`](#showposterwhenbuffering). By default, they are all disabled.
 
-The first parameter contains the `height` and `width` of the player as it gets rendered.
+The first parameter contains the `height` and `width` of the Player as it gets rendered.
 
 ```tsx twoslash
-import { Player, RenderPoster } from "@remotion/player";
 import { useCallback } from "react";
 import { AbsoluteFill } from "remotion";
 
 const Component: React.FC = () => null;
+const Spinner: React.FC = () => null;
 
 // ---cut---
 
+import type { RenderPoster } from "@remotion/player";
+import { Player } from "@remotion/player";
+
 const MyApp: React.FC = () => {
-  // `RenderPoster` type can be imported from "@remotion/player"
-  const renderPoster: RenderPoster = useCallback(({ height, width }) => {
-    return (
-      <AbsoluteFill style={{ backgroundColor: "gray" }}>
-        Click to play! ({height}x{width})
-      </AbsoluteFill>
-    );
-  }, []);
+  const renderPoster: RenderPoster = useCallback(
+    ({ height, width, isBuffering }) => {
+      if (isBuffering) {
+        return (
+          <AbsoluteFill
+            style={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <Spinner />
+          </AbsoluteFill>
+        );
+      }
+
+      return (
+        <AbsoluteFill style={{ backgroundColor: "gray" }}>
+          Click to play! ({height}x{width})
+        </AbsoluteFill>
+      );
+    },
+    [],
+  );
 
   return (
     <Player
@@ -277,6 +296,12 @@ _optional_
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
+### `showPosterWhenBuffering`<AvailableFrom v="4.0.111" />
+
+_optional_
+
+Render a poster when the `<Player>` is in the [buffering state](/docs/player/buffer-state). You may for example show a spinner in the center of the video.
+
 ### `inFrame`<AvailableFrom v="3.2.15" />
 
 _optional_
@@ -305,11 +330,13 @@ If true, the player is muted in its initial state. This is useful if the video m
 
 _optional_
 
-Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
+Allows you to customize the Play/Pause button of the controls.  
+Must be a callback function that returns a valid React element.
 
 ```tsx twoslash
 const MyPlayButton: React.FC = () => null;
 const MyPauseButton: React.FC = () => null;
+const MySpinner: React.FC = () => null;
 const MyVideo: React.FC = () => null;
 // ---cut---
 import { Player, RenderPlayPauseButton } from "@remotion/player";
@@ -317,7 +344,12 @@ import { useCallback } from "react";
 
 export const App: React.FC = () => {
   const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({ playing }) => {
+    ({ playing, isBuffering }) => {
+      // Since v4.0.111, isBuffering is available
+      if (playing && isBuffering) {
+        return <MySpinner />;
+      }
+
       if (playing) {
         return <MyPlayButton />;
       }
@@ -339,6 +371,10 @@ export const App: React.FC = () => {
   );
 };
 ```
+
+Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#state-management) about the playback states a Player can be in.
+
+Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
 
 ### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
 
@@ -383,7 +419,15 @@ export const App: React.FC = () => {
 
 _optional_
 
-If true, displays the player controls at all times even if the mouse is outside the player area. Default `false`.
+If true, displays the player controls at all times even if the mouse is outside the player area. This settings override the default behavior, which automatically hides the controls after a period of mouse inactivity over the player area. Default `false`.
+
+### `hideControlsWhenPointerDoesntMove`<AvailableFrom v="4.0.124" />
+
+_optional_
+
+Hides the player controls after 3 seconds of mouse inactivity while the mouse is over the player. By default, this behavior is enabled (`true`). The [`alwaysShowControls`](#alwaysshowcontrols) prop is respected, meaning, if it is set to `true`, then the controls will never hide.
+
+You may also pass in a number to customize the hide delay in milliseconds, by default `3000`.
 
 ### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
 
@@ -401,6 +445,18 @@ Either `player-size` (default) or `composition-size`:
 
 - `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
 - `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
+
+### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
+
+After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
+This prevents jank when the Player is only in a buffering state for a short time. Default `300`.
+
+Note:
+
+- [`renderPoster()`](#renderposter) and [`renderPlayPauseButton()`](#renderplaypausebutton) will only report `isBuffering` as `true` **after** this delay has passed.
+- The [`waiting`](/docs/player/player#waiting) and [`resume`](/docs/player/player#resume) events will **fire immediately** when the Player enters and exits the buffer state.
+
+This allows you to flexibly implement custom UI for the buffer state.
 
 ## `PlayerRef`
 
@@ -792,6 +848,18 @@ ref.current?.addEventListener("error", (e) => {
   console.log("error ", e.detail.error); // error [Error: undefined is not a function]
 });
 ```
+
+### `waiting`<AvailableFrom v="4.0.111" />
+
+Fires when the Player has entered into the [native buffering state](/docs/player/buffer-state).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
+
+### `resume`<AvailableFrom v="4.0.111" />
+
+Fires when the Player has exited the [native buffering state](/docs/player/buffer-state).
+
+Read here [how to best implement state management](/docs/player/buffer-state#state-management).
 
 ## Handling errors
 

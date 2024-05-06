@@ -1,17 +1,16 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.104",
+	"version": "4.0.150",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "vitest --run",
+		"test": "vitest src --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
-		"watch": "tsc -w",
-		"build": "tsc -d && rollup --config rollup.config.js"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -28,20 +27,19 @@
 		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.276",
-		"eslint": "8.42.0",
-		"prettier": "3.1.1",
+		"@jonny/eslint-config": "3.0.281",
+		"eslint": "8.56.0",
+		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"remotion": "workspace:*",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
+		"@types/bun": "^1.0.12",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0",
-		"rollup": "^2.70.1",
-		"@rollup/plugin-typescript": "^8.2.0"
+		"@vitejs/plugin-react": "^2.0.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

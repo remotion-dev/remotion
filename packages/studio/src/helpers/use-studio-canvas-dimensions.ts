@@ -1,7 +1,7 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import {useContext, useMemo} from 'react';
-import {PreviewSizeContext} from '../state/preview-size';
+import {Internals} from 'remotion';
 import type {AssetMetadata} from './get-asset-metadata';
 import type {Dimensions} from './is-current-selected-still';
 
@@ -14,7 +14,7 @@ export const useStudioCanvasDimensions = ({
 	contentDimensions: Dimensions | 'none' | null;
 	assetMetadata: AssetMetadata | null;
 }) => {
-	const {size: previewSize} = useContext(PreviewSizeContext);
+	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
 	const {centerX, centerY, scale} = useMemo(() => {
 		if (
@@ -45,7 +45,7 @@ export const useStudioCanvasDimensions = ({
 		assetMetadata,
 	]);
 
-	const canvasDimensions = useMemo(() => {
+	const canvasPosition = useMemo(() => {
 		return {
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
@@ -69,7 +69,7 @@ export const useStudioCanvasDimensions = ({
 	]);
 
 	return {
-		canvasDimensions,
+		canvasPosition,
 		scale,
 	};
 };

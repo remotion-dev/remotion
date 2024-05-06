@@ -2,11 +2,11 @@
   "name": "@remotion/astro-example",
   "private": true,
   "type": "module",
-  "version": "4.0.104",
+  "version": "4.0.150",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "node test.mjs && node test.cjs && node -r esm-wallaby test.js && node build.mjs",
+    "test": "node test.mjs && node test.cjs && node build.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -19,10 +19,10 @@
     "@remotion/skia": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/transitions": "workspace:*",
-    "@types/react": "18.2.48",
-    "@types/react-dom": "18.2.18",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
+    "lottie-web": "5.12.2",
     "astro": "^2.0.14",
-    "esm-wallaby": "^3.2.26",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "remotion": "workspace:*"

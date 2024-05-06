@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {scalePath} from '../scale-path';
 
 test('scalePath() should work', () => {

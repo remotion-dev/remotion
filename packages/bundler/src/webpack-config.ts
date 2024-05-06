@@ -9,12 +9,13 @@ import esbuild = require('esbuild');
 
 import {NoReactInternals} from 'remotion/no-react';
 import type {Configuration} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration,
-) => WebpackConfiguration;
+) => WebpackConfiguration | Promise<WebpackConfiguration>;
 
 if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -27,7 +28,9 @@ if (reactDomVersion === '0') {
 	);
 }
 
-const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? true
+	: parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
@@ -41,7 +44,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-export const webpackConfig = ({
+export const webpackConfig = async ({
 	entry,
 	userDefinedComponent,
 	outDir,
@@ -52,6 +55,7 @@ export const webpackConfig = ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
+	bufferStateDelayInMilliseconds,
 	poll,
 }: {
 	entry: string;
@@ -61,11 +65,12 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number;
+	maxTimelineTracks: number | null;
 	keyboardShortcutsEnabled: boolean;
+	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-}): [string, WebpackConfiguration] => {
+}): Promise<[string, WebpackConfiguration]> => {
 	let lastProgress = 0;
 
 	const isBun = typeof Bun !== 'undefined';
@@ -73,9 +78,11 @@ export const webpackConfig = ({
 	const define = new webpack.DefinePlugin({
 		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
+		'process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS':
+			bufferStateDelayInMilliseconds,
 	});
 
-	const conf: WebpackConfiguration = webpackOverride({
+	const conf: WebpackConfiguration = await webpackOverride({
 		optimization: {
 			minimize: false,
 		},
@@ -113,6 +120,7 @@ export const webpackConfig = ({
 			environment === 'development'
 				? [
 						new ReactFreshWebpackPlugin(),
+						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						define,
 						new AllowOptionalDependenciesPlugin(),
@@ -120,7 +128,7 @@ export const webpackConfig = ({
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								if (p === 1 || p - lastProgress > 0.05) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
 									lastProgress = p;
 									onProgress(Number((p * 100).toFixed(2)));
 								}

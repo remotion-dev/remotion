@@ -60,6 +60,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
+			renderTypeOfLastRender: 'still',
 		};
 	}
 
@@ -107,6 +109,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
+			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
+			renderTypeOfLastRender: 'sequence',
 		};
 	}
 
@@ -155,6 +159,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialUserAgent: job.chromiumOptions.userAgent,
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
+			initialForSeamlessAacConcatenation: job.forSeamlessAacConcatenation,
+			renderTypeOfLastRender: 'video',
 		};
 	}
 

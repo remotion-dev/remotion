@@ -111,6 +111,42 @@ Pass it on to [`.play()`](/docs/player/player#play) and [`.toggle()`](/docs/play
 
 [Read here for more details.](/docs/player/autoplay#pass-the-event-to-the-play-or-toggle-method)
 
+## Memoize the `inputProps`
+
+Not memoizing the `inputProps` can cause the whole tree to re-render too many times and create a bottleneck.
+
+```tsx twoslash title="Player.tsx"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player } from "@remotion/player";
+import { useState, useMemo } from "react";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  const [text, setText] = useState("world");
+  const inputProps = useMemo(() => {
+    return {
+      text,
+    };
+  }, [text]);
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      inputProps={inputProps}
+    />
+  );
+};
+```
+
 ## See also
 
 - [Handling autoplay in the Player](/docs/player/autoplay)

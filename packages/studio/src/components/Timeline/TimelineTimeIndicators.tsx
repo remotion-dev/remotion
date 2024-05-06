@@ -13,9 +13,9 @@ import {
 import {renderFrame} from '../../state/render-frame';
 import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 

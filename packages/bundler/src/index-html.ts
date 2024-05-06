@@ -1,10 +1,9 @@
-import type {GitSource, RenderDefaults} from '@remotion/studio';
-import path from 'node:path';
+import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import type {StaticFile} from 'remotion';
 import {Internals} from 'remotion';
 
 export const indexHtml = ({
-	baseDir,
+	publicPath,
 	editorName,
 	inputProps,
 	envVariables,
@@ -19,9 +18,10 @@ export const indexHtml = ({
 	renderDefaults,
 	publicFolderExists,
 	gitSource,
+	projectName,
 }: {
 	staticHash: string;
-	baseDir: string;
+	publicPath: string;
 	editorName: string | null;
 	inputProps: object | null;
 	envVariables?: Record<string, string>;
@@ -35,6 +35,7 @@ export const indexHtml = ({
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
+	projectName: string;
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -46,7 +47,7 @@ export const indexHtml = ({
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 		${
 			includeFavicon
-				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="/remotion.png" />`
+				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`
 				: ''
 		}
 		<title>${title}</title>
@@ -59,9 +60,8 @@ export const indexHtml = ({
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
 				: '<script>window.remotion_editorName = null;</script>'
 		}
-		<script>window.remotion_projectName = ${JSON.stringify(
-			path.basename(remotionRoot),
-		)};</script>
+		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
+		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
 			renderDefaults,
 		)};</script>
@@ -112,7 +112,7 @@ export const indexHtml = ({
 		<div id="menuportal-5"></div>
 		<div id="remotion-error-overlay"></div>
 		<div id="server-disconnected-overlay"></div>
-		<script src="${baseDir}bundle.js"></script>
+		<script src="${publicPath}bundle.js"></script>
 	</body>
 </html>
 `.trim();

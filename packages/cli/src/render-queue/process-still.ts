@@ -1,8 +1,12 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
+import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
+
+const {publicDirOption} = BrowserSafeApis.options;
 
 export const processStill = async ({
 	job,
@@ -21,12 +25,14 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {publicDir, browserExecutable, puppeteerTimeout} = getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
+	const {browserExecutable} = getCliOptions({
+		isStill: true,
 		logLevel: job.logLevel,
 	});
+
+	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
@@ -44,7 +50,7 @@ export const processStill = async ({
 		overwrite: true,
 		port: getRendererPortFromConfigFile(),
 		publicDir,
-		puppeteerTimeout,
+		puppeteerTimeout: job.delayRenderTimeout,
 		jpegQuality: job.jpegQuality,
 		remainingArgs: [],
 		scale: job.scale,
@@ -59,5 +65,7 @@ export const processStill = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: job.binariesDirectory,
+		publicPath: null,
 	});
 };

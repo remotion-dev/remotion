@@ -8,7 +8,7 @@ const output = `const completionSpec: Fig.Spec = ${stringified}; export default 
 
 writeFileSync("src/generatedCompletionSpec.ts", output);
 
-execSync("pnpm exec prettier --write src/generatedCompletionSpec.ts");
-execSync("pnpm exec eslint --fix src/generatedCompletionSpec.ts", {
+execSync("bun x prettier --write src/generatedCompletionSpec.ts");
+execSync("bun x eslint --fix src/generatedCompletionSpec.ts", {
   stdio: "inherit",
 });

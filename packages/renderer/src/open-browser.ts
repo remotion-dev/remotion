@@ -1,16 +1,16 @@
 import type {Browser} from './browser';
 import type {HeadlessBrowser} from './browser/Browser';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
-import {
-	ensureLocalBrowser,
-	getLocalBrowserExecutable,
-} from './get-local-browser-executable';
+import {internalEnsureBrowser} from './ensure-browser';
+import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
+import type {OnBrowserDownload} from './options/on-browser-download';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
@@ -70,6 +70,7 @@ type InternalOpenBrowserOptions = {
 	indent: boolean;
 	browser: Browser;
 	logLevel: LogLevel;
+	onBrowserDownload: OnBrowserDownload;
 };
 
 export type OpenBrowserOptions = {
@@ -87,6 +88,7 @@ export const internalOpenBrowser = async ({
 	indent,
 	viewport,
 	logLevel,
+	onBrowserDownload,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
@@ -95,23 +97,22 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser({
-		preferredBrowserExecutable: browserExecutable,
+	await internalEnsureBrowser({
+		browserExecutable,
 		logLevel,
 		indent,
+		onBrowserDownload,
 	});
 
 	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+	const enableMultiProcessOnLinux =
+		chromiumOptions.enableMultiProcessOnLinux ?? true;
 
 	Log.verbose(
 		{indent, logLevel, tag: 'openBrowser()'},
-		`Opening browser: gl = ${
-			chromiumOptions.gl
-		}, executable = ${executablePath}, enableMultiProcessOnLinux = ${
-			chromiumOptions.enableMultiProcessOnLinux ?? false
-		}`,
+		`Opening browser: gl = ${chromiumOptions.gl}, executable = ${executablePath}, enableMultiProcessOnLinux = ${enableMultiProcessOnLinux}`,
 	);
 
 	if (chromiumOptions.userAgent) {
@@ -150,6 +151,7 @@ export const internalOpenBrowser = async ({
 			'--disable-sync',
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
+			'--mute-audio',
 			'--no-first-run',
 			'--video-threads=' + getIdealVideoThreadsFlag(logLevel),
 			'--enable-automation',
@@ -158,14 +160,14 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromiumOptions.headless ?? true ? '--headless' : null,
+			chromiumOptions.headless ?? true ? '--headless=old' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' &&
 			chromiumOptions.gl !== 'vulkan' &&
-			!chromiumOptions.enableMultiProcessOnLinux
+			!enableMultiProcessOnLinux
 				? '--single-process'
 				: null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
@@ -180,6 +182,8 @@ export const internalOpenBrowser = async ({
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			'--ignore-gpu-blocklist',
+			'--enable-unsafe-webgpu',
 			typeof forceDeviceScaleFactor === 'undefined'
 				? null
 				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
@@ -221,13 +225,22 @@ export const openBrowser = (
 		forceDeviceScaleFactor,
 		shouldDumpIo,
 	} = options ?? {};
+
+	const indent = false;
+	const logLevel = shouldDumpIo ? 'verbose' : 'info';
+
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
-		indent: false,
+		indent,
 		viewport: null,
-		logLevel: shouldDumpIo ? 'verbose' : 'info',
+		logLevel,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent,
+			logLevel,
+			api: 'openBrowser()',
+		}),
 	});
 };

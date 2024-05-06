@@ -1,8 +1,8 @@
 import {useCallback, useMemo} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import type {JSONPath} from './zod-types';
 
 export const ZodArrayItemEditor: React.FC<{
 	jsonPath: JSONPath;

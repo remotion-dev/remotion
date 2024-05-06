@@ -13,6 +13,7 @@ export const screenshotDOMElement = async ({
 	width,
 	clipRegion,
 	timeoutInMilliseconds,
+	scale,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
@@ -24,6 +25,7 @@ export const screenshotDOMElement = async ({
 	width: number;
 	clipRegion: ClipRegion | null;
 	timeoutInMilliseconds: number;
+	scale: number;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -67,6 +69,7 @@ export const screenshotDOMElement = async ({
 		width,
 		height,
 		clipRegion,
+		scale,
 	});
 	if (typeof buf === 'string') {
 		throw new TypeError('Expected a buffer');

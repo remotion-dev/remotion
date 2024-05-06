@@ -2,15 +2,15 @@ import React, {useCallback, useEffect, useMemo} from 'react';
 import type {AnyZodObject, z} from 'zod';
 import {setUnsavedProps} from '../../../helpers/document-title';
 import {useKeybinding} from '../../../helpers/use-keybinding';
-import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
-import {deepEqual} from './deep-equal';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {
 	InvalidDefaultProps,
 	InvalidSchema,
 	TopLevelZodValue,
 } from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
+import {deepEqual} from './deep-equal';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',

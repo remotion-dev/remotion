@@ -6,11 +6,7 @@ import {
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {QUOTAS_COMMAND} from '.';
-import {
-	BINARY_NAME,
-	LAMBDA_BURST_LIMIT_QUOTA,
-	LAMBDA_CONCURRENCY_LIMIT_QUOTA,
-} from '../../../defaults';
+import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
 import {getServiceQuotasClient} from '../../../shared/aws-clients';
 import {getAwsRegion} from '../../get-aws-region';
 import {Log} from '../../log';
@@ -18,9 +14,12 @@ import {INCREASE_SUBCOMMAND} from './increase';
 
 export const quotasListCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
-	Log.info(CliInternals.chalk.gray(`Region = ${region}`));
-	Log.info();
-	const [concurrencyLimit, defaultConcurrencyLimit, burstLimit, changes] =
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(`Region = ${region}`),
+	);
+	Log.info({indent: false, logLevel});
+	const [concurrencyLimit, defaultConcurrencyLimit, changes] =
 		await Promise.all([
 			getServiceQuotasClient(region).send(
 				new GetServiceQuotaCommand({
@@ -31,12 +30,6 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 			getServiceQuotasClient(region).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
-					ServiceCode: 'lambda',
-				}),
-			),
-			getServiceQuotasClient(region).send(
-				new GetAWSDefaultServiceQuotaCommand({
-					QuotaCode: LAMBDA_BURST_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				}),
 			),
@@ -54,13 +47,12 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 
 	const concurrencyCurrent = concurrencyLimit.Quota?.Value as number;
 	const defaultConcurrency = defaultConcurrencyLimit.Quota?.Value as number;
-	const burstDefault = burstLimit.Quota?.Value as number;
 
 	const increaseRecommended = concurrencyCurrent <= defaultConcurrency;
-	const effectiveBurstConcurrency = Math.min(burstDefault, defaultConcurrency);
 
 	if (increaseRecommended) {
 		Log.info(
+			{indent: false, logLevel},
 			`Concurrency limit: ${concurrencyCurrent} - ${
 				increaseRecommended
 					? CliInternals.chalk.greenBright('Increase recommended!')
@@ -68,7 +60,10 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 			}`,
 		);
 	} else {
-		Log.info(`Concurrency limit: ${concurrencyCurrent}`);
+		Log.info(
+			{indent: false, logLevel},
+			`Concurrency limit: ${concurrencyCurrent}`,
+		);
 	}
 
 	if (openCase) {
@@ -83,26 +78,21 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 	}
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'The maximum amount of Lambda functions which can concurrently execute.',
 		),
 	);
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			`Run \`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}\` to ask AWS to increase your limit.`,
 		),
 	);
-	Log.info();
-
-	if (effectiveBurstConcurrency === burstDefault) {
-		Log.info(`Burst concurrency: ${burstDefault}`);
-	} else {
-		Log.info(
-			`Burst concurrency: ${burstDefault}, but only ${effectiveBurstConcurrency} effective because of concurrency limit`,
-		);
-	}
+	Log.info({indent: false, logLevel});
 
 	Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			'The maximum amount of concurrency increase in 10 seconds',
 		),

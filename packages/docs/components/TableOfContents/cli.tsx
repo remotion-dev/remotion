@@ -30,6 +30,10 @@ export const TableOfContents: React.FC = () => {
           <strong>bundle</strong>
           <div>Create a Remotion Bundle</div>
         </TOCItem>
+        <TOCItem link="/docs/cli/browser">
+          <strong>browser</strong>
+          <div>Ensure Remotion has a browser to use</div>
+        </TOCItem>
         <TOCItem link="/docs/cloudrun/cli">
           <strong>cloudrun</strong>
           <div>Control Remotion Cloud Run</div>

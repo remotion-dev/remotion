@@ -13,7 +13,6 @@ export function isMusl({
 	indent: boolean;
 	logLevel: LogLevel;
 }) {
-	// @ts-expect-error bun no types
 	if (!process.report && typeof Bun !== 'undefined') {
 		if (!warned) {
 			Log.warn(
@@ -26,17 +25,36 @@ export function isMusl({
 		return false;
 	}
 
+	const report = process.report?.getReport();
+	if (report && typeof report === 'string') {
+		if (!warned) {
+			Log.warn(
+				{indent, logLevel},
+				'Bun limitation: Could not determine if your Windows is using musl or glibc. Assuming glibc.',
+			);
+		}
+
+		warned = true;
+		return false;
+	}
+
 	// @ts-expect-error no types
-	const {glibcVersionRuntime} = process.report.getReport().header;
+	const {glibcVersionRuntime} = report.header;
 	return !glibcVersionRuntime;
 }
 
-export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe',
-	indent: boolean,
-	logLevel: LogLevel,
-): string => {
-	const base = getExecutableDir(indent, logLevel);
+export const getExecutablePath = ({
+	indent,
+	logLevel,
+	type,
+	binariesDirectory,
+}: {
+	type: 'compositor' | 'ffmpeg' | 'ffprobe';
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): string => {
+	const base = binariesDirectory ?? getExecutableDir(indent, logLevel);
 	switch (type) {
 		case 'compositor':
 			if (process.platform === 'win32') {
