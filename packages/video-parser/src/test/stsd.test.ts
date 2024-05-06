@@ -53,6 +53,15 @@ test('Should be able to parse a STSD box correctly', () => {
 				format: 'mebx',
 				offset: 16,
 				type: 'mebx-box',
+				children: [
+					{
+						boxSize: 572,
+						boxType: 'keys',
+						children: [],
+						offset: 32,
+						type: 'regular-box',
+					},
+				],
 			},
 		],
 	});

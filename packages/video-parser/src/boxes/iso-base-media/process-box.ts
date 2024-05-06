@@ -2,6 +2,7 @@ import type {Box} from '../../parse-video';
 import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
 import {parseMvhd} from './mvhd';
+import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 
@@ -65,6 +66,14 @@ const processBoxAndSubtract = ({
 	if (boxType === 'stsd') {
 		return {
 			box: parseStsd(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'mebx') {
+		return {
+			box: parseMebx(sub, fileOffset),
 			next,
 			size: boxSize,
 		};

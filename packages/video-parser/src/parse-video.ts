@@ -4,6 +4,7 @@ import type {DimensionsBox} from './boxes/iso-base-media/dims';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
+import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 
@@ -21,7 +22,8 @@ export type Box =
 	| MvhdBox
 	| TkhdBox
 	| DimensionsBox
-	| StsdBox;
+	| StsdBox
+	| MebxBox;
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 
