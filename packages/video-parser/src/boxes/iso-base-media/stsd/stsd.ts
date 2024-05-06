@@ -1,11 +1,11 @@
-import type {Box} from '../../../parse-video';
 import type {BaseBox} from '../base-type';
-import {parseBoxes} from '../process-box';
+import type {Sample} from './samples';
+import {parseSamples} from './samples';
 
 export interface StsdBox extends BaseBox {
 	type: 'stsd-box';
 	numberOfEntries: number;
-	children: Box[];
+	samples: Sample[];
 }
 
 export const parseStsd = (data: Buffer, offset: number): StsdBox => {
@@ -38,7 +38,7 @@ export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 	const numberOfEntries = data.readUInt32BE(chunkOffset);
 	chunkOffset += 4;
 
-	const boxes = parseBoxes(data.subarray(chunkOffset), offset + chunkOffset);
+	const boxes = parseSamples(data.subarray(chunkOffset), offset + chunkOffset);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(
@@ -51,6 +51,6 @@ export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 		boxSize: data.length,
 		offset,
 		numberOfEntries,
-		children: boxes,
+		samples: boxes,
 	};
 };

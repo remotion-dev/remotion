@@ -91,13 +91,15 @@ const processBoxAndSubtract = ({
 		};
 	}
 
+	const childArray = sub.subarray(8, boxSize);
+
 	const children =
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
 		boxType === 'dims' ||
 		boxType === 'stsb'
-			? parseBoxes(sub.subarray(8), fileOffset)
+			? parseBoxes(childArray, fileOffset)
 			: [];
 
 	return {

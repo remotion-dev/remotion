@@ -19,16 +19,6 @@ export const parseKeys = (data: Buffer, offset: number): KeysBox => {
 		throw new Error(`Expected keys type of keys, got ${type}`);
 	}
 
-	const rest = data.subarray(chunkOffset);
-	const restSize = rest.readInt32BE(0);
-	chunkOffset += 4;
-	const restType = rest
-		.subarray(chunkOffset, chunkOffset + 4)
-		.toString('utf-8');
-	console.log(restType);
-
-	console.log(restSize);
-
 	return {
 		type: 'keys-box',
 		boxSize: data.length,
