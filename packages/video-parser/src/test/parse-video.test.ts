@@ -10,7 +10,6 @@ test('Parse Big Buck bunny', async () => {
 		{
 			offset: 0,
 			boxSize: 32,
-			boxType: 'ftyp',
 			type: 'ftyp-box',
 			majorBrand: 'isom',
 			minorVersion: 512,
@@ -38,7 +37,6 @@ test('Parse an iPhone video', async () => {
 	expect(data).toEqual([
 		{
 			boxSize: 20,
-			boxType: 'ftyp',
 			type: 'ftyp-box',
 			majorBrand: 'qt',
 			minorVersion: 0,
@@ -71,7 +69,6 @@ test('Parse framer', async () => {
 		{
 			offset: 0,
 			boxSize: 32,
-			boxType: 'ftyp',
 			compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
 			majorBrand: 'isom',
 			minorVersion: 512,
@@ -107,7 +104,6 @@ test('Parse a full video', async () => {
 	expect(first).toEqual({
 		offset: 0,
 		boxSize: 32,
-		boxType: 'ftyp',
 		type: 'ftyp-box',
 		majorBrand: 'isom',
 		minorVersion: 512,

@@ -36,6 +36,5 @@ export const parseFtyp = (data: Buffer, offset: number): FtypBox => {
 		compatibleBrands,
 		offset,
 		boxSize: data.length,
-		boxType: 'ftyp',
 	};
 };

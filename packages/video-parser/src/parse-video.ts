@@ -1,9 +1,9 @@
 import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
-import {fourByteToNumber, parseFtyp} from './boxes/iso-base-media/ftype';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
-import {parseMvhd} from './boxes/iso-base-media/mvhd';
+import {parseBoxes} from './boxes/iso-base-media/process-box';
+import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 
 interface RegularBox extends BaseBox {
 	boxType: string;
@@ -13,86 +13,9 @@ interface RegularBox extends BaseBox {
 	type: 'regular-box';
 }
 
-export type Box = RegularBox | FtypBox | MvhdBox;
-
-const processBoxAndSubtract = ({
-	data,
-	fileOffset,
-}: {
-	data: Buffer;
-	fileOffset: number;
-}): BoxAndNext => {
-	const boxSize = fourByteToNumber(data, 0);
-	const boxType = data.subarray(4, 8).toString('utf-8');
-
-	const sub = data.subarray(0, boxSize);
-	const next = data.subarray(boxSize);
-
-	if (boxType === 'ftyp') {
-		return {
-			box: parseFtyp(sub, fileOffset),
-			next,
-			size: boxSize,
-		};
-	}
-
-	if (boxType === 'mvhd') {
-		return {
-			box: parseMvhd(sub, fileOffset),
-			next,
-			size: boxSize,
-		};
-	}
-
-	const children =
-		boxType === 'moov' ||
-		boxType === 'trak' ||
-		boxType === 'mdia' ||
-		boxType === 'minf' ||
-		boxType === 'stbl' ||
-		boxType === 'stsb'
-			? parseBoxes(sub.subarray(8), fileOffset)
-			: [];
-
-	return {
-		box: {
-			type: 'regular-box',
-			boxType,
-			boxSize,
-			children,
-			offset: fileOffset,
-		},
-		next,
-		size: boxSize,
-	};
-};
-
-type BoxAndNext = {
-	box: Box;
-	next: Buffer;
-	size: number;
-};
+export type Box = RegularBox | FtypBox | MvhdBox | TkhdBox;
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
-
-const parseBoxes = (data: Buffer, fileOffset: number): Box[] => {
-	const boxes: Box[] = [];
-	let remaining = data;
-	let bytesConsumed = fileOffset;
-
-	while (remaining.length > 0) {
-		const {next, box, size} = processBoxAndSubtract({
-			data: remaining,
-			fileOffset: bytesConsumed,
-		});
-
-		remaining = next;
-		boxes.push(box);
-		bytesConsumed = box.offset + size;
-	}
-
-	return boxes;
-};
 
 const matchesPattern = (pattern: Buffer) => {
 	return (data: Buffer) => {

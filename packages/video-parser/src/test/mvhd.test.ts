@@ -9,11 +9,11 @@ test('Should be able to parse a MVHD box correctly', () => {
 		109, 118, 104, 100,
 		// version, 8 unsigned bit
 		0,
-		// flags
+		// flags, 24 bit
 		0, 0, 0,
-		// creation time
+		// creation time, 32 bit
 		0, 0, 0, 0,
-		// modification time
+		// modification time, 32 bit
 		0, 0, 0, 0,
 		// time scale
 		0, 0, 3, 232,
@@ -77,6 +77,5 @@ test('Should be able to parse a MVHD box correctly', () => {
 		type: 'mvhd-box',
 		boxSize: 108,
 		offset: 0,
-		boxType: 'mvhd',
 	});
 });

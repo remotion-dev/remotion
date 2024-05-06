@@ -1,6 +1,6 @@
 import type {BaseBox} from './base-type';
 
-type ThreeDMatrix = [
+export type ThreeDMatrix = [
 	number,
 	number,
 	number,
@@ -106,6 +106,5 @@ export const parseMvhd = (data: Buffer, offset: number): MvhdBox => {
 		type: 'mvhd-box',
 		boxSize: data.length,
 		offset,
-		boxType: 'mvhd',
 	};
 };

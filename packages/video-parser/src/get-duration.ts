@@ -2,9 +2,9 @@ import type {Box} from './parse-video';
 
 export const getDuration = (boxes: Box[]): number | null => {
 	const moovBox = boxes.find(
-		(b) => b.boxType === 'moov' && b.type === 'regular-box',
+		(b) => b.type === 'regular-box' && b.boxType === 'moov',
 	);
-	if (moovBox === undefined || moovBox.type !== 'regular-box') {
+	if (!moovBox || moovBox.type !== 'regular-box') {
 		return null;
 	}
 
@@ -13,7 +13,7 @@ export const getDuration = (boxes: Box[]): number | null => {
 		return null;
 	}
 
-	const mvhdBox = children.find((b) => b.boxType === 'mvhd');
+	const mvhdBox = children.find((b) => b.type === 'mvhd-box');
 
 	if (!mvhdBox) {
 		return null;
