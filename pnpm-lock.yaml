@@ -213,9 +213,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      bun-types:
-        specifier: 0.8.0
-        version: 0.8.0
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -310,9 +307,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      bun-types:
-        specifier: 0.8.0
-        version: 0.8.0
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -2168,7 +2162,7 @@ importers:
         specifier: workspace:*
         version: link:../test-utils
       '@types/bun':
-        specifier: ^1.0.12
+        specifier: 1.0.12
         version: 1.0.12
       '@types/react':
         specifier: 18.3.1
@@ -2207,8 +2201,8 @@ importers:
         specifier: 'workspace:'
         version: link:../renderer
       '@types/bun':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: 1.0.12
+        version: 1.0.12
       '@types/node':
         specifier: 18.14.6
         version: 18.14.6
@@ -9645,12 +9639,6 @@ packages:
     dependencies:
       bun-types: 1.0.36
 
-  /@types/bun@1.0.4:
-    resolution: {integrity: sha512-2DO7sqwtpko3d3XP2kLpJsOkV12sSRt8cFR955JVB60m1DiXE56T+gJq+DcCczQ5khxgCDQKkyBRlgg5VH33Dw==}
-    dependencies:
-      bun-types: 1.0.25
-    dev: true
-
   /@types/cacheable-request@6.0.2:
     resolution: {integrity: sha512-B3xVo+dlKM6nnKTcmm5ZtY/OL8bOAOd2Olee9M1zft65ox50OzjEHW91sDiU9j6cvW8Ejg1/Qkf4xd2kugApUA==}
     dependencies:
@@ -11761,18 +11749,6 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
     dev: false
-
-  /bun-types@0.8.0:
-    resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
-    dev: true
-
-  /bun-types@1.0.25:
-    resolution: {integrity: sha512-9lxeUR/OJsvlZH4GOWteiAdx7ikrSxCUX7Rr0JJux+DrR3LejouVLxIZnTeQ3UPAZovvSgKivWeHPJ2wlo7/Kg==}
-    dependencies:
-      '@types/node': 18.14.6
-      '@types/ws': 8.5.10
-      undici-types: 5.26.5
-    dev: true
 
   /bun-types@1.0.36:
     resolution: {integrity: sha512-gaIb1SyhB0JZfIEg73/kSFhqolUqJXC68peguhXGwqr27HuvI8nkD0LTIHp/1DY4cNadfXHYgYrZIWX7oEoXlg==}

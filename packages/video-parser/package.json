@@ -34,7 +34,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
-		"@types/bun": "^1.0.4",
+		"@types/bun": "1.0.12",
 		"@types/node": "18.14.6",
 		"@remotion/renderer": "workspace:",
 		"eslint": "8.56.0",
