@@ -21,54 +21,11 @@ type ExtraData =
       boxes: Box[];
     };
 
-type Box = {
+export type Box = {
   boxType: string;
   boxSize: number;
   extraData: ExtraData | undefined;
   offset: number;
-};
-
-type BoxAndNext = Box & {
-  next: Buffer;
-};
-
-const isoBaseMediaMp4Pattern = Buffer.from("ftyp");
-
-const parseBoxes = (data: Buffer): ExtraData => {
-  let boxes: Box[] = [];
-  let remaining = data;
-  let bytesConsumed = 0;
-  while (remaining.length > 0) {
-    const { next, boxType, boxSize, extraData, offset } = processBoxAndSubtract(
-      remaining,
-      bytesConsumed
-    );
-    remaining = next;
-    boxes.push({ boxType, boxSize, extraData, offset: bytesConsumed });
-    bytesConsumed = offset;
-  }
-  return { boxes, type: "boxes" };
-};
-
-const parseFtyp = (data: Buffer): ExtraData => {
-  const majorBrand = data.subarray(8, 12).toString("utf-8").trim();
-
-  const minorVersion = fourByteToNumber(data, 12);
-
-  const rest = data.subarray(16);
-  let types = rest.length / 4;
-  let compatibleBrands: string[] = [];
-  for (let i = 0; i < types; i++) {
-    const fourBytes = rest.subarray(i * 4, i * 4 + 4);
-    compatibleBrands.push(fourBytes.toString("utf-8").trim());
-  }
-
-  return {
-    type: "ftyp-box",
-    majorBrand,
-    minorVersion,
-    compatibleBrands,
-  };
 };
 
 const getExtraDataFromBox = (
@@ -89,7 +46,6 @@ const getExtraDataFromBox = (
   ) {
     return parseBoxes(box.subarray(8));
   }
-  return;
 };
 
 const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
@@ -104,6 +60,50 @@ const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
     boxSize,
     extraData: getExtraDataFromBox(data.subarray(0, boxSize), boxType),
     offset: offset + boxSize,
+  };
+};
+
+type BoxAndNext = Box & {
+  next: Buffer;
+};
+
+const isoBaseMediaMp4Pattern = Buffer.from("ftyp");
+
+const parseBoxes = (data: Buffer): ExtraData => {
+  const boxes: Box[] = [];
+  let remaining = data;
+  let bytesConsumed = 0;
+  while (remaining.length > 0) {
+    const { next, boxType, boxSize, extraData, offset } = processBoxAndSubtract(
+      remaining,
+      bytesConsumed
+    );
+    remaining = next;
+    boxes.push({ boxType, boxSize, extraData, offset: bytesConsumed });
+    bytesConsumed = offset;
+  }
+
+  return { boxes, type: "boxes" };
+};
+
+const parseFtyp = (data: Buffer): ExtraData => {
+  const majorBrand = data.subarray(8, 12).toString("utf-8").trim();
+
+  const minorVersion = fourByteToNumber(data, 12);
+
+  const rest = data.subarray(16);
+  const types = rest.length / 4;
+  const compatibleBrands: string[] = [];
+  for (let i = 0; i < types; i++) {
+    const fourBytes = rest.subarray(i * 4, i * 4 + 4);
+    compatibleBrands.push(fourBytes.toString("utf-8").trim());
+  }
+
+  return {
+    type: "ftyp-box",
+    majorBrand,
+    minorVersion,
+    compatibleBrands,
   };
 };
 

@@ -124,5 +124,4 @@ test("Parse a full video", async () => {
   if (!moov) {
     throw new Error("No extra data");
   }
-  console.log(JSON.stringify(moov));
 });
