@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {getDimensions} from '../get-dimensions';
 import {getDuration} from '../get-duration';
 import {parseVideo} from '../parse-video';
 import {exampleVideos} from './example-videos';
@@ -11,6 +12,9 @@ test('Should get duration of video', async () => {
 
 	const duration = getDuration(parsed);
 	expect(duration).toBe(4.167);
+
+	const dimensions = getDimensions(parsed);
+	expect(dimensions).toEqual([1080, 1080]);
 });
 
 test('Should get duration of HEVC video', async () => {
@@ -24,31 +28,9 @@ test('Should get duration of HEVC video', async () => {
 		throw new Error('Expected regular box');
 	}
 
-	const trak = moovBox.children[1];
-	if (trak.type !== 'trak-box') {
-		throw new Error('Expected trak box');
-	}
-
-	const mdiaBox = trak.children[3];
-	if (mdiaBox.type !== 'regular-box') {
-		throw new Error('Expected regular box');
-	}
-
-	const minfBox = mdiaBox.children[2];
-	if (minfBox.type !== 'regular-box') {
-		throw new Error('Expected minf box');
-	}
-
-	const stblBox = minfBox.children[3];
-	if (stblBox.type !== 'regular-box') {
-		throw new Error('Expected stbl box');
-	}
-
-	const stsdBox = stblBox.children[0];
-	if (stsdBox.type !== 'stsd-box') {
-		throw new Error('Expected stsd box');
-	}
-
 	const duration = getDuration(parsed);
 	expect(duration).toBe(3.4);
+
+	const dimensions = getDimensions(parsed);
+	expect(dimensions).toEqual([1920, 1080]);
 });
