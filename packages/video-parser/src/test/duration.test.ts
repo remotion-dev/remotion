@@ -21,10 +21,12 @@ test('Should get duration of HEVC video', async () => {
 		throw new Error('No parsed data');
 	}
 
-	const t = parsed[3];
-	if (t.type !== 'regular-box') {
+	const moovBox = parsed[3];
+	if (moovBox.type !== 'moov-box') {
 		throw new Error('Expected regular box');
 	}
+
+	console.log(moovBox);
 
 	const duration = getDuration(parsed);
 	expect(duration).toBe(3.4);

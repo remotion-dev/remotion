@@ -1,10 +1,8 @@
 import type {Box} from './parse-video';
 
 export const getDuration = (boxes: Box[]): number | null => {
-	const moovBox = boxes.find(
-		(b) => b.type === 'regular-box' && b.boxType === 'moov',
-	);
-	if (!moovBox || moovBox.type !== 'regular-box') {
+	const moovBox = boxes.find((b) => b.type === 'moov-box');
+	if (!moovBox || moovBox.type !== 'moov-box') {
 		return null;
 	}
 

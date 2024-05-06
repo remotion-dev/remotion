@@ -1,16 +1,11 @@
-import type {Box} from '../../parse-video';
+import type {Box, BoxAndNext} from '../../parse-video';
 import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
+import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
-
-type BoxAndNext = {
-	box: Box;
-	next: Buffer;
-	size: number;
-};
 
 const processBoxAndSubtract = ({
 	data,
@@ -74,6 +69,14 @@ const processBoxAndSubtract = ({
 	if (boxType === 'mebx') {
 		return {
 			box: parseMebx(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'moov') {
+		return {
+			box: parseMoov(sub, fileOffset),
 			next,
 			size: boxSize,
 		};

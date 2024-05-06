@@ -2,8 +2,10 @@ import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {DimensionsBox} from './boxes/iso-base-media/dims';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
+import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
+import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
 import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
@@ -23,7 +25,15 @@ export type Box =
 	| TkhdBox
 	| DimensionsBox
 	| StsdBox
-	| MebxBox;
+	| MebxBox
+	| KeysBox
+	| MoovBox;
+
+export type BoxAndNext = {
+	box: Box;
+	next: Buffer;
+	size: number;
+};
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 
