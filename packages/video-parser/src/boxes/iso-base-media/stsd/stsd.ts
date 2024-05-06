@@ -1,47 +1,12 @@
+import type {Box} from '../../../parse-video';
 import type {BaseBox} from '../base-type';
-import type {MebxBox} from './mebx';
-import {parseMebx} from './mebx';
+import {parseBoxes} from '../process-box';
 
 export interface StsdBox extends BaseBox {
 	type: 'stsd-box';
 	numberOfEntries: number;
-	descriptions: StsdDescription[];
+	children: Box[];
 }
-
-type UnknownBox = {
-	type: 'unknown-box';
-};
-
-type StsdDescription = MebxBox | UnknownBox;
-
-const consumeSampleDescriptions = (
-	data: Buffer,
-	offset: number,
-): {
-	description: StsdDescription;
-	consumed: number;
-} => {
-	let chunkOffset = 0;
-
-	const size = data.readUInt32BE(chunkOffset);
-	chunkOffset += 4;
-	const type = data.subarray(chunkOffset, chunkOffset + 4).toString('utf-8');
-	chunkOffset += 4;
-
-	if (type === 'mebx') {
-		return {
-			description: parseMebx(data.subarray(0, size), offset),
-			consumed: size,
-		};
-	}
-
-	return {
-		consumed: size,
-		description: {
-			type: 'unknown-box',
-		},
-	};
-};
 
 export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 	let chunkOffset = 0;
@@ -73,28 +38,12 @@ export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 	const numberOfEntries = data.readUInt32BE(chunkOffset);
 	chunkOffset += 4;
 
-	let remaining = size - chunkOffset;
+	const boxes = parseBoxes(data.subarray(chunkOffset), offset + chunkOffset);
 
-	const descriptions: StsdDescription[] = [];
-
-	for (let i = 0; i < numberOfEntries; i++) {
-		const result = consumeSampleDescriptions(
-			data.subarray(chunkOffset),
-			offset + chunkOffset,
-		);
-		remaining -= result.consumed;
-		chunkOffset += result.consumed;
-		descriptions.push(result.description);
-	}
-
-	if (descriptions.length !== numberOfEntries) {
+	if (boxes.length !== numberOfEntries) {
 		throw new Error(
-			`Expected ${numberOfEntries} sample descriptions, got ${descriptions.length}`,
+			`Expected ${numberOfEntries} sample descriptions, got ${boxes.length}`,
 		);
-	}
-
-	if (remaining !== 0) {
-		throw new Error(`Expected 0 bytes remaining, got ${remaining}`);
 	}
 
 	return {
@@ -102,6 +51,6 @@ export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 		boxSize: data.length,
 		offset,
 		numberOfEntries,
-		descriptions,
+		children: boxes,
 	};
 };

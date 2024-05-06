@@ -1,8 +1,6 @@
-import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
 import {parseVideo} from '../parse-video';
-
-const {exampleVideos} = RenderInternals;
+import {exampleVideos} from './example-videos';
 
 test('Parse Big Buck bunny', async () => {
 	const data = await parseVideo(exampleVideos.bigBuckBunny, 4 * 1024);

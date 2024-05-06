@@ -1,7 +1,6 @@
 import type {Box, BoxAndNext} from '../../parse-video';
 import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
-import {parseMdia} from './mdia';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
@@ -87,14 +86,6 @@ const processBoxAndSubtract = ({
 	if (boxType === 'trak') {
 		return {
 			box: parseTrak(sub, fileOffset),
-			next,
-			size: boxSize,
-		};
-	}
-
-	if (boxType === 'mdia') {
-		return {
-			box: parseMdia(sub, fileOffset),
 			next,
 			size: boxSize,
 		};
