@@ -7,7 +7,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
+		"test": "bun test",
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},
