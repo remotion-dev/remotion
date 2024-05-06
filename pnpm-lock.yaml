@@ -2203,6 +2203,9 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.276
         version: 3.0.276(eslint@8.42.0)(typescript@5.3.3)
+      '@remotion/renderer':
+        specifier: 'workspace:'
+        version: link:../renderer
       '@types/bun':
         specifier: ^1.0.4
         version: 1.0.4
