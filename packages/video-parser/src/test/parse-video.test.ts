@@ -99,7 +99,13 @@ test('Parse a full video', async () => {
 	const data = await parseVideo(exampleVideos.framer24fps, Infinity);
 	if (!data) throw new Error('No data');
 
-	expect(data[0]).toEqual({
+	const [first, second, third, fourth] = data;
+
+	if (first.type !== 'ftyp-box') {
+		throw new Error('Expected ftyp-box');
+	}
+
+	expect(first).toEqual({
 		offset: 0,
 		boxSize: 32,
 		boxType: 'ftyp',
@@ -108,14 +114,14 @@ test('Parse a full video', async () => {
 		minorVersion: 512,
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
 	});
-	expect(data[1]).toEqual({
+	expect(second).toEqual({
 		offset: 32,
 		boxType: 'free',
 		boxSize: 8,
 		type: 'regular-box',
 		children: [],
 	});
-	expect(data[2]).toEqual({
+	expect(third).toEqual({
 		offset: 40,
 		boxSize: 57014,
 		boxType: 'mdat',
@@ -123,8 +129,7 @@ test('Parse a full video', async () => {
 		type: 'regular-box',
 	});
 
-	const moov = data[3];
-	if (!moov) {
+	if (!fourth) {
 		throw new Error('No extra data');
 	}
 });

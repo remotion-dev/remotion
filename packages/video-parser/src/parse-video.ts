@@ -15,48 +15,44 @@ interface RegularBox extends BaseBox {
 
 export type Box = RegularBox | FtypBox | MvhdBox;
 
-const getExtraDataFromBox = ({
-	box,
-	type,
-	offset,
+const processBoxAndSubtract = ({
+	data,
+	fileOffset,
 }: {
-	box: Buffer;
-	type: string;
-	offset: number;
-}): Box[] => {
-	if (type === 'ftyp') {
-		return [parseFtyp(box, offset)];
-	}
-
-	if (type === 'mvhd') {
-		return [parseMvhd(box, offset)];
-	}
-
-	if (
-		type === 'moov' ||
-		type === 'trak' ||
-		type === 'mdia' ||
-		type === 'minf' ||
-		type === 'stbl' ||
-		type === 'stsb'
-	) {
-		return parseBoxes(box.subarray(8));
-	}
-
-	return [];
-};
-
-const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
+	data: Buffer;
+	fileOffset: number;
+}): BoxAndNext => {
 	const boxSize = fourByteToNumber(data, 0);
 	const boxType = data.subarray(4, 8).toString('utf-8');
 
+	const sub = data.subarray(0, boxSize);
 	const next = data.subarray(boxSize);
 
-	const children = getExtraDataFromBox({
-		box: data.subarray(0, boxSize),
-		type: boxType,
-		offset,
-	});
+	if (boxType === 'ftyp') {
+		return {
+			box: parseFtyp(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'mvhd') {
+		return {
+			box: parseMvhd(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	const children =
+		boxType === 'moov' ||
+		boxType === 'trak' ||
+		boxType === 'mdia' ||
+		boxType === 'minf' ||
+		boxType === 'stbl' ||
+		boxType === 'stsb'
+			? parseBoxes(sub.subarray(8), fileOffset)
+			: [];
 
 	return {
 		box: {
@@ -64,30 +60,35 @@ const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
 			boxType,
 			boxSize,
 			children,
-			offset: offset + boxSize,
+			offset: fileOffset,
 		},
 		next,
+		size: boxSize,
 	};
 };
 
 type BoxAndNext = {
 	box: Box;
 	next: Buffer;
+	size: number;
 };
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 
-const parseBoxes = (data: Buffer): Box[] => {
+const parseBoxes = (data: Buffer, fileOffset: number): Box[] => {
 	const boxes: Box[] = [];
 	let remaining = data;
-	let bytesConsumed = 0;
+	let bytesConsumed = fileOffset;
 
 	while (remaining.length > 0) {
-		const {next, box} = processBoxAndSubtract(remaining, bytesConsumed);
+		const {next, box, size} = processBoxAndSubtract({
+			data: remaining,
+			fileOffset: bytesConsumed,
+		});
 
 		remaining = next;
 		boxes.push(box);
-		bytesConsumed = box.offset;
+		bytesConsumed = box.offset + size;
 	}
 
 	return boxes;
@@ -124,7 +125,7 @@ export const parseVideo = async (
 	});
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		return parseBoxes(data);
+		return parseBoxes(data, 0);
 	}
 
 	return [];
