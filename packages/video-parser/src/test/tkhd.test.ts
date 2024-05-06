@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {parseTkhd} from '../boxes/iso-base-media/tkhd';
 
-test('Should be able to parse a TKHD box correctly', () => {
+test('Should be able to parse a TKHD box', () => {
 	const buffer = Buffer.from([
 		// size, 32 bit
 		0, 0, 0, 92,

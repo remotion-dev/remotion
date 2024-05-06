@@ -1,8 +1,10 @@
 import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
+import type {DimensionsBox} from './boxes/iso-base-media/dims';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
+import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 
 interface RegularBox extends BaseBox {
@@ -13,7 +15,13 @@ interface RegularBox extends BaseBox {
 	type: 'regular-box';
 }
 
-export type Box = RegularBox | FtypBox | MvhdBox | TkhdBox;
+export type Box =
+	| RegularBox
+	| FtypBox
+	| MvhdBox
+	| TkhdBox
+	| DimensionsBox
+	| StsdBox;
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 

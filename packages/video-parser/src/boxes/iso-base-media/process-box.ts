@@ -1,6 +1,8 @@
 import type {Box} from '../../parse-video';
+import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
 import {parseMvhd} from './mvhd';
+import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
 
 type BoxAndNext = {
@@ -17,7 +19,13 @@ const processBoxAndSubtract = ({
 	fileOffset: number;
 }): BoxAndNext => {
 	const boxSize = fourByteToNumber(data, 0);
-	const boxType = data.subarray(4, 8).toString('utf-8');
+	if (boxSize === 0) {
+		throw new Error(`Expected box size of ${data.length}, got ${boxSize}`);
+	}
+
+	const boxTypeBuffer = data.subarray(4, 8);
+
+	const boxType = boxTypeBuffer.toString('utf-8');
 
 	const sub = data.subarray(0, boxSize);
 	const next = data.subarray(boxSize);
@@ -46,12 +54,29 @@ const processBoxAndSubtract = ({
 		};
 	}
 
+	if (boxType === 'dims') {
+		return {
+			box: parseDims(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'stsd') {
+		return {
+			box: parseStsd(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
 	const children =
 		boxType === 'moov' ||
 		boxType === 'trak' ||
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
+		boxType === 'dims' ||
 		boxType === 'stsb'
 			? parseBoxes(sub.subarray(8), fileOffset)
 			: [];
