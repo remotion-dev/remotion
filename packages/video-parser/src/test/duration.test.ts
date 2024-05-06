@@ -26,7 +26,12 @@ test('Should get duration of HEVC video', async () => {
 		throw new Error('Expected regular box');
 	}
 
-	console.log(moovBox);
+	const trak = moovBox.children[1];
+	if (trak.type !== 'trak-box') {
+		throw new Error('Expected trak box');
+	}
+
+	console.log(trak.children[3]);
 
 	const duration = getDuration(parsed);
 	expect(duration).toBe(3.4);

@@ -2,6 +2,7 @@ import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {DimensionsBox} from './boxes/iso-base-media/dims';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
+import type {MdiaBox} from './boxes/iso-base-media/mdia';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseBoxes} from './boxes/iso-base-media/process-box';
@@ -9,6 +10,7 @@ import type {KeysBox} from './boxes/iso-base-media/stsd/keys';
 import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
+import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 
 interface RegularBox extends BaseBox {
 	boxType: string;
@@ -27,7 +29,9 @@ export type Box =
 	| StsdBox
 	| MebxBox
 	| KeysBox
-	| MoovBox;
+	| MoovBox
+	| TrakBox
+	| MdiaBox;
 
 export type BoxAndNext = {
 	box: Box;

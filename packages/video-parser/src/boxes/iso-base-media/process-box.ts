@@ -1,11 +1,13 @@
 import type {Box, BoxAndNext} from '../../parse-video';
 import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
+import {parseMdia} from './mdia';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseMebx} from './stsd/mebx';
 import {parseStsd} from './stsd/stsd';
 import {parseTkhd} from './tkhd';
+import {parseTrak} from './trak/trak';
 
 const processBoxAndSubtract = ({
 	data,
@@ -82,9 +84,23 @@ const processBoxAndSubtract = ({
 		};
 	}
 
+	if (boxType === 'trak') {
+		return {
+			box: parseTrak(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
+	if (boxType === 'mdia') {
+		return {
+			box: parseMdia(sub, fileOffset),
+			next,
+			size: boxSize,
+		};
+	}
+
 	const children =
-		boxType === 'moov' ||
-		boxType === 'trak' ||
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
 		boxType === 'stbl' ||
