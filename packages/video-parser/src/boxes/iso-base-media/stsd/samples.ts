@@ -36,10 +36,14 @@ type VideoSample = SampleBase & {
 	colorTableId: number;
 };
 
-export type Sample = AudioSample | VideoSample;
+type UnknownSample = SampleBase & {
+	type: 'unknown';
+};
+
+export type Sample = AudioSample | VideoSample | UnknownSample;
 
 type SampleAndNext = {
-	sample: Sample;
+	sample: Sample | null;
 	next: Buffer;
 	size: number;
 };
@@ -72,6 +76,7 @@ const videoTags = [
 	'v216',
 	'v410',
 	'v210',
+	'hvc1',
 ];
 
 // https://developer.apple.com/documentation/quicktime-file-format/sound_sample_descriptions
@@ -124,9 +129,7 @@ export const processSampleAndSubtract = ({
 	const isAudio =
 		audioTags.includes(boxType) || audioTags.includes(Number(boxTypeBuffer));
 
-	if (!isVideo && !isAudio) {
-		throw new Error(`Unknown sample format ${boxType}`);
-	}
+	const next = data.subarray(boxSize);
 
 	// 6 reserved bytes
 	chunkOffset += 6;
@@ -142,6 +145,23 @@ export const processSampleAndSubtract = ({
 
 	const vendor = data.subarray(chunkOffset, chunkOffset + 4);
 	chunkOffset += 4;
+
+	if (!isVideo && !isAudio) {
+		return {
+			sample: {
+				type: 'unknown',
+				offset: fileOffset,
+				dataReferenceIndex,
+				version,
+				revisionLevel,
+				vendor: [...vendor],
+				size: boxSize,
+				format: boxType,
+			},
+			next,
+			size: boxSize,
+		};
+	}
 
 	if (isAudio) {
 		if (version !== 1) {
@@ -174,8 +194,6 @@ export const processSampleAndSubtract = ({
 
 		const bitsPerSample = data.readUint16BE(chunkOffset);
 		chunkOffset += 2;
-
-		const next = data.subarray(boxSize);
 
 		return {
 			sample: {
@@ -236,8 +254,6 @@ export const processSampleAndSubtract = ({
 		const colorTableId = data.readInt16BE(chunkOffset);
 		chunkOffset += 2;
 
-		const next = data.subarray(boxSize);
-
 		chunkOffset += 4;
 
 		return {
@@ -282,8 +298,11 @@ export const parseSamples = (data: Buffer, fileOffset: number): Sample[] => {
 		});
 
 		remaining = next;
-		samples.push(sample);
-		bytesConsumed = sample.offset + size;
+		if (sample) {
+			samples.push(sample);
+		}
+
+		bytesConsumed += size;
 	}
 
 	return samples;

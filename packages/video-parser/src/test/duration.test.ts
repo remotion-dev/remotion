@@ -49,8 +49,6 @@ test('Should get duration of HEVC video', async () => {
 		throw new Error('Expected stsd box');
 	}
 
-	console.log(stsdBox);
-
 	const duration = getDuration(parsed);
 	expect(duration).toBe(3.4);
 });
