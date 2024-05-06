@@ -138,3 +138,13 @@ test('Should get duration of video', async () => {
 	const duration = getDuration(parsed);
 	expect(duration).toBe(4.167);
 });
+
+test('Should get duration of HEVC video', async () => {
+	const parsed = await parseVideo(exampleVideos.iphonehevc, Infinity);
+	if (!parsed) {
+		throw new Error('No parsed data');
+	}
+
+	const duration = getDuration(parsed);
+	expect(duration).toBe(3.4);
+});

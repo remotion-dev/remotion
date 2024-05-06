@@ -83,6 +83,7 @@ const parseBoxes = (data: Buffer): ExtraData => {
 	const boxes: Box[] = [];
 	let remaining = data;
 	let bytesConsumed = 0;
+
 	while (remaining.length > 0) {
 		const {next, boxType, boxSize, extraData, offset} = processBoxAndSubtract(
 			remaining,
@@ -129,8 +130,14 @@ export const parseVideo = async (src: string, bytes: number) => {
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
 	);
 	const data = await new Promise<Buffer>((resolve, reject) => {
+		const buffers: Buffer[] = [];
+
 		stream.on('data', (chunk) => {
-			resolve(chunk as Buffer);
+			buffers.push(chunk as Buffer);
+		});
+
+		stream.on('end', () => {
+			resolve(Buffer.concat(buffers));
 		});
 
 		stream.on('error', (err) => {
