@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
 import { parseVideo } from "../parse-video";
 import { exampleVideos } from "./example-videos";
+import { getDuration } from "../get-duration";
 
 test("Parse Big Buck bunny", async () => {
   const data = await parseVideo(exampleVideos.bigBuckBunny, 4 * 1024);
@@ -124,4 +125,14 @@ test("Parse a full video", async () => {
   if (!moov) {
     throw new Error("No extra data");
   }
+});
+
+test("Should get duration of video", async () => {
+  const parsed = await parseVideo(exampleVideos.framer24fps, 128 * 1024);
+  if (!parsed) {
+    throw new Error("No parsed data");
+  }
+
+  const duration = getDuration(parsed);
+  expect(duration).toBe(4.167);
 });

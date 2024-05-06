@@ -1,4 +1,6 @@
 import { createReadStream } from "fs";
+import type { MvhdBox } from "./boxes/iso-base-media/mvhd";
+import { parseMvhd } from "./boxes/iso-base-media/mvhd";
 
 const fourByteToNumber = (data: Buffer, from: number) => {
   return (
@@ -19,6 +21,10 @@ type ExtraData =
   | {
       type: "boxes";
       boxes: Box[];
+    }
+  | {
+      type: "mvhd-box";
+      box: MvhdBox;
     };
 
 export type Box = {
@@ -34,6 +40,10 @@ const getExtraDataFromBox = (
 ): ExtraData | undefined => {
   if (type === "ftyp") {
     return parseFtyp(box);
+  }
+
+  if (type === "mvhd") {
+    return { type: "mvhd-box", box: parseMvhd(box) };
   }
 
   if (

@@ -54,7 +54,5 @@
     "react",
     "player"
   ],
-  "publishConfig": {
-    "access": "public"
-  }
+  "private": true
 }
