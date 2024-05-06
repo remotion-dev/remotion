@@ -1,28 +1,27 @@
 import type {Box} from './parse-video';
 
 export const getDuration = (boxes: Box[]): number | null => {
-	const moovBox = boxes.find((b) => b.boxType === 'moov');
-	if (!moovBox) {
+	const moovBox = boxes.find(
+		(b) => b.boxType === 'moov' && b.type === 'regular-box',
+	);
+	if (moovBox === undefined || moovBox.type !== 'regular-box') {
 		return null;
 	}
 
-	const {extraData} = moovBox;
-	if (!extraData) {
+	const {children} = moovBox;
+	if (!children) {
 		return null;
 	}
 
-	if (extraData.type !== 'boxes') {
+	const mvhdBox = children.find((b) => b.boxType === 'mvhd');
+
+	if (!mvhdBox) {
 		return null;
 	}
 
-	const mvhdBox = extraData.boxes.find((b) => b.boxType === 'mvhd');
-	if (!mvhdBox || !mvhdBox.extraData) {
-		return null;
-	}
-
-	if (mvhdBox.extraData.type !== 'mvhd-box') {
+	if (mvhdBox.type !== 'mvhd-box') {
 		throw new Error('Expected mvhd-box');
 	}
 
-	return mvhdBox.extraData.box.durationInSeconds;
+	return mvhdBox.durationInSeconds;
 };

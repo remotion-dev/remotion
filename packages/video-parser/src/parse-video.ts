@@ -1,49 +1,35 @@
 import {createReadStream} from 'fs';
+import type {BaseBox} from './boxes/iso-base-media/base-type';
+import type {FtypBox} from './boxes/iso-base-media/ftype';
+import {fourByteToNumber, parseFtyp} from './boxes/iso-base-media/ftype';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
 import {parseMvhd} from './boxes/iso-base-media/mvhd';
 
-const fourByteToNumber = (data: Buffer, from: number) => {
-	return (
-		(data[from + 0] << 24) |
-		(data[from + 1] << 16) |
-		(data[from + 2] << 8) |
-		data[from + 3]
-	);
-};
-
-type ExtraData =
-	| {
-			type: 'ftyp-box';
-			majorBrand: string;
-			minorVersion: number;
-			compatibleBrands: string[];
-	  }
-	| {
-			type: 'boxes';
-			boxes: Box[];
-	  }
-	| {
-			type: 'mvhd-box';
-			box: MvhdBox;
-	  };
-
-export type Box = {
+interface RegularBox extends BaseBox {
 	boxType: string;
 	boxSize: number;
-	extraData: ExtraData | undefined;
+	children: Box[];
 	offset: number;
-};
+	type: 'regular-box';
+}
 
-const getExtraDataFromBox = (
-	box: Buffer,
-	type: string,
-): ExtraData | undefined => {
+export type Box = RegularBox | FtypBox | MvhdBox;
+
+const getExtraDataFromBox = ({
+	box,
+	type,
+	offset,
+}: {
+	box: Buffer;
+	type: string;
+	offset: number;
+}): Box[] => {
 	if (type === 'ftyp') {
-		return parseFtyp(box);
+		return [parseFtyp(box, offset)];
 	}
 
 	if (type === 'mvhd') {
-		return {type: 'mvhd-box', box: parseMvhd(box)};
+		return [parseMvhd(box, offset)];
 	}
 
 	if (
@@ -56,6 +42,8 @@ const getExtraDataFromBox = (
 	) {
 		return parseBoxes(box.subarray(8));
 	}
+
+	return [];
 };
 
 const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
@@ -64,58 +52,45 @@ const processBoxAndSubtract = (data: Buffer, offset: number): BoxAndNext => {
 
 	const next = data.subarray(boxSize);
 
+	const children = getExtraDataFromBox({
+		box: data.subarray(0, boxSize),
+		type: boxType,
+		offset,
+	});
+
 	return {
+		box: {
+			type: 'regular-box',
+			boxType,
+			boxSize,
+			children,
+			offset: offset + boxSize,
+		},
 		next,
-		boxType,
-		boxSize,
-		extraData: getExtraDataFromBox(data.subarray(0, boxSize), boxType),
-		offset: offset + boxSize,
 	};
 };
 
-type BoxAndNext = Box & {
+type BoxAndNext = {
+	box: Box;
 	next: Buffer;
 };
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
 
-const parseBoxes = (data: Buffer): ExtraData => {
+const parseBoxes = (data: Buffer): Box[] => {
 	const boxes: Box[] = [];
 	let remaining = data;
 	let bytesConsumed = 0;
 
 	while (remaining.length > 0) {
-		const {next, boxType, boxSize, extraData, offset} = processBoxAndSubtract(
-			remaining,
-			bytesConsumed,
-		);
+		const {next, box} = processBoxAndSubtract(remaining, bytesConsumed);
+
 		remaining = next;
-		boxes.push({boxType, boxSize, extraData, offset: bytesConsumed});
-		bytesConsumed = offset;
+		boxes.push(box);
+		bytesConsumed = box.offset;
 	}
 
-	return {boxes, type: 'boxes'};
-};
-
-const parseFtyp = (data: Buffer): ExtraData => {
-	const majorBrand = data.subarray(8, 12).toString('utf-8').trim();
-
-	const minorVersion = fourByteToNumber(data, 12);
-
-	const rest = data.subarray(16);
-	const types = rest.length / 4;
-	const compatibleBrands: string[] = [];
-	for (let i = 0; i < types; i++) {
-		const fourBytes = rest.subarray(i * 4, i * 4 + 4);
-		compatibleBrands.push(fourBytes.toString('utf-8').trim());
-	}
-
-	return {
-		type: 'ftyp-box',
-		majorBrand,
-		minorVersion,
-		compatibleBrands,
-	};
+	return boxes;
 };
 
 const matchesPattern = (pattern: Buffer) => {
@@ -124,7 +99,10 @@ const matchesPattern = (pattern: Buffer) => {
 	};
 };
 
-export const parseVideo = async (src: string, bytes: number) => {
+export const parseVideo = async (
+	src: string,
+	bytes: number,
+): Promise<Box[]> => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
@@ -146,9 +124,8 @@ export const parseVideo = async (src: string, bytes: number) => {
 	});
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		const boxes = parseBoxes(data);
-		if (boxes.type === 'boxes') {
-			return boxes.boxes;
-		}
+		return parseBoxes(data);
 	}
+
+	return [];
 };

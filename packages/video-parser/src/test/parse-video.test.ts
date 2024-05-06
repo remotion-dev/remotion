@@ -12,24 +12,24 @@ test('Parse Big Buck bunny', async () => {
 			offset: 0,
 			boxSize: 32,
 			boxType: 'ftyp',
-			extraData: {
-				type: 'ftyp-box',
-				majorBrand: 'isom',
-				minorVersion: 512,
-				compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
-			},
+			type: 'ftyp-box',
+			majorBrand: 'isom',
+			minorVersion: 512,
+			compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
 		},
 		{
 			offset: 32,
 			boxSize: 8,
 			boxType: 'free',
-			extraData: undefined,
+			type: 'regular-box',
+			children: [],
 		},
 		{
 			boxSize: 14282275,
 			boxType: 'mdat',
-			extraData: undefined,
 			offset: 40,
+			type: 'regular-box',
+			children: [],
 		},
 	]);
 });
@@ -40,25 +40,25 @@ test('Parse an iPhone video', async () => {
 		{
 			boxSize: 20,
 			boxType: 'ftyp',
-			extraData: {
-				type: 'ftyp-box',
-				majorBrand: 'qt',
-				minorVersion: 0,
-				compatibleBrands: ['qt'],
-			},
+			type: 'ftyp-box',
+			majorBrand: 'qt',
+			minorVersion: 0,
+			compatibleBrands: ['qt'],
 			offset: 0,
 		},
 		{
+			type: 'regular-box',
 			boxType: 'wide',
 			boxSize: 8,
-			extraData: undefined,
 			offset: 20,
+			children: [],
 		},
 		{
 			boxSize: 39048800,
 			boxType: 'mdat',
-			extraData: undefined,
 			offset: 28,
+			type: 'regular-box',
+			children: [],
 		},
 	]);
 });
@@ -73,24 +73,24 @@ test('Parse framer', async () => {
 			offset: 0,
 			boxSize: 32,
 			boxType: 'ftyp',
-			extraData: {
-				compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
-				majorBrand: 'isom',
-				minorVersion: 512,
-				type: 'ftyp-box',
-			},
+			compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
+			majorBrand: 'isom',
+			minorVersion: 512,
+			type: 'ftyp-box',
 		},
 		{
 			offset: 32,
 			boxSize: 8,
 			boxType: 'free',
-			extraData: undefined,
+			type: 'regular-box',
+			children: [],
 		},
 		{
 			offset: 40,
 			boxSize: 73010,
 			boxType: 'mdat',
-			extraData: undefined,
+			children: [],
+			type: 'regular-box',
 		},
 	]);
 });
@@ -103,27 +103,27 @@ test('Parse a full video', async () => {
 		offset: 0,
 		boxSize: 32,
 		boxType: 'ftyp',
-		extraData: {
-			type: 'ftyp-box',
-			majorBrand: 'isom',
-			minorVersion: 512,
-			compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
-		},
+		type: 'ftyp-box',
+		majorBrand: 'isom',
+		minorVersion: 512,
+		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp41'],
 	});
 	expect(data[1]).toEqual({
 		offset: 32,
 		boxType: 'free',
 		boxSize: 8,
-		extraData: undefined,
+		type: 'regular-box',
+		children: [],
 	});
 	expect(data[2]).toEqual({
 		offset: 40,
 		boxSize: 57014,
 		boxType: 'mdat',
-		extraData: undefined,
+		children: [],
+		type: 'regular-box',
 	});
 
-	const moov = data[3].extraData;
+	const moov = data[3];
 	if (!moov) {
 		throw new Error('No extra data');
 	}

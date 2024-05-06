@@ -2198,7 +2198,7 @@ importers:
         specifier: 3.0.281
         version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
       '@remotion/renderer':
-        specifier: 'workspace:'
+        specifier: workspace:*
         version: link:../renderer
       '@types/bun':
         specifier: 1.0.12

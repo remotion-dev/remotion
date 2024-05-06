@@ -63,7 +63,7 @@ test('Should be able to parse a MVHD box correctly', () => {
 		0, 0, 0, 2,
 	]);
 
-	const mvhd = parseMvhd(buffer);
+	const mvhd = parseMvhd(buffer, 0);
 	expect(mvhd).toEqual({
 		creationTime: null,
 		modificationTime: null,
@@ -74,5 +74,9 @@ test('Should be able to parse a MVHD box correctly', () => {
 		volume: 1,
 		matrix: [65536, 0, 0, 0, 65536, 0, 0, 0, 1073741824],
 		nextTrackId: 2,
+		type: 'mvhd-box',
+		boxSize: 108,
+		offset: 0,
+		boxType: 'mvhd',
 	});
 });
