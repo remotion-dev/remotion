@@ -9,7 +9,6 @@ export const validPixelFormats = [
 	'yuv422p10le',
 	'yuv444p10le',
 	'yuva444p10le',
-	'bgra',
 ] as const;
 
 export type PixelFormat = (typeof validPixelFormats)[number];
@@ -17,17 +16,11 @@ export type PixelFormat = (typeof validPixelFormats)[number];
 export const DEFAULT_PIXEL_FORMAT: PixelFormat = 'yuv420p';
 
 export const validPixelFormatsForCodec = (codec: Codec) => {
-	if (codec === 'avi') {
+	if (codec === 'vp8' || codec === 'vp9') {
 		return validPixelFormats;
 	}
 
-	if (codec === 'vp8' || codec === 'vp9') {
-		return validPixelFormats.filter((format) => format !== 'bgra');
-	}
-
-	return validPixelFormats.filter(
-		(format) => format !== 'yuva420p' && format !== 'bgra',
-	);
+	return validPixelFormats.filter((format) => format !== 'yuva420p');
 };
 
 export const validateSelectedPixelFormatAndCodecCombination = (

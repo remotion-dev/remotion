@@ -91,5 +91,4 @@ export const defaultCodecsForFileExtension: Record<FileExtension, Codec> = {
 	wav: 'wav',
 	webm: 'vp8',
 	ts: 'h264-ts',
-	avi: 'avi',
 };

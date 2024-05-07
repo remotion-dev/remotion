@@ -352,8 +352,7 @@ declare global {
 				| 'yuv420p10le'
 				| 'yuv422p10le'
 				| 'yuv444p10le'
-				| 'yuva444p10le'
-				| 'bgra',
+				| 'yuva444p10le',
 		) => void;
 		/**
 		 * Specify the codec for stitching the frames into a video.

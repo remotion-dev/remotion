@@ -10,7 +10,6 @@ export const validCodecs = [
 	'h264-mkv',
 	'h264-ts',
 	'gif',
-	'avi',
 ] as const;
 
 export type Codec = (typeof validCodecs)[number];
