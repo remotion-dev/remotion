@@ -1,5 +1,6 @@
 import fs, {existsSync} from 'fs';
 import path from 'path';
+import {downloadFile, type OnProgress} from './download';
 
 const models = [
 	'tiny',
@@ -16,7 +17,6 @@ const models = [
 ] as const;
 
 export type WhisperModel = (typeof models)[number];
-export type OnProgress = (downloadedBytes: number, totalBytes: number) => void;
 
 export const getModelPath = (folder: string, model: WhisperModel) => {
 	return path.join(folder, `ggml-${model}.bin`);
@@ -58,64 +58,11 @@ export const downloadWhisperModel = async ({
 
 	const fileStream = fs.createWriteStream(filePath);
 
-	const {body, headers} = await fetch(baseModelUrl);
-	const contentLength = headers.get('content-length');
-
-	if (body === null) {
-		throw new Error('Failed to download whisper model');
-	}
-
-	if (contentLength === null) {
-		throw new Error('Content-Length header not found');
-	}
-
-	const totalFileSize = parseInt(contentLength, 10);
-
-	let downloaded = 0;
-	let lastPrinted = 0;
-
-	const reader = body.getReader();
-
-	// eslint-disable-next-line no-async-promise-executor
-	await new Promise<void>(async (resolve, reject) => {
-		try {
-			// eslint-disable-next-line no-constant-condition
-			while (true) {
-				const {done, value} = await reader.read();
-
-				if (value) {
-					downloaded += value.length;
-
-					if (
-						printOutput &&
-						(downloaded - lastPrinted > 1024 * 1024 * 10 ||
-							downloaded === totalFileSize)
-					) {
-						console.log(
-							`Downloaded ${downloaded} of ${contentLength} bytes (${(
-								(downloaded / Number(contentLength)) *
-								100
-							).toFixed(2)}%)`,
-						);
-						lastPrinted = downloaded;
-					}
-
-					fileStream.write(value, () => {
-						onProgress?.(downloaded, totalFileSize);
-						if (downloaded === totalFileSize) {
-							fileStream.end();
-							resolve();
-						}
-					});
-				}
-
-				if (done) {
-					break;
-				}
-			}
-		} catch (e) {
-			reject(e);
-		}
+	await downloadFile({
+		fileStream,
+		url: baseModelUrl,
+		printOutput,
+		onProgress,
 	});
 
 	return {alreadyExisted: false};
