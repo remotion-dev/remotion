@@ -111,7 +111,6 @@ const renderHandler = async (
 		codec: params.codec,
 		preferLossless: params.preferLossless,
 	});
-	console.log({defaultAudioCodec});
 
 	const seamlessAudio = canConcatAudioSeamlessly(
 		defaultAudioCodec,
@@ -128,7 +127,11 @@ const renderHandler = async (
 	);
 
 	const chunkCodec: Codec =
-		params.codec === 'gif' ? 'avi' : seamlessVideo ? 'h264-ts' : params.codec;
+		params.codec === 'gif'
+			? 'h264-mkv'
+			: seamlessVideo
+				? 'h264-ts'
+				: params.codec;
 	const audioCodec: AudioCodec | null =
 		defaultAudioCodec === null
 			? null
