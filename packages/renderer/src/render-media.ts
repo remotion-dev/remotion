@@ -292,7 +292,7 @@ const internalRenderMediaRaw = ({
 
 	validateFfmpegOverride(ffmpegOverride);
 
-	validateEveryNthFrame(everyNthFrame, codec);
+	validateEveryNthFrame(everyNthFrame);
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';

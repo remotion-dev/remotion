@@ -17,6 +17,7 @@ export type FileExtension =
 	| 'mxf'
 	| 'wav'
 	| 'ts'
+	| 'avi'
 	| 'webm';
 
 export const defaultFileExtensionMap: {
@@ -59,6 +60,10 @@ export const defaultFileExtensionMap: {
 	},
 	gif: {
 		default: 'gif',
+		forAudioCodec: {},
+	},
+	avi: {
+		default: 'avi',
 		forAudioCodec: {},
 	},
 	h264: {

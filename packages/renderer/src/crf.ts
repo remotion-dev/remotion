@@ -32,6 +32,10 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
+	if (codec === 'avi') {
+		return 0;
+	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
@@ -45,6 +49,10 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 	}
 
 	if (codec === 'gif') {
+		return [0, 0];
+	}
+
+	if (codec === 'avi') {
 		return [0, 0];
 	}
 
