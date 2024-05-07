@@ -1,13 +1,11 @@
 {
 	"name": "@remotion/studio-shared",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Shared items between Remotion Studio frontend and backend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
 		"formatting": "prettier src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

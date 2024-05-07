@@ -1,5 +1,5 @@
 {
-  "version": "4.0.147",
+  "version": "4.0.150",
   "name": "@remotion/compositor-linux-x64-musl",
   "os": [
     "linux"

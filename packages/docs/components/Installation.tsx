@@ -8,7 +8,7 @@ import Tabs from "@theme/Tabs";
 import { VERSION } from "remotion";
 
 const LightAndDark: React.FC<{
-  text: string;
+  readonly text: string;
 }> = ({ text }) => {
   return (
     <>
@@ -41,7 +41,7 @@ const LightAndDark: React.FC<{
 };
 
 export const Installation: React.FC<{
-  pkg: string;
+  readonly pkg: string;
 }> = ({ pkg }) => {
   if (pkg === undefined) {
     throw new Error("pkg is undefined");
@@ -57,6 +57,8 @@ export const Installation: React.FC<{
       return p;
     })
     .join(" ");
+
+  const isRemotionPackage = packages.includes("remotion");
 
   return (
     <div>
@@ -82,13 +84,17 @@ export const Installation: React.FC<{
           <LightAndDark text={`yarn --exact add ${packages}`} />
         </TabItem>
       </Tabs>
-      This assumes you are currently using v{VERSION} of Remotion.
-      <br />
-      Also update <code>remotion</code> and all <code>`@remotion/*`</code>{" "}
-      packages to the same version.
-      <br />
-      Remove all <code>^</code> character in front of the version numbers of it
-      as it can lead to a version conflict.
+      {isRemotionPackage ? (
+        <>
+          This assumes you are currently using v{VERSION} of Remotion.
+          <br />
+          Also update <code>remotion</code> and all <code>`@remotion/*`</code>{" "}
+          packages to the same version.
+          <br />
+          Remove all <code>^</code> character in front of the version numbers of
+          it as it can lead to a version conflict.
+        </>
+      ) : null}
     </div>
   );
 };

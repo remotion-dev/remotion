@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/zod-types",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "A color validator for Zod",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "bun bundle.ts && tsc -d"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],

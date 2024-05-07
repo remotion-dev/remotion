@@ -1,14 +1,12 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -28,7 +26,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"eslint": "8.56.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4"

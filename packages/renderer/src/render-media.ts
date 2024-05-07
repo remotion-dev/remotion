@@ -83,6 +83,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	renderEstimatedTime: number;
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
@@ -121,7 +122,6 @@ export type InternalRenderMediaOptions = {
 	disallowParallelEncoding: boolean;
 	serveUrl: string;
 	concurrency: number | string | null;
-	finishRenderProgress: () => void;
 	binariesDirectory: string | null;
 	compositionStart: number;
 } & MoreRenderMediaOptions;
@@ -235,7 +235,6 @@ const internalRenderMediaRaw = ({
 	offthreadVideoCacheSizeInBytes,
 	colorSpace,
 	repro,
-	finishRenderProgress,
 	binariesDirectory,
 	separateAudioTo,
 	forSeamlessAacConcatenation,
@@ -305,6 +304,8 @@ const internalRenderMediaRaw = ({
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
+	let renderEstimatedTime = 0;
+	let totalTimeSpentOnFrames = 0;
 
 	const renderStart = Date.now();
 
@@ -428,12 +429,12 @@ const internalRenderMediaRaw = ({
 
 	const callUpdate = () => {
 		const encoded = Math.round(0.8 * encodedFrames + 0.2 * muxedFrames);
-
 		onProgress?.({
 			encodedDoneIn,
 			encodedFrames: encoded,
 			renderedDoneIn,
 			renderedFrames,
+			renderEstimatedTime,
 			stitchStage,
 			progress:
 				Math.round((70 * renderedFrames + 30 * encoded) / totalFramesToRender) /
@@ -568,6 +569,15 @@ const internalRenderMediaRaw = ({
 						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
+
+						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
+						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+
+						const remainingFrames = totalFramesToRender - renderedFrames;
+
+						// Get estimated time by multiplying the avarage render time by the remaining frames
+						renderEstimatedTime = Math.round(remainingFrames * newAverage);
+
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
@@ -647,7 +657,6 @@ const internalRenderMediaRaw = ({
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
 
-				callUpdate();
 				Log.verbose(
 					{indent, logLevel},
 					'Rendering frames done in',
@@ -682,7 +691,13 @@ const internalRenderMediaRaw = ({
 								encodedFrames = frame;
 							}
 
-							callUpdate();
+							if (encodedFrames === totalFramesToRender) {
+								encodedDoneIn = Date.now() - stitchStart;
+							}
+
+							if (frame > 0) {
+								callUpdate();
+							}
 						},
 						onDownload,
 						numberOfGifLoops,
@@ -701,13 +716,9 @@ const internalRenderMediaRaw = ({
 						binariesDirectory,
 						separateAudioTo,
 					}),
-					stitchStart,
 				]);
 			})
-			.then(([buffer, stitchStart]) => {
-				encodedFrames = totalFramesToRender;
-				encodedDoneIn = Date.now() - stitchStart;
-				callUpdate();
+			.then(([buffer]) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
@@ -719,7 +730,6 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
-				finishRenderProgress();
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
@@ -921,7 +931,6 @@ export const renderMedia = ({
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
-		finishRenderProgress: () => undefined,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,

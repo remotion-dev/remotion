@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -14,12 +14,12 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
 		"eslint": "8.56.0",
 		"next": "14.1.4",
-		"react": "18.3.0",
-		"react-dom": "18.3.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {

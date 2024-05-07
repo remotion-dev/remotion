@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Noise effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -9,8 +9,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "bun bundle.ts && tsc -d",
+		"build": "bun --env-file=../.env.bundle bundle.ts",
 		"test": "vitest --run"
 	},
 	"exports": {

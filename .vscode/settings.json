@@ -35,5 +35,5 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "python.terminal.activateEnvironment": false,
-  "rust-analyzer.cargo.buildScripts.enable": false
+  "rust-analyzer.linkedProjects": ["packages/renderer/Cargo.toml"]
 }

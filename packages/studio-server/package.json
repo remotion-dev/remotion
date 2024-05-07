@@ -1,13 +1,11 @@
 {
 	"name": "@remotion/studio-server",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Remotion Editor",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
 		"test": "vitest --run",
 		"formatting": "prettier src --check"
 	},
@@ -36,10 +34,10 @@
 		"open": "^8.4.2"
 	},
 	"devDependencies": {
-		"react": "18.3.0",
+		"react": "18.3.1",
 		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"@babel/types": "7.24.0",
 		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",

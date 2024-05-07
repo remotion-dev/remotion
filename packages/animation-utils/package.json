@@ -4,7 +4,7 @@
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "A set of animation utilities for Remotion",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -12,8 +12,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d && bun bundle.ts",
+		"build": "bun --env-file=../.env.bundle bundle.ts",
 		"test": "vitest --run"
 	},
 	"dependencies": {
@@ -21,7 +20,6 @@
 	},
 	"files": [
 		"dist",
-		"!dist/tsconfig-esm.tsbuildinfo",
 		"!dist/test"
 	],
 	"peerDependencies": {
@@ -29,7 +27,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@types/react": "18.2.48",
+		"@types/react": "18.3.1",
 		"@types/node": "18.14.6",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",

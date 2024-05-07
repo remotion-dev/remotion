@@ -1,4 +1,4 @@
-import { Font } from "./google-fonts";
+import type { Font } from "./google-fonts";
 
 export const unquote = (str: string) =>
   str.replace(/^['"]/g, "").replace(/['"]$/g, "");

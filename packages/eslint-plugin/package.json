@@ -1,11 +1,9 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "4.0.147",
+  "version": "4.0.150",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
-    "build": "tsc -d",
-    "test": "vitest --run",
-    "watch": "tsc -w"
+    "test": "vitest --run"
   },
   "main": "dist/index.js",
   "bugs": {

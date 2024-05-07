@@ -368,7 +368,7 @@ impl OpenedStream {
                                 let new_difference =
                                     (unfiltered.pts().expect("pts") - position).abs();
 
-                                if new_difference > prev_difference {
+                                if new_difference >= prev_difference {
                                     stop_after_n_diverging_pts = Some(stop - 1);
                                 } else if prev_difference > new_difference {
                                     // Fixing test video crazy1.mp4, frames 240-259

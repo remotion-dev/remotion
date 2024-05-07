@@ -111,37 +111,7 @@ await deploySite({
 
 1. Install the following dependencies:
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @mdx-js/loader @mdx-js/react
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @mdx-js/loader @mdx-js/react
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add @mdx-js/loader @mdx-js/react
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="@mdx-js/loader @mdx-js/react" />
 
 2. Create a file with the Webpack override:
 
@@ -199,37 +169,7 @@ Config.overrideWebpackConfig(enableMdx);
 
 1. Install the following dependencies:
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i sass style-loader css-loader sass-loader
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i sass style-loader css-loader sass-loader
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add sass style-loader css-loader sass-loader
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="sass style-loader css-loader sass-loader" />
 
 2. Declare an override function:
 
@@ -277,41 +217,75 @@ Config.overrideWebpackConfig(enableSass);
 
 5. Restart the Remotion Studio.
 
+### Enable SVGR support
+
+This allows you to enable `import` SVG files as React components.
+
+1. Install the following dependency:
+
+<Installation pkg="@svgr/webpack" />
+
+2. Declare an override function:
+
+```ts twoslash title="src/enable-svgr.ts"
+import { WebpackOverrideFn } from "@remotion/bundler";
+
+export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        {
+          test: /\.svg$/i,
+          issuer: /\.[jt]sx?$/,
+          resourceQuery: { not: [/url/] }, // Exclude react component if *.svg?url
+          use: ["@svgr/webpack"],
+        },
+        ...(currentConfiguration.module?.rules ?? []).map((r) => {
+          if (r === "...") {
+            return r;
+          }
+          if (!r.test?.toString().includes("svg")) {
+            return r;
+          }
+          return {
+            ...r,
+            // Remove Remotion loading SVGs as a URL
+            test: new RegExp(
+              r.test.toString().replace(/svg\|/g, "").slice(1, -1),
+            ),
+          };
+        }),
+      ],
+    },
+  };
+};
+```
+
+3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-svgr.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableSvgr: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+import { enableSvgr } from "./src/enable-svgr";
+
+Config.overrideWebpackConfig(enableSvgr);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Restart the Remotion Studio.
+
 ### Enable support for GLSL imports
 
 1. Install the following dependencies:
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i glsl-shader-loader glslify glslify-import-loader raw-loader
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add glsl-shader-loader glslify glslify-import-loader raw-loader
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i glsl-shader-loader glslify glslify-import-loader raw-loader
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="glsl-shader-loader glslify glslify-import-loader raw-loader" />
 
 2. Declare a webpack override:
 

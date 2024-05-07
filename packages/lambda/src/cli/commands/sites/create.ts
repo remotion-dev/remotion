@@ -97,14 +97,14 @@ export const sitesCreateSubcommand = async (
 		},
 	};
 
-	const updateProgress = () => {
+	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false,
+			newLine,
 		);
 	};
 
@@ -125,7 +125,7 @@ export const sitesCreateSubcommand = async (
 		).bucketName;
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
+	updateProgress(false);
 
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
@@ -154,7 +154,7 @@ export const sitesCreateSubcommand = async (
 					uploadStart = Date.now();
 				}
 
-				updateProgress();
+				updateProgress(false);
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
@@ -163,7 +163,7 @@ export const sitesCreateSubcommand = async (
 					doneIn: null,
 					stats: null,
 				};
-				updateProgress();
+				updateProgress(false);
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
@@ -189,20 +189,28 @@ export const sitesCreateSubcommand = async (
 			untouchedFiles: stats.untouchedFiles,
 		},
 	};
-	updateProgress();
+	updateProgress(true);
 
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel});
-	Log.info({indent: false, logLevel}, 'Deployed to S3!');
-
-	Log.info({indent: false, logLevel}, `Serve URL: ${serveUrl}`);
-	Log.info({indent: false, logLevel}, `Site Name: ${siteName}`);
+	CliInternals.printFact('info')({
+		indent: false,
+		left: 'Serve URL',
+		logLevel,
+		right: serveUrl,
+		color: 'blue',
+	});
+	CliInternals.printFact('info')({
+		indent: false,
+		left: 'Site name',
+		logLevel,
+		right: siteName,
+		color: 'blue',
+	});
 
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+			'ℹ️   Redeploy your site everytime you make changes to it. You can overwrite the existing site by running:',
 		),
 	);
 	Log.info(

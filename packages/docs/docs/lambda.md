@@ -18,7 +18,7 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
 ## When should I use it?
 
-- Your videos are less than 30 minutes long at Full HD. <sub>approximately until the 15min AWS Timeout limit is hit</sub>
+- Your videos are less than 80 minutes long at Full HD. <sub>approximately until the 15min AWS Timeout limit is hit</sub>
 - You stay within the ([AWS Lambda Concurrency Limit](/docs/lambda/troubleshooting/rate-limit)) or you are requesting an [increase from AWS](/docs/lambda/troubleshooting/rate-limit).
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 

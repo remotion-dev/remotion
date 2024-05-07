@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-docker.png
 id: docker
+sidebar_label: Docker
 title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---

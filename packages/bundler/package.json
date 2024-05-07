@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -13,8 +13,6 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d",
-		"watch": "tsc -w",
 		"test": "vitest --run"
 	},
 	"files": [
@@ -44,16 +42,16 @@
 		"@jonny/eslint-config": "3.0.281",
 		"@types/node": "18.14.6",
 		"bun-types": "0.8.0",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
 		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react": "18.3.0",
-		"react-dom": "18.3.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1"
 	},
 	"keywords": [

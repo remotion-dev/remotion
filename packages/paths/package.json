@@ -1,14 +1,12 @@
 {
 	"name": "@remotion/paths",
-	"version": "4.0.147",
+	"version": "4.0.150",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d",
 		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",

@@ -74,30 +74,26 @@ export const getTimelineSequenceLayout = ({
 
 	const nonNegativeMarginLeft = Math.min(marginLeft, 0);
 
-	const width = Math.floor(
-		getWidthOfTrack({
-			durationInFrames,
-			lastFrame,
-			nonNegativeMarginLeft,
-			spatialDuration,
-			windowWidth,
-		}),
-	);
+	const width = getWidthOfTrack({
+		durationInFrames,
+		lastFrame,
+		nonNegativeMarginLeft,
+		spatialDuration,
+		windowWidth,
+	});
 
 	const premountWidth = premountDisplay
-		? Math.floor(
-				getWidthOfTrack({
-					durationInFrames: premountDisplay,
-					lastFrame,
-					nonNegativeMarginLeft,
-					spatialDuration: premountDisplay,
-					windowWidth,
-				}),
-			)
+		? getWidthOfTrack({
+				durationInFrames: premountDisplay,
+				lastFrame,
+				nonNegativeMarginLeft,
+				spatialDuration: premountDisplay,
+				windowWidth,
+			})
 		: null;
 
 	return {
-		marginLeft: Math.round(Math.max(marginLeft, 0)) - (premountWidth ?? 0),
+		marginLeft: Math.max(marginLeft, 0) - (premountWidth ?? 0),
 		width: width + (premountWidth ?? 0),
 		premountWidth,
 	};

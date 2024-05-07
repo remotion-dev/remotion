@@ -81,7 +81,9 @@ export const createAudio = async ({
 
 	const updateProgress = () => {
 		const preprocessProgressSum =
-			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length;
+			preprocessProgress.length === 0
+				? 1
+				: preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length;
 
 		const totalProgress =
 			preprocessProgressSum * 0.7 +
@@ -159,8 +161,6 @@ export const createAudio = async ({
 			updateProgress();
 		},
 	});
-
-	onProgress(1);
 
 	deleteDirectory(merged);
 	deleteDirectory(downloadMap.audioMixing);

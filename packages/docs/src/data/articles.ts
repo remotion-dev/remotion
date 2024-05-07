@@ -996,7 +996,7 @@ export const articles = [
   {
     id: "functions",
     title: "npx remotion lambda functions",
-    relativePath: "docs/lambda/cli/functions.md",
+    relativePath: "docs/lambda/cli/functions.mdx",
     compId: "articles-docs-lambda-cli-functions",
     crumb: "Lambda CLI Reference",
   },
@@ -1101,7 +1101,7 @@ export const articles = [
   {
     id: "deployfunction",
     title: "deployFunction()",
-    relativePath: "docs/lambda/deployfunction.md",
+    relativePath: "docs/lambda/deployfunction.mdx",
     compId: "articles-docs-lambda-deployfunction",
     crumb: "Lambda API",
   },
@@ -1267,6 +1267,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "naming-convention",
+    title: "Function naming convention",
+    relativePath: "docs/lambda/naming-convention.mdx",
+    compId: "articles-docs-lambda-naming-convention",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
@@ -1325,7 +1332,7 @@ export const articles = [
   {
     id: "runtime",
     title: "Runtime",
-    relativePath: "docs/lambda/runtime.md",
+    relativePath: "docs/lambda/runtime.mdx",
     compId: "articles-docs-lambda-runtime",
     crumb: "Lambda",
   },
@@ -1699,6 +1706,20 @@ export const articles = [
     relativePath: "docs/miscellaneous/snippets/adding-animations.md",
     compId: "articles-docs-miscellaneous-snippets-adding-animations",
     crumb: "Snippets",
+  },
+  {
+    id: "miscellaneous/snippets/align-duration",
+    title: "How do I make the composition the same duration as my video?",
+    relativePath: "docs/miscellaneous/snippets/align-duration.mdx",
+    compId: "articles-docs-miscellaneous-snippets-align-duration",
+    crumb: "FAQ",
+  },
+  {
+    id: "miscellaneous/snippets/combine-compositions",
+    title: "How do I combine compositions?",
+    relativePath: "docs/miscellaneous/snippets/combine-compositions.mdx",
+    compId: "articles-docs-miscellaneous-snippets-combine-compositions",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/snippets/fps-converter",
@@ -2291,13 +2312,6 @@ export const articles = [
     crumb: "Recorder",
   },
   {
-    id: "recorder/example",
-    title: "Before you buy",
-    relativePath: "docs/recorder/example.mdx",
-    compId: "articles-docs-recorder-example",
-    crumb: "Recorder",
-  },
-  {
     id: "recorder/exporting",
     title: "Exporting a video",
     relativePath: "docs/recorder/exporting.mdx",
@@ -2319,10 +2333,31 @@ export const articles = [
     crumb: "Templates",
   },
   {
+    id: "recorder/lambda-rendering",
+    title: "Render on Lambda",
+    relativePath: "docs/recorder/lambda-rendering.mdx",
+    compId: "articles-docs-recorder-lambda-rendering",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/our-recorder",
+    title: "Our Recorder",
+    relativePath: "docs/recorder/our-recorder.mdx",
+    compId: "articles-docs-recorder-our-recorder",
+    crumb: "Recorder",
+  },
+  {
     id: "recorder/record",
     title: "Record a scene",
     relativePath: "docs/recorder/record.mdx",
     compId: "articles-docs-recorder-record",
+    crumb: "Recorder",
+  },
+  {
+    id: "recorder/roadmap",
+    title: "Roadmap",
+    relativePath: "docs/recorder/roadmap.mdx",
+    compId: "articles-docs-recorder-roadmap",
     crumb: "Recorder",
   },
   {
@@ -3166,6 +3201,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/browser-launch",
+    title: "Failed to launch the browser process",
+    relativePath: "docs/troubleshooting/browser-launch.mdx",
+    compId: "articles-docs-troubleshooting-browser-launch",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "troubleshooting/bundling-bundle",
     title: "Calling bundle() in bundled code",
     relativePath: "docs/troubleshooting/bundling-bundle.md",
@@ -3385,7 +3427,7 @@ export const articles = [
   {
     id: "zod-types/index",
     title: "@remotion/zod-types",
-    relativePath: "docs/zod-types/index.md",
+    relativePath: "docs/zod-types/index.mdx",
     compId: "articles-docs-zod-types-index",
     crumb: "Schema",
   },
