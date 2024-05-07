@@ -19,7 +19,11 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
-import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
+import {
+	EditorPropsContext,
+	EditorPropsProvider,
+	editorPropsProviderRef,
+} from './EditorProps.js';
 import {
 	addSequenceStackTraces,
 	enableSequenceStackTraces,
@@ -154,6 +158,7 @@ export const Internals = {
 	CurrentScaleContext,
 	PreviewSizeContext,
 	calculateScale,
+	editorPropsProviderRef,
 } as const;
 
 export type {

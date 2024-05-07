@@ -119,7 +119,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			playbackRate: playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
-			audioStartFrame: -(sequenceContext?.relativeFrom ?? 0),
+			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -166,7 +166,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
-		if (process.env.NODE_ENV === 'test') {
+		if (window.process?.env?.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
 		}
@@ -248,7 +248,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	if (environment.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
+			if (window.process?.env?.NODE_ENV === 'test') {
 				return;
 			}
 

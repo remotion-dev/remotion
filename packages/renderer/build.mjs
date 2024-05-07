@@ -255,8 +255,7 @@ for (const arch of archs) {
 		: '';
 
 	const optimizations = all
-		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ' +
-			rPathOrigin
+		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin}`
 		: '';
 
 	execSync(command, {

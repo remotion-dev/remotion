@@ -34,7 +34,6 @@ const SlidePresentation: React.FC<
 			presentationProgress === 1
 				? presentationProgress * 100
 				: presentationProgress * 100 - epsilon;
-		console.log(presentationProgressWithEpsilonCorrection);
 
 		if (presentationDirection === 'exiting') {
 			switch (direction) {

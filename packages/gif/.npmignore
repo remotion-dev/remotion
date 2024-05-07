@@ -1,5 +1,4 @@
 build.mjs
-dist/tsconfig-esm.tsbuildinfo
 dist/tsconfig.tsbuildinfo
 src
 tsconfig.json

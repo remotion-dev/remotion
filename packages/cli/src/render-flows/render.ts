@@ -25,7 +25,6 @@ import type {
 	CopyingState,
 	DownloadProgress,
 	JobProgressCallback,
-	RenderStep,
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
@@ -44,8 +43,10 @@ import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
+	LABEL_WIDTH,
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
+	printFact,
 } from '../progress-bar';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
@@ -152,13 +153,24 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	publicPath: string | null;
 }) => {
+	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
+
+	printFact('verbose')({
+		indent,
+		logLevel,
+		left: 'Entry point',
+		right: [fullEntryPoint, isVerbose ? `(${entryPointReason})` : null]
+			.filter(truthy)
+			.join(' '),
+		color: 'gray',
+	});
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		indent,
@@ -194,12 +206,6 @@ export const renderVideoFlow = async ({
 		indent,
 	});
 
-	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
-		'rendering' as const,
-		shouldOutputImageSequence ? null : ('stitching' as const),
-	].filter(truthy);
-
 	let bundlingProgress: BundlingState = {
 		doneIn: null,
 		progress: 0,
@@ -229,8 +235,6 @@ export const renderVideoFlow = async ({
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
 			prog: aggregateRenderProgress,
-			steps: steps.length,
-			stitchingStep: steps.indexOf('stitching'),
 			isUsingParallelEncoding,
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
@@ -252,8 +256,6 @@ export const renderVideoFlow = async ({
 			},
 			indentOutput: indent,
 			logLevel,
-			bundlingStep: steps.indexOf('bundling'),
-			steps: steps.length,
 			onDirectoryCreated: (dir) => {
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
@@ -357,16 +359,38 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
-	Log.verbose(
-		{indent, logLevel},
-		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
-	);
-	Log.info(
-		{indent, logLevel},
-		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`,
-		),
-	);
+	printFact('info')({
+		indent,
+		logLevel,
+		left: 'Composition',
+		right: [compositionId, isVerbose ? `(${reason})` : null]
+			.filter(truthy)
+			.join(' '),
+		color: 'gray',
+	});
+	printFact('info')({
+		indent,
+		logLevel,
+		left: 'Codec',
+		right: [codec, isVerbose ? `(${codecReason})` : null]
+			.filter(truthy)
+			.join(' '),
+		color: 'gray',
+	});
+	printFact('info')({
+		indent,
+		logLevel,
+		left: 'Output',
+		right: relativeOutputLocation,
+		color: 'gray',
+	});
+	printFact('info')({
+		indent,
+		logLevel,
+		left: 'Concurrency',
+		right: `${actualConcurrency}x`,
+		color: 'gray',
+	});
 
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
@@ -393,9 +417,8 @@ export const renderVideoFlow = async ({
 	renderingProgress = {
 		frames: 0,
 		totalFrames: totalFrames.length,
-		concurrency: actualConcurrency,
 		doneIn: null,
-		steps,
+		timeRemainingInMilliseconds: null,
 	};
 
 	const imageFormat = getVideoImageFormat({
@@ -466,7 +489,6 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 		});
 
-		updateRenderProgress({newline: true, printToConsole: true});
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
@@ -523,6 +545,9 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
+			(
+				renderingProgress as RenderingProgressInput
+			).timeRemainingInMilliseconds = update.renderEstimatedTime;
 			updateRenderProgress({newline: false, printToConsole: true});
 		},
 		puppeteerInstance,
@@ -546,25 +571,29 @@ export const renderVideoFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro: repro ?? false,
-		finishRenderProgress: () => {
-			updateRenderProgress({newline: true, printToConsole: true});
-		},
 		binariesDirectory,
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
 		compositionStart: 0,
 		onBrowserDownload,
 	});
+	if (!updatesDontOverwrite) {
+		updateRenderProgress({newline: true, printToConsole: true});
+	}
 
 	Log.info(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
+		chalk.blue(
+			`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${relativeOutputLocation}`,
+		),
 	);
 
 	if (absoluteSeparateAudioTo) {
 		Log.info(
 			{indent, logLevel},
-			chalk.blue(`${audioExists ? '○' : '+'} ${absoluteSeparateAudioTo}`),
+			chalk.blue(
+				`${(audioExists ? '○' : '+').padEnd(LABEL_WIDTH, ' ')} ${absoluteSeparateAudioTo}`,
+			),
 		);
 	}
 

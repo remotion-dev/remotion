@@ -6,6 +6,7 @@ import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
+import {checkForNpmRunFlagPass} from './check-for-npm-run-flag-pass';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
@@ -27,7 +28,11 @@ import {BooleanFlags, parsedCli, quietFlagProvided} from './parsed-cli';
 import {printCompositions} from './print-compositions';
 import {printError} from './print-error';
 import {printHelp} from './print-help';
-import {createOverwriteableCliOutput} from './progress-bar';
+import {
+	LABEL_WIDTH,
+	createOverwriteableCliOutput,
+	printFact,
+} from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
@@ -79,6 +84,7 @@ export const cli = async () => {
 		: RenderInternals.registerErrorSymbolicationLock();
 
 	handleCtrlC({indent: false, logLevel});
+	checkForNpmRunFlagPass({indent: false, logLevel});
 
 	try {
 		if (command === 'bundle') {
@@ -159,4 +165,6 @@ export const CliInternals = {
 	shouldUseNonOverlayingLogger,
 	getCompositionWithDimensionOverride,
 	defaultBrowserDownloadProgress,
+	LABEL_WIDTH,
+	printFact,
 };

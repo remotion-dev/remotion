@@ -21,8 +21,8 @@ const timelineContent: React.CSSProperties = {
 };
 
 export const TimelineTracks: React.FC<{
-	timeline: TrackWithHash[];
-	hasBeenCut: boolean;
+	readonly timeline: TrackWithHash[];
+	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {

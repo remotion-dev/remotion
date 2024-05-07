@@ -21,7 +21,7 @@ import {
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './options/audio-codec';
-import {validColorSpaces} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {optionsMap} from './options/options-map';
 import {getOutputCodecOrUndefined} from './options/video-codec';
@@ -52,6 +52,7 @@ export const BrowserSafeApis = {
 	DEFAULT_PIXEL_FORMAT,
 	DEFAULT_TIMEOUT,
 	DEFAULT_JPEG_QUALITY,
+	DEFAULT_COLOR_SPACE,
 	supportedAudioCodecs,
 	defaultFileExtensionMap,
 	defaultAudioCodecs,

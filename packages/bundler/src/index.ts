@@ -18,7 +18,7 @@ export const BundlerInternals = {
 	internalBundle,
 };
 
-export type {GitSource} from '@remotion/studio';
+export type {GitSource} from '@remotion/studio-shared';
 export {
 	BundleOptions,
 	LegacyBundleOptions,

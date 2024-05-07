@@ -102,8 +102,20 @@ prefetch("https://example.com/video.mp4", {
 
 An object with:
 
-- `free()` will abort the prefetching and free up the memory. Components using the asset might re-request the asset.
-- `waitUntilDone()` will return a promise if called that resolves once asset has finished downloading and is ready to be using in [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img).
+### `free()`
+
+Calling this function will abort the prefetching is still in progress and free up the memory. Components using the asset might re-request the asset.
+
+### `waitUntilDone()`
+Calling this will return a `Promise<string>` that resolves once asset has finished downloading and is ready to be used. 
+
+The `string` that is being returned is either:
+- A `blob:` URL or `data:` Base 64 data respectively
+- The same `src` you passed as input, if in a rendering environment.
+
+You don't need to use this URL in [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img), which will automatically use it.
+
+If you neeed the URL somewhere (like for [`mask-image`](/docs/troubleshooting/background-image)), you can grab it from `waitUntilDone()`.
 
 ## `blob-url` or `base64`?
 

@@ -6,7 +6,5 @@ tsconfig.tsbuildinfo
 jest.config.js
 *.tgz
 .turbo
-tsconfig-cjs.tsbuildinfo
-tsconfig-cjs.json
 tsconfig.json
 .prettierrc.mjs

@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import type {GitSource} from '@remotion/studio';
+import type {GitSource} from '@remotion/studio-shared';
 import {execSync} from 'child_process';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';

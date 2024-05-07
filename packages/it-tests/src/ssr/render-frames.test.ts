@@ -16,6 +16,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     "https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/",
     {
       puppeteerInstance,
+      inputProps: {},
     }
   );
 

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/transitions",
-	"version": "4.0.143",
+	"version": "4.0.150",
 	"description": "Transition presets for Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
@@ -10,8 +10,7 @@
 		"test": "vitest src --run",
 		"lint": "eslint src --ext ts,tsx",
 		"formatting": "prettier src --check",
-		"watch": "tsc -w",
-		"build": "tsc -d && bun bundle.ts"
+		"build": "bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -33,12 +32,12 @@
 		"prettier": "3.2.5",
 		"prettier-plugin-organize-imports": "3.2.4",
 		"remotion": "workspace:*",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"@types/react": "18.2.48",
-		"@types/react-dom": "18.2.18",
-		"@types/bun": "^1.0.12",
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
+		"@types/bun": "1.0.12",
 		"@remotion/test-utils": "workspace:*",
 		"@vitejs/plugin-react": "^2.0.0"
 	},

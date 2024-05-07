@@ -13,7 +13,7 @@ export const cloudrunCommand = async (
 		});
 		const {CloudrunInternals} = require(path);
 
-		await CloudrunInternals.executeCommand(args, remotionRoot);
+		await CloudrunInternals.executeCommand(args, remotionRoot, logLevel);
 		process.exit(0);
 	} catch (err) {
 		const manager = StudioServerInternals.getPackageManager(

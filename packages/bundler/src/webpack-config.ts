@@ -28,7 +28,9 @@ if (reactDomVersion === '0') {
 	);
 }
 
-const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+const shouldUseReactDomClient = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? true
+	: parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
@@ -126,7 +128,7 @@ export const webpackConfig = async ({
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								if (p === 1 || p - lastProgress > 0.05) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
 									lastProgress = p;
 									onProgress(Number((p * 100).toFixed(2)));
 								}

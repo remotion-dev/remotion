@@ -7,6 +7,10 @@ crumb: "API"
 
 # watchStaticFile()<AvailableFrom v="4.0.61"/>
 
+:::note
+This API is being moved to the `@remotion/studio` package. Prefer importing the API from [`@remotion/studio`](/docs/studio/watch-static-file) instead of `remotion`.
+:::
+
 Watches for changes in a specific [static file](/docs/staticfile) and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
 
 :::warning

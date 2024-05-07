@@ -10,6 +10,7 @@ test("Render video with browser instance open", async () => {
     "https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/",
     {
       puppeteerInstance,
+      inputProps: {},
     }
   );
 
