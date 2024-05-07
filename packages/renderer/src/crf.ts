@@ -41,7 +41,12 @@ const crfRanges: {[key in Codec]: [number, number]} = {
 };
 
 export const getValidCrfRanges = (codec: Codec): [number, number] => {
-	return crfRanges[codec];
+	const val = crfRanges[codec];
+	if (val === undefined) {
+		throw new TypeError(`Got unexpected codec "${codec}"`);
+	}
+
+	return val;
 };
 
 export const validateQualitySettings = ({
