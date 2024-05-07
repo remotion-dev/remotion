@@ -346,10 +346,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
         type: "website",
         url: "https://www.remotion.pro/recorder",
       },
-      {
-        type: "tutorial",
-        url: "<add link to tutorial or delete this object>",
-      },
     ],
     author: {
       url: "https://www.remotion.dev",
