@@ -33,7 +33,10 @@ const PageHeader: React.FC = () => {
         </p>
         <p>
           Have you leveraged {"Remotion's"} capabilities for your own project?
-          <a href="mailto:hi@remotion.dev?subject=Showcase+page">
+          <a
+            target="_blank"
+            href="mailto:hi@remotion.dev?subject=Showcase+page"
+          >
             {" "}
             Contact us
           </a>{" "}
