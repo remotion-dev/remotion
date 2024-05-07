@@ -4,7 +4,7 @@ namespace Remotion\LambdaPhp;
 
 class GetRenderProgressResponse
 {
-    public int $chunks;
+    public ?int $chunks;
     public bool $done;
     public float $overallProgress;
     public string $type;

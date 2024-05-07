@@ -1,3 +1,5 @@
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
+
 let warnedServer = false;
 let warnedPlayer = false;
 
@@ -30,6 +32,12 @@ const warnPlayerOnce = () => {
  * @see [Documentation](https://www.remotion.dev/docs/getstaticfiles)
  */
 export const getStaticFiles = (): StaticFile[] => {
+	if (ENABLE_V5_BREAKING_CHANGES) {
+		throw new Error(
+			'getStaticFiles() has moved into the `@remotion/studio` package. Update your imports.',
+		);
+	}
+
 	if (typeof document === 'undefined') {
 		warnServerOnce();
 		return [];

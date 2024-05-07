@@ -8,7 +8,8 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 WORKDIR /usr/app
 
 COPY package*.json ./
-RUN npm i
+RUN npm config set update-notifier false
+RUN npm i --no-fund --no-audit
 
 COPY dist ./dist
 

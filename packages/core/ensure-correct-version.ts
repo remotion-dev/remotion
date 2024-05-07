@@ -19,18 +19,19 @@ export const VERSION = '${version}';
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
 cp.execSync('pnpm build');
+cp.execSync('bun x tsc -d');
 
 const distFile = fs.readFileSync('dist/esm/version.mjs', 'utf-8');
 
 if (!distFile.includes(version)) {
-	console.log('In dist file, did not include version');
+	console.log('In dist file, did not include ' + JSON.stringify(version));
 	process.exit(1);
 }
 
 const distFileCjs = fs.readFileSync('dist/cjs/version.js', 'utf-8');
 
 if (!distFileCjs.includes(version)) {
-	console.log('In dist file, did not include version');
+	console.log('In dist file, did not include ' + JSON.stringify(version));
 	process.exit(1);
 }
 

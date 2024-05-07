@@ -73,6 +73,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 - [Motionly.video](https://github.com/karelnagel/motionly)
 - [DataVids](https://github.com/apsquared/datavids_public)
+- [Bar race chart](https://github.com/hylarucoder/remotion-bar-race-chart)
 
 ## Examples
 

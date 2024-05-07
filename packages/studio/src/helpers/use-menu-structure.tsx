@@ -14,7 +14,7 @@ import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Row} from '../components/layout';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
-import {canvasRef} from '../state/canvas-ref';
+import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
@@ -586,7 +586,7 @@ export const useMenuStructure = (
 								leftItem: null,
 								onClick: () => {
 									closeMenu();
-									canvasRef.current?.requestFullscreen();
+									drawRef.current?.requestFullscreen();
 								},
 								subMenu: null,
 								type: 'item' as const,

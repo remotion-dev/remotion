@@ -37,7 +37,7 @@ test("Go package should create the same payload as normal Lambda package", async
     audioBitrate: null,
     audioCodec: null,
     chromiumOptions: {},
-    colorSpace: "default",
+    colorSpace: null,
     concurrencyPerLambda: 1,
     crf: undefined,
     deleteAfter: null,

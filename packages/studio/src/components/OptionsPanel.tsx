@@ -55,7 +55,7 @@ export const optionsSidebarTabs = createRef<{
 }>();
 
 export const OptionsPanel: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 	const [saving, setSaving] = useState(false);
@@ -133,7 +133,7 @@ export const OptionsPanel: React.FC<{
 			: 'There are unsaved changes';
 	}, []);
 
-	const setInputProps = useCallback(
+	const setDefaultProps = useCallback(
 		(
 			newProps:
 				| Record<string, unknown>
@@ -152,7 +152,7 @@ export const OptionsPanel: React.FC<{
 		[composition, updateProps],
 	);
 
-	const actualProps = useMemo(() => {
+	const currentDefaultProps = useMemo(() => {
 		if (composition === null) {
 			return {};
 		}
@@ -165,8 +165,8 @@ export const OptionsPanel: React.FC<{
 			return false;
 		}
 
-		return !deepEqual(composition.defaultProps, actualProps);
-	}, [actualProps, composition]);
+		return !deepEqual(composition.defaultProps, currentDefaultProps);
+	}, [currentDefaultProps, composition]);
 
 	return (
 		<div style={container} className="css-reset">
@@ -196,8 +196,8 @@ export const OptionsPanel: React.FC<{
 				<DataEditor
 					key={composition.id}
 					unresolvedComposition={composition}
-					inputProps={actualProps}
-					setInputProps={setInputProps}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
 					mayShowSaveButton
 					propsEditType="default-props"
 					saving={saving}

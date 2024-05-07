@@ -4,7 +4,21 @@ title: Create a new video
 crumb: Recorder
 ---
 
-In your repo, you will see an empty [`<Composition>`](/docs/terminology/composition) under `remotion/Root.tsx`:
+If you haven't done so yet, start the Recorder:
+
+```bash
+bun start
+```
+
+Remotion calls each output video a "Composition". There are two ways to generate a new composition:
+
+## 1. Visual way
+
+Open `http://localhost:3000` and in the left sidebar, right-click on the "empty" composition. Select "Duplicate" and give your composition an ID. Confirm.
+
+## 2. Manual way
+
+Open the project in a code editor. You will see an empty [`<Composition>`](/docs/terminology/composition) under `remotion/Root.tsx`:
 
 ```tsx
 <Composition
@@ -16,6 +30,7 @@ In your repo, you will see an empty [`<Composition>`](/docs/terminology/composit
     canvasLayout: "square" as const,
     scenes: [],
     scenesAndMetadata: [],
+		platform: "x" as const,
   }}
   calculateMetadata={calcMetadata}
 />
@@ -50,10 +65,4 @@ Copy and paste the [`<Composition />`](/docs/composition) component to duplicate
 />
 ```
 
-Then, edit `copy.ts` by setting the `prefix` to the [ID](/docs/terminology/composition#composition-id) of the `<Composition>` you just cloned.
-
-```js filename="copy.ts"
-const prefix = "<your-composition-id>";
-```
-
-This ensures that when copying recordings into your project, they get added to the video you are currently working on.
+Save, and you should see the new composition when you look at the Remotion Studio on `http://localhost:3000`.

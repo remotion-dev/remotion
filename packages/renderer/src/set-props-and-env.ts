@@ -64,7 +64,7 @@ const innerSetPropsAndEnv = async ({
 
 	await page.evaluateOnNewDocument(() => {
 		window.remotion_attempt = 1;
-	}, initialFrame);
+	});
 
 	await page.evaluateOnNewDocument((port: number) => {
 		window.remotion_proxyPort = port;

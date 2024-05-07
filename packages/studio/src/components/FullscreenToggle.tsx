@@ -5,7 +5,7 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
-import {canvasRef} from '../state/canvas-ref';
+import {drawRef} from '../state/canvas-ref';
 import {ControlButton} from './ControlButton';
 
 const accessibilityLabel = [
@@ -20,7 +20,7 @@ export const FullScreenToggle: React.FC<{}> = () => {
 	const {setSize} = useContext(Internals.PreviewSizeContext);
 
 	const onClick = useCallback(() => {
-		canvasRef.current?.requestFullscreen();
+		drawRef.current?.requestFullscreen();
 
 		if (document.fullscreenElement)
 			setSize(() => ({

@@ -87,7 +87,7 @@ export const processVideoJob = async ({
 		disallowParallelEncoding:
 			job.type === 'video' ? job.disallowParallelEncoding : false,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
-		colorSpace: job.type === 'video' ? job.colorSpace : 'default',
+		colorSpace: job.type === 'video' ? job.colorSpace : null,
 		repro: job.repro,
 		binariesDirectory: job.binariesDirectory,
 		forSeamlessAacConcatenation:

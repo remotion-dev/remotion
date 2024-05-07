@@ -25,7 +25,10 @@ const installForWindows = async ({
 		${version}. See https://www.remotion.dev/docs/install-whisper-cpp/install-whisper-cpp#version for more information.`);
 	}
 
-	const url = `https://github.com/ggerganov/whisper.cpp/releases/download/v${version}/whisper-bin-x64.zip`;
+	const url =
+		version === '1.5.5'
+			? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/whisper-bin-x64-1-5-5.zip'
+			: `https://github.com/ggerganov/whisper.cpp/releases/download/v${version}/whisper-bin-x64.zip`;
 
 	const filePath = path.join(process.cwd(), 'whisper-bin-x64.zip');
 	const fileStream = fs.createWriteStream(filePath);

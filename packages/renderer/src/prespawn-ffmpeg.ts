@@ -53,7 +53,7 @@ type PreStitcherOptions = {
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	indent: boolean;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 };
 

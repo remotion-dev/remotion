@@ -46,8 +46,8 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC<{
-	readOnlyStudio: boolean;
-	bufferStateDelayInMilliseconds: number;
+	readonly readOnlyStudio: boolean;
+	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext,
@@ -91,10 +91,10 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 					<TimelineInOutPointToggle />
 					<Spacing x={2} />
-					<CheckboardToggle />
-					<Spacing x={1} />
 				</>
 			) : null}
+			<CheckboardToggle />
+			<Spacing x={1} />
 			{isFullscreenSupported && <FullScreenToggle />}
 			<Flex />
 			<div style={sideContainer}>

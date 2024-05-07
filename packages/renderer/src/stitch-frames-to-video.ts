@@ -23,7 +23,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
-import type {ColorSpace} from './options/color-space';
+import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {X264Preset} from './options/x264-preset';
@@ -68,7 +68,7 @@ type InternalStitchFramesToVideoOptions = {
 	x264Preset: X264Preset | null;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
-	colorSpace: ColorSpace;
+	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
@@ -266,7 +266,17 @@ const innerStitchFramesToVideo = async (
 					fps,
 					chunkLengthInSeconds: assetsInfo.chunkLengthInSeconds,
 					logLevel,
-					onProgress: () => updateProgress(0),
+					onProgress: (progress) => {
+						// TODO: This can be added to the overall progress calcuation
+						Log.verbose(
+							{
+								indent,
+								logLevel,
+								tag: 'audio',
+							},
+							`Encoding progress: ${Math.round(progress * 100)}%`,
+						);
+					},
 					downloadMap: assetsInfo.downloadMap,
 					remotionRoot,
 					indent,
@@ -539,7 +549,7 @@ export const stitchFramesToVideo = ({
 		preEncodedFileLocation: null,
 		preferLossless: false,
 		x264Preset: x264Preset ?? null,
-		colorSpace: colorSpace ?? 'default',
+		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		binariesDirectory: binariesDirectory ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 	});

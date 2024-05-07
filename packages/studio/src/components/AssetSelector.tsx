@@ -5,8 +5,8 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {StaticFile} from 'remotion';
-import {getStaticFiles} from 'remotion';
+import {getStaticFiles, type StaticFile} from '../api/get-static-files';
+import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
@@ -18,7 +18,6 @@ import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
 import {showNotification} from './Notifications/NotificationCenter';
-import {handleUploadFile} from './utils';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -131,7 +130,11 @@ export const AssetSelector: React.FC<{
 				const {files} = e.dataTransfer;
 				const assetPath = dropLocation || '/';
 				for (const file of files) {
-					await handleUploadFile(file, assetPath);
+					const body = await file.arrayBuffer();
+					await writeStaticFile({
+						contents: body,
+						filePath: file.name,
+					});
 				}
 
 				if (files.length === 1) {

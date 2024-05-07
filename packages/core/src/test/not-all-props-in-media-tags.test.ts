@@ -7,7 +7,7 @@ test('Should not have disableRemotePlayback props in the <VideoForPreview> compo
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
-		'esm',
+		'cjs',
 		'video',
 		'VideoForPreview.d.ts',
 	);
@@ -20,7 +20,7 @@ test('Should not have disableRemotePlayback props in the <VideoForPreview> compo
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
-		'esm',
+		'cjs',
 		'video',
 		'VideoForPreview.d.ts',
 	);
@@ -33,7 +33,7 @@ test('Should not have disableRemotePlayback props in the <AudioForPreview> compo
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
-		'esm',
+		'cjs',
 		'audio',
 		'AudioForPreview.d.ts',
 	);
@@ -46,7 +46,7 @@ test('Should not have disableRemotePlayback props in the <AudioForRendering> com
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
-		'esm',
+		'cjs',
 		'audio',
 		'AudioForRendering.d.ts',
 	);

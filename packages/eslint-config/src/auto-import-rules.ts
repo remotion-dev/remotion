@@ -14,6 +14,8 @@ export const autoImports = {
   interpolateColors: "import {interpolateColors} from 'remotion'",
   Easing: "import {Easing} from 'remotion'",
   getInputProps: "import {getInputProps} from 'remotion'",
+  getStaticFiles: "import {getStaticFiles} from '@remotion/studio'",
+  watchStaticFiles: "import {watchStaticFiles} from '@remotion/studio'",
   continueRender: "import {continueRender} from 'remotion'",
   delayRender: "import {delayRender} from 'remotion'",
   AbsoluteFill: "import {AbsoluteFill} from 'remotion'",

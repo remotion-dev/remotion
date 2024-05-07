@@ -17,7 +17,6 @@ export type {
 	ProjectInfo,
 	RenderJob,
 	RenderJobWithCleanup,
-	RenderStep,
 	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,
