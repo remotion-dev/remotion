@@ -18,7 +18,12 @@ const defaultCrfMap: {[key in Codec]: number} = {
 };
 
 export const getDefaultCrfForCodec = (codec: Codec): number => {
-	return defaultCrfMap[codec];
+	const val = defaultCrfMap[codec];
+	if (val === undefined) {
+		throw new TypeError(`Got unexpected codec "${codec}"`);
+	}
+
+	return val;
 };
 
 const crfRanges: {[key in Codec]: [number, number]} = {
