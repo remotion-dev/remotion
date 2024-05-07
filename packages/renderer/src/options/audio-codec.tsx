@@ -88,10 +88,6 @@ export const defaultAudioCodecs: {
 		lossless: null,
 		compressed: null,
 	},
-	avi: {
-		lossless: null,
-		compressed: null,
-	},
 	h264: {
 		lossless: 'pcm-16',
 		compressed: 'aac',

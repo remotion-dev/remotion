@@ -12,7 +12,6 @@ const map: {[key in Codec]: string | null} = {
 	wav: null,
 	'h264-mkv': 'libx264',
 	'h264-ts': 'libx264',
-	avi: 'rawvideo',
 };
 
 export const getCodecName = (codec: Codec): string | null => {

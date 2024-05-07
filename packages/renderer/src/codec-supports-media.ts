@@ -51,10 +51,6 @@ const support: {[key in Codec]: MediaSupport} = {
 		audio: true,
 		video: false,
 	},
-	avi: {
-		audio: false,
-		video: true,
-	},
 };
 
 export const codecSupportsMedia = (codec: Codec): MediaSupport => {
@@ -73,7 +69,6 @@ const codecSupportsVideoBitrateMap: {[key in Codec]: boolean} = {
 	vp8: true,
 	vp9: true,
 	wav: false,
-	avi: false,
 };
 
 export const codecSupportsCrf = (codec: Codec) => {
