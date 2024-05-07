@@ -124,7 +124,10 @@ test('Should be able to parse a STSD video box correctly', () => {
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const parsed = processSampleAndSubtract({data: buffer as unknown as ArrayBuffer, fileOffset: 0});
+	const parsed = processSampleAndSubtract({
+		data: buffer as unknown as ArrayBuffer,
+		fileOffset: 0,
+	});
 	expect(parsed.sample).toEqual({
 		size: 158,
 		format: 'avc1',
