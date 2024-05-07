@@ -11,20 +11,20 @@ const processBoxAndSubtract = ({
 	data,
 	fileOffset,
 }: {
-	data: Buffer;
+	data: ArrayBuffer;
 	fileOffset: number;
 }): BoxAndNext => {
 	const boxSize = fourByteToNumber(data, 0);
 	if (boxSize === 0) {
-		throw new Error(`Expected box size of ${data.length}, got ${boxSize}`);
+		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
 	}
 
-	const boxTypeBuffer = data.subarray(4, 8);
+	const boxTypeBuffer = data.slice(4, 8);
 
-	const boxType = boxTypeBuffer.toString('utf-8');
+	const boxType = new TextDecoder().decode(boxTypeBuffer);
 
-	const sub = data.subarray(0, boxSize);
-	const next = data.subarray(boxSize);
+	const sub = data.slice(0, boxSize);
+	const next = data.slice(boxSize);
 
 	if (boxType === 'ftyp') {
 		return {
@@ -82,7 +82,7 @@ const processBoxAndSubtract = ({
 		};
 	}
 
-	const childArray = sub.subarray(8, boxSize);
+	const childArray = sub.slice(8, boxSize);
 
 	const children =
 		boxType === 'mdia' ||
@@ -106,12 +106,12 @@ const processBoxAndSubtract = ({
 	};
 };
 
-export const parseBoxes = (data: Buffer, fileOffset: number): Box[] => {
+export const parseBoxes = (data: ArrayBuffer, fileOffset: number): Box[] => {
 	const boxes: Box[] = [];
 	let remaining = data;
 	let bytesConsumed = fileOffset;
 
-	while (remaining.length > 0) {
+	while (remaining.byteLength > 0) {
 		const {next, box, size} = processBoxAndSubtract({
 			data: remaining,
 			fileOffset: bytesConsumed,

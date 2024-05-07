@@ -44,7 +44,7 @@ export type Sample = AudioSample | VideoSample | UnknownSample;
 
 type SampleAndNext = {
 	sample: Sample | null;
-	next: Buffer;
+	next: ArrayBuffer;
 	size: number;
 };
 
@@ -111,39 +111,41 @@ export const processSampleAndSubtract = ({
 	data,
 	fileOffset,
 }: {
-	data: Buffer;
+	data: ArrayBuffer;
 	fileOffset: number;
 }): SampleAndNext => {
 	let chunkOffset = 0;
 
-	const boxSize = data.readUint32BE(chunkOffset);
+	const view = new DataView(data);
+
+	const boxSize = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 	if (boxSize === 0) {
-		throw new Error(`Expected box size of ${data.length}, got ${boxSize}`);
+		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
 	}
 
-	const boxTypeBuffer = data.subarray(chunkOffset, chunkOffset + 4);
+	const boxTypeBuffer = data.slice(chunkOffset, chunkOffset + 4);
 	chunkOffset += 4;
-	const boxType = boxTypeBuffer.toString('utf-8');
+	const boxType = new TextDecoder().decode(boxTypeBuffer);
 	const isVideo = videoTags.includes(boxType);
 	const isAudio =
 		audioTags.includes(boxType) || audioTags.includes(Number(boxTypeBuffer));
 
-	const next = data.subarray(boxSize);
+	const next = data.slice(boxSize);
 
 	// 6 reserved bytes
 	chunkOffset += 6;
 
-	const dataReferenceIndex = data.readUint16BE(chunkOffset);
+	const dataReferenceIndex = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
-	const version = data.readInt16BE(chunkOffset);
+	const version = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
-	const revisionLevel = data.readUint16BE(chunkOffset);
+	const revisionLevel = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
-	const vendor = data.subarray(chunkOffset, chunkOffset + 4);
+	const vendor = data.slice(chunkOffset, chunkOffset + 4);
 	chunkOffset += 4;
 
 	if (!isVideo && !isAudio) {
@@ -154,7 +156,7 @@ export const processSampleAndSubtract = ({
 				dataReferenceIndex,
 				version,
 				revisionLevel,
-				vendor: [...vendor],
+				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
 				format: boxType,
 			},
@@ -168,31 +170,31 @@ export const processSampleAndSubtract = ({
 			throw new Error(`Unsupported version ${version}`);
 		}
 
-		const numberOfChannels = data.readUint16BE(chunkOffset);
+		const numberOfChannels = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const sampleSize = data.readUint16BE(chunkOffset);
+		const sampleSize = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const compressionId = data.readUint16BE(chunkOffset);
+		const compressionId = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const packetSize = data.readUint16BE(chunkOffset);
+		const packetSize = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const sampleRate = data.readUint32BE(chunkOffset) / 2 ** 16;
+		const sampleRate = view.getUint32(chunkOffset) / 2 ** 16;
 		chunkOffset += 4;
 
-		const samplesPerPacket = data.readUint16BE(chunkOffset);
+		const samplesPerPacket = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const bytesPerPacket = data.readUint16BE(chunkOffset);
+		const bytesPerPacket = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const bytesPerFrame = data.readUint16BE(chunkOffset);
+		const bytesPerFrame = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const bitsPerSample = data.readUint16BE(chunkOffset);
+		const bitsPerSample = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
 		return {
@@ -202,7 +204,7 @@ export const processSampleAndSubtract = ({
 				dataReferenceIndex,
 				version,
 				revisionLevel,
-				vendor: [...vendor],
+				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
 				type: 'audio',
 				numberOfChannels,
@@ -221,37 +223,37 @@ export const processSampleAndSubtract = ({
 	}
 
 	if (isVideo) {
-		const temporalQuality = data.readUint32BE(chunkOffset);
+		const temporalQuality = view.getUint32(chunkOffset);
 		chunkOffset += 4;
 
-		const spacialQuality = data.readUint32BE(chunkOffset);
+		const spacialQuality = view.getUint32(chunkOffset);
 		chunkOffset += 4;
 
-		const width = data.readUint16BE(chunkOffset);
+		const width = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const height = data.readUint16BE(chunkOffset);
+		const height = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const horizontalResolution = data.readUint32BE(chunkOffset) / 2 ** 16;
+		const horizontalResolution = view.getUint32(chunkOffset) / 2 ** 16;
 		chunkOffset += 4;
 
-		const verticalResolution = data.readUint32BE(chunkOffset) / 2 ** 16;
+		const verticalResolution = view.getUint32(chunkOffset) / 2 ** 16;
 		chunkOffset += 4;
 
-		const dataSize = data.readUint32BE(chunkOffset);
+		const dataSize = view.getUint32(chunkOffset);
 		chunkOffset += 4;
 
-		const frameCountPerSample = data.readUint16BE(chunkOffset);
+		const frameCountPerSample = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const pascalString = data.subarray(chunkOffset, chunkOffset + 32);
+		const pascalString = data.slice(chunkOffset, chunkOffset + 32);
 		chunkOffset += 32;
 
-		const depth = data.readUint16BE(chunkOffset);
+		const depth = view.getUint16(chunkOffset);
 		chunkOffset += 2;
 
-		const colorTableId = data.readInt16BE(chunkOffset);
+		const colorTableId = view.getInt16(chunkOffset);
 		chunkOffset += 2;
 
 		chunkOffset += 4;
@@ -263,7 +265,7 @@ export const processSampleAndSubtract = ({
 				dataReferenceIndex,
 				version,
 				revisionLevel,
-				vendor: [...vendor],
+				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
 				type: 'video',
 				width,
@@ -274,7 +276,7 @@ export const processSampleAndSubtract = ({
 				temporalQuality,
 				dataSize,
 				frameCountPerSample,
-				compressorName: [...pascalString],
+				compressorName: [...Array.from(new Uint8Array(pascalString))],
 				depth,
 				colorTableId,
 			},
@@ -286,12 +288,15 @@ export const processSampleAndSubtract = ({
 	throw new Error(`Unknown sample format ${boxType}`);
 };
 
-export const parseSamples = (data: Buffer, fileOffset: number): Sample[] => {
+export const parseSamples = (
+	data: ArrayBuffer,
+	fileOffset: number,
+): Sample[] => {
 	const samples: Sample[] = [];
 	let remaining = data;
 	let bytesConsumed = fileOffset;
 
-	while (remaining.length > 0) {
+	while (remaining.byteLength > 0) {
 		const {next, sample, size} = processSampleAndSubtract({
 			data: remaining,
 			fileOffset: bytesConsumed,

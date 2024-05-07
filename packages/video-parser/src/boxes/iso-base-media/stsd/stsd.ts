@@ -8,37 +8,41 @@ export interface StsdBox extends BaseBox {
 	samples: Sample[];
 }
 
-export const parseStsd = (data: Buffer, offset: number): StsdBox => {
+export const parseStsd = (data: ArrayBuffer, offset: number): StsdBox => {
 	let chunkOffset = 0;
 
-	const size = data.readUInt32BE(chunkOffset);
-	if (size !== data.length) {
-		throw new Error(`Expected stsd size of ${data.length}, got ${size}`);
+	const view = new DataView(data);
+
+	const size = view.getUint32(chunkOffset);
+	if (size !== data.byteLength) {
+		throw new Error(`Expected stsd size of ${data.byteLength}, got ${size}`);
 	}
 
 	chunkOffset += 4;
 
-	const type = data.subarray(chunkOffset, chunkOffset + 4).toString('utf-8');
+	const type = new TextDecoder().decode(
+		data.slice(chunkOffset, chunkOffset + 4),
+	);
 	if (type !== 'stsd') {
 		throw new Error(`Expected stsd type of stsd, got ${type}`);
 	}
 
 	chunkOffset += 4;
 
-	const version = data.readUInt8(chunkOffset);
+	const version = view.getUint8(chunkOffset);
 	chunkOffset += 1;
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);
 	}
 
 	// flags, we discard them
-	data.subarray(chunkOffset, chunkOffset + 3);
+	data.slice(chunkOffset, chunkOffset + 3);
 	chunkOffset += 3;
 
-	const numberOfEntries = data.readUInt32BE(chunkOffset);
+	const numberOfEntries = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
-	const boxes = parseSamples(data.subarray(chunkOffset), offset + chunkOffset);
+	const boxes = parseSamples(data.slice(chunkOffset), offset + chunkOffset);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(
@@ -48,7 +52,7 @@ export const parseStsd = (data: Buffer, offset: number): StsdBox => {
 
 	return {
 		type: 'stsd-box',
-		boxSize: data.length,
+		boxSize: data.byteLength,
 		offset,
 		numberOfEntries,
 		samples: boxes,

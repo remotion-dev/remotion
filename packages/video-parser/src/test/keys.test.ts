@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {parseKeys} from '../boxes/iso-base-media/stsd/keys';
 
 test('Should parse keyd box', () => {
-	const buf = Buffer.from([
+	const {buffer} = Uint8Array.from([
 		0, 0, 2, 60, 107, 101, 121, 115, 0, 0, 2, 52, 0, 0, 0, 1, 0, 0, 0, 47, 107,
 		101, 121, 100, 109, 100, 116, 97, 99, 111, 109, 46, 97, 112, 112, 108, 101,
 		46, 113, 117, 105, 99, 107, 116, 105, 109, 101, 46, 108, 105, 118, 101, 45,
@@ -37,7 +37,7 @@ test('Should parse keyd box', () => {
 		116, 112, 115, 0, 0, 0, 16, 100, 116, 121, 112, 0, 0, 0, 0, 0, 0, 0, 0,
 	]);
 
-	const data = parseKeys(buf, 0);
+	const data = parseKeys(buffer as unknown as ArrayBuffer, 0);
 
 	expect(data).toEqual({
 		type: 'keys-box',

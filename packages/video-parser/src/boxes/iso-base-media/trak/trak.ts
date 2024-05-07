@@ -7,28 +7,32 @@ export interface TrakBox extends BaseBox {
 	children: Box[];
 }
 
-export const parseTrak = (data: Buffer, offset: number): TrakBox => {
+export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
 	let chunkOffset = 0;
 
-	const size = data.readUInt32BE(chunkOffset);
+	const view = new DataView(data);
+	const size = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
-	if (size !== data.length) {
-		throw new Error(`Data size of version 0 is ${size}, got ${data.length}`);
+	if (size !== data.byteLength) {
+		throw new Error(
+			`Data size of version 0 is ${size}, got ${data.byteLength}`,
+		);
 	}
 
-	const atom = data.subarray(chunkOffset, chunkOffset + 4);
-	if (atom.toString() !== 'trak') {
-		throw new Error(`Expected trak atom, got ${atom.toString('utf-8')}`);
+	const atom = data.slice(chunkOffset, chunkOffset + 4);
+	const atomString = new TextDecoder().decode(atom);
+	if (atomString !== 'trak') {
+		throw new Error(`Expected trak atom, got ${atomString}`);
 	}
 
 	chunkOffset += 4;
 
-	const children = parseBoxes(data.subarray(chunkOffset), chunkOffset);
+	const children = parseBoxes(data.slice(chunkOffset), chunkOffset);
 
 	return {
 		offset,
-		boxSize: data.length,
+		boxSize: data.byteLength,
 		type: 'trak-box',
 		children,
 	};

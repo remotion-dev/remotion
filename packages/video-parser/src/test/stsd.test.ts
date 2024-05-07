@@ -3,7 +3,7 @@ import {processSampleAndSubtract} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 
 test('Should be able to parse a STSD audio box correctly', () => {
-	const buffer = Buffer.from([
+	const {buffer} = Uint8Array.from([
 		// box size
 		0, 0, 0, 159,
 		// data format "stsd"
@@ -33,7 +33,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 		2, 18, 16, 6, 128, 128, 128, 1, 2, 0, 0, 0, 8, 0, 0, 0, 0,
 	]);
 
-	const parsed = parseStsd(buffer, 0);
+	const parsed = parseStsd(buffer as unknown as ArrayBuffer, 0);
 
 	expect(parsed).toEqual({
 		offset: 0,
@@ -65,7 +65,7 @@ test('Should be able to parse a STSD audio box correctly', () => {
 });
 
 test('Should be able to parse a STSD video box correctly', () => {
-	const buffer = Buffer.from([
+	const {buffer} = Uint8Array.from([
 		// box size
 		0, 0, 0, 158,
 		// data format "avc1"
@@ -124,7 +124,7 @@ test('Should be able to parse a STSD video box correctly', () => {
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const parsed = processSampleAndSubtract({data: buffer, fileOffset: 0});
+	const parsed = processSampleAndSubtract({data: buffer as unknown as ArrayBuffer, fileOffset: 0});
 	expect(parsed.sample).toEqual({
 		size: 158,
 		format: 'avc1',

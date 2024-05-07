@@ -17,18 +17,21 @@ export interface TkhdBox extends BaseBox {
 	height: number;
 }
 
-export const parseTkhd = (data: Buffer, fileOffset: number): TkhdBox => {
+export const parseTkhd = (data: ArrayBuffer, fileOffset: number): TkhdBox => {
 	let chunkOffset = 0;
 
-	const size = data.readUInt32BE(chunkOffset);
+	const view = new DataView(data);
+
+	const size = view.getUint32(chunkOffset);
 	chunkOffset += 4;
-	const atom = data.subarray(chunkOffset, chunkOffset + 4);
-	if (atom.toString() !== 'tkhd') {
-		throw new Error(`Expected tkhd atom, got ${atom.toString('utf-8')}`);
+	const atom = data.slice(chunkOffset, chunkOffset + 4);
+	const atomAsString = new TextDecoder().decode(atom);
+	if (atomAsString !== 'tkhd') {
+		throw new Error(`Expected tkhd atom, got ${atomAsString}`);
 	}
 
 	chunkOffset += 4;
-	const version = data.readUInt8(chunkOffset);
+	const version = view.getUint8(chunkOffset);
 	if (version !== 0) {
 		throw new Error(`Unsupported TKHD version ${version}`);
 	}
@@ -40,22 +43,22 @@ export const parseTkhd = (data: Buffer, fileOffset: number): TkhdBox => {
 	}
 
 	// Flags, we discard them
-	data.subarray(chunkOffset, chunkOffset + 3);
+	data.slice(chunkOffset, chunkOffset + 3);
 	chunkOffset += 3;
 
-	const creationTime = data.readUInt32BE(chunkOffset);
+	const creationTime = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
-	const modificationTime = data.readUInt32BE(chunkOffset);
+	const modificationTime = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
-	const trackId = data.readUInt32BE(chunkOffset);
+	const trackId = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
 	// reserved
 	chunkOffset += 4;
 
-	const duration = data.readUInt32BE(chunkOffset);
+	const duration = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
 	// reserved 2
@@ -64,41 +67,41 @@ export const parseTkhd = (data: Buffer, fileOffset: number): TkhdBox => {
 	// reserved 3
 	chunkOffset += 4;
 
-	const layer = data.readUInt16BE(chunkOffset);
+	const layer = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
-	const alternateGroup = data.readUInt16BE(chunkOffset);
+	const alternateGroup = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
-	const volume = data.readUInt16BE(chunkOffset);
+	const volume = view.getUint16(chunkOffset);
 	chunkOffset += 2;
 
 	// reserved 4
 	chunkOffset += 2;
 
 	const matrix = [
-		data.readUInt32BE(chunkOffset),
-		data.readUInt32BE(chunkOffset + 4),
-		data.readUInt32BE(chunkOffset + 8),
-		data.readUInt32BE(chunkOffset + 12),
-		data.readUInt32BE(chunkOffset + 16),
-		data.readUInt32BE(chunkOffset + 20),
-		data.readUInt32BE(chunkOffset + 24),
-		data.readUInt32BE(chunkOffset + 28),
-		data.readUInt32BE(chunkOffset + 32),
+		view.getUint32(chunkOffset),
+		view.getUint32(chunkOffset + 4),
+		view.getUint32(chunkOffset + 8),
+		view.getUint32(chunkOffset + 12),
+		view.getUint32(chunkOffset + 16),
+		view.getUint32(chunkOffset + 20),
+		view.getUint32(chunkOffset + 24),
+		view.getUint32(chunkOffset + 28),
+		view.getUint32(chunkOffset + 32),
 	];
 
 	chunkOffset += 36;
 
-	const width = data.readUInt32BE(chunkOffset);
+	const width = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
-	const height = data.readUInt32BE(chunkOffset);
+	const height = view.getUint32(chunkOffset);
 	chunkOffset += 4;
 
 	return {
 		offset: fileOffset,
-		boxSize: data.length,
+		boxSize: data.byteLength,
 		type: 'tkhd-box',
 		creationTime: toUnixTimestamp(creationTime),
 		modificationTime: toUnixTimestamp(modificationTime),

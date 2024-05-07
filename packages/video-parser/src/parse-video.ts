@@ -1,6 +1,5 @@
 import {createReadStream} from 'fs';
 import type {BaseBox} from './boxes/iso-base-media/base-type';
-import type {DimensionsBox} from './boxes/iso-base-media/dims';
 import type {FtypBox} from './boxes/iso-base-media/ftype';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {MvhdBox} from './boxes/iso-base-media/mvhd';
@@ -24,7 +23,6 @@ export type Box =
 	| FtypBox
 	| MvhdBox
 	| TkhdBox
-	| DimensionsBox
 	| StsdBox
 	| MebxBox
 	| KeysBox
@@ -33,7 +31,7 @@ export type Box =
 
 export type BoxAndNext = {
 	box: Box;
-	next: Buffer;
+	next: ArrayBuffer;
 	size: number;
 };
 
@@ -70,7 +68,7 @@ export const parseVideo = async (
 	});
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
-		return parseBoxes(data, 0);
+		return parseBoxes(new Uint8Array(data).buffer as unknown as ArrayBuffer, 0);
 	}
 
 	return [];

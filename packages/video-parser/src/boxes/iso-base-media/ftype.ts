@@ -7,26 +7,28 @@ export interface FtypBox extends BaseBox {
 	compatibleBrands: string[];
 }
 
-export const fourByteToNumber = (data: Buffer, from: number) => {
+export const fourByteToNumber = (data: ArrayBuffer, from: number) => {
+	const view = new DataView(data);
+
 	return (
-		(data[from + 0] << 24) |
-		(data[from + 1] << 16) |
-		(data[from + 2] << 8) |
-		data[from + 3]
+		(view.getUint8(from + 0) << 24) |
+		(view.getUint8(from + 1) << 16) |
+		(view.getUint8(from + 2) << 8) |
+		view.getUint8(from + 3)
 	);
 };
 
-export const parseFtyp = (data: Buffer, offset: number): FtypBox => {
-	const majorBrand = data.subarray(8, 12).toString('utf-8').trim();
+export const parseFtyp = (data: ArrayBuffer, offset: number): FtypBox => {
+	const majorBrand = new TextDecoder().decode(data.slice(8, 12)).trim();
 
 	const minorVersion = fourByteToNumber(data, 12);
 
-	const rest = data.subarray(16);
-	const types = rest.length / 4;
+	const rest = data.slice(16);
+	const types = rest.byteLength / 4;
 	const compatibleBrands: string[] = [];
 	for (let i = 0; i < types; i++) {
-		const fourBytes = rest.subarray(i * 4, i * 4 + 4);
-		compatibleBrands.push(fourBytes.toString('utf-8').trim());
+		const fourBytes = rest.slice(i * 4, i * 4 + 4);
+		compatibleBrands.push(new TextDecoder().decode(fourBytes).trim());
 	}
 
 	return {
@@ -35,6 +37,6 @@ export const parseFtyp = (data: Buffer, offset: number): FtypBox => {
 		minorVersion,
 		compatibleBrands,
 		offset,
-		boxSize: data.length,
+		boxSize: data.byteLength,
 	};
 };

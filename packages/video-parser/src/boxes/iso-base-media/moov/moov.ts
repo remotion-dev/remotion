@@ -7,25 +7,28 @@ export interface MoovBox extends BaseBox {
 	children: Box[];
 }
 
-export const parseMoov = (data: Buffer, offset: number): MoovBox => {
+export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
 	let chunkOffset = 0;
-	const size = data.readUInt32BE(0);
+	const view = new DataView(data);
+	const size = view.getUint32(0);
 	chunkOffset += 4;
-	if (size !== data.length) {
-		throw new Error(`Expected moov size of ${data.length}, got ${size}`);
+	if (size !== data.byteLength) {
+		throw new Error(`Expected moov size of ${data.byteLength}, got ${size}`);
 	}
 
-	const type = data.subarray(chunkOffset, chunkOffset + 4).toString('utf-8');
+	const type = new TextDecoder().decode(
+		data.slice(chunkOffset, chunkOffset + 4),
+	);
 	chunkOffset += 4;
 	if (type !== 'moov') {
 		throw new Error(`Expected moov type of moov, got ${type}`);
 	}
 
-	const children = parseBoxes(data.subarray(chunkOffset), offset + chunkOffset);
+	const children = parseBoxes(data.slice(chunkOffset), offset + chunkOffset);
 
 	return {
 		offset,
-		boxSize: data.length,
+		boxSize: data.byteLength,
 		type: 'moov-box',
 		children,
 	};

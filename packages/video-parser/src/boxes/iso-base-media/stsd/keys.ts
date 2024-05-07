@@ -4,16 +4,19 @@ export interface KeysBox extends BaseBox {
 	type: 'keys-box';
 }
 
-export const parseKeys = (data: Buffer, offset: number): KeysBox => {
+export const parseKeys = (data: ArrayBuffer, offset: number): KeysBox => {
 	let chunkOffset = 0;
 
-	const size = data.readUInt32BE(chunkOffset);
+	const view = new DataView(data);
+	const size = view.getUint32(chunkOffset);
 	chunkOffset += 4;
-	if (size !== data.length) {
-		throw new Error(`Expected keys size of ${data.length}, got ${size}`);
+	if (size !== data.byteLength) {
+		throw new Error(`Expected keys size of ${data.byteLength}, got ${size}`);
 	}
 
-	const type = data.subarray(chunkOffset, chunkOffset + 4).toString('utf-8');
+	const type = new TextDecoder().decode(
+		data.slice(chunkOffset, chunkOffset + 4),
+	);
 	chunkOffset += 4;
 	if (type !== 'keys') {
 		throw new Error(`Expected keys type of keys, got ${type}`);
@@ -21,7 +24,7 @@ export const parseKeys = (data: Buffer, offset: number): KeysBox => {
 
 	return {
 		type: 'keys-box',
-		boxSize: data.length,
+		boxSize: data.byteLength,
 		offset,
 	};
 };
