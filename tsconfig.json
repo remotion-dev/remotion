@@ -130,6 +130,9 @@
       "path": "./packages/transitions"
     },
     {
+      "path": "./packages/video-parser"
+    },
+    {
       "path": "./packages/zod-types"
     }
   ]

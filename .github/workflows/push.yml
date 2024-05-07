@@ -19,7 +19,7 @@ jobs:
           node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.4
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -71,7 +71,7 @@ jobs:
           node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.4
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -138,7 +138,7 @@ jobs:
           node-version: 18
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.4
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory
@@ -187,7 +187,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.4
+          bun-version: 1.1.7
       - run: |
           corepack enable
       - name: Get pnpm store directory

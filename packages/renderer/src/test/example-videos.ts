@@ -20,7 +20,12 @@ export const exampleVideos = {
 	webcam: path.join(examplePackage, 'public', 'webcam.webm'),
 	iphonevideo: path.join(examplePackage, 'public', 'iphonevideo.mov'),
 	av1: path.join(examplePackage, 'public', 'av1.webm'),
-	framer24fps: path.join(examplePackage, 'public', 'framer-24fps.mp4'),
+	framer24fps: path.join(
+		examplePackage,
+		'src',
+		'resources',
+		'framer-24fps.mp4',
+	),
 	music: path.join(examplePackage, 'public', 'music.mp3'),
 	notavideo: path.join(examplePackage, 'public', 'giphy.gif'),
 	notafile: path.join(examplePackage, 'public', 'doesnotexist'),
@@ -29,4 +34,5 @@ export const exampleVideos = {
 		'public',
 		'transparent-with-dar.webm',
 	),
+	iphonehevc: path.join(examplePackage, 'public', 'iphone-hevc.mov'),
 };

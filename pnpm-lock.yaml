@@ -213,9 +213,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      bun-types:
-        specifier: 0.8.0
-        version: 0.8.0
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -310,9 +307,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      bun-types:
-        specifier: 0.8.0
-        version: 0.8.0
       eslint:
         specifier: 8.56.0
         version: 8.56.0
@@ -2168,7 +2162,7 @@ importers:
         specifier: workspace:*
         version: link:../test-utils
       '@types/bun':
-        specifier: ^1.0.12
+        specifier: 1.0.12
         version: 1.0.12
       '@types/react':
         specifier: 18.3.1
@@ -2197,6 +2191,36 @@ importers:
       vitest:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@14.5.1)(jsdom@21.1.0)
+
+  packages/video-parser:
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.281
+        version: 3.0.281(eslint@8.56.0)(typescript@5.3.3)
+      '@types/bun':
+        specifier: 1.0.12
+        version: 1.0.12
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-plugin-10x:
+        specifier: 1.5.2
+        version: 1.5.2(eslint@8.56.0)
+      eslint-plugin-react:
+        specifier: 7.32.2
+        version: 7.32.2(eslint@8.56.0)
+      eslint-plugin-react-hooks:
+        specifier: 4.4.0
+        version: 4.4.0(eslint@8.56.0)
+      prettier:
+        specifier: 3.2.5
+        version: 3.2.5
+      prettier-plugin-organize-imports:
+        specifier: 3.2.4
+        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
 
   packages/zod-types:
     dependencies:
@@ -11674,10 +11698,6 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
     dev: false
-
-  /bun-types@0.8.0:
-    resolution: {integrity: sha512-7QitK+gU5gPm/JmfGVq2wEjVhoT1ZSAl7y0HPqV9kFWuI8AhQ5flaBiAAqKckUHOyXXeRb1WzSETQDuFZLzjSA==}
-    dev: true
 
   /bun-types@1.0.36:
     resolution: {integrity: sha512-gaIb1SyhB0JZfIEg73/kSFhqolUqJXC68peguhXGwqr27HuvI8nkD0LTIHp/1DY4cNadfXHYgYrZIWX7oEoXlg==}
