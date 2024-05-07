@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {parseVideo} from '../parse-video';
 import {exampleVideos} from './example-videos';
 
+// If this is fixed we can unflag https://github.com/oven-sh/bun/issues/10890
 if (process.platform !== 'win32') {
 	test('Parse Big Buck bunny', async () => {
 		const data = await parseVideo(exampleVideos.bigBuckBunny, 4 * 1024);

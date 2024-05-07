@@ -1,5 +1,4 @@
 import type {Box, BoxAndNext} from '../../parse-video';
-import {parseDims} from './dims';
 import {fourByteToNumber, parseFtyp} from './ftype';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
@@ -46,14 +45,6 @@ const processBoxAndSubtract = ({
 	if (boxType === 'tkhd') {
 		return {
 			box: parseTkhd(sub, fileOffset),
-			next,
-			size: boxSize,
-		};
-	}
-
-	if (boxType === 'dims') {
-		return {
-			box: parseDims(sub, fileOffset),
 			next,
 			size: boxSize,
 		};
