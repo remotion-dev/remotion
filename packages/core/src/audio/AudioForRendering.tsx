@@ -43,6 +43,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
+		pauseWhenBuffering,
 		...nativeProps
 	} = props;
 
