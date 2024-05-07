@@ -16,7 +16,6 @@ import type {
 } from '../../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
-	ENCODING_PROGRESS_STEP_SIZE,
 	encodingProgressKey,
 	initalizedMetadataKey,
 	rendersPrefix,
@@ -28,6 +27,7 @@ import {concatVideosS3, getAllFilesS3} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {cleanupFiles} from './delete-chunks';
 import {getCurrentRegionInFunction} from './get-current-region';
+import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
@@ -49,7 +49,7 @@ export const mergeChunksAndFinishRender = async (options: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
-	frameCountLength: number;
+	numberOfFrames: number;
 	codec: LambdaCodec;
 	chunkCount: number;
 	fps: number;
@@ -71,48 +71,59 @@ export const mergeChunksAndFinishRender = async (options: {
 	preferLossless: boolean;
 	compositionStart: number;
 }): Promise<PostRenderData> => {
-	let lastProgressUploaded = 0;
+	let lastProgressUploaded = Date.now();
 
 	const onProgress = (framesEncoded: number) => {
-		const deltaSinceLastProgressUploaded = framesEncoded - lastProgressUploaded;
+		const deltaSinceLastProgressUploaded = Date.now() - lastProgressUploaded;
 
-		if (deltaSinceLastProgressUploaded < 200) {
+		if (
+			deltaSinceLastProgressUploaded < 1500 &&
+			framesEncoded !== options.numberOfFrames
+		) {
 			return;
 		}
 
-		lastProgressUploaded = framesEncoded;
+		lastProgressUploaded = Date.now();
 
 		lambdaWriteFile({
 			bucketName: options.bucketName,
 			key: encodingProgressKey(options.renderId),
-			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
+			body: String(
+				Math.round(
+					framesEncoded / getEncodingProgressStepSize(options.numberOfFrames),
+				),
+			),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
 			customCredentials: null,
-		}).catch((err) => {
-			writeLambdaError({
-				bucketName: options.bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					name: (err as Error).name,
-					message: (err as Error).message,
-					stack: `Could not upload stitching progress ${
-						(err as Error).stack as string
-					}`,
-					tmpDir: null,
-					type: 'stitcher',
-					attempt: 1,
-					totalAttempts: 1,
-					willRetry: false,
-				},
-				renderId: options.renderId,
-				expectedBucketOwner: options.expectedBucketOwner,
+		})
+			.then(() => {
+				console.log('Progress uploaded');
+			})
+			.catch((err) => {
+				writeLambdaError({
+					bucketName: options.bucketName,
+					errorInfo: {
+						chunk: null,
+						frame: null,
+						isFatal: false,
+						name: (err as Error).name,
+						message: (err as Error).message,
+						stack: `Could not upload stitching progress ${
+							(err as Error).stack as string
+						}`,
+						tmpDir: null,
+						type: 'stitcher',
+						attempt: 1,
+						totalAttempts: 1,
+						willRetry: false,
+					},
+					renderId: options.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
 			});
-		});
 	};
 
 	const onErrors = (errors: EnhancedErrorInfo[]) => {
@@ -177,7 +188,7 @@ export const mergeChunksAndFinishRender = async (options: {
 
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
 		onProgress,
-		numberOfFrames: options.frameCountLength,
+		numberOfFrames: options.numberOfFrames,
 		codec: options.codec,
 		fps: options.fps,
 		numberOfGifLoops: options.numberOfGifLoops,
@@ -225,7 +236,10 @@ export const mergeChunksAndFinishRender = async (options: {
 		bucketName: options.bucketName,
 		key: encodingProgressKey(options.renderId),
 		body: String(
-			Math.ceil(options.frameCountLength / ENCODING_PROGRESS_STEP_SIZE),
+			Math.ceil(
+				options.numberOfFrames /
+					getEncodingProgressStepSize(options.numberOfFrames),
+			),
 		),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',

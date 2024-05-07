@@ -400,7 +400,7 @@ const innerLaunchHandler = async ({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
-		frameCountLength: frameCount.length,
+		numberOfFrames: frameCount.length,
 		audioCodec: params.audioCodec,
 		chunkCount: chunks.length,
 		codec: params.codec,
