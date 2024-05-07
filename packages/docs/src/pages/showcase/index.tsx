@@ -25,13 +25,22 @@ const PageHeader: React.FC = () => {
     >
       <div style={{ flex: 1 }}>
         <h1 className={headerStyles.title}>Showcase</h1>
-        <p>Some awesome creations from the community, many with source code.</p>
+
         <p>
-          Have you made your own video with Remotion?{" "}
-          <a href="/showcase/add">Add it to the showcase!</a>
+          This page showcases products and campaigns crafted with Remotion. From
+          dynamic video content to engaging animations, each project highlights
+          the versatility and creativity enabled by Remotion.{" "}
         </p>
         <p>
-          See more projects, applications and examples and libraries on the{" "}
+          Have you leveraged {"Remotion's"} capabilities for your own project?
+          <a href="mailto:hi@remotion.dev?subject=Showcase+page">
+            {" "}
+            Contact us
+          </a>{" "}
+          to feature your Remotion-based creation right here.
+        </p>
+        <p>
+          See more projects, applications, examples and libraries on the{" "}
           <a href="/docs/resources">Resources</a> page.
         </p>
       </div>
