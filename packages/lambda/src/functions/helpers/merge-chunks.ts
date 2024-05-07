@@ -98,32 +98,28 @@ export const mergeChunksAndFinishRender = async (options: {
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
 			customCredentials: null,
-		})
-			.then(() => {
-				console.log('Progress uploaded');
-			})
-			.catch((err) => {
-				writeLambdaError({
-					bucketName: options.bucketName,
-					errorInfo: {
-						chunk: null,
-						frame: null,
-						isFatal: false,
-						name: (err as Error).name,
-						message: (err as Error).message,
-						stack: `Could not upload stitching progress ${
-							(err as Error).stack as string
-						}`,
-						tmpDir: null,
-						type: 'stitcher',
-						attempt: 1,
-						totalAttempts: 1,
-						willRetry: false,
-					},
-					renderId: options.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-				});
+		}).catch((err) => {
+			writeLambdaError({
+				bucketName: options.bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					name: (err as Error).name,
+					message: (err as Error).message,
+					stack: `Could not upload stitching progress ${
+						(err as Error).stack as string
+					}`,
+					tmpDir: null,
+					type: 'stitcher',
+					attempt: 1,
+					totalAttempts: 1,
+					willRetry: false,
+				},
+				renderId: options.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
 			});
+		});
 	};
 
 	const onErrors = (errors: EnhancedErrorInfo[]) => {
