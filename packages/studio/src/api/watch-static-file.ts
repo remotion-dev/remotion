@@ -1,9 +1,8 @@
 import {getRemotionEnvironment} from 'remotion';
 import type {StaticFile} from './get-static-files';
+import {watchPublicFolder} from './watch-public-folder';
 
 type WatcherCallback = (newData: StaticFile | null) => void;
-
-export const WATCH_REMOTION_STATIC_FILES = 'remotion_staticFilesChanged';
 
 export type WatchRemotionStaticFilesPayload = {
 	files: StaticFile[];
@@ -14,13 +13,12 @@ export type WatchRemotionStaticFilesPayload = {
  * @param {string} fileName - The name of the static file to watch for changes.
  * @param {WatcherCallback} callback - A callback function to be called when the file changes.
  * @returns {{cancel: () => void}} A function that can be used to cancel the event listener.
- * @see [Documentation](https://www.remotion.dev/docs/watchstaticfile)
+ * @see [Documentation](https://remotion.dev/docs/studio/watch-static-file)
  */
 export const watchStaticFile = (
 	fileName: string,
 	callback: WatcherCallback,
 ): {cancel: () => void} => {
-	// Check if function is called in Remotion Studio
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console
 		console.warn('The API is only available while using the Remotion Studio.');
@@ -38,12 +36,7 @@ export const watchStaticFile = (
 		(file: StaticFile) => file.name === withoutLeadingSlash,
 	);
 
-	// Check if the specified static file has updated or deleted
-	const checkFile = (event: Event) => {
-		const staticFiles: StaticFile[] = (
-			(event as CustomEvent).detail as WatchRemotionStaticFilesPayload
-		).files;
-
+	const {cancel} = watchPublicFolder((staticFiles) => {
 		// Check for user specified file
 		const newFileData = staticFiles.find(
 			(file: StaticFile) => file.name === withoutLeadingSlash,
@@ -66,13 +59,7 @@ export const watchStaticFile = (
 			callback(newFileData); // File is added or modified
 			prevFileData = newFileData;
 		}
-	};
-
-	window.addEventListener(WATCH_REMOTION_STATIC_FILES, checkFile);
-
-	const cancel = () => {
-		return window.removeEventListener(WATCH_REMOTION_STATIC_FILES, checkFile);
-	};
+	});
 
 	return {cancel};
 };
