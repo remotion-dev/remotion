@@ -23,6 +23,11 @@ export const DeleteStaticFile: React.FC = () => {
 		console.log(res);
 	}, []);
 
+	const onDeleteFileOutsideOfPublic = useCallback(async () => {
+		const res = await deleteStaticFile('../../framer.webm');
+		console.log(res);
+	}, []);
+
 	return (
 		<AbsoluteFill>
 			<button type="button" onClick={onDeleteFile}>
@@ -36,6 +41,9 @@ export const DeleteStaticFile: React.FC = () => {
 			</button>
 			<button type="button" onClick={onDeleteFileWithPrefix}>
 				Delete with prefix
+			</button>
+			<button type="button" onClick={onDeleteFileOutsideOfPublic}>
+				Delete file outside
 			</button>
 		</AbsoluteFill>
 	);
