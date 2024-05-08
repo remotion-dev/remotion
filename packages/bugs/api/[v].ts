@@ -12,7 +12,7 @@ export const bugs: Bug[] = [
     description:
       "The @remotion/renderer package was compiled in a bad way and does not work.",
     link: "https://github.com/remotion-dev/remotion/releases/tag/v4.0.151",
-    versions: ["4.0.151", "4.0.152"],
+    versions: ["4.0.152", "4.0.151"],
   },
   {
     title: "Duplicate key warning",
