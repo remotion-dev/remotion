@@ -433,6 +433,7 @@ module.exports = {
         "studio/watch-public-folder",
         "studio/watch-static-file",
         "studio/write-static-file",
+        "studio/delete-static-file",
         "studio/save-default-props",
         "studio/update-default-props",
       ],

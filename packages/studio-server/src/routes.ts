@@ -348,6 +348,7 @@ export const handleRoutes = ({
 				logLevel,
 				methods,
 				binariesDirectory,
+				publicDir,
 			});
 		}
 	}

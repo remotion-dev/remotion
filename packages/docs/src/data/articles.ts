@@ -2816,6 +2816,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "studio/delete-static-file",
+    title: "deleteStaticFile()",
+    relativePath: "docs/studio/delete-static-file.mdx",
+    compId: "articles-docs-studio-delete-static-file",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/deploy-server",
     title: "Deploy the Remotion Studio on a VPS",
     relativePath: "docs/studio/deploy-server.mdx",

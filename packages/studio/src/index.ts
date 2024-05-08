@@ -1,3 +1,7 @@
+export {
+	DeleteStaticFileResponse,
+	deleteStaticFile,
+} from './api/delete-static-file';
 export {StaticFile, getStaticFiles} from './api/get-static-files';
 export {UpdateDefaultPropsFunction} from './api/helpers/calc-new-props';
 export {saveDefaultProps} from './api/save-default-props';

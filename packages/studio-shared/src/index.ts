@@ -9,6 +9,8 @@ export {
 	CancelRenderRequest,
 	CancelRenderResponse,
 	CopyStillToClipboardRequest,
+	DeleteStaticFileRequest,
+	DeleteStaticFileResponse,
 	OpenInFileExplorerRequest,
 	ProjectInfoRequest,
 	ProjectInfoResponse,

@@ -60,6 +60,7 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
+import {DeleteStaticFile} from './StudioApis/DeleteStaticFile';
 import {
 	SaveDefaultProps,
 	saveStudioSchema,
@@ -1229,6 +1230,15 @@ export const Index: React.FC = () => {
 					height={200}
 					width={200}
 					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="delete-static-file"
+					component={DeleteStaticFile}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
 					defaultProps={{color: 'green'}}
 				/>
 			</Folder>
