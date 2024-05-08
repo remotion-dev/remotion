@@ -1,9 +1,14 @@
 import type {DeleteStaticFileResponse} from '@remotion/studio-shared';
+import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
 
 export const deleteStaticFile = async (
 	relativePath: string,
 ): Promise<DeleteStaticFileResponse> => {
+	if (!getRemotionEnvironment().isStudio) {
+		throw new Error('deleteStaticFile() is only available in the Studio');
+	}
+
 	if (relativePath.startsWith(window.remotion_staticBase)) {
 		relativePath = relativePath.substring(
 			window.remotion_staticBase.length + 1,
