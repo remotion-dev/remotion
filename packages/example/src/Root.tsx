@@ -31,10 +31,7 @@ import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
-import {
-	OffthreadLocalVideo,
-	OffthreadRemoteVideo,
-} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
@@ -529,23 +526,15 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
-					id="OffthreadLocalVideo"
-					component={OffthreadLocalVideo}
-					width={1080}
-					height={1920}
-					fps={30}
-					durationInFrames={30 * 60}
-					defaultProps={{
-						src: 'variablefps.webm',
-					}}
-				/>
-				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
 					width={1920}
 					height={1080}
 					fps={30}
 					durationInFrames={30 * 60}
+					defaultProps={{
+						src: staticFile('vid1.mp4'),
+					}}
 				/>
 				<Composition
 					id="video-testing-webm"
