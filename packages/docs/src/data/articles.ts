@@ -2865,6 +2865,20 @@ export const articles = [
     crumb: "Timeline basics",
   },
   {
+    id: "studio/update-default-props",
+    title: "updateDefaultProps()",
+    relativePath: "docs/studio/update-default-props.mdx",
+    compId: "articles-docs-studio-update-default-props",
+    crumb: "@remotion/studio",
+  },
+  {
+    id: "studio/watch-public-folder",
+    title: "watchPublicFolder()",
+    relativePath: "docs/studio/watch-public-folder.mdx",
+    compId: "articles-docs-studio-watch-public-folder",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/watch-static-file",
     title: "watchStaticFile()",
     relativePath: "docs/studio/watch-static-file.mdx",
