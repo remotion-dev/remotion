@@ -248,11 +248,17 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
+							presentationDurationInFrames={next.props.timing.getDurationInFrames(
+								{fps},
+							)}
 						>
 							<UppercasePrevPresentation
 								passedProps={prevPresentation.props ?? {}}
 								presentationDirection="entering"
 								presentationProgress={prevProgress}
+								presentationDurationInFrames={prev.props.timing.getDurationInFrames(
+									{fps},
+								)}
 							>
 								{child}
 							</UppercasePrevPresentation>
@@ -279,6 +285,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							passedProps={prevPresentation.props ?? {}}
 							presentationDirection="entering"
 							presentationProgress={prevProgress}
+							presentationDurationInFrames={prev.props.timing.getDurationInFrames(
+								{fps},
+							)}
 						>
 							{child}
 						</UppercasePrevPresentation>
@@ -304,6 +313,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							passedProps={nextPresentation.props ?? {}}
 							presentationDirection="exiting"
 							presentationProgress={nextProgress}
+							presentationDurationInFrames={next.props.timing.getDurationInFrames(
+								{fps},
+							)}
 						>
 							{child}
 						</UppercaseNextPresentation>
