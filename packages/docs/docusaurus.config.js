@@ -4,7 +4,7 @@
  * @returns
  */
 const config = (mode) => ({
-  title: "Remotion | Make videos programmatically in React",
+  title: "Remotion | Make videos programmatically",
   tagline: "Make videos programmatically",
   url: "https://www.remotion.dev",
   baseUrl: "/",
