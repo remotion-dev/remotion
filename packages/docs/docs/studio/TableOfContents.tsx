@@ -32,6 +32,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"updateDefaultProps()"}</strong>
           <div>Update default props in the Props editor</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/delete-static-file">
+          <strong>{"deleteStaticFile()"}</strong>
+          <div>Delete a file from the public directory</div>
+        </TOCItem>
       </Grid>
     </div>
   );

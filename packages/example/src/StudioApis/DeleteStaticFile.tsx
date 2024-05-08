@@ -1,10 +1,8 @@
 import {deleteStaticFile} from '@remotion/studio';
 import React, {useCallback} from 'react';
-import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {AbsoluteFill, staticFile} from 'remotion';
 
 export const DeleteStaticFile: React.FC = () => {
-	const {id} = useVideoConfig();
-
 	const onDeleteFile = useCallback(async () => {
 		const res = await deleteStaticFile('framer.webm');
 		console.log(res);
