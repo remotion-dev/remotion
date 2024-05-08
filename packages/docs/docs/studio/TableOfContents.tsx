@@ -12,6 +12,10 @@ export const TableOfContents: React.FC = () => {
             Get a list of files in the <code>public</code> folder
           </div>
         </TOCItem>
+        <TOCItem link="/docs/studio/watch-public-folder">
+          <strong>{"watchPublicFolder()"}</strong>
+          <div>Listen to changes in the public folder</div>
+        </TOCItem>
         <TOCItem link="/docs/studio/watch-static-file">
           <strong>{"watchStaticFile()"}</strong>
           <div>Listen to changes of a static file</div>

@@ -430,6 +430,7 @@ module.exports = {
       },
       items: [
         "studio/get-static-files",
+        "studio/watch-public-folder",
         "studio/watch-static-file",
         "studio/write-static-file",
         "studio/save-default-props",

@@ -5,10 +5,6 @@ type WatcherCallback = (newFiles: StaticFile[]) => void;
 
 export const WATCH_REMOTION_STATIC_FILES = 'remotion_staticFilesChanged';
 
-export type WatchRemotionStaticFilesPayload = {
-	files: StaticFile[];
-};
-
 /**
  * @description Watch for changes in the public folder.
  * @param {Function} callback - A callback function to be called when the file changes.
