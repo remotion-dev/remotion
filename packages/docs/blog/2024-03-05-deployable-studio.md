@@ -77,6 +77,7 @@ Our templates and examples are deployed as a Studio:
 - Jump cuts without re-mounting ([Source code](https://github.com/remotion-dev/video-with-jump-cuts), [Preview](https://video-with-jump-cuts.vercel.app/))
 - CSS animations ([Source code](https://github.com/remotion-dev/css-animation-play-state), [Preview](https://css-animation-play-state.vercel.app/))
 - Measuring the size of a DOM node ([Source code](https://github.com/remotion-dev/measure-item), [Preview](https://measure-item.vercel.app/))
+- Light-leak Transition ([Source code](https://github.com/remotion-dev/light-leak-example), [Preview](https://light-leak-example.vercel.app/))
 
 ## Deploy the Studio to a server
 
