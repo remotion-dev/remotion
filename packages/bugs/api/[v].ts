@@ -8,6 +8,20 @@ type Bug = {
 
 export const bugs: Bug[] = [
   {
+    title: "@remotion/renderer import exception",
+    description:
+      "The @remotion/renderer package was compiled in a bad way and does not work.",
+    link: "https://github.com/remotion-dev/remotion/releases/tag/v4.0.151",
+    versions: ["4.0.151"],
+  },
+  {
+    title: "Duplicate key warning",
+    description:
+      "Extraneous duplicate key warning in the console in this version.",
+    link: "https://github.com/remotion-dev/remotion/releases/tag/v4.0.150",
+    versions: ["4.0.149"],
+  },
+  {
     title: "Slowdown with <TransitionSeries>",
     description:
       "All sequences were rendered all the time, slowing down the render and making it more crash-prone.",
