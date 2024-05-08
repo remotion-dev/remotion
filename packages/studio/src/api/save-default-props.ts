@@ -1,27 +1,20 @@
-import {Internals, getRemotionEnvironment} from 'remotion';
-import type {AnyZodObject} from 'zod';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
+import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
+import {calcNewProps} from './helpers/calc-new-props';
 
-export type SafeDefaultPropsFunction = (currentValues: {
-	schema: AnyZodObject | null;
-	savedDefaultProps: Record<string, unknown>;
-	unsavedDefaultProps: Record<string, unknown>;
-}) => Record<string, unknown>;
-
+/**
+ * Saves the defaultProps for a composition back to the root file.
+ * @param {string} compositionId The ID of the composition to save the defaultProps for.
+ * @param {SafeDefaultPropsFunction} defaultProps A function that returns the new defaultProps for the composition.
+ */
 export const saveDefaultProps = async ({
 	compositionId,
 	defaultProps,
 }: {
 	compositionId: string;
-	defaultProps: SafeDefaultPropsFunction;
+	defaultProps: UpdateDefaultPropsFunction;
 }) => {
-	if (!getRemotionEnvironment().isStudio) {
-		throw new Error(
-			'saveDefaultProps can only be called in the Remotion Studio.',
-		);
-	}
-
 	try {
 		await import('zod');
 	} catch {
@@ -32,39 +25,10 @@ export const saveDefaultProps = async ({
 
 	const z = await import('zod');
 
-	const {compositionsRef, editorPropsProviderRef} = Internals;
-
-	const compositionsStore = compositionsRef.current;
-	if (!compositionsStore) {
-		throw new Error(
-			'No compositions ref found. Are you in the Remotion Studio and are the Remotion versions aligned?',
-		);
-	}
-
-	const compositions = compositionsStore.getCompositions();
-	const composition = compositions.find((c) => c.id === compositionId);
-	if (!composition) {
-		throw new Error(
-			`No composition with the ID ${compositionId} found. Available compositions: ${compositions.map((c) => c.id).join(', ')}`,
-		);
-	}
-
-	const propsStore = editorPropsProviderRef.current;
-	if (!propsStore) {
-		throw new Error(
-			'No props store found. Are you in the Remotion Studio and are the Remotion versions aligned?',
-		);
-	}
-
-	const savedDefaultProps = composition.defaultProps ?? {};
-	const unsavedDefaultProps =
-		propsStore.getProps()[compositionId] ?? savedDefaultProps;
-
-	const generatedDefaultProps = defaultProps({
-		schema: composition.schema,
-		savedDefaultProps,
-		unsavedDefaultProps,
-	});
+	const {generatedDefaultProps, composition} = calcNewProps(
+		compositionId,
+		defaultProps,
+	);
 
 	const res = await callUpdateDefaultPropsApi(
 		compositionId,

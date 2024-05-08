@@ -1,5 +1,6 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {AnyZodObject, z} from 'zod';
+import {PROPS_UPDATED_EXTERNALLY} from '../../../api/update-default-props';
 import {setUnsavedProps} from '../../../helpers/document-title';
 import {useKeybinding} from '../../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
@@ -11,6 +12,8 @@ import {
 } from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {deepEqual} from './deep-equal';
+import type {RevisionContextType} from './local-state';
+import {RevisionContext} from './local-state';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
@@ -19,29 +22,50 @@ const scrollable: React.CSSProperties = {
 };
 
 export const SchemaEditor: React.FC<{
-	schema: AnyZodObject;
-	value: Record<string, unknown>;
-	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
-	defaultProps: Record<string, unknown>;
-	onSave: (
+	readonly schema: AnyZodObject;
+	readonly unsavedDefaultProps: Record<string, unknown>;
+	readonly setValue: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	>;
+	readonly zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	readonly savedDefaultProps: Record<string, unknown>;
+	readonly onSave: (
 		updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
 	) => void;
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
 }> = ({
 	schema,
-	value,
+	unsavedDefaultProps,
 	setValue,
 	zodValidationResult,
-	defaultProps,
+	savedDefaultProps,
 	onSave,
 	showSaveButton,
 	saving,
 	saveDisabledByParent,
 }) => {
 	const keybindings = useKeybinding();
+	const [revision, setRevision] = useState(0);
+
+	const revisionState: RevisionContextType = useMemo(() => {
+		return {
+			childResetRevision: revision,
+		};
+	}, [revision]);
+
+	useEffect(() => {
+		const bumpRevision = () => {
+			setRevision((old) => old + 1);
+		};
+
+		window.addEventListener(PROPS_UPDATED_EXTERNALLY, bumpRevision);
+
+		return () => {
+			window.removeEventListener(PROPS_UPDATED_EXTERNALLY, bumpRevision);
+		};
+	}, []);
 
 	const z = useZodIfPossible();
 	if (!z) {
@@ -49,8 +73,8 @@ export const SchemaEditor: React.FC<{
 	}
 
 	const hasChanged = useMemo(() => {
-		return !deepEqual(defaultProps, value);
-	}, [defaultProps, value]);
+		return !deepEqual(savedDefaultProps, unsavedDefaultProps);
+	}, [savedDefaultProps, unsavedDefaultProps]);
 
 	useEffect(() => {
 		setUnsavedProps(hasChanged);
@@ -59,10 +83,10 @@ export const SchemaEditor: React.FC<{
 	const onQuickSave = useCallback(() => {
 		if (hasChanged && showSaveButton) {
 			onSave(() => {
-				return value;
+				return unsavedDefaultProps;
 			});
 		}
-	}, [hasChanged, onSave, showSaveButton, value]);
+	}, [hasChanged, onSave, showSaveButton, unsavedDefaultProps]);
 
 	useEffect(() => {
 		const save = keybindings.registerKeybinding({
@@ -85,11 +109,11 @@ export const SchemaEditor: React.FC<{
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
 	const reset = useCallback(() => {
-		setValue(defaultProps);
-	}, [defaultProps, setValue]);
+		setValue(savedDefaultProps);
+	}, [savedDefaultProps, setValue]);
 
 	if (!zodValidationResult.success) {
-		const defaultPropsValid = schema.safeParse(defaultProps);
+		const defaultPropsValid = schema.safeParse(savedDefaultProps);
 
 		if (!defaultPropsValid.success) {
 			return <InvalidDefaultProps zodValidationResult={zodValidationResult} />;
@@ -106,26 +130,28 @@ export const SchemaEditor: React.FC<{
 
 	return (
 		<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<ZodObjectEditor
-				discriminatedUnionReplacement={null}
-				value={value as Record<string, unknown>}
-				setValue={setValue}
-				jsonPath={[]}
-				schema={schema}
-				defaultValue={defaultProps as Record<string, unknown>}
-				onSave={
-					onSave as (
-						newValue: (
-							oldVal: Record<string, unknown>,
-						) => Record<string, unknown>,
-					) => void
-				}
-				showSaveButton={showSaveButton}
-				onRemove={null}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
-				mayPad
-			/>
+			<RevisionContext.Provider value={revisionState}>
+				<ZodObjectEditor
+					discriminatedUnionReplacement={null}
+					unsavedValue={unsavedDefaultProps as Record<string, unknown>}
+					setValue={setValue}
+					jsonPath={[]}
+					schema={schema}
+					savedValue={savedDefaultProps as Record<string, unknown>}
+					onSave={
+						onSave as (
+							newValue: (
+								oldVal: Record<string, unknown>,
+							) => Record<string, unknown>,
+						) => void
+					}
+					showSaveButton={showSaveButton}
+					onRemove={null}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad
+				/>
+			</RevisionContext.Provider>
 		</div>
 	);
 };

@@ -446,11 +446,11 @@ export const DataEditor: React.FC<{
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					value={defaultProps}
+					unsavedDefaultProps={defaultProps}
 					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
-					defaultProps={unresolvedComposition.defaultProps}
+					savedDefaultProps={unresolvedComposition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					saving={saving}

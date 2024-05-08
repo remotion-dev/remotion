@@ -28,6 +28,7 @@ export const EditorPropsContext = createContext<EditorPropsContextType>({
 
 export const editorPropsProviderRef = React.createRef<{
 	getProps: () => Props;
+	setProps: React.Dispatch<React.SetStateAction<Props>>;
 }>();
 
 export const EditorPropsProvider: React.FC<{
@@ -63,6 +64,7 @@ export const EditorPropsProvider: React.FC<{
 		() => {
 			return {
 				getProps: () => props,
+				setProps,
 			};
 		},
 		[props],
