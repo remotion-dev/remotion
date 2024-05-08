@@ -50,17 +50,17 @@ const formatDate = (date: Date) => {
 };
 
 export const ZodDateEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: Date;
-	defaultValue: Date;
-	setValue: UpdaterFunction<Date>;
-	onSave: UpdaterFunction<Date>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: Date;
+	readonly defaultValue: Date;
+	readonly setValue: UpdaterFunction<Date>;
+	readonly onSave: UpdaterFunction<Date>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -81,8 +81,8 @@ export const ZodDateEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(

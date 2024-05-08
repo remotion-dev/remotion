@@ -61,8 +61,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const comboBoxValues = useMemo(() => {
@@ -156,7 +156,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			key={value[typedSchema.discriminator] as string}
 			jsonPath={jsonPath}
 			mayPad={mayPad}
-			defaultValue={defaultValue}
+			savedValue={defaultValue}
 			onRemove={onRemove}
 			onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 			saveDisabledByParent={saveDisabledByParent}
@@ -168,7 +168,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			}
 			setValue={setLocalValue}
 			showSaveButton={showSaveButton}
-			value={value}
+			unsavedValue={value}
 			discriminatedUnionReplacement={discriminatedUnionReplacement}
 		/>
 	);

@@ -24,6 +24,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"saveDefaultProps()"}</strong>
           <div>Save default props to the root file</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/update-default-props">
+          <strong>{"updateDefaultProps()"}</strong>
+          <div>Update default props in the Props editor</div>
+        </TOCItem>
       </Grid>
     </div>
   );

@@ -42,8 +42,8 @@ type Listeners = {
 }[];
 
 export const PreviewServerConnection: React.FC<{
-	children: React.ReactNode;
-	readOnlyStudio: boolean;
+	readonly children: React.ReactNode;
+	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
 

@@ -14,7 +14,6 @@ export const SaveDefaultProps: React.FC = () => {
 		updateDefaultProps({
 			compositionId: id,
 			defaultProps: ({unsavedDefaultProps}) => {
-				console.log(unsavedDefaultProps);
 				return {
 					...unsavedDefaultProps,
 					color: 'red',
@@ -27,6 +26,7 @@ export const SaveDefaultProps: React.FC = () => {
 		await saveDefaultProps({
 			compositionId: id,
 			defaultProps: ({unsavedDefaultProps}) => {
+				console.log(unsavedDefaultProps);
 				return unsavedDefaultProps;
 			},
 		});

@@ -2,6 +2,8 @@ import {Internals} from 'remotion';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
+export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
+
 export const updateDefaultProps = ({
 	compositionId,
 	defaultProps,
@@ -27,4 +29,6 @@ export const updateDefaultProps = ({
 			[composition.id]: generatedDefaultProps,
 		};
 	});
+
+	window.dispatchEvent(new CustomEvent(PROPS_UPDATED_EXTERNALLY));
 };

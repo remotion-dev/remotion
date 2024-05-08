@@ -73,8 +73,8 @@ export const ZodOrNullishEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =

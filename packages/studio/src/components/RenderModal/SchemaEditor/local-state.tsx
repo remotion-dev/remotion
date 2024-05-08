@@ -2,11 +2,13 @@ import React, {
 	createContext,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import type {z} from 'zod';
+import {PROPS_UPDATED_EXTERNALLY} from '../../../api/update-default-props';
 import type {UpdaterFunction} from './ZodSwitch';
 import {deepEqual} from './deep-equal';
 
@@ -18,48 +20,76 @@ export type LocalState<T> = {
 
 // With the revision context, the local state of children can get
 // reset if the parent resets - then it increments the revision
-type RevisionContextType = {
+export type RevisionContextType = {
 	childResetRevision: number;
 };
-const RevisionContext = createContext<RevisionContextType>({
+export const RevisionContext = createContext<RevisionContextType>({
 	childResetRevision: 0,
 });
 
 export const useLocalState = <T,>({
-	value,
+	unsavedValue,
 	schema,
 	setValue,
-	defaultValue,
+	savedValue,
 }: {
-	value: T;
+	unsavedValue: T;
 	schema: z.ZodTypeAny;
 	setValue: UpdaterFunction<T>;
-	defaultValue: T;
+	savedValue: T;
 }) => {
 	const parentRevision = useContext(RevisionContext).childResetRevision;
 
 	const [resetRevision, setResetRevision] = useState(0);
-	const [localValue, setLocalValue] = useState<Record<number, LocalState<T>>>(
-		() => {
+	const [localValueOrNull, setLocalValue] = useState<Record<
+		number,
+		LocalState<T>
+	> | null>(() => {
+		return {
+			[parentRevision]: {
+				value: unsavedValue,
+				keyStabilityRevision: 0,
+				zodValidation: schema.safeParse(unsavedValue),
+			},
+		};
+	});
+
+	const localValue = useMemo(() => {
+		if (localValueOrNull === null) {
 			return {
 				[parentRevision]: {
-					value,
+					value: unsavedValue,
 					keyStabilityRevision: 0,
-					zodValidation: schema.safeParse(value),
+					zodValidation: schema.safeParse(unsavedValue),
 				},
 			};
-		},
-	);
+		}
+
+		return localValueOrNull;
+	}, [localValueOrNull, parentRevision, schema, unsavedValue]);
+
+	useEffect(() => {
+		const checkFile = () => {
+			setResetRevision((old) => old + 1);
+			setLocalValue(null);
+		};
+
+		window.addEventListener(PROPS_UPDATED_EXTERNALLY, checkFile);
+
+		return () => {
+			window.removeEventListener(PROPS_UPDATED_EXTERNALLY, checkFile);
+		};
+	}, []);
 
 	const currentLocalValue: LocalState<T> = useMemo(() => {
 		return (
 			localValue[parentRevision] ?? {
-				value: defaultValue,
+				value: savedValue,
 				keyStabilityRevision: 0,
-				zodValidation: schema.safeParse(defaultValue),
+				zodValidation: schema.safeParse(savedValue),
 			}
 		);
-	}, [defaultValue, localValue, parentRevision, schema]);
+	}, [savedValue, localValue, parentRevision, schema]);
 
 	const stateRef = useRef(currentLocalValue);
 	stateRef.current = currentLocalValue;
@@ -114,9 +144,9 @@ export const useLocalState = <T,>({
 	const reset = useCallback(() => {
 		// Only need to do key stability for arrays, but
 		// since user is not editing right now, should be fine
-		onChange(() => defaultValue, true, true);
+		onChange(() => savedValue, true, true);
 		setResetRevision((old) => old + 1);
-	}, [defaultValue, onChange]);
+	}, [savedValue, onChange]);
 
 	const RevisionContextProvider = useCallback(
 		({children}: {children: React.ReactNode}) => {
@@ -129,10 +159,13 @@ export const useLocalState = <T,>({
 		[contextValue],
 	);
 
-	return {
-		localValue: currentLocalValue,
-		onChange,
-		reset,
-		RevisionContextProvider,
-	};
+	return useMemo(
+		() => ({
+			localValue: currentLocalValue,
+			onChange,
+			reset,
+			RevisionContextProvider,
+		}),
+		[RevisionContextProvider, currentLocalValue, onChange, reset],
+	);
 };
