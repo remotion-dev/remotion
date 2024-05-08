@@ -151,6 +151,15 @@ export type ApplyCodemodResponse =
 			reason: string;
 	  };
 
+export type DeleteStaticFileRequest = {
+	relativePath: string;
+};
+
+export type DeleteStaticFileResponse = {
+	success: boolean;
+	existed: boolean;
+};
+
 export type CanUpdateDefaultPropsRequest = {
 	compositionId: string;
 };
@@ -206,4 +215,8 @@ export type ApiRoutes = {
 	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
+	'/api/delete-static-file': ReqAndRes<
+		DeleteStaticFileRequest,
+		DeleteStaticFileResponse
+	>;
 };
