@@ -21,6 +21,7 @@ import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
+import {getEncodingProgressStepSize} from './get-encoding-progress-step-size';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
@@ -233,9 +234,12 @@ export const getProgress = async ({
 			).length
 		: null;
 
+	const frameCountOrNull = frameCount === null ? 0 : frameCount;
+
 	const encodingStatus = getEncodingMetadata({
 		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
-		frameCount: frameCount === null ? 0 : frameCount,
+		frameCount: frameCountOrNull,
+		stepSize: getEncodingProgressStepSize(frameCountOrNull),
 	});
 
 	const finalEncodingStatus = getFinalEncodingStatus({

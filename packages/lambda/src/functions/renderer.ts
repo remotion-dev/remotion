@@ -127,14 +127,13 @@ const renderHandler = async (
 	);
 
 	const chunkCodec: Codec =
-		params.codec === 'gif'
-			? 'h264-mkv'
-			: seamlessVideo
-				? 'h264-ts'
-				: params.codec;
-	const audioCodec: AudioCodec | null = seamlessAudio
-		? defaultAudioCodec
-		: 'pcm-16';
+		seamlessVideo && params.codec === 'h264' ? 'h264-ts' : params.codec;
+	const audioCodec: AudioCodec | null =
+		defaultAudioCodec === null
+			? null
+			: seamlessAudio
+				? defaultAudioCodec
+				: 'pcm-16';
 
 	const videoExtension = RenderInternals.getFileExtensionFromCodec(
 		chunkCodec,
