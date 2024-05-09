@@ -951,6 +951,7 @@ module.exports = {
         "recorder/exporting",
         "recorder/lambda-rendering",
         "recorder/source-control",
+        "recorder/vlogging",
         "recorder/upgrading",
         "recorder/roadmap",
         "recorder/gear",

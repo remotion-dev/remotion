@@ -2389,6 +2389,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/vlogging",
+    title: "Vlogging",
+    relativePath: "docs/recorder/vlogging.mdx",
+    compId: "articles-docs-recorder-vlogging",
+    crumb: "Recorder",
+  },
+  {
     id: "register-root",
     title: "registerRoot()",
     relativePath: "docs/register-root.md",
