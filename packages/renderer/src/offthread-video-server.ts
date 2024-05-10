@@ -107,11 +107,6 @@ export const startOffthreadVideoServer = ({
 				req.url,
 			);
 			response.setHeader('access-control-allow-origin', '*');
-			if (transparent) {
-				response.setHeader('content-type', `image/png`);
-			} else {
-				response.setHeader('content-type', `image/bmp`);
-			}
 
 			// Prevent caching of the response and excessive disk writes
 			// https://github.com/remotion-dev/remotion/issues/2760
@@ -181,6 +176,25 @@ export const startOffthreadVideoServer = ({
 								{indent, logLevel},
 								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
+						}
+
+						const firstByte = readable.at(0);
+						const secondByte = readable.at(1);
+						const thirdByte = readable.at(2);
+						const isPng =
+							firstByte === 0x89 && secondByte === 0x50 && thirdByte === 0x4e;
+						const isBmp = firstByte === 0x42 && secondByte === 0x4d;
+						if (isPng) {
+							response.setHeader('content-type', `image/png`);
+						} else if (isBmp) {
+							response.setHeader('content-type', `image/bmp`);
+						} else {
+							reject(
+								new Error(
+									`Unknown file type: ${firstByte} ${secondByte} ${thirdByte}`,
+								),
+							);
+							return;
 						}
 
 						response.writeHead(200);

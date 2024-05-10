@@ -68,7 +68,8 @@ impl ScalableFrame {
                 let mut planes: Vec<Vec<u8>>;
                 let format: Pixel;
                 let linesize: [i32; 8];
-                let (mut filter, should_filter) = make_tone_map_filtergraph(frame.filter_graph)?;
+                let (mut filter, should_filter, is_tagged_bt709) =
+                    make_tone_map_filtergraph(frame.filter_graph)?;
                 if frame.tone_mapped && should_filter {
                     video = frame::Video::empty();
                     filter
@@ -102,8 +103,14 @@ impl ScalableFrame {
                     linesize = unsafe { (*frame.unscaled_frame.as_ptr()).linesize };
                 }
 
-                let bitmap =
-                    scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
+                let bitmap = scale_and_make_bitmap(
+                    &frame,
+                    planes,
+                    format,
+                    linesize,
+                    self.transparent,
+                    is_tagged_bt709,
+                )?;
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
                 self.native_frame = None;
                 Ok(())
@@ -187,6 +194,7 @@ pub fn scale_and_make_bitmap(
     src_format: Pixel,
     linesize: [i32; 8],
     transparent: bool,
+    should_be_tagged_bt709: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let dst_format: Pixel = match transparent {
         true => Pixel::RGBA,
@@ -280,12 +288,27 @@ pub fn scale_and_make_bitmap(
         }
     }
 
+    if should_be_tagged_bt709 {
+        _print_verbose(&format!(
+            "Source video {} is tagged as BT709. Converting to RGBA and returning PNG with BT709 color space for better color accuracy.",
+            native_frame.original_src
+        ))?;
+        return get_png_data(&convert_to_rgba(&rotated), rotated_width, rotated_height);
+    }
+
     Ok(create_bmp_image_from_frame(
         &rotated,
         rotated_width,
         rotated_height,
         stride,
     ))
+}
+
+pub fn convert_to_rgba(data: &[u8]) -> Vec<u8> {
+    let mut newrot = Vec::with_capacity(data.len() + data.len() / 3);
+    let chunks = data.chunks(3);
+    newrot.extend(chunks.flat_map(|chunk| std::iter::once(255).chain(chunk.iter().copied())));
+    newrot
 }
 
 pub fn rotate_270(

@@ -20,7 +20,9 @@ pub struct FilterGraph {
     pub aspect_ratio: Rational,
 }
 
-pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ffmpeg_next::Error> {
+pub fn make_tone_map_filtergraph(
+    graph: FilterGraph,
+) -> Result<(Graph, bool, bool), ffmpeg_next::Error> {
     let mut filter = filter::Graph::new();
 
     let original_width = graph.original_width;
@@ -78,6 +80,8 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
         _ => "input",
     };
 
+    let is_tagged_bt709 = matrix_in == "709" && transfer_in == "709" && primaries == "709";
+
     let matrix_is_target =
         matrix_in == "input" || matrix_in == "470bg" || matrix_in == "709" || matrix_in == "170m";
     let transfer_is_target = transfer_in == "input" || transfer_in == "709";
@@ -114,5 +118,5 @@ pub fn make_tone_map_filtergraph(graph: FilterGraph) -> Result<(Graph, bool), ff
 
     filter.validate()?;
 
-    Ok((filter, !needs_conversion))
+    Ok((filter, !needs_conversion, is_tagged_bt709))
 }
