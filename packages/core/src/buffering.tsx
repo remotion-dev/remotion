@@ -41,7 +41,14 @@ const useBufferManager = (): BufferManager => {
 		setBlocks((b) => [...b, block]);
 		return {
 			unblock: () => {
-				setBlocks((b) => b.filter((bx) => bx !== block));
+				setBlocks((b) => {
+					const newArr = b.filter((bx) => bx !== block);
+					if (newArr.length === b.length) {
+						return b;
+					}
+
+					return newArr;
+				});
 			},
 		};
 	}, []);
@@ -75,10 +82,24 @@ const useBufferManager = (): BufferManager => {
 	useEffect(() => {
 		if (blocks.length > 0) {
 			onBufferingCallbacks.forEach((c) => c());
-		} else {
+		}
+
+		// Intentionally only firing when blocks change, not the callbacks
+		// otherwise a buffering callback might remove itself after being called
+		// and trigger again
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [blocks]);
+
+	useEffect(() => {
+		if (blocks.length === 0) {
 			onResumeCallbacks.forEach((c) => c());
 		}
-	}, [blocks, onBufferingCallbacks, onResumeCallbacks]);
+		// Intentionally only firing when blocks change, not the callbacks
+		// otherwise a resume callback might remove itself after being called
+		// and trigger again
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [blocks]);
 
 	return useMemo(() => {
 		return {addBlock, listenForBuffering, listenForResume, buffering};
@@ -90,7 +111,7 @@ export const BufferingContextReact = React.createContext<BufferManager | null>(
 );
 
 export const BufferingProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const bufferManager = useBufferManager();
 

@@ -14,7 +14,7 @@ export const useMediaBuffering = ({
 	const buffer = useBufferState();
 
 	useEffect(() => {
-		let cleanup = () => undefined;
+		let cleanupFns: Function[] = [];
 
 		const {current} = element;
 		if (!current) {
@@ -29,17 +29,20 @@ export const useMediaBuffering = ({
 			return;
 		}
 
+		const cleanup = () => {
+			cleanupFns.forEach((fn) => fn());
+			cleanupFns = [];
+		};
+
 		const onWaiting = () => {
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
-				unblock();
 				cleanup();
 				// eslint-disable-next-line @typescript-eslint/no-use-before-define
 				init();
 			};
 
 			const onError = () => {
-				unblock();
 				cleanup();
 				// eslint-disable-next-line @typescript-eslint/no-use-before-define
 				init();
@@ -48,18 +51,19 @@ export const useMediaBuffering = ({
 			current.addEventListener('canplay', onCanPlay, {
 				once: true,
 			});
+			cleanupFns.push(() => {
+				current.removeEventListener('canplay', onCanPlay);
+			});
 
 			current.addEventListener('error', onError, {
 				once: true,
 			});
-
-			cleanup = () => {
-				current.removeEventListener('canplay', onCanPlay);
+			cleanupFns.push(() => {
 				current.removeEventListener('error', onError);
-				current.removeEventListener('waiting', onWaiting);
+			});
+			cleanupFns.push(() => {
 				unblock();
-				return undefined;
-			};
+			});
 		};
 
 		const init = () => {
@@ -67,14 +71,15 @@ export const useMediaBuffering = ({
 				onWaiting();
 			} else {
 				current.addEventListener('waiting', onWaiting);
+				cleanupFns.push(() => {
+					current.removeEventListener('waiting', onWaiting);
+				});
 			}
 		};
 
 		init();
 
 		return () => {
-			current.removeEventListener('waiting', onWaiting);
-
 			cleanup();
 		};
 	}, [buffer, element, isPremounting, shouldBuffer]);
