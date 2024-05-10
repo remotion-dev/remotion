@@ -31,7 +31,10 @@ import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
-import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {
+	calculateMetadataFn,
+	OffthreadRemoteVideo,
+} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
@@ -529,10 +532,8 @@ export const Index: React.FC = () => {
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1920}
-					height={1080}
 					fps={30}
-					durationInFrames={30 * 60}
+					calculateMetadata={calculateMetadataFn}
 					defaultProps={{
 						src: staticFile('vid1.mp4'),
 					}}

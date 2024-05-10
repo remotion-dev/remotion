@@ -11,11 +11,13 @@ export const calculateMetadataFn: CalculateMetadataFunction<Props> = async ({
 	props,
 }) => {
 	const {src} = props;
-	const duration = await getVideoMetadata(src);
+	const {durationInSeconds, width, height} = await getVideoMetadata(src);
 
 	return {
-		durationInFrames: duration.durationInSeconds * fps,
+		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
+		width,
+		height,
 	};
 };
 
