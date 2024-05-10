@@ -188,17 +188,33 @@ export const stringifyFfmpegFilter = ({
 
 	const startInVideoSeconds = startInVideo / fps;
 
-	if (
-		assetDuration &&
-		getActualTrimLeft({
+	if (assetDuration) {
+		const maxDuration = forSeamlessAacConcatenation
+			? assetDuration / playbackRate
+			: assetDuration;
+
+		const trimLeft = getActualTrimLeft({
 			asset,
 			fps,
 			trimLeftOffset,
 			seamless: forSeamlessAacConcatenation,
-		}) >=
-			assetDuration / playbackRate
-	) {
-		return null;
+		});
+
+		const wouldBeSilent = trimLeft >= maxDuration;
+		if (wouldBeSilent) {
+			console.log({
+				assetDuration,
+				playbackRate,
+				trimLeft: getActualTrimLeft({
+					asset,
+					fps,
+					trimLeftOffset,
+					seamless: forSeamlessAacConcatenation,
+				}),
+			});
+
+			return null;
+		}
 	}
 
 	if (toneFrequency !== null && (toneFrequency <= 0 || toneFrequency > 2)) {
