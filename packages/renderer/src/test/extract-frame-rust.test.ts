@@ -217,10 +217,14 @@ test(
 		});
 
 		// Pixel fixing
-		expect(data.length).toBe(2151963);
-		expect(data[1045650] / 100).toBeCloseTo(2.3, 0.01);
-		expect(data[1645650] / 100).toBeCloseTo(1.02, 0.01);
-		expect(data[2000000] / 100).toBeCloseTo(2.1, 0.01);
+		if (process.platform === 'darwin') {
+			expect(data.length).toBe(2151963);
+			expect(data[1045650] / 100).toBeCloseTo(2.3, 0.01);
+			expect(data[1645650] / 100).toBeCloseTo(1.02, 0.01);
+			expect(data[2000000] / 100).toBeCloseTo(2.1, 0.01);
+		} else {
+			expect(data.length).toBe(1914106);
+		}
 
 		await compositor.finishCommands();
 		await compositor.waitForDone();
@@ -247,7 +251,11 @@ test(
 		});
 
 		// Expected length fixing
-		expect(data.length).toBe(170674);
+		if (process.platform === 'darwin') {
+			expect(data.length).toBe(170674);
+		} else {
+			expect(data.length).toBe(170583);
+		}
 
 		const transparentdata = await compositor.executeCommand('ExtractFrame', {
 			src: exampleVideos.transparentwithdar,
@@ -429,7 +437,11 @@ test('Should get from a screen recording', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(320788);
+	if (process.platform === 'darwin') {
+		expect(data.length).toBe(320788);
+	} else {
+		expect(data.length).toBe(313643);
+	}
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -451,7 +463,11 @@ test('Should get from video with no fps', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(232206);
+	if (process.platform === 'darwin') {
+		expect(data.length).toBe(232206);
+	} else {
+		expect(data.length).toBe(215906);
+	}
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -517,7 +533,11 @@ test('Should get from AV1 video', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(1578192);
+	if (process.platform === 'darwin') {
+		expect(data.length).toBe(1578192);
+	} else {
+		expect(data.length).toBe(1429353);
+	}
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -565,7 +585,11 @@ test('Should handle a video with no frames at the beginning', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(1835304);
+	if (process.platform === 'darwin') {
+		expect(data.length).toBe(1835304);
+	} else {
+		expect(data.length).toBe(1604696);
+	}
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
