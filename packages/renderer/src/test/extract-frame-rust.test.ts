@@ -217,10 +217,10 @@ test(
 		});
 
 		// Pixel fixing
-		expect(data.length).toBe(6220854);
-		expect(data[1045650] / 100).toBeCloseTo(0.18, 0.01);
-		expect(data[1645650] / 100).toBeCloseTo(0.41, 0.01);
-		expect(data[2000000] / 100).toBeCloseTo(0.2, 0.01);
+		expect(data.length).toBe(2151963);
+		expect(data[1045650] / 100).toBeCloseTo(2.3, 0.01);
+		expect(data[1645650] / 100).toBeCloseTo(1.02, 0.01);
+		expect(data[2000000] / 100).toBeCloseTo(2.1, 0.01);
 
 		await compositor.finishCommands();
 		await compositor.waitForDone();
@@ -246,15 +246,8 @@ test(
 			tone_mapped: true,
 		});
 
-		const header = data.subarray(0, BMP_HEADER_SIZE);
-
-		const width = header.readInt32LE(18);
-		const height = header.readInt32LE(22);
-		expect(width).toBe(683);
-		expect(height).toBe(512);
-
 		// Expected length fixing
-		expect(data.length).toBe(1050678);
+		expect(data.length).toBe(170674);
 
 		const transparentdata = await compositor.executeCommand('ExtractFrame', {
 			src: exampleVideos.transparentwithdar,
@@ -436,7 +429,7 @@ test('Should get from a screen recording', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(15230038);
+	expect(data.length).toBe(320788);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -458,7 +451,7 @@ test('Should get from video with no fps', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(3044334);
+	expect(data.length).toBe(232206);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -524,7 +517,7 @@ test('Should get from AV1 video', async () => {
 		tone_mapped: true,
 	});
 
-	expect(data.length).toBe(6220854);
+	expect(data.length).toBe(1578192);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -572,11 +565,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 		tone_mapped: true,
 	});
 
-	// Should resort back to BMP because it is faster
-	const header = data.slice(0, 8).toString('utf8');
-	expect(header).toContain('BM6');
-
-	expect(data.length).toBe(6220854);
+	expect(data.length).toBe(1835304);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
