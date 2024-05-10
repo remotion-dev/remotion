@@ -24,7 +24,8 @@ const background: React.CSSProperties = {
 const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined'
+	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined' ||
+	process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === null
 		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
 		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
 
