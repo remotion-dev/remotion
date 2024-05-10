@@ -35,6 +35,7 @@ export const processVideoJob = async ({
 	const {browserExecutable, ffmpegOverride} = getCliOptions({
 		isStill: true,
 		logLevel,
+		indent: true,
 	});
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({

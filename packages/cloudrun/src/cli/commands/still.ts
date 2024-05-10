@@ -52,6 +52,7 @@ export const stillCommand = async (
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	let composition = args[1];

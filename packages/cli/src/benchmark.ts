@@ -205,6 +205,7 @@ export const benchmarkCommand = async (
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	Log.verbose(
