@@ -202,17 +202,6 @@ export const stringifyFfmpegFilter = ({
 
 		const wouldBeSilent = trimLeft >= maxDuration;
 		if (wouldBeSilent) {
-			console.log({
-				assetDuration,
-				playbackRate,
-				trimLeft: getActualTrimLeft({
-					asset,
-					fps,
-					trimLeftOffset,
-					seamless: forSeamlessAacConcatenation,
-				}),
-			});
-
 			return null;
 		}
 	}
