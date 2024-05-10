@@ -33,10 +33,16 @@ export const useMediaBuffering = ({
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				unblock();
+				cleanup();
+				// eslint-disable-next-line @typescript-eslint/no-use-before-define
+				init();
 			};
 
 			const onError = () => {
 				unblock();
+				cleanup();
+				// eslint-disable-next-line @typescript-eslint/no-use-before-define
+				init();
 			};
 
 			current.addEventListener('canplay', onCanPlay, {
@@ -50,18 +56,25 @@ export const useMediaBuffering = ({
 			cleanup = () => {
 				current.removeEventListener('canplay', onCanPlay);
 				current.removeEventListener('error', onError);
+				current.removeEventListener('waiting', onWaiting);
 				unblock();
 				return undefined;
 			};
 		};
 
-		if (current.readyState < current.HAVE_FUTURE_DATA) {
-			onWaiting();
-		} else {
-			current.addEventListener('waiting', onWaiting);
-		}
+		const init = () => {
+			if (current.readyState < current.HAVE_FUTURE_DATA) {
+				onWaiting();
+			} else {
+				current.addEventListener('waiting', onWaiting);
+			}
+		};
+
+		init();
 
 		return () => {
+			current.removeEventListener('waiting', onWaiting);
+
 			cleanup();
 		};
 	}, [buffer, element, isPremounting, shouldBuffer]);
