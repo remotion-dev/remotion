@@ -52,8 +52,24 @@ import { $ } from "bun";
 const siteName = "our-recorder";
 const compositionId = "installwhispercpp";
 
+const configs = [
+  {
+    canvasLayout: "square",
+    platform: "linkedin",
+  },
+  {
+    canvasLayout: "square",
+    platform: "x",
+  },
+  {
+    canvasLayout: "landscape",
+    platform: "youtube",
+  },
+];
+
 await $`bunx remotion lambda sites create --site-name=${siteName}`;
-await $`bunx remotion lambda render ${siteName} ${compositionId} --props='{"canvasLayout": "square", "platform": "linkedin"}'`;
-await $`bunx remotion lambda render ${siteName} ${compositionId} --props='{"canvasLayout": "square", "platform": "x"}'`;
-await $`bunx remotion lambda render ${siteName} ${compositionId} --props='{"canvasLayout": "landscape", "platform": "youtube"}'`;
+
+for (const config of configs) {
+  await $`bunx remotion lambda render ${siteName} ${compositionId} --props='${JSON.stringify(config)}'`;
+}
 ```
