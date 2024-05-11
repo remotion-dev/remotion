@@ -1,12 +1,49 @@
 import {spawn, type StdioOptions} from 'child_process';
 import fs, {existsSync, rmSync} from 'fs';
-import {execSync} from 'node:child_process';
 import os from 'os';
 import path from 'path';
 import {downloadFile} from './download';
 
 const getIsSemVer = (str: string) => {
 	return /^[\d]{1}\.[\d]{1,2}\.+/.test(str);
+};
+
+const execute = ({
+	command,
+	printOutput,
+	signal,
+	cwd,
+	shell,
+}: {
+	command: string;
+	printOutput: boolean;
+	signal: AbortSignal | null;
+	cwd: string | null;
+	shell: string | null;
+}) => {
+	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
+
+	return new Promise<void>((resolve, reject) => {
+		const child = spawn(command, {
+			stdio,
+			signal: signal ?? undefined,
+			cwd: cwd ?? undefined,
+			shell: shell ?? undefined,
+		});
+
+		child.on('exit', (code, exitSignal) => {
+			if (code !== 0) {
+				reject(
+					new Error(
+						`Error while executing ${command}. Exit code: ${code}, signal: ${exitSignal}`,
+					),
+				);
+				return;
+			}
+
+			resolve();
+		});
+	});
 };
 
 const installForWindows = async ({
@@ -41,47 +78,15 @@ const installForWindows = async ({
 		signal,
 	});
 
-	execSync(`Expand-Archive -Force ${filePath} ${to}`, {
+	execute({
+		command: `Expand-Archive -Force ${filePath} ${to}`,
 		shell: 'powershell',
-		stdio: printOutput ? 'inherit' : 'ignore',
+		printOutput,
+		signal,
+		cwd: null,
 	});
 
 	rmSync(filePath);
-};
-
-const execute = ({
-	command,
-	printOutput,
-	signal,
-	cwd,
-}: {
-	command: string;
-	printOutput: boolean;
-	signal: AbortSignal | null;
-	cwd: string | null;
-}) => {
-	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
-
-	return new Promise<void>((resolve, reject) => {
-		const child = spawn(command, {
-			stdio,
-			signal: signal ?? undefined,
-			cwd: cwd ?? undefined,
-		});
-
-		child.on('exit', (code, exitSignal) => {
-			if (code !== 0) {
-				reject(
-					new Error(
-						`Error while executing ${command}. Exit code: ${code}, signal: ${exitSignal}`,
-					),
-				);
-				return;
-			}
-
-			resolve();
-		});
-	});
 };
 
 const installWhisperForUnix = async ({
@@ -100,6 +105,7 @@ const installWhisperForUnix = async ({
 		printOutput,
 		signal,
 		cwd: null,
+		shell: null,
 	});
 
 	const ref = getIsSemVer(version) ? `v${version}` : version;
@@ -109,6 +115,7 @@ const installWhisperForUnix = async ({
 		printOutput,
 		cwd: to,
 		signal,
+		shell: null,
 	});
 
 	await execute({
@@ -116,6 +123,7 @@ const installWhisperForUnix = async ({
 		cwd: to,
 		signal,
 		printOutput,
+		shell: null,
 	});
 };
 
