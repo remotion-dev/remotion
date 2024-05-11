@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
-import {PROPS_UPDATED_EXTERNALLY} from '../../../api/update-default-props';
 import {setUnsavedProps} from '../../../helpers/document-title';
 import {useKeybinding} from '../../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
@@ -60,10 +60,13 @@ export const SchemaEditor: React.FC<{
 			setRevision((old) => old + 1);
 		};
 
-		window.addEventListener(PROPS_UPDATED_EXTERNALLY, bumpRevision);
+		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, bumpRevision);
 
 		return () => {
-			window.removeEventListener(PROPS_UPDATED_EXTERNALLY, bumpRevision);
+			window.removeEventListener(
+				Internals.PROPS_UPDATED_EXTERNALLY,
+				bumpRevision,
+			);
 		};
 	}, []);
 

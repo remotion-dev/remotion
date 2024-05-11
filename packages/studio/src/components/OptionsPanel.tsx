@@ -2,6 +2,7 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
@@ -57,7 +58,9 @@ export const optionsSidebarTabs = createRef<{
 export const OptionsPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+	const {props, updateProps, resetUnsaved} = useContext(
+		Internals.EditorPropsContext,
+	);
 	const [saving, setSaving] = useState(false);
 
 	const isMobileLayout = useMobileLayout();
@@ -167,6 +170,18 @@ export const OptionsPanel: React.FC<{
 
 		return !deepEqual(composition.defaultProps, currentDefaultProps);
 	}, [currentDefaultProps, composition]);
+
+	const reset = useCallback(() => {
+		resetUnsaved();
+	}, [resetUnsaved]);
+
+	useEffect(() => {
+		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+
+		return () => {
+			window.removeEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+		};
+	}, [reset]);
 
 	return (
 		<div style={container} className="css-reset">

@@ -58,6 +58,8 @@ export const needsResolution = (composition: AnyComposition) => {
 	return Boolean(composition.calculateMetadata);
 };
 
+export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
+
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
@@ -330,6 +332,16 @@ export const ResolveCompositionConfig: React.FC<
 		selectedComposition?.width,
 		shouldIgnoreUpdate,
 	]);
+
+	useEffect(() => {
+		if (shouldIgnoreUpdate) {
+			// We already have the current state, we just saved it back
+			// to the file
+			return;
+		}
+
+		window.dispatchEvent(new CustomEvent('remotion.propsUpdatedExternally'));
+	}, [fastRefreshes, shouldIgnoreUpdate]);
 
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {

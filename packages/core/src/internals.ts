@@ -46,6 +46,7 @@ import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
+	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionConfig,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
@@ -159,6 +160,7 @@ export const Internals = {
 	PreviewSizeContext,
 	calculateScale,
 	editorPropsProviderRef,
+	PROPS_UPDATED_EXTERNALLY,
 } as const;
 
 export type {

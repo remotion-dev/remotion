@@ -7,8 +7,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {Internals} from 'remotion';
 import type {z} from 'zod';
-import {PROPS_UPDATED_EXTERNALLY} from '../../../api/update-default-props';
 import type {UpdaterFunction} from './ZodSwitch';
 import {deepEqual} from './deep-equal';
 
@@ -41,10 +41,9 @@ export const useLocalState = <T,>({
 	const parentRevision = useContext(RevisionContext).childResetRevision;
 
 	const [resetRevision, setResetRevision] = useState(0);
-	const [localValueOrNull, setLocalValue] = useState<Record<
-		number,
-		LocalState<T>
-	> | null>(() => {
+	const [localValueOrNull, setLocalValue] = useState<
+		Record<number, LocalState<T> | null>
+	>(() => {
 		return {
 			[parentRevision]: {
 				value: unsavedValue,
@@ -54,42 +53,40 @@ export const useLocalState = <T,>({
 		};
 	});
 
-	const localValue = useMemo(() => {
-		if (localValueOrNull === null) {
+	const localUnsavedValue = useMemo(() => {
+		if (localValueOrNull[parentRevision] === null) {
 			return {
-				[parentRevision]: {
-					value: unsavedValue,
-					keyStabilityRevision: 0,
-					zodValidation: schema.safeParse(unsavedValue),
-				},
+				value: unsavedValue,
+				keyStabilityRevision: 0,
+				zodValidation: schema.safeParse(unsavedValue),
 			};
 		}
 
-		return localValueOrNull;
+		return localValueOrNull[parentRevision];
 	}, [localValueOrNull, parentRevision, schema, unsavedValue]);
 
 	useEffect(() => {
 		const checkFile = () => {
 			setResetRevision((old) => old + 1);
-			setLocalValue(null);
+			setLocalValue({});
 		};
 
-		window.addEventListener(PROPS_UPDATED_EXTERNALLY, checkFile);
+		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, checkFile);
 
 		return () => {
-			window.removeEventListener(PROPS_UPDATED_EXTERNALLY, checkFile);
+			window.removeEventListener(Internals.PROPS_UPDATED_EXTERNALLY, checkFile);
 		};
 	}, []);
 
 	const currentLocalValue: LocalState<T> = useMemo(() => {
 		return (
-			localValue[parentRevision] ?? {
+			localUnsavedValue ?? {
 				value: savedValue,
 				keyStabilityRevision: 0,
 				zodValidation: schema.safeParse(savedValue),
 			}
 		);
-	}, [savedValue, localValue, parentRevision, schema]);
+	}, [localUnsavedValue, savedValue, schema]);
 
 	const stateRef = useRef(currentLocalValue);
 	stateRef.current = currentLocalValue;
@@ -121,14 +118,14 @@ export const useLocalState = <T,>({
 				stateRef.current = newState;
 
 				return {
-					...localValue,
+					...localUnsavedValue,
 					[parentRevision]: newState,
 				};
 			});
 		},
 		[
 			currentLocalValue.keyStabilityRevision,
-			localValue,
+			localUnsavedValue,
 			parentRevision,
 			schema,
 			setValue,
