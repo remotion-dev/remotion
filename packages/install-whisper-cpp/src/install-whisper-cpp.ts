@@ -101,7 +101,7 @@ const installWhisperForUnix = async ({
 	to: string;
 	printOutput: boolean;
 	signal: AbortSignal | null;
-}) => {
+}): Promise<void> => {
 	await execute({
 		command: `git clone https://github.com/ggerganov/whisper.cpp.git ${to}`,
 		printOutput,
@@ -167,7 +167,12 @@ export const installWhisperCpp = async ({
 	}
 
 	if (process.platform === 'darwin' || process.platform === 'linux') {
-		installWhisperForUnix({version, to, printOutput, signal: signal ?? null});
+		await installWhisperForUnix({
+			version,
+			to,
+			printOutput,
+			signal: signal ?? null,
+		});
 		return Promise.resolve({alreadyExisted: false});
 	}
 
