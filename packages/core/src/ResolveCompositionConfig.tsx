@@ -7,7 +7,6 @@ import {
 	useEffect,
 	useImperativeHandle,
 	useMemo,
-	useRef,
 	useState,
 } from 'react';
 import type {AnyZodObject} from 'zod';
@@ -17,6 +16,7 @@ import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {NonceContext} from './nonce.js';
 import type {InferProps} from './props-if-has-props.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {validateDimension} from './validation/validate-dimensions.js';
@@ -67,6 +67,7 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
+	const {fastRefreshes} = useContext(NonceContext);
 	const selectedComposition = useMemo(() => {
 		return compositions.find(
 			(c) =>
@@ -271,47 +272,33 @@ export const ResolveCompositionConfig: React.FC<
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
 
-	const lastDefaultProps = useRef({});
 	const currentDefaultProps = useMemo(() => {
-		const newDefaultProps = {
+		return {
 			...(selectedComposition?.defaultProps ?? {}),
 			...(selectedEditorProps ?? {}),
 		};
-
-		if (
-			JSON.stringify(lastDefaultProps.current) ===
-			JSON.stringify(newDefaultProps)
-		) {
-			return lastDefaultProps.current;
-		}
-
-		lastDefaultProps.current = newDefaultProps;
-		return newDefaultProps;
 	}, [selectedComposition?.defaultProps, selectedEditorProps]);
 
-	const lastOriginalProps = useRef({});
 	const originalProps = useMemo(() => {
-		const newOriginalProps = {
+		return {
 			...currentDefaultProps,
 			...(inputProps ?? {}),
 		};
-
-		if (
-			JSON.stringify(lastOriginalProps.current) ===
-			JSON.stringify(newOriginalProps)
-		) {
-			return lastOriginalProps.current;
-		}
-
-		lastOriginalProps.current = newOriginalProps;
-		return newOriginalProps;
 	}, [currentDefaultProps, inputProps]);
 
 	const canResolve =
 		selectedComposition && needsResolution(selectedComposition);
 
+	const shouldIgnoreUpdate =
+		fastRefreshes === window.remotion_ignoreFastRefreshUpdate;
+
 	useEffect(() => {
-		console.log('triggered');
+		if (shouldIgnoreUpdate) {
+			// We already have the current state, we just saved it back
+			// to the file
+			return;
+		}
+
 		if (canResolve) {
 			const controller = doResolution({
 				calculateMetadata: selectedComposition.calculateMetadata,
@@ -340,6 +327,7 @@ export const ResolveCompositionConfig: React.FC<
 		selectedComposition?.height,
 		selectedComposition?.id,
 		selectedComposition?.width,
+		shouldIgnoreUpdate,
 	]);
 
 	useEffect(() => {

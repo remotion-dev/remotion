@@ -8,7 +8,7 @@ import React, {
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {Internals, getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import type {z} from 'zod';
+import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -308,10 +308,6 @@ export const DataEditor: React.FC<{
 		});
 	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
-	useEffect(() => {
-		setSaving(false);
-	}, [fastRefreshes, setSaving]);
-
 	const onSave = useCallback(
 		(
 			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
@@ -321,6 +317,7 @@ export const DataEditor: React.FC<{
 				return;
 			}
 
+			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
@@ -340,11 +337,15 @@ export const DataEditor: React.FC<{
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
 					setSaving(false);
+				})
+				.finally(() => {
+					setSaving(false);
 				});
 		},
 		[
 			schema,
 			z,
+			fastRefreshes,
 			setSaving,
 			unresolvedComposition.id,
 			unresolvedComposition.defaultProps,
