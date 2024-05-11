@@ -104,14 +104,27 @@ export const ResolveCompositionConfig: React.FC<
 	}, [allEditorProps, renderModalComposition]);
 
 	const doResolution = useCallback(
-		(
-			compositionId: string,
+		({
+			calculateMetadata,
+			combinedProps,
+			compositionDurationInFrames,
+			compositionFps,
+			compositionHeight,
+			compositionId,
+			compositionWidth,
+			defaultProps,
+		}: {
+			compositionId: string;
 			calculateMetadata: CalculateMetadataFunction<
 				InferProps<AnyZodObject, Record<string, unknown>>
-			> | null,
-			defaultProps: Record<string, unknown>,
-			combinedProps: Record<string, unknown>,
-		) => {
+			> | null;
+			compositionWidth: number | null;
+			compositionHeight: number | null;
+			compositionFps: number | null;
+			compositionDurationInFrames: number | null;
+			defaultProps: Record<string, unknown>;
+			combinedProps: Record<string, unknown>;
+		}) => {
 			const controller = new AbortController();
 			if (currentCompositionMetadata) {
 				return controller;
@@ -121,10 +134,14 @@ export const ResolveCompositionConfig: React.FC<
 
 			const promOrNot = resolveVideoConfig({
 				compositionId,
-				calculateMetadata: selectedComposition?.calculateMetadata ?? null,
+				calculateMetadata,
 				originalProps: combinedProps,
 				signal,
 				defaultProps,
+				compositionDurationInFrames,
+				compositionFps,
+				compositionHeight,
+				compositionWidth,
 			});
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
@@ -189,7 +206,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			return controller;
 		},
-		[currentCompositionMetadata, selectedComposition?.calculateMetadata],
+		[currentCompositionMetadata],
 	);
 
 	const currentComposition =
@@ -228,7 +245,16 @@ export const ResolveCompositionConfig: React.FC<
 						...(inputProps ?? {}),
 					};
 
-					doResolution(composition, defaultProps, props);
+					doResolution({
+						defaultProps,
+						calculateMetadata: composition.calculateMetadata,
+						combinedProps: props,
+						compositionDurationInFrames: composition.durationInFrames ?? null,
+						compositionFps: composition.fps ?? null,
+						compositionHeight: composition.height ?? null,
+						compositionWidth: composition.width ?? null,
+						compositionId: composition.id,
+					});
 				},
 			};
 		},
@@ -281,11 +307,17 @@ export const ResolveCompositionConfig: React.FC<
 
 	useEffect(() => {
 		if (selectedComposition && needsResolution(selectedComposition)) {
-			const controller = doResolution(
-				selectedComposition,
-				currentDefaultProps,
-				originalProps,
-			);
+			const controller = doResolution({
+				calculateMetadata: selectedComposition.calculateMetadata,
+				combinedProps: originalProps,
+				compositionDurationInFrames:
+					selectedComposition.durationInFrames ?? null,
+				compositionFps: selectedComposition.fps ?? null,
+				compositionHeight: selectedComposition.height ?? null,
+				compositionWidth: selectedComposition.width ?? null,
+				defaultProps: currentDefaultProps,
+				compositionId: selectedComposition.id,
+			});
 
 			return () => {
 				controller.abort();
@@ -301,11 +333,17 @@ export const ResolveCompositionConfig: React.FC<
 				...(inputProps ?? {}),
 			};
 
-			const controller = doResolution(
-				renderModalComposition,
-				currentDefaultProps,
+			const controller = doResolution({
+				calculateMetadata: renderModalComposition.calculateMetadata,
+				compositionDurationInFrames:
+					renderModalComposition.durationInFrames ?? null,
+				compositionFps: renderModalComposition.fps ?? null,
+				compositionHeight: renderModalComposition.height ?? null,
+				compositionId: renderModalComposition.id,
+				compositionWidth: renderModalComposition.width ?? null,
+				defaultProps: currentDefaultProps,
 				combinedProps,
-			);
+			});
 
 			return () => {
 				controller.abort();

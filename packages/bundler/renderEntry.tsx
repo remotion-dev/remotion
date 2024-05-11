@@ -349,10 +349,15 @@ if (typeof window !== 'undefined') {
 				};
 
 				const comp = Internals.resolveVideoConfig({
-					composition: c,
+					calculateMetadata: c.calculateMetadata,
+					compositionDurationInFrames: c.durationInFrames ?? null,
+					compositionFps: c.fps ?? null,
+					compositionHeight: c.height ?? null,
+					compositionWidth: c.width ?? null,
 					signal: new AbortController().signal,
 					originalProps,
 					defaultProps: c.defaultProps ?? {},
+					compositionId: c.id,
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -410,10 +415,15 @@ if (typeof window !== 'undefined') {
 
 		const prom = await Promise.resolve(
 			Internals.resolveVideoConfig({
-				composition: selectedComp,
+				calculateMetadata: selectedComp.calculateMetadata,
+				compositionDurationInFrames: selectedComp.durationInFrames ?? null,
+				compositionFps: selectedComp.fps ?? null,
+				compositionHeight: selectedComp.height ?? null,
+				compositionWidth: selectedComp.width ?? null,
 				originalProps,
 				signal: abortController.signal,
 				defaultProps: selectedComp.defaultProps ?? {},
+				compositionId: selectedComp.id,
 			}),
 		);
 		continueRender(handle);

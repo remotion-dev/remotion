@@ -15,15 +15,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 		expectToThrow(
 			() =>
 				resolveVideoConfig({
-					composition: {
-						durationInFrames: 100,
-						calculateMetadata: null,
-						fps: 30,
-						height: 100,
-						id: 'id',
-						width: undefined,
-						defaultProps: {},
-					},
+					compositionDurationInFrames: 100,
+					calculateMetadata: null,
+					compositionFps: 30,
+					compositionHeight: 100,
+					compositionId: 'id',
+					compositionWidth: null,
 					originalProps: {},
 					defaultProps: {},
 					signal: new AbortController().signal,
@@ -37,15 +34,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: -100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: -100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -58,14 +52,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 0,
-							id: 'id',
-							width: 100,
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 0,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -77,16 +69,14 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							// @ts-expect-error
-							height: '100',
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						// @ts-expect-error
+						compositionHeight: '100',
+						compositionId: 'id',
+						compositionWidth: 100,
+						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -97,15 +87,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100.01,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100.01,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -119,15 +106,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: -100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: -100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -139,15 +123,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: 0,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 0,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -159,16 +140,13 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							// @ts-expect-error
-							width: '100',
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						// @ts-expect-error
+						compositionWidth: '100',
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
@@ -182,15 +160,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: -100,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: -100,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -202,15 +177,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 0,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 0,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -222,15 +194,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 0.11,
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 0.11,
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -242,16 +211,13 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							// @ts-expect-error
-							durationInFrames: '100',
-							calculateMetadata: null,
-							fps: 30,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						// @ts-expect-error
+						compositionDurationInFrames: '100',
+						calculateMetadata: null,
+						compositionFps: 30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
@@ -265,15 +231,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: -30,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: -30,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -285,15 +248,12 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							fps: 0,
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						compositionFps: 0,
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
 						defaultProps: {},
 						originalProps: {},
 						signal: new AbortController().signal,
@@ -306,16 +266,14 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					resolveVideoConfig({
-						composition: {
-							durationInFrames: 100,
-							calculateMetadata: null,
-							// @ts-expect-error
-							fps: '30',
-							height: 100,
-							id: 'id',
-							width: 100,
-							defaultProps: {},
-						},
+						compositionDurationInFrames: 100,
+						calculateMetadata: null,
+						// @ts-expect-error
+						compositionFps: '30',
+						compositionHeight: 100,
+						compositionId: 'id',
+						compositionWidth: 100,
+						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -436,17 +394,12 @@ describe('Composition-validation render should NOT throw with valid props', () =
 
 test('should resolve props correctly with no calculateMetadata()', async () => {
 	const resolved = await resolveVideoConfig({
-		composition: {
-			calculateMetadata: null,
-			durationInFrames: 100,
-			fps: 30,
-			height: 1080,
-			id: 'test',
-			width: 1920,
-			defaultProps: {
-				a: 'b',
-			},
-		},
+		calculateMetadata: null,
+		compositionDurationInFrames: 100,
+		compositionFps: 30,
+		compositionHeight: 1080,
+		compositionId: 'test',
+		compositionWidth: 1920,
 		originalProps: {
 			a: 'b',
 			c: 'd',
