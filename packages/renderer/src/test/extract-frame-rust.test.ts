@@ -217,14 +217,10 @@ test(
 		});
 
 		// Pixel fixing
-		if (process.platform === 'darwin') {
-			expect(data.length).toBe(2151963);
-			expect(data[1045650] / 100).toBeCloseTo(2.3, 0.01);
-			expect(data[1645650] / 100).toBeCloseTo(1.02, 0.01);
-			expect(data[2000000] / 100).toBeCloseTo(2.1, 0.01);
-		} else {
-			expect(data.length).toBe(1914106);
-		}
+		expect(data.length).toBe(6220854);
+		expect(data[1045650] / 100).toBeCloseTo(0.18, 0.01);
+		expect(data[1645650] / 100).toBeCloseTo(0.41, 0.01);
+		expect(data[2000000] / 100).toBeCloseTo(0.2, 0.01);
 
 		await compositor.finishCommands();
 		await compositor.waitForDone();
@@ -250,12 +246,15 @@ test(
 			tone_mapped: true,
 		});
 
+		const header = data.subarray(0, BMP_HEADER_SIZE);
+
+		const width = header.readInt32LE(18);
+		const height = header.readInt32LE(22);
+		expect(width).toBe(683);
+		expect(height).toBe(512);
+
 		// Expected length fixing
-		if (process.platform === 'darwin') {
-			expect(data.length).toBe(170674);
-		} else {
-			expect(data.length).toBe(170583);
-		}
+		expect(data.length).toBe(1050678);
 
 		const transparentdata = await compositor.executeCommand('ExtractFrame', {
 			src: exampleVideos.transparentwithdar,
@@ -437,11 +436,7 @@ test('Should get from a screen recording', async () => {
 		tone_mapped: true,
 	});
 
-	if (process.platform === 'darwin') {
-		expect(data.length).toBe(320788);
-	} else {
-		expect(data.length).toBe(313643);
-	}
+	expect(data.length).toBe(15230038);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -463,11 +458,7 @@ test('Should get from video with no fps', async () => {
 		tone_mapped: true,
 	});
 
-	if (process.platform === 'darwin') {
-		expect(data.length).toBe(232206);
-	} else {
-		expect(data.length).toBe(215906);
-	}
+	expect(data.length).toBe(3044334);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -533,11 +524,7 @@ test('Should get from AV1 video', async () => {
 		tone_mapped: true,
 	});
 
-	if (process.platform === 'darwin') {
-		expect(data.length).toBe(1578192);
-	} else {
-		expect(data.length).toBe(1429353);
-	}
+	expect(data.length).toBe(6220854);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
@@ -585,11 +572,11 @@ test('Should handle a video with no frames at the beginning', async () => {
 		tone_mapped: true,
 	});
 
-	if (process.platform === 'darwin') {
-		expect(data.length).toBe(1835304);
-	} else {
-		expect(data.length).toBe(1604696);
-	}
+	// Should resort back to BMP because it is faster
+	const header = data.slice(0, 8).toString('utf8');
+	expect(header).toContain('BM6');
+
+	expect(data.length).toBe(6220854);
 
 	await compositor.finishCommands();
 	await compositor.waitForDone();
