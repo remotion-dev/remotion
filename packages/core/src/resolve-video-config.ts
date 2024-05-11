@@ -60,24 +60,16 @@ const validateCalculated = ({
 
 export const resolveVideoConfig = ({
 	composition,
-	editorProps: editorPropsOrUndefined,
 	signal,
-	inputProps,
+	originalProps,
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
 		Record<string, unknown>
 	>;
-	editorProps: object;
 	signal: AbortSignal;
-	inputProps: Record<string, unknown>;
+	originalProps: Record<string, unknown>;
 }): VideoConfig | Promise<VideoConfig> => {
-	const originalProps = {
-		...(composition.defaultProps ?? {}),
-		...(editorPropsOrUndefined ?? {}),
-		...(inputProps ?? {}),
-	};
-
 	const calculatedProm = composition.calculateMetadata
 		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},

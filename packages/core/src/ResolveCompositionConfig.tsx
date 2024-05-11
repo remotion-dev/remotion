@@ -63,12 +63,15 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
-	const selectedComposition = compositions.find(
-		(c) =>
-			canvasContent &&
-			canvasContent.type === 'composition' &&
-			canvasContent.compositionId === c.id,
-	);
+	const selectedComposition = useMemo(() => {
+		return compositions.find(
+			(c) =>
+				canvasContent &&
+				canvasContent.type === 'composition' &&
+				canvasContent.compositionId === c.id,
+		);
+	}, [canvasContent, compositions]);
+
 	const renderModalComposition = compositions.find(
 		(c) => c.id === currentRenderModalComposition,
 	);
@@ -104,10 +107,15 @@ export const ResolveCompositionConfig: React.FC<
 
 			const {signal} = controller;
 
+			const originalProps = {
+				...(composition.defaultProps ?? {}),
+				...(editorProps ?? {}),
+				...(inputProps ?? {}),
+			};
+
 			const promOrNot = resolveVideoConfig({
 				composition,
-				editorProps,
-				inputProps,
+				originalProps,
 				signal,
 			});
 

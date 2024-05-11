@@ -343,11 +343,15 @@ if (typeof window !== 'undefined') {
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`,
 				);
 
+				const originalProps = {
+					...(c.defaultProps ?? {}),
+					...(inputProps ?? {}),
+				};
+
 				const comp = Internals.resolveVideoConfig({
 					composition: c,
-					editorProps: {},
 					signal: new AbortController().signal,
-					inputProps,
+					originalProps,
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -398,12 +402,16 @@ if (typeof window !== 'undefined') {
 				? {}
 				: getInputProps() ?? {};
 
+		const originalProps = {
+			...(selectedComp.defaultProps ?? {}),
+			...(inputProps ?? {}),
+		};
+
 		const prom = await Promise.resolve(
 			Internals.resolveVideoConfig({
 				composition: selectedComp,
-				editorProps: {},
+				originalProps,
 				signal: abortController.signal,
-				inputProps,
 			}),
 		);
 		continueRender(handle);
