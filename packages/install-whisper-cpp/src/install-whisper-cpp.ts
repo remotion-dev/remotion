@@ -151,8 +151,8 @@ export const installWhisperCpp = async ({
 	if (existsSync(to)) {
 		if (!existsSync(getWhisperExecutablePath(to))) {
 			if (printOutput) {
-				console.log(
-					`Whisper folder exists but the executable (${to}) is missing. Delete ${to} and try again.`,
+				throw new Error(
+					`Whisper folder ${to} exists but the executable (${getWhisperExecutablePath(to)}) is missing. Delete ${to} and try again.`,
 				);
 			}
 
