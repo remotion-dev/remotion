@@ -27,9 +27,11 @@ export const downloadWhisperModel = async ({
 	folder,
 	printOutput = true,
 	onProgress,
+	signal,
 }: {
 	model: WhisperModel;
 	folder: string;
+	signal?: AbortSignal;
 	printOutput?: boolean;
 	onProgress?: OnProgress;
 }): Promise<{
@@ -63,6 +65,7 @@ export const downloadWhisperModel = async ({
 		url: baseModelUrl,
 		printOutput,
 		onProgress,
+		signal: signal ?? null,
 	});
 
 	return {alreadyExisted: false};

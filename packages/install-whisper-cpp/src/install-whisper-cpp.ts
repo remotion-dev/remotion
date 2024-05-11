@@ -1,4 +1,4 @@
-import type {StdioOptions} from 'child_process';
+import {spawn, type StdioOptions} from 'child_process';
 import fs, {existsSync, rmSync} from 'fs';
 import {execSync} from 'node:child_process';
 import os from 'os';
@@ -13,10 +13,12 @@ const installForWindows = async ({
 	version,
 	to,
 	printOutput,
+	signal,
 }: {
 	version: string;
 	to: string;
 	printOutput: boolean;
+	signal: AbortSignal | null;
 }) => {
 	if (!getIsSemVer(version)) {
 		throw new Error(`Non-semantic version provided. Only releases of Whisper.cpp are supported on Windows (e.g., 1.5.4). Provided version:
@@ -36,6 +38,7 @@ const installForWindows = async ({
 		printOutput,
 		url,
 		onProgress: undefined,
+		signal,
 	});
 
 	execSync(`Expand-Archive -Force ${filePath} ${to}`, {
@@ -46,30 +49,73 @@ const installForWindows = async ({
 	rmSync(filePath);
 };
 
-const installWhisperForUnix = ({
+const execute = ({
+	command,
+	printOutput,
+	signal,
+	cwd,
+}: {
+	command: string;
+	printOutput: boolean;
+	signal: AbortSignal | null;
+	cwd: string | null;
+}) => {
+	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
+
+	return new Promise<void>((resolve, reject) => {
+		const child = spawn(command, {
+			stdio,
+			signal: signal ?? undefined,
+			cwd: cwd ?? undefined,
+		});
+
+		child.on('exit', (code, exitSignal) => {
+			if (code !== 0) {
+				reject(
+					new Error(
+						`Error while executing ${command}. Exit code: ${code}, signal: ${exitSignal}`,
+					),
+				);
+				return;
+			}
+
+			resolve();
+		});
+	});
+};
+
+const installWhisperForUnix = async ({
 	version,
 	to,
 	printOutput,
+	signal,
 }: {
 	version: string;
 	to: string;
 	printOutput: boolean;
+	signal: AbortSignal | null;
 }) => {
-	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
-	execSync(`git clone https://github.com/ggerganov/whisper.cpp.git ${to}`, {
-		stdio,
+	await execute({
+		command: `git clone https://github.com/ggerganov/whisper.cpp.git ${to}`,
+		printOutput,
+		signal,
+		cwd: null,
 	});
 
 	const ref = getIsSemVer(version) ? `v${version}` : version;
 
-	execSync(`git checkout ${ref}`, {
-		stdio,
+	await execute({
+		command: `git checkout ${ref}`,
+		printOutput,
 		cwd: to,
+		signal,
 	});
 
-	execSync(`make`, {
+	await execute({
+		command: 'make',
 		cwd: to,
-		stdio,
+		signal,
+		printOutput,
 	});
 };
 
@@ -83,9 +129,11 @@ export const installWhisperCpp = async ({
 	version,
 	to,
 	printOutput = true,
+	signal,
 }: {
 	version: string;
 	to: string;
+	signal: AbortSignal | null;
 	printOutput?: boolean;
 }): Promise<{
 	alreadyExisted: boolean;
@@ -109,12 +157,12 @@ export const installWhisperCpp = async ({
 	}
 
 	if (process.platform === 'darwin' || process.platform === 'linux') {
-		installWhisperForUnix({version, to, printOutput});
+		installWhisperForUnix({version, to, printOutput, signal});
 		return Promise.resolve({alreadyExisted: false});
 	}
 
 	if (process.platform === 'win32') {
-		await installForWindows({version, to, printOutput});
+		await installForWindows({version, to, printOutput, signal});
 		return Promise.resolve({alreadyExisted: false});
 	}
 

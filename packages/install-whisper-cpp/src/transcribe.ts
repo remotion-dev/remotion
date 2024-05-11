@@ -89,7 +89,7 @@ const readJson = async (jsonPath: string) => {
 	return JSON.parse(data);
 };
 
-const transcribeToTempJSON = async ({
+const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
 	model,
@@ -100,6 +100,7 @@ const transcribeToTempJSON = async ({
 	printOutput,
 	tokensPerItem,
 	language,
+	signal,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -111,6 +112,7 @@ const transcribeToTempJSON = async ({
 	printOutput: boolean;
 	tokensPerItem: number | null;
 	language?: Language | null;
+	signal: AbortSignal | null;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -145,6 +147,7 @@ const transcribeToTempJSON = async ({
 	const outputPath = await new Promise<string>((resolve, reject) => {
 		const task = spawn(executable, args, {
 			cwd: whisperPath,
+			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;
 
@@ -177,7 +180,7 @@ const transcribeToTempJSON = async ({
 		task.stdout.on('data', onStdout);
 		task.stderr.on('data', onStderr);
 
-		task.on('exit', (code, signal) => {
+		task.on('exit', (code, exitSignal) => {
 			// Whisper sometimes files also with error code 0
 			// https://github.com/ggerganov/whisper.cpp/pull/1952/files
 
@@ -186,9 +189,9 @@ const transcribeToTempJSON = async ({
 				return;
 			}
 
-			if (signal) {
+			if (exitSignal) {
 				reject(
-					new Error(`Process was killed with signal ${signal}: ${output}`),
+					new Error(`Process was killed with signal ${exitSignal}: ${output}`),
 				);
 				return;
 			}
@@ -214,6 +217,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput = true,
 	tokensPerItem,
 	language,
+	signal,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -224,6 +228,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	printOutput?: boolean;
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
+	signal?: AbortSignal;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -243,7 +248,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 
 	const tmpJSONDir = path.join(process.cwd(), 'tmp');
 
-	const {outputPath: tmpJSONPath} = await transcribeToTempJSON({
+	const {outputPath: tmpJSONPath} = await transcribeToTemporaryFile({
 		fileToTranscribe: inputPath,
 		whisperPath,
 		model,
@@ -254,6 +259,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		printOutput,
 		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
 		language,
+		signal: signal ?? null,
 	});
 
 	const json = (await readJson(
