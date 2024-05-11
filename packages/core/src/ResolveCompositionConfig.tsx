@@ -292,6 +292,7 @@ export const ResolveCompositionConfig: React.FC<
 		selectedComposition && needsResolution(selectedComposition);
 
 	const shouldIgnoreUpdate =
+		typeof window !== 'undefined' &&
 		window.remotion_ignoreFastRefreshUpdate &&
 		fastRefreshes <= window.remotion_ignoreFastRefreshUpdate;
 
