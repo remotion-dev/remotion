@@ -167,12 +167,12 @@ export const installWhisperCpp = async ({
 	}
 
 	if (process.platform === 'darwin' || process.platform === 'linux') {
-		installWhisperForUnix({version, to, printOutput, signal});
+		installWhisperForUnix({version, to, printOutput, signal: signal ?? null});
 		return Promise.resolve({alreadyExisted: false});
 	}
 
 	if (process.platform === 'win32') {
-		await installForWindows({version, to, printOutput, signal});
+		await installForWindows({version, to, printOutput, signal: signal ?? null});
 		return Promise.resolve({alreadyExisted: false});
 	}
 
