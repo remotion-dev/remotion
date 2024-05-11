@@ -24,8 +24,10 @@
     {
       "path": "../install-whisper-cpp"
     },
+
     {
       "path": "../cli"
     }
-  ]
+  ],
+  "exclude": ["download-whisper.ts"]
 }

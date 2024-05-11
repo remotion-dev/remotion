@@ -5,13 +5,17 @@ export const downloadFile = async ({
 	url,
 	printOutput,
 	onProgress,
+	signal,
 }: {
 	fileStream: NodeJS.WritableStream;
 	url: string;
 	printOutput: boolean;
 	onProgress: OnProgress | undefined;
+	signal: AbortSignal | null;
 }) => {
-	const {body, headers} = await fetch(url);
+	const {body, headers} = await fetch(url, {
+		signal,
+	});
 	const contentLength = headers.get('content-length');
 
 	if (body === null) {
