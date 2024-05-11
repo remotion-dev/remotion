@@ -89,6 +89,8 @@ const readJson = async (jsonPath: string) => {
 	return JSON.parse(data);
 };
 
+export type TranscribeOnProgress = (progress: number) => void;
+
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
@@ -101,6 +103,7 @@ const transcribeToTemporaryFile = async ({
 	tokensPerItem,
 	language,
 	signal,
+	onProgress,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -111,8 +114,9 @@ const transcribeToTemporaryFile = async ({
 	tokenLevelTimestamps: boolean;
 	printOutput: boolean;
 	tokensPerItem: number | null;
-	language?: Language | null;
+	language: Language | null;
 	signal: AbortSignal | null;
+	onProgress: TranscribeOnProgress | null;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -138,6 +142,7 @@ const transcribeToTemporaryFile = async ({
 		'-ojf', // Output full JSON
 		tokenLevelTimestamps ? ['--dtw', model] : null,
 		model ? [`-m`, `${modelPath}`] : null,
+		['-pp'], // print progress
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 	]
@@ -155,6 +160,12 @@ const transcribeToTemporaryFile = async ({
 
 		const onData = (data: Buffer) => {
 			const str = data.toString('utf-8');
+			const hasProgress = str.includes('progress =');
+			if (hasProgress) {
+				const progress = parseFloat(str.split('progress =')[1].trim());
+				onProgress?.(progress / 100);
+			}
+
 			output += str;
 
 			// Sometimes it hangs here
@@ -186,6 +197,7 @@ const transcribeToTemporaryFile = async ({
 
 			if (existsSync(predictedPath)) {
 				resolve(predictedPath);
+				onProgress?.(1);
 				return;
 			}
 
@@ -218,6 +230,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	tokensPerItem,
 	language,
 	signal,
+	onProgress,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -229,6 +242,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	tokensPerItem?: true extends HasTokenLevelTimestamps ? never : number | null;
 	language?: Language | null;
 	signal?: AbortSignal;
+	onProgress?: TranscribeOnProgress;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -258,8 +272,9 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		tokenLevelTimestamps,
 		printOutput,
 		tokensPerItem: tokenLevelTimestamps ? 1 : tokensPerItem ?? 1,
-		language,
+		language: language ?? null,
 		signal: signal ?? null,
+		onProgress: onProgress ?? null,
 	});
 
 	const json = (await readJson(

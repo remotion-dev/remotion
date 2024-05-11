@@ -25,6 +25,8 @@ const transcription = await transcribe({
   whisperPath: to,
   model: "medium.en",
   tokenLevelTimestamps: true,
+  printOutput: false,
+  onProgress: (progress) => {
+    console.log(progress);
+  },
 });
-
-console.log(transcription);
