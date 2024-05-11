@@ -2,9 +2,10 @@ use std::usize;
 
 use ffmpeg_next::{
     color,
-    format::Pixel,
+    ffi::sws_getCoefficients,
+    format::{self, Pixel},
     frame::{self, Video},
-    software::scaling::{Context, Flags},
+    software::scaling::{ColorSpace, Context, Flags},
 };
 
 use crate::{
@@ -204,15 +205,26 @@ pub fn scale_and_make_bitmap(
         native_frame.scaled_width,
         native_frame.scaled_height,
         // FFmpeg also uses BICUBIC by default when extracting a frame
-        Flags::BICUBIC,
+        Flags::BILINEAR,
     )?;
+
+    _print_verbose(&format!(
+        "Scaling from {}x{} to {}x{} colorspace: {:?} range: {:?}",
+        native_frame.original_width,
+        native_frame.original_height,
+        native_frame.scaled_width,
+        native_frame.scaled_height,
+        native_frame.colorspace,
+        native_frame.src_range,
+    ))?;
+
     scaler.set_colorspace_details(
         native_frame.colorspace,
         native_frame.src_range,
         color::Range::JPEG,
         0,
-        0,
-        0,
+        1 << 16,
+        1 << 16,
     )?;
 
     let mut data: Vec<*const u8> = Vec::with_capacity(planes.len());
