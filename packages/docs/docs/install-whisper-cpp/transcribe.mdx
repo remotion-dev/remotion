@@ -119,6 +119,19 @@ Possible values: `Afrikaans`, `Albanian`, `Amharic`, `Arabic`, `Armenian`, `Assa
 
 A signal from an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) to cancel the transcription process.
 
+### `onProgress?`<AvailableFrom v="4.0.156" />
+
+Listen for progress updates from the transcription process.  
+The progress is a number between `0` and `1`.
+
+```tsx twoslash
+import type { TranscribeOnProgress } from "@remotion/install-whisper-cpp";
+
+const onProgress: TranscribeOnProgress = (progress) => {
+  console.log(`Transcription progress: ${progress * 100}%`);
+};
+```
+
 ## Return value
 
 ### `TranscriptionJson`

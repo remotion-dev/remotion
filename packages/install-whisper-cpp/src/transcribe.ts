@@ -89,7 +89,7 @@ const readJson = async (jsonPath: string) => {
 	return JSON.parse(data);
 };
 
-type TranscribeOnProgress = (progress: number) => void;
+export type TranscribeOnProgress = (progress: number) => void;
 
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
