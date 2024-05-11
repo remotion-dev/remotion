@@ -352,6 +352,7 @@ if (typeof window !== 'undefined') {
 					composition: c,
 					signal: new AbortController().signal,
 					originalProps,
+					defaultProps: c.defaultProps ?? {},
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -412,6 +413,7 @@ if (typeof window !== 'undefined') {
 				composition: selectedComp,
 				originalProps,
 				signal: abortController.signal,
+				defaultProps: selectedComp.defaultProps ?? {},
 			}),
 		);
 		continueRender(handle);
