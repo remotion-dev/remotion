@@ -143,7 +143,7 @@ export const installWhisperCpp = async ({
 }: {
 	version: string;
 	to: string;
-	signal: AbortSignal | null;
+	signal?: AbortSignal | null;
 	printOutput?: boolean;
 }): Promise<{
 	alreadyExisted: boolean;
