@@ -290,7 +290,8 @@ export const ResolveCompositionConfig: React.FC<
 		selectedComposition && needsResolution(selectedComposition);
 
 	const shouldIgnoreUpdate =
-		fastRefreshes === window.remotion_ignoreFastRefreshUpdate;
+		window.remotion_ignoreFastRefreshUpdate &&
+		fastRefreshes <= window.remotion_ignoreFastRefreshUpdate;
 
 	useEffect(() => {
 		if (shouldIgnoreUpdate) {

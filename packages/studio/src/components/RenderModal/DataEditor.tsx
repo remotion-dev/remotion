@@ -136,6 +136,9 @@ export const DataEditor: React.FC<{
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
 	);
+	const {updateCompositionDefaultProps} = useContext(
+		Internals.CompositionManager,
+	);
 
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
@@ -319,9 +322,10 @@ export const DataEditor: React.FC<{
 
 			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
+			const newDefaultProps = updater(unresolvedComposition.defaultProps ?? {});
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps ?? {}),
+				newDefaultProps,
 				extractEnumJsonPaths(schema, z, []),
 			)
 				.then((response) => {
@@ -333,10 +337,14 @@ export const DataEditor: React.FC<{
 							2000,
 						);
 					}
+
+					updateCompositionDefaultProps(
+						unresolvedComposition.id,
+						newDefaultProps,
+					);
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
-					setSaving(false);
 				})
 				.finally(() => {
 					setSaving(false);
@@ -347,8 +355,9 @@ export const DataEditor: React.FC<{
 			z,
 			fastRefreshes,
 			setSaving,
-			unresolvedComposition.id,
 			unresolvedComposition.defaultProps,
+			unresolvedComposition.id,
+			updateCompositionDefaultProps,
 		],
 	);
 
