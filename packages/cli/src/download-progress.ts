@@ -7,10 +7,10 @@ import {truthy} from './truthy';
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
 
-	return `[${StudioServerInternals.formatBytes(downloaded).padEnd(
+	return `${StudioServerInternals.formatBytes(downloaded).padEnd(
 		desiredLength - 2,
 		' ',
-	)}]`;
+	)}`;
 };
 
 export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
