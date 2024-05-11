@@ -205,7 +205,7 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 					calculateMetadata={calculateMetadata}
 					schema={dynamicDurationSchema}
-					defaultProps={{duration: 50}}
+					defaultProps={{duration: 20}}
 				/>
 				<Composition
 					id="failing-dynamic-length"

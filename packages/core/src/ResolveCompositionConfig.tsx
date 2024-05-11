@@ -103,6 +103,8 @@ export const ResolveCompositionConfig: React.FC<
 			: {};
 	}, [allEditorProps, renderModalComposition]);
 
+	const hasResolution = Boolean(currentCompositionMetadata);
+
 	const doResolution = useCallback(
 		({
 			calculateMetadata,
@@ -126,7 +128,7 @@ export const ResolveCompositionConfig: React.FC<
 			combinedProps: Record<string, unknown>;
 		}) => {
 			const controller = new AbortController();
-			if (currentCompositionMetadata) {
+			if (hasResolution) {
 				return controller;
 			}
 
@@ -206,7 +208,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			return controller;
 		},
-		[currentCompositionMetadata],
+		[hasResolution],
 	);
 
 	const currentComposition =
@@ -305,8 +307,12 @@ export const ResolveCompositionConfig: React.FC<
 		return newOriginalProps;
 	}, [currentDefaultProps, inputProps]);
 
+	const canResolve =
+		selectedComposition && needsResolution(selectedComposition);
+
 	useEffect(() => {
-		if (selectedComposition && needsResolution(selectedComposition)) {
+		console.log('triggered');
+		if (canResolve) {
 			const controller = doResolution({
 				calculateMetadata: selectedComposition.calculateMetadata,
 				combinedProps: originalProps,
@@ -323,7 +329,18 @@ export const ResolveCompositionConfig: React.FC<
 				controller.abort();
 			};
 		}
-	}, [currentDefaultProps, doResolution, originalProps, selectedComposition]);
+	}, [
+		canResolve,
+		currentDefaultProps,
+		doResolution,
+		originalProps,
+		selectedComposition?.calculateMetadata,
+		selectedComposition?.durationInFrames,
+		selectedComposition?.fps,
+		selectedComposition?.height,
+		selectedComposition?.id,
+		selectedComposition?.width,
+	]);
 
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
