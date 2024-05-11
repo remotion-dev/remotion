@@ -9,11 +9,15 @@ import {
 	useMemo,
 	useState,
 } from 'react';
+import type {AnyZodObject} from 'zod';
+import type {CalculateMetadataFunction} from './Composition.js';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getInputProps} from './config/input-props.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {NonceContext} from './nonce.js';
+import type {InferProps} from './props-if-has-props.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
@@ -54,6 +58,8 @@ export const needsResolution = (composition: AnyComposition) => {
 	return Boolean(composition.calculateMetadata);
 };
 
+export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
+
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
@@ -63,16 +69,26 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
-	const selectedComposition = compositions.find(
-		(c) =>
-			canvasContent &&
-			canvasContent.type === 'composition' &&
-			canvasContent.compositionId === c.id,
-	);
+	const {fastRefreshes} = useContext(NonceContext);
+	const selectedComposition = useMemo(() => {
+		return compositions.find(
+			(c) =>
+				canvasContent &&
+				canvasContent.type === 'composition' &&
+				canvasContent.compositionId === c.id,
+		);
+	}, [canvasContent, compositions]);
+
 	const renderModalComposition = compositions.find(
 		(c) => c.id === currentRenderModalComposition,
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
+
+	const inputProps = useMemo(() => {
+		return typeof window === 'undefined' || getRemotionEnvironment().isPlayer
+			? {}
+			: getInputProps() ?? {};
+	}, []);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
 		Record<string, VideoConfigState | undefined>
@@ -90,37 +106,59 @@ export const ResolveCompositionConfig: React.FC<
 			: {};
 	}, [allEditorProps, renderModalComposition]);
 
+	const hasResolution = Boolean(currentCompositionMetadata);
+
 	const doResolution = useCallback(
-		(composition: AnyComposition, editorProps: object) => {
+		({
+			calculateMetadata,
+			combinedProps,
+			compositionDurationInFrames,
+			compositionFps,
+			compositionHeight,
+			compositionId,
+			compositionWidth,
+			defaultProps,
+		}: {
+			compositionId: string;
+			calculateMetadata: CalculateMetadataFunction<
+				InferProps<AnyZodObject, Record<string, unknown>>
+			> | null;
+			compositionWidth: number | null;
+			compositionHeight: number | null;
+			compositionFps: number | null;
+			compositionDurationInFrames: number | null;
+			defaultProps: Record<string, unknown>;
+			combinedProps: Record<string, unknown>;
+		}) => {
 			const controller = new AbortController();
-			if (currentCompositionMetadata) {
+			if (hasResolution) {
 				return controller;
 			}
-
-			const inputProps =
-				typeof window === 'undefined' || getRemotionEnvironment().isPlayer
-					? {}
-					: getInputProps() ?? {};
 
 			const {signal} = controller;
 
 			const promOrNot = resolveVideoConfig({
-				composition,
-				editorProps,
-				inputProps,
+				compositionId,
+				calculateMetadata,
+				originalProps: combinedProps,
 				signal,
+				defaultProps,
+				compositionDurationInFrames,
+				compositionFps,
+				compositionHeight,
+				compositionWidth,
 			});
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
 				setResolvedConfigs((r) => {
-					const prev = r[composition.id];
+					const prev = r[compositionId];
 					if (
 						prev?.type === 'success' ||
 						prev?.type === 'success-and-refreshing'
 					) {
 						return {
 							...r,
-							[composition.id]: {
+							[compositionId]: {
 								type: 'success-and-refreshing',
 								result: prev.result,
 							},
@@ -129,7 +167,7 @@ export const ResolveCompositionConfig: React.FC<
 
 					return {
 						...r,
-						[composition.id]: {
+						[compositionId]: {
 							type: 'loading',
 						},
 					};
@@ -142,7 +180,7 @@ export const ResolveCompositionConfig: React.FC<
 
 						setResolvedConfigs((r) => ({
 							...r,
-							[composition.id]: {
+							[compositionId]: {
 								type: 'success',
 								result: c,
 							},
@@ -155,7 +193,7 @@ export const ResolveCompositionConfig: React.FC<
 
 						setResolvedConfigs((r) => ({
 							...r,
-							[composition.id]: {
+							[compositionId]: {
 								type: 'error',
 								error: err,
 							},
@@ -164,7 +202,7 @@ export const ResolveCompositionConfig: React.FC<
 			} else {
 				setResolvedConfigs((r) => ({
 					...r,
-					[composition.id]: {
+					[compositionId]: {
 						type: 'success',
 						result: promOrNot,
 					},
@@ -173,7 +211,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			return controller;
 		},
-		[currentCompositionMetadata],
+		[hasResolution],
 	);
 
 	const currentComposition =
@@ -203,34 +241,141 @@ export const ResolveCompositionConfig: React.FC<
 
 					const editorProps = allEditorProps[currentComposition] ?? {};
 
-					doResolution(composition, editorProps);
+					const defaultProps = {
+						...(composition.defaultProps ?? {}),
+						...(editorProps ?? {}),
+					};
+
+					const props = {
+						...(inputProps ?? {}),
+					};
+
+					doResolution({
+						defaultProps,
+						calculateMetadata: composition.calculateMetadata,
+						combinedProps: props,
+						compositionDurationInFrames: composition.durationInFrames ?? null,
+						compositionFps: composition.fps ?? null,
+						compositionHeight: composition.height ?? null,
+						compositionWidth: composition.width ?? null,
+						compositionId: composition.id,
+					});
 				},
 			};
 		},
-		[allEditorProps, compositions, currentComposition, doResolution],
+		[
+			allEditorProps,
+			compositions,
+			currentComposition,
+			doResolution,
+			inputProps,
+		],
 	);
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
 
+	const currentDefaultProps = useMemo(() => {
+		return {
+			...(selectedComposition?.defaultProps ?? {}),
+			...(selectedEditorProps ?? {}),
+		};
+	}, [selectedComposition?.defaultProps, selectedEditorProps]);
+
+	const originalProps = useMemo(() => {
+		return {
+			...currentDefaultProps,
+			...(inputProps ?? {}),
+		};
+	}, [currentDefaultProps, inputProps]);
+
+	const canResolve =
+		selectedComposition && needsResolution(selectedComposition);
+
+	const shouldIgnoreUpdate =
+		typeof window !== 'undefined' &&
+		window.remotion_ignoreFastRefreshUpdate &&
+		fastRefreshes <= window.remotion_ignoreFastRefreshUpdate;
+
 	useEffect(() => {
-		if (selectedComposition && needsResolution(selectedComposition)) {
-			const controller = doResolution(selectedComposition, selectedEditorProps);
+		if (shouldIgnoreUpdate) {
+			// We already have the current state, we just saved it back
+			// to the file
+			return;
+		}
+
+		if (canResolve) {
+			const controller = doResolution({
+				calculateMetadata: selectedComposition.calculateMetadata,
+				combinedProps: originalProps,
+				compositionDurationInFrames:
+					selectedComposition.durationInFrames ?? null,
+				compositionFps: selectedComposition.fps ?? null,
+				compositionHeight: selectedComposition.height ?? null,
+				compositionWidth: selectedComposition.width ?? null,
+				defaultProps: currentDefaultProps,
+				compositionId: selectedComposition.id,
+			});
 
 			return () => {
 				controller.abort();
 			};
 		}
-	}, [doResolution, selectedComposition, selectedEditorProps]);
+	}, [
+		canResolve,
+		currentDefaultProps,
+		doResolution,
+		originalProps,
+		selectedComposition?.calculateMetadata,
+		selectedComposition?.durationInFrames,
+		selectedComposition?.fps,
+		selectedComposition?.height,
+		selectedComposition?.id,
+		selectedComposition?.width,
+		shouldIgnoreUpdate,
+	]);
+
+	useEffect(() => {
+		if (shouldIgnoreUpdate) {
+			// We already have the current state, we just saved it back
+			// to the file
+			return;
+		}
+
+		window.dispatchEvent(new CustomEvent('remotion.propsUpdatedExternally'));
+	}, [fastRefreshes, shouldIgnoreUpdate]);
 
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
-			const controller = doResolution(renderModalComposition, renderModalProps);
+			const combinedProps = {
+				...(renderModalComposition.defaultProps ?? {}),
+				...(renderModalProps ?? {}),
+				...(inputProps ?? {}),
+			};
+
+			const controller = doResolution({
+				calculateMetadata: renderModalComposition.calculateMetadata,
+				compositionDurationInFrames:
+					renderModalComposition.durationInFrames ?? null,
+				compositionFps: renderModalComposition.fps ?? null,
+				compositionHeight: renderModalComposition.height ?? null,
+				compositionId: renderModalComposition.id,
+				compositionWidth: renderModalComposition.width ?? null,
+				defaultProps: currentDefaultProps,
+				combinedProps,
+			});
 
 			return () => {
 				controller.abort();
 			};
 		}
-	}, [doResolution, isTheSame, renderModalComposition, renderModalProps]);
+	}, [
+		currentDefaultProps,
+		doResolution,
+		inputProps,
+		isTheSame,
+		renderModalComposition,
+		renderModalProps,
+	]);
 
 	const resolvedConfigsIncludingStaticOnes = useMemo(() => {
 		const staticComps = compositions.filter((c) => {

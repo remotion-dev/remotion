@@ -1,6 +1,9 @@
 import type {AnyZodObject} from 'zod';
-import type {CalcMetadataReturnType} from './Composition.js';
-import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
+import type {
+	CalcMetadataReturnType,
+	CalculateMetadataFunction,
+} from './Composition.js';
+import type {InferProps} from './props-if-has-props.js';
 import {validateDefaultCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
@@ -8,19 +11,24 @@ import {validateFps} from './validation/validate-fps.js';
 import type {VideoConfig} from './video-config.js';
 
 const validateCalculated = ({
-	composition,
 	calculated,
+	compositionId,
+	compositionFps,
+	compositionHeight,
+	compositionWidth,
+	compositionDurationInFrames,
 }: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
 	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
+	compositionId: string;
+	compositionWidth: number | null;
+	compositionHeight: number | null;
+	compositionFps: number | null;
+	compositionDurationInFrames: number | null;
 }) => {
-	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
-	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
+	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${compositionId}"`;
+	const defaultErrorLocation = `of the "<Composition />" component with the id "${compositionId}"`;
 
-	const width = calculated?.width ?? composition.width ?? undefined;
+	const width = calculated?.width ?? compositionWidth ?? undefined;
 
 	validateDimension(
 		width,
@@ -28,7 +36,7 @@ const validateCalculated = ({
 		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
-	const height = calculated?.height ?? composition.height ?? undefined;
+	const height = calculated?.height ?? compositionHeight ?? undefined;
 
 	validateDimension(
 		height,
@@ -36,7 +44,7 @@ const validateCalculated = ({
 		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
-	const fps = calculated?.fps ?? composition.fps ?? null;
+	const fps = calculated?.fps ?? compositionFps ?? null;
 
 	validateFps(
 		fps,
@@ -45,11 +53,11 @@ const validateCalculated = ({
 	);
 
 	const durationInFrames =
-		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
+		calculated?.durationInFrames ?? compositionDurationInFrames ?? null;
 
 	validateDurationInFrames(durationInFrames, {
 		allowFloats: false,
-		component: `of the "<Composition />" component with the id "${composition.id}"`,
+		component: `of the "<Composition />" component with the id "${compositionId}"`,
 	});
 
 	const defaultCodec = calculated?.defaultCodec;
@@ -59,31 +67,34 @@ const validateCalculated = ({
 };
 
 export const resolveVideoConfig = ({
-	composition,
-	editorProps: editorPropsOrUndefined,
+	calculateMetadata,
 	signal,
-	inputProps,
+	defaultProps,
+	originalProps,
+	compositionId,
+	compositionDurationInFrames,
+	compositionFps,
+	compositionHeight,
+	compositionWidth,
 }: {
-	composition: TCompMetadataWithCalcFunction<
-		AnyZodObject,
-		Record<string, unknown>
-	>;
-	editorProps: object;
+	compositionId: string;
+	compositionWidth: number | null;
+	compositionHeight: number | null;
+	compositionFps: number | null;
+	compositionDurationInFrames: number | null;
+	calculateMetadata: CalculateMetadataFunction<
+		InferProps<AnyZodObject, Record<string, unknown>>
+	> | null;
 	signal: AbortSignal;
-	inputProps: Record<string, unknown>;
+	defaultProps: Record<string, unknown>;
+	originalProps: Record<string, unknown>;
 }): VideoConfig | Promise<VideoConfig> => {
-	const originalProps = {
-		...(composition.defaultProps ?? {}),
-		...(editorPropsOrUndefined ?? {}),
-		...(inputProps ?? {}),
-	};
-
-	const calculatedProm = composition.calculateMetadata
-		? composition.calculateMetadata({
-				defaultProps: composition.defaultProps ?? {},
+	const calculatedProm = calculateMetadata
+		? calculateMetadata({
+				defaultProps,
 				props: originalProps,
 				abortSignal: signal,
-				compositionId: composition.id,
+				compositionId,
 			})
 		: null;
 
@@ -96,15 +107,19 @@ export const resolveVideoConfig = ({
 			const {height, width, durationInFrames, fps, defaultCodec} =
 				validateCalculated({
 					calculated: c,
-					composition,
+					compositionDurationInFrames,
+					compositionFps,
+					compositionHeight,
+					compositionWidth,
+					compositionId,
 				});
 			return {
 				width,
 				height,
 				fps,
 				durationInFrames,
-				id: composition.id,
-				defaultProps: composition.defaultProps ?? {},
+				id: compositionId,
+				defaultProps,
 				props: c.props ?? originalProps,
 				defaultCodec: defaultCodec ?? null,
 			};
@@ -113,14 +128,18 @@ export const resolveVideoConfig = ({
 
 	const data = validateCalculated({
 		calculated: calculatedProm,
-		composition,
+		compositionDurationInFrames,
+		compositionFps,
+		compositionHeight,
+		compositionWidth,
+		compositionId,
 	});
 
 	if (calculatedProm === null) {
 		return {
 			...data,
-			id: composition.id,
-			defaultProps: composition.defaultProps ?? {},
+			id: compositionId,
+			defaultProps: defaultProps ?? {},
 			props: originalProps,
 			defaultCodec: null,
 		};
@@ -128,8 +147,8 @@ export const resolveVideoConfig = ({
 
 	return {
 		...data,
-		id: composition.id,
-		defaultProps: composition.defaultProps ?? {},
+		id: compositionId,
+		defaultProps: defaultProps ?? {},
 		props: calculatedProm.props ?? originalProps,
 		defaultCodec: calculatedProm.defaultCodec ?? null,
 	};

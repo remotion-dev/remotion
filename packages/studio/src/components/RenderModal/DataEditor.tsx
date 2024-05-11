@@ -8,7 +8,7 @@ import React, {
 import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {Internals, getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import type {z} from 'zod';
+import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -135,6 +135,9 @@ export const DataEditor: React.FC<{
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
+	);
+	const {updateCompositionDefaultProps} = useContext(
+		Internals.CompositionManager,
 	);
 
 	const inJSONEditor = mode === 'json';
@@ -308,10 +311,6 @@ export const DataEditor: React.FC<{
 		});
 	}, [unresolvedComposition.id, defaultProps, schema, z]);
 
-	useEffect(() => {
-		setSaving(false);
-	}, [fastRefreshes, setSaving]);
-
 	const onSave = useCallback(
 		(
 			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
@@ -321,10 +320,12 @@ export const DataEditor: React.FC<{
 				return;
 			}
 
+			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
+			const newDefaultProps = updater(unresolvedComposition.defaultProps ?? {});
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps ?? {}),
+				newDefaultProps,
 				extractEnumJsonPaths(schema, z, []),
 			)
 				.then((response) => {
@@ -336,18 +337,27 @@ export const DataEditor: React.FC<{
 							2000,
 						);
 					}
+
+					updateCompositionDefaultProps(
+						unresolvedComposition.id,
+						newDefaultProps,
+					);
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
+				})
+				.finally(() => {
 					setSaving(false);
 				});
 		},
 		[
 			schema,
 			z,
+			fastRefreshes,
 			setSaving,
-			unresolvedComposition.id,
 			unresolvedComposition.defaultProps,
+			unresolvedComposition.id,
+			updateCompositionDefaultProps,
 		],
 	);
 
