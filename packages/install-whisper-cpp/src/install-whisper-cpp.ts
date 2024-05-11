@@ -24,7 +24,9 @@ const execute = ({
 	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
 
 	return new Promise<void>((resolve, reject) => {
-		const child = spawn(command, {
+		const [bin, ...args] = command.split(' ');
+
+		const child = spawn(bin, args, {
 			stdio,
 			signal: signal ?? undefined,
 			cwd: cwd ?? undefined,
