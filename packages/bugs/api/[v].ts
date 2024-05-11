@@ -8,6 +8,13 @@ type Bug = {
 
 export const bugs: Bug[] = [
   {
+    title: "Bad color mapping with OffthreadVideo",
+    description:
+      "Videos in the bt.709 color space are not properly mapped to the sRGB color space. Use v4.0.155 instead.",
+    link: "https://github.com/remotion-dev/remotion/issues/3850#issuecomment-2105628446",
+    versions: ["4.0.154"],
+  },
+  {
     title: "@remotion/renderer import exception",
     description:
       "The @remotion/renderer package was compiled in a bad way and does not work.",
