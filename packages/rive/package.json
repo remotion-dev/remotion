@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/rive",
-	"version": "4.0.156",
+	"version": "4.0.157",
 	"description": "Remotion Rive",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
