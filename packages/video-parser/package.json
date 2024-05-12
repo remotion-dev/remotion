@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/video-parser",
-	"version": "4.0.155",
+	"version": "4.0.156",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
