@@ -42,7 +42,7 @@ type SeriesSequenceProps = PropsWithChildren<
 
 const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return children;
+	return <>{children}</>;
 };
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
