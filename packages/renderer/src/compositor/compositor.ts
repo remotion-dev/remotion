@@ -97,7 +97,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		cwd: path.dirname(bin),
 	});
 
-	const stderrChunks: Buffer[] = [];
+	let stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
 
 	const separator = Buffer.from('remotion_buffer:');
@@ -277,6 +277,10 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 			reject?.(error);
 		}
+
+		// Need to manually free up memory
+		outputBuffer = Buffer.from('');
+		stderrChunks = [];
 	});
 
 	return {
