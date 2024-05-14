@@ -470,11 +470,11 @@ const innerStitchFramesToVideo = async (
 	});
 };
 
-export const internalStitchFramesToVideo = async (
+export const internalStitchFramesToVideo = (
 	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	const task = await innerStitchFramesToVideo(options, remotionRoot);
+	const task = innerStitchFramesToVideo(options, remotionRoot);
 
 	return Promise.race([
 		task,
