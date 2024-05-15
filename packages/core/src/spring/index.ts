@@ -59,8 +59,6 @@ export function spring({
 		? measureSpring({
 				fps,
 				config,
-				from,
-				to,
 				threshold: durationRestThreshold,
 			})
 		: undefined;

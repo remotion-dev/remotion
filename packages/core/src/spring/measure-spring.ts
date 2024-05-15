@@ -12,8 +12,6 @@ export function measureSpring({
 	fps,
 	config = {},
 	threshold = 0.005,
-	from = 0,
-	to = 1,
 }: {
 	fps: number;
 	config?: Partial<SpringConfig>;
@@ -53,8 +51,6 @@ export function measureSpring({
 		config.mass,
 		config.overshootClamping,
 		config.stiffness,
-		from,
-		to,
 		threshold,
 	].join('-');
 	if (cache.has(cacheKey)) {
@@ -63,7 +59,6 @@ export function measureSpring({
 
 	validateFps(fps, 'to the measureSpring() function', false);
 
-	const range = Math.abs(from - to);
 	let frame = 0;
 	let finishedFrame = 0;
 	const calc = () => {
@@ -76,10 +71,7 @@ export function measureSpring({
 
 	let animation = calc();
 	const calcDifference = () => {
-		return (
-			Math.abs(animation.current - animation.toValue) /
-			(range === 0 ? 1 : range)
-		);
+		return Math.abs(animation.current - animation.toValue);
 	};
 
 	let difference = calcDifference();
