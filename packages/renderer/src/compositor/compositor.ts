@@ -93,8 +93,18 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		payload,
 	);
 
+	const cwd = path.dirname(bin);
+
 	const child = spawn(bin, [JSON.stringify(fullCommand)], {
-		cwd: path.dirname(bin),
+		cwd,
+		env:
+			process.platform === 'darwin'
+				? {
+						// Should work out of the box, but sometimes it doesn't
+						// https://github.com/remotion-dev/remotion/issues/3862
+						DYLD_LIBRARY_PATH: cwd,
+					}
+				: undefined,
 	});
 
 	let stderrChunks: Buffer[] = [];
