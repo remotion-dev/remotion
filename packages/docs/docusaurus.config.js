@@ -76,14 +76,15 @@ const config = (mode) => ({
               to: "/docs/resources",
               label: "Resources",
             },
-            { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
-            { to: "experts", label: "Experts" },
-            { to: "learn", label: "Learn" },
-            { to: "about", label: "About us" },
             { to: "success-stories", label: "Success Stories" },
+            { to: "blog", label: "Blog" },
+            { to: "learn", label: "Learn" },
+            { to: "experts", label: "Experts" },
             { to: "https://remotion.pro/store", label: "Store" },
             { to: "/docs/support", label: "Support" },
+            { to: "about", label: "About us" },
+            { to: "contact", label: "Contact us" },
           ],
         },
         {
@@ -195,6 +196,10 @@ const config = (mode) => ({
             {
               label: "About us",
               to: "about",
+            },
+            {
+              label: "Contact us",
+              to: "contact",
             },
             mode === "complete"
               ? {

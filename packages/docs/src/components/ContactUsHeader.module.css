@@ -1,0 +1,22 @@
+.writeincss {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+.writeincsstitle {
+  font-size: 4em;
+  font-family: GTPlanar;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 1000px;
+}
+
+@media screen and (max-width: 900px) {
+  .writeincss {
+    flex-direction: column;
+  }
+  .writeincsstitle {
+    font-size: 3.5em;
+  }
+}
