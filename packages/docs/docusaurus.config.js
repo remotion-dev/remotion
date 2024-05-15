@@ -80,7 +80,7 @@ const config = (mode) => ({
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
             { to: "learn", label: "Learn" },
-            { to: "about", label: "About" },
+            { to: "about", label: "About us" },
             { to: "success-stories", label: "Success Stories" },
             { to: "https://remotion.pro/store", label: "Store" },
             { to: "/docs/support", label: "Support" },
