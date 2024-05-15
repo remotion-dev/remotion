@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "4.0.157",
+  "version": "4.0.158",
   "description": "",
   "main": "dist/index.js",
   "files": [
