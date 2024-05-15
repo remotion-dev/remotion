@@ -104,7 +104,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 						// https://github.com/remotion-dev/remotion/issues/3862
 						DYLD_LIBRARY_PATH: cwd,
 					}
-				: {},
+				: undefined,
 	});
 
 	let stderrChunks: Buffer[] = [];
