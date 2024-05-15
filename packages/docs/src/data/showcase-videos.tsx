@@ -352,6 +352,23 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Remotion",
     },
   },
+  {
+    title: "Fluidmotion - Animated video backgrounds",
+    type: "mux_video",
+    time: "0",
+    muxId: "eLyQruncRGvNahd3n9hB44OuziMYqGgS8R1xyhbz02s4",
+    description:
+      "Create beautiful animated background for apps, videos or presentations.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("05-15-2024"),
+    links: [
+      {
+        type: "website",
+        url: "https://fluidmotion.app/",
+      },
+    ],
+  },
 
   /*
   {
