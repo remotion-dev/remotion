@@ -3,7 +3,7 @@ import React from "react";
 import { PlainButton } from "../../../components/layout/Button";
 import { Spacer } from "../../../components/layout/Spacer";
 import { ContactUsHeader } from "../../components/ContactUsHeader";
-import styles from "./contact.module.css";
+import GoogleMaps from "../../components/GoogleMaps";
 
 import Head from "@docusaurus/Head";
 
@@ -12,6 +12,12 @@ const container: React.CSSProperties = {
   margin: "auto",
   paddingLeft: 16,
   paddingRight: 16,
+};
+
+const button: React.CSSProperties = {
+  color: "white",
+  fontFamily: "GTPlanar",
+  textDecoration: "none",
 };
 
 export default () => {
@@ -32,14 +38,7 @@ export default () => {
             justifyContent: "left",
           }}
         >
-          <a
-            style={{
-              textDecoration: "none",
-            }}
-            className={styles.a}
-            target="_blank"
-            href="mailto:hi@remotion.dev"
-          >
+          <a style={button} target="_blank" href="mailto:hi@remotion.dev">
             <PlainButton size="sm" loading={false} fullWidth={false}>
               Contact via email
             </PlainButton>
@@ -47,10 +46,7 @@ export default () => {
           <Spacer />
           <Spacer />
           <a
-            style={{
-              textDecoration: "none",
-            }}
-            className={styles.a}
+            style={button}
             target="_blank"
             href="https://cal.com/remotion/evaluate"
           >
@@ -81,20 +77,14 @@ export default () => {
             justifyContent: "left",
           }}
         >
-          <a
-            style={{
-              textDecoration: "none",
-            }}
-            className={styles.a}
-            target="_blank"
-            href="https://remotion.dev/discord"
-          >
+          <a style={button} target="_blank" href="https://remotion.dev/discord">
             <PlainButton size="sm" loading={false} fullWidth={false}>
               Join Discord
             </PlainButton>
           </a>
         </div>
       </div>
+      <GoogleMaps />
     </Layout>
   );
 };
