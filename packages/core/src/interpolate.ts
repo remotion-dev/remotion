@@ -101,12 +101,12 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 		throw new Error(name + ' must have at least 2 elements');
 	}
 
-	for (const index in arr) {
-		if (typeof arr[index] !== 'number') {
+	for (const element of arr) {
+		if (typeof element !== 'number') {
 			throw new Error(`${name} must contain only numbers`);
 		}
 
-		if (arr[index] === -Infinity || arr[index] === Infinity) {
+		if (!Number.isFinite(element)) {
 			throw new Error(
 				`${name} must contain only finite numbers, but got [${arr.join(',')}]`,
 			);
