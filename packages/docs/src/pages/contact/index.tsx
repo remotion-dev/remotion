@@ -63,11 +63,8 @@ export default () => {
         </p>
 
         <p>
-          Note: Please read our{" "}
-          <a target="_blank" href="docs/support">
-            Support Policy
-          </a>
-          . {"It's"} important to know that we {"don't"} offer troubleshooting
+          Note: Please read our <a href="docs/support">Support Policy</a>.{" "}
+          {"It's"} important to know that we {"don't"} offer troubleshooting
           help via DMs on Discord.
         </p>
         <div
