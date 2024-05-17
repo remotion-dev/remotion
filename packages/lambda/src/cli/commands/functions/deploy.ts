@@ -12,8 +12,8 @@ import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../../../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../../../shared/validate-memory-size';
 import {validateTimeout} from '../../../shared/validate-timeout';
-import {validateVpcSubnetIds} from '../../../shared/validate-vpc-subnet-ids';
 import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security-group-ids';
+import {validateVpcSubnetIds} from '../../../shared/validate-vpc-subnet-ids';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -31,8 +31,9 @@ export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
 	const enableV5Runtime = parsedLambdaCli['enable-v5-runtime'] ?? undefined;
-  const vpcSubnetIds = parsedLambdaCli['vpc-subnet-ids'] ?? undefined;
-  const vpcSecurityGroupIds = parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
+	const vpcSubnetIds = parsedLambdaCli['vpc-subnet-ids'] ?? undefined;
+	const vpcSecurityGroupIds =
+		parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);

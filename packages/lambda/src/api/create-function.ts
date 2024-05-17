@@ -2,13 +2,13 @@ import {
 	CreateLogGroupCommand,
 	PutRetentionPolicyCommand,
 } from '@aws-sdk/client-cloudwatch-logs';
+import type {VpcConfig} from '@aws-sdk/client-lambda';
 import {
 	CreateFunctionCommand,
 	GetFunctionCommand,
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
 	TagResourceCommand,
-  VpcConfig,
 } from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -37,7 +37,7 @@ export const createFunction = async ({
 	enableV5Runtime,
 	logLevel,
 	vpcSubnetIds,
-	vpcSecurityGroupIds
+	vpcSecurityGroupIds,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -120,12 +120,12 @@ export const createFunction = async ({
 		);
 	}
 
-	let vpcConfig: VpcConfig | undefined
+	let vpcConfig: VpcConfig | undefined;
 	if (vpcSubnetIds && vpcSecurityGroupIds) {
 		vpcConfig = {
 			SubnetIds: vpcSubnetIds.split(','),
 			SecurityGroupIds: vpcSecurityGroupIds.split(','),
-		}
+		};
 	}
 
 	RenderInternals.Log.verbose(
@@ -152,7 +152,7 @@ export const createFunction = async ({
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
-      VpcConfig: vpcConfig,
+			VpcConfig: vpcConfig,
 		}),
 	);
 
