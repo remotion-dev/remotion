@@ -8,6 +8,7 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
 	TagResourceCommand,
+  VpcConfig,
 } from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -35,6 +36,8 @@ export const createFunction = async ({
 	enableLambdaInsights,
 	enableV5Runtime,
 	logLevel,
+	vpcSubnetIds,
+	vpcSecurityGroupIds
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -50,6 +53,8 @@ export const createFunction = async ({
 	enableLambdaInsights: boolean;
 	enableV5Runtime: boolean;
 	logLevel: LogLevel;
+	vpcSubnetIds: string;
+	vpcSecurityGroupIds: string;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		RenderInternals.Log.verbose(
@@ -115,6 +120,14 @@ export const createFunction = async ({
 		);
 	}
 
+	let vpcConfig: VpcConfig | undefined
+	if (vpcSubnetIds && vpcSecurityGroupIds) {
+		vpcConfig = {
+			SubnetIds: vpcSubnetIds.split(','),
+			SecurityGroupIds: vpcSecurityGroupIds.split(','),
+		}
+	}
+
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel},
 		'Deploying new Lambda function',
@@ -139,6 +152,7 @@ export const createFunction = async ({
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
+      VpcConfig: vpcConfig,
 		}),
 	);
 
