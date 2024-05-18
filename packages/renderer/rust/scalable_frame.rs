@@ -213,6 +213,19 @@ pub fn scale_and_make_bitmap(
         native_frame.src_range,
     ))?;
 
+    if native_frame.colorspace == color::Space::BT709
+        && native_frame.src_range == color::Range::MPEG
+    {
+        scaler.set_colorspace_details(
+            native_frame.colorspace,
+            native_frame.src_range,
+            color::Range::JPEG,
+            0,
+            1 << 16,
+            1 << 16,
+        )?;
+    }
+
     scaler.set_colorspace_details(
         native_frame.colorspace,
         native_frame.src_range,
