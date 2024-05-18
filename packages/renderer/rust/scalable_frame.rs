@@ -202,16 +202,6 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    _print_verbose(&format!(
-        "Scaling from {}x{} to {}x{} colorspace: {:?} range: {:?}",
-        native_frame.original_width,
-        native_frame.original_height,
-        native_frame.scaled_width,
-        native_frame.scaled_height,
-        native_frame.colorspace,
-        native_frame.src_range,
-    ))?;
-
     if native_frame.colorspace == color::Space::BT709
         && native_frame.src_range == color::Range::MPEG
     {
