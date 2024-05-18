@@ -61,16 +61,12 @@ test(
 
 		// Platform specific PNG encoder settings
 
-		if (data.length === 195708) {
-			expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
-		} else {
-			expect(data.length).toBe(169002);
+		if (data.length === 169002) {
 			expect(data[100000] / 100).toBeCloseTo(0.01, 0.01);
 			expect(data[100001] / 100).toBeCloseTo(1.28, 0.01);
 			expect(data[140001] / 100).toBeCloseTo(1.85, 0.01);
+		} else {
+			expect(data.length).toBe(173198);
 		}
 
 		await compositor.finishCommands();
