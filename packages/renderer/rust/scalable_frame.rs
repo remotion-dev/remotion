@@ -295,7 +295,7 @@ pub fn rotate_270(
     stride: usize,
     channels: usize,
 ) -> (Vec<u8>, u32, u32, usize) {
-    let new_stride = (height as usize * channels + channels) & !channels; // This ensures the new stride is a multiple of channels for alignment
+    let new_stride = height as usize * channels;
     let mut new_data: Vec<u8> = vec![0; new_stride * width as usize];
 
     for y in 0..height {
@@ -368,7 +368,7 @@ pub fn rotate_90(
     stride: usize,
     channels: usize,
 ) -> (Vec<u8>, u32, u32, usize) {
-    let new_stride = (height as usize * channels + channels) & !channels; // This ensures the new stride is a multiple of 4 for alignment
+    let new_stride = height as usize * channels;
     let mut new_data: Vec<u8> = vec![0; new_stride * width as usize];
 
     for y in 0..height {
