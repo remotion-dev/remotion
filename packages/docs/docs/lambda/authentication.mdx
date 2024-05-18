@@ -80,6 +80,18 @@ aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
 
 In this example, we added a `remotion` profile. Now, by setting `REMOTION_AWS_PROFILE=remotion`, you can select the profile and don't need to pass each environment variable separately anymore.
 
+## Skipping the credentials check<AvailableFrom v="4.0.160"/>
+
+There are other ways the S3 client can authenticate, like from EC2 instance metadata.  
+If you have set this up, you may set the `REMOTION_SKIP_AWS_CREDENTIALS_CHECK` environment variable to any value.
+
+```ts
+process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK = "1";
+```
+
+Remotion will not check the credentials and will not throw an error if they are not set.  
+However, if there is a misconfiguration, you may still get an error from the AWS SDK.
+
 ## See also
 
 - [Region selection](/docs/lambda/region-selection)
