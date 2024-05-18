@@ -165,8 +165,8 @@ fn create_bmp_image_from_frame(rgb_frame: &[u8], width: u32, height: u32) -> Vec
     bmp_data.extend(&0u32.to_le_bytes());
 
     for y in (0..height).rev() {
-        let row_start = (y * width * 3) as usize;
-        let row_end = row_start + (width * 3) as usize;
+        let row_start = (y * row_size) as usize;
+        let row_end = row_start + row_size as usize;
         bmp_data.extend_from_slice(&rgb_frame[row_start..row_end]);
         for _ in 0..row_padding {
             bmp_data.push(0);

@@ -1,20 +1,9 @@
-use std::{error::Error, fmt, fs::File};
+use std::fs::File;
 
 use crate::{
     errors::ErrorWithBacktrace,
     payloads::payloads::{ImageLayer, Layer, SolidLayer},
 };
-
-#[derive(Debug)]
-struct NoMetadataError {}
-
-impl fmt::Display for NoMetadataError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "No metadata")
-    }
-}
-
-impl Error for NoMetadataError {}
 
 fn draw_solid_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
