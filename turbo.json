@@ -54,7 +54,7 @@
       "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
-      "outputs": ["target/release/**"],
+      "outputs": ["target/debug/**", "target/release/**"],
       "dependsOn": ["^build"],
       "outputMode": "new-only"
     },
