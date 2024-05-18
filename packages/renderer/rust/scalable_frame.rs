@@ -165,7 +165,7 @@ fn create_bmp_image_from_frame(rgb_frame: &[u8], width: u32, height: u32) -> Vec
     bmp_data.extend(&0u32.to_le_bytes());
 
     for y in (0..height).rev() {
-        let row_start = (y * width) as usize;
+        let row_start = (y * width * 3) as usize;
         let row_end = row_start + (width * 3) as usize;
         bmp_data.extend_from_slice(&rgb_frame[row_start..row_end]);
         for _ in 0..row_padding {
@@ -289,7 +289,6 @@ pub fn rotate_270(
     channels: usize,
 ) -> (Vec<u8>, u32, u32) {
     let new_stride = height as usize * channels;
-    _print_verbose(&format!("stride {} {}", stride, data.len()));
     let mut new_data: Vec<u8> = vec![0; new_stride * width as usize];
 
     for y in 0..height {
