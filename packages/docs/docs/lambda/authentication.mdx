@@ -90,7 +90,17 @@ process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK = "1";
 ```
 
 Remotion will not check the credentials and will not throw an error if they are not set.  
-However, if there is a misconfiguration, you may still get an error from the AWS SDK.
+However, if there is a misconfiguration, you may still get an error from the AWS SDK.  
+Also read the note about [caching clients](#disable-caching).
+
+## Disable caching<AvailableFrom v="4.0.160"/>
+
+AWS clients are cached to save memory and speed up initialization.  
+The cache key is based on the credentials and the region.
+
+If you opted out of [the credentials check](#skipping-the-credentials-check), the instance is cached for the lifetime of the process.  
+If you want to disable the cache, set the `REMOTION_SKIP_AWS_CREDENTIALS_CHECK` environment variable to any value.  
+It's unlikely you need to set this value. This is only if you change the way you authenticate between API calls.
 
 ## See also
 
