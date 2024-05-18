@@ -405,6 +405,9 @@ test("Should render a still that uses the staticFile() API and should apply prop
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
+      env: {
+        REMOTION_FLAG: "hi",
+      },
     }
   );
   expect(task.exitCode).toBe(0);

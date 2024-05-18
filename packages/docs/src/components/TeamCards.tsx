@@ -188,7 +188,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
         <ul style={{ ...list, flex: 1 }}>
           <li>
             {
-              "Coming from traditional business, I had the opportunity to join Remotion. It allows me to express my passion for technology and business, and uniquely combine these two."
+              "Transitioning from traditional business, Remotion allowed me to merge my passion for technology and business in a distinctive way."
             }
           </li>
         </ul>
@@ -244,89 +244,6 @@ export const TeamCardsLayout: React.FC<{}> = () => {
       <Spacer />
       <Spacer />
       <Spacer />
-      <div style={step}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={"/img/team/patric.png"}
-            style={{
-              width: 250,
-              height: 250,
-              boxShadow: "var(--box-shadow)",
-              borderRadius: 1500,
-            }}
-          />
-        </div>
-        <Spacer />
-        <Spacer />
-        <Spacer />
-        <Spacer />
-        <Spacer />
-
-        <h2 style={stepTitle}>Patric</h2>
-        <strong style={center}>Junior Hacker</strong>
-
-        <ul style={{ ...list, flex: 1 }}>
-          <li>
-            {
-              "My passion for programming and creative art led to Remotion, where I'm able to work with cutting-edge technology while I'm doing my CS degree."
-            }
-          </li>
-        </ul>
-        <div style={row}>
-          {
-            <>
-              <div style={flex}>
-                <a style={docsButton} href="https://twitter.com/Salvispat">
-                  <BlueButton loading={false} fullWidth size="sm">
-                    <TwitterLogo /> Twitter
-                  </BlueButton>
-                </a>
-              </div>
-              <Spacer />
-              <Spacer />
-            </>
-          }
-          <div style={flex}>
-            <a
-              style={docsButton}
-              href="https://www.linkedin.com/in/patric-salvisberg-b73b51234/"
-            >
-              <BlueButton loading={false} fullWidth size="sm">
-                <LinkedInLogo /> LinkedIn
-              </BlueButton>
-            </a>
-          </div>
-        </div>
-        <div style={{ height: 10 }} />
-        <div style={row}>
-          {
-            <>
-              <div style={flex}>
-                <a style={docsButton} href="https://github.com/patsalv">
-                  <BlueButton loading={false} fullWidth size="sm">
-                    <GitHubLogo /> GitHub
-                  </BlueButton>
-                </a>
-              </div>
-              <Spacer />
-              <Spacer />
-              <div style={flex}>
-                <a style={docsButton} href="mailto:patric@remotion.dev">
-                  <BlueButton loading={false} fullWidth size="sm">
-                    <EmailLogo /> E-Mail
-                  </BlueButton>
-                </a>
-              </div>
-            </>
-          }
-        </div>
-      </div>
     </div>
   );
 };

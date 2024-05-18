@@ -122,8 +122,8 @@ export type CompositionProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
-	id: string;
-	schema?: Schema;
+	readonly id: string;
+	readonly schema?: Schema;
 } & CompositionCalculateMetadataOrExplicit<Schema, Props> &
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;

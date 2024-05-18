@@ -69,6 +69,15 @@ export const useMediaBuffering = ({
 		const init = () => {
 			if (current.readyState < current.HAVE_FUTURE_DATA) {
 				onWaiting();
+
+				// Needed by iOS Safari which will not load by default
+				// and therefore not fire the canplay event.
+
+				// Be cautious about using `current.load()` as it will
+				// reset if a video is already playing.
+				// Therefore only calling it after checking if the video
+				// has no future data.
+				current.load();
 			} else {
 				current.addEventListener('waiting', onWaiting);
 				cleanupFns.push(() => {
