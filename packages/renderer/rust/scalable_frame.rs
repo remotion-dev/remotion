@@ -199,7 +199,6 @@ pub fn scale_and_make_bitmap(
         dst_format,
         native_frame.scaled_width,
         native_frame.scaled_height,
-        // FFmpeg also uses BICUBIC by default when extracting a frame
         Flags::BILINEAR,
     )?;
 
