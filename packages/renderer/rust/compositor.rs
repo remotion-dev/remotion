@@ -72,7 +72,8 @@ fn draw_png_image_layer(
 ) -> Result<(), ErrorWithBacktrace> {
     let file = File::open(layer.src)?;
 
-    let decoder = png::Decoder::new(file);
+    let mut decoder = png::Decoder::new(file);
+    decoder.set_transformations(png::Transformations::ALPHA);
     let mut reader = decoder.read_info()?;
 
     let size = reader.output_buffer_size();
@@ -80,6 +81,7 @@ fn draw_png_image_layer(
     let info = reader.next_frame(&mut buf)?;
 
     let bytes = &buf[..info.buffer_size()];
+
     for y in 0..(layer.height) {
         for x in 0..(layer.width) {
             let r = bytes[((y * layer.width + x) * 4) as usize];
