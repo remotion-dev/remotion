@@ -6,31 +6,20 @@ import {exampleVideos} from './example-videos';
 
 test('Should get duration of video', async () => {
 	const parsed = await parseVideo(exampleVideos.framer24fps, 128 * 1024);
-	if (!parsed) {
-		throw new Error('No parsed data');
-	}
 
-	const duration = getDuration(parsed);
-	expect(duration).toBe(4.167);
-
-	const dimensions = getDimensions(parsed);
-	expect(dimensions).toEqual([1080, 1080]);
+	expect(getDuration(parsed)).toBe(4.167);
+	expect(getDimensions(parsed)).toEqual([1080, 1080]);
 });
 
 test('Should get duration of HEVC video', async () => {
 	const parsed = await parseVideo(exampleVideos.iphonehevc, Infinity);
-	if (!parsed) {
-		throw new Error('No parsed data');
-	}
 
-	const moovBox = parsed[3];
-	if (moovBox.type !== 'moov-box') {
-		throw new Error('Expected regular box');
-	}
+	expect(getDuration(parsed)).toBe(3.4);
+	expect(getDimensions(parsed)).toEqual([1920, 1080]);
+});
 
-	const duration = getDuration(parsed);
-	expect(duration).toBe(3.4);
-
-	const dimensions = getDimensions(parsed);
-	expect(dimensions).toEqual([1920, 1080]);
+test('Should get duration of AV1 video', async () => {
+	const parsed = await parseVideo(exampleVideos.av1, Infinity);
+	// TODO: AV1 duration is not yet supported
+	expect(getDuration(parsed)).toBe(null);
 });
