@@ -55,16 +55,30 @@ export const getArrayBufferIterator = (
 			return new TextDecoder().decode(atom);
 		},
 		getMatroskaSegmentId: () => {
-			const segmentId = getSlice(4);
-			return `0x${new Uint8Array(segmentId)
-				// @ts-expect-error Convert Uint8Array to string
+			const firstTwo = getSlice(2);
+
+			const knownIdsWithTwoLength = ['0x4dbb'];
+
+			const firstTwoString = `0x${Array.from(new Uint8Array(firstTwo))
 				.map((b) => {
-					return b.toString(16);
+					return b.toString(16).padStart(2, '0');
+				})
+				.join('')}`;
+
+			if (knownIdsWithTwoLength.includes(firstTwoString)) {
+				return firstTwoString;
+			}
+
+			const segmentId = getSlice(2);
+
+			return `${firstTwoString}${Array.from(new Uint8Array(segmentId))
+				.map((b) => {
+					return b.toString(16).padStart(2, '0');
 				})
 				.join('')}`;
 		},
-		getVint: () => {
-			const d = [...Array.from(new Uint8Array(getSlice(8)))];
+		getVint: (bytes: number) => {
+			const d = [...Array.from(new Uint8Array(getSlice(bytes)))];
 			const totalLength = d[0];
 
 			// Calculate the actual length of the data based on the first set bit

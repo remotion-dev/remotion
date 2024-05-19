@@ -1,16 +1,18 @@
 import type {BufferIterator} from '../../../read-and-increment-offset';
 import {expectSegment, type MatroskaSegment} from '../segments';
 
-export type MainSegment = {
-	type: 'main-segment';
+export type SeekHeadSegment = {
+	type: 'seek-head-segment';
 	child: MatroskaSegment;
 };
 
-export const parseMainSegment = (iterator: BufferIterator): MainSegment => {
+export const parseSeekHeadSegment = (
+	iterator: BufferIterator,
+	length: number,
+): SeekHeadSegment => {
 	const child = expectSegment(iterator);
-
 	return {
-		type: 'main-segment',
+		type: 'seek-head-segment',
 		child,
 	};
 };
