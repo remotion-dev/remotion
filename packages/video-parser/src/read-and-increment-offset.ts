@@ -70,3 +70,5 @@ export const getArrayBufferIterator = (
 		},
 	};
 };
+
+export type Iterator = ReturnType<typeof getArrayBufferIterator>;
