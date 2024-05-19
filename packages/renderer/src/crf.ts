@@ -105,7 +105,10 @@ export const validateQualitySettings = ({
 	}
 
 	const range = getValidCrfRanges(codec);
-	if (crf === 0 && (codec === 'h264' || codec === 'h264-mkv')) {
+	if (
+		crf === 0 &&
+		(codec === 'h264' || codec === 'h264-mkv' || codec === 'h264-ts')
+	) {
 		throw new TypeError(
 			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably do not want. Set CRF to a higher value to fix this error.",
 		);
