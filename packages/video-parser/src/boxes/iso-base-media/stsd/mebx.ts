@@ -1,4 +1,5 @@
 import type {Box} from '../../../parse-video';
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
@@ -10,33 +11,26 @@ export interface MebxBox extends BaseBox {
 }
 
 export const parseMebx = (data: ArrayBuffer, offset: number): MebxBox => {
-	let chunkOffset = 0;
-
-	const view = new DataView(data);
-	const size = view.getUint32(chunkOffset);
+	const iterator = getArrayBufferIterator(data, 0);
+	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected mebx size of ${data.byteLength}, got ${size}`);
 	}
 
-	chunkOffset += 4;
-	const type = new TextDecoder().decode(
-		data.slice(chunkOffset, chunkOffset + 4),
-	);
-	if (type !== 'mebx') {
-		throw new Error(`Expected mebx type of mebx, got ${type}`);
+	const atom = iterator.getAtom();
+	if (atom !== 'mebx') {
+		throw new Error(`Expected mebx type of mebx, got ${atom}`);
 	}
 
-	chunkOffset += 4;
-
 	// reserved, 6 bit
-	chunkOffset += 6;
+	iterator.discard(6);
 
-	const dataReferenceIndex = view.getUint16(chunkOffset);
-	chunkOffset += 2;
+	const dataReferenceIndex = iterator.getUint16();
 
-	const rest = data.slice(chunkOffset);
-
-	const children = parseBoxes(rest, offset + chunkOffset);
+	const children = parseBoxes(
+		iterator.data.slice(iterator.counter.getOffset()),
+		offset + iterator.counter.getOffset(),
+	);
 
 	return {
 		type: 'mebx-box',

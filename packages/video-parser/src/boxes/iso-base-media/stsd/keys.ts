@@ -1,3 +1,4 @@
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 
 export interface KeysBox extends BaseBox {
@@ -5,21 +6,15 @@ export interface KeysBox extends BaseBox {
 }
 
 export const parseKeys = (data: ArrayBuffer, offset: number): KeysBox => {
-	let chunkOffset = 0;
-
-	const view = new DataView(data);
-	const size = view.getUint32(chunkOffset);
-	chunkOffset += 4;
+	const iterator = getArrayBufferIterator(data, 0);
+	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected keys size of ${data.byteLength}, got ${size}`);
 	}
 
-	const type = new TextDecoder().decode(
-		data.slice(chunkOffset, chunkOffset + 4),
-	);
-	chunkOffset += 4;
-	if (type !== 'keys') {
-		throw new Error(`Expected keys type of keys, got ${type}`);
+	const atom = iterator.getAtom();
+	if (atom !== 'keys') {
+		throw new Error(`Expected keys type of keys, got ${atom}`);
 	}
 
 	return {

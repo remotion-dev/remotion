@@ -36,6 +36,12 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const getUint32 = () => {
+		const val = view.getUint32(counter.getOffset());
+		counter.increment(4);
+		return val;
+	};
+
 	return {
 		view,
 		counter,
@@ -68,10 +74,21 @@ export const getArrayBufferIterator = (
 			counter.increment(2);
 			return val;
 		},
-		getUint32: () => {
-			const val = view.getUint32(counter.getOffset());
-			counter.increment(4);
+		getInt16: () => {
+			const val = view.getInt16(counter.getOffset());
+			counter.increment(2);
 			return val;
+		},
+		getUint32,
+		// https://developer.apple.com/documentation/quicktime-file-format/sound_sample_description_version_1
+		// A 32-bit unsigned fixed-point number (16.16) that indicates the rate at which the sound samples were obtained.
+		getFixedPoint1616Number: () => {
+			const val = getUint32();
+			return val / 2 ** 16;
+		},
+		getPascalString: () => {
+			const val = getSlice(32);
+			return [...Array.from(new Uint8Array(val))];
 		},
 	};
 };
