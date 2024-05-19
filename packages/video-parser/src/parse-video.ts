@@ -9,7 +9,8 @@ import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {parseWebmHeader} from './boxes/webm/parse-webm-header';
+import {parseWebm} from './boxes/webm/parse-webm-header';
+import type {MainSegment} from './boxes/webm/segments/main';
 
 interface RegularBox extends BaseBox {
 	boxType: string;
@@ -28,7 +29,8 @@ export type Box =
 	| MebxBox
 	| KeysBox
 	| MoovBox
-	| TrakBox;
+	| TrakBox
+	| MainSegment;
 
 export type BoxAndNext = {
 	box: Box;
@@ -74,7 +76,7 @@ export const parseVideo = async (
 	}
 
 	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
-		parseWebmHeader(new Uint8Array(data).buffer as unknown as ArrayBuffer);
+		return parseWebm(new Uint8Array(data).buffer as unknown as ArrayBuffer);
 	}
 
 	return [];

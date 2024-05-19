@@ -21,5 +21,5 @@ test('Should get duration of HEVC video', async () => {
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseVideo(exampleVideos.av1, Infinity);
 	// TODO: AV1 duration is not yet supported
-	expect(getDuration(parsed)).toBe(null);
+	expect(parsed).toBe([]);
 });

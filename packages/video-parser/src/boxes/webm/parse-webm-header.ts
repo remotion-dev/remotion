@@ -1,7 +1,8 @@
 import {getArrayBufferIterator} from '../../read-and-increment-offset';
+import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
-export const parseWebmHeader = (data: ArrayBuffer) => {
+export const parseWebm = (data: ArrayBuffer) => {
 	const counter = getArrayBufferIterator(data, 4);
 	const length = counter.getEBML();
 
@@ -12,12 +13,5 @@ export const parseWebmHeader = (data: ArrayBuffer) => {
 	// Discard header for now
 	counter.discard(31);
 
-	const magic = counter.getSlice(4);
-	// "We find 18 53 80 67."
-	// We are done with the generic EBML fields and now come to the Matroska fields.
-	if (new Uint8Array(magic).join() !== [0x18, 0x53, 0x80, 0x67].join()) {
-		throw new Error(
-			'Expected "EBML" magic fields, got ' + new Uint8Array(magic).join(),
-		);
-	}
+	return expectSegment(counter);
 };

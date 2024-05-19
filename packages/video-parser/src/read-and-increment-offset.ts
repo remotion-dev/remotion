@@ -54,6 +54,38 @@ export const getArrayBufferIterator = (
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
+		getMatroskaSegmentId: () => {
+			const segmentId = getSlice(4);
+			return `0x${new Uint8Array(segmentId)
+				// @ts-expect-error Convert Uint8Array to string
+				.map((b) => {
+					return b.toString(16);
+				})
+				.join('')}`;
+		},
+		getVint: () => {
+			const d = [...Array.from(new Uint8Array(getSlice(8)))];
+			const totalLength = d[0];
+
+			// Calculate the actual length of the data based on the first set bit
+			let actualLength = 0;
+			while (((totalLength >> (7 - actualLength)) & 0x01) === 0) {
+				actualLength++;
+			}
+
+			actualLength += 1; // Include the first byte set as 1
+
+			// Combine the numbers to form the integer value
+			let value = 0;
+
+			// Mask the first byte properly then start combining
+			value = totalLength & (0xff >> actualLength);
+			for (let i = 1; i < actualLength; i++) {
+				value = (value << 8) | d[i];
+			}
+
+			return value;
+		},
 		getUint8,
 		getEBML: () => {
 			const val = getUint8();
@@ -93,4 +125,4 @@ export const getArrayBufferIterator = (
 	};
 };
 
-export type Iterator = ReturnType<typeof getArrayBufferIterator>;
+export type BufferIterator = ReturnType<typeof getArrayBufferIterator>;
