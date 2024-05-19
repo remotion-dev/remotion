@@ -2,10 +2,9 @@ use std::usize;
 
 use ffmpeg_next::{
     color,
-    ffi::sws_getCoefficients,
-    format::{self, Pixel},
+    format::Pixel,
     frame::{self, Video},
-    software::scaling::{ColorSpace, Context, Flags},
+    software::scaling::{Context, Flags},
 };
 
 use crate::{
