@@ -1,9 +1,11 @@
 use std::usize;
 
 use ffmpeg_next::{
-    format::Pixel,
+    color,
+    ffi::sws_getCoefficients,
+    format::{self, Pixel},
     frame::{self, Video},
-    software::scaling::{Context, Flags},
+    software::scaling::{ColorSpace, Context, Flags},
 };
 
 use crate::{
@@ -32,6 +34,8 @@ pub struct NotRgbFrame {
     pub size: u128,
     pub tone_mapped: bool,
     pub filter_graph: FilterGraph,
+    pub colorspace: color::Space,
+    pub src_range: color::Range,
 }
 
 pub struct RgbFrame {
@@ -196,6 +200,28 @@ pub fn scale_and_make_bitmap(
         native_frame.scaled_width,
         native_frame.scaled_height,
         Flags::BILINEAR,
+    )?;
+
+    if native_frame.colorspace == color::Space::BT709
+        && native_frame.src_range == color::Range::MPEG
+    {
+        scaler.set_colorspace_details(
+            native_frame.colorspace,
+            native_frame.src_range,
+            color::Range::JPEG,
+            0,
+            1 << 16,
+            1 << 16,
+        )?;
+    }
+
+    scaler.set_colorspace_details(
+        native_frame.colorspace,
+        native_frame.src_range,
+        color::Range::JPEG,
+        0,
+        1 << 16,
+        1 << 16,
     )?;
 
     let mut data: Vec<*const u8> = Vec::with_capacity(planes.len());
