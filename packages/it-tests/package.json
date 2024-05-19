@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "4.0.159",
+  "version": "4.0.160",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run",
