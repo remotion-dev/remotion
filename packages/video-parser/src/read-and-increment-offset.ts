@@ -63,6 +63,11 @@ export const getArrayBufferIterator = (
 			counter.increment(1);
 			return val;
 		},
+		getUint16: () => {
+			const val = view.getUint16(counter.getOffset());
+			counter.increment(2);
+			return val;
+		},
 		getUint32: () => {
 			const val = view.getUint32(counter.getOffset());
 			counter.increment(4);
