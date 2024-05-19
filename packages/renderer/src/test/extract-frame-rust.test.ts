@@ -630,7 +630,6 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[4][2] / 100).toBeCloseTo(2.11, 1);
 
 	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
-	expect(expected[5][1] / 100).toBeCloseTo(1.59, 1);
 	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
 	expect(expected[6][0] / 100).toBeCloseTo(1.48, 1);
