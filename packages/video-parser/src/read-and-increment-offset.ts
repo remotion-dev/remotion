@@ -57,7 +57,7 @@ export const getArrayBufferIterator = (
 		getMatroskaSegmentId: () => {
 			const firstTwo = getSlice(2);
 
-			const knownIdsWithTwoLength = ['0x4dbb'];
+			const knownIdsWithTwoLength = ['0x4dbb', '0x53ac'];
 
 			const firstTwoString = `0x${Array.from(new Uint8Array(firstTwo))
 				.map((b) => {
@@ -135,6 +135,15 @@ export const getArrayBufferIterator = (
 		getPascalString: () => {
 			const val = getSlice(32);
 			return [...Array.from(new Uint8Array(val))];
+		},
+		getDecimalBytes(length: number): number {
+			const bytes = getSlice(length);
+			const numbers = [...Array.from(new Uint8Array(bytes))];
+			return numbers.reduce(
+				(acc, byte, index) =>
+					acc + (byte << (8 * (numbers.length - index - 1))),
+				0,
+			);
 		},
 	};
 };

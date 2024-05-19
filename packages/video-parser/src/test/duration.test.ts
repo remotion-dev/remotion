@@ -26,10 +26,28 @@ test('Should get duration of AV1 video', async () => {
 			type: 'main-segment',
 			child: {
 				type: 'seek-head-segment',
-				child: {
-					id: '0x4dbb',
-					type: 'unknown-segment',
-				},
+				children: [
+					{
+						type: 'seek-segment',
+						seekId: '0x1549a966',
+						child: {type: 'seek-position-segment', seekPosition: 161},
+					},
+					{
+						type: 'seek-segment',
+						seekId: '0x1654ae6b',
+						child: {type: 'seek-position-segment', seekPosition: 214},
+					},
+					{
+						type: 'seek-segment',
+						seekId: '0x1254c367',
+						child: {type: 'seek-position-segment', seekPosition: 322},
+					},
+					{
+						type: 'seek-segment',
+						seekId: '0x1c53bb6b',
+						child: {type: 'seek-position-segment', seekPosition: 347329},
+					},
+				],
 			},
 		},
 	]);
