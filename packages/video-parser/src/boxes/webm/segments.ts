@@ -54,7 +54,6 @@ export const expectSegment = (iterator: BufferIterator) => {
 		return parseInfoSegment(iterator);
 	}
 
-	console.log(segmentId);
 	if (segmentId === '0x2ad7b183') {
 		return parseTimestampScaleSegment(iterator);
 	}

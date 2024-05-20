@@ -84,9 +84,25 @@ export const getArrayBufferIterator = (
 				return firstTwoString;
 			}
 
-			const segmentId = getSlice(2);
+			const knownIdsWithThreeLength = ['0x4d808c'];
 
-			return `${firstTwoString}${Array.from(new Uint8Array(segmentId))
+			const firstThree = getSlice(1);
+
+			const firstThreeString = `${firstTwoString}${Array.from(
+				new Uint8Array(firstThree),
+			)
+				.map((b) => {
+					return b.toString(16).padStart(2, '0');
+				})
+				.join('')}`;
+
+			if (knownIdsWithThreeLength.includes(firstThreeString)) {
+				return firstThreeString;
+			}
+
+			const segmentId = getSlice(1);
+
+			return `${firstThreeString}${Array.from(new Uint8Array(segmentId))
 				.map((b) => {
 					return b.toString(16).padStart(2, '0');
 				})
