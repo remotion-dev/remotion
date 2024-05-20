@@ -56,8 +56,22 @@ test('Should get duration of AV1 video', async () => {
 					type: 'void-segment',
 				},
 				{
+					length: 48,
+					type: 'info-segment',
+					children: [
+						{
+							timestampScale: 1000000,
+							type: 'timestamp-scale-segment',
+						},
+						{
+							id: '0x4d808c4c',
+							type: 'unknown-segment',
+						},
+					],
+				},
+				{
 					type: 'unknown-segment',
-					id: '0x1549a966',
+					id: '0xdbb4c607',
 				},
 			],
 		},

@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../read-and-increment-offset';
+import type {InfoSegment} from './segments/info';
+import {parseInfoSegment} from './segments/info';
 import type {MainSegment} from './segments/main';
 import {parseMainSegment} from './segments/main';
 import {parseSeekSegment, type SeekSegment} from './segments/seek';
@@ -8,6 +10,8 @@ import {
 	parseSeekPositionSegment,
 	type SeekPositionSegment,
 } from './segments/seek-position';
+import type {TimestampScaleSegment} from './segments/timestamp-scale';
+import {parseTimestampScaleSegment} from './segments/timestamp-scale';
 import type {UnknownSegment} from './segments/unknown';
 import {parseUnknownSegment} from './segments/unknown';
 import type {VoidSegment} from './segments/void';
@@ -19,7 +23,9 @@ export type MatroskaSegment =
 	| SeekHeadSegment
 	| SeekSegment
 	| SeekPositionSegment
-	| VoidSegment;
+	| VoidSegment
+	| InfoSegment
+	| TimestampScaleSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -42,6 +48,15 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	if (segmentId === '0xec') {
 		return parseVoidSegment(iterator);
+	}
+
+	if (segmentId === '0x1549a966') {
+		return parseInfoSegment(iterator);
+	}
+
+	console.log(segmentId);
+	if (segmentId === '0x2ad7b183') {
+		return parseTimestampScaleSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);
