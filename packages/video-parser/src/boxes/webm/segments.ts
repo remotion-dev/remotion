@@ -3,6 +3,7 @@ import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
 import type {MainSegment} from './segments/main';
 import {parseMainSegment} from './segments/main';
+import {parseMuxingSegment, type MuxingAppSegment} from './segments/muxing';
 import {parseSeekSegment, type SeekSegment} from './segments/seek';
 import type {SeekHeadSegment} from './segments/seek-head';
 import {parseSeekHeadSegment} from './segments/seek-head';
@@ -25,7 +26,8 @@ export type MatroskaSegment =
 	| SeekPositionSegment
 	| VoidSegment
 	| InfoSegment
-	| TimestampScaleSegment;
+	| TimestampScaleSegment
+	| MuxingAppSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -56,6 +58,10 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	if (segmentId === '0x2ad7b183') {
 		return parseTimestampScaleSegment(iterator);
+	}
+
+	if (segmentId === '0x4d808c') {
+		return parseMuxingSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);

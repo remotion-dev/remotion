@@ -180,6 +180,10 @@ export const getArrayBufferIterator = (
 				0,
 			);
 		},
+		getByteString(length: number): string {
+			const bytes = getSlice(length);
+			return new TextDecoder().decode(bytes);
+		},
 	};
 };
 
