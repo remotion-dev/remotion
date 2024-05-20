@@ -61,6 +61,7 @@ import {
 	isReproEnabled,
 } from './repro';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
+import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -292,7 +293,7 @@ const internalRenderMediaRaw = ({
 
 	validateFfmpegOverride(ffmpegOverride);
 
-	validateEveryNthFrame(everyNthFrame, codec);
+	validateEveryNthFrame(everyNthFrame);
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -667,58 +668,56 @@ const internalRenderMediaRaw = ({
 				}
 
 				const stitchStart = Date.now();
-				return Promise.all([
-					internalStitchFramesToVideo({
-						width: composition.width * scale,
-						height: composition.height * scale,
-						fps,
-						outputLocation: absoluteOutputLocation,
-						preEncodedFileLocation,
-						preferLossless,
-						indent,
-						force: overwrite,
-						pixelFormat,
-						codec,
-						proResProfile,
-						crf,
-						assetsInfo,
-						onProgress: (frame: number) => {
-							stitchStage = 'muxing';
-							if (preEncodedFileLocation) {
-								muxedFrames = frame;
-							} else {
-								muxedFrames = frame;
-								encodedFrames = frame;
-							}
+				return internalStitchFramesToVideo({
+					width: composition.width * scale,
+					height: composition.height * scale,
+					fps,
+					outputLocation: absoluteOutputLocation,
+					preEncodedFileLocation,
+					preferLossless,
+					indent,
+					force: overwrite,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					assetsInfo,
+					onProgress: (frame: number) => {
+						stitchStage = 'muxing';
+						if (preEncodedFileLocation) {
+							muxedFrames = frame;
+						} else {
+							muxedFrames = frame;
+							encodedFrames = frame;
+						}
 
-							if (encodedFrames === totalFramesToRender) {
-								encodedDoneIn = Date.now() - stitchStart;
-							}
+						if (encodedFrames === totalFramesToRender) {
+							encodedDoneIn = Date.now() - stitchStart;
+						}
 
-							if (frame > 0) {
-								callUpdate();
-							}
-						},
-						onDownload,
-						numberOfGifLoops,
-						logLevel,
-						cancelSignal: cancelStitcher.cancelSignal,
-						muted: disableAudio,
-						enforceAudioTrack,
-						ffmpegOverride: ffmpegOverride ?? null,
-						audioBitrate,
-						videoBitrate,
-						encodingBufferSize,
-						encodingMaxRate,
-						audioCodec,
-						x264Preset: x264Preset ?? null,
-						colorSpace,
-						binariesDirectory,
-						separateAudioTo,
-					}),
-				]);
+						if (frame > 0) {
+							callUpdate();
+						}
+					},
+					onDownload,
+					numberOfGifLoops,
+					logLevel,
+					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
+					ffmpegOverride: ffmpegOverride ?? null,
+					audioBitrate,
+					videoBitrate,
+					encodingBufferSize,
+					encodingMaxRate,
+					audioCodec,
+					x264Preset: x264Preset ?? null,
+					colorSpace,
+					binariesDirectory,
+					separateAudioTo,
+				});
 			})
-			.then(([buffer]) => {
+			.then((buffer) => {
 				Log.verbose(
 					{indent, logLevel},
 					'Stitching done in',
@@ -792,14 +791,11 @@ const internalRenderMediaRaw = ({
 			});
 	});
 
-	return Promise.race([
+	return succeedOrCancel({
 		happyPath,
-		new Promise<RenderMediaResult>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error(cancelErrorMessages.renderMedia));
-			});
-		}),
-	]);
+		cancelSignal,
+		cancelMessage: cancelErrorMessages.renderMedia,
+	});
 };
 
 export const internalRenderMedia = wrapWithErrorHandling(

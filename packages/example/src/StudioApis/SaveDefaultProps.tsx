@@ -1,4 +1,4 @@
-import {saveDefaultProps} from '@remotion/studio';
+import {saveDefaultProps, updateDefaultProps} from '@remotion/studio';
 import React, {useCallback} from 'react';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
@@ -9,13 +9,25 @@ export const saveStudioSchema = z.object({
 
 export const SaveDefaultProps: React.FC = () => {
 	const {id} = useVideoConfig();
-	const onClick = useCallback(async () => {
+
+	const onClickUpdate = useCallback(() => {
+		updateDefaultProps({
+			compositionId: id,
+			defaultProps: ({unsavedDefaultProps}) => {
+				return {
+					...unsavedDefaultProps,
+					color: 'red',
+				};
+			},
+		});
+	}, [id]);
+
+	const onClickSave = useCallback(async () => {
 		await saveDefaultProps({
 			compositionId: id,
-			defaultProps: () => {
-				return {
-					color: 'green',
-				};
+			defaultProps: ({unsavedDefaultProps}) => {
+				console.log(unsavedDefaultProps);
+				return unsavedDefaultProps;
 			},
 		});
 
@@ -24,7 +36,10 @@ export const SaveDefaultProps: React.FC = () => {
 
 	return (
 		<AbsoluteFill>
-			<button type="button" onClick={onClick}>
+			<button type="button" onClick={onClickUpdate}>
+				update some props
+			</button>
+			<button type="button" onClick={onClickSave}>
 				save some props
 			</button>
 		</AbsoluteFill>

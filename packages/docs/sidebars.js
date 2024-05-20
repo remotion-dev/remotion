@@ -430,9 +430,12 @@ module.exports = {
       },
       items: [
         "studio/get-static-files",
+        "studio/watch-public-folder",
         "studio/watch-static-file",
         "studio/write-static-file",
+        "studio/delete-static-file",
         "studio/save-default-props",
+        "studio/update-default-props",
       ],
     },
     {
@@ -948,6 +951,7 @@ module.exports = {
         "recorder/exporting",
         "recorder/lambda-rendering",
         "recorder/source-control",
+        "recorder/vlogging",
         "recorder/upgrading",
         "recorder/roadmap",
         "recorder/gear",

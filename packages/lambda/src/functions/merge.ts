@@ -62,7 +62,7 @@ export const mergeHandler = async (
 		downloadBehavior: renderMetadata.downloadBehavior,
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps,
-		frameCountLength: frameCount.length,
+		numberOfFrames: frameCount.length,
 		inputProps: params.inputProps,
 		key,
 		numberOfGifLoops: renderMetadata.numberOfGifLoops,

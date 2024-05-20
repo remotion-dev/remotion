@@ -74,6 +74,7 @@ export const still = async (
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
+		indent: false,
 	});
 
 	const jpegQuality = jpegQualityOption.getValue({

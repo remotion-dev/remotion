@@ -308,7 +308,12 @@
       "permanent": false
     },
     {
-      "source": "chrome-headless-shell",
+      "source": "/chrome-headless-shell",
+      "destination": "/docs/miscellaneous/chrome-headless-shell",
+      "permanent": false
+    },
+    {
+      "source": "/docs/chrome-headless-shell",
       "destination": "/docs/miscellaneous/chrome-headless-shell",
       "permanent": false
     },

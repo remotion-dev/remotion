@@ -112,6 +112,8 @@ impl OpenedStream {
                         unscaled_frame: video.clone(),
                         tone_mapped,
                         filter_graph: self.filter_graph,
+                        colorspace: video.color_space(),
+                        src_range: video.color_range(),
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -323,6 +325,8 @@ impl OpenedStream {
                         unscaled_frame: unfiltered.clone(),
                         tone_mapped,
                         filter_graph: self.filter_graph,
+                        colorspace: unfiltered.color_space(),
+                        src_range: unfiltered.color_range(),
                     };
 
                     let previous_pts = match freshly_seeked || self.last_position.is_none() {

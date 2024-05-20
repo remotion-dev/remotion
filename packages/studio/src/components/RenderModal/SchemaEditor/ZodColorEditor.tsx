@@ -21,17 +21,17 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodColorEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: string;
-	defaultValue: string;
-	setValue: UpdaterFunction<string>;
-	onSave: UpdaterFunction<string>;
-	onRemove: null | (() => void);
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: string;
+	readonly defaultValue: string;
+	readonly setValue: UpdaterFunction<string>;
+	readonly onSave: UpdaterFunction<string>;
+	readonly onRemove: null | (() => void);
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -62,8 +62,8 @@ export const ZodColorEditor: React.FC<{
 	} = useLocalState({
 		schema,
 		setValue,
-		value,
-		defaultValue,
+		unsavedValue: value,
+		savedValue: defaultValue,
 	});
 
 	const {a, b, g, r} = localValue.zodValidation.success

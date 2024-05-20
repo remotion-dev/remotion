@@ -93,11 +93,21 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		payload,
 	);
 
+	const cwd = path.dirname(bin);
+
 	const child = spawn(bin, [JSON.stringify(fullCommand)], {
-		cwd: path.dirname(bin),
+		cwd,
+		env:
+			process.platform === 'darwin'
+				? {
+						// Should work out of the box, but sometimes it doesn't
+						// https://github.com/remotion-dev/remotion/issues/3862
+						DYLD_LIBRARY_PATH: cwd,
+					}
+				: undefined,
 	});
 
-	const stderrChunks: Buffer[] = [];
+	let stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
 
 	const separator = Buffer.from('remotion_buffer:');
@@ -277,6 +287,10 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 			reject?.(error);
 		}
+
+		// Need to manually free up memory
+		outputBuffer = Buffer.from('');
+		stderrChunks = [];
 	});
 
 	return {

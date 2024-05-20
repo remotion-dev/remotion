@@ -48,6 +48,7 @@ export const compositionsCommand = async (
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({

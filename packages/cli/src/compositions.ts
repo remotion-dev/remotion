@@ -69,6 +69,7 @@ export const listCompositionsCommand = async (
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
+		indent: false,
 	});
 
 	const chromiumOptions: ChromiumOptions = {

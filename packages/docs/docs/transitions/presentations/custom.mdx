@@ -17,7 +17,9 @@ timing of the transition
   entering
 </code> or <code>exiting</code>
 <br />
-<Step>3</Step> Additional developer-defined <code>passedProps</code>
+<Step>3</Step> The <code>presentationDurationInFrames</code> (_available from
+v4.0.153_)
+<Step>4</Step> Additional developer-defined <code>passedProps</code>
 
 ## Boilerplate
 
@@ -27,7 +29,7 @@ It is an object with a React component (`component`) and React props which are p
 ```tsx twoslash title="custom-presentation.tsx"
 import type { TransitionPresentationComponentProps } from "@remotion/transitions";
 
-const SlidePresentation: React.FC<
+const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
 > = ({ children, presentationDirection, presentationProgress, passedProps }) =>
   null;
@@ -44,7 +46,7 @@ type CustomPresentationProps = {
 export const customPresentation = (
   props: CustomPresentationProps,
 ): TransitionPresentation<CustomPresentationProps> => {
-  return { component: SlidePresentation, props };
+  return { component: StarPresentation, props };
 };
 ```
 
@@ -65,7 +67,7 @@ The `component` is a React component which receives the following props:
 <br />
 <br />
 
-```tsx twoslash title="SlidePresentation.tsx"
+```tsx twoslash title="StarPresentation.tsx"
 type CustomPresentationProps = {
   width: number;
   height: number;
@@ -75,7 +77,7 @@ type CustomPresentationProps = {
 import type { TransitionPresentationComponentProps } from "@remotion/transitions";
 import { AbsoluteFill } from "remotion";
 
-const SlidePresentation: React.FC<
+const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
 > = ({
   children,
@@ -119,7 +121,7 @@ to <code>"exiting"</code>{" "}
 <br />
 <br />
 
-```tsx twoslash title="SlidePresentation.tsx"
+```tsx twoslash title="StarPresentation.tsx"
 import { getBoundingBox, translatePath } from "@remotion/paths";
 import { makeStar } from "@remotion/shapes";
 import type { TransitionPresentationComponentProps } from "@remotion/transitions";
@@ -131,7 +133,7 @@ export type CustomPresentationProps = {
   height: number;
 };
 
-const SlidePresentation: React.FC<
+const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
 > = ({
   children,
@@ -207,10 +209,10 @@ type CustomPresentationProps = {
 export const customPresentation = (
   props: CustomPresentationProps,
 ): TransitionPresentation<CustomPresentationProps> => {
-  return { component: SlidePresentation, props };
+  return { component: StarPresentation, props };
 };
 
-const SlidePresentation: React.FC<
+const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
 > = ({ children, presentationDirection, presentationProgress, passedProps }) =>
   null;

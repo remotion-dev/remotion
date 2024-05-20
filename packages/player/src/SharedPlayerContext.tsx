@@ -62,6 +62,7 @@ export const SharedPlayerContexts: React.FC<{
 			setCurrentCompositionMetadata: () => undefined,
 			canvasContent: {type: 'composition', compositionId: 'player-comp'},
 			setCanvasContent: () => undefined,
+			updateCompositionDefaultProps: () => undefined,
 		};
 		return context;
 	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);

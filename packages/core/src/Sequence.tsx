@@ -281,13 +281,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const {
-		style: passedStyle,
-		from = 0,
-		premountFor = 0,
-		name,
-		...otherProps
-	} = props;
+	const {style: passedStyle, from = 0, premountFor = 0, ...otherProps} = props;
 
 	const premountingActive = frame < from && frame >= from - premountFor;
 

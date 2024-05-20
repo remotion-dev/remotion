@@ -43,7 +43,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {INDENT_TOKEN, Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
-import {internalOpenBrowser, killAllBrowsers} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validOpenGlRenderers,
@@ -132,6 +132,7 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
+import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
@@ -144,7 +145,6 @@ import {
 	supportedAudioCodecs,
 } from './options/audio-codec';
 import {getShouldRenderAudio} from './render-has-audio';
-import {exampleVideos} from './test/example-videos';
 import {toMegabytes} from './to-megabytes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -239,7 +239,6 @@ export const RenderInternals = {
 	codecSupportsMedia,
 	toMegabytes,
 	internalEnsureBrowser,
-	exampleVideos,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

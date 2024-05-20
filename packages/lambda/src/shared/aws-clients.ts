@@ -104,7 +104,11 @@ const getCredentialsHash = ({
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
-	if (process.env.REMOTION_AWS_PROFILE) {
+	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+		hashComponents.credentials = {
+			credentialsSkipped: true,
+		};
+	} else if (process.env.REMOTION_AWS_PROFILE) {
 		hashComponents.credentials = {
 			awsProfile: process.env.REMOTION_AWS_PROFILE,
 		};
@@ -202,24 +206,30 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	if (!_clients[key]) {
 		checkCredentials();
 
-		if (customCredentials) {
-			_clients[key] = new Client({
-				region: customCredentials.region ?? 'us-east-1',
-				credentials:
-					customCredentials.accessKeyId && customCredentials.secretAccessKey
-						? {
-								accessKeyId: customCredentials.accessKeyId,
-								secretAccessKey: customCredentials.secretAccessKey,
-							}
-						: undefined,
-				endpoint: customCredentials.endpoint,
-			});
-		} else {
-			_clients[key] = new Client({
-				region,
-				credentials: getCredentials(),
-			});
+		const client = customCredentials
+			? new Client({
+					region: customCredentials.region ?? 'us-east-1',
+					credentials:
+						customCredentials.accessKeyId && customCredentials.secretAccessKey
+							? {
+									accessKeyId: customCredentials.accessKeyId,
+									secretAccessKey: customCredentials.secretAccessKey,
+								}
+							: undefined,
+					endpoint: customCredentials.endpoint,
+				})
+			: process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK
+				? new Client({region})
+				: new Client({
+						region,
+						credentials: getCredentials(),
+					});
+
+		if (process.env.REMOTION_DISABLE_AWS_CLIENT_CACHE) {
+			return client as ServiceMapping[T];
 		}
+
+		_clients[key] = client;
 	}
 
 	return _clients[key] as ServiceMapping[T];

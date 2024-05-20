@@ -23,6 +23,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {evaluateVolume} from '../volume-prop.js';
 import type {RemotionAudioProps} from './props.js';
 import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
@@ -91,9 +92,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const isSequenceHidden = hidden[timelineId] ?? false;
 
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+		allowAmplificationDuringRender: false,
+	});
+
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
-			muted: muted || mediaMuted || isSequenceHidden,
+			muted:
+				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			...nativeProps,
@@ -105,6 +114,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		muted,
 		nativeProps,
 		preloadedSrc,
+		userPreferredVolume,
 	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.

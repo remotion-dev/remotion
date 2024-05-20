@@ -43,6 +43,8 @@ Timeout = 120sec,
 Version = 2021-12-17,
 CloudWatch Enabled = true,
 CloudWatch Retention Period = 14 days
+VPC Subnet IDs = subnet-0f6a0f6a0f6a0f6a0, subnet-0f6a0f6a0f6a0f6a1
+VPC Security Group IDs = sg-0f6a0f6a0f6a0f6a0, sg-0f6a0f6a0f6a0f6a1
 <br/>
 Deployed as remotion-render-2021-12-17-2048mb-120sec
 <br/>
@@ -94,6 +96,14 @@ Only logs the function name.
 
 Enable the [upcoming v5 runtime](/docs/lambda/runtime#runtime-changes-in-remotion-50) with newer Chrome and Node versions early.
 
+### `--vpc-subnet-ids`<AvailableFrom v="4.0.160" />
+
+Comma separated list of VPC subnet IDs to use for the Lambda function VPC configuration.
+
+### `--vpc-security-group-ids`<AvailableFrom v="4.0.160" />
+
+Comma separated list of VPC security group IDs to use for the Lambda function VPC configuration.
+
 ## ls
 
 ```
@@ -109,9 +119,9 @@ Example output
 <pre>
 6 functions in the eu-central-1 region<br/>
 Name                                              Version        Memory (MB)    Timeout (sec)  <br/>
-remotion-render-2021-12-16-2048mb-240sec          2021-12-16     2048           240          <br/>  
-remotion-render-2021-12-17-2048mb-120sec          2021-12-17     2048           120          <br/>  
-remotion-render-2021-12-15-2048mb-240sec          2021-12-15     2048           240      
+remotion-render-2021-12-16-2048mb-240sec          2021-12-16     2048           240          <br/>
+remotion-render-2021-12-17-2048mb-120sec          2021-12-17     2048           120          <br/>
+remotion-render-2021-12-15-2048mb-240sec          2021-12-15     2048           240
 <br/>
 
 </pre>

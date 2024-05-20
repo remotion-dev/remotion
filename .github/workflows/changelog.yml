@@ -1,6 +1,6 @@
 on:
   release:
-    types: [edited, published]
+    types: [published]
   workflow_dispatch:
 name: Publish latest release
 

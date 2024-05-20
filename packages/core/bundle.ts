@@ -1,16 +1,15 @@
-import {build, revision} from 'bun';
+import {build, semver, version} from 'bun';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
-if (!revision.startsWith('07ce')) {
+if (!semver.satisfies(version, '^1.1.7')) {
 	// eslint-disable-next-line no-console
-	console.warn('warn: Remotion currently uses a fork of Bun to bundle.');
-	// eslint-disable-next-line no-console
-	console.log(
-		'You dont currently run the fork, this could lead to duplicate key warnings in React.',
+	console.error(
+		`There is a bug with bundling when using Bun <1.1.7. You use ${version}. Please use a newer version`,
 	);
+	process.exit(1);
 }
 
 const output = await build({

@@ -13,16 +13,16 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodEffectEditor: React.FC<{
-	schema: z.ZodTypeAny;
-	jsonPath: JSONPath;
-	value: unknown;
-	setValue: UpdaterFunction<unknown>;
-	defaultValue: unknown;
-	onSave: UpdaterFunction<unknown>;
-	showSaveButton: boolean;
-	onRemove: null | (() => void);
-	saving: boolean;
-	mayPad: boolean;
+	readonly schema: z.ZodTypeAny;
+	readonly jsonPath: JSONPath;
+	readonly value: unknown;
+	readonly setValue: UpdaterFunction<unknown>;
+	readonly defaultValue: unknown;
+	readonly onSave: UpdaterFunction<unknown>;
+	readonly showSaveButton: boolean;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -41,10 +41,10 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	const {localValue, onChange} = useLocalState({
-		value,
+		unsavedValue: value,
 		schema,
 		setValue: updateValue,
-		defaultValue,
+		savedValue: defaultValue,
 	});
 
 	const def = schema._def;

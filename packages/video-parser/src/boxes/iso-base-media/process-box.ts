@@ -1,4 +1,4 @@
-import type {Box, BoxAndNext} from '../../parse-video';
+import type {BoxAndNext, IsoBaseMediaBox} from '../../parse-video';
 import {fourByteToNumber, parseFtyp} from './ftype';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
@@ -106,8 +106,11 @@ const processBoxAndSubtract = ({
 	};
 };
 
-export const parseBoxes = (data: ArrayBuffer, fileOffset: number): Box[] => {
-	const boxes: Box[] = [];
+export const parseBoxes = (
+	data: ArrayBuffer,
+	fileOffset: number,
+): IsoBaseMediaBox[] => {
+	const boxes: IsoBaseMediaBox[] = [];
 	let remaining = data;
 	let bytesConsumed = fileOffset;
 

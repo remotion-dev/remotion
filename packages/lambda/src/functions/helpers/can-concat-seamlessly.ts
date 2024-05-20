@@ -1,4 +1,4 @@
-import type {AudioCodec} from '@remotion/renderer';
+import type {AudioCodec, Codec} from '@remotion/renderer';
 
 // Cannot do WAV yet, because currently assumes AAC in+outpoint
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15,6 +15,6 @@ export const canConcatAudioSeamlessly = (
 	return audioCodec === 'aac';
 };
 
-export const canConcatVideoSeamlessly = (codec: string) => {
+export const canConcatVideoSeamlessly = (codec: Codec) => {
 	return codec === 'h264';
 };

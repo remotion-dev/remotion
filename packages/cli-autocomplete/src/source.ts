@@ -276,6 +276,7 @@ const renderOptions: Fig.Option[] = [
         { name: "wav" },
         { name: "prores" },
         { name: "h264-mkv" },
+        { name: "h264-ts" },
       ],
     },
   },

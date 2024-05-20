@@ -258,6 +258,7 @@ export const PlayPause: React.FC<{
 
 		const onBuffer = () => {
 			requestAnimationFrame(() => {
+				stopped = false;
 				timeout = setTimeout(() => {
 					if (!stopped) {
 						setShowBufferState(true);

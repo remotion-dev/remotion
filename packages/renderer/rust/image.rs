@@ -61,6 +61,7 @@ pub fn get_png_data(
 
     {
         let mut encoder = png::Encoder::new(&mut png_data, width, height);
+        encoder.set_compression(png::Compression::Fast);
         encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         encoder.set_source_gamma(png::ScaledFloat::from_scaled(45455)); // 1.0 / 2.2, scaled by 100000

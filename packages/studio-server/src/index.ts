@@ -24,6 +24,7 @@ export type {
 } from '@remotion/studio-shared';
 
 import {AnsiDiff} from './ansi-diff';
+import {openBrowser} from './better-opn';
 import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
@@ -52,4 +53,5 @@ export const StudioServerInternals = {
 	AnsiDiff,
 	formatBytes,
 	parseAndApplyCodemod,
+	openBrowser,
 };

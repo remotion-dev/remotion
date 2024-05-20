@@ -28,6 +28,7 @@ export const processStill = async ({
 	const {browserExecutable} = getCliOptions({
 		isStill: true,
 		logLevel: job.logLevel,
+		indent: true,
 	});
 
 	const publicDir = publicDirOption.getValue({

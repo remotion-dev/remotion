@@ -2389,6 +2389,13 @@ export const articles = [
     crumb: "Recorder",
   },
   {
+    id: "recorder/vlogging",
+    title: "Vlogging",
+    relativePath: "docs/recorder/vlogging.mdx",
+    compId: "articles-docs-recorder-vlogging",
+    crumb: "Recorder",
+  },
+  {
     id: "register-root",
     title: "registerRoot()",
     relativePath: "docs/register-root.md",
@@ -2816,6 +2823,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "studio/delete-static-file",
+    title: "deleteStaticFile()",
+    relativePath: "docs/studio/delete-static-file.mdx",
+    compId: "articles-docs-studio-delete-static-file",
+    crumb: "@remotion/studio",
+  },
+  {
     id: "studio/deploy-server",
     title: "Deploy the Remotion Studio on a VPS",
     relativePath: "docs/studio/deploy-server.mdx",
@@ -2863,6 +2877,20 @@ export const articles = [
     relativePath: "docs/studio/studio.mdx",
     compId: "articles-docs-studio-studio",
     crumb: "Timeline basics",
+  },
+  {
+    id: "studio/update-default-props",
+    title: "updateDefaultProps()",
+    relativePath: "docs/studio/update-default-props.mdx",
+    compId: "articles-docs-studio-update-default-props",
+    crumb: "@remotion/studio",
+  },
+  {
+    id: "studio/watch-public-folder",
+    title: "watchPublicFolder()",
+    relativePath: "docs/studio/watch-public-folder.mdx",
+    compId: "articles-docs-studio-watch-public-folder",
+    crumb: "@remotion/studio",
   },
   {
     id: "studio/watch-static-file",
