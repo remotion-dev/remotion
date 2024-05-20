@@ -84,7 +84,7 @@ export const getArrayBufferIterator = (
 				return firstTwoString;
 			}
 
-			const knownIdsWithThreeLength = ['0x4d808c', '0x57418c'];
+			const knownIdsWithThreeLength = ['0x4d808c', '0x57418c', '0x448988'];
 
 			const firstThree = getSlice(1);
 
