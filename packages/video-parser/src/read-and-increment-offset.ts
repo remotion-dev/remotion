@@ -67,7 +67,7 @@ export const getArrayBufferIterator = (
 				.join('')}`;
 
 			// Catch void block
-			const knownIdsWithOneLength = ['0xec'];
+			const knownIdsWithOneLength = ['0xec', '0xae'];
 			if (knownIdsWithOneLength.includes(firstOneString)) {
 				return firstOneString;
 			}

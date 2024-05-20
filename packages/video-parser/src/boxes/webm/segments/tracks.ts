@@ -8,7 +8,7 @@ export type TracksSegment = {
 };
 
 export const parseTracksSegment = (iterator: BufferIterator): TracksSegment => {
-	const length = iterator.getVint(8);
+	const length = iterator.getVint(1);
 
 	return {
 		type: 'tracks-segment',

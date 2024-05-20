@@ -65,10 +65,14 @@ test('Should get duration of AV1 video', async () => {
 					type: 'tracks-segment',
 					children: [
 						{
-							id: '0x005ed781',
+							id: '0xae',
 							type: 'unknown-segment',
 						},
 					],
+				},
+				{
+					id: '0x1254c367',
+					type: 'unknown-segment',
 				},
 			],
 		},
