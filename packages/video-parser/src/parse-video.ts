@@ -15,12 +15,12 @@ import type {MatroskaSegment} from './boxes/webm/segments';
 interface RegularBox extends BaseBox {
 	boxType: string;
 	boxSize: number;
-	children: Box[];
+	children: IsoBaseMediaBox[];
 	offset: number;
 	type: 'regular-box';
 }
 
-export type Box =
+export type IsoBaseMediaBox =
 	| RegularBox
 	| FtypBox
 	| MvhdBox
@@ -29,11 +29,10 @@ export type Box =
 	| MebxBox
 	| KeysBox
 	| MoovBox
-	| TrakBox
-	| MatroskaSegment;
+	| TrakBox;
 
 export type BoxAndNext = {
-	box: Box;
+	box: IsoBaseMediaBox;
 	next: ArrayBuffer;
 	size: number;
 };
@@ -47,10 +46,12 @@ const matchesPattern = (pattern: Buffer) => {
 	};
 };
 
+export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
+
 export const parseVideo = async (
 	src: string,
 	bytes: number,
-): Promise<Box[]> => {
+): Promise<AnySegment[]> => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},

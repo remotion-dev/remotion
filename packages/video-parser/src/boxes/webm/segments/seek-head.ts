@@ -1,26 +1,21 @@
 import type {BufferIterator} from '../../../read-and-increment-offset';
-import {expectSegment, type MatroskaSegment} from '../segments';
+import {type MatroskaSegment} from '../segments';
+import {expectChildren} from './parse-children';
 
 export type SeekHeadSegment = {
 	type: 'seek-head-segment';
 	children: MatroskaSegment[];
+	length: number;
 };
 
 export const parseSeekHeadSegment = (
 	iterator: BufferIterator,
-	length: number,
 ): SeekHeadSegment => {
-	const startOffset = iterator.counter.getOffset();
-
-	const children = [];
-	while (iterator.counter.getOffset() < startOffset + length) {
-		const child = expectSegment(iterator);
-
-		children.push(child);
-	}
+	const length = iterator.getVint(1);
 
 	return {
 		type: 'seek-head-segment',
-		children,
+		length,
+		children: expectChildren(iterator, length),
 	};
 };

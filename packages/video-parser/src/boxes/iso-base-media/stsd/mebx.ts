@@ -1,4 +1,4 @@
-import type {Box} from '../../../parse-video';
+import type {IsoBaseMediaBox} from '../../../parse-video';
 import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
@@ -7,7 +7,7 @@ export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
 	dataReferenceIndex: number;
 	format: string;
-	children: Box[];
+	children: IsoBaseMediaBox[];
 }
 
 export const parseMebx = (data: ArrayBuffer, offset: number): MebxBox => {

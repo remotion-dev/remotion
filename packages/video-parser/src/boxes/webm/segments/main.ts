@@ -3,14 +3,16 @@ import {expectSegment, type MatroskaSegment} from '../segments';
 
 export type MainSegment = {
 	type: 'main-segment';
-	child: MatroskaSegment;
+	children: MatroskaSegment[];
 };
 
 export const parseMainSegment = (iterator: BufferIterator): MainSegment => {
-	const child = expectSegment(iterator);
+	iterator.getVint(8);
+
+	const children = expectSegment(iterator);
 
 	return {
 		type: 'main-segment',
-		child,
+		children: [children],
 	};
 };

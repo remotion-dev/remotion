@@ -1,6 +1,6 @@
-import type {Box} from './parse-video';
+import type {AnySegment} from './parse-video';
 
-export const getDuration = (boxes: Box[]): number | null => {
+export const getDuration = (boxes: AnySegment[]): number | null => {
 	const moovBox = boxes.find((b) => b.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		return null;

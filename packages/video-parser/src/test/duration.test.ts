@@ -20,35 +20,39 @@ test('Should get duration of HEVC video', async () => {
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseVideo(exampleVideos.av1, Infinity);
+	console.log(JSON.stringify(parsed));
 	// TODO: AV1 duration is not yet supported
 	expect(parsed).toEqual([
 		{
 			type: 'main-segment',
-			child: {
-				type: 'seek-head-segment',
-				children: [
-					{
-						type: 'seek-segment',
-						seekId: '0x1549a966',
-						child: {type: 'seek-position-segment', seekPosition: 161},
-					},
-					{
-						type: 'seek-segment',
-						seekId: '0x1654ae6b',
-						child: {type: 'seek-position-segment', seekPosition: 214},
-					},
-					{
-						type: 'seek-segment',
-						seekId: '0x1254c367',
-						child: {type: 'seek-position-segment', seekPosition: 322},
-					},
-					{
-						type: 'seek-segment',
-						seekId: '0x1c53bb6b',
-						child: {type: 'seek-position-segment', seekPosition: 347329},
-					},
-				],
-			},
+			children: [
+				{
+					type: 'seek-head-segment',
+					length: 59,
+					children: [
+						{
+							type: 'seek-segment',
+							seekId: '0x1549a966',
+							child: {type: 'seek-position-segment', seekPosition: 161},
+						},
+						{
+							type: 'seek-segment',
+							seekId: '0x1654ae6b',
+							child: {type: 'seek-position-segment', seekPosition: 214},
+						},
+						{
+							type: 'seek-segment',
+							seekId: '0x1254c367',
+							child: {type: 'seek-position-segment', seekPosition: 322},
+						},
+						{
+							type: 'seek-segment',
+							seekId: '0x1c53bb6b',
+							child: {type: 'seek-position-segment', seekPosition: 347329},
+						},
+					],
+				},
+			],
 		},
 	]);
 });

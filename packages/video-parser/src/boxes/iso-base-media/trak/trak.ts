@@ -1,11 +1,11 @@
-import type {Box} from '../../../parse-video';
+import type {IsoBaseMediaBox} from '../../../parse-video';
 import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
-	children: Box[];
+	children: IsoBaseMediaBox[];
 }
 
 export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
