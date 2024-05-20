@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../read-and-increment-offset';
+import type {DurationSegment} from './segments/duration';
+import {parseDurationSegment} from './segments/duration';
 import type {InfoSegment} from './segments/info';
 import {parseInfoSegment} from './segments/info';
 import type {MainSegment} from './segments/main';
@@ -30,7 +32,8 @@ export type MatroskaSegment =
 	| InfoSegment
 	| TimestampScaleSegment
 	| MuxingAppSegment
-	| WritingAppSegment;
+	| WritingAppSegment
+	| DurationSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -69,6 +72,10 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	if (segmentId === '0x57418c') {
 		return parseWritingSegment(iterator);
+	}
+
+	if (segmentId === '0x448988') {
+		return parseDurationSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);

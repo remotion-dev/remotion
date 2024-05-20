@@ -184,6 +184,11 @@ export const getArrayBufferIterator = (
 			const bytes = getSlice(length);
 			return new TextDecoder().decode(bytes);
 		},
+		getFloat64: () => {
+			const val = view.getFloat64(counter.getOffset());
+			counter.increment(8);
+			return val;
+		},
 	};
 };
 

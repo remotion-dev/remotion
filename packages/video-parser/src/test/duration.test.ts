@@ -72,14 +72,14 @@ test('Should get duration of AV1 video', async () => {
 							value: 'Lavf60.3.100',
 						},
 						{
-							id: '0x448988',
-							type: 'unknown-segment',
+							duration: 1000,
+							type: 'duration-segment',
 						},
 					],
 				},
 				{
 					type: 'unknown-segment',
-					id: '0x2e313030',
+					id: '0x1654ae6b',
 				},
 			],
 		},
