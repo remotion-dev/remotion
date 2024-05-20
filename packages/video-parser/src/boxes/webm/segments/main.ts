@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../read-and-increment-offset';
-import {expectSegment, type MatroskaSegment} from '../segments';
+import {type MatroskaSegment} from '../segments';
+import {expectChildren} from './parse-children';
 
 export type MainSegment = {
 	type: 'main-segment';
@@ -7,12 +8,12 @@ export type MainSegment = {
 };
 
 export const parseMainSegment = (iterator: BufferIterator): MainSegment => {
-	iterator.getVint(8);
+	const length = iterator.getVint(8);
 
-	const children = expectSegment(iterator);
+	const children = expectChildren(iterator, length);
 
 	return {
 		type: 'main-segment',
-		children: [children],
+		children,
 	};
 };

@@ -12,6 +12,9 @@ export const expectChildren = (
 	while (iterator.counter.getOffset() < startOffset + length) {
 		const child = expectSegment(iterator);
 		children.push(child);
+		if (child.type === 'unknown-segment') {
+			break;
+		}
 	}
 
 	return children;

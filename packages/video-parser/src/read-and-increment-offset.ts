@@ -57,7 +57,7 @@ export const getArrayBufferIterator = (
 		getMatroskaSegmentId: () => {
 			const firstTwo = getSlice(2);
 
-			const knownIdsWithTwoLength = ['0x4dbb', '0x53ac'];
+			const knownIdsWithTwoLength = ['0x4dbb', '0x53ac', '0xec01'];
 
 			const firstTwoString = `0x${Array.from(new Uint8Array(firstTwo))
 				.map((b) => {
@@ -80,6 +80,10 @@ export const getArrayBufferIterator = (
 		getVint: (bytes: number) => {
 			const d = [...Array.from(new Uint8Array(getSlice(bytes)))];
 			const totalLength = d[0];
+
+			if (totalLength === 0) {
+				return 0;
+			}
 
 			// Calculate the actual length of the data based on the first set bit
 			let actualLength = 0;

@@ -37,5 +37,7 @@ export const expectSegment = (iterator: BufferIterator) => {
 		return parseSeekPositionSegment(iterator);
 	}
 
-	return parseUnknownSegment(iterator, segmentId, iterator.getVint(8));
+	const length = iterator.getVint(8);
+	const child = parseUnknownSegment(iterator, segmentId, length);
+	return child;
 };
