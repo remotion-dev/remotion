@@ -1,18 +1,16 @@
-import type {Box} from '../../../parse-video';
+import type {IsoBaseMediaBox} from '../../../parse-video';
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
-	children: Box[];
+	children: IsoBaseMediaBox[];
 }
 
 export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
-	let chunkOffset = 0;
-
-	const view = new DataView(data);
-	const size = view.getUint32(chunkOffset);
-	chunkOffset += 4;
+	const iterator = getArrayBufferIterator(data, 0);
+	const size = iterator.getUint32();
 
 	if (size !== data.byteLength) {
 		throw new Error(
@@ -20,15 +18,15 @@ export const parseTrak = (data: ArrayBuffer, offset: number): TrakBox => {
 		);
 	}
 
-	const atom = data.slice(chunkOffset, chunkOffset + 4);
-	const atomString = new TextDecoder().decode(atom);
-	if (atomString !== 'trak') {
-		throw new Error(`Expected trak atom, got ${atomString}`);
+	const atom = iterator.getAtom();
+	if (atom !== 'trak') {
+		throw new Error(`Expected trak atom, got ${atom}`);
 	}
 
-	chunkOffset += 4;
-
-	const children = parseBoxes(data.slice(chunkOffset), chunkOffset);
+	const children = parseBoxes(
+		data.slice(iterator.counter.getOffset()),
+		offset + iterator.counter.getOffset(),
+	);
 
 	return {
 		offset,

@@ -9,16 +9,18 @@ import type {MebxBox} from './boxes/iso-base-media/stsd/mebx';
 import type {StsdBox} from './boxes/iso-base-media/stsd/stsd';
 import type {TkhdBox} from './boxes/iso-base-media/tkhd';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {parseWebm} from './boxes/webm/parse-webm-header';
+import type {MatroskaSegment} from './boxes/webm/segments';
 
 interface RegularBox extends BaseBox {
 	boxType: string;
 	boxSize: number;
-	children: Box[];
+	children: IsoBaseMediaBox[];
 	offset: number;
 	type: 'regular-box';
 }
 
-export type Box =
+export type IsoBaseMediaBox =
 	| RegularBox
 	| FtypBox
 	| MvhdBox
@@ -30,12 +32,13 @@ export type Box =
 	| TrakBox;
 
 export type BoxAndNext = {
-	box: Box;
+	box: IsoBaseMediaBox;
 	next: ArrayBuffer;
 	size: number;
 };
 
 const isoBaseMediaMp4Pattern = Buffer.from('ftyp');
+const webmPattern = Buffer.from([0x1a, 0x45, 0xdf, 0xa3]);
 
 const matchesPattern = (pattern: Buffer) => {
 	return (data: Buffer) => {
@@ -43,10 +46,12 @@ const matchesPattern = (pattern: Buffer) => {
 	};
 };
 
+export type AnySegment = MatroskaSegment | IsoBaseMediaBox;
+
 export const parseVideo = async (
 	src: string,
 	bytes: number,
-): Promise<Box[]> => {
+): Promise<AnySegment[]> => {
 	const stream = createReadStream(
 		src,
 		Number.isFinite(bytes) ? {end: bytes - 1} : {},
@@ -69,6 +74,10 @@ export const parseVideo = async (
 
 	if (matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8))) {
 		return parseBoxes(new Uint8Array(data).buffer as unknown as ArrayBuffer, 0);
+	}
+
+	if (matchesPattern(webmPattern)(data.subarray(0, 4))) {
+		return [parseWebm(new Uint8Array(data).buffer as unknown as ArrayBuffer)];
 	}
 
 	return [];

@@ -1,3 +1,4 @@
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseSamples} from './samples';
@@ -9,40 +10,32 @@ export interface StsdBox extends BaseBox {
 }
 
 export const parseStsd = (data: ArrayBuffer, offset: number): StsdBox => {
-	let chunkOffset = 0;
+	const view = getArrayBufferIterator(data, 0);
 
-	const view = new DataView(data);
-
-	const size = view.getUint32(chunkOffset);
+	const size = view.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected stsd size of ${data.byteLength}, got ${size}`);
 	}
 
-	chunkOffset += 4;
-
-	const type = new TextDecoder().decode(
-		data.slice(chunkOffset, chunkOffset + 4),
-	);
+	const type = view.getAtom();
 	if (type !== 'stsd') {
 		throw new Error(`Expected stsd type of stsd, got ${type}`);
 	}
 
-	chunkOffset += 4;
-
-	const version = view.getUint8(chunkOffset);
-	chunkOffset += 1;
+	const version = view.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);
 	}
 
 	// flags, we discard them
-	data.slice(chunkOffset, chunkOffset + 3);
-	chunkOffset += 3;
+	view.discard(3);
 
-	const numberOfEntries = view.getUint32(chunkOffset);
-	chunkOffset += 4;
+	const numberOfEntries = view.getUint32();
 
-	const boxes = parseSamples(data.slice(chunkOffset), offset + chunkOffset);
+	const boxes = parseSamples(
+		view.data.slice(view.counter.getOffset()),
+		offset + view.counter.getOffset(),
+	);
 
 	if (boxes.length !== numberOfEntries) {
 		throw new Error(

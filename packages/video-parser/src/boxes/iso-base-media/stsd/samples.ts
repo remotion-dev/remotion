@@ -1,3 +1,5 @@
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
+
 type SampleBase = {
 	format: string;
 	offset: number;
@@ -114,39 +116,26 @@ export const processSampleAndSubtract = ({
 	data: ArrayBuffer;
 	fileOffset: number;
 }): SampleAndNext => {
-	let chunkOffset = 0;
-
-	const view = new DataView(data);
-
-	const boxSize = view.getUint32(chunkOffset);
-	chunkOffset += 4;
-	if (boxSize === 0) {
+	const iterator = getArrayBufferIterator(data, 0);
+	const boxSize = iterator.getUint32();
+	if (boxSize !== data.byteLength) {
 		throw new Error(`Expected box size of ${data.byteLength}, got ${boxSize}`);
 	}
 
-	const boxTypeBuffer = data.slice(chunkOffset, chunkOffset + 4);
-	chunkOffset += 4;
-	const boxType = new TextDecoder().decode(boxTypeBuffer);
-	const isVideo = videoTags.includes(boxType);
+	const boxFormat = iterator.getAtom();
+	const isVideo = videoTags.includes(boxFormat);
 	const isAudio =
-		audioTags.includes(boxType) || audioTags.includes(Number(boxTypeBuffer));
+		audioTags.includes(boxFormat) || audioTags.includes(Number(boxFormat));
 
 	const next = data.slice(boxSize);
 
 	// 6 reserved bytes
-	chunkOffset += 6;
+	iterator.discard(6);
 
-	const dataReferenceIndex = view.getUint16(chunkOffset);
-	chunkOffset += 2;
-
-	const version = view.getUint16(chunkOffset);
-	chunkOffset += 2;
-
-	const revisionLevel = view.getUint16(chunkOffset);
-	chunkOffset += 2;
-
-	const vendor = data.slice(chunkOffset, chunkOffset + 4);
-	chunkOffset += 4;
+	const dataReferenceIndex = iterator.getUint16();
+	const version = iterator.getUint16();
+	const revisionLevel = iterator.getUint16();
+	const vendor = iterator.getSlice(4);
 
 	if (!isVideo && !isAudio) {
 		return {
@@ -158,7 +147,7 @@ export const processSampleAndSubtract = ({
 				revisionLevel,
 				vendor: [...Array.from(new Uint8Array(vendor))],
 				size: boxSize,
-				format: boxType,
+				format: boxFormat,
 			},
 			next,
 			size: boxSize,
@@ -170,36 +159,19 @@ export const processSampleAndSubtract = ({
 			throw new Error(`Unsupported version ${version}`);
 		}
 
-		const numberOfChannels = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const sampleSize = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const compressionId = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const packetSize = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const sampleRate = view.getUint32(chunkOffset) / 2 ** 16;
-		chunkOffset += 4;
-
-		const samplesPerPacket = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const bytesPerPacket = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const bytesPerFrame = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const bitsPerSample = view.getUint16(chunkOffset);
-		chunkOffset += 2;
+		const numberOfChannels = iterator.getUint16();
+		const sampleSize = iterator.getUint16();
+		const compressionId = iterator.getUint16();
+		const packetSize = iterator.getUint16();
+		const sampleRate = iterator.getFixedPoint1616Number();
+		const samplesPerPacket = iterator.getUint16();
+		const bytesPerPacket = iterator.getUint16();
+		const bytesPerFrame = iterator.getUint16();
+		const bitsPerSample = iterator.getUint16();
 
 		return {
 			sample: {
-				format: boxType,
+				format: boxFormat,
 				offset: fileOffset,
 				dataReferenceIndex,
 				version,
@@ -223,44 +195,23 @@ export const processSampleAndSubtract = ({
 	}
 
 	if (isVideo) {
-		const temporalQuality = view.getUint32(chunkOffset);
-		chunkOffset += 4;
+		const temporalQuality = iterator.getUint32();
+		const spacialQuality = iterator.getUint32();
+		const width = iterator.getUint16();
+		const height = iterator.getUint16();
+		const horizontalResolution = iterator.getFixedPoint1616Number();
+		const verticalResolution = iterator.getFixedPoint1616Number();
+		const dataSize = iterator.getUint32();
+		const frameCountPerSample = iterator.getUint16();
+		const compressorName = iterator.getPascalString();
+		const depth = iterator.getUint16();
+		const colorTableId = iterator.getInt16();
 
-		const spacialQuality = view.getUint32(chunkOffset);
-		chunkOffset += 4;
-
-		const width = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const height = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const horizontalResolution = view.getUint32(chunkOffset) / 2 ** 16;
-		chunkOffset += 4;
-
-		const verticalResolution = view.getUint32(chunkOffset) / 2 ** 16;
-		chunkOffset += 4;
-
-		const dataSize = view.getUint32(chunkOffset);
-		chunkOffset += 4;
-
-		const frameCountPerSample = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const pascalString = data.slice(chunkOffset, chunkOffset + 32);
-		chunkOffset += 32;
-
-		const depth = view.getUint16(chunkOffset);
-		chunkOffset += 2;
-
-		const colorTableId = view.getInt16(chunkOffset);
-		chunkOffset += 2;
-
-		chunkOffset += 4;
+		iterator.discard(4);
 
 		return {
 			sample: {
-				format: boxType,
+				format: boxFormat,
 				offset: fileOffset,
 				dataReferenceIndex,
 				version,
@@ -276,7 +227,7 @@ export const processSampleAndSubtract = ({
 				temporalQuality,
 				dataSize,
 				frameCountPerSample,
-				compressorName: [...Array.from(new Uint8Array(pascalString))],
+				compressorName,
 				depth,
 				colorTableId,
 			},
@@ -285,7 +236,7 @@ export const processSampleAndSubtract = ({
 		};
 	}
 
-	throw new Error(`Unknown sample format ${boxType}`);
+	throw new Error(`Unknown sample format ${boxFormat}`);
 };
 
 export const parseSamples = (

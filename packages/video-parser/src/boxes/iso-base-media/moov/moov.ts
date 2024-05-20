@@ -1,30 +1,29 @@
-import type {Box} from '../../../parse-video';
+import type {IsoBaseMediaBox} from '../../../parse-video';
+import {getArrayBufferIterator} from '../../../read-and-increment-offset';
 import type {BaseBox} from '../base-type';
 import {parseBoxes} from '../process-box';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
-	children: Box[];
+	children: IsoBaseMediaBox[];
 }
 
 export const parseMoov = (data: ArrayBuffer, offset: number): MoovBox => {
-	let chunkOffset = 0;
-	const view = new DataView(data);
-	const size = view.getUint32(0);
-	chunkOffset += 4;
+	const iterator = getArrayBufferIterator(data, 0);
+	const size = iterator.getUint32();
 	if (size !== data.byteLength) {
 		throw new Error(`Expected moov size of ${data.byteLength}, got ${size}`);
 	}
 
-	const type = new TextDecoder().decode(
-		data.slice(chunkOffset, chunkOffset + 4),
-	);
-	chunkOffset += 4;
-	if (type !== 'moov') {
-		throw new Error(`Expected moov type of moov, got ${type}`);
+	const atom = iterator.getAtom();
+	if (atom !== 'moov') {
+		throw new Error(`Expected moov type of moov, got ${atom}`);
 	}
 
-	const children = parseBoxes(data.slice(chunkOffset), offset + chunkOffset);
+	const children = parseBoxes(
+		iterator.data.slice(iterator.counter.getOffset()),
+		offset + iterator.counter.getOffset(),
+	);
 
 	return {
 		offset,

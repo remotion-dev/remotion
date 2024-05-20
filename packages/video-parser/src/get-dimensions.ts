@@ -1,6 +1,6 @@
-import type {Box} from './parse-video';
+import type {AnySegment} from './parse-video';
 
-export const getDimensions = (boxes: Box[]): number[] => {
+export const getDimensions = (boxes: AnySegment[]): number[] => {
 	const moovBox = boxes.find((b) => b.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		throw new Error('Expected moov box');
