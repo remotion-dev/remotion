@@ -17,6 +17,8 @@ import type {UnknownSegment} from './segments/unknown';
 import {parseUnknownSegment} from './segments/unknown';
 import type {VoidSegment} from './segments/void';
 import {parseVoidSegment} from './segments/void';
+import type {WritingAppSegment} from './segments/writing';
+import {parseWritingSegment} from './segments/writing';
 
 export type MatroskaSegment =
 	| MainSegment
@@ -27,7 +29,8 @@ export type MatroskaSegment =
 	| VoidSegment
 	| InfoSegment
 	| TimestampScaleSegment
-	| MuxingAppSegment;
+	| MuxingAppSegment
+	| WritingAppSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -62,6 +65,10 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	if (segmentId === '0x4d808c') {
 		return parseMuxingSegment(iterator);
+	}
+
+	if (segmentId === '0x57418c') {
+		return parseWritingSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);
