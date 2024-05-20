@@ -55,11 +55,26 @@ export const getArrayBufferIterator = (
 			return new TextDecoder().decode(atom);
 		},
 		getMatroskaSegmentId: () => {
-			const firstTwo = getSlice(2);
+			const first = getSlice(1);
+			const firstOneString = `0x${Array.from(new Uint8Array(first))
+				.map((b) => {
+					return b.toString(16).padStart(2, '0');
+				})
+				.join('')}`;
+
+			// Catch void block
+			const knownIdsWithOneLength = ['0xec'];
+			if (knownIdsWithOneLength.includes(firstOneString)) {
+				return firstOneString;
+			}
+
+			const firstTwo = getSlice(1);
 
 			const knownIdsWithTwoLength = ['0x4dbb', '0x53ac', '0xec01'];
 
-			const firstTwoString = `0x${Array.from(new Uint8Array(firstTwo))
+			const firstTwoString = `${firstOneString}${Array.from(
+				new Uint8Array(firstTwo),
+			)
 				.map((b) => {
 					return b.toString(16).padStart(2, '0');
 				})

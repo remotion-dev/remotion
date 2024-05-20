@@ -10,13 +10,16 @@ import {
 } from './segments/seek-position';
 import type {UnknownSegment} from './segments/unknown';
 import {parseUnknownSegment} from './segments/unknown';
+import type {VoidSegment} from './segments/void';
+import {parseVoidSegment} from './segments/void';
 
 export type MatroskaSegment =
 	| MainSegment
 	| UnknownSegment
 	| SeekHeadSegment
 	| SeekSegment
-	| SeekPositionSegment;
+	| SeekPositionSegment
+	| VoidSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -35,6 +38,10 @@ export const expectSegment = (iterator: BufferIterator) => {
 
 	if (segmentId === '0x53ac') {
 		return parseSeekPositionSegment(iterator);
+	}
+
+	if (segmentId === '0xec') {
+		return parseVoidSegment(iterator);
 	}
 
 	const length = iterator.getVint(8);

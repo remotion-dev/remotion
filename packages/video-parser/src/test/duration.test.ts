@@ -20,7 +20,6 @@ test('Should get duration of HEVC video', async () => {
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseVideo(exampleVideos.av1, Infinity);
-	console.log(JSON.stringify(parsed));
 	// TODO: AV1 duration is not yet supported
 	expect(parsed).toEqual([
 		{
@@ -53,8 +52,12 @@ test('Should get duration of AV1 video', async () => {
 					],
 				},
 				{
-					id: '0xec01',
+					length: 88,
+					type: 'void-segment',
+				},
+				{
 					type: 'unknown-segment',
+					id: '0x1549a966',
 				},
 			],
 		},
