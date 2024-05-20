@@ -5,6 +5,10 @@ export class OffsetCounter {
 	}
 
 	increment(amount: number) {
+		if (amount < 0) {
+			throw new Error('Cannot increment by a negative amount');
+		}
+
 		this.#offset += amount;
 	}
 
@@ -109,7 +113,8 @@ export const getArrayBufferIterator = (
 				.join('')}`;
 		},
 		getVint: (bytes: number) => {
-			const d = [...Array.from(new Uint8Array(getSlice(bytes)))];
+			const slice = getSlice(bytes);
+			const d = [...Array.from(new Uint8Array(slice))];
 			const totalLength = d[0];
 
 			if (totalLength === 0) {

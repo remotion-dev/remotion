@@ -15,6 +15,8 @@ import {
 } from './segments/seek-position';
 import type {TimestampScaleSegment} from './segments/timestamp-scale';
 import {parseTimestampScaleSegment} from './segments/timestamp-scale';
+import type {TracksSegment} from './segments/tracks';
+import {parseTracksSegment} from './segments/tracks';
 import type {UnknownSegment} from './segments/unknown';
 import {parseUnknownSegment} from './segments/unknown';
 import type {VoidSegment} from './segments/void';
@@ -33,7 +35,8 @@ export type MatroskaSegment =
 	| TimestampScaleSegment
 	| MuxingAppSegment
 	| WritingAppSegment
-	| DurationSegment;
+	| DurationSegment
+	| TracksSegment;
 
 export const expectSegment = (iterator: BufferIterator) => {
 	const segmentId = iterator.getMatroskaSegmentId();
@@ -78,7 +81,19 @@ export const expectSegment = (iterator: BufferIterator) => {
 		return parseDurationSegment(iterator);
 	}
 
+	if (segmentId === '0x1654ae6b') {
+		return parseTracksSegment(iterator);
+	}
+
 	const length = iterator.getVint(8);
-	const child = parseUnknownSegment(iterator, segmentId, length);
+
+	const bytesRemaining =
+		iterator.data.byteLength - iterator.counter.getOffset();
+	const toDiscard = Math.min(
+		bytesRemaining,
+		length > 0 ? length : bytesRemaining,
+	);
+
+	const child = parseUnknownSegment(iterator, segmentId, toDiscard);
 	return child;
 };
