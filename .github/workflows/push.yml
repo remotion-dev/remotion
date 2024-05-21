@@ -19,26 +19,14 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.7
+          bun-version: canary
       - run: |
           corepack enable
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/renderer -> target"
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: bun i --frozen-lockfile
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
@@ -54,13 +42,13 @@ jobs:
           key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
-          pnpm build
+          bun run build
       - name: Test Lambda IT
         run: |
-          cd packages/it-tests && pnpm run testlambda
+          cd packages/it-tests && bun run testlambda
       - name: Test Lambda E2E
         run: |
-          cd packages/lambda && pnpm run testintegration
+          cd packages/lambda && bun run testintegration
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -71,23 +59,9 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.7
-      - run: |
-          corepack enable
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          bun-version: canary
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: bun i --frozen-lockfile
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -123,7 +97,7 @@ jobs:
 
       - name: build
         run: |
-          pnpm build
+          bun run build
       - name: Test SSR
         timeout-minutes: 8
         run: |
@@ -138,27 +112,15 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.7
+          bun-version: canary
       - run: |
           corepack enable
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: bun i --frozen-lockfile
       - name: Perform stylecheck
         timeout-minutes: 5
         run: |
-          pnpm run stylecheck
+          bun run stylecheck
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -187,22 +149,9 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.7
+          bun-version: canary
       - run: |
           corepack enable
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Cache node_modules/.cache
         uses: actions/cache@v3.0.11
         with:
@@ -212,7 +161,7 @@ jobs:
         with:
           workspaces: "packages/renderer -> target"
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: bun i --frozen-lockfile
       - name: Build cache
         uses: actions/cache@v3.0.11
         with:
@@ -228,4 +177,4 @@ jobs:
 
       - name: Build & Test
         run: |
-          pnpm run ci
+          bun run ci
