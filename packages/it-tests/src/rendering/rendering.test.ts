@@ -387,7 +387,7 @@ test("Should render a still that uses the staticFile() API and should apply prop
       "static-demo",
       out,
       "--log=verbose",
-      `--props={\\"flag\\": true}`,
+      `--props='{"flag": true}'`,
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -412,7 +412,7 @@ test("Dynamic duration should work and audio separation", async () => {
       "build",
       "dynamic-duration",
       `--props`,
-      `{\\"duration\\": ${randomDuration}}`,
+      `'{"duration": ${randomDuration}}'`,
       "--separate-audio-to",
       "audio.wav",
       outputPath,
