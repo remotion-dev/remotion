@@ -17,7 +17,6 @@
   },
   "engines": {
     "node": ">=16",
-    "pnpm": ">=3"
   },
   "devDependencies": {
     "@types/bun": "1.0.12",
@@ -30,5 +29,4 @@
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@8.10.2"
 }

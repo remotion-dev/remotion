@@ -7,8 +7,8 @@ This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern 
 Go to the root directory of the repository (`cd ../..` if you are in the `docs` directory) and run
 
 ```console
-pnpm i
-pnpm build
+bun i
+bun run build
 ```
 
 ## Local Development
@@ -16,7 +16,7 @@ pnpm build
 In this directory (`packages/docs`), run:
 
 ```console
-pnpm start
+bun start
 ```
 
 This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.

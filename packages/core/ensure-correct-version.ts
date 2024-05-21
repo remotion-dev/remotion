@@ -18,7 +18,7 @@ export const VERSION = '${version}';
 
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
-cp.execSync('pnpm build');
+cp.execSync('bun run build');
 cp.execSync('bun x tsc -d');
 
 const distFile = fs.readFileSync('dist/esm/version.mjs', 'utf-8');

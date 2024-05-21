@@ -38,6 +38,6 @@ console.log('Created new-doc.md in "new-docs" folder.');
 console.log("You can now write your article in this file.");
 console.log();
 console.log("To preview, run the following command:");
-console.log("pnpm exec docusaurus start --config=new-article.config.js");
+console.log("bunx docusaurus start --config=new-article.config.js");
 console.log();
 console.log('Click on "Docs" afterwards to see your page.');

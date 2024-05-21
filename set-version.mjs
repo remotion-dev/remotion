@@ -61,7 +61,7 @@ execSync("node build.mjs --all", {
   stdio: "inherit",
 });
 
-execSync("pnpm build", {
+execSync("bun run build", {
   cwd: "packages/cloudrun",
   stdio: "inherit",
 });

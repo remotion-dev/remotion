@@ -1,0 +1,23 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/Users/jonathanburger/remotion"
+  },
+  "1 error pnpm": {
+    "code": "ELIFECYCLE",
+    "errno": "ENOENT",
+    "syscall": "spawn",
+    "file": "sh",
+    "pkgid": "remotion-monorepo@0.0.0",
+    "stage": "build",
+    "script": "turbo run build",
+    "pkgname": "remotion-monorepo",
+    "err": {
+      "name": "pnpm",
+      "message": "remotion-monorepo@0.0.0 build: `turbo run build`\nspawn ENOENT",
+      "code": "ELIFECYCLE",
+      "stack": "pnpm: remotion-monorepo@0.0.0 build: `turbo run build`\nspawn ENOENT\n    at ChildProcess.<anonymous> (/Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:93917:22)\n    at ChildProcess.emit (node:events:527:28)\n    at maybeClose (node:internal/child_process:1092:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:302:5)"
+    }
+  },
+  "2 warn pnpm:global": " Local package.json exists, but node_modules missing, did you mean to install?"
+}

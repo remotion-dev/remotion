@@ -1,0 +1,15 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/Users/jonathanburger/remotion"
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_NO_SCRIPT",
+    "err": {
+      "name": "pnpm",
+      "message": "Missing script: buildlambda",
+      "code": "ERR_PNPM_NO_SCRIPT",
+      "stack": "pnpm: Missing script: buildlambda\n    at Object.handler (/Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:178639:15)\n    at async /Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:186810:21\n    at async run (/Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:186784:34)\n    at async runPnpm (/Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:187002:5)\n    at async /Users/jonathanburger/.node/corepack/pnpm/7.2.1/dist/pnpm.cjs:186994:7"
+    }
+  }
+}
