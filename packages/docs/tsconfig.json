@@ -28,6 +28,7 @@
     { "path": "../media-utils" },
     { "path": "../babel-loader" },
     { "path": "../cloudrun" },
+    { "path": "../create-video" },
     { "path": "../lottie" },
     { "path": "../noise" },
     { "path": "../paths" },
