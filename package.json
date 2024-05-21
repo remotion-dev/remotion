@@ -16,7 +16,7 @@
     "clean": "bun clean.ts"
   },
   "engines": {
-    "node": ">=16",
+    "node": ">=16"
   },
   "devDependencies": {
     "@types/bun": "1.0.12",
@@ -28,5 +28,5 @@
   },
   "workspaces": [
     "packages/*"
-  ],
+  ]
 }
