@@ -1,11 +1,10 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"rootDir": "src",
-		"outDir": "dist",
-		"lib": ["es2019", "dom"]
+		"rootDir": "./src",
+		"outDir": "./dist",
 	},
-	"include": ["src"],
+	"include": ["./src"],
 	"exclude": ["**/__mocks__/*"],
 	"references": [
 		{"path": "../core"},
