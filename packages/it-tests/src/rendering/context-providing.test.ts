@@ -18,13 +18,9 @@ afterEach(() => {
 });
 
 test("Should be able to render video that was wrapped in context", async () => {
-  await execa(
-    "pnpm",
-    ["exec", "remotion", "still", "wrapped-in-context", outputPath],
-    {
-      cwd: path.join(process.cwd(), "..", "example"),
-    }
-  );
+  await execa("bunx", ["remotion", "still", "wrapped-in-context", outputPath], {
+    cwd: path.join(process.cwd(), "..", "example"),
+  });
 
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);

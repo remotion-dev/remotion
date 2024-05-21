@@ -2,7 +2,7 @@ import execa from "execa";
 import path from "path";
 import { expect, test } from "vitest";
 
-test("Should be able to call pnpm exec remotion lambda", async () => {
+test("Should be able to call bunx remotion lambda", async () => {
   const task = await execa("bunx", ["remotion", "lambda"], {
     cwd: path.join(process.cwd(), "..", "example"),
   });

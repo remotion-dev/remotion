@@ -13,15 +13,8 @@ beforeEach(() => {
 
 test("Should fail to render if cancelRender() was being used", async () => {
   const task = await execa(
-    "pnpm",
-    [
-      "exec",
-      "remotion",
-      "render",
-      "cancel-render",
-      "--frames=2-10",
-      outputPath,
-    ],
+    "bunx",
+    ["remotion", "render", "cancel-render", "--frames=2-10", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,

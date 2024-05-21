@@ -1,6 +1,6 @@
 import {execSync} from 'child_process';
 
-const functionName = execSync(`pnpm exec remotion lambda functions ls -q`)
+const functionName = execSync(`bunx remotion lambda functions ls -q`)
 	.toString('utf8')
 	.trim()
 	.split(' ')[0];

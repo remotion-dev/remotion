@@ -2,10 +2,10 @@ import path from "path";
 import execa from "execa";
 import { expect, test } from "vitest";
 
-test("Should be able to call pnpm exec compositions", async () => {
+test("Should be able to call bunx compositions", async () => {
   const task = await execa(
-    "pnpm",
-    ["exec", "remotion", "compositions", "src/index.ts"],
+    "bunx",
+    ["remotion", "compositions", "src/index.ts"],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
