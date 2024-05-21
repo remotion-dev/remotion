@@ -1,0 +1,5 @@
+# It works without, but it is nice
+# to see exactly what got installed
+
+[install.lockfile]
+print = "yarn"
