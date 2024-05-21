@@ -19,11 +19,6 @@
     "node": ">=16",
     "pnpm": ">=3"
   },
-  "pnpm": {
-    "overrides": {
-      "caniuse-lite": "1.0.30001577"
-    }
-  },
   "devDependencies": {
     "@types/bun": "1.0.12",
     "@types/node": "18.14.6"
