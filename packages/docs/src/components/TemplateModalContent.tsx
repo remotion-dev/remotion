@@ -101,7 +101,7 @@ const separator: React.CSSProperties = {
   marginRight: 10,
 };
 
-let copyTimeout: NodeJS.Timeout | null = null;
+let copyTimeout: Timer | null = null;
 
 export const TemplateModalContent: React.FC<{
   readonly template: Template;

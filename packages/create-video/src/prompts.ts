@@ -34,7 +34,6 @@ export async function selectAsync(
 		{
 			limit: 11,
 			...questions,
-			// @ts-expect-error: onRender not in the types
 			onRender(this: {
 				cursor: number;
 				firstRender: boolean;
