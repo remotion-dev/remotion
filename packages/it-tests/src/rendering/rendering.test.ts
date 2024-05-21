@@ -387,7 +387,7 @@ test("Should render a still that uses the staticFile() API and should apply prop
       "static-demo",
       out,
       "--log=verbose",
-      `--props={\"flag\": true}`,
+      `--props={\\"flag\\": true}`,
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
