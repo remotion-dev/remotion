@@ -13,7 +13,7 @@ beforeAll(async () => {
   if (process.env.CI) {
     return;
   }
-  await execa("bunx", [ "remotion", "bundle"], {
+  await execa("bunx", ["remotion", "bundle"], {
     cwd: path.join(process.cwd(), "..", "example"),
   });
 });
@@ -28,7 +28,6 @@ test("Should be able to render video with custom port", async () => {
   const task = execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -69,7 +68,6 @@ test("Should fail to render out of range CRF", async () => {
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -97,7 +95,6 @@ test("Should fail to render out of range frame when range is a number", async ()
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -122,7 +119,6 @@ test("Should fail to render out of range frame when range is a string", async ()
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -145,7 +141,6 @@ test("Should render a ProRes video", async () => {
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -183,15 +178,7 @@ test("Should render a still image if single frame specified", async () => {
   const outImg = path.join(outDir, "element-2.png");
   const task = await execa(
     "bunx",
-    [
-      
-      "remotion",
-      "render",
-      "build",
-      "ten-frame-tester",
-      "--frames=2",
-      outDir,
-    ],
+    ["remotion", "render", "build", "ten-frame-tester", "--frames=2", outDir],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
@@ -219,7 +206,7 @@ test("Should be able to render a WAV audio file", async () => {
   const out = outputPath.replace("mp4", "wav");
   const task = execa(
     "bunx",
-    [ "remotion", "render", "build", "audio-testing", out],
+    ["remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -251,7 +238,7 @@ test("Should be able to render a MP3 audio file", async () => {
   const out = outputPath.replace("mp4", "mp3");
   const task = execa(
     "bunx",
-    [ "remotion", "render", "build", "audio-testing", out],
+    ["remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -283,7 +270,7 @@ test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
   const task = execa(
     "bunx",
-    [ "remotion", "render", "build", "audio-testing", out],
+    ["remotion", "render", "build", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -314,7 +301,7 @@ test("Should be able to render a AAC audio file", async () => {
 test("Should render a video with GIFs", async () => {
   const task = await execa(
     "bunx",
-    [ "remotion", "render", "build", "gif", "--frames=0-47", outputPath],
+    ["remotion", "render", "build", "gif", "--frames=0-47", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -343,7 +330,7 @@ test("Should render a video with Offline Audio-context", async () => {
 
   const task = await execa(
     "bunx",
-    [ "remotion", "render", "build", "offline-audio-buffer", out],
+    ["remotion", "render", "build", "offline-audio-buffer", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -369,7 +356,7 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
     "bunx",
-    [ "remotion", "render", "build", "ten-frame-tester", out],
+    ["remotion", "render", "build", "ten-frame-tester", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -394,7 +381,6 @@ test("Should render a still that uses the staticFile() API and should apply prop
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "still",
       "build",
@@ -421,7 +407,6 @@ test("Dynamic duration should work and audio separation", async () => {
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "render",
       "build",
@@ -517,7 +502,6 @@ test("Should be able to render a huge payload that gets serialized", async () =>
   const task = await execa(
     "bunx",
     [
-      
       "remotion",
       "still",
       "build",
@@ -536,15 +520,7 @@ test("Should be able to render a huge payload that gets serialized", async () =>
 test("If timeout, the error should be shown", async () => {
   const task = await execa(
     "bunx",
-    [
-      
-      "remotion",
-      "render",
-      "build",
-      "Timeout",
-      outputPath,
-      "--timeout=7000",
-    ],
+    ["remotion", "render", "build", "Timeout", outputPath, "--timeout=7000"],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,

@@ -56,7 +56,6 @@ test("Should be able to render video with scale 0.1", async () => {
   const task = execa(
     "bunx",
     [
-      "exec",
       "remotion",
       "render",
       "src/index.ts",
