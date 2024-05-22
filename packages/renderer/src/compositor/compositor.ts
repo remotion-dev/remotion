@@ -174,7 +174,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 			separatorIndex++;
 			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds');
+				throw new Error('separatorIndex out of bounds: '+ JSON.stringify(outputBuffer));
 			}
 
 			nonceString += String.fromCharCode(nextDigit);
@@ -190,7 +190,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 			separatorIndex++;
 			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds');
+				throw new Error('separatorIndex out of bounds ' + JSON.stringify(outputBuffer));
 			}
 
 			lengthString += String.fromCharCode(nextDigit);
@@ -206,7 +206,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			separatorIndex++;
 
 			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds');
+				throw new Error('separatorIndex out of bounds ' + JSON.stringify(outputBuffer));
 			}
 
 			statusString += String.fromCharCode(nextDigit);
