@@ -133,6 +133,9 @@
       "path": "./packages/video-parser"
     },
     {
+      "path": "./packages/enable-scss"
+    },
+    {
       "path": "./packages/zod-types"
     }
   ]

@@ -10,6 +10,7 @@ export const listOfRemotionPackages = [
 	'@remotion/skia',
 	'@remotion/lottie',
 	'@remotion/media-utils',
+	'@remotion/enable-scss',
 	'@remotion/motion-blur',
 	'@remotion/google-fonts',
 	'@remotion/noise',
