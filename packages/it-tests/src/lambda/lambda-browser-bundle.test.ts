@@ -13,7 +13,9 @@ test("Should not be able to bundle @remotion/lambda directly", async () => {
       entryPoints: [require.resolve("@remotion/lambda")],
       logLevel: "silent",
     })
-  ).rejects.toThrow(/Could not resolve "pnpapi"/);
+  ).rejects.toThrow(
+    /(Could not resolve "pnpapi")|( No loader is configured for ".node")/
+  );
 });
 
 describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => {

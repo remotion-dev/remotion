@@ -30,3 +30,6 @@ packages/example/public/offthreadvideoregression
 
 packages/example/build
 packages/example-without-zod/build
+
+# Use bun -y to generate human readable lockfile
+yarn.lock
