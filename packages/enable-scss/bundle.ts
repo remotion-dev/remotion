@@ -11,6 +11,11 @@ const output = await build({
 	external: [],
 });
 
+if (!output.success) {
+	console.log(output.logs);
+	throw new Error('Build failed');
+}
+
 const [file] = output.outputs;
 const text = await file.text();
 
