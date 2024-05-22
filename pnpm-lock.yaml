@@ -623,6 +623,9 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/enable-scss':
+        specifier: workspace:*
+        version: link:../enable-scss
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif

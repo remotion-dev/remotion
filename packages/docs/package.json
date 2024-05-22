@@ -52,6 +52,7 @@
     "@remotion/skia": "workspace:*",
     "@remotion/studio": "workspace:*",
     "@remotion/tailwind": "workspace:*",
+    "@remotion/enable-scss": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/transitions": "workspace:*",
     "@rive-app/canvas-advanced": "2.3.0",
