@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "4.0.161",
+	"version": "4.0.162",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
