@@ -1,10 +1,10 @@
 import {expect, test} from 'bun:test';
+import {RenderInternals} from '../../../renderer/dist';
 import {getDuration} from '../get-duration';
 import {parseVideo} from '../parse-video';
-import {exampleVideos} from './example-videos';
 
 test('Should get duration of AV1 video', async () => {
-	const parsed = await parseVideo(exampleVideos.av1, Infinity);
+	const parsed = await parseVideo(RenderInternals.exampleVideos.av1, Infinity);
 	expect(parsed).toEqual([
 		{
 			type: 'main-segment',
