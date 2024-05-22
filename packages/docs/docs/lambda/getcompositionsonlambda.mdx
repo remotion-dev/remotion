@@ -55,7 +55,10 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `inputProps`
 
-React props that can be obtained using [`getInputProps()`](/docs/get-input-props) from inside the React component while evaluating the list of compositions.
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 ### `envVariables?`
 

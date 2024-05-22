@@ -61,7 +61,10 @@ The `id` of the [composition](/docs/composition) you want to render..
 
 ### `inputProps`
 
-React props that are passed to your composition. You define the shape of the props that the component accepts.
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a JSON object.  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 ### `privacy`
 
@@ -207,7 +210,7 @@ Either:
 
 ### `deleteAfter?`<AvailableFrom v="4.0.32"/>
 
-<Options id="delete-after"/>
+<Options id="delete-after" />
 
 ### `chromiumOptions?`
 
@@ -229,7 +232,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
@@ -245,7 +248,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 _optional_
 
-<Options id="log"/>
+<Options id="log" />
 
 Logs can be read through the CloudWatch URL that this function returns.
 
