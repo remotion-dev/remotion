@@ -167,55 +167,8 @@ Config.overrideWebpackConfig(enableMdx);
 
 ### Enable SASS/SCSS support
 
-1. Install the following dependencies:
-
-<Installation pkg="sass style-loader css-loader sass-loader" />
-
-2. Declare an override function:
-
-```ts twoslash title="src/enable-sass.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
-
-export const enableSass: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
-        {
-          test: /\.s[ac]ss$/i,
-          use: [
-            { loader: "style-loader" },
-            { loader: "css-loader" },
-            { loader: "sass-loader", options: { sourceMap: true } },
-          ],
-        },
-      ],
-    },
-  };
-};
-```
-
-3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
-
-```ts twoslash title="remotion.config.ts"
-// @filename: ./src/enable-sass.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
-export const enableSass: WebpackOverrideFn = (c) => c;
-// @filename: remotion.config.ts
-// ---cut---
-import { Config } from "@remotion/cli/config";
-import { enableSass } from "./src/enable-sass";
-
-Config.overrideWebpackConfig(enableSass);
-```
-
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
-
-5. Restart the Remotion Studio.
+The easiest way is to use the `@remotion/enable-scss`.  
+Follow these [instructions](/docs/enable-scss/overview) to enable it.
 
 ### Enable SVGR support
 
