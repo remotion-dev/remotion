@@ -8,7 +8,7 @@ const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
 	target: 'node',
-	external: [],
+	external: ['sass', 'sass-loader', 'css-loader', 'style-loader'],
 });
 
 if (!output.success) {
