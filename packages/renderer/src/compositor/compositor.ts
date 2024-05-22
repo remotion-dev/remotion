@@ -4,6 +4,7 @@ import {getActualConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
+import {makeStreamer} from '../streaming';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
@@ -108,9 +109,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 	});
 
 	let stderrChunks: Buffer[] = [];
-	let outputBuffer = Buffer.from('');
 
-	const separator = Buffer.from('remotion_buffer:');
 	const waiters = new Map<string, Waiter>();
 
 	const onMessage = (
@@ -121,9 +120,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		// Nonce '0' just means that the message should be logged
 		if (nonce === '0') {
 			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
-		}
-
-		if (waiters.has(nonce)) {
+		} else if (waiters.has(nonce)) {
 			if (statusType === 'error') {
 				try {
 					const parsed = JSON.parse(data.toString('utf8')) as ErrorPayload;
@@ -143,123 +140,11 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		}
 	};
 
+	const {onData, getOutputBuffer, clear} = makeStreamer(onMessage);
+
 	let runningStatus: RunningStatus = {type: 'running'};
-	let missingData: null | {
-		dataMissing: number;
-	} = null;
 
-	const processInput = () => {
-		let separatorIndex = outputBuffer.indexOf(separator);
-		if (separatorIndex === -1) {
-			return;
-		}
-
-		separatorIndex += separator.length;
-
-		let nonceString = '';
-		let lengthString = '';
-		let statusString = '';
-
-		// Each message from Rust is prefixed with `remotion_buffer:{[nonce]}:{[length]}`
-		// Let's read the buffer to extract the nonce, and if the full length is available,
-		// we'll extract the data and pass it to the callback.
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			if (separatorIndex > outputBuffer.length - 1) {
-				return;
-			}
-
-			const nextDigit = outputBuffer[separatorIndex];
-			separatorIndex++;
-
-			// 0x3a is the character ":"
-			if (nextDigit === 0x3a) {
-				break;
-			}
-
-			nonceString += String.fromCharCode(nextDigit);
-		}
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			if (separatorIndex > outputBuffer.length - 1) {
-				return;
-			}
-
-			const nextDigit = outputBuffer[separatorIndex];
-			separatorIndex++;
-
-			if (nextDigit === 0x3a) {
-				break;
-			}
-
-			lengthString += String.fromCharCode(nextDigit);
-		}
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			if (separatorIndex > outputBuffer.length - 1) {
-				return;
-			}
-
-			const nextDigit = outputBuffer[separatorIndex];
-			if (nextDigit === 0x3a) {
-				break;
-			}
-
-			separatorIndex++;
-
-			statusString += String.fromCharCode(nextDigit);
-		}
-
-		const length = Number(lengthString);
-		const status = Number(statusString);
-
-		const dataLength = outputBuffer.length - separatorIndex - 1;
-		if (dataLength < length) {
-			missingData = {
-				dataMissing: length - dataLength,
-			};
-
-			return;
-		}
-
-		const data = outputBuffer.subarray(
-			separatorIndex + 1,
-			separatorIndex + 1 + Number(lengthString),
-		);
-		onMessage(status === 1 ? 'error' : 'success', nonceString, data);
-		missingData = null;
-
-		outputBuffer = outputBuffer.subarray(
-			separatorIndex + Number(lengthString) + 1,
-		);
-
-		processInput();
-	};
-
-	let unprocessedBuffers: Buffer[] = [];
-
-	child.stdout.on('data', (data) => {
-		unprocessedBuffers.push(data);
-		const separatorIndex = data.indexOf(separator);
-		if (separatorIndex === -1) {
-			if (missingData) {
-				missingData.dataMissing -= data.length;
-			}
-
-			if (!missingData || missingData.dataMissing > 0) {
-				return;
-			}
-		}
-
-		unprocessedBuffers.unshift(outputBuffer);
-		outputBuffer = Buffer.concat(unprocessedBuffers);
-
-		unprocessedBuffers = [];
-		processInput();
-	});
+	child.stdout.on('data', onData);
 
 	child.stderr.on('data', (data) => {
 		stderrChunks.push(data);
@@ -284,7 +169,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		} else {
 			const errorMessage =
 				Buffer.concat(stderrChunks).toString('utf-8') +
-				outputBuffer.toString('utf-8');
+				getOutputBuffer().toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage, signal};
 
 			const error =
@@ -301,7 +186,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		}
 
 		// Need to manually free up memory
-		outputBuffer = Buffer.from('');
+		clear();
 		stderrChunks = [];
 	});
 
