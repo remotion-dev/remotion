@@ -65,6 +65,7 @@ import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
 import {DeleteStaticFile} from './StudioApis/DeleteStaticFile';
+import {ClickUpdate} from './StudioApis/RestartStudio';
 import {
 	SaveDefaultProps,
 	saveStudioSchema,
@@ -1226,6 +1227,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="save-default-props"
 					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="restart-studio"
+					component={ClickUpdate}
 					fps={30}
 					durationInFrames={100}
 					height={200}

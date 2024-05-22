@@ -36,6 +36,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"deleteStaticFile()"}</strong>
           <div>Delete a file from the public directory</div>
         </TOCItem>
+        <TOCItem link="/docs/studio/restart-studio">
+          <strong>{"restartStudio()"}</strong>
+          <div>Restart the Studio Server.</div>
+        </TOCItem>
       </Grid>
     </div>
   );

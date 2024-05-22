@@ -12,6 +12,7 @@ import path from 'node:path';
 import {openBrowser} from './better-opn';
 import {getNetworkAddress} from './get-network-address';
 import type {QueueMethods} from './preview-server/api-types';
+import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
 import {
 	setLiveEventsListener,
@@ -21,8 +22,6 @@ import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
-
-const noop = () => undefined;
 
 const getShouldOpenBrowser = ({
 	configValueShouldOpenBrowser,
@@ -106,6 +105,10 @@ export const startStudio = async ({
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 }) => {
+	try {
+		process.title = 'Remotion Studio';
+	} catch (err) {}
+
 	watchRootFile(remotionRoot);
 	const publicDir = getAbsolutePublicDir({
 		relativePublicDir,
@@ -140,7 +143,7 @@ export const startStudio = async ({
 		staticHash,
 	});
 
-	const {port, liveEventsServer} = await startServer({
+	const {port, liveEventsServer, close} = await startServer({
 		entry: path.resolve(previewEntry),
 		userDefinedComponent: fullEntryPath,
 		getCurrentInputProps,
@@ -167,7 +170,7 @@ export const startStudio = async ({
 		forceIPv4,
 	});
 
-	setLiveEventsListener(liveEventsServer);
+	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
 	if (networkAddress) {
 		setServerReadyComment(
@@ -201,5 +204,16 @@ export const startStudio = async ({
 		);
 	}
 
-	await new Promise(noop);
+	RenderInternals.Log.info(
+		{indent: false, logLevel},
+		'Closing server to restart...',
+	);
+	await noOpUntilRestart();
+	await liveEventsServer.closeConnections();
+	cleanupLiveEventsListener();
+	await close();
+	RenderInternals.Log.info(
+		{indent: false, logLevel},
+		RenderInternals.chalk.blue('Restarting server...'),
+	);
 };

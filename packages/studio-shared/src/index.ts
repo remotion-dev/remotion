@@ -15,6 +15,8 @@ export {
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RemoveRenderRequest,
+	RestartStudioRequest,
+	RestartStudioResponse,
 	SimpleDiff,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
