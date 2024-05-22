@@ -14,8 +14,6 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-import type {Transition} from './Base';
-
 type Value = string | number;
 type Values = Value[];
 
@@ -33,7 +31,7 @@ export const frag = (source: TemplateStringsArray, ...values: Values) => {
 	return rt;
 };
 
-export const transition = (t: Transition) => {
+export const transition = (t: string) => {
 	return frag`
   uniform shader image1;
   uniform shader image2;
@@ -58,7 +56,7 @@ export const transition = (t: Transition) => {
   `;
 };
 
-export const cube: Transition = glsl`
+export const cube: string = glsl`
 // GL Transitions format
 uniform float strength;
 

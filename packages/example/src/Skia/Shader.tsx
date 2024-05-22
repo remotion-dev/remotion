@@ -9,8 +9,6 @@ import {
 import React from 'react';
 import {staticFile, useCurrentFrame} from 'remotion';
 
-import type {Transition} from './Base';
-
 type Value = string | number;
 type Values = Value[];
 
@@ -28,7 +26,7 @@ export const frag = (source: TemplateStringsArray, ...values: Values) => {
 	return rt;
 };
 
-export const transition = (t: Transition) => {
+export const transition = (t: string) => {
 	return frag`
   uniform shader image1;
   uniform shader image2;
@@ -53,7 +51,7 @@ export const transition = (t: Transition) => {
   `;
 };
 
-export const cube: Transition = glsl`
+export const cube = glsl`
 // Author: gre
 // License: MIT
 const float persp = 0.7;
