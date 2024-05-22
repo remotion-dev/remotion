@@ -19,7 +19,7 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: canary
+          bun-version: 1.1.9
       - run: |
           corepack enable
       - uses: Swatinem/rust-cache@v2
@@ -59,7 +59,7 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: canary
+          bun-version: 1.1.9
       - name: Install
         run: bun i --frozen-lockfile
       - name: Setup Python
@@ -112,7 +112,7 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: canary
+          bun-version: 1.1.9
       - run: |
           corepack enable
       - name: Install
@@ -149,7 +149,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: canary
+          bun-version: 1.1.9
       - run: |
           corepack enable
       - name: Cache node_modules/.cache
