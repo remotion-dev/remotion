@@ -19,10 +19,15 @@ You may pass an [entry point](/docs/terminology/entry-point) as an argument, oth
 
 ### `--props`
 
-[React Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+We don't recommend passing this flag when using the Studio - use [`defaultProps`](/docs/composition#defaultprops) instead.
 
-:::info
-Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
 :::
 
 ### `--config`<AvailableFrom v="1.2.0" />

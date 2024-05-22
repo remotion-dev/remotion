@@ -5,7 +5,7 @@ sidebar_label: render
 crumb: CLI Reference
 ---
 
-import {AngleChangelog} from '../../components/AngleChangelog';
+import { AngleChangelog } from "../../components/AngleChangelog";
 
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
@@ -24,10 +24,13 @@ Besides choosing a video and output location with the command line arguments, th
 
 ### `--props`
 
-[React Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
+[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
-:::info
-Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
 :::
 
 ### `--height`<AvailableFrom v="3.2.40" />
@@ -96,11 +99,11 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 ### `--buffer-size`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `--max-rate`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
