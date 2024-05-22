@@ -2,19 +2,29 @@ export const makeStreamer = (
 	onMessage: (
 		statusType: 'success' | 'error',
 		nonce: string,
-		data: Buffer,
+		data: Uint8Array,
 	) => void,
 ) => {
-	const separator = Buffer.from('remotion_buffer:');
-	let unprocessedBuffers: Buffer[] = [];
-	let outputBuffer = Buffer.from('');
+	const separatorStr = 'remotion_buffer:';
+	const separator = new Uint8Array(separatorStr.length);
+	for (let i = 0; i < separatorStr.length; i++) {
+		separator[i] = separatorStr.charCodeAt(i);
+	}
+
+	let unprocessedBuffers: Uint8Array[] = [];
+	let outputBuffer = new Uint8Array(0);
 	let missingData: null | {
 		dataMissing: number;
 	} = null;
 
 	const processInput = () => {
-		let separatorIndex = outputBuffer.indexOf(separator);
-		if (separatorIndex === -1) {
+		let separatorIndex = outputBuffer.indexOf(separator[0]); // Start checking for the first byte of the separator
+		if (
+			separatorIndex === -1 ||
+			outputBuffer
+				.subarray(separatorIndex, separatorIndex + separator.length)
+				.toString() !== separator.toString()
+		) {
 			return;
 		}
 
@@ -23,10 +33,6 @@ export const makeStreamer = (
 		let nonceString = '';
 		let lengthString = '';
 		let statusString = '';
-
-		// Each message from Rust is prefixed with `remotion_buffer:{[nonce]}:{[length]}`
-		// Let's read the buffer to extract the nonce, and if the full length is available,
-		// we'll extract the data and pass it to the callback.
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
@@ -37,7 +43,6 @@ export const makeStreamer = (
 			const nextDigit = outputBuffer[separatorIndex];
 			separatorIndex++;
 
-			// 0x3a is the character ":"
 			if (nextDigit === 0x3a) {
 				break;
 			}
@@ -103,9 +108,9 @@ export const makeStreamer = (
 		processInput();
 	};
 
-	const onData = (data: Buffer) => {
+	const onData = (data: Uint8Array) => {
 		unprocessedBuffers.push(data);
-		const separatorIndex = data.indexOf(separator);
+		const separatorIndex = data.indexOf(separator[0]);
 		if (separatorIndex === -1) {
 			if (missingData) {
 				missingData.dataMissing -= data.length;
@@ -117,7 +122,14 @@ export const makeStreamer = (
 		}
 
 		unprocessedBuffers.unshift(outputBuffer);
-		outputBuffer = Buffer.concat(unprocessedBuffers);
+		outputBuffer = new Uint8Array(
+			unprocessedBuffers.reduce((acc, val) => acc + val.length, 0),
+		);
+		let offset = 0;
+		for (const buf of unprocessedBuffers) {
+			outputBuffer.set(buf, offset);
+			offset += buf.length;
+		}
 
 		unprocessedBuffers = [];
 		processInput();
@@ -128,7 +140,7 @@ export const makeStreamer = (
 		getOutputBuffer: () => outputBuffer,
 		clear: () => {
 			unprocessedBuffers = [];
-			outputBuffer = Buffer.from('');
+			outputBuffer = new Uint8Array(0);
 		},
 	};
 };

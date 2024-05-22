@@ -20,13 +20,13 @@ export type Compositor = {
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
 		payload: CompositorCommand[T],
-	) => Promise<Buffer>;
+	) => Promise<Uint8Array>;
 	waitForDone: () => Promise<void>;
 	pid: number | null;
 };
 
 type Waiter = {
-	resolve: (data: Buffer) => void;
+	resolve: (data: Uint8Array) => void;
 	reject: (err: Error) => void;
 };
 
@@ -115,21 +115,26 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 	const onMessage = (
 		statusType: 'success' | 'error',
 		nonce: string,
-		data: Buffer,
+		data: Uint8Array,
 	) => {
 		// Nonce '0' just means that the message should be logged
 		if (nonce === '0') {
-			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
+			Log.verbose(
+				{indent, logLevel, tag: 'compositor'},
+				new TextDecoder('utf8').decode(data),
+			);
 		} else if (waiters.has(nonce)) {
 			if (statusType === 'error') {
 				try {
-					const parsed = JSON.parse(data.toString('utf8')) as ErrorPayload;
+					const parsed = JSON.parse(
+						new TextDecoder('utf8').decode(data),
+					) as ErrorPayload;
 					(waiters.get(nonce) as Waiter).reject(
 						new Error(`Compositor error: ${parsed.error}\n${parsed.backtrace}`),
 					);
 				} catch (err) {
 					(waiters.get(nonce) as Waiter).reject(
-						new Error(data.toString('utf8')),
+						new Error(new TextDecoder('utf8').decode(data)),
 					);
 				}
 			} else {
@@ -169,7 +174,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		} else {
 			const errorMessage =
 				Buffer.concat(stderrChunks).toString('utf-8') +
-				getOutputBuffer().toString('utf-8');
+				new TextDecoder('utf-8').decode(getOutputBuffer());
 			runningStatus = {type: 'quit-with-error', error: errorMessage, signal};
 
 			const error =
@@ -260,7 +265,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			command: Type,
 			params: CompositorCommand[Type],
 		) => {
-			return new Promise<Buffer>((_resolve, _reject) => {
+			return new Promise<Uint8Array>((_resolve, _reject) => {
 				if (runningStatus.type === 'quit-without-error') {
 					_reject(
 						new Error(

@@ -28,7 +28,7 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson = JSON.parse(stats.toString('utf-8'));
+	const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
 	expect(statsJson.frames_in_cache).toBe(84);
 	expect(statsJson.open_streams).toBe(1);
 	expect(statsJson.open_videos).toBe(1);
@@ -42,7 +42,7 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson2 = JSON.parse(stats2.toString('utf-8'));
+	const statsJson2 = JSON.parse(new TextDecoder('utf-8').decode(stats2));
 
 	expect(
 		statsJson2.frames_in_cache === 185 || statsJson2.frames_in_cache === 184,
@@ -55,7 +55,7 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	const stats3 = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson3 = JSON.parse(stats3.toString('utf-8'));
+	const statsJson3 = JSON.parse(new TextDecoder('utf-8').decode(stats3));
 	expect(statsJson3.frames_in_cache).toBe(184);
 
 	await compositor.executeCommand('FreeUpMemory', {
@@ -63,7 +63,7 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	const stats4 = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson4 = JSON.parse(stats4.toString('utf-8'));
+	const statsJson4 = JSON.parse(new TextDecoder('utf-8').decode(stats4));
 	expect(statsJson4).toEqual({
 		frames_in_cache: 184,
 		open_streams: 2,
@@ -75,7 +75,7 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	const stats5 = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson5 = JSON.parse(stats5.toString('utf-8'));
+	const statsJson5 = JSON.parse(new TextDecoder('utf-8').decode(stats5));
 	expect(statsJson5).toEqual({
 		frames_in_cache: 0,
 		open_streams: 0,
@@ -115,7 +115,7 @@ test('Should respect the maximum frame cache limit', async () => {
 	});
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson = JSON.parse(stats.toString('utf-8'));
+	const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
 	expect(statsJson).toEqual({
 		frames_in_cache: 84,
 		open_streams: 1,
