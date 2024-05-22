@@ -118,6 +118,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		nonce: string,
 		data: Buffer,
 	) => {
+		// Nonce '0' just means that the message should be logged
 		if (nonce === '0') {
 			Log.verbose({indent, logLevel, tag: 'compositor'}, data.toString('utf8'));
 		}
@@ -159,22 +160,22 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		let lengthString = '';
 		let statusString = '';
 
-		// Each message from Rust is prefixed with `remotion_buffer;{[nonce]}:{[length]}`
+		// Each message from Rust is prefixed with `remotion_buffer:{[nonce]}:{[length]}`
 		// Let's read the buffer to extract the nonce, and if the full length is available,
 		// we'll extract the data and pass it to the callback.
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3a is the character ":"
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
 			}
 
+			const nextDigit = outputBuffer[separatorIndex];
 			separatorIndex++;
-			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds: '+ JSON.stringify(outputBuffer));
+
+			// 0x3a is the character ":"
+			if (nextDigit === 0x3a) {
+				break;
 			}
 
 			nonceString += String.fromCharCode(nextDigit);
@@ -182,15 +183,15 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
-			const nextDigit = outputBuffer[separatorIndex];
-			if (nextDigit === 0x3a) {
-				separatorIndex++;
-				break;
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
 			}
 
+			const nextDigit = outputBuffer[separatorIndex];
 			separatorIndex++;
-			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds ' + JSON.stringify(outputBuffer));
+
+			if (nextDigit === 0x3a) {
+				break;
 			}
 
 			lengthString += String.fromCharCode(nextDigit);
@@ -198,16 +199,16 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
+			if (separatorIndex > outputBuffer.length - 1) {
+				return;
+			}
+
 			const nextDigit = outputBuffer[separatorIndex];
 			if (nextDigit === 0x3a) {
 				break;
 			}
 
 			separatorIndex++;
-
-			if (separatorIndex > outputBuffer.length) {
-				throw new Error('separatorIndex out of bounds ' + JSON.stringify(outputBuffer));
-			}
 
 			statusString += String.fromCharCode(nextDigit);
 		}
@@ -254,7 +255,6 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		}
 
 		unprocessedBuffers.unshift(outputBuffer);
-
 		outputBuffer = Buffer.concat(unprocessedBuffers);
 
 		unprocessedBuffers = [];
