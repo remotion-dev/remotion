@@ -60,6 +60,7 @@
 		"@types/react-dom": "18.3.0",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
+		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
 		"eslint": "8.56.0",
 		"eslint-plugin-10x": "1.5.2",

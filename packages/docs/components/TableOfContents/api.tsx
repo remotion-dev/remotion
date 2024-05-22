@@ -58,7 +58,11 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/tailwind/tailwind">
           <strong>@remotion/tailwind</strong>
-          <div>Utilities for using TailwindCSS in Remotion</div>
+          <div>Webpack override for using TailwindCSS</div>
+        </TOCItem>
+        <TOCItem link="/docs/enable-scss/overview">
+          <strong>@remotion/enable-scss</strong>
+          <div>Webpack override for enabling SASS/SCSS</div>
         </TOCItem>
         <TOCItem link="/docs/three">
           <strong>@remotion/three</strong>
