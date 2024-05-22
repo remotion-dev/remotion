@@ -287,6 +287,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/enable-scss",
+      link: {
+        type: "doc",
+        id: "enable-scss/overview",
+      },
+      items: ["enable-scss/enable-scss"],
+    },
+    {
+      type: "category",
       label: "@remotion/three",
       link: {
         type: "doc",

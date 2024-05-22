@@ -1,1 +1,1 @@
-export {enableScss} from './enable';
+export {enableScss} from './enable-scss';

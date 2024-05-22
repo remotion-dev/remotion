@@ -12,9 +12,12 @@ export const enableScss: WebpackOverrideFn = (currentConfiguration) => {
 				{
 					test: /\.s[ac]ss$/i,
 					use: [
-						{loader: 'style-loader'},
-						{loader: 'css-loader'},
-						{loader: 'sass-loader', options: {sourceMap: true}},
+						{loader: require.resolve('style-loader')},
+						{loader: require.resolve('css-loader')},
+						{
+							loader: require.resolve('sass-loader'),
+							options: {sourceMap: true},
+						},
 					],
 				},
 			],
