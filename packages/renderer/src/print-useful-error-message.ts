@@ -147,4 +147,15 @@ export const printUsefulErrorMessage = (
 			'   https://github.com/remotion-dev/remotion/issues/2452',
 		);
 	}
+
+	if (err.message.includes('routines::unsupported')) {
+		Log.info(
+			{indent, logLevel},
+			'💡 This error might happen if using Cloud Run with credentials that have a newline at the end or are otherwise badly encoded.',
+		);
+		Log.info(
+			{indent, logLevel},
+			'   https://github.com/remotion-dev/remotion/issues/3864',
+		);
+	}
 };
