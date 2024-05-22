@@ -434,6 +434,7 @@ module.exports = {
         "studio/watch-static-file",
         "studio/write-static-file",
         "studio/delete-static-file",
+        "studio/restart-studio",
         "studio/save-default-props",
         "studio/update-default-props",
       ],
